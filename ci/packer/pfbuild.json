@@ -59,7 +59,7 @@
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "groups": ["{{user `ansible_centos_group`"],
+            "groups": ["{{user `ansible_centos_group`}}"],
             "only": ["{{user `builder_prefix`}}-centos-7"]
         },
         {
@@ -68,7 +68,7 @@
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "groups": ["{{user `ansible_debian_group`"],
+            "groups": ["{{user `ansible_debian_group`}}"],
             "only": ["{{user `builder_prefix`}}-stretch",
                      "{{user `builder_prefix`}}-buster"
                     ]
