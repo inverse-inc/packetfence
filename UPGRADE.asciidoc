@@ -1982,8 +1982,69 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.1.0).
 
-Upgrading from a version prior to X.Y.Z
----------------------------------------
+== Upgrading from a version prior to X.Y.Z
+
+
+=== Merge of all RPM packages into one
+
+NOTE: This step need to be done *before* packages upgrade.
+
+Starting from now, PacketFence will be released as an unique RPM package for
+x86_64 architectures. To remove properly older RPM packages, you need to follow these steps:
+
+. Stop services:
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf stop
+systemctl stop packetfence-config
+----
+
+. Uninstall old RPM without running post-uninstallation steps:
+
+[source,bash]
+----
+rpm -e --nodeps --noscripts packetfence-config
+
+# run only if packetfence-remote-arp-sensor has been installed
+rpm -e --nodeps --noscripts packetfence-remote-arp-sensor
+----
+
+. Update [package]`packetfence-release` and [package]`packetfence` packages:
+
+[source,bash]
+----
+yum update packetfence-release --enablerepo=packetfence
+yum update packetfence --enablerepo=packetfence
+mv -f /usr/local/pf/conf/pfconfig.conf.rpmsave /usr/local/pf/conf/pfconfig.conf
+----
+
+. Restart services:
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+At the end of the process, you should have only one RPM package called
+[package]`packetfence`. If you previously installed
+[package]`packetfence-release` package in order to have PacketFence repository
+installed, this one has been upgraded to latest version.
+
+=== New GPG key for Debian installations
+
+NOTE: This step need to be done *before* packages upgrade.
+
+In order to install new versions of Debian packages, you will need to add a new GPG key to your system: 
+
+[source,bash]
+----
+curl -L https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+----
+
+=== Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
