@@ -176,7 +176,7 @@ pages:
   # run job on runners tag with inverse.ca AND shell
   tags:
     - inverse.ca
-    - ci-shell
+    - shell
 
 ### UPLOAD JOBS
 deploy_rpm_devel:
