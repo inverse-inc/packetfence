@@ -77,7 +77,7 @@ pfbuild_test:
     - /^feature/packer-.*$/
 
 # build a docker image at release
-# used to build maintenance binaries and assets for maintenance
+# used to build release packages, maintenance binaries and assets for maintenance
 pfbuild_release:
   extends: .pfbuild_job
   variables:
@@ -121,7 +121,7 @@ sign:
   only:
     - schedules
     - web
-    - /^stable$/
+    - /^packetfence-.*$/
     - /^devel$/
   tags:
     - shell
@@ -149,7 +149,7 @@ pages:
   only:
     - schedules
     - web
-    - /^stable$/
+    - /^packetfence-.*$/
     - /^devel$/
   tags:
     - shell
