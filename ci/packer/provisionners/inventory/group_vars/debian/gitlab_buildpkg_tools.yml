@@ -1,6 +1,7 @@
 ---
 gitlab_buildpkg_tools__deb_keys:
   - 'http://inverse.ca/downloads/APT-GPG-KEY-PACKETFENCE-DEBIAN'
+  - 'https://inverse.ca/downloads/RPM-GPG-KEY-PACKETFENCE-CENTOS'
   - 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
 
 gitlab_buildpkg_tools__deb_deps_repos:
