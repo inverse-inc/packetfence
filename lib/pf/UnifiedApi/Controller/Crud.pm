@@ -284,8 +284,25 @@ sub make_create_data {
     }
     my $parent_data = $self->parent_data;
     @{$json}{keys %$parent_data} = values %$parent_data;
+    ($status, my $err) = $self->validate($json);
+    if (is_error($status)) {
+        return ($status, $err);
+    }
+
     $self->create_data_update($json);
     return ($status, $json);
+}
+
+
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self, $item) = @_;
+    return 200, undef;
 }
 
 =head2 create_data_update
