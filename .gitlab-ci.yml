@@ -11,6 +11,7 @@ stages:
   - sign
   - publish
   - install
+  - upload
 
 ### VARIABLES
 variables:
@@ -43,6 +44,37 @@ variables:
     - /^devel$/
   tags:
     - docker
+
+.deploy_deb_job:
+  stage: upload
+  dependencies:
+    - sign
+  variables:
+    #DEPLOY_USER: see GitLab variables
+    DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
+    DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
+  script:
+    - ./$CIDIR/upload/deploy-packages.sh deb
+  # run job on runners tag with inverse AND shell
+  tags:
+    - inverse
+    - shell
+
+.deploy_rpm_job:
+  stage: upload
+  dependencies:
+    - sign
+  variables:
+    #DEPLOY_USER: see GitLab variables
+    RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
+    DEPLOY_SRPMS: "no"
+    DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
+  script:
+    - ./$CIDIR/upload/deploy-packages.sh rpm
+  # run job on runners tag with inverse AND shell
+  tags:
+    - inverse
+    - shell
 
 .rpm_script:
   script:
@@ -111,7 +143,7 @@ build_pkg_debian_stretch:
 ### SIGN JOBS
 sign:
   # only use when executor is docker
-  image: buildpkg/debian:stretch
+  image: buildpkg/debian:buster
   stage: sign
   script:
     - ci-sign-pkg
@@ -127,19 +159,22 @@ sign:
     - web
     - /^packetfence-.*$/
     - /^devel$/
+  # run job on runners tag with inverse.ca AND shell
   tags:
+    - inverse.ca
     - shell
 
 ### PUBLISH JOBS
 pages:
   # only use when executor is docker
-  image: buildpkg/debian:stretch
+  image: buildpkg/debian:buster
   stage: publish
   variables:
     PAGES_DIR: public
+    PAGES_HOST: gitlab.io
   environment:
     name: PPA
-    url: http://${CI_PROJECT_NAMESPACE}.gitlab.io/
+    url: http://${CI_PROJECT_NAMESPACE}.${PAGES_HOST}/${CI_PROJECT_NAME}
   script:
     - ci-pages-ppa
     - ci-pages-home
@@ -155,5 +190,48 @@ pages:
     - web
     - /^packetfence-.*$/
     - /^devel$/
+  # run job on runners tag with inverse.ca AND shell
   tags:
+    - inverse.ca
     - shell
+
+### UPLOAD JOBS
+deploy_rpm_devel:
+  extends:
+    - .deploy_rpm_job
+  environment:
+    name: devel/x86_64
+    url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
+  only:
+    - web
+    - schedules
+    - /^devel$/
+
+deploy_rpm_release:
+  extends:
+    - .deploy_rpm_job
+  environment:
+    name: x86_64
+    url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
+  only:
+    - /^stable$/
+
+deploy_deb_devel:
+  extends:
+    - .deploy_deb_job
+  environment:
+    name: debian-devel
+    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+  only:
+    - web
+    - schedules
+    - /^devel$/
+
+deploy_deb_release:
+  extends:
+    - .deploy_deb_job
+  environment:
+    name: debian-lastrelease
+    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+  only:
+    - /^stable$/
