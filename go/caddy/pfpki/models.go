@@ -8,6 +8,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -33,6 +34,7 @@ type DSAKeyFormat struct {
 
 var PRNG io.Reader = rand.Reader
 
+// Supported key format
 const (
 	KEY_UNSUPPORTED Type = iota - 1
 	KEY_ECDSA
@@ -40,72 +42,98 @@ const (
 	KEY_DSA
 )
 
+// Digest Values:
+// 0 UnknownSignatureAlgorithm
+// 1 MD2WithRSA
+// 2 MD5WithRSA
+// 3 SHA1WithRSA
+// 4 SHA256WithRSA
+// 5 SHA384WithRSA
+// 6 SHA512WithRSA
+// 7 DSAWithSHA1
+// 8 DSAWithSHA256
+// 9 ECDSAWithSHA1
+// 10 ECDSAWithSHA256
+// 11 ECDSAWithSHA384
+// 12 ECDSAWithSHA512
+// 13 SHA256WithRSAPSS
+// 14 SHA384WithRSAPSS
+// 15 SHA512WithRSAPSS
+// 16 PureEd25519
+
 // CA struct
 type CA struct {
 	gorm.Model
-	Cn                  string `json:"cn" gorm:"UNIQUE"`
-	Mail                string `json:"mail"`
-	Organisation        string `json:"organisation"`
-	Country             string `json:"country"`
-	State               string `json:"state"`
-	Locality            string `json:"locality"`
-	StreetAddress       string `json:"streetaddress"`
-	PostalCode          string `json:"postalcode"`
-	KeyType             Type   `json:"keytype"`
-	KeySize             int    `json:"keysize"`
-	Digest              string `json:"digest"`
-	KeyUsage            string `json:"keyusage,omitempty"`
-	ExtendedKeyUsage    string `json:"extendedkeyusage,omitempty"`
-	Days                int    `json:"days"`
-	CaKey               string `json:"cakey,omitempty" gorm:"type:longtext"`
-	CaCert              string `json:"cacert,omitempty" gorm:"type:longtext"`
-	IssuerKeyHashmd5    string `json:"issuerkeyhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerKeyHashsha1   string `json:"issuerkeyhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerKeyHashsha256 string `json:"issuerkeyhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerKeyHashsha512 string `json:"issuerkeyhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
+	Cn                  string                  `json:"cn" gorm:"UNIQUE"`
+	Mail                string                  `json:"mail"`
+	Organisation        string                  `json:"organisation"`
+	Country             string                  `json:"country"`
+	State               string                  `json:"state"`
+	Locality            string                  `json:"locality"`
+	StreetAddress       string                  `json:"streetaddress"`
+	PostalCode          string                  `json:"postalcode"`
+	KeyType             Type                    `json:"keytype"`
+	KeySize             int                     `json:"keysize"`
+	Digest              x509.SignatureAlgorithm `json:"digest"`
+	KeyUsage            string                  `json:"keyusage,omitempty"`
+	ExtendedKeyUsage    string                  `json:"extendedkeyusage,omitempty"`
+	Days                int                     `json:"days"`
+	CaKey               string                  `json:"cakey,omitempty" gorm:"type:longtext"`
+	CaCert              string                  `json:"cacert,omitempty" gorm:"type:longtext"`
+	IssuerKeyHashmd5    string                  `json:"issuerkeyhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHashsha1   string                  `json:"issuerkeyhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHashsha256 string                  `json:"issuerkeyhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHashsha512 string                  `json:"issuerkeyhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
 // Profile struct
 type Profile struct {
 	gorm.Model
-	Name             string `json:"profile_name,omitempty" gorm:"UNIQUE"`
-	Ca               CA     `json:"ca,omitempty" gorm:"foreignkey:Cn"`
-	Validity         string `json:"validity,omitempty"`
-	KeyType          Type   `json:"keytype,omitempty"`
-	KeySize          string `json:"keysize,omitempty"`
-	Digest           string `json:"digest,omitempty"`
-	KeyUsage         string `json:"keyusage,omitempty"`
-	ExtendedKeyUsage string `json:"extendedkeyusage,omitempty"`
-	P12SmtpServer    string `json:"p12smtpserver,omitempty"`
-	P12MailPassword  string `json:"p12mailpassword,omitempty"`
-	P12MailSubject   string `json:"p12mailsubject,omitempty"`
-	P12MailFrom      string `json:"p12mailfrom,omitempty"`
-	P12MailHeader    string `json:"p12mailheader,omitempty"`
-	P12MailFooter    string `json:"p12mailfooter,omitempty"`
+	Name             string `json:"name" gorm:"UNIQUE"`
+	Ca               CA     `json:"ca"`
+	CaID             uint
+	CaName           string                  `json:"caname"`
+	Validity         int                     `json:"validity"`
+	KeyType          Type                    `json:"keytype"`
+	KeySize          int                     `json:"keysize"`
+	Digest           x509.SignatureAlgorithm `json:"digest"`
+	KeyUsage         string                  `json:"keyusage,omitempty"`
+	ExtendedKeyUsage string                  `json:"extendedkeyusage,omitempty"`
+	P12SmtpServer    string                  `json:"p12smtpserver"`
+	P12MailPassword  int                     `json:"p12mailpassword"`
+	P12MailSubject   string                  `json:"p12mailsubject"`
+	P12MailFrom      string                  `json:"p12mailfrom"`
+	P12MailHeader    string                  `json:"p12mailheader"`
+	P12MailFooter    string                  `json:"p12mailfooter"`
 }
 
 // Cert struct
 type Cert struct {
 	gorm.Model
-	Cn                   string  `json:"cn,omitempty"  gorm:"UNIQUE"`
-	Mail                 string  `json:"mail,omitempty"`
-	Streat               string  `json:"streat,omitempty"`
+	Cn                   string  `json:"cn"  gorm:"UNIQUE"`
+	Mail                 string  `json:"mail"`
+	StreetAddress        string  `json:"street,omitempty"`
 	Organisation         string  `json:"organisation,omitempty"`
 	Country              string  `json:"country,omitempty"`
+	State                string  `json:"state,omitempty"`
+	Locality             string  `json:"locality,omitempty"`
+	PostalCode           string  `json:"postalcode,omitempty"`
 	PrivateKey           string  `json:"privatekey,omitempty" gorm:"type:longtext"`
 	PubKey               string  `json:"publickey,omitempty" gorm:"type:longtext"`
-	Profile              Profile `json:"profile,omitempty" gorm:"foreignkey:Name"`
-	ValidUntil           string  `json:"validuntil,omitempty"`
-	Date                 string  `json:"date,omitempty"`
-	Revoked              string  `json:"revoked,omitempty"`
-	CRLReason            string  `json:"crlreason,omitempty"`
-	UserIssuerHashmd5    string  `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
-	UserIssuerHashsha1   string  `json:"userissuerhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
-	UserIssuerHashsha256 string  `json:"userissuerhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
-	UserIssuerHashsha512 string  `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
+	ProfileName          string  `json:"profilename,omitempty"`
+	Profile              Profile `json:"profile,omitempty"`
+	ProfileID            uint
+	ValidUntil           time.Time
+	Date                 time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	Revoked              string    `json:"revoked,omitempty"`
+	CRLReason            string    `json:"crlreason,omitempty"`
+	UserIssuerHashmd5    string    `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
+	UserIssuerHashsha1   string    `json:"userissuerhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
+	UserIssuerHashsha256 string    `json:"userissuerhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
+	UserIssuerHashsha512 string    `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
-// curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": "md5", "days": 3650}' http://127.0.0.1:12345/api/v1/pki/newca
+// curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650}' http://127.0.0.1:12345/api/v1/pki/newca
 func (c CA) new(pfpki *Handler) error {
 
 	ca := &x509.Certificate{
@@ -121,53 +149,38 @@ func (c CA) new(pfpki *Handler) error {
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
+		SignatureAlgorithm:    c.Digest,
 		ExtKeyUsage:           extkeyusage(c.ExtendedKeyUsage),
 		KeyUsage:              x509.KeyUsage(keyusage(c.KeyUsage)),
 		BasicConstraintsValid: true,
 		EmailAddresses:        []string{c.Mail},
 	}
 
-	priv, err := GenerateKey(c.KeyType, c.KeySize)
+	keyOut, pub, priv, err := GenerateKey(c.KeyType, c.KeySize)
 
 	if err != nil {
 		return err
 	}
-
-	var pub crypto.PublicKey
-
-	keyOut := new(bytes.Buffer)
+	var caBytes []byte
 
 	switch c.KeyType {
 	case KEY_RSA:
-		pub = &priv.(*rsa.PrivateKey).PublicKey
-		// Private key
-		pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv.(*rsa.PrivateKey))})
-
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, priv.(*rsa.PrivateKey))
 	case KEY_ECDSA:
-		pub = &priv.(*ecdsa.PrivateKey).PublicKey
-		bytes, _ := x509.MarshalECPrivateKey(priv.(*ecdsa.PrivateKey))
-		pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
-
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, priv.(*ecdsa.PrivateKey))
 	case KEY_DSA:
-		pub = &priv.(*dsa.PrivateKey).PublicKey
-		val := DSAKeyFormat{
-			P: priv.(*dsa.PrivateKey).P, Q: priv.(*dsa.PrivateKey).Q, G: priv.(*dsa.PrivateKey).G,
-			Y: priv.(*dsa.PrivateKey).Y, X: priv.(*dsa.PrivateKey).X,
-		}
-		bytes, _ := asn1.Marshal(val)
-		pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, priv.(*dsa.PrivateKey))
 	}
-	caBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, pub, priv)
 	if err != nil {
-		return errors.New("create ca failed")
+		return err
 	}
-
-	pfpki.DB.AutoMigrate(&CA{})
 
 	cert := new(bytes.Buffer)
 
 	// Public key
 	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
+
+	pfpki.DB.AutoMigrate(&CA{})
 
 	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512}).Error; err != nil {
 		return err
@@ -196,41 +209,50 @@ func keyusage(KeyUsage string) int {
 	return keyUsage
 }
 
-// GenerateKey based on the Type and the size.
-func GenerateKey(keytype Type, size int) (key interface{}, err error) {
+func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.PublicKey, key crypto.PrivateKey, err error) {
+
+	keyOut = new(bytes.Buffer)
+
 	switch keytype {
 	case KEY_RSA:
 		if size < 2048 {
-			return nil, errors.New("invalid private key size, should be at least 2048")
+			return nil, nil, nil, errors.New("invalid private key size, should be at least 2048")
 		}
 		var rsakey *rsa.PrivateKey
 		rsakey, err = rsa.GenerateKey(PRNG, size)
+
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 		key = rsakey
+		pub = key.(*rsa.PrivateKey).PublicKey
+		// Private key
+		pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key.(*rsa.PrivateKey))})
 	case KEY_ECDSA:
 		var eckey *ecdsa.PrivateKey
 		switch size {
 		case 256:
 			eckey, err = ecdsa.GenerateKey(elliptic.P256(), PRNG)
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 		case 384:
 			eckey, err = ecdsa.GenerateKey(elliptic.P384(), PRNG)
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 		case 521:
 			eckey, err = ecdsa.GenerateKey(elliptic.P521(), PRNG)
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 		default:
-			return nil, errors.New("invalid private key size, should be 256 or 384 or 521")
+			return nil, nil, nil, errors.New("invalid private key size, should be 256 or 384 or 521")
 		}
 		key = eckey
+		pub = key.(*ecdsa.PrivateKey).PublicKey
+		bytes, _ := x509.MarshalECPrivateKey(key.(*ecdsa.PrivateKey))
+		pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
 	case KEY_DSA:
 		var sizes dsa.ParameterSizes
 		switch size {
@@ -241,13 +263,13 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 		case 3072:
 			sizes = dsa.L3072N256
 		default:
-			return nil, errors.New("invalid private key size, should be 1024 or 2048 or 3072")
+			return nil, nil, nil, errors.New("invalid private key size, should be 1024 or 2048 or 3072")
 		}
 
 		params := dsa.Parameters{}
 		err = dsa.GenerateParameters(&params, rand.Reader, sizes)
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 
 		dsakey := &dsa.PrivateKey{
@@ -257,12 +279,19 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 		}
 		err = dsa.GenerateKey(dsakey, rand.Reader)
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 		key = dsakey
+		pub = key.(*dsa.PrivateKey).PublicKey
+		val := DSAKeyFormat{
+			P: key.(*dsa.PrivateKey).P, Q: key.(*dsa.PrivateKey).Q, G: key.(*dsa.PrivateKey).G,
+			Y: key.(*dsa.PrivateKey).Y, X: key.(*dsa.PrivateKey).X,
+		}
+		bytes, _ := asn1.Marshal(val)
+		pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
 	}
 
-	return
+	return keyOut, pub, key, nil
 }
 
 // func (c *CA) save() {
@@ -278,62 +307,98 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 
 // }
 
-// curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","ca":"YZaymCA","validity": 365,"keytype": 1,"digest": "md5", "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "zaym@inverse.ca", "days": 365}' http://127.0.0.1:12345/api/v1/pki/newprofile
+// curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","caname":"YZaymCA","validity": 365,"keytype": 1,"keysize": 2048, "Digest": 6, "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "zaym@inverse.ca", "days": 365}' http://127.0.0.1:12345/api/v1/pki/newprofile
 func (p Profile) new(pfpki *Handler) error {
-	pfpki.DB.AutoMigrate(&Profile{})
 
-	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: p.Ca, Validity: p.Validity, KeyType: p.KeyType, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
+	switch p.KeyType {
+	case KEY_RSA:
+		if p.KeySize < 2048 {
+			return errors.New("invalid private key size, should be at least 2048")
+		}
+	case KEY_ECDSA:
+		if !(p.KeySize == 256 || p.KeySize == 384 || p.KeySize == 521) {
+			return errors.New("invalid private key size, should be 256 or 384 or 521")
+		}
+	case KEY_DSA:
+		if !(p.KeySize == 1024 || p.KeySize == 2048 || p.KeySize == 3072) {
+			return errors.New("invalid private key size, should be 1024 or 2048 or 3072")
+		}
+	default:
+		return errors.New("KeyType unsupported")
+
+	}
+	// Create the table on the fly.
+	pfpki.DB.AutoMigrate(&Profile{})
+	var ca CA
+	if CaDB := pfpki.DB.Where("Cn = ?", p.CaName).Find(&ca); CaDB.Error != nil {
+		return CaDB.Error
+	}
+
+	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c Cert) new(pfpki *Handler) error {
+
+	pfpki.DB.AutoMigrate(&Cert{})
+
+	// Find the profile
+	var prof Profile
+	if profDB := pfpki.DB.Where("Cn = ?", c.ProfileName).Find(&prof); profDB.Error != nil {
+		return profDB.Error
+	}
+
+	// Find the CA
+	var ca CA
+	if CaDB := pfpki.DB.Where("Cn = ?", prof.CaName).Find(&ca); CaDB.Error != nil {
+		return CaDB.Error
+	}
+	// Load the certificates from the database
+	catls, err := tls.LoadX509KeyPair(ca.CaCert, ca.CaKey)
+	if err != nil {
+		return err
+	}
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return err
+	}
+
+	// Prepare certificate
+	cert := &x509.Certificate{
+		SerialNumber: big.NewInt(1658),
+		Subject: pkix.Name{
+			Organization:  []string{c.Organisation},
+			Country:       []string{c.Country},
+			Province:      []string{c.State},
+			Locality:      []string{c.Locality},
+			StreetAddress: []string{c.StreetAddress},
+			PostalCode:    []string{c.PostalCode},
+		},
+		NotBefore:      time.Now(),
+		NotAfter:       time.Now().AddDate(10, 0, prof.Validity),
+		SubjectKeyId:   []byte{1, 2, 3, 4, 6},
+		ExtKeyUsage:    extkeyusage(prof.ExtendedKeyUsage),
+		KeyUsage:       x509.KeyUsage(keyusage(prof.KeyUsage)),
+		EmailAddresses: []string{c.Mail},
+	}
+
+	keyOut, pub, _, err := GenerateKey(prof.KeyType, prof.KeySize)
+
+	if err != nil {
+		return err
+	}
+	// Sign the certificate
+	cert_b, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey)
+
+	certBuff := new(bytes.Buffer)
+
+	// Public key
+	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: cert_b})
+
+	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+		return err
+	}
 	return nil
 }
-
-// 	// Load CA
-// 	catls, err := tls.LoadX509KeyPair("ca.crt", "ca.key")
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	ca, err := x509.ParseCertificate(catls.Certificate[0])
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	// Prepare certificate
-// 	cert := &x509.Certificate{
-// 		SerialNumber: big.NewInt(1658),
-// 		Subject: pkix.Name{
-// 			Organization:  []string{"ORGANIZATION_NAME"},
-// 			Country:       []string{"COUNTRY_CODE"},
-// 			Province:      []string{"PROVINCE"},
-// 			Locality:      []string{"CITY"},
-// 			StreetAddress: []string{"ADDRESS"},
-// 			PostalCode:    []string{"POSTAL_CODE"},
-// 		},
-// 		NotBefore:    time.Now(),
-// 		NotAfter:     time.Now().AddDate(10, 0, 0),
-// 		SubjectKeyId: []byte{1, 2, 3, 4, 6},
-// 		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-// 		KeyUsage:     x509.KeyUsageDigitalSignature,
-// 	}
-// 	priv, _ := rsa.GenerateKey(rand.Reader, 2048)
-// 	pub := &priv.PublicKey
-
-// 	// Sign the certificate
-// 	cert_b, err := x509.CreateCertificate(rand.Reader, cert, ca, pub, catls.PrivateKey)
-
-// 	// Public key
-// 	certOut, err := os.Create("bob.crt")
-// 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert_b})
-// 	certOut.Close()
-// 	log.Print("written cert.pem\n")
-
-// 	// Private key
-// 	keyOut, err := os.OpenFile("bob.key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-// 	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
-// 	keyOut.Close()
-// 	log.Print("written key.pem\n")
-// }
