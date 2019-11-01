@@ -105,7 +105,8 @@ type Cert struct {
 	UserIssuerHashsha512 string  `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
-func (c CA) new() error {
+// curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": "md5", "days": 3650}' http://127.0.0.1:12345/api/v1/pki/newca
+func (c CA) new(pfpki *Handler) error {
 
 	ca := &x509.Certificate{
 		SerialNumber: big.NewInt(1653),
@@ -161,15 +162,16 @@ func (c CA) new() error {
 		return errors.New("create ca failed")
 	}
 
-	Database.AutoMigrate(&CA{})
+	pfpki.DB.AutoMigrate(&CA{})
 
 	cert := new(bytes.Buffer)
 
 	// Public key
 	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
 
-	Database.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512})
-
+	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512}).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -199,12 +201,12 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 	switch keytype {
 	case KEY_RSA:
 		if size < 2048 {
-			return nil, errors.New("invalid private key size")
+			return nil, errors.New("invalid private key size, should be at least 2048")
 		}
 		var rsakey *rsa.PrivateKey
 		rsakey, err = rsa.GenerateKey(PRNG, size)
 		if err != nil {
-			return
+			return nil, err
 		}
 		key = rsakey
 	case KEY_ECDSA:
@@ -212,12 +214,21 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 		switch size {
 		case 256:
 			eckey, err = ecdsa.GenerateKey(elliptic.P256(), PRNG)
+			if err != nil {
+				return nil, err
+			}
 		case 384:
 			eckey, err = ecdsa.GenerateKey(elliptic.P384(), PRNG)
+			if err != nil {
+				return nil, err
+			}
 		case 521:
 			eckey, err = ecdsa.GenerateKey(elliptic.P521(), PRNG)
+			if err != nil {
+				return nil, err
+			}
 		default:
-			return nil, errors.New("invalid private key size")
+			return nil, errors.New("invalid private key size, should be 256 or 384 or 521")
 		}
 		key = eckey
 	case KEY_DSA:
@@ -230,14 +241,13 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 		case 3072:
 			sizes = dsa.L3072N256
 		default:
-			err = errors.New("invalid private key size")
-			return
+			return nil, errors.New("invalid private key size, should be 1024 or 2048 or 3072")
 		}
 
 		params := dsa.Parameters{}
 		err = dsa.GenerateParameters(&params, rand.Reader, sizes)
 		if err != nil {
-			return
+			return nil, err
 		}
 
 		dsakey := &dsa.PrivateKey{
@@ -247,7 +257,7 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 		}
 		err = dsa.GenerateKey(dsakey, rand.Reader)
 		if err != nil {
-			return
+			return nil, err
 		}
 		key = dsakey
 	}
@@ -268,14 +278,17 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 
 // }
 
-func (p Profile) new() error {
-	Database.AutoMigrate(&Profile{})
+// curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","ca":"YZaymCA","validity": 365,"keytype": 1,"digest": "md5", "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "zaym@inverse.ca", "days": 365}' http://127.0.0.1:12345/api/v1/pki/newprofile
+func (p Profile) new(pfpki *Handler) error {
+	pfpki.DB.AutoMigrate(&Profile{})
 
-	Database.Create(&Profile{Name: p.Name, Ca: p.Ca, Validity: p.Validity, KeyType: p.KeyType, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter})
+	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: p.Ca, Validity: p.Validity, KeyType: p.KeyType, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
-func (c Cert) new() error {
+func (c Cert) new(pfpki *Handler) error {
 	return nil
 }
 

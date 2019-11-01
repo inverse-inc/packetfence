@@ -17,28 +17,34 @@ type Create interface {
 	new() error
 }
 
-func newCA(res http.ResponseWriter, req *http.Request) {
+func newCA(pfpki *Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-	var o CA
+		var o CA
 
-	create(o, res, req)
+		create(o, pfpki, res, req)
+	})
 }
 
-func newCert(res http.ResponseWriter, req *http.Request) {
+func newCert(pfpki *Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-	var o Cert
+		var o Cert
 
-	create(o, res, req)
+		create(o, pfpki, res, req)
+	})
 }
 
-func newProfile(res http.ResponseWriter, req *http.Request) {
+func newProfile(pfpki *Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-	var o Profile
+		var o Profile
 
-	create(o, res, req)
+		create(o, pfpki, res, req)
+	})
 }
 
-func create(object interface{}, res http.ResponseWriter, req *http.Request) {
+func create(object interface{}, pfpki *Handler, res http.ResponseWriter, req *http.Request) {
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -51,19 +57,19 @@ func create(object interface{}, res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		err = v.new()
+		err = v.new(pfpki)
 	case Cert:
 		err = json.Unmarshal(body, &v)
 		if err != nil {
 			panic(err)
 		}
-		err = v.new()
+		err = v.new(pfpki)
 	case Profile:
 		err = json.Unmarshal(body, &v)
 		if err != nil {
 			panic(err)
 		}
-		err = v.new()
+		err = v.new(pfpki)
 	default:
 		err = errors.New("invalid type")
 	}

@@ -23,22 +23,19 @@ func init() {
 	})
 }
 
-// Database is the db connection
-var Database *gorm.DB
-
 // Handler struct
 type Handler struct {
 	Next   httpserver.Handler
 	router *mux.Router
+	DB     *gorm.DB
 }
 
 // Setup the pfpki middleware
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	Database, err = gorm.Open("mysql", db.ReturnURI)
-
 	pfpki, err := buildPfpkiHandler(ctx)
+
 	sharedutils.CheckError(err)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
@@ -53,14 +50,19 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 
 	pfpki := Handler{}
 
+	Database, err := gorm.Open("mysql", db.ReturnURI(ctx))
+	sharedutils.CheckError(err)
+	pfpki.DB = Database
+
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
 	pfpki.router = mux.NewRouter()
+	PFPki := &pfpki
 	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/pki/newca", newCA).Methods("POST")
-	api.HandleFunc("/pki/newprofile", newProfile).Methods("POST")
-	api.HandleFunc("/pki/newcert", newCert).Methods("POST")
+	api.Handle("/pki/newca", newCA(PFPki)).Methods("POST")
+	api.Handle("/pki/newprofile", newProfile(PFPki)).Methods("POST")
+	api.Handle("/pki/newcert", newCert(PFPki)).Methods("POST")
 
 	return pfpki, nil
 }
