@@ -943,20 +943,20 @@ You should now restart PacketFence on all servers using:
   /usr/local/pf/bin/pfcmd service pf restart
 
 
-Remote server in slave mode
+Remote MariaDB slave server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In cluster layer3 configuration you can configure a remote server in slave mode, it means that the db will be replicated from the central DC and replicate to the remote site.
-When all is ok the remote server use directly the db of the main site but in the case the remote server loose the link to the master one then this server will use his local db in read only mode.
+In cluster layer3 configuration you can configure a remote MariaDB server in slave mode. This will allow the primary database to be replicated from the central DC to the remote site.
+In normal operation the remote server will use the main sites database. However, when the link is broken the remote server will fallback and use its own local database in read-only mode.
 
-In order to make this configuration you need at least 3 servers in the main site and one on a remote site.
+For this configuration at least 3 servers are needed at the main site and at least 1 server is needed at the remote site.
 
 Prepare the configuration
 +++++++++++++++++++++++++
 
-First you need to configure PacketFence to enable the master/slave mode, to do that go in Configuration -> System Configuration -> Database -> Advanced and set the "Master/Slave mode" to ON.
+To configure PacketFence first turn ON "Master/Slave mode" in Configuration -> System Configuration -> Database -> Advanced.
 
-Next you need to configure your cluster.conf during the cluster setup, refer to the example below to build your cluster.conf.
+Next configure cluster.conf during the initial cluster setup, refer to the example below.
 
 ----
 [general]
@@ -967,10 +967,12 @@ management_ip=192.168.1.10
 
 [DC1 CLUSTER interface ens192]
 ip=192.168.1.10
+mask=255.255.255.0
 type=management
 
 [DC1 CLUSTER interface ens224]
 ip=192.168.11.10
+mask=255.255.255.0
 enforcement=vlan
 type=internal
 
@@ -979,10 +981,12 @@ management_ip=192.168.1.11
 
 [DC1 pf1-dc1.example.com interface ens192]
 ip=192.168.1.11
+mask=255.255.255.0
 type=management
 
 [DC1 pf1-dc1.example.com interface ens224]
 ip=192.168.11.11
+mask=255.255.255.0
 enforcement=vlan
 type=internal
 
@@ -991,10 +995,12 @@ management_ip=192.168.1.12
 
 [DC1 pf2-dc1.example.com interface ens192]
 ip=192.168.1.12
+mask=255.255.255.0
 type=management
 
 [DC1 pf2-dc1.example.com interface ens224]
 ip=192.168.11.12
+mask=255.255.255.0
 enforcement=vlan
 type=internal
 
@@ -1003,10 +1009,12 @@ management_ip=192.168.1.13
 
 [DC1 pf3-dc1.example.com interface ens192]
 ip=192.168.1.13
+mask=255.255.255.0
 type=management
 
 [DC1 pf3-dc1.example.com interface ens224]
 ip=192.168.11.13
+mask=255.255.255.0
 enforcement=vlan
 type=internal
 
@@ -1017,10 +1025,12 @@ masterdb=DC1
 
 [DC2 CLUSTER interface ens192]
 ip=192.168.2.10
+mask=255.255.255.0
 type=management
 
 [DC2 CLUSTER interface ens224]
 ip=192.168.22.10
+mask=255.255.255.0
 enforcement=vlan
 type=internal
 
@@ -1029,10 +1039,12 @@ management_ip=192.168.2.11
 
 [DC2 pf1-dc2.example.com interface ens192]
 ip=192.168.2.11
+mask=255.255.255.0
 type=management
 
 [DC2 pf1-dc2.example.com interface ens224]
 ip=192.168.22.11
+mask=255.255.255.0
 enforcement=vlan
 type=internal
 ----
@@ -1049,44 +1061,50 @@ And we MUST defined the type and the enforcement on all the interfaces.
 Prepare and start the master/slave replication
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-First you need to have a backup of the current database with the position of the master in the binary log.
-To do that you first need to restart packetfence-mariadb on each servers of the main cluster.
+In order to setup the master a recent backup is required. Backups created prior to the inclusion of this feature will not work. Recent backups now include the replication runtime position of the binary logfile.
+First restart packetfence-mariadb on all of the servers in the main cluster.
 
-Once done run the /usr/local/pf/backup-and-maintenance.sh script on all 3 servers, at the end you will have a db backup file (packetfence-db-dump-innobackup...) in /root/backup on only one of the servers.
-Transfert this file on the remote server in /root/backup.
+ systemctl restart packetfence-mariadb
 
-Next, connect on the remote server and do the following:
+Run the /usr/local/pf/addons/backup-and-maintenance.sh script on the master node of the main cluster. If you do not know which server is the master run this command on all nodes in the main cluster and only the master will create a backup file (eg: /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz).
+Transfer this file to the remote server (eg: /root/backup/)
+
+Connect to the remote server and perform the following to sync the configuration from the master cluster:
+
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.11 --api-user=packet --api-password=fence
+ /usr/local/pf/bin/pfcmd configreload hard
+
+Then the following command to import the backup:
 
  mkdir /root/backup/restore
  cd /root/backup/restore
- cp ../packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz .
- gunzip packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz
- xbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
- mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
+ cp ../packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz .
+ gunzip packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz
+ xbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream
+ mv packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream ../
  innobackupex --apply-log ./
- service packetfence-mariadb stop
+ systemctl stop packetfence-mariadb
  rm -fr /var/lib/mysql/*
  mv * /var/lib/mysql
  chown -R mysql: /var/lib/mysql
- service packetfence-mariadb start
+ systemctl start packetfence-mariadb
 
-Last thing to do is to launch the script that will start the slave replication.
-To do that go on the remote server and launch:
+Lastly, run the following script on the remote server to start the slave replication.
 
- /usr/local/pf/addons/makeslave.pm
+ /usr/local/pf/addons/makeslave.pl
 
  Enter the MySQL root password: password
  Enter the MySQL master ip address: 192.168.1.11
 
-MySQL master ip address is the ip of the server where you fetched the backup file.
+The "MySQL master ip address" is the ip address of the master server where you created the backup file. Not the VIP of the primary cluster.
 
-Or if prefer to do the procedure to start the slave replication manually:
+Alternatively, to start the slave manually refer to the following:
 
 Edit the file /var/lib/mysql/xtrabackup_binlog_info and note the file name and the position:
 
  mariadb-bin.000014      7473
 
-Go back on the server where you got the backup file and launch the following command:
+On the master server of the main cluster - where the backup was created - run the following command:
 
  mysql -uroot -p -e "SELECT BINLOG_GTID_POS('mariadb-bin.000014', 7473)"
 
@@ -1100,11 +1118,17 @@ Go back on the server where you got the backup file and launch the following com
  MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.* TO  'pfcluster'@'%';
  MariaDB [(none)]> FLUSH PRIVILEGES;
 
-Return on the remote server and do the following (pfcluster and clusterpf are replication username and password you will find in the pf.conf file and 192.168.1.11 is the server where you fetched the backup):
+On the remote site master server run the following MySQL command as root:
 
  SET GLOBAL gtid_slave_pos = '22-2-10459';
  CHANGE MASTER TO MASTER_HOST='192.168.1.11', MASTER_PORT=3306, MASTER_USER='pfcluster', MASTER_PASSWORD='clusterpf', MASTER_USE_GTID=slave_pos;
  START SLAVE;
+
+The replication MASTER_USER and MASTER_PASSWORD can be found in the main sites pf.conf. The MASTER_HOST is the ip address of the master server on the main site - where the backup was created. Do not use the VIP.
+
+At the end it you want to check the status of the slave server for debug purposes you can run the follwing command:
+
+ SHOW SLAVE STATUS;
 
 
 Advanced configuration

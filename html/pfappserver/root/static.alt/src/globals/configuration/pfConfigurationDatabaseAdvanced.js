@@ -150,7 +150,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Master/Slave mode'),
-          text: i18n.t('Do you want to enable master slave configuration?'),
+          text: i18n.t('Enable master/slave replication.'),
           fields: [
             {
               key: 'masterslave',
@@ -162,7 +162,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Other MySQL Servers'),
-          text: i18n.t('Comma delimited IPv4 address of other member mysql members - note that this is only to sync the database.'),
+          text: i18n.t('Comma delimited IPv4 address of other member MySQL members - used to sync the database.'),
           fields: [
             {
               key: 'other_members',

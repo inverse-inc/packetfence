@@ -147,7 +147,7 @@ max_connections=[% max_connections %]
 [% IF masterslavemode == "SLAVE" %]
 server-id = [% slave_server_id %]
 
-gtid_domain_id = 25
+gtid_domain_id = [% gtid_domain_id %]
 
 log_slave_updates
 log_bin=mariadb-bin
@@ -184,7 +184,7 @@ wsrep_slave_threads=1
 [% IF masterslave %]
 [% IF masterslavemode == "MASTER" %]
 wsrep_gtid_mode=ON
-wsrep_gtid_domain_id=22
+wsrep_gtid_domain_id=[% gtid_domain_id %]
 log_slave_updates=ON
 log_bin=mariadb-bin
 gtid_domain_id=[% server_id %]

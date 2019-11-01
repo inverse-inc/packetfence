@@ -68,9 +68,10 @@ sub _run {
 
             slave_server_id => (unpack 'N', pack 'C4', split '\.', pf::cluster::current_server()->{management_ip}),
 
+            gtid_domain_id => (unpack 'N', pack 'C4', split '\.', pf::cluster::current_server()->{management_ip}) + (pf::cluster::cluster_index() + 1),
+
             servers_ip => [uniq(split(',', $Config{database_advanced}{other_members})), (map { $_->{management_ip} } pf::cluster::mysql_servers())],
 
-            # TODO: have real configurable user
             replication_user => $Config{active_active}{galera_replication_username},
             replication_password => $Config{active_active}{galera_replication_password},
 
@@ -88,12 +89,11 @@ sub _run {
             server_ip => defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip'),
             servers_ip => [uniq(split(',', $Config{database_advanced}{other_members})), (defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip'))],
 
-            # TODO: have real configurable user
             replication_user => $Config{active_active}{galera_replication_username},
             replication_password => $Config{active_active}{galera_replication_password},
 
             hostname => $host_id,
-            server_id => 999,
+            server_id => (unpack 'N', pack 'C4', split '\.', $vars{'server_ip'}),
 
             db_config => $Config{database},
         );
