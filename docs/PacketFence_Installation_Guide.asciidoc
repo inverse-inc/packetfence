@@ -1027,7 +1027,7 @@ Go in the Administration interface under 'Configuration -> Policies and Access C
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
-Click *Add Domain* and fill in the information about your domain.
+Click *New Domain* and fill in the information about your domain.
 
 image::domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
 
@@ -1037,9 +1037,12 @@ Where :
 * *Workgroup* is the workgroup of your domain in the old syntax (like NT4).
 * *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
 * *This server's name* is the name that the server's account will have in your Active Directory.
+* *Sticky DC* is the preferred domain controller to connect to.
+* *Active Directory server* is the IP or DNS name of one of the DC of the domain.
 * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
-* *Username* is the username that will be used for binding to the server. This account must be a domain administrator.
-* *Password* is the password for the username defined above.
+* *OU* is the OU in the Active Directory where you want to create your computer account.
+* *ntlmv2 only* forces the NTLNM authentication (802.1X on AD) to use the NTLM version 2.
+* *Allow on registration* would allow devices in the registration network to communicate with the DC.
 
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
@@ -1070,17 +1073,34 @@ First configure your domains in 'Configuration -> Policies and Access Control ->
 
 Once they are configured, go in 'Configuration -> Policies and Access Control -> Domains -> REALMS'.
 
-Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
+Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET tied to mydomain.
 
 image::domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
 
 Where :
 
 * *Realm* is either the DNS name (FQDN) of your domain or the workgroup
+* *Domain* is the Active Directory domain where PacketFence sends the NTLM request
 * *Realm options* are any realm options that you want to add to the FreeRADIUS configuration
 * *Domain* is the domain which is associated to this realm
+* *RADIUS Auth* is the RADIUS authentication server to proxy the request to
+* *Type* is the home server pool type
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
+* *RADIUS Acct* is the RADIUS accounting server to proxy the request to
+* *Type* is the home server pool type
+* *Eduroam Realm Options* You can add Eduroam FreeRADIUS options in the realm definition
+* *Eduroam RADIUS Auth* is the RADIUS Eduroam authentication server to proxy the request to
+* *Type* is the home server pool type
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
+* *Eduroam RADIUS Acct* is the RADIUS Eduroam accounting server to proxy the request to
+* *Type* is the home server pool type
+* *Strip on the portal* Should the usernames matching this realm be stripped when used on the captive portal
+* *Strip on the admin* Should the usernames matching this realm be stripped when used on the administration interface
+* *Strip in RADIUS authorization* Should the usernames matching this realm be stripped when used in the authorization phase of 802.1X
+* *Custom attributes* Allow to use custom attributes to authenticate 802.1X users (attributes are defined in the source)
+* *LDAP source* The LDAP Server to query the custom attributes
 
-*Now create the two other realms associated to your other domains.*
+*Now associate DEFAULT and NULL realms to your domain.*
 
 You should now have the following realm configuration
 
@@ -2920,7 +2940,6 @@ $src_ip is a way to dynamically use the correct source ip address of the system 
 Next go in 'Configuration -> Policies and Access Control -> REALMS', and add a new realm.
 
 image::acme.com.png[scaledwidth="100%",alt="ACME Realm Configuration"]
-image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
 
 (type definition can be found here https://wiki.freeradius.org/features/Proxy)
 
@@ -3758,11 +3777,7 @@ Notes on the configuration:
 * Scan before/on/after registration controls when the automated scans are started for the devices PacketFence sees. If you only want to start the scans manually, leave those unchecked.
 * You will not be able to select a scan template, site and scan engine when initially configuring the engine. First configure the access and credentials and edit the engine again to be able to select those from the available values in Rapid7.
 
-image::rapid7/rapid7-pf-1.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
-
-image::rapid7/rapid7-pf-2.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
-
-image::rapid7/rapid7-pf-3.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
+image::rapid7/rapid7-pf.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
 
 Assign the engine to a connection profile
 +++++++++++++++++++++++++++++++++++++++++
@@ -4123,9 +4138,7 @@ Next, go in the 'NTLM cache' tab and:
  * Adjust the 'Expiration'
  * Enable 'NTLM cache background job' and/or 'NTLM cache on connection'. In the case of this example, both will be enabled.
 
-image::domain-ntlm-cache-1.png[scaledwidth="100%",alt="Domain NTLM cache"]
-
-image::domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM cache"]
+image::domain-ntlm-cache.png[scaledwidth="100%",alt="Domain NTLM cache"]
 
 Once done, click 'Save' to commit your changes.
 
