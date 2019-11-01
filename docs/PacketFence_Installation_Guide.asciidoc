@@ -2179,11 +2179,11 @@ Examples (Match a device that does user authentication and did machine authentic
 
 Examples (Match a device that does user authentication and never did machine authentication on a secure ssid)
 
-* last_connection_type == "Wireless-802.11-EAP" && ( machine_account == "" || machine_account == \_\_NULL__ ) && last_dot1x_username !~ "^host/"
+* last_connection_type == "Wireless-802.11-EAP" && ( machine_account == "" || machine_account == +__NULL__+ ) && last_dot1x_username !~ "^host/"
 
 Examples (Match a device that never did a machine authentication (BYOD))
 
-* machine_account == \_\_NULL__
+* machine_account == +__NULL__+
 
 Here and example of attributes that can be tested:
 
