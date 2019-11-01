@@ -10,6 +10,9 @@
         "tmp_dir": "/tmp",
         "yum_cache_dir": "/var/cache/yum",
         "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
+        "ansible_centos_group": "{{env `ANSIBLE_CENTOS_GROUP`}}",
+        "ansible_debian_group": "{{env `ANSIBLE_DEBIAN_GROUP`}}",
+        "ansible_rubygems_group": "{{env `ANSIBLE_RUBYGEMS_GROUP`}}",
         "go_version": "{{env `GOVERSION`}}",
         "docker_tag": "{{env `DOCKER_TAG`}}",
         "docker_user": "{{env `REGISTRY_USER`}}",
@@ -56,7 +59,7 @@
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "groups": ["centos"],
+            "groups": ["{{user `ansible_centos_group`}}"],
             "only": ["{{user `builder_prefix`}}-centos-7"]
         },
         {
@@ -65,7 +68,7 @@
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "groups": ["debian"],
+            "groups": ["{{user `ansible_debian_group`}}"],
             "only": ["{{user `builder_prefix`}}-stretch",
                      "{{user `builder_prefix`}}-buster"
                     ]
@@ -101,7 +104,7 @@
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "groups": ["rubygems"]
+            "groups": ["{{user `ansible_rubygems_group`}}"]
         },
         {
             "type": "shell",

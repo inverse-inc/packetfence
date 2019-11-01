@@ -19,6 +19,9 @@ variables:
   RPM_DIR: rpm
   DEB_DIR: debian
   VAGRANT_DIR: addons/vagrant
+  # env variables
+  ANSIBLE_FORCE_COLOR: "true"
+  ANSIBLE_STDOUT_CALLBACK: yaml
 
 ### TEMPLATES
 .pfbuild_job:
@@ -68,15 +71,29 @@ pfbuild_manual:
   # will not run when we click "Run pipeline"
   when: manual
 
-# build a docker image at release
-# used to build maintenance binaries and assets for maintenance
-pfbuild_release:
+pfbuild_test:
   extends: .pfbuild_job
   script:
-    - PF_VERSION=$(awk '{ print $2 }' conf/pf-release)
+    # remove 'feature/' prefix from branch name
+    - export DOCKER_TAG=${CI_COMMIT_REF_NAME#feature/}
+    - make -e -C $PACKERDIR pfbuild
+  only:
+    - /^feature/packer-.*$/
+
+# build a docker image at release
+# used to build release packages, maintenance binaries and assets for maintenance
+pfbuild_release:
+  extends: .pfbuild_job
+  variables:
+    ANSIBLE_CENTOS_GROUP: stable_centos
+    ANSIBLE_DEBIAN_GROUP: stable_debian
+    ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
+  script:
+    # remove 'packetfence-' prefix from tag
+    - export PF_VERSION=${CI_COMMIT_TAG#packetfence-}
     - make -e -C $PACKERDIR DOCKER_TAG=$PF_VERSION pfbuild
   only:
-    - /^stable$/
+    - /^packetfence-.*$/
 
 #### BUILD_PKG JOBS
 build_pkg_centos7:
@@ -108,7 +125,7 @@ sign:
   only:
     - schedules
     - web
-    - /^stable$/
+    - /^packetfence-.*$/
     - /^devel$/
   tags:
     - shell
@@ -136,7 +153,7 @@ pages:
   only:
     - schedules
     - web
-    - /^stable$/
+    - /^packetfence-.*$/
     - /^devel$/
   tags:
     - shell

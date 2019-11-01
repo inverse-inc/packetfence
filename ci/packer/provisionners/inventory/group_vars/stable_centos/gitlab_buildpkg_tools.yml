@@ -5,7 +5,7 @@ gitlab_buildpkg_tools__rpm_keys:
   - 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7'
 
 gitlab_buildpkg_tools__rpm_deps_repos:
-  - name: packetfence-devel
+  - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/centos/$releasever/devel/$basearch'
   - name: epel
     baseurl: 'https://download.fedoraproject.org/pub/epel/$releasever/$basearch/'
@@ -14,5 +14,6 @@ gitlab_buildpkg_tools__rpm_deps_repos:
 
 # we only add repos, packages install will occur
 # during build depencies install from SPEC files
-gitlab_buildpkg_tools__deb_pkgs: '{{ lookup("env", "RPM_PACKAGES_NAME") if lookup("env", "RPM_PACKAGES_NAME")
+gitlab_buildpkg_tools__rpm_pkgs: '{{ lookup("env", "RPM_PACKAGES_NAME") if lookup("env", "RPM_PACKAGES_NAME")
                                      else [] }}'
+

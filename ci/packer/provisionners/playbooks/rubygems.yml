@@ -1,4 +1,4 @@
-- hosts: rubygems
+- hosts: ['devel_rubygems', 'stable_rubygems']
   name: install ruby gems
   become: True
 
