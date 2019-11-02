@@ -171,21 +171,6 @@ sub setAdminStatus {
     return;
 }
 
-=item bouncePort
-
-Performs a shut / no-shut on the port.
-Usually used to force the operating system to do a new DHCP Request after a VLAN change.
-
-=cut
-
-sub bouncePort {
-    my ($self, $ifIndex) = @_;
-
-    $self->setAdminStatus( $ifIndex );
-
-    return $TRUE;
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
