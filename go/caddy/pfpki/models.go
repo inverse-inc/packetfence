@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+
+	// Import MySQL lib
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
@@ -32,6 +34,7 @@ type DSAKeyFormat struct {
 	P, Q, G, Y, X *big.Int
 }
 
+// PRNG pseudorandom number generator
 var PRNG io.Reader = rand.Reader
 
 // Supported key format
@@ -156,7 +159,7 @@ func (c CA) new(pfpki *Handler) error {
 		EmailAddresses:        []string{c.Mail},
 	}
 
-	keyOut, pub, priv, err := GenerateKey(c.KeyType, c.KeySize)
+	keyOut, pub, key, err := GenerateKey(c.KeyType, c.KeySize)
 
 	if err != nil {
 		return err
@@ -165,11 +168,11 @@ func (c CA) new(pfpki *Handler) error {
 
 	switch c.KeyType {
 	case KEY_RSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, priv.(*rsa.PrivateKey))
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
 	case KEY_ECDSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, priv.(*ecdsa.PrivateKey))
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
 	case KEY_DSA:
-		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, priv.(*dsa.PrivateKey))
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
 	}
 	if err != nil {
 		return err
@@ -209,6 +212,7 @@ func keyusage(KeyUsage string) int {
 	return keyUsage
 }
 
+// GenerateKey function generate the public/private key based on the type and the size
 func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.PublicKey, key crypto.PrivateKey, err error) {
 
 	keyOut = new(bytes.Buffer)
@@ -225,7 +229,7 @@ func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.Publi
 			return nil, nil, nil, err
 		}
 		key = rsakey
-		pub = key.(*rsa.PrivateKey).PublicKey
+		pub = &key.(*rsa.PrivateKey).PublicKey
 		// Private key
 		pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key.(*rsa.PrivateKey))})
 	case KEY_ECDSA:
@@ -250,7 +254,7 @@ func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.Publi
 			return nil, nil, nil, errors.New("invalid private key size, should be 256 or 384 or 521")
 		}
 		key = eckey
-		pub = key.(*ecdsa.PrivateKey).PublicKey
+		pub = &key.(*ecdsa.PrivateKey).PublicKey
 		bytes, _ := x509.MarshalECPrivateKey(key.(*ecdsa.PrivateKey))
 		pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
 	case KEY_DSA:
@@ -282,7 +286,7 @@ func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.Publi
 			return nil, nil, nil, err
 		}
 		key = dsakey
-		pub = key.(*dsa.PrivateKey).PublicKey
+		pub = &key.(*dsa.PrivateKey).PublicKey
 		val := DSAKeyFormat{
 			P: key.(*dsa.PrivateKey).P, Q: key.(*dsa.PrivateKey).Q, G: key.(*dsa.PrivateKey).G,
 			Y: key.(*dsa.PrivateKey).Y, X: key.(*dsa.PrivateKey).X,
@@ -390,12 +394,12 @@ func (c Cert) new(pfpki *Handler) error {
 		return err
 	}
 	// Sign the certificate
-	cert_b, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey)
+	certByte, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey)
 
 	certBuff := new(bytes.Buffer)
 
 	// Public key
-	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: cert_b})
+	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
 	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		return err
