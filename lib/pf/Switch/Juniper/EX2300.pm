@@ -105,6 +105,87 @@ sub radiusDisconnect {
     return;
 }
 
+=head2 setAdminStatus - bounce switch port with radius CoA technique
+
+Send a CoA request to bounce switch port
+
+=cut
+
+sub setAdminStatus {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+
+    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
+    my @locationlog = locationlog_view_open_switchport( $self->{_ip}, $ifIndex );
+    my $mac = $locationlog[0]->{'mac'};
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("Switch not in production mode... we won't perform port bounce");
+        return 1;
+    }
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("boucing $mac using RADIUS CoA-Request method");
+
+    # translating to expected format 00-11-22-33-CA-FE
+    $mac = uc($mac);
+    $mac =~ s/:/-/g;
+
+    my $response;
+    my $send_disconnect_to = $self->{'_controllerIp'} || $self->{'_ip'};
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+        };
+
+        $response = perform_coa( $connection_info,
+            {
+                'Acct-Terminate-Cause' => 'Admin-Reset',
+                'NAS-IP-Address' => $self->{'_switchIp'},
+                'Calling-Station-Id' => $mac,
+            },
+            [{ 'vendor' => 'Juniper', 'attribute' => 'Juniper-AV-Pair', 'value' => 'Port-Bounce' }],
+        );
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "Unable to perform RADIUS CoA-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
+}
+
+=item bouncePort
+
+Performs a shut / no-shut on the port.
+Usually used to force the operating system to do a new DHCP Request after a VLAN change.
+
+=cut
+
+sub bouncePort {
+    my ($self, $ifIndex) = @_;
+
+    $self->setAdminStatus( $ifIndex );
+
+    return $TRUE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
