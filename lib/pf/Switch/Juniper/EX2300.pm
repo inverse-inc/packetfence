@@ -105,7 +105,7 @@ sub radiusDisconnect {
     return;
 }
 
-=item _radiusBounceMac
+=head2 _radiusBounceMac
 
 Using RADIUS Change of Authorization (CoA) defined in RFC3576 to bounce the port where a given MAC is present.
 Uses <pf::util::radius> for the low-level RADIUS stuff.
