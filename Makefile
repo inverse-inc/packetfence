@@ -224,15 +224,23 @@ pfappserver_install:
 	install -d -m0755 $(DESTDIR)$(HTML_CPDIR)
 	install -d -m0755 $(DESTDIR)$(HTML_PFAPPDIR)
 
-	@echo "install html/parking files"
+	@echo "install $(SRC_HTML_PARKINGDIR) files"
 	for file in $(parking_files); do \
-            install -v -m 0644 html/parking/$$file $(DESTDIR)$(HTML_PARKINGDIR)/ ; \
+            install -v -m 0644 $(SRC_HTML_PARKINGDIR)/$$file $(DESTDIR)$(HTML_PARKINGDIR)/ ; \
 	done
 
-	@echo "install html/common dirs and files"
+	@echo "install $(SRC_HTML_COMMONDIR) dirs and files"
 	for dir in $(common_dirs); do \
             install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
 	done
 	for file in $(common_files); do \
+	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	done
+
+	@echo "install $(SRC_HTML_CPDIR) dirs and files"
+	for dir in $(cp_dirs); do \
+            install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+	done
+	for file in $(cp_files); do \
 	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
 	done

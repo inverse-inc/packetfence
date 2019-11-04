@@ -14,20 +14,31 @@ PFPREFIX = $(PREFIX)/pf
 BINDIR = $(PFPREFIX)/bin
 SBINDIR = $(PFPREFIX)/sbin
 
-# HTML dirs
+# SRC HTML dirs
+SRC_HTMLDIR = html
+SRC_HTML_CPDIR = $(SRC_HTMLDIR)/captive-portal
+SRC_HTML_COMMONDIR = $(SRC_HTMLDIR)/common
+SRC_HTML_PARKINGDIR = $(SRC_HTMLDIR)/parking
+SRC_HTML_PFAPPDIR = $(SRC_HTMLDIR)/pfappserver
+
+# Installed HTLML dirs
 HTMLDIR = $(PFPREFIX)/html
 HTML_CPDIR = $(HTMLDIR)/captive-portal
 HTML_COMMONDIR = $(HTMLDIR)/common
 HTML_PARKINGDIR = $(HTMLDIR)/parking
 HTML_PFAPPDIR = $(HTMLDIR)/pfappserver
 
+# parking files
+parking_files = $(notdir $(wildcard ./$(SRC_HTML_PARKINGDIR)/*))
 
-# HTML files
-parking_files = $(notdir $(wildcard ./html/parking/*))
-
+# common files and dirs
 # '*' after dir name don't match current directory
 # exclude node_modules dir and subdirs
-common_dirs = $(shell find html/common/* ! -path "html/common/node_modules*" -type d)
+common_dirs = $(shell find $(SRC_HTML_COMMONDIR)/* ! -path "$(SRC_HTML_COMMONDIR)/node_modules*" -type d)
 
 # exclude package.json and package-lock.json
-common_files = $(shell find html/common/* -type f -not -name "package*.json") 
+common_files = $(shell find $(SRC_HTML_COMMONDIR)/* -type f -not -name "package*.json") 
+
+# captive portal files and dirs
+cp_dirs = $(shell find $(SRC_HTML_CPDIR)/* -type d)
+cp_files = $(shell find $(SRC_HTML_CPDIR)/* -type f)
