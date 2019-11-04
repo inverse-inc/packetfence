@@ -16,7 +16,10 @@ import (
 	"errors"
 	"io"
 	"math/big"
+	mathrand "math/rand"
 	"strconv"
+	"strings"
+	"time"
 )
 
 // Type of key
@@ -161,4 +164,17 @@ func calculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 	}
 	skid := sha1.Sum(spki.SubjectPublicKey.Bytes)
 	return skid[:], nil
+}
+
+func generatePassword() string {
+	mathrand.Seed(time.Now().UnixNano())
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
+		"abcdefghijklmnopqrstuvwxyzåäö" +
+		"0123456789")
+	length := 8
+	var b strings.Builder
+	for i := 0; i < length; i++ {
+		b.WriteRune(chars[mathrand.Intn(len(chars))])
+	}
+	return b.String()
 }

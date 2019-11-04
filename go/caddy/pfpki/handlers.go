@@ -5,6 +5,9 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"regexp"
+
+	"github.com/gorilla/mux"
 )
 
 // Info struct
@@ -15,36 +18,38 @@ type Info struct {
 // Create interface
 type Create interface {
 	new() error
+	get() error
 }
 
-func newCA(pfpki *Handler) http.Handler {
+func manageCA(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o CA
 
-		create(o, pfpki, res, req)
+		manage(o, pfpki, res, req)
 	})
 }
 
-func newCert(pfpki *Handler) http.Handler {
+func manageCert(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o Cert
 
-		create(o, pfpki, res, req)
+		manage(o, pfpki, res, req)
 	})
 }
 
-func newProfile(pfpki *Handler) http.Handler {
+func manageProfile(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o Profile
 
-		create(o, pfpki, res, req)
+		manage(o, pfpki, res, req)
 	})
 }
 
-func create(object interface{}, pfpki *Handler, res http.ResponseWriter, req *http.Request) {
+func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -53,24 +58,38 @@ func create(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 
 	switch v := object.(type) {
 	case CA:
-		err = json.Unmarshal(body, &v)
-		if err != nil {
-			panic(err)
+
+		if matched, _ := regexp.MatchString(`/pki/newca`, req.URL.Path); matched {
+			err = json.Unmarshal(body, &v)
+			if err != nil {
+				panic(err)
+			}
+			err = v.new(pfpki)
 		}
-		err = v.new(pfpki)
+		if matched, _ := regexp.MatchString(`/pki/getca/`, req.URL.Path); matched {
+			err = v.get(pfpki, vars["cn"])
+		}
 	case Cert:
-		err = json.Unmarshal(body, &v)
-		if err != nil {
-			panic(err)
+
+		if matched, _ := regexp.MatchString(`/pki/newcert`, req.URL.Path); matched {
+			err = json.Unmarshal(body, &v)
+			if err != nil {
+				panic(err)
+			}
+			err = v.new(pfpki)
 		}
-		err = v.new(pfpki)
+		if matched, _ := regexp.MatchString(`/pki/getcert/`, req.URL.Path); matched {
+			err = v.get(pfpki, vars["cn"])
+		}
 	case Profile:
+
 		err = json.Unmarshal(body, &v)
 		if err != nil {
 			panic(err)
 		}
 		err = v.new(pfpki)
 	default:
+
 		err = errors.New("invalid type")
 	}
 
@@ -93,5 +112,4 @@ func create(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
 	}
-
 }

@@ -12,13 +12,16 @@ import (
 	"encoding/pem"
 	"errors"
 	"math/big"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/jinzhu/gorm"
 
 	// Import MySQL lib
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	pkcs12 "software.sslmate.com/src/go-pkcs12"
 )
 
 // Digest Values:
@@ -214,6 +217,10 @@ func (c CA) new(pfpki *Handler) error {
 	return nil
 }
 
+func (c CA) get(pfpki *Handler, cn string) error {
+	return nil
+}
+
 // func (c *CA) save() {
 // 	// Public key
 // 	certOut, err := os.Create("ca.crt")
@@ -257,6 +264,10 @@ func (p Profile) new(pfpki *Handler) error {
 	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, CaName: p.CaName, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		return err
 	}
+	return nil
+}
+
+func (p Profile) get(pfpki *Handler, cn string) error {
 	return nil
 }
 
@@ -319,7 +330,6 @@ func (c Cert) new(pfpki *Handler) error {
 		},
 		NotBefore:      time.Now(),
 		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
-		SubjectKeyId:   []byte{1, 2, 3, 4, 6},
 		ExtKeyUsage:    extkeyusage(strings.Split(prof.ExtendedKeyUsage, "|")),
 		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(prof.KeyUsage, "|"))),
 		EmailAddresses: []string{c.Mail},
@@ -334,8 +344,65 @@ func (c Cert) new(pfpki *Handler) error {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, ProfileName: prof.Name, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func (c Cert) get(pfpki *Handler, cn string) error {
+
+	// Find the Cert
+	var cert Cert
+	if CertDB := pfpki.DB.Where("Cn = ?", cn).Find(&cert); CertDB.Error != nil {
+		return CertDB.Error
+	}
+
+	// Find the CA
+	var ca CA
+	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
+		return CaDB.Error
+	}
+
+	// Load the certificates from the database
+	certtls, err := tls.X509KeyPair([]byte(cert.PubKey), []byte(cert.PrivateKey))
+	if err != nil {
+		return err
+	}
+
+	// Find the profile
+	var prof Profile
+	if profDB := pfpki.DB.Where("Name = ?", cert.ProfileName).Find(&prof); profDB.Error != nil {
+		return profDB.Error
+	}
+
+	certificate, err := x509.ParseCertificate(certtls.Certificate[0])
+	if err != nil {
+		return err
+	}
+
+	// Load the certificates from the database
+	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
+	if err != nil {
+		return err
+	}
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return err
+	}
+
+	var CaCert []*x509.Certificate
+
+	CaCert = append(CaCert, cacert)
+
+	password := generatePassword()
+	pkcs12, err := pkcs12.Encode(PRNG, certtls.PrivateKey, certificate, CaCert, password)
+	spew.Dump(password)
+
+	certOut, err := os.Create("cert.p12")
+
+	defer certOut.Close()
+	_, err = certOut.Write(pkcs12)
+	email(cert, prof, pkcs12)
+	return err
 }

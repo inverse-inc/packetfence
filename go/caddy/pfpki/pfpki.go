@@ -60,9 +60,13 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	pfpki.router = mux.NewRouter()
 	PFPki := &pfpki
 	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
-	api.Handle("/pki/newca", newCA(PFPki)).Methods("POST")
-	api.Handle("/pki/newprofile", newProfile(PFPki)).Methods("POST")
-	api.Handle("/pki/newcert", newCert(PFPki)).Methods("POST")
+	api.Handle("/pki/newca", manageCA(PFPki)).Methods("POST")
+	api.Handle("/pki/getca/{cn}", manageCA(PFPki)).Methods("GET")
+	// api.Handle("/pki/listca", listCA(PFPki)).Methods("GET")
+	api.Handle("/pki/newprofile", manageProfile(PFPki)).Methods("POST")
+	api.Handle("/pki/newcert", manageCert(PFPki)).Methods("POST")
+	api.Handle("/pki/getcert/{cn}", manageCert(PFPki)).Methods("GET")
+	// api.Handle("/pki/listcert", getCert(PFPki)).Methods("GET")
 
 	return pfpki, nil
 }
