@@ -1,3 +1,4 @@
+include config.mk
 DOCBOOK_XSL := /usr/share/xml/docbook/stylesheet/docbook-xsl
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Darwin)
@@ -213,3 +214,25 @@ test:
 
 update_samsung_dns_filter:
 	bash /usr/local/pf/addons/update-samsung-dns-filter.sh
+
+.PHONY: pfappserver-install
+
+pfappserver_install:
+	@echo "create directories under $(DESTDIR)$(HTMLDIR)"
+	install -d -m0755 $(DESTDIR)$(HTML_PARKINGDIR)
+	install -d -m0755 $(DESTDIR)$(HTML_COMMONDIR)
+	install -d -m0755 $(DESTDIR)$(HTML_CPDIR)
+	install -d -m0755 $(DESTDIR)$(HTML_PFAPPDIR)
+
+	@echo "install html/parking files"
+	for file in $(parking_files); do \
+            install -v -m 0644 html/parking/$$file $(DESTDIR)$(HTML_PARKINGDIR)/ ; \
+	done
+
+	@echo "install html/common dirs and files"
+	for dir in $(common_dirs); do \
+            install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+	done
+	for file in $(common_files); do \
+	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	done
