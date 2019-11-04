@@ -21,6 +21,7 @@ New Features
 * Ready-to-use Docker images for PacketFence builds (#4841)
 * Added audit log for API and new admin interface
 * Added configuration based switch modules
+* Support for remote layer 3 clusters in read-only mode
 
 Enhancements
 ++++++++++++
