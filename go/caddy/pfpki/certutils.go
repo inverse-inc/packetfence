@@ -8,7 +8,9 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/pem"
 	"errors"
@@ -141,4 +143,22 @@ func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.Publi
 	}
 
 	return keyOut, pub, key, nil
+}
+
+func calculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
+	spkiASN1, err := x509.MarshalPKIXPublicKey(pubKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var spki struct {
+		Algorithm        pkix.AlgorithmIdentifier
+		SubjectPublicKey asn1.BitString
+	}
+	_, err = asn1.Unmarshal(spkiASN1, &spki)
+	if err != nil {
+		return nil, err
+	}
+	skid := sha1.Sum(spki.SubjectPublicKey.Bytes)
+	return skid[:], nil
 }

@@ -70,26 +70,26 @@ import (
 // CA struct
 type CA struct {
 	gorm.Model
-	Cn                  string                  `json:"cn" gorm:"UNIQUE"`
-	Mail                string                  `json:"mail"`
-	Organisation        string                  `json:"organisation"`
-	Country             string                  `json:"country"`
-	State               string                  `json:"state"`
-	Locality            string                  `json:"locality"`
-	StreetAddress       string                  `json:"streetaddress"`
-	PostalCode          string                  `json:"postalcode"`
-	KeyType             Type                    `json:"keytype"`
-	KeySize             int                     `json:"keysize"`
-	Digest              x509.SignatureAlgorithm `json:"digest"`
-	KeyUsage            string                  `json:"keyusage,omitempty"`
-	ExtendedKeyUsage    string                  `json:"extendedkeyusage,omitempty"`
-	Days                int                     `json:"days"`
-	CaKey               string                  `json:"cakey,omitempty" gorm:"type:longtext"`
-	CaCert              string                  `json:"cacert,omitempty" gorm:"type:longtext"`
-	IssuerKeyHashmd5    string                  `json:"issuerkeyhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerKeyHashsha1   string                  `json:"issuerkeyhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerKeyHashsha256 string                  `json:"issuerkeyhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerKeyHashsha512 string                  `json:"issuerkeyhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
+	Cn               string                  `json:"cn" gorm:"UNIQUE"`
+	Mail             string                  `json:"mail"`
+	Organisation     string                  `json:"organisation"`
+	Country          string                  `json:"country"`
+	State            string                  `json:"state"`
+	Locality         string                  `json:"locality"`
+	StreetAddress    string                  `json:"streetaddress"`
+	PostalCode       string                  `json:"postalcode"`
+	KeyType          Type                    `json:"keytype"`
+	KeySize          int                     `json:"keysize"`
+	Digest           x509.SignatureAlgorithm `json:"digest"`
+	KeyUsage         string                  `json:"keyusage,omitempty"`
+	ExtendedKeyUsage string                  `json:"extendedkeyusage,omitempty"`
+	Days             int                     `json:"days"`
+	CaKey            string                  `json:"cakey,omitempty" gorm:"type:longtext"`
+	CaCert           string                  `json:"cacert,omitempty" gorm:"type:longtext"`
+	// IssuerKeyHashmd5    string                  `json:"issuerkeyhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
+	// IssuerKeyHashsha1   string                  `json:"issuerkeyhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
+	// IssuerKeyHashsha256 string                  `json:"issuerkeyhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
+	// IssuerKeyHashsha512 string                  `json:"issuerkeyhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
 // Profile struct
@@ -116,35 +116,56 @@ type Profile struct {
 // Cert struct
 type Cert struct {
 	gorm.Model
-	Cn                   string  `json:"cn"  gorm:"UNIQUE"`
-	Mail                 string  `json:"mail"`
-	StreetAddress        string  `json:"street,omitempty"`
-	Organisation         string  `json:"organisation,omitempty"`
-	Country              string  `json:"country,omitempty"`
-	State                string  `json:"state,omitempty"`
-	Locality             string  `json:"locality,omitempty"`
-	PostalCode           string  `json:"postalcode,omitempty"`
-	PrivateKey           string  `json:"privatekey,omitempty" gorm:"type:longtext"`
-	PubKey               string  `json:"publickey,omitempty" gorm:"type:longtext"`
-	ProfileName          string  `json:"profilename,omitempty"`
-	Profile              Profile `json:"profile,omitempty"`
-	ProfileID            uint
-	ValidUntil           time.Time
-	Date                 time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	Revoked              string    `json:"revoked,omitempty"`
-	CRLReason            string    `json:"crlreason,omitempty"`
-	UserIssuerHashmd5    string    `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
-	UserIssuerHashsha1   string    `json:"userissuerhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
-	UserIssuerHashsha256 string    `json:"userissuerhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
-	UserIssuerHashsha512 string    `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
+	Cn            string `json:"cn"  gorm:"UNIQUE"`
+	Mail          string `json:"mail"`
+	Ca            CA     `json:"ca"`
+	CaID          uint
+	StreetAddress string  `json:"street,omitempty"`
+	Organisation  string  `json:"organisation,omitempty"`
+	Country       string  `json:"country,omitempty"`
+	State         string  `json:"state,omitempty"`
+	Locality      string  `json:"locality,omitempty"`
+	PostalCode    string  `json:"postalcode,omitempty"`
+	PrivateKey    string  `json:"privatekey,omitempty" gorm:"type:longtext"`
+	PubKey        string  `json:"publickey,omitempty" gorm:"type:longtext"`
+	ProfileName   string  `json:"profilename,omitempty"`
+	Profile       Profile `json:"profile,omitempty"`
+	ProfileID     uint
+	ValidUntil    time.Time
+	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	Revoked       string    `json:"revoked,omitempty"`
+	CRLReason     string    `json:"crlreason,omitempty"`
+	// UserIssuerHashmd5    string    `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
+	// UserIssuerHashsha1   string    `json:"userissuerhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
+	// UserIssuerHashsha256 string    `json:"userissuerhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
+	// UserIssuerHashsha512 string    `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
 // curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:12345/api/v1/pki/newca
 func (c CA) new(pfpki *Handler) error {
 
+	keyOut, pub, key, err := GenerateKey(c.KeyType, c.KeySize)
+
+	if err != nil {
+		return err
+	}
+
+	skid, err := calculateSKID(pub)
+	if err != nil {
+		return err
+	}
+
+	var cadb CA
+	var SerialNumber *big.Int
+
+	if CaDB := pfpki.DB.Last(&cadb); CaDB.Error != nil {
+		SerialNumber = big.NewInt(1)
+	} else {
+		SerialNumber = big.NewInt(int64(cadb.ID + 1))
+	}
+
 	ca := &x509.Certificate{
-		// Manage Serial Number
-		SerialNumber: big.NewInt(1653),
+		SerialNumber: SerialNumber,
 		Subject: pkix.Name{
 			Organization:  []string{c.Organisation},
 			Country:       []string{c.Country},
@@ -161,13 +182,10 @@ func (c CA) new(pfpki *Handler) error {
 		KeyUsage:              x509.KeyUsage(keyusage(strings.Split(c.KeyUsage, "|"))),
 		BasicConstraintsValid: true,
 		EmailAddresses:        []string{c.Mail},
+		SubjectKeyId:          skid,
+		AuthorityKeyId:        skid,
 	}
 
-	keyOut, pub, key, err := GenerateKey(c.KeyType, c.KeySize)
-
-	if err != nil {
-		return err
-	}
 	var caBytes []byte
 
 	switch c.KeyType {
@@ -189,7 +207,8 @@ func (c CA) new(pfpki *Handler) error {
 
 	pfpki.DB.AutoMigrate(&CA{})
 
-	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512}).Error; err != nil {
+	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String()}).Error; err != nil {
+		// if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -267,9 +286,29 @@ func (c Cert) new(pfpki *Handler) error {
 		return err
 	}
 
+	var certdb Cert
+	var SerialNumber *big.Int
+
+	if CertDB := pfpki.DB.Last(&ca).Related(&certdb); CertDB.Error != nil {
+		SerialNumber = big.NewInt(1)
+	} else {
+		SerialNumber = big.NewInt(int64(certdb.ID + 1))
+	}
+
+	keyOut, pub, _, err := GenerateKey(prof.KeyType, prof.KeySize)
+
+	if err != nil {
+		return err
+	}
+
+	skid, err := calculateSKID(pub)
+	if err != nil {
+		return err
+	}
+
 	// Prepare certificate
 	cert := &x509.Certificate{
-		SerialNumber: big.NewInt(1658),
+		SerialNumber: SerialNumber,
 		Subject: pkix.Name{
 			Organization:  []string{c.Organisation},
 			Country:       []string{c.Country},
@@ -284,13 +323,9 @@ func (c Cert) new(pfpki *Handler) error {
 		ExtKeyUsage:    extkeyusage(strings.Split(prof.ExtendedKeyUsage, "|")),
 		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(prof.KeyUsage, "|"))),
 		EmailAddresses: []string{c.Mail},
+		SubjectKeyId:   skid,
 	}
 
-	keyOut, pub, _, err := GenerateKey(prof.KeyType, prof.KeySize)
-
-	if err != nil {
-		return err
-	}
 	// Sign the certificate
 	certByte, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey)
 
@@ -299,7 +334,7 @@ func (c Cert) new(pfpki *Handler) error {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		return err
 	}
 	return nil
