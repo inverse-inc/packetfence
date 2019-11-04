@@ -105,22 +105,20 @@ sub radiusDisconnect {
     return;
 }
 
-=head2 setAdminStatus - bounce switch port with radius CoA technique
+=item _radiusBounceMac
 
-Send a CoA request to bounce switch port
+Using RADIUS Change of Authorization (CoA) defined in RFC3576 to bounce the port where a given MAC is present.
+Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
+At proof of concept stage. For now using SNMP is still preferred way to bounce a port.
 
 =cut
 
-sub setAdminStatus {
-    my ( $self, $ifIndex ) = @_;
+sub _radiusBounceMac {
+    my ( $self, $mac ) = @_;
     my $logger = $self->logger;
 
-    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
-    my @locationlog = locationlog_view_open_switchport( $self->{_ip}, $ifIndex );
-    my $mac = $locationlog[0]->{'mac'};
-
     if ( !$self->isProductionMode() ) {
-        $logger->info("Switch not in production mode... we won't perform port bounce");
+        $logger->info("not in production mode... we won't perform port bounce");
         return 1;
     }
 
@@ -131,7 +129,7 @@ sub setAdminStatus {
         return;
     }
 
-    $logger->info("boucing $mac using RADIUS CoA-Request method");
+    $logger->info("boucing MAC $mac using RADIUS CoA-Request method");
 
     # translating to expected format 00-11-22-33-CA-FE
     $mac = uc($mac);
