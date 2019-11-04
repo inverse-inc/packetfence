@@ -15,6 +15,8 @@ use strict;
 use warnings;
 use Moo;
 
+use List::MoreUtils qw(uniq);
+
 use pf::log;
 use pf::util;
 use pf::cluster;
@@ -34,12 +36,16 @@ use pf::file_paths qw(
     $captiveportal_templates_path
 );
 
+use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager::haproxy';
 
 has '+name' => (default => sub { 'haproxy-db' } );
 
 has '+haproxy_config_template' => (default => sub { "$conf_dir/haproxy-db.conf" });
+
+our $host_id = $pf::config::cluster::host_id;
+tie our %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -58,8 +64,36 @@ sub generateConfig {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
     
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+
     my $i = 0;
-    my @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+    my @mysql_backend;
+
+    if ($cluster_enabled) {
+        my $management_ip = pf::cluster::management_cluster_ip();
+        if ($self->isSlaveMode()) {
+            if ($self->getDBMaster()) {
+                 push(@mysql_backend, $self->getDBMaster());
+            }
+            push(@mysql_backend, $tags{'management_ip'});
+        } else {
+            @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+        }
+        $tags{'management_ip_frontend'} = <<"EOT";
+frontend  management_ip
+    bind $management_ip:3306
+    mode tcp
+    option tcplog
+    default_backend             mysql
+EOT
+    } else {
+        @mysql_backend = split(',', $Config{database_advanced}{other_members});
+        push(@mysql_backend, $tags{'management_ip'});
+        $tags{'management_ip_frontend'} = '';
+    }
     foreach my $mysql_back (@mysql_backend) {
         # the second server (the one without the VIP) will be the prefered MySQL server
         if ($i == 0) {
@@ -74,13 +108,6 @@ EOT
     $i++;
     }
     
-    $tags{'active_active_ip'} = pf::cluster::management_cluster_ip();
-    $tags{'management_ip'}
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : $management_network->tag('ip');
-
-
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
 
@@ -91,9 +118,27 @@ sub isManaged {
     my ($self) = @_;
     my $name = $self->name;
     if (isenabled($pf::config::Config{'services'}{$name})) {
+        if ($cluster_enabled && $self->isSlaveMode()) {
+            return $TRUE;
+        }
         return $cluster_enabled;
     } else {
         return 0;
+    }
+}
+
+sub isSlaveMode {
+    my ($self) = @_;
+    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterslavemode}) && ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterslavemode} eq 'SLAVE' ) {
+        return $TRUE;
+    }
+}
+
+sub getDBMaster {
+    if (defined(${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip})) {
+        return ${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip};
+    } else {
+        return $FALSE;
     }
 }
 

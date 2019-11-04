@@ -147,6 +147,30 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               validators: pfConfigurationValidatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors'))
             }
           ]
+        },
+        {
+          label: i18n.t('Master/Slave mode'),
+          text: i18n.t('Enable master/slave replication.'),
+          fields: [
+            {
+              key: 'masterslave',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'masterslave'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'masterslave', i18n.t('Mode'))
+            }
+          ]
+        },
+        {
+          label: i18n.t('Other MySQL Servers'),
+          text: i18n.t('Comma delimited IPv4 address of other member MySQL members - used to sync the database.'),
+          fields: [
+            {
+              key: 'other_members',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'other_members'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'other_members', 'Other MySQL Servers')
+            }
+          ]
         }
       ]
     }

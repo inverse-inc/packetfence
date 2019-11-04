@@ -112,7 +112,9 @@ Returns the @db_cluster_servers list without the servers that are disabled on th
 =cut
 
 sub db_enabled_servers {
-    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+    my @enabled_servers = map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+    my @non_slave_enabled_servers = map { (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode}) && ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode} eq 'SLAVE' ) ? () : $_ } @enabled_servers;
+    return @non_slave_enabled_servers;
 }
 
 =head2 db_enabled_hosts
@@ -167,19 +169,21 @@ sub is_management {
         $logger->debug("Clustering is not enabled. Cannot be management node.");
         return 0;
     }
-    my $cluster_ip = management_cluster_ip();
-    my @all_ifs = Net::Interface->interfaces();
-    foreach my $inf (@all_ifs) {
-        my @masks = $inf->netmask(AF_INET());
-        my @addresses = $inf->address(AF_INET());
-        for my $i (0 .. $#masks) {
-            if (inet_ntoa($addresses[$i]) eq $cluster_ip) {
-                return 1;
+    if ($cluster_name eq $pf::cluster::master_multi_zone) {
+
+        my $cluster_ip = management_cluster_ip();
+        my @all_ifs = Net::Interface->interfaces();
+        foreach my $inf (@all_ifs) {
+            my @masks = $inf->netmask(AF_INET());
+            my @addresses = $inf->address(AF_INET());
+            for my $i (0 .. $#masks) {
+                if (inet_ntoa($addresses[$i]) eq $cluster_ip) {
+                    return 1;
+                }
             }
         }
     }
     return 0;
-
 }
 
 =head2 get_host_id

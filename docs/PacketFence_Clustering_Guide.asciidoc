@@ -942,6 +942,195 @@ You should now restart PacketFence on all servers using:
 
   /usr/local/pf/bin/pfcmd service pf restart
 
+
+Remote MariaDB slave server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In cluster layer3 configuration you can configure a remote MariaDB server in slave mode. This will allow the primary database to be replicated from the central DC to the remote site.
+In normal operation the remote server will use the main sites database. However, when the link is broken the remote server will fallback and use its own local database in read-only mode.
+
+For this configuration at least 3 servers are needed at the main site and at least 1 server is needed at the remote site.
+
+Prepare the configuration
++++++++++++++++++++++++++
+
+To configure PacketFence first turn ON "Master/Slave mode" in Configuration -> System Configuration -> Database -> Advanced.
+
+Next configure cluster.conf during the initial cluster setup, refer to the example below.
+
+----
+[general]
+multi_zone=enabled
+
+[DC1 CLUSTER]
+management_ip=192.168.1.10
+
+[DC1 CLUSTER interface ens192]
+ip=192.168.1.10
+mask=255.255.255.0
+type=management
+
+[DC1 CLUSTER interface ens224]
+ip=192.168.11.10
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf1-dc1.example.com]
+management_ip=192.168.1.11
+
+[DC1 pf1-dc1.example.com interface ens192]
+ip=192.168.1.11
+mask=255.255.255.0
+type=management
+
+[DC1 pf1-dc1.example.com interface ens224]
+ip=192.168.11.11
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf2-dc1.example.com]
+management_ip=192.168.1.12
+
+[DC1 pf2-dc1.example.com interface ens192]
+ip=192.168.1.12
+mask=255.255.255.0
+type=management
+
+[DC1 pf2-dc1.example.com interface ens224]
+ip=192.168.11.12
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf3-dc1.example.com]
+management_ip=192.168.1.13
+
+[DC1 pf3-dc1.example.com interface ens192]
+ip=192.168.1.13
+mask=255.255.255.0
+type=management
+
+[DC1 pf3-dc1.example.com interface ens224]
+ip=192.168.11.13
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC2 CLUSTER]
+management_ip=192.168.2.10
+masterslavemode=SLAVE
+masterdb=DC1
+
+[DC2 CLUSTER interface ens192]
+ip=192.168.2.10
+mask=255.255.255.0
+type=management
+
+[DC2 CLUSTER interface ens224]
+ip=192.168.22.10
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC2 pf1-dc2.example.com]
+management_ip=192.168.2.11
+
+[DC2 pf1-dc2.example.com interface ens192]
+ip=192.168.2.11
+mask=255.255.255.0
+type=management
+
+[DC2 pf1-dc2.example.com interface ens224]
+ip=192.168.22.11
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+----
+
+Note that in the DC2 CLUSTER section we defined this 2 values:
+
+ masterslavemode=SLAVE
+ masterdb=DC1
+
+This mean that the cluster will be in SLAVE mode and will use the db of the DC1 cluster.
+
+And we MUST defined the type and the enforcement on all the interfaces.
+
+Prepare and start the master/slave replication
+++++++++++++++++++++++++++++++++++++++++++++++
+
+In order to setup the master a recent backup is required. Backups created prior to the inclusion of this feature will not work. Recent backups now include the replication runtime position of the binary logfile.
+First restart packetfence-mariadb on all of the servers in the main cluster.
+
+ systemctl restart packetfence-mariadb
+
+Run the /usr/local/pf/addons/backup-and-maintenance.sh script on the master node of the main cluster. If you do not know which server is the master run this command on all nodes in the main cluster and only the master will create a backup file (eg: /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz).
+Transfer this file to the remote server (eg: /root/backup/)
+
+Connect to the remote server and perform the following to sync the configuration from the master cluster:
+
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.11 --api-user=packet --api-password=fence
+ /usr/local/pf/bin/pfcmd configreload hard
+
+Then the following command to import the backup:
+
+ mkdir /root/backup/restore
+ cd /root/backup/restore
+ cp ../packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz .
+ gunzip packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz
+ xbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream
+ mv packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream ../
+ innobackupex --apply-log ./
+ systemctl stop packetfence-mariadb
+ rm -fr /var/lib/mysql/*
+ mv * /var/lib/mysql
+ chown -R mysql: /var/lib/mysql
+ systemctl start packetfence-mariadb
+
+Lastly, run the following script on the remote server to start the slave replication.
+
+ /usr/local/pf/addons/makeslave.pl
+
+ Enter the MySQL root password: password
+ Enter the MySQL master ip address: 192.168.1.11
+
+The "MySQL master ip address" is the ip address of the master server where you created the backup file. Not the VIP of the primary cluster.
+
+Alternatively, to start the slave manually refer to the following:
+
+Edit the file /var/lib/mysql/xtrabackup_binlog_info and note the file name and the position:
+
+ mariadb-bin.000014      7473
+
+On the master server of the main cluster - where the backup was created - run the following command:
+
+ mysql -uroot -p -e "SELECT BINLOG_GTID_POS('mariadb-bin.000014', 7473)"
+
+ +---------------------------------------------+
+ | BINLOG_GTID_POS('mariadb-bin.000014', 7473) |
+ +---------------------------------------------+
+ | 22-2-10459                                  |
+ +---------------------------------------------+
+
+ mysql -uroot -p
+ MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.* TO  'pfcluster'@'%';
+ MariaDB [(none)]> FLUSH PRIVILEGES;
+
+On the remote site master server run the following MySQL command as root:
+
+ SET GLOBAL gtid_slave_pos = '22-2-10459';
+ CHANGE MASTER TO MASTER_HOST='192.168.1.11', MASTER_PORT=3306, MASTER_USER='pfcluster', MASTER_PASSWORD='clusterpf', MASTER_USE_GTID=slave_pos;
+ START SLAVE;
+
+The replication MASTER_USER and MASTER_PASSWORD can be found in the main sites pf.conf. The MASTER_HOST is the ip address of the master server on the main site - where the backup was created. Do not use the VIP.
+
+At the end it you want to check the status of the slave server for debug purposes you can run the follwing command:
+
+ SHOW SLAVE STATUS;
+
+
 Advanced configuration
 ----------------------
 

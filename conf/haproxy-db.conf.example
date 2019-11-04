@@ -30,11 +30,7 @@ defaults
         timeout server 50000
         errorfile 403 %%captiveportal_templates_path%%/rate-limiting.http
 
-frontend  management_ip
-    bind %%active_active_ip%%:3306
-    mode tcp
-    option tcplog
-    default_backend             mysql
+%%management_ip_frontend%%
 
 frontend  main
     bind 127.0.0.1:3306
