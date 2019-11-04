@@ -17,6 +17,7 @@ import (
 	"io"
 	"math/big"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -63,6 +64,33 @@ const (
 // 14 SHA384WithRSAPSS
 // 15 SHA512WithRSAPSS
 // 16 PureEd25519
+
+// KeyUsage Values:
+// 1 KeyUsageDigitalSignature
+// 2 KeyUsageContentCommitment
+// 4 KeyUsageKeyEncipherment
+// 8 KeyUsageDataEncipherment
+// 16 KeyUsageKeyAgreement
+// 32 KeyUsageCertSign
+// 64 KeyUsageCRLSign
+// 128 KeyUsageEncipherOnly
+// 256 KeyUsageDecipherOnly
+
+// ExtendedKeyUsage Values:
+// 0 ExtKeyUsageAny
+// 1 ExtKeyUsageServerAuth
+// 2 ExtKeyUsageClientAuth
+// 3 ExtKeyUsageCodeSigning
+// 4 ExtKeyUsageEmailProtection
+// 5 ExtKeyUsageIPSECEndSystem
+// 6 ExtKeyUsageIPSECTunnel
+// 7 ExtKeyUsageIPSECUser
+// 8 ExtKeyUsageTimeStamping
+// 9 ExtKeyUsageOCSPSigning
+// 10 ExtKeyUsageMicrosoftServerGatedCrypto
+// 11 ExtKeyUsageNetscapeServerGatedCrypto
+// 12 ExtKeyUsageMicrosoftCommercialCodeSigning
+// 13 ExtKeyUsageMicrosoftKernelCodeSigning
 
 // CA struct
 type CA struct {
@@ -136,10 +164,11 @@ type Cert struct {
 	UserIssuerHashsha512 string    `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
-// curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650}' http://127.0.0.1:12345/api/v1/pki/newca
+// curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:12345/api/v1/pki/newca
 func (c CA) new(pfpki *Handler) error {
 
 	ca := &x509.Certificate{
+		// Manage Serial Number
 		SerialNumber: big.NewInt(1653),
 		Subject: pkix.Name{
 			Organization:  []string{c.Organisation},
@@ -153,8 +182,8 @@ func (c CA) new(pfpki *Handler) error {
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
 		SignatureAlgorithm:    c.Digest,
-		ExtKeyUsage:           extkeyusage(c.ExtendedKeyUsage),
-		KeyUsage:              x509.KeyUsage(keyusage(c.KeyUsage)),
+		ExtKeyUsage:           extkeyusage(strings.Split(c.ExtendedKeyUsage, "|")),
+		KeyUsage:              x509.KeyUsage(keyusage(strings.Split(c.KeyUsage, "|"))),
 		BasicConstraintsValid: true,
 		EmailAddresses:        []string{c.Mail},
 	}
@@ -191,10 +220,10 @@ func (c CA) new(pfpki *Handler) error {
 	return nil
 }
 
-func extkeyusage(ExtendedKeyUsage string) []x509.ExtKeyUsage {
+func extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
 	// Set up extra key uses for certificate
 	extKeyUsage := make([]x509.ExtKeyUsage, 0)
-	for _, use := range []string{ExtendedKeyUsage} {
+	for _, use := range ExtendedKeyUsage {
 		v, _ := strconv.Atoi(use)
 		extKeyUsage = append(extKeyUsage, x509.ExtKeyUsage(v))
 	}
@@ -202,13 +231,12 @@ func extkeyusage(ExtendedKeyUsage string) []x509.ExtKeyUsage {
 	return extKeyUsage
 }
 
-func keyusage(KeyUsage string) int {
+func keyusage(KeyUsage []string) int {
 	keyUsage := 0
-	for _, use := range []string{KeyUsage} {
+	for _, use := range KeyUsage {
 		v, _ := strconv.Atoi(use)
 		keyUsage = keyUsage | v
 	}
-
 	return keyUsage
 }
 
@@ -344,13 +372,14 @@ func (p Profile) new(pfpki *Handler) error {
 	return nil
 }
 
+// curl -H "Content-Type: application/json" -d '{"cn":"ZaymCert","mail":"zaim@inverse.ca","street": "7000 parc avenue","organisation": "inverse", "country": "zaymland", "state": "me", "locality": "zaymtown", "postalcode": "H3N 1X1", "profilename": "ZaymProfile"}' http://127.0.0.1:12345/api/v1/pki/newcert
 func (c Cert) new(pfpki *Handler) error {
 
 	pfpki.DB.AutoMigrate(&Cert{})
 
 	// Find the profile
 	var prof Profile
-	if profDB := pfpki.DB.Where("Cn = ?", c.ProfileName).Find(&prof); profDB.Error != nil {
+	if profDB := pfpki.DB.Where("Name = ?", c.ProfileName).Find(&prof); profDB.Error != nil {
 		return profDB.Error
 	}
 
@@ -360,7 +389,7 @@ func (c Cert) new(pfpki *Handler) error {
 		return CaDB.Error
 	}
 	// Load the certificates from the database
-	catls, err := tls.LoadX509KeyPair(ca.CaCert, ca.CaKey)
+	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
 	if err != nil {
 		return err
 	}
@@ -381,10 +410,10 @@ func (c Cert) new(pfpki *Handler) error {
 			PostalCode:    []string{c.PostalCode},
 		},
 		NotBefore:      time.Now(),
-		NotAfter:       time.Now().AddDate(10, 0, prof.Validity),
+		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
 		SubjectKeyId:   []byte{1, 2, 3, 4, 6},
-		ExtKeyUsage:    extkeyusage(prof.ExtendedKeyUsage),
-		KeyUsage:       x509.KeyUsage(keyusage(prof.KeyUsage)),
+		ExtKeyUsage:    extkeyusage(strings.Split(prof.ExtendedKeyUsage, "|")),
+		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(prof.KeyUsage, "|"))),
 		EmailAddresses: []string{c.Mail},
 	}
 
