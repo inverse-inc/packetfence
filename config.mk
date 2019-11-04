@@ -47,10 +47,12 @@ common_files = $(shell find $(SRC_HTML_COMMONDIR)/* -type f -not -name "package*
 cp_dirs = $(shell find $(SRC_HTML_CPDIR)/* ! -path "$(SRC_HTML_CPDIR)/content/node_modules*" -type d)
 cp_files = $(shell find $(SRC_HTML_CPDIR)/* -type f)
 
-# pfappserver files and dirs
-# top level pfappserver
-pfapp_top_dirs = $(shell find $(SRC_HTML_PFAPPDIR)/* -maxdepth 0 -type d ! -path "html/pfappserver/root-custom*" -and ! -path "html/pfappserver/t*")
-pfapp_top_files = $(shell find $(SRC_HTML_PFAPPDIR)/* -maxdepth 0 -type f -not -name "Changes")
+# pfappserver files and dirs without root and useless dirs
+pfapp_dirs = $(shell find $(SRC_HTML_PFAPPDIR)/* -type d ! -path "html/pfappserver/root-custom*" -and ! -path "html/pfappserver/t*" -and ! -path "html/pfappserver/root*")
+pfapp_files = $(shell find $(SRC_HTML_PFAPPDIR)/* -type f -not -name "Changes" ! -path "html/pfappserver/root-custom*" -and ! -path "html/pfappserver/t*" -and ! -path "html/pfappserver/root*")
+
+pfapp_other_dirs = $(shell find $(SRC_HTML_PFAPPDIR)/* -maxdepth 0 -type d ! -path "html/pfappserver/root-custom*" -and ! -path "html/pfappserver/t*")
+pfapp_other_files = $(shell find $(SRC_HTML_PFAPPDIR)/* -maxdepth 0 -type f -not -name "Changes")
 
 # node_modules (static), (static.alt)
 # node_modules (static), (static.alt)

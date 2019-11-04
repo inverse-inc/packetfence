@@ -245,10 +245,18 @@ pfappserver_install:
 	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR) top dirs and files"
-	for dir in $(pfapp_top_dirs); do \
+	@echo "install $(SRC_HTML_PFAPPDIR) without root dir"
+	for dir in $(pfapp_dirs); do \
             install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
 	done
-	for file in $(pfapp_top_files); do \
+	for file in $(pfapp_files); do \
 	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
 	done
+
+	# @echo "install $(SRC_HTML_PFAPPDIR) other dirs and files"
+	# for dir in $(pfapp_other_dirs); do \
+        #     install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+	# done
+	# for file in $(pfapp_other_files); do \
+	#     install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	# done
