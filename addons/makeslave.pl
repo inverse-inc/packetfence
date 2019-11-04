@@ -21,7 +21,7 @@ my $replication_username = $inipfconf{"active_active"}{"galera_replication_usern
 my $replication_password = $inipfconf{"active_active"}{"galera_replication_password"};
 
 if ($replication_username eq "" | $replication_password eq "") {
-    die "replication information are missing";
+    die "replication information is missing, check your galera_replication_username or galera_replication_password configuration parameters";
 }
 
 print "Enter the MySQL root password: ";
@@ -38,13 +38,13 @@ if ($mysql_master_ip !~ /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) {
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -h$mysql_master_ip -e "GRANT REPLICATION SLAVE ON *.*  TO '$replication_username'\@'%'"`;
 
-if ($output) {
+if ($?) {
     die "Unable to grant replication on user $replication_username";
 }
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -h$mysql_master_ip -e "FLUSH PRIVILEGES"`;
 
-if ($output) {
+if ($?) {
     die "Unable to flush privileges";
 }
 
@@ -66,7 +66,7 @@ while (my $row = <$fh>) {
             $gtid = $4;
         }
     } else {
-        die "unable to find the position in the binary log, check if the file /var/lib/mysql/xtrabackup_binlog_info contain the correct information";
+        die "unable to find the position in the binary log, check if the file /var/lib/mysql/xtrabackup_binlog_info contains the correct information";
     }
 }
 
@@ -86,27 +86,27 @@ if (!defined($gtid)) {
 #Start slave
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "SET GLOBAL read_only = OFF"`;
-if ($output) {
+if ($?) {
     die "Unable to set the local database in read write mode";
 }
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "SET GLOBAL gtid_slave_pos = '$gtid'"`;
 
-if ($output) {
+if ($?) {
     die "Unable to set the gtid_slave_pos in the database";
 }
 
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "CHANGE MASTER TO MASTER_HOST='$mysql_master_ip', MASTER_PORT=3306, MASTER_USER='$replication_username', MASTER_PASSWORD='$replication_password', MASTER_USE_GTID=slave_pos"`;
 
-if ($output) {
+if ($?) {
     die "Unable to configure the master server";
 }
 
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "START SLAVE"`;
 
-if ($output) {
+if ($?) {
     die "Unable to start the slave mode";
 }
 
@@ -119,7 +119,7 @@ while (1) {
         if ($item =~ /VARIABLE_VALUE:\s+ON\s*/ ) {
             $output = `sudo mysql -u root -p'$mysql_root_password' -e "FLUSH TABLES WITH READ LOCK"`;
             $output = `sudo mysql -u root -p'$mysql_root_password' -e "SET GLOBAL read_only = ON"`;
-            if ($output) {
+            if ($?) {
                 die "Unable to set the database in readonly mode";
             }
 	    $break = 1;
