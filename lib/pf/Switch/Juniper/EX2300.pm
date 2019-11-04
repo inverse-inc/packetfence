@@ -108,8 +108,7 @@ sub radiusDisconnect {
 =item _radiusBounceMac
 
 Using RADIUS Change of Authorization (CoA) defined in RFC3576 to bounce the port where a given MAC is present.
-Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
-At proof of concept stage. For now using SNMP is still preferred way to bounce a port.
+Uses <pf::util::radius> for the low-level RADIUS stuff.
 
 =cut
 
