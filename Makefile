@@ -244,3 +244,11 @@ pfappserver_install:
 	for file in $(cp_files); do \
 	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
 	done
+
+	@echo "install $(SRC_HTML_PFAPPDIR) top dirs and files"
+	for dir in $(pfapp_top_dirs); do \
+            install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+	done
+	for file in $(pfapp_top_files); do \
+	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	done
