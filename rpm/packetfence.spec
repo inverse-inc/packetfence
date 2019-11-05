@@ -485,7 +485,7 @@ rm -rf %{buildroot}/usr/local/pf/docs/api
 %{__make} -C go clean
 
 # install html directory
-%{_make} DESTDIR=%{buildroot} html_install
+%{__make} DESTDIR=%{buildroot} html_install
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
