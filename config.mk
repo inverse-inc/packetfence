@@ -1,18 +1,34 @@
-GOVERSION = go1.13.1
-GOBINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect
+#==============================================================================
+# CI
+#==============================================================================
+
+#
+# Packer
+#
 DOCKER_TAG = latest
 REGISTRY = docker.io
-
-### CI
 ANSIBLE_CENTOS_GROUP = devel_centos
 ANSIBLE_DEBIAN_GROUP = devel_debian
 ANSIBLE_RUBYGEMS_GROUP = devel_rubygems
 
-### PacketFence
+
+#==============================================================================
+# PacketFence application
+#==============================================================================
+
+#
+# Base directories
+#
 PREFIX = /usr/local
 PFPREFIX = $(PREFIX)/pf
 BINDIR = $(PFPREFIX)/bin
 SBINDIR = $(PFPREFIX)/sbin
+
+#
+# Golang
+#
+GOVERSION = go1.13.1
+GOBINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect
 
 # SRC HTML dirs
 SRC_HTMLDIR = html
