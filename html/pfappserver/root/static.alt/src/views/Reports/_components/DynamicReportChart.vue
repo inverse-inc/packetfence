@@ -91,10 +91,10 @@
           <pf-empty-table :isLoading="isLoading">{{ $t('No report data found') }}</pf-empty-table>
         </template>
         <template v-for="nodeField in nodeFields" :v-slot:nodeField="data">
-          <router-link :key="nodeField" :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
+          <router-link v-if="data" :key="nodeField" :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
         </template>
         <template v-for="personField in personFields" :v-slot:personField="data">
-          <router-link :key="personField" :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+          <router-link v-if="data" :key="personField" :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
         </template>
       </b-table>
     </div>

@@ -32,7 +32,7 @@
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>
         <template v-slot:cell(callingstationid)="data">
-          <template v-if="data.value !== 'Total'">
+          <template v-if="data && data.value !== 'Total'">
             <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
           </template>
           <template v-else>
@@ -40,7 +40,7 @@
           </template>
         </template>
         <template v-slot:cell(mac)="data">
-          <template v-if="data.value !== 'Total'">
+          <template v-if="data && data.value !== 'Total'">
             <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
           </template>
           <template v-else>
@@ -48,7 +48,7 @@
           </template>
         </template>
         <template v-slot:cell(owner)="data">
-          <template v-if="data.value !== 'Total'">
+          <template v-if="data && data.value !== 'Total'">
             <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
           </template>
           <template v-else>
@@ -56,7 +56,7 @@
           </template>
         </template>
         <template v-slot:cell(pid)="data">
-          <template v-if="data.value !== 'Total'">
+          <template v-if="data && data.value !== 'Total'">
             <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
           </template>
           <template v-else>
