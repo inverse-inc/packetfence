@@ -217,6 +217,7 @@ update_samsung_dns_filter:
 
 .PHONY: html_install
 
+# install -D will automatically create target directories
 html_install:
 	@echo "create directories under $(DESTDIR)$(HTMLDIR)"
 	install -d -m0755 $(DESTDIR)$(HTML_PARKINGDIR)
@@ -226,38 +227,35 @@ html_install:
 
 	@echo "install $(SRC_HTML_PARKINGDIR) files"
 	for file in $(parking_files); do \
-            install -v -m 0644 $(SRC_HTML_PARKINGDIR)/$$file $(DESTDIR)$(HTML_PARKINGDIR)/ ; \
+            install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
 	@echo "install $(SRC_HTML_COMMONDIR) dirs and files"
-	for dir in $(common_dirs); do \
-            install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
-	done
 	for file in $(common_files); do \
-	    install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
 	@echo "install $(SRC_HTML_CPDIR) dirs and files"
-	for dir in $(cp_dirs); do \
-            install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
-	done
 	for file in $(cp_files); do \
-	    install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
 	@echo "install $(SRC_HTML_PFAPPDIR) without root dir"
-	for dir in $(pfapp_dirs); do \
-            install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
-	done
 	for file in $(pfapp_files); do \
-	    install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR_STATIC) other dirs and files"
-	for dir in $(pfapp_static_dir); do \
-            install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
-	done
+	@echo "install $(SRC_HTML_PFAPPDIR_STATIC) dirs and files"
 	for file in $(pfapp_static_files); do \
-	    install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
+
+	@echo "install $(SRC_HTML_PFAPPDIR_ALT) dirs and files"
+	for file in $(pfapp_alt_files); do \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+	for file in $(pfapp_bootstrap_files); do \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
 

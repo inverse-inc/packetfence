@@ -51,49 +51,31 @@ HTML_PFAPPDIR_STATIC = $(HTML_PFAPPDIR_ROOT)/static
 HTML_PFAPPDIR_ALT = $(HTML_PFAPPDIR_ROOT)/static.alt
 
 # parking files
-parking_files = $(notdir $(wildcard ./$(SRC_HTML_PARKINGDIR)/*))
+parking_files = $(shell find $(SRC_HTML_PARKINGDIR)/* \
+	-type f)
 
-# common files and dirs
+# common files
 # '*' after dir name don't match current directory
-# exclude node_modules dir and subdirs
-common_dirs = $(shell find $(SRC_HTML_COMMONDIR)/* \
-	-type d \
-	-not -path "$(SRC_HTML_COMMONDIR)/node_modules*")
-
 # exclude package.json and package-lock.json
+# exclude node_modules dir and subdirs
 common_files = $(shell find $(SRC_HTML_COMMONDIR)/* \
 	-type f \
-	-not -name "package*.json")
+	-not -name "package*.json" \
+	-and -not -path "$(SRC_HTML_COMMONDIR)/node_modules*")
 
-# captive portal files and dirs
-cp_dirs = $(shell find $(SRC_HTML_CPDIR)/* \
-	-type d \
-	-not -path "$(SRC_HTML_CPDIR)/content/node_modules*" \
-	-and -not -path "$(SRC_HTML_CPDIR)/t*")
-
+# captive portal files
 cp_files = $(shell find $(SRC_HTML_CPDIR)/* \
 	-type f \
 	-not -path "$(SRC_HTML_CPDIR)/content/node_modules*" \
 	-and -not -path "$(SRC_HTML_CPDIR)/t*")
 
-# pfappserver files and dirs without root and useless dirs
-pfapp_dirs = $(shell find $(SRC_HTML_PFAPPDIR)/* \
-	-type d \
-	-not -path "$(SRC_HTML_PFAPPDIR)/root-custom*" \
-	-and -not -path "$(SRC_HTML_PFAPPDIR)/t*" \
-	-and -not -path "$(SRC_HTML_PFAPPDIR)/root*")
-
+# pfappserver files without root
 pfapp_files = $(shell find $(SRC_HTML_PFAPPDIR)/* \
 	-type f \
 	-not -name "Changes" \
 	-not -path "$(SRC_HTML_PFAPPDIR)/root-custom*" \
 	-and -not -path "$(SRC_HTML_PFAPPDIR)/t*" \
 	-and -not -path "$(SRC_HTML_PFAPPDIR)/root*")
-
-pfapp_static_dir = $(shell find $(SRC_HTML_PFAPPDIR_STATIC)/* \
-	-type d \
-	-not -path "$(SRC_HTML_PFAPPDIR_STATIC)/bower_components*" \
-	-and -not -path "$(SRC_HTML_PFAPPDIR_STATIC)/node_modules*")
 
 pfapp_static_files = $(shell find $(SRC_HTML_PFAPPDIR_STATIC)/* \
 	-type f \
@@ -102,8 +84,13 @@ pfapp_static_files = $(shell find $(SRC_HTML_PFAPPDIR_STATIC)/* \
 	-and -not -path "$(SRC_HTML_PFAPPDIR_STATIC)/bower_components*" \
 	-and -not -path "$(SRC_HTML_PFAPPDIR_STATIC)/node_modules*")
 
-# pfapp_alt_dir = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/* -type d ! -path "html/pfappserver/root-custom*" -and ! -path "html/pfappserver/t*")
-# pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/* -type f -not -name "")
+pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/* \
+	-type f \
+	-not -name "package*.json" \
+	-and -not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules*")
+
+pfapp_bootstrap_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/node_modules/bootstrap/dist \
+	-type f)
 
 # node_modules (static), (static.alt)
 # node_modules (static), (static.alt)
