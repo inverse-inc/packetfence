@@ -88,7 +88,7 @@ pfapp_static_files = $(shell find $(SRC_HTML_PFAPPDIR_STATIC)/* \
 pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/* \
 	-type f \
 	-not -name "package*.json" \
-	-and -not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules*")
+	-and -not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules/*")
 
 pfapp_bootstrap_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/node_modules/bootstrap/dist \
 	-type f)
