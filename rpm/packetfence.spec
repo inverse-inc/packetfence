@@ -1056,17 +1056,18 @@ fi
 %endif
 
 ### html dir
+# %dir will add only html dir, not subdirectories or files
 %dir                    /usr/local/pf/html
-# parking
-%dir                    /usr/local/pf/html/parking
-# common
-%dir                    /usr/local/pf/html/common
-                        /usr/local/pf/html/common/*
+
+# parking dir and files below
+                        /usr/local/pf/html/parking
+
+# common dir and files below
+                        /usr/local/pf/html/common
 %config(noreplace)      /usr/local/pf/html/common/styles.css
 %config(noreplace)      /usr/local/pf/html/common/styles.css.map
 %config(noreplace)      /usr/local/pf/html/common/styles-dark.css
-                        /usr/local/pf/html/common/Gruntfile.js
-                        /usr/local/pf/html/common/scss/*.scss
+
 # captive portal
 %dir                    /usr/local/pf/html/captive-portal
                         /usr/local/pf/html/captive-portal/Changes
@@ -1090,10 +1091,10 @@ fi
                         /usr/local/pf/html/captive-portal/content/scan.js
                         /usr/local/pf/html/captive-portal/content/status.js
                         /usr/local/pf/html/captive-portal/content/waiting.js
-%dir                    /usr/local/pf/html/captive-portal/content/images
-                        /usr/local/pf/html/captive-portal/content/images/*
-%dir                    /usr/local/pf/html/captive-portal/lib
-                        /usr/local/pf/html/captive-portal/lib/*
+                        /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
+                        /usr/local/pf/html/captive-portal/content/sslinspection.js
+                        /usr/local/pf/html/captive-portal/content/images
+                        /usr/local/pf/html/captive-portal/lib
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
@@ -1110,14 +1111,10 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
-%dir                    /usr/local/pf/html/captive-portal/script
-                        /usr/local/pf/html/captive-portal/script/*
-                        /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
-                        /usr/local/pf/html/captive-portal/content/sslinspection.js
-%dir                    /usr/local/pf/html/captive-portal/templates
-                        /usr/local/pf/html/captive-portal/templates/*
+                        /usr/local/pf/html/captive-portal/script
+                        /usr/local/pf/html/captive-portal/templates
 # pfappserver dir
-%dir                    /usr/local/pf/html/pfappserver/
+                        /usr/local/pf/html/pfappserver
 %config(noreplace)      /usr/local/pf/html/pfappserver/pfappserver.conf
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
@@ -1144,7 +1141,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SecurityEvent.pm
-%dir                    /usr/local/pf/html/pfappserver/root/static/doc
 %doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 
 # lib dir
