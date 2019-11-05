@@ -4,16 +4,21 @@ import (
 	"crypto/tls"
 	"io"
 
-	"gopkg.in/gomail.v2"
+	gomail "gopkg.in/gomail.v2"
 )
 
-func email(cert Cert, profile Profile, file []byte) error {
-
+func email(cert Cert, profile Profile, file []byte, password string) (Info, error) {
+	Information := Info{}
 	m := gomail.NewMessage()
 	m.SetHeader("From", profile.P12MailFrom)
 	m.SetHeader("To", cert.Mail)
 	m.SetHeader("Subject", profile.P12MailSubject)
-
+	// m.SetBody("text/html", profile.P12MailHeader)
+	if profile.P12MailPassword == 1 {
+		m.SetBody("text/html", password)
+		Information.Password = password
+	}
+	// m.SetBody("text/html", profile.P12MailFooter)
 	m.Attach("cert.p12", gomail.SetCopyFunc(func(w io.Writer) error {
 		_, err := w.Write(file)
 		return err
@@ -23,8 +28,8 @@ func email(cert Cert, profile Profile, file []byte) error {
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	if err := d.DialAndSend(m); err != nil {
-		return err
+		return Information, err
 	}
 
-	return nil
+	return Information, nil
 }

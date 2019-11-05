@@ -1,18 +1,24 @@
 package pfpki
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/log"
 )
 
 // Info struct
 type Info struct {
-	Status string `json:"status"`
+	Status   string `json:"status"`
+	Password string `json:"password"`
+	Error    string `json:"error"`
 }
 
 // Create interface
@@ -52,6 +58,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	vars := mux.Vars(req)
 
 	body, err := ioutil.ReadAll(req.Body)
+	var Information Info
 	if err != nil {
 		panic(err)
 	}
@@ -64,10 +71,10 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			if err != nil {
 				panic(err)
 			}
-			err = v.new(pfpki)
+			Information, err = v.new(pfpki)
 		}
 		if matched, _ := regexp.MatchString(`/pki/getca/`, req.URL.Path); matched {
-			err = v.get(pfpki, vars["cn"])
+			Information, err = v.get(pfpki, vars["cn"])
 		}
 	case Cert:
 
@@ -76,10 +83,10 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			if err != nil {
 				panic(err)
 			}
-			err = v.new(pfpki)
+			Information, err = v.new(pfpki)
 		}
 		if matched, _ := regexp.MatchString(`/pki/getcert/`, req.URL.Path); matched {
-			err = v.get(pfpki, vars["cn"])
+			Information, err = v.get(pfpki, vars["cn"])
 		}
 	case Profile:
 
@@ -87,23 +94,21 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		if err != nil {
 			panic(err)
 		}
-		err = v.new(pfpki)
+		Information, err = v.new(pfpki)
 	default:
 
 		err = errors.New("invalid type")
 	}
 
-	var status string
-
 	if err != nil {
-		status = err.Error()
+		Information.Error = err.Error()
 	} else {
-		status = "ACK"
+		Information.Status = "ACK"
 	}
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Status: status},
+			&Information,
 		},
 	}
 
@@ -112,4 +117,47 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
 	}
+}
+
+func manageOcsp(pfpki *Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
+		if req.Header.Get("Content-Type") != "application/ocsp-request" {
+			log.LoggerWContext(pfpki.Ctx).Info("Strict mode requires correct Content-Type header")
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		b := new(bytes.Buffer)
+		switch req.Method {
+		case "POST":
+			b.ReadFrom(req.Body)
+		case "GET":
+			log.LoggerWContext(pfpki.Ctx).Info(req.URL.Path)
+			gd, err := base64.StdEncoding.DecodeString(req.URL.Path[1:])
+			if err != nil {
+				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			r := bytes.NewReader(gd)
+			b.ReadFrom(r)
+		default:
+			log.LoggerWContext(pfpki.Ctx).Info("Unsupported request method")
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		oscp := Responder(pfpki)
+		// parse request, verify, create response
+		res.Header().Set("Content-Type", "application/ocsp-response")
+		resp, err := oscp.verify(b.Bytes())
+		if err != nil {
+			log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+			// technically we should return an ocsp error response. but this is probably fine
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		log.LoggerWContext(pfpki.Ctx).Info("Writing response")
+		res.Write(resp)
+	})
 }

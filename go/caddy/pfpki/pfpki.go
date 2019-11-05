@@ -28,6 +28,7 @@ type Handler struct {
 	Next   httpserver.Handler
 	router *mux.Router
 	DB     *gorm.DB
+	Ctx    context.Context
 }
 
 // Setup the pfpki middleware
@@ -53,6 +54,7 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	Database, err := gorm.Open("mysql", db.ReturnURI(ctx))
 	sharedutils.CheckError(err)
 	pfpki.DB = Database
+	pfpki.Ctx = ctx
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
@@ -66,6 +68,7 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	api.Handle("/pki/newprofile", manageProfile(PFPki)).Methods("POST")
 	api.Handle("/pki/newcert", manageCert(PFPki)).Methods("POST")
 	api.Handle("/pki/getcert/{cn}", manageCert(PFPki)).Methods("GET")
+	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")
 	// api.Handle("/pki/listcert", getCert(PFPki)).Methods("GET")
 
 	return pfpki, nil

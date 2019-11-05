@@ -6,9 +6,11 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"math/big"
@@ -16,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/jinzhu/gorm"
 
 	// Import MySQL lib
@@ -89,8 +90,8 @@ type CA struct {
 	Days             int                     `json:"days"`
 	CaKey            string                  `json:"cakey,omitempty" gorm:"type:longtext"`
 	CaCert           string                  `json:"cacert,omitempty" gorm:"type:longtext"`
-	// IssuerKeyHashmd5    string                  `json:"issuerkeyhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
-	// IssuerKeyHashsha1   string                  `json:"issuerkeyhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHash    string                  `json:"issuerkeyhash,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerNameHash   string                  `json:"issuernamehash,omitempty" gorm:"UNIQUE_INDEX"`
 	// IssuerKeyHashsha256 string                  `json:"issuerkeyhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
 	// IssuerKeyHashsha512 string                  `json:"issuerkeyhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
@@ -138,6 +139,7 @@ type Cert struct {
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	Revoked       string    `json:"revoked,omitempty"`
 	CRLReason     string    `json:"crlreason,omitempty"`
+	SerialNumber  string
 	// UserIssuerHashmd5    string    `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
 	// UserIssuerHashsha1   string    `json:"userissuerhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
 	// UserIssuerHashsha256 string    `json:"userissuerhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
@@ -145,17 +147,18 @@ type Cert struct {
 }
 
 // curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:12345/api/v1/pki/newca
-func (c CA) new(pfpki *Handler) error {
+func (c CA) new(pfpki *Handler) (Info, error) {
+	Information := Info{}
 
 	keyOut, pub, key, err := GenerateKey(c.KeyType, c.KeySize)
 
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	skid, err := calculateSKID(pub)
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	var cadb CA
@@ -176,6 +179,7 @@ func (c CA) new(pfpki *Handler) error {
 			Locality:      []string{c.Locality},
 			StreetAddress: []string{c.StreetAddress},
 			PostalCode:    []string{c.PostalCode},
+			CommonName:    c.Cn,
 		},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
@@ -200,7 +204,7 @@ func (c CA) new(pfpki *Handler) error {
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
 	}
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	cert := new(bytes.Buffer)
@@ -208,17 +212,31 @@ func (c CA) new(pfpki *Handler) error {
 	// Public key
 	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
 
+	// Calculate the IssuerNameHash
+	catls, err := tls.X509KeyPair([]byte(cert.String()), []byte(keyOut.String()))
+	if err != nil {
+		return Information, err
+	}
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return Information, err
+	}
+	h := sha1.New()
+
+	h.Write(cacert.RawIssuer)
+
 	pfpki.DB.AutoMigrate(&CA{})
 
-	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String()}).Error; err != nil {
+	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
 		// if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512}).Error; err != nil {
-		return err
+		return Information, err
 	}
-	return nil
+	return Information, nil
 }
 
-func (c CA) get(pfpki *Handler, cn string) error {
-	return nil
+func (c CA) get(pfpki *Handler, cn string) (Info, error) {
+	Information := Info{}
+	return Information, nil
 }
 
 // func (c *CA) save() {
@@ -235,66 +253,67 @@ func (c CA) get(pfpki *Handler, cn string) error {
 // }
 
 // curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","caname":"boby","validity": 365,"keytype": 1,"keysize": 2048, "digest": 6, "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "zaym@inverse.ca", "days": 365}' http://127.0.0.1:12345/api/v1/pki/newprofile
-func (p Profile) new(pfpki *Handler) error {
-
+func (p Profile) new(pfpki *Handler) (Info, error) {
+	Information := Info{}
 	switch p.KeyType {
 	case KEY_RSA:
 		if p.KeySize < 2048 {
-			return errors.New("invalid private key size, should be at least 2048")
+			return Information, errors.New("invalid private key size, should be at least 2048")
 		}
 	case KEY_ECDSA:
 		if !(p.KeySize == 256 || p.KeySize == 384 || p.KeySize == 521) {
-			return errors.New("invalid private key size, should be 256 or 384 or 521")
+			return Information, errors.New("invalid private key size, should be 256 or 384 or 521")
 		}
 	case KEY_DSA:
 		if !(p.KeySize == 1024 || p.KeySize == 2048 || p.KeySize == 3072) {
-			return errors.New("invalid private key size, should be 1024 or 2048 or 3072")
+			return Information, errors.New("invalid private key size, should be 1024 or 2048 or 3072")
 		}
 	default:
-		return errors.New("KeyType unsupported")
+		return Information, errors.New("KeyType unsupported")
 
 	}
 	// Create the table on the fly.
 	pfpki.DB.AutoMigrate(&Profile{})
 	var ca CA
 	if CaDB := pfpki.DB.Where("Cn = ?", p.CaName).Find(&ca); CaDB.Error != nil {
-		return CaDB.Error
+		return Information, CaDB.Error
 	}
 
 	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, CaName: p.CaName, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
-		return err
+		return Information, err
 	}
-	return nil
+	return Information, nil
 }
 
-func (p Profile) get(pfpki *Handler, cn string) error {
-	return nil
+func (p Profile) get(pfpki *Handler, cn string) (Info, error) {
+	Information := Info{}
+	return Information, nil
 }
 
 // curl -H "Content-Type: application/json" -d '{"cn":"ZaymCert","mail":"zaim@inverse.ca","street": "7000 parc avenue","organisation": "inverse", "country": "zaymland", "state": "me", "locality": "zaymtown", "postalcode": "H3N 1X1", "profilename": "ZaymProfile"}' http://127.0.0.1:12345/api/v1/pki/newcert
-func (c Cert) new(pfpki *Handler) error {
-
+func (c Cert) new(pfpki *Handler) (Info, error) {
+	Information := Info{}
 	pfpki.DB.AutoMigrate(&Cert{})
 
 	// Find the profile
 	var prof Profile
 	if profDB := pfpki.DB.Where("Name = ?", c.ProfileName).Find(&prof); profDB.Error != nil {
-		return profDB.Error
+		return Information, profDB.Error
 	}
 
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.Where("Cn = ?", prof.CaName).Find(&ca); CaDB.Error != nil {
-		return CaDB.Error
+		return Information, CaDB.Error
 	}
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
 	if err != nil {
-		return err
+		return Information, err
 	}
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	var certdb Cert
@@ -309,12 +328,12 @@ func (c Cert) new(pfpki *Handler) error {
 	keyOut, pub, _, err := GenerateKey(prof.KeyType, prof.KeySize)
 
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	skid, err := calculateSKID(pub)
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	// Prepare certificate
@@ -327,6 +346,7 @@ func (c Cert) new(pfpki *Handler) error {
 			Locality:      []string{c.Locality},
 			StreetAddress: []string{c.StreetAddress},
 			PostalCode:    []string{c.PostalCode},
+			CommonName:    c.Cn,
 		},
 		NotBefore:      time.Now(),
 		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
@@ -344,51 +364,51 @@ func (c Cert) new(pfpki *Handler) error {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, ProfileName: prof.Name, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
-		return err
+	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+		return Information, err
 	}
-	return nil
+	return Information, nil
 }
 
-func (c Cert) get(pfpki *Handler, cn string) error {
-
+func (c Cert) get(pfpki *Handler, cn string) (Info, error) {
+	Information := Info{}
 	// Find the Cert
 	var cert Cert
 	if CertDB := pfpki.DB.Where("Cn = ?", cn).Find(&cert); CertDB.Error != nil {
-		return CertDB.Error
+		return Information, CertDB.Error
 	}
 
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
-		return CaDB.Error
+		return Information, CaDB.Error
 	}
 
 	// Load the certificates from the database
 	certtls, err := tls.X509KeyPair([]byte(cert.PubKey), []byte(cert.PrivateKey))
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	// Find the profile
 	var prof Profile
 	if profDB := pfpki.DB.Where("Name = ?", cert.ProfileName).Find(&prof); profDB.Error != nil {
-		return profDB.Error
+		return Information, profDB.Error
 	}
 
 	certificate, err := x509.ParseCertificate(certtls.Certificate[0])
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
 	if err != nil {
-		return err
+		return Information, err
 	}
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
 	if err != nil {
-		return err
+		return Information, err
 	}
 
 	var CaCert []*x509.Certificate
@@ -397,12 +417,11 @@ func (c Cert) get(pfpki *Handler, cn string) error {
 
 	password := generatePassword()
 	pkcs12, err := pkcs12.Encode(PRNG, certtls.PrivateKey, certificate, CaCert, password)
-	spew.Dump(password)
 
 	certOut, err := os.Create("cert.p12")
 
 	defer certOut.Close()
 	_, err = certOut.Write(pkcs12)
-	email(cert, prof, pkcs12)
-	return err
+	Information, err = email(cert, prof, pkcs12, password)
+	return Information, err
 }
