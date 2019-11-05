@@ -6,6 +6,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormInputMultiple from '@/components/pfFormInputMultiple'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
@@ -885,11 +886,13 @@ export const pfConfigurationAuthenticationSourceFields = {
       fields: [
         {
           key: 'host',
-          component: pfFormInput,
+          component: pfFormInputMultiple,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'host'),
             ...{
-              class: 'col-sm-4'
+              class: 'col-sm-4',
+              placeholder: i18n.t('Enter a new host'),
+              tagPlaceholder: i18n.t('Click to add host')
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))

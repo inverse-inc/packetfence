@@ -27,9 +27,9 @@
               :state="isValid()" :invalid-feedback="getInvalidFeedback()"
               class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
             >
-              <b-input-group>
+              <b-input-group align-v="start">
                 <template v-for="field in row.fields">
-                  <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
+                  <span v-if="field.text" :key="field.index" class="d-inline py-2" :class="field.class">{{ field.text }}</span>
                   <component v-else-if="!('if' in field) || field.if"
                     v-bind="field.attrs"
                     v-on="kebabCaseListeners(field.listeners)"
