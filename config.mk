@@ -65,6 +65,7 @@ common_files = $(shell find $(SRC_HTML_COMMONDIR)/* \
 cp_files = $(shell find $(SRC_HTML_CPDIR)/* \
 	-type f \
 	-not -path "$(SRC_HTML_CPDIR)/content/node_modules/*" \
+	-not -path "$(SRC_HTML_CPDIR)/profile-templates/*" \
 	-not -path "$(SRC_HTML_CPDIR)/t/*")
 
 # pfappserver files without static and static.alt
