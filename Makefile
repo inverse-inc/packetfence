@@ -215,9 +215,9 @@ test:
 update_samsung_dns_filter:
 	bash /usr/local/pf/addons/update-samsung-dns-filter.sh
 
-.PHONY: pfappserver-install
+.PHONY: html_install
 
-pfappserver_install:
+html_install:
 	@echo "create directories under $(DESTDIR)$(HTMLDIR)"
 	install -d -m0755 $(DESTDIR)$(HTML_PARKINGDIR)
 	install -d -m0755 $(DESTDIR)$(HTML_COMMONDIR)

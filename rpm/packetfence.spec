@@ -484,8 +484,8 @@ rm -rf %{buildroot}/usr/local/pf/docs/api
 # clean Golang binaries from build dir
 %{__make} -C go clean
 
-# install html stuff
-%{_make} DESTDIR=%{buildroot} pfappserver_install
+# install html directory
+%{_make} DESTDIR=%{buildroot} html_install
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
