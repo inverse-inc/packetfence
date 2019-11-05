@@ -131,7 +131,7 @@ sub setAdminStatus {
         return;
     }
 
-    $logger->info("boucing $mac using RADIUS CoA-Request method");
+    $logger->info("bouncing $mac using RADIUS CoA-Request method");
 
     # translating to expected format 00-11-22-33-CA-FE
     $mac = uc($mac);
