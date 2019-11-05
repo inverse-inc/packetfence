@@ -56,11 +56,9 @@ parking_files = $(shell find $(SRC_HTML_PARKINGDIR)/* \
 
 # common files
 # '*' after dir name don't match current directory
-# exclude package.json and package-lock.json
 # exclude node_modules dir and subdirs
 common_files = $(shell find $(SRC_HTML_COMMONDIR)/* \
 	-type f \
-	-not -name "package*.json" \
 	-and -not -path "$(SRC_HTML_COMMONDIR)/node_modules/*")
 
 # captive portal files
@@ -80,14 +78,11 @@ pfapp_files = $(shell find $(SRC_HTML_PFAPPDIR)/* \
 
 pfapp_static_files = $(shell find $(SRC_HTML_PFAPPDIR_STATIC)/* \
 	-type f \
-	-not -name "package*.json" \
-	-and -not -name "bower.json" \
 	-and -not -path "$(SRC_HTML_PFAPPDIR_STATIC)/bower_components/*" \
 	-and -not -path "$(SRC_HTML_PFAPPDIR_STATIC)/node_modules/*")
 
 pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/* \
 	-type f \
-	-not -name "package*.json" \
 	-and -not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules/*")
 
 pfapp_bootstrap_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/node_modules/bootstrap/dist \
