@@ -255,9 +255,7 @@ html_install:
 	for file in $(pfapp_alt_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
-	for file in $(pfapp_bootstrap_files); do \
-	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
-	done
+
 	@echo "install symlink"
 	cp -v --no-dereference $(SRC_HTML_PFAPPDIR_STATIC)/alt \
 	    $(DESTDIR)$(HTML_PFAPPDIR_STATIC)

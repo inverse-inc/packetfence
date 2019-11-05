@@ -85,5 +85,3 @@ pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/* \
 	-type f \
 	-and -not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules/*")
 
-pfapp_bootstrap_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/node_modules/bootstrap/dist \
-	-type f)
