@@ -218,6 +218,7 @@ update_samsung_dns_filter:
 .PHONY: html_install
 
 # install -D will automatically create target directories
+# $$file in destination of install command contain relative path
 html_install:
 	@echo "create directories under $(DESTDIR)$(HTMLDIR)"
 	install -d -m0755 $(DESTDIR)$(HTML_PARKINGDIR)
@@ -240,7 +241,7 @@ html_install:
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR) without root dir"
+	@echo "install $(SRC_HTML_PFAPPDIR) without static and static.alt dir"
 	for file in $(pfapp_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
@@ -257,5 +258,7 @@ html_install:
 	for file in $(pfapp_bootstrap_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
-
+	@echo "install symlink"
+	cp -v --no-dereference $(SRC_HTML_PFAPPDIR_STATIC)/alt \
+	    $(DESTDIR)$(HTML_PFAPPDIR_STATIC)
 

@@ -69,13 +69,14 @@ cp_files = $(shell find $(SRC_HTML_CPDIR)/* \
 	-not -path "$(SRC_HTML_CPDIR)/content/node_modules*" \
 	-and -not -path "$(SRC_HTML_CPDIR)/t*")
 
-# pfappserver files without root
+# pfappserver files without static and static.alt
 pfapp_files = $(shell find $(SRC_HTML_PFAPPDIR)/* \
 	-type f \
 	-not -name "Changes" \
 	-not -path "$(SRC_HTML_PFAPPDIR)/root-custom*" \
 	-and -not -path "$(SRC_HTML_PFAPPDIR)/t*" \
-	-and -not -path "$(SRC_HTML_PFAPPDIR)/root*")
+	-and -not -path "$(SRC_HTML_PFAPPDIR_STATIC)*" \
+	-and -not -path "$(SRC_HTML_PFAPPDIR_ALT)*")
 
 pfapp_static_files = $(shell find $(SRC_HTML_PFAPPDIR_STATIC)/* \
 	-type f \
@@ -91,6 +92,3 @@ pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/* \
 
 pfapp_bootstrap_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT)/node_modules/bootstrap/dist \
 	-type f)
-
-# node_modules (static), (static.alt)
-# node_modules (static), (static.alt)
