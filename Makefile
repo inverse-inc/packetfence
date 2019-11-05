@@ -231,32 +231,32 @@ html_install:
 
 	@echo "install $(SRC_HTML_COMMONDIR) dirs and files"
 	for dir in $(common_dirs); do \
-            install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+            install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
 	done
 	for file in $(common_files); do \
-	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	    install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
 	@echo "install $(SRC_HTML_CPDIR) dirs and files"
 	for dir in $(cp_dirs); do \
-            install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+            install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
 	done
 	for file in $(cp_files); do \
-	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	    install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
 	@echo "install $(SRC_HTML_PFAPPDIR) without root dir"
 	for dir in $(pfapp_dirs); do \
-            install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+            install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
 	done
 	for file in $(pfapp_files); do \
-	    install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	    install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
 	# @echo "install $(SRC_HTML_PFAPPDIR) other dirs and files"
 	# for dir in $(pfapp_other_dirs); do \
-        #     install -v -d -m0755 $(DESTDIR)$(PFPREFIX)/$$dir ; \
+        #     install -v -d -m0755 $(DESTDIR)$(PF_PREFIX)/$$dir ; \
 	# done
 	# for file in $(pfapp_other_files); do \
-	#     install -v -m 0644 $$file $(DESTDIR)$(PFPREFIX)/$$file ; \
+	#     install -v -m 0644 $$file $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	# done

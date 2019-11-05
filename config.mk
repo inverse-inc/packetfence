@@ -20,9 +20,9 @@ ANSIBLE_RUBYGEMS_GROUP = devel_rubygems
 # Base directories
 #
 PREFIX = /usr/local
-PFPREFIX = $(PREFIX)/pf
-BINDIR = $(PFPREFIX)/bin
-SBINDIR = $(PFPREFIX)/sbin
+PF_PREFIX = $(PREFIX)/pf
+BINDIR = $(PF_PREFIX)/bin
+SBINDIR = $(PF_PREFIX)/sbin
 
 #
 # Golang
@@ -40,7 +40,7 @@ SRC_HTML_PFAPPDIR_STATIC = $(SRC_HTML_PFAPPDIR)/root/static
 SRC_HTML_PFAPPDIR_ALT = $(SRC_HTML_PFAPPDIR)/root/static.alt
 
 # Installed HTLML dirs
-HTMLDIR = $(PFPREFIX)/html
+HTMLDIR = $(PF_PREFIX)/html
 HTML_CPDIR = $(HTMLDIR)/captive-portal
 HTML_COMMONDIR = $(HTMLDIR)/common
 HTML_PARKINGDIR = $(HTMLDIR)/parking
