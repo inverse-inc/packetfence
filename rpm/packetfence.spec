@@ -1066,7 +1066,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/common/styles.css.map
 %config(noreplace)      /usr/local/pf/html/common/styles-dark.css
                         /usr/local/pf/html/common/Gruntfile.js
-                        /usr/local/pf/html/common/package.json
                         /usr/local/pf/html/common/scss/*.scss
 # captive portal
 %dir                    /usr/local/pf/html/captive-portal
@@ -1113,8 +1112,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
 %dir                    /usr/local/pf/html/captive-portal/script
                         /usr/local/pf/html/captive-portal/script/*
-%dir                    /usr/local/pf/html/captive-portal/t
-                        /usr/local/pf/html/captive-portal/t/*
                         /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
                         /usr/local/pf/html/captive-portal/content/sslinspection.js
 %dir                    /usr/local/pf/html/captive-portal/templates
