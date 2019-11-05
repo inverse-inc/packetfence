@@ -1,84 +1,30 @@
 package pfpki
 
 import (
-	"encoding/base64"
-	"fmt"
-	"net"
-	"net/smtp"
+	"crypto/tls"
+	"io"
+
+	"gopkg.in/gomail.v2"
 )
 
 func email(cert Cert, profile Profile, file []byte) error {
 
-	// tlsConfig := tls.Config{
-	// 	ServerName:         profile.P12SmtpServer,
-	// 	InsecureSkipVerify: true,
-	// }
-	delimeter := "**=zaymlimiter"
-	// conn, connErr := tls.Dial("tcp", fmt.Sprintf("%s:%d", profile.P12SmtpServer, 25), &tlsConfig)
-	conn, connErr := net.Dial("tcp", fmt.Sprintf("%s:%d", profile.P12SmtpServer, 25))
-	if connErr != nil {
-		return connErr
-	}
-	defer conn.Close()
+	m := gomail.NewMessage()
+	m.SetHeader("From", profile.P12MailFrom)
+	m.SetHeader("To", cert.Mail)
+	m.SetHeader("Subject", profile.P12MailSubject)
 
-	client, clientErr := smtp.NewClient(conn, profile.P12SmtpServer)
-	if clientErr != nil {
-		return clientErr
-	}
-	defer client.Close()
-
-	// auth := smtp.PlainAuth("", emailAddr, password, serverAddr)
-
-	// if err := client.Auth(auth); err != nil {
-	// 	log.Panic(err)
-	// }
-
-	if err := client.Mail(profile.P12MailFrom); err != nil {
+	m.Attach("cert.p12", gomail.SetCopyFunc(func(w io.Writer) error {
+		_, err := w.Write(file)
 		return err
-	}
-	// log.Println("Set 'TO(s)'")
-	// for _, to := range tos {
-	if err := client.Rcpt(cert.Mail); err != nil {
-		return err
-	}
-	// }
+	}))
 
-	writer, writerErr := client.Data()
-	if writerErr != nil {
-		return writerErr
-	}
+	d := gomail.NewDialer(profile.P12SmtpServer, 25, "user", "123456")
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
-	//basic email headers
-	sampleMsg := fmt.Sprintf("From: %s\r\n", profile.P12MailFrom)
-	sampleMsg += fmt.Sprintf("To: %s\r\n", cert.Mail)
-	// if len(cc) > 0 {
-	// 	sampleMsg += fmt.Sprintf("Cc: %s\r\n", strings.Join(cc, ";"))
-	// }
-	sampleMsg += profile.P12MailSubject + "\r\n"
-
-	sampleMsg += "MIME-Version: 1.0\r\n"
-	sampleMsg += fmt.Sprintf("Content-Type: multipart/mixed; boundary=\"%s\"\r\n", delimeter)
-
-	sampleMsg += fmt.Sprintf("\r\n--%s\r\n", delimeter)
-	sampleMsg += "Content-Type: text/html; charset=\"utf-8\"\r\n"
-	sampleMsg += "Content-Transfer-Encoding: 7bit\r\n"
-	sampleMsg += fmt.Sprintf("\r\n%s", "<html><body><h1>"+profile.P12MailSubject+"</h1>"+
-		"<p>"+profile.P12MailHeader+"</p></body></html>\r\n")
-
-	sampleMsg += fmt.Sprintf("\r\n--%s\r\n", delimeter)
-	sampleMsg += "Content-Type: text/plain; charset=\"utf-8\"\r\n"
-	sampleMsg += "Content-Transfer-Encoding: base64\r\n"
-	sampleMsg += "Content-Disposition: attachment;filename=\"certificate.p12\"\r\n"
-	sampleMsg += "\r\n" + base64.StdEncoding.EncodeToString(file)
-
-	if _, err := writer.Write([]byte(sampleMsg)); err != nil {
+	if err := d.DialAndSend(m); err != nil {
 		return err
 	}
 
-	if closeErr := writer.Close(); closeErr != nil {
-		return closeErr
-	}
-
-	client.Quit()
 	return nil
 }

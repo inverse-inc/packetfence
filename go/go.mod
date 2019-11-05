@@ -19,6 +19,7 @@ require (
 	github.com/diegoguarnieri/go-conntrack v0.0.0-20161208180411-9abb0707ff31
 	github.com/dnstap/golang-dnstap v0.0.0-20170829151710-2cf77a2b5e11
 	github.com/dustin/go-humanize v1.0.0
+	github.com/domodwyer/mailyak v3.1.1+incompatible // indirect
 	github.com/farsightsec/golang-framestream v0.0.0-20180124174429-c06a5734334d
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
