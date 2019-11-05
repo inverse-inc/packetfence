@@ -85,7 +85,7 @@ export default {
   },
   data () {
     return {
-      focus: false
+      hasFocus: false
     }
   },
   computed: {
@@ -112,7 +112,7 @@ export default {
       return listeners
     },
     proxyPlaceholder () {
-      return (this.focus)
+      return (this.hasFocus)
         ? this.placeholder || this.$i18n.t('Enter a new value')
         : '' // hide placeholder when not in focus
     },
@@ -121,11 +121,11 @@ export default {
     }
   },
   methods: {
-    onFocus (event) {
-      this.focus = true
+    onFocus () {
+      this.hasFocus = true
     },
-    onBlur (event) {
-      this.focus = false
+    onBlur () {
+      this.hasFocus = false
     },
     focus () {
       this.$refs.input.focus()
