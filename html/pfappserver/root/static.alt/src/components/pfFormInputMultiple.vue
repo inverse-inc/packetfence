@@ -1,6 +1,6 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
-    class="pf-form-input-multiple" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
+    class="pf-form-chosen pf-form-input-multiple" :class="{ 'mb-0': !columnLabel, 'is-focus': hasFocus, 'is-empty': !value, 'is-disabled': disabled }">
     <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
     </template>
@@ -10,10 +10,10 @@
         v-bind="$attrs"
         v-on="forwardListeners"
         ref="input"
+        track-by="value"
+        label="text"
         :disabled="disabled"
         :state="isValid()"
-        label="text"
-        track-by="value"
         :multiple="true"
         :options="options"
         :taggable="true"
@@ -138,163 +138,17 @@ export default {
 </script>
 
 <style lang="scss">
-/**
- * Adjust is-invalid and is-focus borders
- */
 .pf-form-input-multiple {
-
-  /* show placeholder even when empty */
-  &.is-empty {
-    .multiselect__input,
-    .multiselect__placeholder {
-      position: relative !important;
-      width: 100% !important;
-    }
-    .multiselect__placeholder {
-      display: none;
-    }
-  }
-  &.is-empty:not(.is-focus) {
-    .multiselect__single {
-      display: none;
-    }
-  }
-
-  .multiselect__loading-enter-active,
-  .multiselect__loading-leave-active,
-  .multiselect__input,
-  .multiselect__single,
-  .multiselect__tags,
-  .multiselect__tag-icon,
-  .multiselect__select,
-  .multiselect-enter-active,.multiselect-leave-active {
-    transition: $custom-forms-transition;
-  }
-
-  .multiselect {
-      position: relative;
-      flex: 1 1 auto;
-      width: 1%;
-      min-height: auto;
-      border-width: 1px;
-      margin-bottom: 0;
-      font-size: $font-size-base;
-  }
-  .multiselect__tags,
-  .multiselect__option {
-    min-height: $input-height;
-    padding: $input-padding-y $input-padding-x;
-    font-size: $font-size-base;
-    line-height: $input-line-height;
-  }
-  .multiselect__tags {
-    padding: 4px 40px 4px 4px;
-    border: 1px solid $input-focus-bg;
-    background-color: $input-focus-bg;
-    @include border-radius($border-radius);
-    outline: 0;
-    .multiselect__tags-wrap {
-      padding: 0;
-    }
-    .multiselect__input {
-      max-width: 100%;
-    }
-    span > span.multiselect__single { /* placeholder */
-      color: $input-placeholder-color;
-      // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
-      opacity: 1;
-    }
-  }
-  .multiselect__select {
-    top: 0px;
-    right: 10px;
-    bottom: 0px;
-    width: auto;
-    height: auto;
-    padding: 0px;
-  }
   .multiselect__tag {
-    margin: 2px;
-    background-color: $secondary;
     overflow: unset;
-    /*
-    text-overflow: unset;
-    */
-  }
-  .multiselect__tag-icon {
-    &:hover {
-      background-color: inherit;
-      color: lighten($secondary, 15%);
-    }
-    &:after {
-      color: $component-active-color;
-    }
   }
   .multiselect__input,
   .multiselect__single {
-    padding: 0px;
-    margin: 4px;
-    background-color: transparent;
-    color: $input-color;
-    font-size: $font-size-base;
-    &::placeholder {
-      color: $input-placeholder-color;
-    }
+    padding: $input-padding-y 0;
   }
-  .multiselect__placeholder {
-    padding-top: 0px;
-    padding-bottom: $input-padding-y;
-    margin-bottom: 0px;
-    color: $input-placeholder-color;
-    font-size: $font-size-base;
-    line-height: $input-line-height;
-  }
-  .multiselect__content-wrapper {
-    z-index: $zindex-popover;
-    border: $dropdown-border-width solid $dropdown-border-color;
-    @include border-radius($dropdown-border-radius);
-    @include box-shadow($dropdown-box-shadow);
-  }
-  .multiselect--active:not(.multiselect--above) {
-    .multiselect__content-wrapper {
-      border-top-width: 0px;
-      border-bottom-width: 1px;
-      border-top-left-radius: 0 !important;
-      border-top-right-radius: 0 !important;
-      border-bottom-left-radius: $border-radius !important;
-      border-bottom-right-radius: $border-radius !important;
-    }
-  }
-  .multiselect--above {
-    .multiselect__content-wrapper {
-      border-bottom-width: 0px;
-      border-bottom-left-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
-    }
-  }
-  .multiselect__option--highlight {
-    color: $dropdown-link-active-color;
-  }
-  .multiselect--disabled {
-    background-color: $input-disabled-bg;
-    opacity: 1;
-    .multiselect__tags,
-    .multiselect__single {
-      background-color: $input-disabled-bg;
-    }
-    .multiselect__select {
-      background-color: transparent;
-    }
-  }
-  &.is-focus {
-    .multiselect__tags {
-      border-color: $input-focus-border-color;
-    }
-  }
-  &.is-invalid {
-    .multiselect__tags {
-      border-color: $form-feedback-invalid-color;
-    }
+  &.is-empty .multiselect__input,
+  &.is-empty .multiselect__single {
+    padding: 0;
   }
 }
 </style>
