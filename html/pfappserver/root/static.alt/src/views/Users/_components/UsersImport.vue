@@ -146,7 +146,6 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
-import pfProgress from '@/components/pfProgress'
 import UsersPreviewModal from './UsersPreviewModal'
 import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import {
@@ -179,7 +178,6 @@ export default {
     pfFormRow,
     pfFormToggle,
     pfFormUpload,
-    pfProgress,
     UsersPreviewModal
   },
   mixins: [

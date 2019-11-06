@@ -135,7 +135,7 @@ export default {
       // Restore visibleColumns, overwrite defaults
       if (this.$store.state[this.searchableStoreName].visibleColumns) {
         const visibleColumns = this.$store.state[this.searchableStoreName].visibleColumns
-        this.columns.forEach((column, index, columns) => {
+        this.columns.forEach((column, index) => {
           this.$set(this.columns[index], 'visible', visibleColumns.includes(column.key))
         })
       }
@@ -157,6 +157,7 @@ export default {
         }
         // Import default condition
         this.searchableInitCondition()
+        // eslint-disable-next-line
       } while (false)
     },
     onSearch (searchCondition = '') {
@@ -249,7 +250,7 @@ export default {
   },
   watch: {
     searchableOptions: {
-      handler (a, b) {
+      handler () {
         this.initStore()
         this.onSearch()
       }

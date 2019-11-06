@@ -18,15 +18,8 @@
 </template>
 
 <script>
-import pfFormInput from '@/components/pfFormInput'
-import pfFormRow from '@/components/pfFormRow'
-
 export default {
   name: 'users-preview-modal',
-  components: {
-    pfFormInput,
-    pfFormRow
-  },
   data () {
     return {
       emailSubject: '',
