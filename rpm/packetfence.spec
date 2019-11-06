@@ -534,16 +534,16 @@ rm -rf %{buildroot}
 # Pre-installation
 #==============================================================================
 %pre
-
+set -x
 /usr/bin/systemctl --now mask mariadb
 
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
 # New shells will not be placed into user-0.slice since systemd-logind will be disabled and masked
-# /bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
-# /usr/bin/systemctl stop systemd-logind
-# /usr/bin/systemctl --now mask systemd-logind
-# /usr/bin/systemctl daemon-reload
+/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
+/usr/bin/systemctl stop systemd-logind
+/usr/bin/systemctl --now mask systemd-logind
+/usr/bin/systemctl daemon-reload
 
 # clean up the old systemd files if it's an upgrade
 if [ "$1" = "2"   ]; then
@@ -554,6 +554,7 @@ if [ "$1" = "2"   ]; then
     /usr/bin/systemctl isolate packetfence-base.target
 fi
 
+echo "Before pf user creation"
 if ! /usr/bin/id pf &>/dev/null; then
     if ! /bin/getent group  pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
