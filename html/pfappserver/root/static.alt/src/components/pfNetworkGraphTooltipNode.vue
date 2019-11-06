@@ -62,13 +62,9 @@
 
 <script>
 import apiCall from '@/utils/api'
-import pfFormRow from '@/components/pfFormRow'
 
 export default {
   name: 'pf-network-graph-tooltip-node',
-  components: {
-    pfFormRow
-  },
   props: {
     id: {
       type: String
