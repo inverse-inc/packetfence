@@ -48,7 +48,7 @@ END
 
 DELIMITER ;
 \! echo "Checking PacketFence schema version...";
--- call ValidateVersion;
+call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
 --
