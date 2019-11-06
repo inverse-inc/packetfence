@@ -137,7 +137,7 @@ type Cert struct {
 	ProfileID     uint
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	Revoked       string    `json:"revoked,omitempty"`
+	Revoked       int       `json:"revoked,omitempty"`
 	CRLReason     string    `json:"crlreason,omitempty"`
 	SerialNumber  string
 	// UserIssuerHashmd5    string    `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`

@@ -3,6 +3,7 @@ package pfpki
 import (
 	"bytes"
 	"crypto"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -23,43 +24,23 @@ import (
 
 // OCSPResponder struct
 type OCSPResponder struct {
-	IndexFile    string
-	RespKeyFile  string
-	RespCertFile string
-	CaCertFile   string
-	LogFile      string
-	LogToStdout  bool
-	Strict       bool
-	Port         int
-	Address      string
-	Ssl          bool
-	IndexEntries []IndexEntry
-	IndexModTime time.Time
-	CaCert       *x509.Certificate
-	RespCert     *x509.Certificate
-	NonceList    [][]byte
-	Handler      *Handler
+	RespKeyFile string
+	Strict      bool
+	CaCert      *x509.Certificate
+	RespCert    *x509.Certificate
+	NonceList   [][]byte
+	Handler     *Handler
 }
 
 // I decided on these defaults based on what I was using
 func Responder(pfpki *Handler) *OCSPResponder {
 	return &OCSPResponder{
-		IndexFile:    "index.txt",
-		RespKeyFile:  "responder.key",
-		RespCertFile: "responder.crt",
-		CaCertFile:   "ca.crt",
-		LogFile:      "/var/log/gocsp-responder.log",
-		LogToStdout:  false,
-		Strict:       false,
-		Port:         8888,
-		Address:      "",
-		Ssl:          false,
-		IndexEntries: nil,
-		IndexModTime: time.Time{},
-		CaCert:       nil,
-		RespCert:     nil,
-		NonceList:    nil,
-		Handler:      pfpki,
+		RespKeyFile: "responder.key",
+		Strict:      false,
+		CaCert:      nil,
+		RespCert:    nil,
+		NonceList:   nil,
+		Handler:     pfpki,
 	}
 }
 
@@ -123,74 +104,24 @@ type IndexEntry struct {
 	DistinguishedName string
 }
 
-// function to parse the index file
-// func (ocspr *OCSPResponder) parseIndex() error {
-// 	var t string = "060102150405Z"
-// 	finfo, err := os.Stat(ocspr.IndexFile)
-// 	if err == nil {
-// 		// if the file modtime has changed, then reload the index file
-// 		if finfo.ModTime().After(ocspr.IndexModTime) {
-// 			log.Print("Index has changed. Updating")
-// 			ocspr.IndexModTime = finfo.ModTime()
-// 			// clear index entries
-// 			ocspr.IndexEntries = ocspr.IndexEntries[:0]
-// 		} else {
-// 			// the index has not changed. just return
-// 			return nil
-// 		}
-// 	} else {
-// 		return err
-// 	}
-
-// 	// open and parse the index file
-// 	if file, err := os.Open(ocspr.IndexFile); err == nil {
-// 		defer file.Close()
-// 		s := bufio.NewScanner(file)
-// 		for s.Scan() {
-// 			var ie IndexEntry
-// 			ln := strings.Fields(s.Text())
-// 			ie.Status = []byte(ln[0])[0]
-// 			ie.IssueTime, _ = time.Parse(t, ln[1])
-// 			if ie.Status == StatusValid {
-// 				ie.Serial, _ = new(big.Int).SetString(ln[2], 16)
-// 				ie.DistinguishedName = ln[4]
-// 				ie.RevocationTime = time.Time{} //doesn't matter
-// 			} else if ie.Status == StatusRevoked {
-// 				ie.Serial, _ = new(big.Int).SetString(ln[3], 16)
-// 				ie.DistinguishedName = ln[5]
-// 				ie.RevocationTime, _ = time.Parse(t, ln[2])
-// 			} else {
-// 				// invalid status or bad line. just carry on
-// 				continue
-// 			}
-// 			ocspr.IndexEntries = append(ocspr.IndexEntries, ie)
-// 		}
-// 	} else {
-// 		return err
-// 	}
-// 	return nil
-// }
-
 // updates the index if necessary and then searches for the given index in the
 // index list
 func (ocspr *OCSPResponder) getIndexEntry(s *big.Int, ca CA) (*IndexEntry, error) {
 
 	var cert Cert
-	spew.Dump(s)
+
 	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&cert); CertDB.Error != nil {
 		return nil, CertDB.Error
 	}
-	// ent := IndexEntry{}
-	// log.Println(fmt.Sprintf("Looking for serial 0x%x", s))
-	// if err := ocspr.parseIndex(); err != nil {
-	// 	return nil, err
-	// }
-	// for _, ent := range ocspr.IndexEntries {
-	// 	if ent.Serial.Cmp(s) == 0 {
-	// 		return &ent, nil
-	// 	}
-	// }
-	return nil, errors.New(fmt.Sprintf("Serial 0x%x not found", s))
+	// serial, _ := new(big.Int).SetString(cert.SerialNumber, 10)
+	ent := IndexEntry{Status: StatusValid, Serial: s, IssueTime: cert.Date, RevocationTime: cert.ValidUntil, DistinguishedName: cert.Cn}
+	if time.Now().After(cert.ValidUntil) {
+		ent.Status = StatusExpired
+	}
+	if cert.Revoked == 1 {
+		ent.Status = StatusRevoked
+	}
+	return &ent, nil
 }
 
 // parses a pem encoded x509 certificate
@@ -265,7 +196,6 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	// get the index entry, if it exists
 	ent, err := ocspr.getIndexEntry(req.SerialNumber, ca)
 	if err != nil {
 		log.Println(err)
@@ -282,14 +212,18 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 		}
 	}
 
-	// parse key file
-	// perhaps I should zero this out after use
-	keyi, err := parseKeyFile(ocspr.RespKeyFile)
+	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
 	if err != nil {
 		return nil, err
 	}
-	key, ok := keyi.(crypto.Signer)
+	keyi, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return nil, err
+	}
+
+	key, ok := keyi.PublicKey.(crypto.Signer)
 	if !ok {
+		spew.Dump(ent)
 		return nil, errors.New("Could not make key a signer")
 	}
 
@@ -317,7 +251,7 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 	rtemplate := ocsp.Response{
 		Status:           status,
 		SerialNumber:     req.SerialNumber,
-		Certificate:      ocspr.RespCert,
+		Certificate:      keyi,
 		RevocationReason: ocsp.Unspecified,
 		IssuerHash:       req.HashAlgorithm,
 		RevokedAt:        revokedAt,
