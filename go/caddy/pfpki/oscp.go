@@ -3,22 +3,17 @@ package pfpki
 import (
 	"bytes"
 	"crypto"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/pem"
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"math/big"
 	"net/http"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocsp"
 )
 
@@ -47,9 +42,7 @@ func Responder(pfpki *Handler) *OCSPResponder {
 // Creates an OCSP http handler and returns it
 func (ocspr *OCSPResponder) makeHandler() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Print(fmt.Sprintf("Got %s request from %s", r.Method, r.RemoteAddr))
 		if ocspr.Strict && r.Header.Get("Content-Type") != "application/ocsp-request" {
-			log.Println("Strict mode requires correct Content-Type header")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -59,31 +52,24 @@ func (ocspr *OCSPResponder) makeHandler() func(w http.ResponseWriter, r *http.Re
 		case "POST":
 			b.ReadFrom(r.Body)
 		case "GET":
-			log.Println(r.URL.Path)
 			gd, err := base64.StdEncoding.DecodeString(r.URL.Path[1:])
 			if err != nil {
-				log.Println(err)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
 			r := bytes.NewReader(gd)
 			b.ReadFrom(r)
 		default:
-			log.Println("Unsupported request method")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		// parse request, verify, create response
 		w.Header().Set("Content-Type", "application/ocsp-response")
 		resp, err := ocspr.verify(b.Bytes())
 		if err != nil {
-			log.Print(err)
-			// technically we should return an ocsp error response. but this is probably fine
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		log.Print("Writing response")
 		w.Write(resp)
 	}
 }
@@ -96,24 +82,20 @@ const (
 )
 
 type IndexEntry struct {
-	Status byte
-	Serial *big.Int // wow I totally called it
-	// revocation reason may need to be added
+	Status            byte
+	Serial            *big.Int
 	IssueTime         time.Time
 	RevocationTime    time.Time
 	DistinguishedName string
 }
 
-// updates the index if necessary and then searches for the given index in the
-// index list
-func (ocspr *OCSPResponder) getIndexEntry(s *big.Int, ca CA) (*IndexEntry, error) {
+func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca CA) (*IndexEntry, error) {
 
 	var cert Cert
-
+	// Search for the certificate that match the serial and has been signed by the CA
 	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&cert); CertDB.Error != nil {
 		return nil, CertDB.Error
 	}
-	// serial, _ := new(big.Int).SetString(cert.SerialNumber, 10)
 	ent := IndexEntry{Status: StatusValid, Serial: s, IssueTime: cert.Date, RevocationTime: cert.ValidUntil, DistinguishedName: cert.Cn}
 	if time.Now().After(cert.ValidUntil) {
 		ent.Status = StatusExpired
@@ -122,34 +104,6 @@ func (ocspr *OCSPResponder) getIndexEntry(s *big.Int, ca CA) (*IndexEntry, error
 		ent.Status = StatusRevoked
 	}
 	return &ent, nil
-}
-
-// parses a pem encoded x509 certificate
-func parseCertFile(filename string) (*x509.Certificate, error) {
-	ct, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	block, _ := pem.Decode(ct)
-	cert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-	return cert, nil
-}
-
-// parses a PEM encoded PKCS8 private key (RSA only)
-func parseKeyFile(filename string) (interface{}, error) {
-	kt, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	block, _ := pem.Decode(kt)
-	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
 }
 
 // takes a list of extensions and returns the nonce extension if it is present
@@ -176,62 +130,50 @@ func (ocspr *OCSPResponder) verifyIssuer(req *ocsp.Request) (CA, error) {
 	return ca, nil
 }
 
-// takes the der encoded ocsp request, verifies it, and creates a response
 func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 	var status int
 	var revokedAt time.Time
 
-	// parse the request
 	req, exts, err := ocsp.ParseRequest(rawreq)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
-
-	//make sure the request is valid
 
 	ca, err := ocspr.verifyIssuer(req)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 
-	ent, err := ocspr.getIndexEntry(req.SerialNumber, ca)
+	ent, err := ocspr.getCertificateStatus(req.SerialNumber, ca)
 	if err != nil {
-		log.Println(err)
 		status = ocsp.Unknown
 	} else {
-		log.Print(fmt.Sprintf("Found entry %+v", ent))
 		if ent.Status == StatusRevoked {
-			log.Print("This certificate is revoked")
 			status = ocsp.Revoked
 			revokedAt = ent.RevocationTime
 		} else if ent.Status == StatusValid {
-			log.Print("This certificate is valid")
 			status = ocsp.Good
 		}
 	}
 
-	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
-	if err != nil {
-		return nil, err
-	}
-	keyi, err := x509.ParseCertificate(catls.Certificate[0])
-	if err != nil {
-		return nil, err
-	}
+	//Assign the good ca to the reply
+	cacert, err := parseCertFile(ca.CaCert)
 
-	key, ok := keyi.PublicKey.(crypto.Signer)
+	if err != nil {
+		return nil, err
+	}
+	ocspr.CaCert = cacert
+
+	pkey, err := ParseRsaPrivateKeyFromPemStr(ca.CaKey)
+
+	key, ok := pkey.(crypto.Signer)
 	if !ok {
-		spew.Dump(ent)
 		return nil, errors.New("Could not make key a signer")
 	}
 
-	// check for nonce extension
 	var responseExtensions []pkix.Extension
 	nonce := checkForNonceExtension(exts)
 
-	// check if the nonce has been used before
 	if ocspr.NonceList == nil {
 		ocspr.NonceList = make([][]byte, 10)
 	}
@@ -256,13 +198,12 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 		IssuerHash:       req.HashAlgorithm,
 		RevokedAt:        revokedAt,
 		ThisUpdate:       time.Now().AddDate(0, 0, -1).UTC(),
-		//adding 1 day after the current date. This ocsp library sets the default date to epoch which makes ocsp clients freak out.
-		NextUpdate: time.Now().AddDate(0, 0, 1).UTC(),
-		Extensions: exts,
+		NextUpdate:       time.Now().AddDate(0, 0, 1).UTC(),
+		Extensions:       exts,
 	}
 
 	// make a response to return
-	resp, err := ocsp.CreateResponse(ocspr.CaCert, ocspr.RespCert, rtemplate, key)
+	resp, err := ocsp.CreateResponse(ocspr.CaCert, ocspr.CaCert, rtemplate, key)
 	if err != nil {
 		return nil, err
 	}
