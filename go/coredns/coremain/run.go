@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/coreos/go-systemd/daemon"
 	"github.com/mholt/caddy"
 
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
@@ -99,6 +100,11 @@ func Run() {
 	logVersion()
 	if !dnsserver.Quiet {
 		showVersion()
+	}
+
+	_, err = daemon.SdNotify(true, "READY=1")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error sending systemd ready notification %s\n", err.Error())
 	}
 
 	// Twiddle your thumbs
