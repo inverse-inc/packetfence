@@ -27,6 +27,7 @@ Enhancements
 ++++++++++++
 * Network visualization now supports custom sorting, min/max graph sizing, variable real-time network live-view, and infinite depth of switch-group inheritance.
 * Speedup the dal generation (#4824)
+* Enhance Juniper EX2300 to allow a port bounce to be done via RADIUS CoA
 
 Bug Fixes
 +++++++++
