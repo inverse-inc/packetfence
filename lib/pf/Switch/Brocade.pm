@@ -88,13 +88,15 @@ use pf::constants::role qw($VOICE_ROLE);
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusDynamicVlanAssignment
+    RadiusVoip
+    Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
-sub supportsLldp { return $TRUE; }
 
 =item getVersion
 

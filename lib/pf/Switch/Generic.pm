@@ -28,10 +28,12 @@ sub description { return "Generic" }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    WiredDot1x
+    WiredMacAuth
+);
 
 =item returnAuthorizeWrite
 

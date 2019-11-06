@@ -1,34 +1,52 @@
-package pf::Switch::Nortel::ERS4000;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::Switch::Nortel::ERS4000 - Object oriented module to access SNMP enabled Nortel ERS 4000 switches
+SwitchSupports
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-The pf::Switch::Nortel::ERS4000 module implements an object 
-oriented interface to access SNMP enabled Nortel::ERS4000 switches.
-
-=head1 STATUS
-
-This module is currently only a placeholder, see pf::Switch::Nortel.
+unit test for SwitchSupports
 
 =cut
 
 use strict;
 use warnings;
+#
+use lib '/usr/local/pf/lib';
 
-use pf::Switch::constants;
-use Net::SNMP;
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
 
-use base ('pf::Switch::Nortel');
+{
+    package m1;
+    use base qw(pf::Switch);
+    use pf::SwitchSupports qw(
+        VPN
+        -RadiusDynamicVlanAssignment
+    );
+}
 
-use pf::SwitchSupports qw(
-    RadiusVoip
-    WiredMacAuth
-);
+{
+    package m2;
+    use base qw(m1);
+    use pf::SwitchSupports qw(
+        RadiusDynamicVlanAssignment
+    );
+}
 
-sub description { 'Nortel ERS 4000 Series' }
+use Test::More tests => 3;
+
+#This test will running last
+use Test::NoWarnings;
+
+is_deeply([m1->supports()], [qw(VPN)], "");
+
+is_deeply([m2->supports()], [qw(RadiusDynamicVlanAssignment VPN)], "");
 
 =head1 AUTHOR
 
@@ -59,6 +77,3 @@ USA.
 
 1;
 
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:

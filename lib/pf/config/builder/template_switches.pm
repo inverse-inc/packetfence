@@ -35,7 +35,21 @@ sub buildEntry {
     }
 
     my ($vendor, undef) = split /::/, $type, 2;
-    push @{$buildData->{entries}{'::VENDORS'}{$vendor}}, { value => $type, label => $entry->{description} };
+    push @{ $buildData->{entries}{'::VENDORS'}{$vendor} },
+    {
+        value    => $type,
+        label    => $entry->{description},
+        supports => [
+            qw(
+              RadiusDynamicVlanAssignment
+              WiredMacAuth
+              WiredDot1x
+              WirelessMacAuth
+              WirelessDot1x
+              RadiusVoip
+              RoleBasedEnforcement)
+        ],
+    };
 
     return $entry;
 }

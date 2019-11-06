@@ -207,6 +207,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
   let {
     isNew = false,
     isClone = false,
+    advancedMode = false,
     options: {
       meta = {}
     },
@@ -217,6 +218,20 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
   const placeholder = (key = null) => {
     const { [key]: { placeholder = null } = {} } = meta
     return placeholder
+  }
+
+  const switchTypeSupport = (options) => {
+    const { type: { allowed = [] } = { } } = meta
+    return advancedMode || allowed.find(group => {
+      return group.options.find(switche => {
+        if (switche.value === form.type) {
+          return switche.supports.find(option => {
+            // Return true if the switch model supports *any* of the specified options
+            return options.includes(option)
+          })
+        }
+      })
+    })
   }
 
   return [
@@ -344,6 +359,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: switchTypeSupport(['ExternalPortal']),
           label: i18n.t('External Portal Enforcement'),
           text: i18n.t('Enable external portal enforcement when supported by network equipment.'),
           fields: [
@@ -375,6 +391,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: switchTypeSupport(['Lldp']),
           label: i18n.t('VoIPLLDPDetect'),
           text: i18n.t('Detect VoIP with a SNMP request in the LLDP MIB.'),
           fields: [
@@ -391,6 +408,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: switchTypeSupport(['Cdp']),
           label: i18n.t('VoIPCDPDetect'),
           text: i18n.t('Detect VoIP with a SNMP request in the CDP MIB.'),
           fields: [
@@ -423,6 +441,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: switchTypeSupport(['WiredMacAuth', 'WiredDot1x']),
           label: i18n.t('Dynamic Uplinks'),
           text: i18n.t('Dynamically lookup uplinks.'),
           fields: [
@@ -444,9 +463,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: (switchTypeSupport(['WiredMacAuth', 'WiredDot1x']) && ((form.uplink_dynamic && form.uplink_dynamic !== 'dynamic') || (!form.uplink_dynamic && placeholder('uplink_dynamic') !== 'dynamic'))),
           label: i18n.t('Static Uplinks'),
           text: i18n.t('Comma-separated list of the switch uplinks.'),
-          if: ((form.uplink_dynamic && form.uplink_dynamic !== 'dynamic') || (!form.uplink_dynamic && placeholder('uplink_dynamic') !== 'dynamic')),
           fields: [
             {
               key: 'uplink',
@@ -462,6 +481,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: switchTypeSupport(['WirelessMacAuth', 'WirelessDot1x']),
           label: i18n.t('Controller IP Address'),
           text: i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.'),
           fields: [
@@ -474,6 +494,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: switchTypeSupport(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']),
           label: i18n.t('Disconnect Port'),
           text: i18n.t('For Disconnect request, if we have to send to another port.'),
           fields: [
@@ -486,6 +507,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
+          if: switchTypeSupport(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']),
           label: i18n.t('CoA Port'),
           text: i18n.t('For CoA request, if we have to send to another port.'),
           fields: [
@@ -502,8 +524,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
     {
       tab: i18n.t('Roles'),
       fields: [
-        { label: i18n.t('Role mapping by VLAN ID'), labelSize: 'lg' },
         {
+          if: switchTypeSupport(['RadiusDynamicVlanAssignment']),
+          label: i18n.t('Role mapping by VLAN ID'),
+          labelSize: 'lg'
+        },
+        {
+          if: switchTypeSupport(['RadiusDynamicVlanAssignment']),
           label: i18n.t('Role by VLAN ID'),
           fields: [
             {
@@ -527,8 +554,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ...roles
         ].map(role => {
           return {
+            if: (switchTypeSupport(['RadiusDynamicVlanAssignment']) && (form.VlanMap === 'Y' || (!form.VlanMap && placeholder('VlanMap') === 'Y'))),
             label: role.label || role.id,
-            if: (form.VlanMap === 'Y' || (!form.VlanMap && placeholder('VlanMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Vlan`,
@@ -539,8 +566,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             ]
           }
         }),
-        { label: i18n.t('Role mapping by Switch Role'), labelSize: 'lg' },
         {
+          if: switchTypeSupport(['RoleBasedEnforcement']),
+          label: i18n.t('Role mapping by Switch Role'),
+          labelSize: 'lg'
+        },
+        {
+          if: switchTypeSupport(['RoleBasedEnforcement']),
           label: i18n.t('Role by Switch Role'),
           fields: [
             {
@@ -564,8 +596,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ...roles
         ].map(role => {
           return {
+            if: (switchTypeSupport(['RoleBasedEnforcement']) && (form.RoleMap === 'Y' || (!form.RoleMap && placeholder('RoleMap') === 'Y'))),
             label: role.label || role.id,
-            if: (form.RoleMap === 'Y' || (!form.RoleMap && placeholder('RoleMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Role`,
@@ -576,8 +608,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             ]
           }
         }),
-        { label: i18n.t('Role mapping by Access List'), labelSize: 'lg' },
         {
+          if: switchTypeSupport(['AccessListBasedEnforcement']),
+          label: i18n.t('Role mapping by Access List'),
+          labelSize: 'lg'
+        },
+        {
+          if: switchTypeSupport(['AccessListBasedEnforcement']),
           label: i18n.t('Role by Access List'),
           fields: [
             {
@@ -601,8 +638,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ...roles
         ].map(role => {
           return {
+            if: (switchTypeSupport(['AccessListBasedEnforcement']) && (form.AccessListMap === 'Y' || (!form.AccessListMap && placeholder('AccessListMap') === 'Y'))),
             label: role.label || role.id,
-            if: (form.AccessListMap === 'Y' || (!form.AccessListMap && placeholder('AccessListMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}AccessList`,
@@ -618,8 +655,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             ]
           }
         }),
-        { label: i18n.t('Role mapping by Web Auth URL'), labelSize: 'lg' },
         {
+          if: switchTypeSupport(['ExternalPortal']),
+          label: i18n.t('Role mapping by Web Auth URL'),
+          labelSize: 'lg'
+        },
+        {
+          if: switchTypeSupport(['ExternalPortal']),
           label: i18n.t('Role by Web Auth URL'),
           fields: [
             {
@@ -643,8 +685,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ...roles
         ].map(role => {
           return {
+            if: (switchTypeSupport(['ExternalPortal']) && (form.UrlMap === 'Y' || (!form.UrlMap && placeholder('UrlMap') === 'Y'))),
             label: role.label || role.id,
-            if: (form.UrlMap === 'Y' || (!form.UrlMap && placeholder('UrlMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Url`,
@@ -693,6 +735,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
       ]
     },
     {
+      if: switchTypeSupport(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']),
       tab: i18n.t('RADIUS'),
       fields: [
         {

@@ -60,10 +60,12 @@ TODO: This list is incomplete
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
 # special features
-sub supportsSaveConfig { return $FALSE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    -SaveConfig
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 

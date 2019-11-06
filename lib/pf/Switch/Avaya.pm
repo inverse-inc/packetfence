@@ -62,9 +62,11 @@ TODO: This list is incomplete
 
 =cut
 
-sub supportsWiredMacAuth { return $SNMP::TRUE; }
-sub supportsWiredDot1x { return $SNMP::TRUE }
-sub supportsRadiusVoip { return $SNMP::TRUE }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+);
 
 =head2 identifyConnectionType
 

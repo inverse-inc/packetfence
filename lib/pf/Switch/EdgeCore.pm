@@ -28,7 +28,9 @@ sub description { 'EdgeCore' }
 
 =cut
 
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+);
 
 =head1 AUTHOR
 

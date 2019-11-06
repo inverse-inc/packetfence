@@ -43,8 +43,10 @@ sub description { return "Allied Telesis GS950" }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredDot1x
+    WiredMacAuth
+);
 
 =back
 

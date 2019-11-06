@@ -69,12 +69,15 @@ TODO: This list is incomplete
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
 # disabling special features supported by generic Cisco's but not on Aironet
-sub supportsSaveConfig { return $FALSE; }
-sub supportsCdp { return $FALSE; }
-sub supportsLldp { return $FALSE; }
+
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    -SaveConfig
+    -Cdp
+    -Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 

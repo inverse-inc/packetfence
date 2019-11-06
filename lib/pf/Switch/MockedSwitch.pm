@@ -87,21 +87,22 @@ Warning: The list of subroutine is incomplete
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsMABFloatingDevices { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
-sub supportsAccessListBasedEnforcement { return $TRUE }
+use pf::SwitchSupports qw(
+  WiredMacAuth
+  WiredDot1x
+  RadiusDynamicVlanAssignment
+  ExternalPortal
+  MABFloatingDevices
+  WebFormRegistration
+  AccessListBasedEnforcement
+  RadiusVoip
+  FloatingDevice
+  Cdp
+  -Lldp
+  -RoamingAccounting
+  -SaveConfig
+);
 # VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
-# special features supported
-sub supportsFloatingDevice { return $TRUE; }
-sub supportsSaveConfig { return $FALSE; }
-sub supportsCdp { return $TRUE; }
-sub supportsLldp { return $FALSE; }
-sub supportsRoamingAccounting { return $FALSE }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT,$SSID); }
 

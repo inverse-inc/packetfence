@@ -37,11 +37,13 @@ use pf::log;
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    FloatingDevice
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
-sub supportsFloatingDevice { return $TRUE }
 
 =head2 _connect
 

@@ -51,10 +51,12 @@ use pf::util;
 
 =cut
 
-sub supportsFloatingDevice { return $TRUE; }
 
 # special features
-sub supportsLldp { return $TRUE; }
+use pf::SwitchSupports qw(
+    FloatingDevice
+    Lldp
+);
 
 #
 # %TRAP_NORMALIZERS

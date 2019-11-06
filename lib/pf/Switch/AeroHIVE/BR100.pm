@@ -23,7 +23,9 @@ sub description { 'AeroHive BR100' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+);
 
 =head1 AUTHOR
 

@@ -56,8 +56,10 @@ sub description { 'Belair Networks AP' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $FALSE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    -WirelessMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 

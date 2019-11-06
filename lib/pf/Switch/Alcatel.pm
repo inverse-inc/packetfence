@@ -56,12 +56,15 @@ use pf::util::radius qw(perform_disconnect);
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+    RadiusDynamicVlanAssignment
+    RadiusVoip
+);
+
 sub isVoIPEnabled { return $_[0]->{_VoIPEnabled} }
-sub supportsRadiusVoip { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 

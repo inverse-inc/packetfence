@@ -130,16 +130,17 @@ sub description { 'Cisco Catalyst 2960' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
 # override 2950's FALSE
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-sub supportsAccessListBasedEnforcement { return $TRUE }
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+    RadiusDynamicVlanAssignment
+    AccessListBasedEnforcement
+    RoleBasedEnforcement
+    ExternalPortal
+);
 
 =head1 SUBROUTINES
 

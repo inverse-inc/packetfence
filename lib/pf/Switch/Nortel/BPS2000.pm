@@ -31,7 +31,9 @@ sub description { 'Nortel BPS 2000' }
 
 # special features
 # LLDP is not available on BPS2000
-sub supportsLldp { return $FALSE; }
+use pf::SwitchSupports qw(
+    -Lldp
+);
 
 =head1 AUTHOR
 

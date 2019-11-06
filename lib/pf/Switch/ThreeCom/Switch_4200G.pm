@@ -106,10 +106,12 @@ sub description { '3COM 4200G' }
 
 =cut
 
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusVoip { return $SNMP::TRUE; }
-sub supportsLldp { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+    Lldp
+);
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }

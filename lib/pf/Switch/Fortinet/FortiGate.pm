@@ -42,12 +42,14 @@ use base ('pf::Switch::Fortinet');
 
 sub description { 'FortiGate Firewall with web auth + 802.1X' }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsVPN { return $TRUE; }
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WebFormRegistration
+    WirelessMacAuth
+    WiredMacAuth
+    WirelessDot1x
+    VPN
+);
 
 =item getIfIndexByNasPortId
 

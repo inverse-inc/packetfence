@@ -49,9 +49,11 @@ sub description { 'Unifi Controller' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WirelessDot1x
+    WirelessMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 

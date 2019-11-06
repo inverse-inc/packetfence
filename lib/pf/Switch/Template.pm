@@ -23,6 +23,14 @@ use pf::constants::role qw($REJECT_ROLE);
 use pf::access_filter::radius;
 use pf::roles::custom;
 use pf::mini_template;
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    WirelessMacAuth
+    WirelessDot1x
+    RadiusVoip
+    RoleBasedEnforcement
+);
 
 our $DISCONNECT_TYPE_COA = 'coa';
 our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';

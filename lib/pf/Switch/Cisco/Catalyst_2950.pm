@@ -117,13 +117,15 @@ Warning: The list of subroutine is incomplete
 =cut
 
 # CAPABILITIES
-sub supportsFloatingDevice { return $TRUE; }
 # access technology supported
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $FALSE; }
-sub supportsRadiusVoip { return $TRUE; }
 # special features
-sub supportsLldp { return $TRUE; }
+use pf::SwitchSupports qw(
+    FloatingDevice
+    WiredDot1x
+    -RadiusDynamicVlanAssignment
+    RadiusVoip
+    Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 

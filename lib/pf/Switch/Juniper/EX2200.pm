@@ -46,13 +46,15 @@ use pf::util::radius qw(perform_disconnect);
 use Try::Tiny;
 use pf::util;
 
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    RadiusVoip
+    FloatingDevice
+    MABFloatingDevices
+    WiredDot1x
+);
 # special features
-sub supportsFloatingDevice {return $TRUE}
-sub supportsMABFloatingDevices { return $TRUE }
 sub isVoIPEnabled {return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 
 # We overide it here because it's expensive and useless for this specific module
 # as it can do everything using RADIUS

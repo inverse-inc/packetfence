@@ -88,9 +88,11 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WirelessDot1x
+    WirelessMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
