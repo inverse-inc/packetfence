@@ -556,20 +556,23 @@ fi
 
 if ! /usr/bin/id pf &>/dev/null; then
     if ! /bin/getent group  pf &>/dev/null; then
+        echo "Creating pf user"
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-                echo Unexpected error adding user "pf" && exit
+                ( echo Unexpected error adding user "pf" && exit )
     else
+        echo "Creating pf user member of pf group"
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
-                echo Unexpected error adding user "pf" && exit
+                ( echo Unexpected error adding user "pf" && exit )
     fi
 fi
+echo "Adding pf user to app groups"
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql 
 /usr/sbin/usermod -aG pf netdata
 
 if [ ! `id -u` = "0" ];
 then
-  echo You must install this package as root!
+  echo "You must install this package as root!"
   exit
 fi
 
