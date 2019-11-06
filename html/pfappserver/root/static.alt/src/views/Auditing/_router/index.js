@@ -117,7 +117,7 @@ const route = {
       props: (route) => ({ storeName: '$_admin_api_audit_logs', query: route.query.query }),
       meta: {
         can: 'read admin_api_audit_log',
-        fail: '/auditing/admin_api_audit_logs/search'
+        fail: '/auditing/dnslogs/search'
       }
     },
     {
