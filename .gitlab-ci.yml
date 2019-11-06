@@ -1,20 +1,29 @@
 ---
-### COMMON PARAMETERS
+################################################################################
+# COMMON PARAMETERS
+################################################################################
 before_script:
   - unset http_proxy ; unset https_proxy
   - env | grep ^CI_
 
-### STAGES
+################################################################################
+# STAGES
+################################################################################
 stages:
   - build_images
   - build_pkg
+  - build_maintenance
   - sign
   - publish
   - install
   - upload
 
-### VARIABLES
+################################################################################
+# VARIABLES
+################################################################################
 variables:
+  PFBUILD_CENTOS_7_IMG: inverseinc/pfbuild-centos-7
+  PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-stretch
   CIDIR: ci
   PACKERDIR: $CIDIR/packer
   RPM_DIR: rpm
@@ -24,7 +33,60 @@ variables:
   ANSIBLE_FORCE_COLOR: "true"
   ANSIBLE_STDOUT_CALLBACK: yaml
 
-### TEMPLATES
+
+################################################################################
+# TEMPLATES
+################################################################################
+
+########################################
+# TRIGGERS
+########################################
+# triggers for dev jobs (devel and other development branches)
+.job_dev_triggers:
+  # run jobs on "devel" branch (push, schedules and web)
+  # run jobs on any branches/tags via "Run pipeline", except:
+  # - vX.X.X tag
+  # - maintenance/vX.X.X branches
+  only:
+    - /^devel$/
+    - web
+  except:
+    - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+
+# triggers for release jobs
+.job_release_triggers:
+  # run job on release tag (vX.X.X) (push and web)
+  # no schedule on tag
+  # exclude branches to avoid trigger when a branch is called vX.X.X
+  only:
+    - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+  except:
+    - branches
+
+# common triggers for jobs use for release and dev
+.job_dev_and_release_triggers:
+  # run jobs on "devel" branch or vX.X.X tag (push, schedules and web)
+  # run jobs on any branches/tags via "Run pipeline", except:
+  # - maintenance/vX.X.X branches
+  only:
+    - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^devel$/
+    - web
+  except:
+    - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+
+# triggers for maintenance jobs
+.job_maintenance_triggers:
+  # run job on maintenance branches (push, schedules and web)
+  # allow on all maintenance branches, push to branches before 9.2 will not trigger
+  # because they don't have .gitlab-ci.yml
+  only:
+    - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+
+########################################    
+# JOBS
+########################################
 .pfbuild_job:
   stage: build_images
   tags:
@@ -36,12 +98,15 @@ variables:
     expire_in: 1 day
     paths:
       - result/*
-  # only run jobs on schedules *OR* on "stable" refs (for release) *OR* via "Run pipeline"
-  only:
-    - schedules
-    - web
-    - /^stable$/
-    - /^devel$/
+  tags:
+    - docker
+
+.maintenance_job:
+  stage: build_maintenance
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
   tags:
     - docker
 
@@ -91,9 +156,13 @@ variables:
     QUILT_PATCHES: $DEB_DIR/patches
 
 
-### STAGES
+################################################################################
+# STAGES
+################################################################################
 
-#### BUILD_IMAGES JOBS
+########################################
+# BUILD_IMAGES JOBS
+########################################
 pfbuild_manual:
   extends: .pfbuild_job
   script:
@@ -113,34 +182,73 @@ pfbuild_test:
     - /^feature/packer-.*$/
 
 # build a docker image at release
-# used to build release packages, maintenance binaries and assets for maintenance
+# used to build release packages, maintenance artifacts for maintenance
 pfbuild_release:
-  extends: .pfbuild_job
+  extends:
+    - .pfbuild_job
+    - .job_release_triggers
   variables:
     ANSIBLE_CENTOS_GROUP: stable_centos
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
+    # prefix release images with maintenance/ to simplify definition of
+    # maintenance jobs
+    DOCKER_TAG: maintenance/${CI_COMMIT_TAG}
   script:
-    # remove 'packetfence-' prefix from tag
-    - export PF_VERSION=${CI_COMMIT_TAG#packetfence-}
-    - make -e -C $PACKERDIR DOCKER_TAG=$PF_VERSION pfbuild
-  only:
-    - /^packetfence-.*$/
+    - make -e -C $PACKERDIR pfbuild
 
-#### BUILD_PKG JOBS
-build_pkg_centos7:
-  image: inverseinc/pfbuild-centos-7
+########################################
+#  BUILD_PKG JOBS
+########################################
+# build_pkg jobs for development
+build_pkg_dev_centos_7:
+  image: ${PFBUILD_CENTOS_7_IMG}:latest
   extends:
     - .build_job
+    - .job_dev_triggers
     - .rpm_script
 
-build_pkg_debian_stretch:
-  image: inverseinc/pfbuild-debian-stretch
+build_pkg_dev_debian_stretch:
+  image: ${PFBUILD_DEB_STRETCH_IMG}:latest
   extends:
     - .build_job
+    - .job_dev_triggers
     - .deb_script
 
-### SIGN JOBS
+# build_pkg jobs for release
+build_pkg_release_centos_7:
+  image: ${PFBUILD_CENTOS_7_IMG}:maintenance/${CI_COMMIT_TAG}
+  extends:
+    - .build_job
+    - .job_release_triggers
+    - .rpm_script
+
+build_pkg_release_debian_stretch:
+  image: ${PFBUILD_DEB_STRETCH_IMG}:maintenance/${CI_COMMIT_TAG}
+  extends:
+    - .build_job
+    - .job_release_triggers
+    - .deb_script
+
+########################################
+# BUILD_MAINTENANCE JOBS
+########################################
+# CI_COMMIT_REF_NAME contains maintenance/vX.X.X
+build_maintenance_centos_7:
+  image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_NAME}
+  extends:
+    - .maintenance_job
+    - .job_maintenance_triggers
+
+build_maintenance_debian_stretch:
+  image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_NAME}
+  extends:
+    - .maintenance_job
+    - .job_maintenance_triggers
+
+########################################
+# SIGN JOBS
+########################################
 sign:
   # only use when executor is docker
   image: buildpkg/debian:buster
@@ -148,23 +256,24 @@ sign:
   script:
     - ci-sign-pkg
   dependencies:
-    - build_pkg_centos7
-    - build_pkg_debian_stretch
+    - build_pkg_dev_centos_7
+    - build_pkg_dev_debian_stretch
+    - build_pkg_release_centos_7
+    - build_pkg_release_debian_stretch
   artifacts:
     expire_in: 1 day
     paths:
       - result/*
-  only:
-    - schedules
-    - web
-    - /^packetfence-.*$/
-    - /^devel$/
   # run job on runners tag with inverse.ca AND shell
   tags:
     - inverse.ca
     - shell
+  extends:
+    - .job_dev_and_release_triggers
 
-### PUBLISH JOBS
+########################################
+# PUBLISH JOBS
+########################################
 pages:
   # only use when executor is docker
   image: buildpkg/debian:buster
@@ -185,53 +294,45 @@ pages:
     expire_in: 1 day
     paths:
       - public
-  only:
-    - schedules
-    - web
-    - /^packetfence-.*$/
-    - /^devel$/
   # run job on runners tag with inverse.ca AND shell
   tags:
     - inverse.ca
     - shell
+  extends:
+    - .job_dev_and_release_triggers
 
-### UPLOAD JOBS
-deploy_rpm_devel:
+########################################
+# UPLOAD JOBS
+########################################
+deploy_rpm_dev:
   extends:
     - .deploy_rpm_job
+    - .job_dev_triggers
   environment:
     name: devel/x86_64
     url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
-  only:
-    - web
-    - schedules
-    - /^devel$/
+
+deploy_deb_dev:
+  extends:
+    - .deploy_deb_job
+    - .job_dev_triggers
+  environment:
+    name: debian-devel
+    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
 
 deploy_rpm_release:
   extends:
     - .deploy_rpm_job
+    - .job_release_triggers
   environment:
     name: x86_64
     url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
-  only:
-    - /^stable$/
-
-deploy_deb_devel:
-  extends:
-    - .deploy_deb_job
-  environment:
-    name: debian-devel
-    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
-  only:
-    - web
-    - schedules
-    - /^devel$/
 
 deploy_deb_release:
   extends:
     - .deploy_deb_job
+    - .job_release_triggers
   environment:
     name: debian-lastrelease
     url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
-  only:
-    - /^stable$/
+
