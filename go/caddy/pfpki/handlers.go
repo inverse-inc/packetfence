@@ -25,6 +25,7 @@ type Info struct {
 type Create interface {
 	new() error
 	get() error
+	revoke() error
 }
 
 func manageCA(pfpki *Handler) http.Handler {
@@ -87,6 +88,9 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		}
 		if matched, _ := regexp.MatchString(`/pki/getcert/`, req.URL.Path); matched {
 			Information, err = v.get(pfpki, vars["cn"])
+		}
+		if matched, _ := regexp.MatchString(`/pki/revokecert/`, req.URL.Path); matched {
+			Information, err = v.revoke(pfpki, vars["cn"])
 		}
 	case Profile:
 

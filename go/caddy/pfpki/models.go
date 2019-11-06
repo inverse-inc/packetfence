@@ -92,8 +92,6 @@ type CA struct {
 	CaCert           string                  `json:"cacert,omitempty" gorm:"type:longtext"`
 	IssuerKeyHash    string                  `json:"issuerkeyhash,omitempty" gorm:"UNIQUE_INDEX"`
 	IssuerNameHash   string                  `json:"issuernamehash,omitempty" gorm:"UNIQUE_INDEX"`
-	// IssuerKeyHashsha256 string                  `json:"issuerkeyhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
-	// IssuerKeyHashsha512 string                  `json:"issuerkeyhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
 // Profile struct
@@ -137,13 +135,34 @@ type Cert struct {
 	ProfileID     uint
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	Revoked       int       `json:"revoked,omitempty"`
-	CRLReason     string    `json:"crlreason,omitempty"`
+	Revoked       time.Time
+	CRLReason     string `json:"crlreason,omitempty"`
 	SerialNumber  string
-	// UserIssuerHashmd5    string    `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
-	// UserIssuerHashsha1   string    `json:"userissuerhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
-	// UserIssuerHashsha256 string    `json:"userissuerhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
-	// UserIssuerHashsha512 string    `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
+}
+
+// Cert struct
+type RevokedCert struct {
+	gorm.Model
+	Cn            string `json:"cn""`
+	Mail          string `json:"mail"`
+	Ca            CA     `json:"ca"`
+	CaID          uint
+	StreetAddress string  `json:"street,omitempty"`
+	Organisation  string  `json:"organisation,omitempty"`
+	Country       string  `json:"country,omitempty"`
+	State         string  `json:"state,omitempty"`
+	Locality      string  `json:"locality,omitempty"`
+	PostalCode    string  `json:"postalcode,omitempty"`
+	PrivateKey    string  `json:"privatekey,omitempty" gorm:"type:longtext"`
+	PubKey        string  `json:"publickey,omitempty" gorm:"type:longtext"`
+	ProfileName   string  `json:"profilename,omitempty"`
+	Profile       Profile `json:"profile,omitempty"`
+	ProfileID     uint
+	ValidUntil    time.Time
+	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	Revoked       time.Time
+	CRLReason     string `json:"crlreason,omitempty"`
+	SerialNumber  string
 }
 
 // curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:12345/api/v1/pki/newca
@@ -294,6 +313,7 @@ func (p Profile) get(pfpki *Handler, cn string) (Info, error) {
 func (c Cert) new(pfpki *Handler) (Info, error) {
 	Information := Info{}
 	pfpki.DB.AutoMigrate(&Cert{})
+	pfpki.DB.AutoMigrate(&RevokedCert{})
 
 	// Find the profile
 	var prof Profile
@@ -424,4 +444,35 @@ func (c Cert) get(pfpki *Handler, cn string) (Info, error) {
 	_, err = certOut.Write(pkcs12)
 	Information, err = email(cert, prof, pkcs12, password)
 	return Information, err
+}
+
+func (c Cert) revoke(pfpki *Handler, cn string) (Info, error) {
+	pfpki.DB.AutoMigrate(&RevokedCert{})
+	Information := Info{}
+	// Find the Cert
+	var cert Cert
+
+	if CertDB := pfpki.DB.Where("Cn = ?", cn).Find(&cert); CertDB.Error != nil {
+		return Information, CertDB.Error
+	}
+
+	// Find the CA
+	var ca CA
+	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
+		return Information, CaDB.Error
+	}
+
+	// Find the Profile
+	var profile Profile
+	if ProfileDB := pfpki.DB.Model(&cert).Related(&profile); ProfileDB.Error != nil {
+		return Information, ProfileDB.Error
+	}
+
+	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, PrivateKey: cert.PrivateKey, PubKey: cert.PubKey, ProfileName: cert.ProfileName, Profile: profile, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: cert.CRLReason, SerialNumber: cert.SerialNumber}).Error; err != nil {
+		return Information, err
+	}
+	if err := pfpki.DB.Delete(&cert).Error; err != nil {
+		return Information, err
+	}
+	return Information, nil
 }

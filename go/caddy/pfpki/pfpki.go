@@ -68,6 +68,8 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	api.Handle("/pki/newprofile", manageProfile(PFPki)).Methods("POST")
 	api.Handle("/pki/newcert", manageCert(PFPki)).Methods("POST")
 	api.Handle("/pki/getcert/{cn}", manageCert(PFPki)).Methods("GET")
+	api.Handle("/pki/revokecert/{cn}", manageCert(PFPki)).Methods("GET")
+
 	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")
 	// api.Handle("/pki/listcert", getCert(PFPki)).Methods("GET")
 

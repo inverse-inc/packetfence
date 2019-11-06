@@ -3,6 +3,7 @@ package pfpki
 import (
 	"bytes"
 	"crypto"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -14,6 +15,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocsp"
 )
 
@@ -92,18 +94,23 @@ type IndexEntry struct {
 func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca CA) (*IndexEntry, error) {
 
 	var cert Cert
+	var revokedcert RevokedCert
+	var ent IndexEntry
 	// Search for the certificate that match the serial and has been signed by the CA
-	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&cert); CertDB.Error != nil {
-		return nil, CertDB.Error
+	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&cert); CertDB.Error == nil {
+		ent = IndexEntry{Status: StatusValid, Serial: s, IssueTime: cert.Date, RevocationTime: cert.ValidUntil, DistinguishedName: cert.Cn}
+		if time.Now().After(cert.ValidUntil) {
+			ent.Status = StatusExpired
+		}
+		return &ent, nil
 	}
-	ent := IndexEntry{Status: StatusValid, Serial: s, IssueTime: cert.Date, RevocationTime: cert.ValidUntil, DistinguishedName: cert.Cn}
-	if time.Now().After(cert.ValidUntil) {
-		ent.Status = StatusExpired
+
+	// Check in revoked Certificates
+	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&revokedcert); CertDB.Error == nil {
+		ent = IndexEntry{Status: StatusRevoked, Serial: s, IssueTime: revokedcert.Date, RevocationTime: revokedcert.Revoked, DistinguishedName: revokedcert.Cn}
+		return &ent, nil
 	}
-	if cert.Revoked == 1 {
-		ent.Status = StatusRevoked
-	}
-	return &ent, nil
+	return nil, nil
 }
 
 // takes a list of extensions and returns the nonce extension if it is present
@@ -145,6 +152,7 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 	}
 
 	ent, err := ocspr.getCertificateStatus(req.SerialNumber, ca)
+	spew.Dump(ent)
 	if err != nil {
 		status = ocsp.Unknown
 	} else {
@@ -163,6 +171,15 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 		return nil, err
 	}
 	ocspr.CaCert = cacert
+
+	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
+	if err != nil {
+		return nil, err
+	}
+	keyi, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return nil, err
+	}
 
 	pkey, err := ParseRsaPrivateKeyFromPemStr(ca.CaKey)
 
