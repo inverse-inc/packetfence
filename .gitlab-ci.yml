@@ -47,12 +47,14 @@ variables:
   # run jobs on any branches/tags via "Run pipeline", except:
   # - vX.X.X tag
   # - maintenance/vX.X.X branches
+  # - feature/packer-.* branches
   only:
     - /^devel$/
     - web
   except:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
     - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^feature/packer-.*$/
 
 # triggers for release jobs
 .job_release_triggers:
@@ -69,12 +71,14 @@ variables:
   # run jobs on "devel" branch or vX.X.X tag (push, schedules and web)
   # run jobs on any branches/tags via "Run pipeline", except:
   # - maintenance/vX.X.X branches
+  # - feature/packer-.* branches
   only:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
     - /^devel$/
     - web
   except:
     - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^feature/packer-.*$/
 
 # triggers for maintenance jobs
 .job_maintenance_triggers:
