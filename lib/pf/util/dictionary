@@ -268,3 +268,17 @@ VENDOR          Pica8                           35098
 #
 
 VENDORATTR      Pica8                           Pica8-AVPair    1       string
+
+#
+# Juniper RADIUS attributes
+# For general information please visit:
+# http://www.juniper.net
+#
+
+VENDOR          Juniper                         2636
+
+#
+#       Standard attribute
+#
+
+VENDORATTR      Juniper                         Juniper-AV-Pair 52      string
