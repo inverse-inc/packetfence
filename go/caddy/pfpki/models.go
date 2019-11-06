@@ -15,6 +15,7 @@ import (
 	"errors"
 	"math/big"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -135,12 +136,10 @@ type Cert struct {
 	ProfileID     uint
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	Revoked       time.Time
-	CRLReason     string `json:"crlreason,omitempty"`
 	SerialNumber  string
 }
 
-// Cert struct
+// RevokedCert struct
 type RevokedCert struct {
 	gorm.Model
 	Cn            string `json:"cn""`
@@ -161,7 +160,7 @@ type RevokedCert struct {
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	Revoked       time.Time
-	CRLReason     string `json:"crlreason,omitempty"`
+	CRLReason     int
 	SerialNumber  string
 }
 
@@ -339,7 +338,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	var certdb Cert
 	var SerialNumber *big.Int
 
-	if CertDB := pfpki.DB.Last(&ca).Related(&certdb); CertDB.Error != nil {
+	if CertDB := pfpki.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
 		SerialNumber = big.NewInt(1)
 	} else {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
@@ -384,7 +383,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		return Information, err
 	}
 	return Information, nil
@@ -446,7 +445,7 @@ func (c Cert) get(pfpki *Handler, cn string) (Info, error) {
 	return Information, err
 }
 
-func (c Cert) revoke(pfpki *Handler, cn string) (Info, error) {
+func (c Cert) revoke(pfpki *Handler, cn string, reason string) (Info, error) {
 	pfpki.DB.AutoMigrate(&RevokedCert{})
 	Information := Info{}
 	// Find the Cert
@@ -468,7 +467,11 @@ func (c Cert) revoke(pfpki *Handler, cn string) (Info, error) {
 		return Information, ProfileDB.Error
 	}
 
-	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, PrivateKey: cert.PrivateKey, PubKey: cert.PubKey, ProfileName: cert.ProfileName, Profile: profile, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: cert.CRLReason, SerialNumber: cert.SerialNumber}).Error; err != nil {
+	intreason, err := strconv.Atoi(reason)
+	if err != nil {
+		return Information, errors.New("Reason unsupported")
+	}
+	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, PrivateKey: cert.PrivateKey, PubKey: cert.PubKey, ProfileName: cert.ProfileName, Profile: profile, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
 		return Information, err
 	}
 	if err := pfpki.DB.Delete(&cert).Error; err != nil {

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -16,9 +17,11 @@ import (
 
 // Info struct
 type Info struct {
-	Status   string `json:"status"`
-	Password string `json:"password"`
-	Error    string `json:"error"`
+	Status      string `json:"status"`
+	Password    string `json:"password"`
+	Error       string `json:"error"`
+	ContentType string
+	Raw         []byte
 }
 
 // Create interface
@@ -60,6 +63,9 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 
 	body, err := ioutil.ReadAll(req.Body)
 	var Information Info
+	// Set the default Content-Type
+	Information.ContentType = "application/json; charset=UTF-8"
+
 	if err != nil {
 		panic(err)
 	}
@@ -90,7 +96,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			Information, err = v.get(pfpki, vars["cn"])
 		}
 		if matched, _ := regexp.MatchString(`/pki/revokecert/`, req.URL.Path); matched {
-			Information, err = v.revoke(pfpki, vars["cn"])
+			Information, err = v.revoke(pfpki, vars["cn"], vars["reason"])
 		}
 	case Profile:
 
@@ -116,10 +122,19 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		},
 	}
 
-	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	res.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
+	switch ContentType := Information.ContentType; ContentType {
+
+	case "application/x-pkcs12":
+		res.Header().Set("Content-Type", "application/x-pkcs12")
+		res.Header().Set("Content-Disposition", "attachment; filename=certificate.p12")
+		io.Copy(res, Information.Raw)
+
+	default:
+		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		res.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(res).Encode(result); err != nil {
+			panic(err)
+		}
 	}
 }
 

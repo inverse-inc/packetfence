@@ -15,7 +15,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocsp"
 )
 
@@ -88,6 +87,7 @@ type IndexEntry struct {
 	Serial            *big.Int
 	IssueTime         time.Time
 	RevocationTime    time.Time
+	Reason            int
 	DistinguishedName string
 }
 
@@ -107,7 +107,7 @@ func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca CA) (*IndexEntry
 
 	// Check in revoked Certificates
 	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&revokedcert); CertDB.Error == nil {
-		ent = IndexEntry{Status: StatusRevoked, Serial: s, IssueTime: revokedcert.Date, RevocationTime: revokedcert.Revoked, DistinguishedName: revokedcert.Cn}
+		ent = IndexEntry{Status: StatusRevoked, Serial: s, IssueTime: revokedcert.Date, RevocationTime: revokedcert.Revoked, Reason: revokedcert.CRLReason, DistinguishedName: revokedcert.Cn}
 		return &ent, nil
 	}
 	return nil, nil
@@ -140,6 +140,8 @@ func (ocspr *OCSPResponder) verifyIssuer(req *ocsp.Request) (CA, error) {
 func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 	var status int
 	var revokedAt time.Time
+	var reason int
+	reason = ocsp.Unspecified
 
 	req, exts, err := ocsp.ParseRequest(rawreq)
 	if err != nil {
@@ -152,13 +154,14 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 	}
 
 	ent, err := ocspr.getCertificateStatus(req.SerialNumber, ca)
-	spew.Dump(ent)
+
 	if err != nil {
 		status = ocsp.Unknown
 	} else {
 		if ent.Status == StatusRevoked {
 			status = ocsp.Revoked
 			revokedAt = ent.RevocationTime
+			reason = ent.Reason
 		} else if ent.Status == StatusValid {
 			status = ocsp.Good
 		}
@@ -211,7 +214,7 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 		Status:           status,
 		SerialNumber:     req.SerialNumber,
 		Certificate:      keyi,
-		RevocationReason: ocsp.Unspecified,
+		RevocationReason: reason,
 		IssuerHash:       req.HashAlgorithm,
 		RevokedAt:        revokedAt,
 		ThisUpdate:       time.Now().AddDate(0, 0, -1).UTC(),
