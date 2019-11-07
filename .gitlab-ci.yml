@@ -68,7 +68,7 @@ variables:
 
 # common triggers for jobs use for release and dev
 .job_dev_and_release_triggers:
-  # run jobs on "devel" branch or vX.X.X tag (push, schedules and web)
+  # run jobs on "devel" branch *or* vX.X.X tag (push, schedules and web)
   # run jobs on any branches/tags via "Run pipeline", except:
   # - maintenance/vX.X.X branches
   # - feature/packer-.* branches
@@ -105,7 +105,7 @@ variables:
   tags:
     - docker
 
-.maintenance_job:
+.maintenance_build_job:
   stage: build_maintenance
   artifacts:
     expire_in: 1 day
@@ -159,7 +159,6 @@ variables:
   variables:
     QUILT_PATCHES: $DEB_DIR/patches
 
-
 ################################################################################
 # STAGES
 ################################################################################
@@ -195,8 +194,10 @@ pfbuild_release:
     ANSIBLE_CENTOS_GROUP: stable_centos
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    # prefix release images with maintenance/ to simplify definition of
-    # maintenance jobs
+    # create release images with maintenance/vX.X.X
+    # permit to simplify definition of maintenance jobs below
+    # based on their branch name
+    # CI_COMMIT_TAG contains vX.X.X
     DOCKER_TAG: maintenance/${CI_COMMIT_TAG}
   script:
     - make -e -C $PACKERDIR pfbuild
@@ -241,13 +242,13 @@ build_pkg_release_debian_stretch:
 build_maintenance_centos_7:
   image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_NAME}
   extends:
-    - .maintenance_job
+    - .maintenance_build_job
     - .job_maintenance_triggers
 
 build_maintenance_debian_stretch:
   image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_NAME}
   extends:
-    - .maintenance_job
+    - .maintenance_build_job
     - .job_maintenance_triggers
 
 ########################################
