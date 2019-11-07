@@ -32,7 +32,7 @@ print "Enter the MySQL master IP address: ";
 my $mysql_master_ip = <STDIN>;
 chomp $mysql_master_ip;
 
-if ($mysql_master_ip !~ /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) {
+if ($mysql_master_ip !~ /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
     die "wrong ip address format";
 }
 
