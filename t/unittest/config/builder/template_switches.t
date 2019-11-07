@@ -29,6 +29,17 @@ use Test::NoWarnings;
 use pf::config::builder::template_switches;
 use pf::IniFiles;
 use pf::mini_template;
+my $supports = [
+    qw(
+      RadiusDynamicVlanAssignment
+      WiredMacAuth
+      WiredDot1x
+      WirelessMacAuth
+      WirelessDot1x
+      RadiusVoip
+      RoleBasedEnforcement
+      )
+];
 
 my $builder = pf::config::builder::template_switches->new;
 
@@ -83,7 +94,7 @@ CONF
             "::VENDORS" => {
                 PacketFence => [
                     {
-                        value => 'PacketFence::Standard', label => 'Standard Switch',
+                        value => 'PacketFence::Standard', label => 'Standard Switch', supports => $supports,
                     },
                 ]
             },
@@ -129,7 +140,7 @@ CONF
             "::VENDORS" => {
                 PacketFence => [
                     {
-                        value => 'PacketFence::Standard', label => 'Standard Switch',
+                        value => 'PacketFence::Standard', label => 'Standard Switch', supports => $supports
                     },
                 ]
             },
@@ -201,7 +212,7 @@ ${disconnectIp
             "::VENDORS" => {
                 PacketFence => [
                     {
-                        value => 'PacketFence::Standard', label => 'Standard Switch',
+                        value => 'PacketFence::Standard', label => 'Standard Switch', supports => $supports,
                     },
                 ]
             },
