@@ -5,7 +5,7 @@
     >
       <template v-slot:pageHeader>
         <b-card-header>
-          <h4 class="mb-3" v-t="'Firewall SSO'"></h4>
+          <h4 class="mb-0" v-t="'Firewall SSO'"></h4>
         </b-card-header>
       </template>
       <template v-slot:buttonAdd>
