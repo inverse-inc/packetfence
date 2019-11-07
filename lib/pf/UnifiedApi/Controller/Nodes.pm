@@ -19,6 +19,7 @@ use NetAddr::IP;
 use pf::dal::node;
 use pf::fingerbank;
 use pf::parking;
+use pf::admin_roles;
 use pf::node;
 use List::Util qw(first);
 use List::MoreUtils qw(part);
@@ -31,10 +32,16 @@ use pf::UnifiedApi::Search::Builder::Nodes;
 use pf::UnifiedApi::Search::Builder::NodesNetworkGraph;
 use pf::security_event;
 use pf::Connection;
+use pf::nodecategory;
 use pf::SwitchFactory;
 use pf::util qw(valid_ip valid_mac);
 use pf::Connection::ProfileFactory;
 use pf::log;
+
+our %STATUS_TO_MSG = (
+    %pf::UnifiedApi::Controller::STATUS_TO_MSG,
+    409 =>  "There's already a node with this MAC address",
+);
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Nodes';
 
@@ -987,6 +994,34 @@ sub import_item_check_for_errors {
     }
 
     return @errors;
+}
+
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self, $json) = @_;
+    my $roles = $self->stash->{admin_roles};
+    my ($status, $err) = (200, undef);
+    for my $f (qw(category_id bypass_role_id)) {
+        next if !exists $json->{$f};
+        my $nc = nodecategory_view($json->{$f});
+        next if !defined $nc;
+        my $name = $nc->{name};
+        if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
+            return 422, { field => 'category_id', "$name is not allowed" };
+        }
+    }
+
+    return $status, $err;
+}
+
+sub status_to_error_msg {
+    my ($self, $status) = @_;
+    return exists $STATUS_TO_MSG{$status} ? $STATUS_TO_MSG{$status} : "Server error";
 }
 
 =head1 AUTHOR

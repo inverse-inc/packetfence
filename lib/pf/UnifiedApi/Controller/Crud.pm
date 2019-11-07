@@ -258,7 +258,7 @@ sub create_error_msg {
 sub render_create {
     my ($self, $status, $obj) = @_;
     if (is_error($status)) {
-        return $self->render_error($status, $self->create_error_msg($obj));
+        return $self->render_error($status, $obj->{message}, $obj->{errors});
     }
 
     my $id = $obj->{$self->primary_key};
@@ -339,6 +339,7 @@ sub create_obj {
     if (is_error($status)) {
         return ($status, {message => $self->status_to_error_msg($status)});
     }
+
     return ($status, $obj);
 }
 
@@ -375,7 +376,15 @@ sub update {
     my $req = $self->req;
     my $res = $self->res;
     my $data = $self->update_data;
-    my ($status, $count) = $self->dal->update_items(
+    my ($status, $err) = $self->validate($data);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $err->{message},
+            $err->{errors}
+        );
+    }
+    ($status, my $count) = $self->dal->update_items(
         -where => $self->build_item_lookup,
         -set => {
             %$data,
