@@ -122,7 +122,7 @@ while (1) {
             if ($?) {
                 die "Unable to set the database in readonly mode";
             }
-	    $break = 1;
+            $break = 1;
         }
     }
     if ($break) {
