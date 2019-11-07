@@ -15,19 +15,21 @@
     <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>
     </template>
-    <template v-slot:cell(status)="data">
+    <template v-slot:cell(status)="item">
       <pf-form-range-toggle
-        v-model="data.status"
+        v-model="item.status"
         :values="{ checked: 'enabled', unchecked: 'disabled' }"
         :icons="{ checked: 'check', unchecked: 'times' }"
         :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
         :disabled="isLoading"
-        @input="toggleStatus(data, $event)"
+        @input="toggleStatus(item, $event)"
         @click.stop.prevent
-      >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+      >{{ (item.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
     </template>
-    <template v-slot:cell(interval)="item">
-      {{ item.interval.interval }}{{ item.interval.unit }}
+    <template v-slot:cell(interval)="{ interval }">
+      <template v-if="interval"><!-- TODO: Temporary workaround for issue #4902 -->
+        {{ interval.interval }}{{ interval.unit }}
+      </template>
     </template>
   </pf-config-list>
 </template>

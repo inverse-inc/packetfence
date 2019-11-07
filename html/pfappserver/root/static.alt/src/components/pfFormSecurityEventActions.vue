@@ -127,11 +127,11 @@ export default {
   },
   props: {
     value: {
-      default: {}
+      default: () => { return { actions: [] } }
     },
     meta: {
       type: Object,
-      default: () => {}
+      default: () => { return {} }
     }
   },
   computed: {
@@ -287,6 +287,7 @@ export default {
         if (a) {
           this.value.actions.push('role')
         } else {
+console.log('this.value', JSON.stringify(this.value, null, 2))
           const index = this.value.actions.indexOf('role')
           if (index >= 0) {
             this.value.actions.splice(index, 1)

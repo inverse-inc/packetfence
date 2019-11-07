@@ -36,7 +36,7 @@ const state = {
 
 const getters = {
   isLoading: state => state.requestStatus === types.LOADING,
-  index: state => state.index,
+  index: state => state.index || [],
   path: state => state.path,
   hash: state => state.hash,
   fullscreen: state => state.fullscreen,

@@ -17,9 +17,9 @@
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No WMI rules found') }}</pf-empty-table>
       </template>
-      <template v-slot:cell(on_tab)="data">
-        <icon name="circle" :class="{ 'text-success': data.on_tab === '1', 'text-danger': data.on_tab !== '1' }"
-          v-b-tooltip.hover.left.d300 :title="$t(data.on_tab)"></icon>
+      <template v-slot:cell(on_tab)="item">
+        <icon name="circle" :class="{ 'text-success': item.on_tab === '1', 'text-danger': item.on_tab !== '1' }"
+          v-b-tooltip.hover.left.d300 :title="$t(item.on_tab)"></icon>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">

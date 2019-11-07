@@ -112,10 +112,10 @@
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
-        <template v-slot:cell(actions)="data">
-          <b-form-checkbox :disabled="isLoading" :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
+        <template v-slot:cell(actions)="item">
+          <b-form-checkbox :disabled="isLoading" :id="item.value" :value="item.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
           <!--
-          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[data.index]._rowMessage"></icon>
+          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[item.index]._rowMessage"></icon>
           -->
         </template>
         <template v-slot:empty>

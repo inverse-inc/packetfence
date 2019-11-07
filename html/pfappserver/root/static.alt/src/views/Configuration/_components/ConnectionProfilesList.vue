@@ -20,30 +20,30 @@
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No connection profiles found') }}</pf-empty-table>
       </template>
-      <template v-slot:cell(buttons)="item">
+      <template v-slot:cell(buttons)="{ item }">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-secondary" class="mr-1" @click.stop.prevent="preview(item)">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
-      <template v-slot:cell(status)="data">
-        <pf-form-range-toggle v-if="data.not_deletable"
-          v-model="data.status"
+      <template v-slot:cell(status)="{ item }">
+        <pf-form-range-toggle v-if="item.not_deletable"
+          v-model="item.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'lock', unchecked: 'lock' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
           disabled
-        >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        >{{ (item.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
         <pf-form-range-toggle v-else
-          v-model="data.status"
+          v-model="item.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
           :disabled="isLoading"
-          @input="toggleStatus(data, $event)"
+          @input="toggleStatus(item, $event)"
           @click.stop.prevent
-        >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        >{{ (item.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
       </template>
     </pf-config-list>
   </b-card>

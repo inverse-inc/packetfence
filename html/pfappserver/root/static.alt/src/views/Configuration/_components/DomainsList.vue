@@ -15,18 +15,18 @@
       <template v-slot:emptySearch="state">
           <pf-empty-table :isLoading="state.isLoading">{{ $t('No domains found') }}</pf-empty-table>
       </template>
-      <template v-slot:cell(ntlm_cache)="data">
-        <icon name="circle" :class="{ 'text-success': data.ntlm_cache === 'enabled', 'text-danger': data.ntlm_cache !== 'enabled' }"
-          v-b-tooltip.hover.left.d300 :title="$t(data.ntlm_cache)"></icon>
+      <template v-slot:cell(ntlm_cache)="item">
+        <icon name="circle" :class="{ 'text-success': item.ntlm_cache === 'enabled', 'text-danger': item.ntlm_cache !== 'enabled' }"
+          v-b-tooltip.hover.left.d300 :title="$t(item.ntlm_cache)"></icon>
       </template>
-      <template v-slot:cell(joined)="data">
-        <template v-if="initTestDomainJoin(data)">
-          <icon v-if="getTestDomainJoinStatus(data) === null" name="circle-notch" class="text-secondary" spin></icon>
-          <icon v-else-if="getTestDomainJoinStatus(data) === true" name="circle" class="text-success"
+      <template v-slot:cell(joined)="item">
+        <template v-if="initTestDomainJoin(item)">
+          <icon v-if="getTestDomainJoinStatus(item) === null" name="circle-notch" class="text-secondary" spin></icon>
+          <icon v-else-if="getTestDomainJoinStatus(item) === true" name="circle" class="text-success"
             v-b-tooltip.hover.left.d300 :title="$t('Test join success.')"></icon>
-          <icon v-else-if="getTestDomainJoinStatus(data) === false" name="circle" class="text-danger"
+          <icon v-else-if="getTestDomainJoinStatus(item) === false" name="circle" class="text-danger"
             v-b-tooltip.hover.left.d300 :title="$t('Test join failed.')"></icon>
-          <span v-if="getTestDomainJoinMessage(data)" v-t="getTestDomainJoinMessage(data)" class="ml-1"></span>
+          <span v-if="getTestDomainJoinMessage(item)" v-t="getTestDomainJoinMessage(item)" class="ml-1"></span>
         </template>
       </template>
       <template v-slot:cell(buttons)="item">

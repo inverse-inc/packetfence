@@ -120,32 +120,32 @@
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
-        <template v-slot:cell(actions)="data">
+        <template v-slot:cell(actions)="item">
           <div class="text-nowrap">
-            <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
-            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
+            <b-form-checkbox :id="item.value" :value="item.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
+            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[item.index]._rowMessage"></icon>
           </div>
         </template>
-        <template v-slot:cell(status)="data">
-          <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
+        <template v-slot:cell(status)="item">
+          <b-badge pill variant="success" v-if="item.value === 'reg'">{{ $t('registered') }}</b-badge>
           <b-badge pill variant="light" v-else>{{ $t('unregistered') }}</b-badge>
         </template>
-        <template v-slot:cell(online)="data">
-          <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('on') }}</b-badge>
-          <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('off') }}</b-badge>
+        <template v-slot:cell(online)="item">
+          <b-badge pill variant="success" v-if="item.value === 'on'">{{ $t('on') }}</b-badge>
+          <b-badge pill variant="danger" v-else-if="item.value === 'off'">{{ $t('off') }}</b-badge>
           <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
         </template>
-        <template v-slot:cell(mac)="data">
-          <mac v-text="data.value"></mac>
+        <template v-slot:cell(mac)="item">
+          <mac v-text="item.value"></mac>
         </template>
-        <template v-slot:cell(pid)="data">
-          <b-button variant="link" :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</b-button>
+        <template v-slot:cell(pid)="item">
+          <b-button variant="link" :to="{ name: 'user', params: { pid: item.value } }">{{ item.value }}</b-button>
         </template>
-        <template v-slot:cell(device_score)="data">
-          <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
+        <template v-slot:cell(device_score)="item">
+          <pf-fingerbank-score :score="item.value"></pf-fingerbank-score>
         </template>
-        <template v-slot:cell(locationlog.switch_ip)="data">
-          <b-button variant="link" :to="{ name: 'switch', params: { id: data.value } }">{{ data.value }}</b-button>
+        <template v-slot:cell(locationlog.switch_ip)="item">
+          <b-button variant="link" :to="{ name: 'switch', params: { id: item.value } }">{{ item.value }}</b-button>
         </template>
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No node found') }}</pf-empty-table>

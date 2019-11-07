@@ -18,7 +18,7 @@ export default {
   },
   computed: {
     index () {
-      return this.$store.state.documentation.index
+      return this.$store.getters['documentation/index']
     },
     urlByParts () {
       const [ path, hash ] = this.url.split('#')
@@ -27,7 +27,7 @@ export default {
     documentName () {
       const { path } = this.urlByParts
       let document = this.index.find(d => d.name === path)
-      if (Object.keys(document).length > 0) {
+      if (document && Object.keys(document).length > 0) {
         return document.name.replace(/\.html/g, '').replace(/_/g, ' ').replace(/^PacketFence /, '')
       }
       return path

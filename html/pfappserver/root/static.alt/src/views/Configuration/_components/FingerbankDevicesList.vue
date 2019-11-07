@@ -39,15 +39,15 @@
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>
       </template>
-      <template v-slot:cell(id)="data">
-        <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="setParentId(data.id)">
+      <template v-slot:cell(id)="item">
+        <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="setParentId(item.id)">
           <span class="text-nowrap align-items-center ml-2">
-            {{ data.id }} <icon name="plus-circle" class="ml-2"></icon>
+            {{ item.id }} <icon name="plus-circle" class="ml-2"></icon>
           </span>
         </b-button>
       </template>
-      <template v-slot:cell(approved)="data">
-        <icon name="circle" :class="{ 'text-success': data.approved === 1, 'text-danger': data.approved === 0 }"></icon>
+      <template v-slot:cell(approved)="item">
+        <icon name="circle" :class="{ 'text-success': ~~item.approved === 1, 'text-danger': ~~item.approved === 0 }"></icon>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">

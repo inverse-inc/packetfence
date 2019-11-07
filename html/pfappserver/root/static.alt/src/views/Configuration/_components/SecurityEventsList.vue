@@ -26,25 +26,25 @@
           </b-dropdown>
         </span>
       </template>
-      <template v-slot:cell(enabled)="data">
-        <pf-form-range-toggle v-if="data.id === 'defaults'"
-          v-model="data.enabled"
+      <template v-slot:cell(enabled)="item">
+        <pf-form-range-toggle v-if="item.id === 'defaults'"
+          v-model="item.enabled"
           :values="{ checked: 'Y', unchecked: 'N' }"
           :icons="{ checked: 'lock', unchecked: 'lock' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
           disabled
-        >{{ (data.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
+        >{{ (item.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
         <pf-form-range-toggle v-else
-          v-model="data.enabled"
+          v-model="item.enabled"
           :values="{ checked: 'Y', unchecked: 'N' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
           :disabled="isLoading"
-          @input="toggle(data, $event)"
+          @input="toggle(item, $event)"
           @click.stop.prevent
-        >{{ (data.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
+        >{{ (item.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
       </template>
-    </pf-config-list>
+    </pf-config-list>x
   </b-card>
 </template>
 

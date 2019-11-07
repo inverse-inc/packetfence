@@ -25,8 +25,8 @@
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
-      <template v-slot:cell(score)="data">
-        <pf-fingerbank-score :score="data.score"></pf-fingerbank-score>
+      <template v-slot:cell(score)="item">
+        <pf-fingerbank-score :score="item.score"></pf-fingerbank-score>
       </template>
     </pf-config-list>
   </b-card>

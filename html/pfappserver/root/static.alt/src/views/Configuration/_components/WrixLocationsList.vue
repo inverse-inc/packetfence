@@ -20,10 +20,6 @@
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
-      <template v-slot:cell(status)="data">
-        <icon name="circle" :class="{ 'text-success': data.status === 'enabled', 'text-danger': data.status === 'disabled' }"
-          v-b-tooltip.hover.left.d300 :title="$t(data.status)"></icon>
-      </template>
     </pf-config-list>
   </b-card>
 </template>

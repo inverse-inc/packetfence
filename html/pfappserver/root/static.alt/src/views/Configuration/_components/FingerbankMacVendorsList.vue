@@ -8,7 +8,7 @@
         <b-card-header>
           <b-row class="align-items-center px-0" no-gutters>
             <b-col cols="auto" class="mr-auto">
-              <h4 class="d-inline mb-0" v-t="'DHCP Vendors'"></h4>
+              <h4 class="d-inline mb-0" v-t="'MAC Vendors'"></h4>
             </b-col>
             <b-col cols="auto" align="right" class="flex-grow-0">
               <b-button-group>
@@ -21,14 +21,14 @@
         </b-card-header>
       </template>
       <template v-slot:buttonAdd v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankMacVendor', params: { scope: 'local' } }">{{ $t('New DHCP Vendor') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankMacVendor', params: { scope: 'local' } }">{{ $t('New MAC Vendor') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP vendors found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} MAC vendors found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Vendor?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete MAC Vendor?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -86,7 +86,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch(`${this.storeName}/dhcpVendors`).then(data => {
+    this.$store.dispatch(`${this.storeName}/macVendors`).then(data => {
       this.data = data
     })
   },

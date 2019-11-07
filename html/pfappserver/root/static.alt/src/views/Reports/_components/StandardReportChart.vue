@@ -31,36 +31,36 @@
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>
-        <template v-slot:cell(callingstationid)="data">
-          <template v-if="data && data.value !== 'Total'">
-            <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
+        <template v-slot:cell(callingstationid)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'node', params: { mac: item.value } }"><mac>{{ item.value }}</mac></router-link>
           </template>
           <template v-else>
-            {{ data.value }}
+            {{ item.value }}
           </template>
         </template>
-        <template v-slot:cell(mac)="data">
-          <template v-if="data && data.value !== 'Total'">
-            <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
+        <template v-slot:cell(mac)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'node', params: { mac: item.value } }"><mac>{{ item.value }}</mac></router-link>
           </template>
           <template v-else>
-            {{ data.value }}
+            {{ item.value }}
           </template>
         </template>
-        <template v-slot:cell(owner)="data">
-          <template v-if="data && data.value !== 'Total'">
-            <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
+        <template v-slot:cell(owner)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'user', params: { pid: item.value } }">{{ item.value }}</router-link>
           </template>
           <template v-else>
-            {{ data.value }}
+            {{ item.value }}
           </template>
         </template>
-        <template v-slot:cell(pid)="data">
-          <template v-if="data && data.value !== 'Total'">
-            <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
+        <template v-slot:cell(pid)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'user', params: { pid: item.value } }">{{ item.value }}</router-link>
           </template>
           <template v-else>
-            {{ data.value }}
+            {{ item.value }}
           </template>
         </template>
       </b-table>
