@@ -232,7 +232,7 @@ sub get_base {
 }
 
 sub get_head {
-    my $url           = "$BASE_GITHUB_URL/branches/maintenance/$PF_RELEASE";
+    my $url           = "$BASE_GITHUB_URL/branches/maintenance/v$PF_RELEASE";
     my $response_body = get_url($url);
     my $data          = decode_json($response_body);
     return $data->{commit}->{sha};
@@ -344,10 +344,10 @@ sub download_and_install_alt_admin {
     my $patch_path = "$ALT_ADMIN_DIRECTORY";
     my $archive_path = "$ALT_ADMIN_PATCH_WD/static.alt.tgz";
 
-    my $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/static.alt.tgz.sig");
+    my $data = get_url("$ALT_ADMIN_URL/maintenance/v$PF_RELEASE/static.alt.tgz.sig");
     write_file("$archive_path-maintenance-encrypted", $data);
     
-    $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/v-index.tt.sig");
+    $data = get_url("$ALT_ADMIN_URL/maintenance/v$PF_RELEASE/v-index.tt.sig");
     write_file("$ALT_ADMIN_INDEX-maintenance-encrypted", $data);
     
     my $result = system("gpg --always-trust --batch --yes --output $archive_path-maintenance-decrypted --decrypt $archive_path-maintenance-encrypted");
@@ -380,7 +380,7 @@ sub download_and_install_binaries {
     foreach my $binary (@patchable_binaries) {
         print "Performing patching of $binary.......\n";
         my $binary_path = "$BINARIES_DIRECTORY/$binary";
-        my $data = get_url("$BASE_BINARIES_URL/maintenance/$PF_RELEASE/$binary.sig");
+        my $data = get_url("$BASE_BINARIES_URL/maintenance/v$PF_RELEASE/$binary.sig");
         write_file("$binary_path-maintenance-encrypted", $data);
         
         my $result = system("gpg --always-trust --batch --yes --output $binary_path-maintenance-decrypted --decrypt $binary_path-maintenance-encrypted");
