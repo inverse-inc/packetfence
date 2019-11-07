@@ -22,6 +22,7 @@ New Features
 * Added audit log for API and new admin interface
 * Added configuration based switch modules
 * Support for remote layer 3 clusters in read-only mode
+* Internal security event to trigger on managed network only or production network only
 
 Enhancements
 ++++++++++++
