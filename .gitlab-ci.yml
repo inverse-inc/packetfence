@@ -25,7 +25,9 @@ variables:
   PFBUILD_CENTOS_7_IMG: inverseinc/pfbuild-centos-7
   PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-stretch
   CIDIR: ci
+  CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
+  MAINTDIR: $CIDIR/maintenance
   RPM_DIR: rpm
   DEB_DIR: debian
   VAGRANT_DIR: addons/vagrant
@@ -159,6 +161,11 @@ variables:
   variables:
     QUILT_PATCHES: $DEB_DIR/patches
 
+.maintenance_build_script:
+  script:
+    - ./$MAINTDIR/build_maintenance_artifacts.sh
+
+
 ################################################################################
 # STAGES
 ################################################################################
@@ -243,12 +250,14 @@ build_maintenance_centos_7:
   image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_NAME}
   extends:
     - .maintenance_build_job
+    - .maintenance_build_script
     - .job_maintenance_triggers
 
 build_maintenance_debian_stretch:
   image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_NAME}
   extends:
     - .maintenance_build_job
+    - .maintenance_build_script
     - .job_maintenance_triggers
 
 ########################################
