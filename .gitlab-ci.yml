@@ -27,10 +27,12 @@ variables:
   CIDIR: ci
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
-  MAINTDIR: $CIDIR/maintenance
+  MAINTDIR: $CILIBDIR/maintenance
+  UPLOAD_DIR: $CILIBDIR/upload
   RPM_DIR: rpm
   DEB_DIR: debian
   VAGRANT_DIR: addons/vagrant
+  PUBLIC_REPO_URL: http://packetfence.org/downloads/PacketFence
   # env variables
   ANSIBLE_FORCE_COLOR: "true"
   ANSIBLE_STDOUT_CALLBACK: yaml
@@ -129,6 +131,21 @@ variables:
     - inverse.ca
     - shell
 
+.maintenance_deploy_job:
+  stage: upload
+  dependencies:
+    - sign_maintenance
+  variables:
+    DEPLOY_USER: reposync
+    DEPLOY_HOST: web.inverse.ca
+    MAINT_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
+  script:
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh maintenance
+  # run job on runners tag with inverse AND shell
+  tags:
+    - inverse
+    - shell
+    
 .deploy_deb_job:
   stage: upload
   dependencies:
@@ -138,7 +155,7 @@ variables:
     DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
     DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
   script:
-    - ./$CIDIR/upload/deploy-packages.sh deb
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
   # run job on runners tag with inverse AND shell
   tags:
     - inverse
@@ -154,7 +171,7 @@ variables:
     DEPLOY_SRPMS: "no"
     DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
   script:
-    - ./$CIDIR/upload/deploy-packages.sh rpm
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
   # run job on runners tag with inverse AND shell
   tags:
     - inverse
@@ -162,25 +179,25 @@ variables:
 
 .rpm_script:
   script:
-    - cp $RPM_DIR/.rpmmacros $HOME
-    - ci-build-pkg $RPM_DIR
+    - cp ${RPM_DIR}/.rpmmacros ${HOME}
+    - ci-build-pkg ${RPM_DIR}
 
 .deb_script:
   script:
-    - ./$CIDIR/debian/convert-to-native-package.sh
-    - cp $CIDIR/debian/.devscripts $HOME
+    - ./${CIDIR}/debian/convert-to-native-package.sh
+    - cp ${CIDIR}/debian/.devscripts ${HOME}
     - quilt push
-    - ci-build-pkg $DEB_DIR
+    - ci-build-pkg ${DEB_DIR}
   variables:
-    QUILT_PATCHES: $DEB_DIR/patches
+    QUILT_PATCHES: ${DEB_DIR}/patches
 
 .maintenance_build_script:
   script:
-    - ./$MAINTDIR/build_maintenance_artifacts.sh build
+    - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh build
 
 .maintenance_sign_script:
   script:
-    - ./$MAINTDIR/build_maintenance_artifacts.sh sign
+    - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
 ################################################################################
 # STAGES
@@ -192,7 +209,7 @@ variables:
 pfbuild_manual:
   extends: .pfbuild_job
   script:
-    - make -e -C $PACKERDIR pfbuild
+    - make -e -C ${PACKERDIR} pfbuild
   # job need to be explicitly started
   # will not block other stages/jobs
   # will not run when we click "Run pipeline"
@@ -203,7 +220,7 @@ pfbuild_test:
   script:
     # remove 'feature/' prefix from branch name
     - export DOCKER_TAG=${CI_COMMIT_REF_NAME#feature/}
-    - make -e -C $PACKERDIR pfbuild
+    - make -e -C ${PACKERDIR} pfbuild
   only:
     - /^feature/packer-.*$/
 
@@ -223,7 +240,7 @@ pfbuild_release:
     # CI_COMMIT_TAG contains vX.X.X
     DOCKER_TAG: maintenance/${CI_COMMIT_TAG}
   script:
-    - make -e -C $PACKERDIR pfbuild
+    - make -e -C ${PACKERDIR} pfbuild
 
 ########################################
 #  BUILD_PKG JOBS
@@ -348,7 +365,7 @@ deploy_rpm_dev:
     - .job_dev_triggers
   environment:
     name: devel/x86_64
-    url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
+    url: ${PUBLIC_REPO_URL}/RHEL7/${CI_ENVIRONMENT_NAME}
 
 deploy_deb_dev:
   extends:
@@ -356,7 +373,7 @@ deploy_deb_dev:
     - .job_dev_triggers
   environment:
     name: debian-devel
-    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
 deploy_rpm_release:
   extends:
@@ -364,7 +381,7 @@ deploy_rpm_release:
     - .job_release_triggers
   environment:
     name: x86_64
-    url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
+    url: ${PUBLIC_REPO_URL}/RHEL7/${CI_ENVIRONMENT_NAME}
 
 deploy_deb_release:
   extends:
@@ -372,5 +389,13 @@ deploy_deb_release:
     - .job_release_triggers
   environment:
     name: debian-lastrelease
-    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
+
+deploy_maintenance:
+  extends:
+    - .maintenance_deploy_job
+    - .job_maintenance_triggers
+  environment:
+    name: maintenance
+    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
