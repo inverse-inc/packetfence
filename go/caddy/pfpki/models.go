@@ -14,7 +14,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"math/big"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -166,6 +165,9 @@ type RevokedCert struct {
 
 // curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:12345/api/v1/pki/newca
 func (c CA) new(pfpki *Handler) (Info, error) {
+	// Create the table on the fly.
+	pfpki.DB.AutoMigrate(&CA{})
+
 	Information := Info{}
 
 	keyOut, pub, key, err := GenerateKey(c.KeyType, c.KeySize)
@@ -246,13 +248,12 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	pfpki.DB.AutoMigrate(&CA{})
 
 	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
-		// if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512}).Error; err != nil {
 		return Information, err
 	}
 	return Information, nil
 }
 
-func (c CA) get(pfpki *Handler, cn string) (Info, error) {
+func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	return Information, nil
 }
@@ -272,6 +273,8 @@ func (c CA) get(pfpki *Handler, cn string) (Info, error) {
 
 // curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","caname":"boby","validity": 365,"keytype": 1,"keysize": 2048, "digest": 6, "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "zaym@inverse.ca", "days": 365}' http://127.0.0.1:12345/api/v1/pki/newprofile
 func (p Profile) new(pfpki *Handler) (Info, error) {
+	// Create the table on the fly.
+	pfpki.DB.AutoMigrate(&Profile{})
 	Information := Info{}
 	switch p.KeyType {
 	case KEY_RSA:
@@ -290,8 +293,7 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 		return Information, errors.New("KeyType unsupported")
 
 	}
-	// Create the table on the fly.
-	pfpki.DB.AutoMigrate(&Profile{})
+
 	var ca CA
 	if CaDB := pfpki.DB.Where("Cn = ?", p.CaName).Find(&ca); CaDB.Error != nil {
 		return Information, CaDB.Error
@@ -303,7 +305,7 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
-func (p Profile) get(pfpki *Handler, cn string) (Info, error) {
+func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	return Information, nil
 }
@@ -389,10 +391,11 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
-func (c Cert) get(pfpki *Handler, cn string) (Info, error) {
+func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	// Find the Cert
 	var cert Cert
+	cn := params["cn"]
 	if CertDB := pfpki.DB.Where("Cn = ?", cn).Find(&cert); CertDB.Error != nil {
 		return Information, CertDB.Error
 	}
@@ -434,22 +437,39 @@ func (c Cert) get(pfpki *Handler, cn string) (Info, error) {
 
 	CaCert = append(CaCert, cacert)
 
-	password := generatePassword()
+	var password string
+	if params["password"] != "" {
+		password = params["password"]
+	} else {
+		password = generatePassword()
+	}
+
 	pkcs12, err := pkcs12.Encode(PRNG, certtls.PrivateKey, certificate, CaCert, password)
 
-	certOut, err := os.Create("cert.p12")
+	// certOut, err := os.Create("cert.p12")
 
-	defer certOut.Close()
-	_, err = certOut.Write(pkcs12)
-	Information, err = email(cert, prof, pkcs12, password)
+	// defer certOut.Close()
+	// _, err = certOut.Write(pkcs12)
+
+	if params["password"] == "" {
+		Information, err = email(cert, prof, pkcs12, password)
+	} else {
+		Information.Raw = pkcs12
+		Information.ContentType = "application/x-pkcs12"
+	}
+
 	return Information, err
 }
 
-func (c Cert) revoke(pfpki *Handler, cn string, reason string) (Info, error) {
+func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
+
 	pfpki.DB.AutoMigrate(&RevokedCert{})
 	Information := Info{}
 	// Find the Cert
 	var cert Cert
+
+	cn := params["cn"]
+	reason := params["reason"]
 
 	if CertDB := pfpki.DB.Where("Cn = ?", cn).Find(&cert); CertDB.Error != nil {
 		return Information, CertDB.Error

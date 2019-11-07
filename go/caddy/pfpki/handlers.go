@@ -81,7 +81,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			Information, err = v.new(pfpki)
 		}
 		if matched, _ := regexp.MatchString(`/pki/getca/`, req.URL.Path); matched {
-			Information, err = v.get(pfpki, vars["cn"])
+			Information, err = v.get(pfpki, vars)
 		}
 	case Cert:
 
@@ -93,10 +93,10 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			Information, err = v.new(pfpki)
 		}
 		if matched, _ := regexp.MatchString(`/pki/getcert/`, req.URL.Path); matched {
-			Information, err = v.get(pfpki, vars["cn"])
+			Information, err = v.get(pfpki, vars)
 		}
 		if matched, _ := regexp.MatchString(`/pki/revokecert/`, req.URL.Path); matched {
-			Information, err = v.revoke(pfpki, vars["cn"], vars["reason"])
+			Information, err = v.revoke(pfpki, vars)
 		}
 	case Profile:
 
@@ -127,7 +127,8 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	case "application/x-pkcs12":
 		res.Header().Set("Content-Type", "application/x-pkcs12")
 		res.Header().Set("Content-Disposition", "attachment; filename=certificate.p12")
-		io.Copy(res, Information.Raw)
+		res.WriteHeader(http.StatusOK)
+		io.Copy(res, bytes.NewReader(Information.Raw))
 
 	default:
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
