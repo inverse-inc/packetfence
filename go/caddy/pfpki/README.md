@@ -61,7 +61,7 @@ ExtendedKeyUsage Values:
 ### Create a CA
 
 ```
-curl -H "Content-Type: application/json" -d '{"cn":"YzaymCA","mail":"jdoe@email.net","organisation": "Zaym and co ltd","country": "ZA","state": "ZaymState", "locality": "ZaymTown", "streetaddress": "7000 zaym avenue", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:12345/api/v1/pki/ca | python -m json.tool
+curl -H "Content-Type: application/json" -d '{"cn":"YzaymCA","mail":"jdoe@email.net","organisation": "Zaym and co ltd","country": "ZA","state": "ZaymState", "locality": "ZaymTown", "streetaddress": "7000 zaym avenue", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:22225/api/v1/pki/ca | python -m json.tool
 ```
 
 ```
@@ -81,7 +81,7 @@ curl -H "Content-Type: application/json" -d '{"cn":"YzaymCA","mail":"jdoe@email.
 ### List all CA
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/ca | python -m json.tool
+curl http://127.0.0.1:22225/api/v1/pki/ca | python -m json.tool
 ```
 
 Return only the CN of all CA
@@ -123,7 +123,7 @@ Return only the CN of all CA
 ### Get a specific CA
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/ca/{ca_cn} | python -m json.tool
+curl http://127.0.0.1:22225/api/v1/pki/ca/{ca_cn} | python -m json.tool
 ```
 
 Return all attributes except the private key
@@ -171,7 +171,7 @@ Return all attributes except the private key
 ### Create a Profile
 
 ```
-curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","caname":"YzaymCA","validity": 365,"keytype": 1,"keysize": 2048, "digest": 6, "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "cert@mail.net", "days": 365}' http://127.0.0.1:12345/api/v1/pki/profile | python -m json.tool
+curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","caname":"YzaymCA","validity": 365,"keytype": 1,"keysize": 2048, "digest": 6, "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "cert@mail.net", "days": 365}' http://127.0.0.1:22225/api/v1/pki/profile | python -m json.tool
 ```
 
 ```
@@ -191,7 +191,7 @@ curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","caname":"Yza
 ### List all profiles
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/profile | python -m json.tool
+curl http://127.0.0.1:22225/api/v1/pki/profile | python -m json.tool
 ```
 
 Return only the profile name
@@ -252,7 +252,7 @@ Return only the profile name
 ### Get a specific Profile
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/profile/{profile_name} | python -m json.tool
+curl http://127.0.0.1:22225/api/v1/pki/profile/{profile_name} | python -m json.tool
 ```
 
 ```
@@ -271,7 +271,7 @@ curl http://127.0.0.1:12345/api/v1/pki/profile/{profile_name} | python -m json.t
                         "CreatedAt": "0001-01-01T00:00:00Z",
                         "DeletedAt": null,
                         "ID": 0,
-                                                "UpdatedAt": "0001-01-01T00:00:00Z",
+                        "UpdatedAt": "0001-01-01T00:00:00Z",
                         "cn": "",
                         "country": "",
                         "days": 0,
@@ -313,7 +313,7 @@ curl http://127.0.0.1:12345/api/v1/pki/profile/{profile_name} | python -m json.t
 ### Create a certificate
 
 ```
-curl -H "Content-Type: application/json" -d '{"cn":"ZaymCert","mail":"zaym@mail.net","street": "7000 parc avenue","organisation": "inverse", "country": "CA", "state": "Quebec", "locality": "Montreal", "postalcode": "H3N 1X1", "profilename": "ZaymProfile"}' http://127.0.0.1:12345/api/v1/pki/cert | python -m json.tool
+curl -H "Content-Type: application/json" -d '{"cn":"ZaymCert","mail":"zaym@mail.net","street": "7000 parc avenue","organisation": "inverse", "country": "CA", "state": "Quebec", "locality": "Montreal", "postalcode": "H3N 1X1", "profilename": "ZaymProfile"}' http://127.0.0.1:22225/api/v1/pki/cert | python -m json.tool
 ```
 
 ```
@@ -332,7 +332,7 @@ curl -H "Content-Type: application/json" -d '{"cn":"ZaymCert","mail":"zaym@mail.
 ### List all Certificates
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/cert | python -m json.tool
+curl http://127.0.0.1:22225/api/v1/pki/cert | python -m json.tool
 ```
 
 Return only the CN of the certificates
@@ -421,10 +421,10 @@ Return only the CN of the certificates
 }
 ```
 
-### Get a specific Profile
+### Get a specific Certificate
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/cert/{certificate_cn}| python -m json.tool
+curl http://127.0.0.1:22225/api/v1/pki/cert/{certificate_cn}| python -m json.tool
 ```
 
 
@@ -439,7 +439,7 @@ curl http://127.0.0.1:12345/api/v1/pki/cert/{certificate_cn}| python -m json.too
                     "CreatedAt": "0001-01-01T00:00:00Z",
                     "Date": "0001-01-01T00:00:00Z",
                     "DeletedAt": null,
-                    "ID": 0,                                                           
+                    "ID": 0,
                     "ProfileID": 0,
                     "SerialNumber": "1",
                     "UpdatedAt": "0001-01-01T00:00:00Z",
@@ -523,7 +523,7 @@ curl http://127.0.0.1:12345/api/v1/pki/cert/{certificate_cn}| python -m json.too
 ## Send the certificate by email
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/certmgmt/{certificate_cn}| python -m json.tool
+curl http://127.0.0.1:22225/api/v1/pki/certmgmt/{certificate_cn}| python -m json.tool
 ```
 
 ```
@@ -546,7 +546,7 @@ Use the password value to open the p12 file
 
 
 ```
-curl http://127.0.0.1:12345/api/v1/pki/certmgmt/{certificate_cn}/{password}
+curl http://127.0.0.1:22225/api/v1/pki/certmgmt/{certificate_cn}/{password}
 ```
 
 The return content is the p12 file, use the password you defined in place of {password} to open the p12 file.
@@ -566,5 +566,5 @@ Reason option:
 10 AACompromise
 
 ```
-curl -X "DELETE" http://127.0.0.1:12345/api/v1/pki/certmgmt/ZaymCert/{reason}
+curl -X "DELETE" http://127.0.0.1:22225/api/v1/pki/certmgmt/ZaymCert/{reason}
 ```

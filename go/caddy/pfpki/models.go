@@ -163,7 +163,6 @@ type RevokedCert struct {
 	SerialNumber  string
 }
 
-// curl -H "Content-Type: application/json" -d '{"cn":"YZaymCA","mail":"zaym@inverse.ca","organisation": "inverse","country": "CA","state": "QC", "locality": "Montreal", "streetaddress": "7000 avenue du parc", "postalcode": "H3N 1X1", "keytype": 1, "keysize": 2048, "Digest": 6, "days": 3650, "extendedkeyusage": "1|2", "keyusage": "1|32"}' http://127.0.0.1:12345/api/v1/pki/newca
 func (c CA) new(pfpki *Handler) (Info, error) {
 	// Create the table on the fly.
 	pfpki.DB.AutoMigrate(&CA{})
@@ -279,7 +278,6 @@ func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 
 // }
 
-// curl -H "Content-Type: application/json" -d '{"name":"ZaymProfile","caname":"boby","validity": 365,"keytype": 1,"keysize": 2048, "digest": 6, "keyusage": "", "extendedkeyusage": "", "p12smtpserver": "10.0.0.6", "p12mailpassword": 1, "p12mailsubject": "New certificate", "P12MailFrom": "zaym@inverse.ca", "days": 365}' http://127.0.0.1:12345/api/v1/pki/newprofile
 func (p Profile) new(pfpki *Handler) (Info, error) {
 	// Create the table on the fly.
 	pfpki.DB.AutoMigrate(&Profile{})
@@ -326,7 +324,6 @@ func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
 	return Information, nil
 }
 
-// curl -H "Content-Type: application/json" -d '{"cn":"ZaymCert","mail":"zaim@inverse.ca","street": "7000 parc avenue","organisation": "inverse", "country": "zaymland", "state": "me", "locality": "zaymtown", "postalcode": "H3N 1X1", "profilename": "ZaymProfile"}' http://127.0.0.1:12345/api/v1/pki/newcert
 func (c Cert) new(pfpki *Handler) (Info, error) {
 	Information := Info{}
 	pfpki.DB.AutoMigrate(&Cert{})
@@ -474,11 +471,6 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	}
 
 	pkcs12, err := pkcs12.Encode(PRNG, certtls.PrivateKey, certificate, CaCert, password)
-
-	// certOut, err := os.Create("cert.p12")
-
-	// defer certOut.Close()
-	// _, err = certOut.Write(pkcs12)
 
 	if _, ok := params["password"]; ok {
 		Information, err = email(cert, prof, pkcs12, password)

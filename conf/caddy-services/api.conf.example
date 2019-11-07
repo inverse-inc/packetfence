@@ -39,6 +39,11 @@
   proxy /api/v1/firewall_sso/ 127.0.0.1:8777 {
     transparent
   }
+
+  # pfpki API access
+  proxy /api/v1/pki/ 127.0.0.1:22225 {
+    transparent
+  }
   
   # Everything else goes to the Perl API
   proxy /api/v1/ 127.0.0.1:22224 {
