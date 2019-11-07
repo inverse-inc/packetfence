@@ -10,6 +10,10 @@ log_section() {
    printf "=\t%s\n" "" "$@" ""
 }
 
+log_subsection() {
+   printf "=\t%s\n" "" "$@" ""
+}
+
 
 configure_and_check() {
     # Define RESULT_DIR if in CI
@@ -35,18 +39,28 @@ configure_and_check() {
     [ -z "$RESULT_DIR" ] && die "not set: RESULT_DIR"
     [ -z "$MAINT_DIR" ] && die "not set: MAINT_DIR"
     
-    mkdir -vp $MAINT_DIR || die "mkdir failed: $MAINT_DIR"
+    mkdir -vp ${MAINT_DIR} || die "mkdir failed: $MAINT_DIR"
 }
 
 build_golang_binaries() {
-    GODIR=${GODIR:-go}
+    GO_DIR=${GO_DIR:-go}
 
-    make -C ${GODIR} all
-    make -C ${GODIR} SBINDIR=${MAINT_DIR} copy
+    make -C ${GO_DIR} all
+    log_subsection "Move binaries in ${MAINT_DIR}"
+    make -C ${GO_DIR} SBINDIR=${MAINT_DIR} copy
 }
 
 build_admin_artifacts() {
-    echo "test"
+    SRC_HTML_DIR=html
+    SRC_HTML_PFAPPDIR_ROOT=${SRC_HTML_DIR}/pfappserver/root
+    SRC_HTML_PFAPPDIR_ALT=${SRC_HTML_PFAPPDIR_ROOT}/static.alt
+
+    make -C ${SRC_HTML_PFAPPDIR_ALT} vendor
+    make -C ${SRC_HTML_PFAPPDIR_ALT} light-dist
+
+    log_subsection "Move artifacts in ${MAINT_DIR}"
+    tar -v -czf ${MAINT_DIR}/static.alt.tgz -C ${SRC_HTML_PFAPPDIR_ALT} dist
+    cp -v ${SRC_HTML_PFAPPDIR_ROOT}/admin/v-index.tt ${MAINT_DIR}
 }
 
 log_section "Configure and check..."
@@ -61,5 +75,5 @@ tree $RELEASE_DIR
 log_section "Build web admin artifacts"
 build_admin_artifacts
 
-log_section "Web admin artifacts..."
+log_section "Golang and web admin artifacts..."
 tree $RELEASE_DIR
