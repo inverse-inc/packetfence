@@ -72,6 +72,7 @@ has 'dhcp' => ('is' => 'ro');
 
 has 'accessControl' => (is => 'ro', builder => '_build_accessControl');
 has 'dhcp_networks' => (is => 'ro', builder => '_build_DHCP_networks');
+has 'managed_networks' => (is => 'ro', builder => '_build_managed_networks');
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -140,6 +141,28 @@ sub _build_DHCP_networks {
     }
 
     return \@dhcp_networks;
+}
+
+=head2 _build_managed_networks
+
+Builds the list of networks which PacketFence manage
+
+=cut
+
+sub _build_managed_networks {
+    my ($self) = @_;
+
+    my @managed_networks;
+    foreach my $network (keys %ConfigNetworks) {
+        my %net = %{$ConfigNetworks{$network}};
+        my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
+        push @managed_networks, $network_obj;
+        if (defined($ConfigNetworks{$network}{reg_network})) {
+            push @managed_networks, NetAddr::IP->new(NetAddr::IP->new($ConfigNetworks{$network}{reg_network})->network());
+        }
+    }
+
+    return \@managed_networks;
 }
 
 sub _build_accessControl {
@@ -328,6 +351,25 @@ sub parse_dhcp_request {
     else {
         $self->checkForParking($client_mac);
     }
+    if ($self->pf_is_managing($client_ip)) {
+        my $apiclient = pf::client::getClient;
+
+        my %violation_data = (
+            'mac'   => $client_mac,
+            'tid'   => 'new_dhcp_info_from_managed_network',
+            'type'  => 'internal',
+        );
+        $apiclient->notify('trigger_violation', %violation_data);
+    } else {
+        my $apiclient = pf::client::getClient;
+
+        my %violation_data = (
+            'mac'   => $client_mac,
+            'tid'   => 'new_dhcp_info_from_production_network',
+            'type'  => 'internal',
+        );
+        $apiclient->notify('trigger_violation', %violation_data);
+    }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
     # in which case we are not interested in detecting rogue DHCP
@@ -421,6 +463,25 @@ sub pf_is_dhcp {
     return $FALSE;
 }
 
+=head2 pf_is_managing
+
+Verifies if PacketFence is managing the network the IP is in
+
+=cut
+
+sub pf_is_managing {
+    my ($self, $client_ip) = @_;
+
+    foreach my $network_obj (@{$self->{managed_networks}}) {
+        # We need to rebuild it everytime with the mask from the network as
+        # a DHCPREQUEST does not contain the subnet mask
+        my $net_addr = NetAddr::IP->new($client_ip,$network_obj->mask);
+        if($network_obj->contains($net_addr)){
+            return $TRUE;
+        }
+    }
+    return $FALSE;
+}
 
 =head2 checkForParking
 
