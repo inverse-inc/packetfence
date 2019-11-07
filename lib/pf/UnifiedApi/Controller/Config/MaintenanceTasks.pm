@@ -44,6 +44,7 @@ use pfappserver::Form::Config::Pfmon::security_event_maintenance;
 use pfappserver::Form::Config::Pfmon::password_of_the_day;
 use pfappserver::Form::Config::Pfmon::acct_cleanup;
 use pfappserver::Form::Config::Pfmon::dns_audit_log_cleanup;
+use pfappserver::Form::Config::Pfmon::admin_api_audit_log_cleanup;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfmon::$_" } qw(
@@ -69,6 +70,7 @@ our %TYPES_TO_FORMS = (
       security_event_maintenance
       password_of_the_day
       acct_cleanup
+      admin_api_audit_log_cleanup
     )
 );
 
