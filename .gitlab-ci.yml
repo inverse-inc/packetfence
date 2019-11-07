@@ -116,10 +116,23 @@ variables:
   tags:
     - docker
 
+.maintenance_sign_job:
+  stage: sign
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  dependencies:
+    - build_maintenance_centos_7
+    - build_maintenance_debian_stretch
+  tags:
+    - inverse.ca
+    - shell
+
 .deploy_deb_job:
   stage: upload
   dependencies:
-    - sign
+    - sign_dev_and_release
   variables:
     #DEPLOY_USER: see GitLab variables
     DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
@@ -134,7 +147,7 @@ variables:
 .deploy_rpm_job:
   stage: upload
   dependencies:
-    - sign
+    - sign_dev_and_release
   variables:
     #DEPLOY_USER: see GitLab variables
     RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
@@ -163,8 +176,11 @@ variables:
 
 .maintenance_build_script:
   script:
-    - ./$MAINTDIR/build_maintenance_artifacts.sh
+    - ./$MAINTDIR/build_maintenance_artifacts.sh build
 
+.maintenance_sign_script:
+  script:
+    - ./$MAINTDIR/build_maintenance_artifacts.sh sign
 
 ################################################################################
 # STAGES
@@ -263,7 +279,8 @@ build_maintenance_debian_stretch:
 ########################################
 # SIGN JOBS
 ########################################
-sign:
+sign_dev_and_release:
+  # GPG_USER_ID see GitLab variable
   # only use when executor is docker
   image: buildpkg/debian:buster
   stage: sign
@@ -285,6 +302,13 @@ sign:
   extends:
     - .job_dev_and_release_triggers
 
+sign_maintenance:
+  # GPG_USER_ID see GitLab variable
+  extends:
+    - .maintenance_sign_job
+    - .maintenance_sign_script
+    - .job_maintenance_triggers
+
 ########################################
 # PUBLISH JOBS
 ########################################
@@ -303,7 +327,7 @@ pages:
     - ci-pages-home
     - ci-pages-tree
   dependencies:
-    - sign
+    - sign_dev_and_release
   artifacts:
     expire_in: 1 day
     paths:

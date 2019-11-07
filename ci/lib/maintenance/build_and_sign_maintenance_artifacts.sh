@@ -16,6 +16,7 @@ log_subsection() {
 
 
 configure_and_check() {
+    log_section "Configure and check..."
     # Define RESULT_DIR if in CI
     if [ ! -z "$CI_PROJECT_DIR" ]
     then
@@ -42,7 +43,13 @@ configure_and_check() {
     mkdir -vp ${MAINT_DIR} || die "mkdir failed: $MAINT_DIR"
 }
 
+configure_gpg() {
+    GPG_KEY_ID=${GPG_KEY_ID:-${GPG_USER_ID}}
+}
+
+
 build_golang_binaries() {
+    log_section "Build Golang binaries..."    
     GO_DIR=${GO_DIR:-go}
 
     make -C ${GO_DIR} all
@@ -51,6 +58,7 @@ build_golang_binaries() {
 }
 
 build_admin_artifacts() {
+    log_section "Build web admin artifacts..."    
     SRC_HTML_DIR=html
     SRC_HTML_PFAPPDIR_ROOT=${SRC_HTML_DIR}/pfappserver/root
     SRC_HTML_PFAPPDIR_ALT=${SRC_HTML_PFAPPDIR_ROOT}/static.alt
@@ -63,17 +71,25 @@ build_admin_artifacts() {
     cp -v ${SRC_HTML_PFAPPDIR_ROOT}/admin/v-index.tt ${MAINT_DIR}
 }
 
-log_section "Configure and check..."
-configure_and_check
+build_artifacts() {
+    configure_and_check
+    build_golang_binaries
+    build_admin_artifacts
+    tree $RELEASE_DIR
+}
 
-log_section "Build Golang binaries..."
-build_golang_binaries
+sign_artifacts() {
+    configure_and_check
+    configure_gpg
+    tree $RESULT_DIR
+    log_section "Sign all artifacts"
+    find $RESULT_DIR -type f -not -name "*.sig" -exec \
+         gpg -v -u $GPG_KEY_ID --batch --yes --output {}.sig --sign {} \;
+    tree $RESULT_DIR
+}
 
-log_section "Golang artifacts..."
-tree $RELEASE_DIR
-
-log_section "Build web admin artifacts"
-build_admin_artifacts
-
-log_section "Golang and web admin artifacts..."
-tree $RELEASE_DIR
+case $1 in
+    build) build_artifacts ;;
+    sign) sign_artifacts ;;
+    *)   die "Wrong argument"
+esac
