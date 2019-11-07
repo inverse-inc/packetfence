@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"regexp"
 
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -73,40 +72,50 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	switch v := object.(type) {
 	case CA:
 
-		if matched, _ := regexp.MatchString(`/pki/newca`, req.URL.Path); matched {
+		switch method := req.Method; method {
+		case "GET":
+			Information, err = v.get(pfpki, vars)
+		case "POST":
 			err = json.Unmarshal(body, &v)
 			if err != nil {
-				panic(err)
+				return Information, err
 			}
 			Information, err = v.new(pfpki)
+		default:
+			err = errors.New("Method not supported")
 		}
-		if matched, _ := regexp.MatchString(`/pki/getca/`, req.URL.Path); matched {
-			Information, err = v.get(pfpki, vars)
-		}
+
 	case Cert:
 
-		if matched, _ := regexp.MatchString(`/pki/newcert`, req.URL.Path); matched {
+		switch method := req.Method; method {
+		case "GET":
+			Information, err = v.get(pfpki, vars)
+		case "POST":
 			err = json.Unmarshal(body, &v)
 			if err != nil {
-				panic(err)
+				return Information, err
 			}
 			Information, err = v.new(pfpki)
-		}
-		if matched, _ := regexp.MatchString(`/pki/getcert/`, req.URL.Path); matched {
-			Information, err = v.get(pfpki, vars)
-		}
-		if matched, _ := regexp.MatchString(`/pki/revokecert/`, req.URL.Path); matched {
+		case "DELETE":
 			Information, err = v.revoke(pfpki, vars)
+		default:
+			err = errors.New("Method not supported")
 		}
+
 	case Profile:
-
-		err = json.Unmarshal(body, &v)
-		if err != nil {
-			panic(err)
+		switch method := req.Method; method {
+		case "GET":
+			Information, err = v.get(pfpki, vars)
+		case "POST":
+			err = json.Unmarshal(body, &v)
+			if err != nil {
+				return Information, err
+			}
+			Information, err = v.new(pfpki)
+		default:
+			err = errors.New("Method not supported")
 		}
-		Information, err = v.new(pfpki)
 	default:
-
 		err = errors.New("invalid type")
 	}
 
