@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -21,6 +22,7 @@ type Info struct {
 	Error       string `json:"error"`
 	ContentType string
 	Raw         []byte
+	Entries     interface{}
 }
 
 // Create interface
@@ -78,30 +80,38 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case "POST":
 			err = json.Unmarshal(body, &v)
 			if err != nil {
-				return Information, err
+				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 			}
 			Information, err = v.new(pfpki)
 		default:
 			err = errors.New("Method not supported")
+			log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
 		}
 
 	case Cert:
 
-		switch method := req.Method; method {
-		case "GET":
-			Information, err = v.get(pfpki, vars)
-		case "POST":
-			err = json.Unmarshal(body, &v)
-			if err != nil {
-				return Information, err
+		if matched, _ := regexp.MatchString(`/pki/certmgmt`, req.URL.Path); matched {
+			switch method := req.Method; method {
+			case "GET":
+				Information, err = v.download(pfpki, vars)
+			case "DELETE":
+				Information, err = v.revoke(pfpki, vars)
+			default:
+				err = errors.New("Method not supported")
+				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 			}
-			Information, err = v.new(pfpki)
-		case "DELETE":
-			Information, err = v.revoke(pfpki, vars)
-		default:
-			err = errors.New("Method not supported")
+		} else {
+			switch method := req.Method; method {
+			case "GET":
+				Information, err = v.get(pfpki, vars)
+			case "POST":
+				err = json.Unmarshal(body, &v)
+				if err != nil {
+					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+				}
+				Information, err = v.new(pfpki)
+			}
 		}
-
 	case Profile:
 		switch method := req.Method; method {
 		case "GET":
@@ -109,11 +119,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case "POST":
 			err = json.Unmarshal(body, &v)
 			if err != nil {
-				return Information, err
+				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 			}
 			Information, err = v.new(pfpki)
 		default:
 			err = errors.New("Method not supported")
+			log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 		}
 	default:
 		err = errors.New("invalid type")

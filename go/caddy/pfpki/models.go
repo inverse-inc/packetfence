@@ -88,8 +88,8 @@ type CA struct {
 	KeyUsage         string                  `json:"keyusage,omitempty"`
 	ExtendedKeyUsage string                  `json:"extendedkeyusage,omitempty"`
 	Days             int                     `json:"days"`
-	CaKey            string                  `json:"cakey,omitempty" gorm:"type:longtext"`
-	CaCert           string                  `json:"cacert,omitempty" gorm:"type:longtext"`
+	Key              string                  `json:"key,omitempty" gorm:"type:longtext"`
+	Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
 	IssuerKeyHash    string                  `json:"issuerkeyhash,omitempty" gorm:"UNIQUE_INDEX"`
 	IssuerNameHash   string                  `json:"issuernamehash,omitempty" gorm:"UNIQUE_INDEX"`
 }
@@ -128,8 +128,8 @@ type Cert struct {
 	State         string  `json:"state,omitempty"`
 	Locality      string  `json:"locality,omitempty"`
 	PostalCode    string  `json:"postalcode,omitempty"`
-	PrivateKey    string  `json:"privatekey,omitempty" gorm:"type:longtext"`
-	PubKey        string  `json:"publickey,omitempty" gorm:"type:longtext"`
+	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
+	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
 	ProfileName   string  `json:"profilename,omitempty"`
 	Profile       Profile `json:"profile,omitempty"`
 	ProfileID     uint
@@ -151,8 +151,8 @@ type RevokedCert struct {
 	State         string  `json:"state,omitempty"`
 	Locality      string  `json:"locality,omitempty"`
 	PostalCode    string  `json:"postalcode,omitempty"`
-	PrivateKey    string  `json:"privatekey,omitempty" gorm:"type:longtext"`
-	PubKey        string  `json:"publickey,omitempty" gorm:"type:longtext"`
+	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
+	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
 	ProfileName   string  `json:"profilename,omitempty"`
 	Profile       Profile `json:"profile,omitempty"`
 	ProfileID     uint
@@ -247,7 +247,7 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 	pfpki.DB.AutoMigrate(&CA{})
 
-	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
+	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
 		return Information, err
 	}
 	return Information, nil
@@ -255,6 +255,14 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
+	var cadb []CA
+	if val, ok := params["cn"]; ok {
+		pfpki.DB.Select("cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", val).First(&cadb)
+	} else {
+		pfpki.DB.Select("cn").Find(&cadb)
+	}
+	Information.Entries = cadb
+
 	return Information, nil
 }
 
@@ -307,6 +315,14 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 
 func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
+	var profiledb []Profile
+	if val, ok := params["name"]; ok {
+		pfpki.DB.Select("name, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", val).First(&profiledb)
+	} else {
+		pfpki.DB.Select("name").Find(&profiledb)
+	}
+	Information.Entries = profiledb
+
 	return Information, nil
 }
 
@@ -328,7 +344,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		return Information, CaDB.Error
 	}
 	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
 	if err != nil {
 		return Information, err
 	}
@@ -385,13 +401,26 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, PrivateKey: keyOut.String(), PubKey: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		return Information, err
 	}
 	return Information, nil
 }
 
 func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
+	Information := Info{}
+	var certdb []Cert
+	if val, ok := params["cn"]; ok {
+		pfpki.DB.Select("cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_name, valid_until, serial_number").Where("cn = ?", val).First(&certdb)
+	} else {
+		pfpki.DB.Select("cn").Find(&certdb)
+	}
+	Information.Entries = certdb
+
+	return Information, nil
+}
+
+func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	// Find the Cert
 	var cert Cert
@@ -407,7 +436,7 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	}
 
 	// Load the certificates from the database
-	certtls, err := tls.X509KeyPair([]byte(cert.PubKey), []byte(cert.PrivateKey))
+	certtls, err := tls.X509KeyPair([]byte(cert.Cert), []byte(cert.Key))
 	if err != nil {
 		return Information, err
 	}
@@ -424,7 +453,7 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	}
 
 	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
 	if err != nil {
 		return Information, err
 	}
@@ -438,8 +467,8 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	CaCert = append(CaCert, cacert)
 
 	var password string
-	if params["password"] != "" {
-		password = params["password"]
+	if val, ok := params["password"]; ok {
+		password = val
 	} else {
 		password = generatePassword()
 	}
@@ -451,7 +480,7 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	// defer certOut.Close()
 	// _, err = certOut.Write(pkcs12)
 
-	if params["password"] == "" {
+	if _, ok := params["password"]; ok {
 		Information, err = email(cert, prof, pkcs12, password)
 	} else {
 		Information.Raw = pkcs12
@@ -491,7 +520,7 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	if err != nil {
 		return Information, errors.New("Reason unsupported")
 	}
-	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, PrivateKey: cert.PrivateKey, PubKey: cert.PubKey, ProfileName: cert.ProfileName, Profile: profile, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
+	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, ProfileName: cert.ProfileName, Profile: profile, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
 		return Information, err
 	}
 	if err := pfpki.DB.Delete(&cert).Error; err != nil {

@@ -168,14 +168,14 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 	}
 
 	//Assign the good ca to the reply
-	cacert, err := parseCertFile(ca.CaCert)
+	cacert, err := parseCertFile(ca.Cert)
 
 	if err != nil {
 		return nil, err
 	}
 	ocspr.CaCert = cacert
 
-	catls, err := tls.X509KeyPair([]byte(ca.CaCert), []byte(ca.CaKey))
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	pkey, err := ParseRsaPrivateKeyFromPemStr(ca.CaKey)
+	pkey, err := ParseRsaPrivateKeyFromPemStr(ca.Key)
 
 	key, ok := pkey.(crypto.Signer)
 	if !ok {

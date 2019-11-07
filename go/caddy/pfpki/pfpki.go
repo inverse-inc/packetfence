@@ -62,19 +62,36 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	pfpki.router = mux.NewRouter()
 	PFPki := &pfpki
 	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
+	// New CA
 	api.Handle("/pki/ca", manageCA(PFPki)).Methods("POST")
+	// CA list
+	api.Handle("/pki/ca", manageCA(PFPki)).Methods("GET")
+	// Get CA
 	api.Handle("/pki/ca/{cn}", manageCA(PFPki)).Methods("GET")
 
-	// api.Handle("/pki/listca", manageCA(PFPki)).Methods("GET")
+	// New Profile
 	api.Handle("/pki/profile", manageProfile(PFPki)).Methods("POST")
+	// Profile list
+	api.Handle("/pki/profile", manageProfile(PFPki)).Methods("GET")
+	// Get Profile
+	api.Handle("/pki/profile/{name}", manageProfile(PFPki)).Methods("GET")
 
+	// New Certificate
 	api.Handle("/pki/cert", manageCert(PFPki)).Methods("POST")
+	// Certificate list
+	api.Handle("/pki/cert", manageCert(PFPki)).Methods("GET")
+	// Get Certificate
 	api.Handle("/pki/cert/{cn}", manageCert(PFPki)).Methods("GET")
-	api.Handle("/pki/cert/{cn}/{password}", manageCert(PFPki)).Methods("GET")
+
+	// Get Certificate by email
+	api.Handle("/pki/certmgmt/{cn}", manageCert(PFPki)).Methods("GET")
+	// Download Certificate
+	api.Handle("/pki/certmgmt/{cn}/{password}", manageCert(PFPki)).Methods("GET")
+	// Revoke Certificate
 	api.Handle("/pki/cert/{cn}/{reason}", manageCert(PFPki)).Methods("DELETE")
 
+	// OCSP responder
 	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")
-	// api.Handle("/pki/listcert", getCert(PFPki)).Methods("GET")
 
 	return pfpki, nil
 }

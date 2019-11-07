@@ -169,8 +169,8 @@ func calculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 
 func generatePassword() string {
 	mathrand.Seed(time.Now().UnixNano())
-	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
-		"abcdefghijklmnopqrstuvwxyzåäö" +
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+		"abcdefghijklmnopqrstuvwxyz" +
 		"0123456789")
 	length := 8
 	var b strings.Builder
