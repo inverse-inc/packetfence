@@ -186,7 +186,7 @@ sub service_exists {
     foreach my $service (@services) {
         next if ($service eq 'pf');
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
-        if ($service =~ /^(pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
+        if ($service =~ /^(pfpki|pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
             $exe = "$sbin_dir/pfhttpd";
         } elsif ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );

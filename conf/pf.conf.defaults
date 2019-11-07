@@ -351,6 +351,11 @@ other_members=
 # Should pfipset be managed by PacketFence?
 pfipset=enabled
 #
+# services.pfpki
+#
+# Should pfpki be managed by PacketFence?
+pfpki=enabled
+#
 # services.pfdhcp
 #
 # Should pfdhcp be managed by PacketFence?
