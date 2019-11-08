@@ -1306,7 +1306,7 @@ CREATE TABLE `dns_audit_log` (
 -- Table structure for table `admin_api_audit_log`
 --
 
-CREATE TABLE IF NOT EXISTS `admin_api_audit_log` (
+CREATE TABLE `admin_api_audit_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
