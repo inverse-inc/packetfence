@@ -303,7 +303,7 @@ setup_api_v1_config_misc_routes
 
 sub setup_api_v1_config_misc_routes {
     my ($self, $root) = @_;
-    $root->register_sub_action({ controller => 'Config', action => 'fix_permissions', method => 'POST', auditable => 1 });
+    $root->register_sub_action({ controller => 'Config', action => 'fix_permissions', method => 'POST' });
     $root->register_sub_action({ controller => 'Config', action => 'checkup', method => 'GET' });
     return ;
 }
