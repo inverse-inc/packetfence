@@ -50,14 +50,14 @@ variables:
   # run jobs on "devel" branch (push, schedules and web)
   # run jobs on any branches/tags via "Run pipeline", except:
   # - vX.X.X tag
-  # - maintenance/vX.X.X branches
+  # - maintenance/X.X branches
   # - feature/packer-.* branches
   only:
     - /^devel$/
     - web
   except:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
-    - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
     - /^feature/packer-.*$/
 
 # triggers for release jobs
@@ -74,14 +74,14 @@ variables:
 .job_dev_and_release_triggers:
   # run jobs on "devel" branch *or* vX.X.X tag (push, schedules and web)
   # run jobs on any branches/tags via "Run pipeline", except:
-  # - maintenance/vX.X.X branches
+  # - maintenance/X.X branches
   # - feature/packer-.* branches
   only:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
     - /^devel$/
     - web
   except:
-    - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
     - /^feature/packer-.*$/
 
 # triggers for maintenance jobs
@@ -90,7 +90,7 @@ variables:
   # allow on all maintenance branches, push to branches before 9.2 will not trigger
   # because they don't have .gitlab-ci.yml
   only:
-    - /^maintenance/v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
 
 ########################################    
 # JOBS
@@ -234,12 +234,17 @@ pfbuild_release:
     ANSIBLE_CENTOS_GROUP: stable_centos
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    # create release images with maintenance/vX.X.X
+    # set to empty value to remove '-except' arg
+    PACKER_EXTRA_ARG:
+    DOCKER_TAG: ${CI_COMMIT_TAG}
+  script:
+    # add an extra tag to release images: maintenance/X.X
     # permit to simplify definition of maintenance jobs below
     # based on their branch name
     # CI_COMMIT_TAG contains vX.X.X
-    DOCKER_TAG: maintenance/${CI_COMMIT_TAG}
-  script:
+    # PF_RELEASE_REV contains X.X
+    - PF_RELEASE_REV=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' conf/pf-release)
+    - export DOCKER_EXTRA_TAG=maintenance/${PF_RELEASE_REV}
     - make -e -C ${PACKERDIR} pfbuild
 
 ########################################
@@ -261,15 +266,16 @@ build_pkg_dev_debian_stretch:
     - .deb_script
 
 # build_pkg jobs for release
+# CI_COMMIT_TAG contains vX.X.X
 build_pkg_release_centos_7:
-  image: ${PFBUILD_CENTOS_7_IMG}:maintenance/${CI_COMMIT_TAG}
+  image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_job
     - .job_release_triggers
     - .rpm_script
 
 build_pkg_release_debian_stretch:
-  image: ${PFBUILD_DEB_STRETCH_IMG}:maintenance/${CI_COMMIT_TAG}
+  image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_job
     - .job_release_triggers
@@ -278,7 +284,7 @@ build_pkg_release_debian_stretch:
 ########################################
 # BUILD_MAINTENANCE JOBS
 ########################################
-# CI_COMMIT_REF_NAME contains maintenance/vX.X.X
+# CI_COMMIT_REF_NAME contains maintenance/X.X
 build_maintenance_centos_7:
   image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_NAME}
   extends:
