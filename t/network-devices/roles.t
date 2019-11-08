@@ -28,6 +28,7 @@ use TestUtils;
 my @supports_roles;
 foreach my $networkdevice_class (TestUtils::get_networkdevices_classes()) {
     # create the object
+    next if $networkdevice_class eq 'pf::Switch::Template';
     $networkdevice_class->require();
     my $networkdevice_object = $networkdevice_class->new();
     if ($networkdevice_object->supportsRoleBasedEnforcement()) {
