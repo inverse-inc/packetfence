@@ -58,7 +58,7 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 CREATE TABLE IF NOT EXISTS `admin_api_audit_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL DEFAULT '1',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `user_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `action` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `object_id` varchar(255) COLLATE utf8_bin DEFAULT NULL,

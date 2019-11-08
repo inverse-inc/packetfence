@@ -1306,23 +1306,23 @@ CREATE TABLE `dns_audit_log` (
 -- Table structure for table `admin_api_audit_log`
 --
 
-CREATE TABLE `admin_api_audit_log` (
+CREATE TABLE IF NOT EXISTS `admin_api_audit_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL DEFAULT '1',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `user_name` varchar(255) DEFAULT NULL,
-  `action` varchar(255) DEFAULT NULL,
-  `object_id` varchar(255) DEFAULT NULL,
-  `url` varchar(255) DEFAULT NULL,
-  `method` varchar(10) DEFAULT NULL,
-  `request` TEXT,
-  `status` int NOT NULL,
+  `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `user_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `action` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `object_id` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `method` varchar(10) COLLATE utf8_bin DEFAULT NULL,
+  `request` mediumtext COLLATE utf8_bin,
+  `status` smallint(5) NOT NULL,
    PRIMARY KEY (`id`),
    KEY `action` (`action`),
    KEY `user_name` (`user_name`),
    KEY `object_id_action` (`object_id`, `action`),
    KEY `created_at` (`created_at`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPRESSED;
 
 --
 -- Updating to current version
