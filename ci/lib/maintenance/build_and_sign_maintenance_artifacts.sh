@@ -30,10 +30,11 @@ configure_and_check() {
     RELEASE_ID=$(cut -d/ -f1 <<< $RELEASE)
     RELEASE_NAME=$(cut -d/ -f2 <<< $RELEASE)
     RELEASE_DIR=$RESULT_DIR/$RELEASE_ID/$RELEASE_NAME
-    # CI_COMMIT_REF_NAME = branch name
-    MAINT_DIR=${RELEASE_DIR}/${CI_COMMIT_REF_NAME}
+    # CI_COMMIT_REF_NAME = branch name = maintenance/X.X
+    # we drop "maintenance/" prefix
+    MAINT_DIR=${RELEASE_DIR}/${CI_COMMIT_REF_NAME#maintenance/}
 
-    declare -p RELEASE RELEASE_ID RELEASE_NAME RELEASE_DIR MAINT_DIR
+    declare -p RELEASE RELEASE_ID RELEASE_NAME RESULT_DIR RELEASE_DIR MAINT_DIR
 
     [ -z "$RELEASE_ID" ] && die "not set: RELEASE_ID"
     [ -z "$RELEASE_NAME" ] && die "not set: RELEASE_NAME"
@@ -71,6 +72,7 @@ build_admin_artifacts() {
     cp -v ${SRC_HTML_PFAPPDIR_ROOT}/admin/v-index.tt ${MAINT_DIR}
 }
 
+# build artifact for each distribution
 build_artifacts() {
     configure_and_check
     build_golang_binaries
@@ -78,6 +80,8 @@ build_artifacts() {
     tree $RELEASE_DIR
 }
 
+# sign artifacts for all distributions using artifacts
+# of previous build jobs
 sign_artifacts() {
     configure_and_check
     configure_gpg

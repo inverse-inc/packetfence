@@ -28,7 +28,7 @@ DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-/root/debian/UploadQueue}
 DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-debian-devel}
 DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
 
-MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-/tmp}
+MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-tmp}
 
 rpm_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do

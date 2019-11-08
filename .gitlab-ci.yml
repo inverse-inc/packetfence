@@ -141,9 +141,7 @@ variables:
     MAINT_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh maintenance
-  # run job on runners tag with inverse AND shell
   tags:
-    - inverse
     - shell
     
 .deploy_deb_job:
@@ -235,7 +233,7 @@ pfbuild_release:
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
     # set to empty value to remove '-except' arg
-    PACKER_EXTRA_ARG:
+    PACKER_EXTRA_ARG: ' '
     DOCKER_TAG: ${CI_COMMIT_TAG}
   script:
     # add an extra tag to release images: maintenance/X.X
@@ -397,7 +395,7 @@ deploy_deb_release:
     name: debian-lastrelease
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
-
+# we deploy artifacts for all distributions in one shot
 deploy_maintenance:
   extends:
     - .maintenance_deploy_job
