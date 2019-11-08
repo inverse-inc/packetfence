@@ -80,7 +80,7 @@ maint_deploy() {
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
     declare -p src_dir dst_dir
     echo "rsync: $src_dir -> $dst_dir"
-    rsync -avz --delete $src_dir $dst_dir \
+    rsync -avz $src_dir $dst_dir \
         || die "scp failed"
 }
 
