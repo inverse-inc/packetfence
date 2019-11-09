@@ -46,6 +46,23 @@ Send a Disconnect request to disconnect a mac
 
 =cut
 
+=head2 getVoipVsa
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+For now it returns the voiceVlan untagged since Juniper supports multiple untagged VLAN in the same interface
+
+=cut
+
+sub getVoipVsa{
+    my ($self) = @_;
+    my $logger = $self->logger;
+    my $voiceVlan = $self->{'_voiceVlan'};
+    
+    $logger->info("Accepting phone with Access-Accept on voiceVlan $voiceVlan");
+    
+    return ('Juniper-VoIP-Vlan' => $voiceVlan);
+}
+
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = $self->logger;
