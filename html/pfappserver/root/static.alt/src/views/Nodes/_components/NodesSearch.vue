@@ -123,7 +123,7 @@
         <template v-slot:cell(actions)="item">
           <div class="text-nowrap">
             <b-form-checkbox :id="item.value" :value="item.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
-            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[item.index]._rowMessage"></icon>
+            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index] && tableValues[item.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[item.index]._rowMessage"></icon>
           </div>
         </template>
         <template v-slot:cell(status)="item">
