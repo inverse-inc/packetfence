@@ -48,10 +48,11 @@ use pf::util;
 
 use pf::SwitchSupports qw(
     WiredMacAuth
+    WiredDot1x
     RadiusVoip
+    RoleBasedEnforcement
     FloatingDevice
     MABFloatingDevices
-    WiredDot1x
 );
 # special features
 sub isVoIPEnabled {return $TRUE; }
@@ -84,6 +85,18 @@ sub getVoipVsa{
 
 }
 
+
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
 
 =head2 deauthenticateMacRadius
 
