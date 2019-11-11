@@ -10,18 +10,25 @@ log_section() {
    printf "=\t%s\n" "" "$@" ""
 }
 
+RESULT_DIR=${RESULT_DIR:-result}
+
 DEPLOY_USER=${DEPLOY_USER:-reposync}
 DEPLOY_HOST=${DEPLOY_HOST:-pfbuilder.inverse}
 DEPLOY_UPDATE=${DEPLOY_UPDATE:-"hostname -f"}
 
+REPO_BASE_DIR=${REPO_BASE_DIR:-/var/www/repos/PacketFence}
+PUBLIC_REPO_BASE_DIR=${PUBLIC_REPO_BASE_DIR:-/var/www/inverse.ca/downloads/PacketFence}
+
 DEPLOY_SRPMS=${DEPLOY_SRPMS:-no}
-RPM_BASE_DIR=${RPM_BASE_DIR:-/var/www/repos/PacketFence/RHEL7}
+RPM_BASE_DIR=${RPM_BASE_DIR:-"${REPO_BASE_DIR}/RHEL7"}
 RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-devel/x86_64}
-RPM_RESULT_DIR=${RPM_RESULT_DIR:-result/centos}
+RPM_RESULT_DIR=${RPM_RESULT_DIR:-"${RESULT_DIR}/centos"}
 
 DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-/root/debian/UploadQueue}
 DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-debian-devel}
-DEB_RESULT_DIR=${DEB_RESULT_DIR:-result/debian}
+DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
+
+MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-tmp}
 
 rpm_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do
@@ -37,7 +44,7 @@ rpm_deploy() {
             echo "Keeping SRPMS according to '$DEPLOY_SRPMS' value"
         fi
 
-        echo "copy: $src_dir -> $dst_dir/RPMS"
+        echo "copy: $src_dir/*.rpm -> $dst_dir/RPMS"
         scp $src_dir/*.rpm $dst_dir/RPMS \
             || die "scp failed"
 
@@ -54,24 +61,36 @@ deb_deploy() {
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$DEB_UPLOAD_DIR"
         changes_file=$(basename $(ls $DEB_RESULT_DIR/${release_name}/*.changes | tail -1))
         declare -p src_dir dst_dir changes_file
-        echo "copy: $src_dir -> $dst_dir"
+        echo "copy: $src_dir/* -> $dst_dir"
         scp $src_dir/* $dst_dir/ \
             || die "scp failed"
         
         dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
         extra_args="${release_name} ${changes_file}"
         echo "running following command: $dst_cmd $extra_args"
-        ssh $dst_cmd $extra_args\
+        ssh $dst_cmd $extra_args \
             || die "update failed"
     done
 }
 
-log_section "Display artifacts"
-tree result
+maint_deploy() {
+    # warning: slashs at end of dirs are significant for rsync
+    src_dir="$RESULT_DIR/"
+    dst_repo="$PUBLIC_REPO_BASE_DIR/$MAINT_DEPLOY_DIR/"
+    dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+    declare -p src_dir dst_dir
+    echo "rsync: $src_dir -> $dst_dir"
+    rsync -avz $src_dir $dst_dir \
+        || die "scp failed"
+}
 
-log_section "Deploy $1 packages"
+log_section "Display artifacts"
+tree ${RESULT_DIR}
+
+log_section "Deploy $1 artifacts"
 case $1 in
     rpm) rpm_deploy ;;
     deb) deb_deploy ;;
-    *)   die "Missing argument"
+    maintenance) maint_deploy ;;
+    *)   die "Wrong argument"
 esac
