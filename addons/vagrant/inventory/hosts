@@ -16,6 +16,7 @@ all:
               reg_netmask: 255.255.255.0
               iso_ip: 192.168.99.10
               iso_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfcen8dev:
