@@ -14,8 +14,8 @@ ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
 PARALLEL = false
 
 # by default, we make only *one* docker tag and skip
-# this docker-extra-tag post-processor
-PACKER_EXTRA_ARG = '-except=docker-extra-tag'
+# post-processors to add extra tag
+PACKER_EXTRA_ARG = '-except=set-extra-tag,push-extra-tag'
 
 #==============================================================================
 # Targets

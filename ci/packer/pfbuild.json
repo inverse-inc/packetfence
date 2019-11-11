@@ -129,19 +129,30 @@
         [
             {
                 "type": "docker-tag",
+                "name": "set-main-tag",
                 "only": ["{{user `builder_prefix`}}-centos-7"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
                 "tag": "{{user `docker_tag`}}"
             },
             {
+                "type": "docker-push",
+                "name": "push-main-tag",
+                "only": ["{{user `builder_prefix`}}-centos-7"],
+                "login": true,
+                "login_username": "{{user `docker_user`}}",
+                "login_password": "{{user `docker_password`}}",
+                "login_server": "{{user `docker_registry`}}"
+            },
+            {
                 "type": "docker-tag",
-                "name": "docker-extra-tag",
+                "name": "set-extra-tag",
                 "only": ["{{user `builder_prefix`}}-centos-7"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
                 "tag": "{{ user `docker_extra_tag`}}"
             },
             {
                 "type": "docker-push",
+                "name": "push-extra-tag",
                 "only": ["{{user `builder_prefix`}}-centos-7"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
@@ -152,19 +163,30 @@
         [
             {
                 "type": "docker-tag",
+                "name": "set-main-tag",
                 "only": ["{{user `builder_prefix`}}-stretch"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
                 "tag": "{{user `docker_tag`}}"
             },
             {
+                "type": "docker-push",
+                "name": "push-main-tag",
+                "only": ["{{user `builder_prefix`}}-stretch"],
+                "login": true,
+                "login_username": "{{user `docker_user`}}",
+                "login_password": "{{user `docker_password`}}",
+                "login_server": "{{user `docker_registry`}}"
+            },
+            {
                 "type": "docker-tag",
-                "name": "docker-extra-tag",
+                "name": "set-extra-tag",
                 "only": ["{{user `builder_prefix`}}-stretch"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
                 "tag": "{{ user `docker_extra_tag`}}"
             },
             {
                 "type": "docker-push",
+                "name": "push-extra-tag",
                 "only": ["{{user `builder_prefix`}}-stretch"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
@@ -175,19 +197,30 @@
         [
             {
                 "type": "docker-tag",
+                "name": "set-main-tag",
                 "only": ["{{user `builder_prefix`}}-buster"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
                 "tag": "{{user `docker_tag`}}"
             },
             {
+                "type": "docker-push",
+                "name": "push-main-tag",
+                "only": ["{{user `builder_prefix`}}-buster"],
+                "login": true,
+                "login_username": "{{user `docker_user`}}",
+                "login_password": "{{user `docker_password`}}",
+                "login_server": "{{user `docker_registry`}}"
+            },
+            {
                 "type": "docker-tag",
-                "name": "docker-extra-tag",
+                "name": "set-extra-tag",
                 "only": ["{{user `builder_prefix`}}-buster"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
                 "tag": "{{ user `docker_extra_tag`}}"
             },
             {
                 "type": "docker-push",
+                "name": "push-extra-tag",
                 "only": ["{{user `builder_prefix`}}-buster"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
