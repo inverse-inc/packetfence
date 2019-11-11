@@ -45,6 +45,7 @@ configure_and_check() {
 }
 
 configure_gpg() {
+    log_section "Configure GPG.."
     GPG_KEY_ID=${GPG_KEY_ID:-${GPG_USER_ID}}
 }
 
@@ -83,10 +84,10 @@ build_artifacts() {
 # sign artifacts for all distributions using artifacts
 # of previous build jobs
 sign_artifacts() {
-    configure_and_check
     configure_gpg
+    log_section "Display artifacts.."
     tree $RESULT_DIR
-    log_section "Sign all artifacts"
+    log_section "Sign all artifacts.."
     find $RESULT_DIR -type f -not -name "*.sig" -exec \
          gpg -v -u $GPG_KEY_ID --batch --yes --output {}.sig --sign {} \;
     tree $RESULT_DIR
