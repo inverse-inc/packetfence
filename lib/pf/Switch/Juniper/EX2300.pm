@@ -60,12 +60,7 @@ sub getVoipVsa{
     
     $logger->info("Accepting phone with Access-Accept on voiceVlan $voiceVlan");
     
-    return (
-        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-        'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => "$voiceVlan",
-        'Juniper-VoIP-Vlan' => "$voiceVlan",
-    );
+    return ('Juniper-VoIP-Vlan' => $voiceVlan);
 }
 
 sub radiusDisconnect {
