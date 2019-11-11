@@ -54,6 +54,8 @@ sub action_inflate {
     my $hash = {};
     if (defined $value) {
         @{$hash}{'type', 'value'} = pfconfig::namespaces::config::PortalModules::inflate_action($value);
+        my $type = $hash->{type};
+        $hash->{type} = 'set_unreg_date' if $type eq 'set_unregdate';
         $hash->{value} = join(',',@{$hash->{value}});
     }
     return $hash;
@@ -69,6 +71,7 @@ Deflate an action to the format :
 sub action_deflate {
     my ($self, $value) = @_;
     my $type = $value->{type};
+    $type = 'set_unregdate' if $type eq 'set_unreg_date';
     my $joined_arguments = $value->{value};
     return "${type}(${joined_arguments})";
 }
@@ -79,8 +82,12 @@ sub options_type {
     return (
         { value => '', label => $form->_localize('Select an option') },
         (
-            map { { value => $_, label => $form->_localize($_), } }
-              @{ $form->for_module->available_actions }
+            map {
+                {
+                    value => ( $_ ne 'set_unregdate' ? $_ : 'set_unreg_date' ),
+                    label => $form->_localize($_),
+                }
+            } @{ $form->for_module->available_actions }
         )
     );
 }
