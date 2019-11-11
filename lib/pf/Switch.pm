@@ -63,22 +63,24 @@ use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
 use pf::SwitchSupports qw(
-    -FloatingDevice
-    -ExternalPortal
-    -WebFormRegistration
-    -WiredMacAuth
-    -WiredDot1x
-    -WirelessMacAuth
-    -WirelessDot1x
-    -RadiusVoip
-    -RoleBasedEnforcement
     -AccessListBasedEnforcement
-    -SaveConfig
     -Cdp
+    -ExternalPortal
+    -FloatingDevice
     -Lldp
-    RadiusDynamicVlanAssignment
     -MABFloatingDevices
+    -RadiusVoip
+    -RoamingAccounting
+    -RoleBasedEnforcement
+    -SaveConfig
     -VPN
+    -WebFormRegistration
+    -WiredDot1x
+    -WiredMacAuth
+    -WirelessDot1x
+    -WirelessMacAuth
+
+     RadiusDynamicVlanAssignment
 );
 
 #
