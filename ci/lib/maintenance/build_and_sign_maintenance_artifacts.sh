@@ -30,7 +30,7 @@ configure_and_check() {
     RELEASE_ID=$(cut -d/ -f1 <<< $RELEASE)
     RELEASE_NAME=$(cut -d/ -f2 <<< $RELEASE)
     RELEASE_DIR=$RESULT_DIR/$RELEASE_ID/$RELEASE_NAME
-    # CI_COMMIT_REF_NAME = branch name = maintenance/X.X
+    # CI_COMMIT_REF_NAME = branch name = maintenance/X.Y
     # we drop "maintenance/" prefix
     MAINT_DIR=${RELEASE_DIR}/${CI_COMMIT_REF_NAME#maintenance/}
 
