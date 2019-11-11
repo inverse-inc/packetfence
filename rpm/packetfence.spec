@@ -745,6 +745,7 @@ fi
 
 %dir                    /usr/local/pf
                         /usr/local/pf/Makefile
+                        /usr/local/pf/config.mk
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
