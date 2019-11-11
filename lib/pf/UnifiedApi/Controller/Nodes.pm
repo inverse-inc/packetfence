@@ -1008,8 +1008,10 @@ sub validate {
     my ($status, $err) = (200, undef);
     for my $f (qw(category_id bypass_role_id)) {
         next if !exists $json->{$f};
-        my $nc = nodecategory_view($json->{$f});
-        next if !defined $nc;
+        my $cat_id = $json->{$f};
+        next if !defined $cat_id;
+        my $nc = nodecategory_view($cat_id);
+        next if !$nc;
         my $name = $nc->{name};
         if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
             return 422, { field => 'category_id', "$name is not allowed" };
