@@ -836,7 +836,7 @@ sub switch_access {
     $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
-    $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'user_name'}));
+    $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'username'}));
     $options->{'realm'}                    = $args->{'realm'} if (defined($args->{'realm'}));
     $options->{'radius_request'}           = $args->{'radius_request'};
 
@@ -900,7 +900,7 @@ sub switch_access {
         }, @sources );
 
     if ( !( defined($return) && $return == $TRUE ) ) {
-        $logger->info("User $args->{'user_name'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
+        $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
     }
     if ($connection->isVPN()) {
