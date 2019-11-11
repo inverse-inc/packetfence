@@ -49,8 +49,8 @@ variables:
 .job_dev_triggers:
   # run jobs on "devel" branch (push, schedules and web)
   # run jobs on any branches/tags via "Run pipeline", except:
-  # - vX.X.X tag
-  # - maintenance/X.X branches
+  # - vX.Y.Z tag
+  # - maintenance/X.Y branches
   # - feature/packer-.* branches
   only:
     - /^devel$/
@@ -62,9 +62,9 @@ variables:
 
 # triggers for release jobs
 .job_release_triggers:
-  # run job on release tag (vX.X.X) (push and web)
+  # run job on release tag (vX.Y.Z) (push and web)
   # no schedule on tag
-  # exclude branches to avoid trigger when a branch is called vX.X.X
+  # exclude branches to avoid trigger when a branch is called vX.Y.X
   only:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
   except:
@@ -72,9 +72,9 @@ variables:
 
 # common triggers for jobs use for release and dev
 .job_dev_and_release_triggers:
-  # run jobs on "devel" branch *or* vX.X.X tag (push, schedules and web)
+  # run jobs on "devel" branch *or* vX.Y.Z tag (push, schedules and web)
   # run jobs on any branches/tags via "Run pipeline", except:
-  # - maintenance/X.X branches
+  # - maintenance/X.Y branches
   # - feature/packer-.* branches
   only:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
@@ -236,14 +236,14 @@ pfbuild_release:
     PACKER_EXTRA_ARG: ' '
     DOCKER_TAG: ${CI_COMMIT_TAG}
   script:
-    # add an extra tag to release images: maintenance-X.X
-    # '/' can't be use in docker tags, replaced by '-' as in CI_COMMIT_REF_NAME_SLUG
+    # extra tag to release images: maintenance-X-Y
     # permit to simplify definition of maintenance jobs below
-    # based on their branch name
-    # CI_COMMIT_TAG contains vX.X.X
-    # PF_RELEASE_REV contains X.X
+    # based on their branch name using CI_COMMIT_REF_SLUG
+    # CI_COMMIT_TAG contains vX.Y.Z
+    # PF_RELEASE_REV contains X.Y
+    # DOCKER_EXTRA_TAG contains maintenance-X.Y
     - PF_RELEASE_REV=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' conf/pf-release)
-    - export DOCKER_EXTRA_TAG=maintenance-${PF_RELEASE_REV}
+    - export DOCKER_EXTRA_TAG=maintenance-${PF_RELEASE_REV/./-}
     - make -e -C ${PACKERDIR} pfbuild
 
 ########################################
@@ -265,7 +265,7 @@ build_pkg_dev_debian_stretch:
     - .deb_script
 
 # build_pkg jobs for release
-# CI_COMMIT_TAG contains vX.X.X
+# CI_COMMIT_TAG contains vX.Y.X
 build_pkg_release_centos_7:
   image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_TAG}
   extends:
@@ -283,16 +283,16 @@ build_pkg_release_debian_stretch:
 ########################################
 # BUILD_MAINTENANCE JOBS
 ########################################
-# CI_COMMIT_REF_NAME_SLUG contains maintenance-X.X
+# CI_COMMIT_REF_SLUG contains maintenance-X-Y
 build_maintenance_centos_7:
-  image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_NAME_SLUG}
+  image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .maintenance_build_job
     - .maintenance_build_script
     - .job_maintenance_triggers
 
 build_maintenance_debian_stretch:
-  image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_NAME_SLUG}
+  image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .maintenance_build_job
     - .maintenance_build_script
