@@ -76,9 +76,11 @@ sub validate {
     my @errors;
     if (exists $json->{category} && defined $json->{category}) {
         my $nc = nodecategory_view($json->{category});
-        my $name = $nc->{name};
-        if (!check_allowed_options($roles, 'allowed_roles', $name)) {
-            push @errors, { field => 'category', message => "$name is not allowed" };
+        if ($nc) {
+            my $name = $nc->{name};
+            if (!check_allowed_options($roles, 'allowed_roles', $name)) {
+                push @errors, { field => 'category', message => "$name is not allowed" };
+            }
         }
     }
 
