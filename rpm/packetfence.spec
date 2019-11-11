@@ -1060,7 +1060,7 @@ fi
 %endif
 
 ### html dir
-# %dir will add only html dir, not subdirectories or files
+# %%dir will add only html dir, not subdirectories or files
 %dir                    /usr/local/pf/html
 
 # parking dir and files below
