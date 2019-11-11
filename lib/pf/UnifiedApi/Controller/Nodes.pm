@@ -1014,7 +1014,12 @@ sub validate {
         next if !$nc;
         my $name = $nc->{name};
         if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
-            return 422, { field => 'category_id', "$name is not allowed" };
+            return 422, {
+                    message => 'Invalid role',
+                    errors => [
+                        { field => 'category_id', message => "$name is not allowed" }
+                    ],
+            };
         }
     }
 
