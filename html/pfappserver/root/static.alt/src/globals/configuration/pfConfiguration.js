@@ -397,8 +397,8 @@ export const pfConfigurationActions = {
       type: {
         /* Require "set_role" */
         [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_unregdate" */
-        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unregdate'),
+        /* Restrict "set_unreg_date" */
+        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date'),
         /* Don't allow elsewhere */
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
@@ -488,8 +488,8 @@ export const pfConfigurationActions = {
     types: [fieldType.ROLE],
     validators: {
       type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unregdate" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unregdate'),
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
         /* Don't allow elsewhere */
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
@@ -504,8 +504,8 @@ export const pfConfigurationActions = {
     types: [fieldType.ROLE_BY_NAME],
     validators: {
       type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unregdate" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unregdate'),
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
         /* Don't allow elsewhere */
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
@@ -543,8 +543,8 @@ export const pfConfigurationActions = {
       }
     }
   },
-  set_unregdate: {
-    value: 'set_unregdate',
+  set_unreg_date: {
+    value: 'set_unreg_date',
     text: i18n.t('Unregistration date'),
     placeholder: 'YYYY-MM-DD',
     /* TODO - Workaround for Issue #4672
