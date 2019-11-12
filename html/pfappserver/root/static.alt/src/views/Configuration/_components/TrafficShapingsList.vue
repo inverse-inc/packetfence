@@ -61,7 +61,7 @@ export default {
   created () {
     this.$store.dispatch('$_roles/all').then(roles => {
       const _roles = roles.map(role => role.id)
-      this.$store.dispatch(`${this.storeName}/all`).then(policies => {
+      this.$store.dispatch('$_traffic_shaping_policies/all').then(policies => {
         const _policies = policies.map(policy => policy.id)
         this.roles = _roles.filter(role => !(_policies.includes(role)))
       })
