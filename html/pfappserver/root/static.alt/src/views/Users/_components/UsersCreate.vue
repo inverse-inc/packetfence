@@ -409,7 +409,7 @@ export default {
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_access_durations,
             pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unregdate
+            pfConfigurationActions.set_unreg_date
           ]
         }
       },

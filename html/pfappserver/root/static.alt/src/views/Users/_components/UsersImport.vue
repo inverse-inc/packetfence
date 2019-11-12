@@ -455,7 +455,7 @@ export default {
             pfConfigurationActions.mark_as_sponsor,
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unregdate
+            pfConfigurationActions.set_unreg_date
           ]
         }
       },
