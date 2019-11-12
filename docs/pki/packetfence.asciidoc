@@ -84,7 +84,7 @@ Once the repository is defined, you can install packetfence-pki using:
 Installing on RHEL or CentOS requires the packetfence and packetfence-extra repositories.
 Install them first and then install the packetfence-pki package itself.
 
- yum localinstall http://inverse.ca/downloads/PacketFence/CentOS6/x86_64/RPMS/packetfence-release-1-2.centos6.noarch.rpm
+ yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.stable.noarch.rpm
  yum install packetfence-pki --enablerepo=packetfence-extra, packetfence
 
 
