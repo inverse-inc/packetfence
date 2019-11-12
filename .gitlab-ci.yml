@@ -150,7 +150,7 @@ variables:
   dependencies:
     - sign_dev_and_release
   variables:
-    #DEPLOY_USER: see GitLab variables
+    DEPLOY_USER: root
     DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
     DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
   script:
@@ -165,7 +165,7 @@ variables:
   dependencies:
     - sign_dev_and_release
   variables:
-    #DEPLOY_USER: see GitLab variables
+    DEPLOY_USER: root
     RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
     DEPLOY_SRPMS: "no"
     DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
@@ -181,6 +181,7 @@ variables:
   dependencies:
     - sign_dev_and_release
   variables:
+    DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
   environment:
     name: ${PKG_DEST_NAME}
@@ -432,7 +433,6 @@ post_upload_rpm_packetfence-release_dev:
     - .job_dev_triggers
   variables:
     PKG_DEST_NAME: packetfence-release-7.devel.noarch.rpm
-    DEPLOY_USER: reposync
 
 post_upload_rpm_packetfence-release_release:
   extends:
@@ -440,4 +440,3 @@ post_upload_rpm_packetfence-release_release:
     - .job_release_triggers
   variables:
     PKG_DEST_NAME: packetfence-release-7.stable.noarch.rpm
-    DEPLOY_USER: reposync
