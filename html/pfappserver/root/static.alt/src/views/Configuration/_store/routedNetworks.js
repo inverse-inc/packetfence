@@ -28,7 +28,7 @@ const actions = {
     commit('ROUTED_NETWORK_REQUEST')
     return api.routedNetworks().then(response => {
       commit('ROUTED_NETWORK_SUCCESS')
-      return response
+      return response.items
     }).catch((err) => {
       commit('ROUTED_NETWORK_ERROR', err.response)
       throw err

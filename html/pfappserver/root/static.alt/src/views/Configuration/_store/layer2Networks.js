@@ -28,7 +28,7 @@ const actions = {
     commit('LAYER2_NETWORK_REQUEST')
     return api.layer2Networks().then(response => {
       commit('LAYER2_NETWORK_SUCCESS')
-      return response
+      return response.items
     }).catch((err) => {
       commit('LAYER2_NETWORK_ERROR', err.response)
       throw err
