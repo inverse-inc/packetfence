@@ -224,8 +224,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
     const { type: { allowed = [] } = { } } = meta
     return advancedMode || allowed.find(group => {
       return group.options.find(switche => {
-        if (switche.value === form.type) {
-          return switche.supports.find(option => {
+        const { value, supports = [] } = switche
+        if (value === form.type) {
+          return supports.find(option => {
             // Return true if the switch model supports *any* of the specified options
             return options.includes(option)
           })
