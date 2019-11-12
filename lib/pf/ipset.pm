@@ -356,7 +356,7 @@ sub call_ipsetd {
     my ($path, $data) = @_;
     my $response;
     eval {
-        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/$path", $data);
+        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1$path", $data);
     };
     if ($@) {
         get_logger()->error("Error updating ipset $path : $@");;
