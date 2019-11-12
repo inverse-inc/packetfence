@@ -128,6 +128,11 @@ variables:
   dependencies:
     - build_maintenance_centos_7
     - build_maintenance_debian_stretch
+
+.install_job:
+  stage: install
+  dependencies:
+    - pages
   tags:
     - inverse.ca
     - shell
@@ -216,6 +221,15 @@ variables:
 .maintenance_sign_script:
   script:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
+
+.install_script:
+  before_script:
+    - fixme
+  script:
+    -
+  after_script:
+    - fixme
+    
 
 ################################################################################
 # STAGES
@@ -381,6 +395,21 @@ pages:
   extends:
     - .job_dev_and_release_triggers
 
+########################################
+# INSTALL JOBS
+########################################
+install_pkg_dev_and_release_centos_7:
+  extends:
+    - .install_job
+    - .install_script
+    - .job_dev_and_release_triggers
+
+install_pkg_dev_and_release_debian_stretch:
+  extends:
+    - .install_job
+    - .install_script
+    - .job_dev_and_release_triggers
+    
 ########################################
 # UPLOAD JOBS
 ########################################
