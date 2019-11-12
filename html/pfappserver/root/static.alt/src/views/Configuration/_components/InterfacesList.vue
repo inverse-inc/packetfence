@@ -246,17 +246,17 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`$_interfaces/all`).then(data => {
-        this.interfaces = data.items
+      this.$store.dispatch(`$_interfaces/all`).then(interfaces => {
+        this.interfaces = interfaces
         this.interfaces.forEach((item, index) => {
           if (item.vlan) this.interfaces[index]._rowVariant = 'secondary' // set table row variant on vlans
         })
       })
-      this.$store.dispatch(`$_routed_networks/all`).then(data => {
-        this.routedNetworks = data.items
+      this.$store.dispatch(`$_routed_networks/all`).then(routedNetworks => {
+        this.routedNetworks = routedNetworks
       })
-      this.$store.dispatch(`$_layer2_networks/all`).then(data => {
-        this.layer2Networks = data.items
+      this.$store.dispatch(`$_layer2_networks/all`).then(layer2Networks => {
+        this.layer2Networks = layer2Networks
       })
     },
     ipv4NetmaskToSubnet (ip, netmask) {

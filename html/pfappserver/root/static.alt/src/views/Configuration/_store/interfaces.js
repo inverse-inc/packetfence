@@ -28,7 +28,7 @@ const actions = {
     commit('INTERFACE_REQUEST')
     return api.interfaces().then(response => {
       commit('INTERFACE_SUCCESS')
-      return response
+      return response.items
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
       throw err
