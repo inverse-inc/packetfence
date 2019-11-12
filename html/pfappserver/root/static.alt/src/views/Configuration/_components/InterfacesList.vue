@@ -12,66 +12,61 @@
         </b-row>
       </b-card-header>
       <div class="card-body mb-3">
-        <div
-          @mouseout="unhighlightRoute()"
+        <b-table class="table-clickable"
+          :items="interfaces"
+          :fields="fieldsInterface"
+          :sort-by="'id'"
+          :sort-desc="false"
+          :sort-compare="sortCompareInterface"
+          :hover="interfaces && interfaces.length > 0"
+          @row-clicked="onRowClickInterface"
+          @row-hovered="onRowHoverInterface"
+          show-empty
+          responsive
+          fixed
         >
-          <b-table class="table-clickable"
-            :items="interfaces"
-            :fields="fieldsInterface"
-            :sort-by="'id'"
-            :sort-desc="false"
-            :sort-compare="sortCompareInterface"
-            :hover="interfaces && interfaces.length > 0"
-            @row-clicked="onRowClickInterface"
-            @row-hovered="onRowHoverInterface"
-            @mouseout="unhighlightRoute"
-            show-empty
-            responsive
-            fixed
-          >
-            <template v-slot:empty>
-              <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
-            </template>
-            <template v-slot:cell(is_running)="item">
-              <pf-form-range-toggle
-                v-model="item.item.is_running"
-                :values="{ checked: true, unchecked: false }"
-                :icons="{ checked: 'check', unchecked: 'times' }"
-                :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-                :disabled="isInterfacesLoading"
-                @input="toggleRunningInterface(item.item, $event)"
-                @click.stop.prevent
-              >{{ (item.item.is_running === true) ? $t('up') : $t('down') }}</pf-form-range-toggle>
-            </template>
-            <template v-slot:cell(id)="item">
-              <span class="text-nowrap mr-2">{{ item.item.name }}</span>
-              <b-badge v-if="item.item.vlan" variant="secondary">VLAN {{ item.item.vlan }}</b-badge>
-            </template>
-            <template v-slot:cell(network)="item">
-              <router-link v-if="layer2NetworkIds.includes(item.value)" :to="{ name: 'layer2_network', params: { id: item.value } }">{{ item.value }}</router-link>
-              <template v-else>{{ item.value }}</template>
-            </template>
-            <template v-slot:cell(additional_listening_daemons)="item">
-              <b-badge v-for="(daemon, index) in item.item.additional_listening_daemons" :key="index" class="mr-1" variant="secondary">{{ daemon }}</b-badge>
-            </template>
-            <template v-slot:cell(high_availability)="item">
-              <icon name="circle" :class="{ 'text-success': item.item.high_availability === 1, 'text-danger': item.item.high_availability === 0 }"></icon>
-            </template>
-            <template v-slot:cell(buttons)="item">
-              <span v-if="item.item.vlan"
-                class="float-right text-nowrap"
-              >
-                <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isInterfacesLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(item.item)" reverse/>
-                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(item.item)">{{ $t('Clone') }}</b-button>
-              </span>
-              <span v-else
-                class="float-right text-nowrap"
-              >
-                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(item.item)">{{ $t('New VLAN') }}</b-button>
-              </span>
-            </template>
-          </b-table>
-        </div>
+          <template v-slot:empty>
+            <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+          </template>
+          <template v-slot:cell(is_running)="item">
+            <pf-form-range-toggle
+              v-model="item.item.is_running"
+              :values="{ checked: true, unchecked: false }"
+              :icons="{ checked: 'check', unchecked: 'times' }"
+              :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :disabled="isInterfacesLoading"
+              @input="toggleRunningInterface(item.item, $event)"
+              @click.stop.prevent
+            >{{ (item.item.is_running === true) ? $t('up') : $t('down') }}</pf-form-range-toggle>
+          </template>
+          <template v-slot:cell(id)="item">
+            <span class="text-nowrap mr-2">{{ item.item.name }}</span>
+            <b-badge v-if="item.item.vlan" variant="secondary">VLAN {{ item.item.vlan }}</b-badge>
+          </template>
+          <template v-slot:cell(network)="item">
+            <router-link v-if="layer2NetworkIds.includes(item.value)" :to="{ name: 'layer2_network', params: { id: item.value } }">{{ item.value }}</router-link>
+            <template v-else>{{ item.value }}</template>
+          </template>
+          <template v-slot:cell(additional_listening_daemons)="item">
+            <b-badge v-for="(daemon, index) in item.item.additional_listening_daemons" :key="index" class="mr-1" variant="secondary">{{ daemon }}</b-badge>
+          </template>
+          <template v-slot:cell(high_availability)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.high_availability === 1, 'text-danger': item.item.high_availability === 0 }"></icon>
+          </template>
+          <template v-slot:cell(buttons)="item">
+            <span v-if="item.item.vlan"
+              class="float-right text-nowrap"
+            >
+              <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isInterfacesLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(item.item)" reverse/>
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(item.item)">{{ $t('Clone') }}</b-button>
+            </span>
+            <span v-else
+              class="float-right text-nowrap"
+            >
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(item.item)">{{ $t('New VLAN') }}</b-button>
+            </span>
+          </template>
+        </b-table>
       </div>
     </b-card>
 
@@ -95,30 +90,26 @@
             <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
           </b-col>
         </b-row>
-        <div
-          @mouseout="unhighlightLayer2()"
+        <b-table class="table-clickable"
+          :items="layer2Networks"
+          :fields="fieldsLayer2Network"
+          :sort-by="'id'"
+          :sort-desc="false"
+          :sort-compare="sortCompareLayer2Network"
+          :hover="layer2Networks && layer2Networks.length > 0"
+          @row-clicked="onRowClickLayer2Network"
+          @row-hovered="onRowHoverLayer2Network"
+          show-empty
+          responsive
+          fixed
         >
-          <b-table class="table-clickable"
-            :items="layer2Networks"
-            :fields="fieldsLayer2Network"
-            :sort-by="'id'"
-            :sort-desc="false"
-            :sort-compare="sortCompareLayer2Network"
-            :hover="layer2Networks && layer2Networks.length > 0"
-            @row-clicked="onRowClickLayer2Network"
-            @row-hovered="onRowHoverLayer2Network"
-            show-empty
-            responsive
-            fixed
-          >
-            <template v-slot:empty>
-              <pf-empty-table :isLoading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
-            </template>
-            <template v-slot:cell(dhcpd)="item">
-              <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
-            </template>
-          </b-table>
-        </div>
+          <template v-slot:empty>
+            <pf-empty-table :isLoading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
+          </template>
+          <template v-slot:cell(dhcpd)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
+          </template>
+        </b-table>
       </div>
     </b-card>
 
@@ -145,36 +136,32 @@
             <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
           </b-col>
         </b-row>
-        <div
-          @mouseout="unhighlightRoute()"
+        <b-table class="table-clickable"
+          :items="routedNetworks"
+          :fields="fieldsRoutedNetwork"
+          :sort-by="'id'"
+          :sort-desc="false"
+          :sort-compare="sortCompareRoutedNetwork"
+          :hover="routedNetworks && routedNetworks.length > 0"
+          @row-clicked="onRowClickRoutedNetwork"
+          @row-hovered="onRowHoverRoutedNetwork"
+          show-empty
+          responsive
+          fixed
         >
-          <b-table class="table-clickable"
-            :items="routedNetworks"
-            :fields="fieldsRoutedNetwork"
-            :sort-by="'id'"
-            :sort-desc="false"
-            :sort-compare="sortCompareRoutedNetwork"
-            :hover="routedNetworks && routedNetworks.length > 0"
-            @row-clicked="onRowClickRoutedNetwork"
-            @row-hovered="onRowHoverRoutedNetwork"
-            show-empty
-            responsive
-            fixed
-          >
-            <template v-slot:empty>
-              <pf-empty-table :isLoading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
-            </template>
-            <template v-slot:cell(dhcpd)="item">
-              <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
-            </template>
-            <template v-slot:cell(buttons)="item">
-              <span class="float-right text-nowrap">
-                <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isRoutedNetworksLoading" :confirm="$t('Delete Routed Network?')" @on-delete="removeRoutedNetwork(item.item)" reverse/>
-                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isRoutedNetworksLoading" @click.stop.prevent="cloneRoutedNetwork(item.item)">{{ $t('Clone') }}</b-button>
-              </span>
-            </template>
-          </b-table>
-        </div>
+          <template v-slot:empty>
+            <pf-empty-table :isLoading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
+          </template>
+          <template v-slot:cell(dhcpd)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
+          </template>
+          <template v-slot:cell(buttons)="item">
+            <span class="float-right text-nowrap">
+              <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isRoutedNetworksLoading" :confirm="$t('Delete Routed Network?')" @on-delete="removeRoutedNetwork(item.item)" reverse/>
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isRoutedNetworksLoading" @click.stop.prevent="cloneRoutedNetwork(item.item)">{{ $t('Clone') }}</b-button>
+            </span>
+          </template>
+        </b-table>
       </div>
     </b-card>
   </div>
@@ -326,9 +313,6 @@ export default {
       }
       this.highlightedRoute = null
     },
-    unhighlightLayer2 () {
-      this.highlightedRoute = null
-    },
 
     /**
      * Routed Network
@@ -349,9 +333,6 @@ export default {
         this.highlightedRoute = item.id
         return
       }
-      this.highlightedRoute = null
-    },
-    unhighlightRoute () {
       this.highlightedRoute = null
     }
   },
