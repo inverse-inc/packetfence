@@ -4,7 +4,7 @@
 import store from '@/store' // required for 'system/version'
 import apiCall from '@/utils/api'
 
-const IDENTIFIER_PREFIX = 'pfappserver::' // transparently prefix all identifiers - avoid key collisions
+export const IDENTIFIER_PREFIX = 'pfappserver::' // transparently prefix all identifiers - avoid key collisions
 
 const api = {
   allPreferences: () => {
@@ -85,7 +85,8 @@ const types = {
 const initialState = () => {
   return {
     message: '',
-    requestStatus: ''
+    requestStatus: '',
+    allPromise: null
   }
 }
 
@@ -94,12 +95,17 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
-    return api.allPreferences().then(response => {
-      return response.items
+  all: ({ state, commit }) => {
+    commit('PREFERENCE_REQUEST')
+    if (state.allPromise == null) {
+      state.allPromise = api.allPreferences()
+    }
+    return state.allPromise.then(items => {
+      commit('PREFERENCE_SUCCESS')
+      return items
     })
   },
-  get: ({ state, commit }, id) => {
+  get: ({ commit }, id) => {
     commit('PREFERENCE_REQUEST')
     return api.getPreference(id).then(response => {
       commit('PREFERENCE_SUCCESS')
@@ -109,7 +115,7 @@ const actions = {
       throw err
     })
   },
-  set: ({ state, commit }, data) => {
+  set: ({ commit }, data) => {
     commit('PREFERENCE_REQUEST')
     return api.setPreference(data).then(response => {
       commit('PREFERENCE_SUCCESS')
@@ -119,7 +125,7 @@ const actions = {
       throw err
     })
   },
-  remove: ({ state, commit }, id) => {
+  remove: ({ commit }, id) => {
     commit('PREFERENCE_REQUEST')
     return api.removePreference(id).then(response => {
       commit('PREFERENCE_SUCCESS')
