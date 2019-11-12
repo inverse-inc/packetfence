@@ -746,7 +746,7 @@ export default {
     },
     security_events () {
       this.$store.dispatch('config/getSecurityEvents')
-      return this.$store.getters['config/sortedSecurityEvents'].filter(security_event => security_event.enabled === 'Y')
+      return this.$store.getters['config/sortedSecurityEvents'].filter(securityEvent => securityEvent.enabled === 'Y')
     }
   },
   methods: {
