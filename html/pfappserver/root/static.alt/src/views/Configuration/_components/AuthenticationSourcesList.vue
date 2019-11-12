@@ -205,7 +205,7 @@ export default {
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, item.id).then(response => {
-        this.$router.go() // reload
+        this.init()
       })
     },
     sort (items, event) {

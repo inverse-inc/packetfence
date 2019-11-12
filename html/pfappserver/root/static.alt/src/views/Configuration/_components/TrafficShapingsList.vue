@@ -1,6 +1,7 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
       <template v-slot:pageHeader>
@@ -54,20 +55,25 @@ export default {
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch('$_roles/all').then(roles => {
+        const _roles = roles.map(role => role.id)
+        this.$store.dispatch('$_traffic_shaping_policies/all').then(policies => {
+          const _policies = policies.map(policy => policy.id)
+          this.roles = _roles.filter(role => !(_policies.includes(role)))
+        })
+      })
+    },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteTrafficShapingPolicy`, item.id).then(response => {
-        this.$router.go() // reload
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
+        this.init()
       })
     }
   },
-  created () {
-    this.$store.dispatch('$_roles/all').then(roles => {
-      const _roles = roles.map(role => role.id)
-      this.$store.dispatch('$_traffic_shaping_policies/all').then(policies => {
-        const _policies = policies.map(policy => policy.id)
-        this.roles = _roles.filter(role => !(_policies.includes(role)))
-      })
-    })
+  mounted () {
+    this.init()
   }
 }
 </script>

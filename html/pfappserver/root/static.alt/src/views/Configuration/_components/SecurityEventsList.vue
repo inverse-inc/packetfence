@@ -1,6 +1,7 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
       <template v-slot:pageHeader>
@@ -44,7 +45,7 @@
           @click.stop.prevent
         >{{ (item.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
       </template>
-    </pf-config-list>x
+    </pf-config-list>
   </b-card>
 </template>
 
@@ -91,7 +92,8 @@ export default {
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteSecurityEvent`, item.id).then(response => {
-        this.$router.go() // reload
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     },
     toggle (item, event) {

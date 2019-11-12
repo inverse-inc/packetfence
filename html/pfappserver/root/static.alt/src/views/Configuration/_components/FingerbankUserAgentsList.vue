@@ -66,7 +66,8 @@ export default {
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteUserAgent`, item.id).then(response => {
-        this.$router.go() // reload
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     }
   },

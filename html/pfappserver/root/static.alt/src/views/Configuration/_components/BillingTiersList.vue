@@ -1,6 +1,7 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
       <template v-slot:pageHeader>
@@ -62,7 +63,8 @@ export default {
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteBillingTier`, item.id).then(response => {
-        this.$router.go() // reload
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     }
   }
