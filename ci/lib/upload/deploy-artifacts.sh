@@ -84,6 +84,19 @@ maint_deploy() {
         || die "scp failed"
 }
 
+packetfence_release_centos7_deploy() {
+    src_dir="$RPM_RESULT_DIR/7"
+    dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL7"
+    dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+    pf_release_rpm_file=$(basename $(ls $RPM_RESULT_DIR/7/packetfence-release*))
+    pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-7.${CI_COMMIT_REF_SLUG}.noarch.rpm"}
+    declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
+
+    echo "scp: ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
+    scp "${src_dir}/${pf_release_rpm_file}" "${dst_dir}/${pkg_dest_name}" \
+        || die "scp failed"
+}
+
 log_section "Display artifacts"
 tree ${RESULT_DIR}
 
@@ -92,5 +105,6 @@ case $1 in
     rpm) rpm_deploy ;;
     deb) deb_deploy ;;
     maintenance) maint_deploy ;;
+    packetfence-release) packetfence_release_centos7_deploy ;;
     *)   die "Wrong argument"
 esac
