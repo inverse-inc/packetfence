@@ -1,7 +1,8 @@
 ---
-- hosts: nightly
+- hosts: ['nightly', 'dev']
   name: upgrade OS to latest version
   become: True
+  gather_facts: False
   tags: upgrade
 
   # to ensure nightly builds are always installed
@@ -13,7 +14,7 @@
         name: '*'
         state: latest
 
-- hosts: nightly
+- hosts: ['nightly', 'dev']
   name: install packetfence development packages
   become: True
 
