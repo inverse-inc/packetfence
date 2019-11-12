@@ -173,6 +173,9 @@ export default {
     },
     submitSearch () {
       this.$refs.pfSearch.onSubmit()
+    },
+    refreshList () {
+      this.resetSearch()
     }
   }
 }

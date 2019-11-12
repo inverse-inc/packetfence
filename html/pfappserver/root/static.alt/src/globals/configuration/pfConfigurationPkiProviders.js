@@ -87,7 +87,7 @@ export const pfConfigurationPkiProviderListConfig = (context = {}) => {
           ]
         }]
       },
-      defaultRoute: { name: 'pkiProviders' }
+      defaultRoute: { name: 'pki_providers' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {

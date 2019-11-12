@@ -1,6 +1,7 @@
 <template>
   <div>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
       <template slot="pageHeader">
@@ -254,7 +255,8 @@ export default {
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteDomain`, item.id).then(response => {
-        this.$router.go() // reload
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     },
     initTestDomainJoin (item) {

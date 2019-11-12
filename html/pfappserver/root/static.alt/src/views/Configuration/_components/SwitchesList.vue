@@ -1,11 +1,12 @@
 <template>
   <pf-config-list
+    ref="pfConfigList"
     :config="config"
   >
     <template slot="buttonAdd">
       <b-dropdown :text="$t('New Switch')" variant="outline-primary">
         <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
-          <b-dropdown-item v-for="(switchGroup, index) in switches" :key="index"
+          <b-dropdown-item v-for="(switchGroup, index) in switchGroups" :key="index"
             :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
       </b-dropdown>
     </template>
@@ -45,24 +46,28 @@ export default {
   },
   data () {
     return {
-      switches: [], // all switches
+      switchGroups: [], // all switches
       config: config(this)
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch('$_switch_groups/all').then(data => {
+        this.switchGroups = data
+      })
+    },
     clone (item) {
       this.$router.push({ name: 'cloneSwitch', params: { id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteSwitch`, item.id).then(response => {
-        this.$router.go() // reload
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     }
   },
-  created () {
-    this.$store.dispatch('$_switch_groups/all').then(data => {
-      this.switches = data
-    })
+  mounted () {
+    this.init()
   }
 }
 </script>
