@@ -91,6 +91,13 @@ sub validate {
         }
     }
 
+    if (exists $json->{access_duration} && defined $json->{access_duration}) {
+        my $access_duration = $json->{access_duration};
+        if (!check_allowed_options($roles, 'allowed_access_duration', $access_duration)) {
+             push @errors, { field => 'access_duration', message => "$access_duration is not allowed" };
+        }
+    }
+
     if (exists $json->{unregdate} && defined $json->{unregdate}) {
         my $unreg_date = $json->{unregdate};
         if (!check_allowed_unreg_date($roles, $unreg_date)) {
