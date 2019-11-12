@@ -226,7 +226,7 @@ In order to use the PacketFence repository:
 
 [source,bash]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-7.el7.centos.noarch.rpm
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.stable.noarch.rpm
 ----
 
 Once the repository is defined, you can install PacketFence with all its

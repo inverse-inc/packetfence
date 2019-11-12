@@ -17,6 +17,7 @@ stages:
   - publish
   - install
   - upload
+  - post_upload
 
 ################################################################################
 # VARIABLES
@@ -149,7 +150,7 @@ variables:
   dependencies:
     - sign_dev_and_release
   variables:
-    #DEPLOY_USER: see GitLab variables
+    DEPLOY_USER: root
     DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
     DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
   script:
@@ -164,7 +165,7 @@ variables:
   dependencies:
     - sign_dev_and_release
   variables:
-    #DEPLOY_USER: see GitLab variables
+    DEPLOY_USER: root
     RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
     DEPLOY_SRPMS: "no"
     DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
@@ -173,6 +174,21 @@ variables:
   # run job on runners tag with inverse AND shell
   tags:
     - inverse
+    - shell
+
+.post_upload_rpm_packetfence-release_job:
+  stage: post_upload
+  dependencies:
+    - sign_dev_and_release
+  variables:
+    DEPLOY_USER: reposync
+    DEPLOY_HOST: web.inverse.ca
+  environment:
+    name: ${PKG_DEST_NAME}
+    url: ${PUBLIC_REPO_URL}/RHEL7
+  script:
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-release
+  tags:
     - shell
 
 .rpm_script:
@@ -404,3 +420,23 @@ deploy_maintenance:
   environment:
     name: maintenance
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+
+########################################
+# POST_UPLOAD JOBS
+########################################
+# we deploy packetfence-release RPM with
+# a fixed name *outside* a RPM repo
+# for first installation
+post_upload_rpm_packetfence-release_dev:
+  extends:
+    - .post_upload_rpm_packetfence-release_job
+    - .job_dev_triggers
+  variables:
+    PKG_DEST_NAME: packetfence-release-7.devel.noarch.rpm
+
+post_upload_rpm_packetfence-release_release:
+  extends:
+    - .post_upload_rpm_packetfence-release_job
+    - .job_release_triggers
+  variables:
+    PKG_DEST_NAME: packetfence-release-7.stable.noarch.rpm
