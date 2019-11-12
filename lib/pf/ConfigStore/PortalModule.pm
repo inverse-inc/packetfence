@@ -79,13 +79,12 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $object) = @_;
-    
+    my $multi_source_ids = delete $object->{multi_source_ids};
+    my $source_id = $object->{source_id};
     # portal_modules.conf always stores sources in source_id whether they are multiple or single, so we take multi_source_ids and put it in source_id
-    if (defined($object->{multi_source_ids}) && scalar(@{$object->{multi_source_ids}}) > 0) {
+    if (defined($multi_source_ids) && (scalar(@$multi_source_ids) > 0 || !defined($source_id) || length($source_id) > 1 )) {
         get_logger->debug("Multiple sources were defined for this object, taking the content of multi_source_ids to put it in source_id");
-        $object->{source_id} = delete $object->{multi_source_ids};
-    } else {
-        delete $object->{multi_source_ids};
+        $object->{source_id} = $multi_source_ids;
     }
 
     $self->flatten_list($object, $self->_fields_expanded, 'source_id');
