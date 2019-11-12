@@ -88,7 +88,7 @@ sub cleanupBeforeCommit {
         delete $object->{multi_source_ids};
     }
 
-    $self->flatten_list($object, $self->_fields_expanded);
+    $self->flatten_list($object, $self->_fields_expanded, 'source_id');
     $self->join_lines($object, $self->_fields_line_expanded);
 }
 
