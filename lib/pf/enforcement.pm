@@ -154,8 +154,14 @@ sub _vlan_reevaluation {
     my ( $mac, $locationlog_entry, %opts ) = @_;
     my $logger = get_logger();
 
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
+    if ( !$switch ) {
+        $logger->error("Can't instantiate switch (".$locationlog_entry->{'switch_ip'}.")! Check your configuration!");
+        return $FALSE;
+    }
+
     my $args = {
-        switch => $locationlog_entry->{'switch'},
+        switch => $switch,
         switch_mac => $locationlog_entry->{'switch_mac'},
         switch_ip => $locationlog_entry->{'switch_ip'},
         stripped_user_name => $locationlog_entry->{'stripped_user_name'},
@@ -177,7 +183,7 @@ sub _vlan_reevaluation {
 
     if ( _should_we_reassign_vlan( $mac, $args, %opts ) ) {
 
-        $logger->info( "switch port is (".$args->{'switch'}.") ifIndex ".$args->{'ifIndex'}
+        $logger->info( "switch port is (".$args->{'switch'}->{_id}.") ifIndex ".$args->{'ifIndex'}
                 . "connection type: "
                 . $connection_type_explained{$args->{'conn_type'}} );
 
@@ -201,7 +207,7 @@ sub _vlan_reevaluation {
             }
         }
         elsif ( ( ( $args->{'conn_type'} & $WIRELESS ) == $WIRELESS ) || ( ( $args->{'conn_type'} & $WEBAUTH ) == $WEBAUTH ) || ( ( $args->{'conn_type'} & $VIRTUAL ) == $VIRTUAL ) ) {
-            $logger->debug("Calling API with desAssociate request on switch (".$args->{'switch'}.")");
+            $logger->debug("Calling API with desAssociate request on switch (".$args->{'switch'}->{_id}.")");
             if ($cluster_deauth) {
                 $client->notify( 'desAssociate_in_queue', $args );
             } else {
@@ -238,14 +244,9 @@ sub _should_we_reassign_vlan {
     my $role_obj = new pf::role::custom();
 
     # TODO avoidable load?
-    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $args->{'switch_mac'}, switch_ip => $args->{'switch_ip'} } );
-    if ( !$switch ) {
-        $logger->error("Can't instantiate switch (".$args->{'switch_ip'}.")! Check your configuration!");
-        return $FALSE;
-    }
 
     my $newRole = $role_obj->fetchRoleForNode( $args );
-    my $newCorrectVlan = $newRole->{vlan} || $switch->getVlanByName($newRole->{role});
+    my $newCorrectVlan = $newRole->{vlan} || $args->{switch}->getVlanByName($newRole->{role});
 
     if (defined($newCorrectVlan)) {
         if ( $newCorrectVlan eq '-1' ) {
