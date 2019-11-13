@@ -80,6 +80,7 @@ date_field=start_time
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
 node_fields=MAC Address
+order_fields=-ip4log_history.start_time
 
 [ip4log-archive]
 type=builtin
