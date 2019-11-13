@@ -15,9 +15,10 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES);
 use pf::Authentication::constants;
+use pf::nodecategory;
 use pf::config qw(%Config %ConfigRoles);
 
-sub allowed_options {
+sub _allowed_options {
     my ($self, $option, $key, $standard_options) = @_;
     my $roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options($roles, $option);
@@ -28,38 +29,52 @@ sub allowed_options {
     return $self->render_items($key, @options);
 }
 
+sub _allowed_roles {
+    my ($self, $option) = @_;
+    my $admin_roles = $self->stash->{admin_roles};
+    my @options = admin_allowed_options($admin_roles, $option);
+    my @roles;
+    if (@options == 0) {
+        @roles = nodecategory_view_all();
+    } else {
+        @roles = nodecategory_view_by_names(@options);
+    }
+
+    return $self->render( json => {items => \@roles});
+}
+
 sub get_all_roles {
     sort keys %ConfigRoles
 }
 
 sub allowed_unreg_date {
     my ($self) = @_;
-    return $self->allowed_options('allowed_unreg_date', 'undeg_date', sub {} );
+    return $self->_allowed_options('allowed_unreg_date', 'undeg_date', sub {} );
 }
 
 sub allowed_roles {
     my ($self) = @_;
-    return $self->allowed_options('allowed_roles', 'role', \&get_all_roles );
+    return $self->_allowed_roles('allowed_roles');
 }
 
 sub allowed_node_roles {
     my ($self) = @_;
-    return $self->allowed_options('allowed_node_roles', 'role', \&get_all_roles );
+    return $self->_allowed_roles('allowed_node_roles');
 }
 
 sub allowed_access_levels {
     my ($self) = @_;
-    return $self->allowed_options('allowed_access_levels', 'access_level', sub { sort keys %ADMIN_ROLES } );
+    return $self->_allowed_options('allowed_access_levels', 'access_level', sub { sort keys %ADMIN_ROLES } );
 }
 
 sub allowed_actions {
     my ($self) = @_;
-    return $self->allowed_options('allowed_actions', 'action', sub { map { @$_ } values %Actions::ACTIONS });
+    return $self->_allowed_options('allowed_actions', 'action', sub { map { @$_ } values %Actions::ACTIONS });
 }
 
 sub allowed_access_durations {
     my ($self) = @_;
-    return $self->allowed_options('allowed_access_durations', 'access_duration', sub { split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) } );
+    return $self->_allowed_options('allowed_access_durations', 'access_duration', sub { split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) } );
 }
 
 sub render_items {
