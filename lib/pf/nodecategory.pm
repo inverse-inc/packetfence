@@ -37,6 +37,7 @@ BEGIN {
         nodecategory_view_all
         nodecategory_view
         nodecategory_view_by_name
+        nodecategory_view_by_names
         nodecategory_add
         nodecategory_modify
         nodecategory_exist
@@ -161,6 +162,25 @@ sub nodecategory_view_by_name {
         return (0);
     }
     return ($iter->next(undef));
+}
+
+=item nodecategory_view_by_names - view a list of node categories by name. Returns an array of nodecategories
+
+=cut
+
+sub nodecategory_view_by_names {
+    my (@names) = @_;
+    my ($status, $iter) = pf::dal::node_category->search(
+        -where => {
+            name => {-in => \@names},
+        },
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return ();
+    }
+
+    return @{$iter->all() // []};
 }
 
 =item nodecategory_add - add a node category
