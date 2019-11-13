@@ -34,6 +34,7 @@ Bug Fixes
 +++++++++
 * fixes #4737 (SNMP trap stuck in the queue)
 * MySQL schema upgrade statements should be re-runnable. (#4892)
+* Return the authentication sources where the default realm has been associated if the realm used by the connection contain a realm that is not defined in the configuration.
 
 
 Version 9.1.0 released on 2019-09-17
