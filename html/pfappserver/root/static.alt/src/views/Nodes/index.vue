@@ -79,7 +79,8 @@ export default {
                 }
               })
             }
-          })
+          }),
+          can: 'read switches'
         }
       ]
     },
@@ -100,7 +101,9 @@ export default {
   },
   created () {
     this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getSwitches')
+    if (this.$can('read', 'switches')) {
+      this.$store.dispatch('config/getSwitches')
+    }
   }
 }
 </script>
