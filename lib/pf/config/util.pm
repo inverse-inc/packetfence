@@ -415,7 +415,12 @@ Find sources for a specific realm
 
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
-    return [grep { $_->realmIsAllowed($realm) } @{$sources}];
+    my @found = grep { $_->realmIsAllowed($realm) } @{$sources};
+    if (@found == 0 && $realm ne 'default') {
+        @found = grep { $_->realmIsAllowed('default') } @{$sources};
+    }
+
+    return \@found;
 }
 
 =head2 filter_authentication_sources
