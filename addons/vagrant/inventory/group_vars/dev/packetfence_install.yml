@@ -16,3 +16,8 @@ packetfence_install__centos:
 packetfence_install__deb:
   repos: '{{ ["debian"] if release_status|bool
                         else ["debian","debian-devel"] }}'
+
+# config
+# database
+packetfence_install__database_host_pf: 127.0.0.1
+packetfence_install__database_host_pfconfig: 127.0.0.1
