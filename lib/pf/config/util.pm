@@ -415,10 +415,14 @@ Find sources for a specific realm
 
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
+    my $matched_realm = $realm;
+    $matched_realm //= 'null';
     my @found = grep { $_->realmIsAllowed($realm) } @{$sources};
-    if (@found == 0 && $realm ne 'default') {
+    if (@found == 0 && $realm ne 'default' && !(exists $pf::config::ConfigRealm{$realm})) {
+        $matched_realm = 'default';
         @found = grep { $_->realmIsAllowed('default') } @{$sources};
     }
+    get_logger->info("Used realm $realm is associated to the configured realm $matched_realm");
 
     return \@found;
 }
