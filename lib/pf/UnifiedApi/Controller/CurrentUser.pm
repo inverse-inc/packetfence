@@ -47,34 +47,34 @@ sub get_all_roles {
     sort keys %ConfigRoles
 }
 
-sub allowed_unreg_date {
+sub allowed_user_unreg_date {
     my ($self) = @_;
     return $self->_allowed_options('allowed_unreg_date', 'undeg_date', sub {} );
 }
 
-sub allowed_roles {
+sub allowed_user_roles {
     my ($self) = @_;
     return $self->_allowed_roles('allowed_roles');
+}
+
+sub allowed_user_access_levels {
+    my ($self) = @_;
+    return $self->_allowed_options('allowed_access_levels', 'access_level', sub { sort keys %ADMIN_ROLES } );
+}
+
+sub allowed_user_actions {
+    my ($self) = @_;
+    return $self->_allowed_options('allowed_actions', 'action', sub { map { @$_ } values %Actions::ACTIONS });
+}
+
+sub allowed_user_access_durations {
+    my ($self) = @_;
+    return $self->_allowed_options('allowed_access_durations', 'access_duration', sub { split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) } );
 }
 
 sub allowed_node_roles {
     my ($self) = @_;
     return $self->_allowed_roles('allowed_node_roles');
-}
-
-sub allowed_access_levels {
-    my ($self) = @_;
-    return $self->_allowed_options('allowed_access_levels', 'access_level', sub { sort keys %ADMIN_ROLES } );
-}
-
-sub allowed_actions {
-    my ($self) = @_;
-    return $self->_allowed_options('allowed_actions', 'action', sub { map { @$_ } values %Actions::ACTIONS });
-}
-
-sub allowed_access_durations {
-    my ($self) = @_;
-    return $self->_allowed_options('allowed_access_durations', 'access_duration', sub { split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) } );
 }
 
 sub render_items {
