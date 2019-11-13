@@ -918,7 +918,9 @@ export default {
       this.nodeContent = node
     })
     this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getSecurityEvents')
+    if (this.$can.apply(null, ['read', 'security_events'])) {
+      this.$store.dispatch('config/getSecurityEvents')
+    }
   },
   mounted () {
     this.setupVis()
