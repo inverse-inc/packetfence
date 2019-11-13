@@ -710,7 +710,7 @@ export default {
           class: 'text-nowrap',
           formatter: (this.$can.apply(null, ['read', 'security_events']))
             ? formatter.securityEventIdsToDescCsv
-            : (value) => { return value }
+            : formatter.noAdminRolePermission
         },
         /* TODO - #4166
         {
@@ -727,7 +727,7 @@ export default {
           class: 'text-nowrap',
           formatter: (this.$can.apply(null, ['read', 'security_events']))
             ? formatter.securityEventIdsToDescCsv
-            : (value) => { return value }
+            : formatter.noAdminRolePermission
         }
         /* TODO - #4166
         {

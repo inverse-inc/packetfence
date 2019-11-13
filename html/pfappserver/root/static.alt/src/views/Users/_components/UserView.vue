@@ -537,7 +537,9 @@ export default {
           label: this.$i18n.t('Security Event Open'),
           sortable: true,
           class: 'text-nowrap',
-          formatter: formatter.securityEventIdsToDescCsv
+          formatter: (this.$can.apply(null, ['read', 'security_events']))
+            ? formatter.securityEventIdsToDescCsv
+            : formatter.noAdminRolePermission
         },
         /* TODO - #4166
         {
@@ -552,7 +554,9 @@ export default {
           label: this.$i18n.t('Security Event Closed'),
           sortable: true,
           class: 'text-nowrap',
-          formatter: formatter.securityEventIdsToDescCsv
+          formatter: (this.$can.apply(null, ['read', 'security_events']))
+            ? formatter.securityEventIdsToDescCsv
+            : formatter.noAdminRolePermission
         }
         /* TODO - #4166
         {
@@ -576,7 +580,9 @@ export default {
           label: this.$i18n.t('Event'),
           required: true,
           sortable: true,
-          formatter: formatter.securityEventIdToDesc
+          formatter: (this.$can.apply(null, ['read', 'security_events']))
+            ? formatter.securityEventIdToDesc
+            : formatter.noAdminRolePermission
         },
         {
           key: 'mac',

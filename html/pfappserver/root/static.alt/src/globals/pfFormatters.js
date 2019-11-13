@@ -10,6 +10,10 @@ const locales = {
 }
 
 export const pfFormatters = {
+   noAdminRolePermission: (value) => {
+    if (!value) return null
+    return value
+  },
   datetimeIgnoreZero: (value) => {
     return (value === '0000-00-00 00:00:00') ? '' : format(value, i18n.t('MM/DD/YYYY hh:mm A'), { locale: locales[i18n.locale] })
   },
