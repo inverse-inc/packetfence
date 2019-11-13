@@ -65,11 +65,13 @@
                 <span class="ml-4"><em>{{ $t('None') }}</em></span>
               </span>
             </b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-            <b-dropdown-item v-for="security_event in security_events" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
-              <span>{{security_event.desc}}</span>
-            </b-dropdown-item>
+            <template v-if="$can.apply(null, ['read', 'security_events'])">
+              <b-dropdown-divider></b-dropdown-divider>
+              <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
+              <b-dropdown-item v-for="security_event in security_events" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
+                <span>{{security_event.desc}}</span>
+              </b-dropdown-item>
+            </template>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" no-caret>
             <template v-slot:button-content>
@@ -706,7 +708,9 @@ export default {
           label: this.$i18n.t('Security Event Open'),
           sortable: true,
           class: 'text-nowrap',
-          formatter: formatter.securityEventIdsToDescCsv
+          formatter: (this.$can.apply(null, ['read', 'security_events']))
+            ? formatter.securityEventIdsToDescCsv
+            : (value) => { return value }
         },
         /* TODO - #4166
         {
@@ -721,7 +725,9 @@ export default {
           label: this.$i18n.t('Security Event Closed'),
           sortable: true,
           class: 'text-nowrap',
-          formatter: formatter.securityEventIdsToDescCsv
+          formatter: (this.$can.apply(null, ['read', 'security_events']))
+            ? formatter.securityEventIdsToDescCsv
+            : (value) => { return value }
         }
         /* TODO - #4166
         {
