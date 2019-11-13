@@ -333,15 +333,16 @@ sub _match_in_subclass {
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
 
     my $cached_connection = $self->_cached_connection;
-    my ($connection, $LDAPServer, $LDAPServerPort);
     unless ( $cached_connection ) {
-        ($connection, $LDAPServer, $LDAPServerPort) = $self->_connect();
+        my ($connection, $LDAPServer, $LDAPServerPort) = $self->_connect();
         if (! defined($connection)) {
             return undef;
         }
 
-        $self->_cached_connection([$connection, $LDAPServer, $LDAPServerPort]);
+        $cached_connection = [$connection, $LDAPServer, $LDAPServerPort];
+        $self->_cached_connection($cached_connection);
     }
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     my $result = do {
