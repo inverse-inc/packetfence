@@ -164,7 +164,7 @@ sub call {
     use bytes;
     my @params = @_;
     my $self = shift @params;
-    my ($method,$path,$args) = @params;
+    my ($method,$path,$args,$retrying) = @params;
 
     my $response;
     my $curl = $self->connection();
@@ -204,18 +204,27 @@ sub call {
             }
         }
         # If we got a 401 and aren't currently logging in then we try to login and retry the request
-        elsif($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH) {
+        elsif(!$retrying || ($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH)) {
             get_logger->info("Request to $path is unauthorized, will perform a login");
+            $self->connection($self->curl);
             $self->login();
-            return $self->call(@params);
+            return $self->call(@params, 1);
         }
         else {
             $response = decode_json($response_body);
-            die $response->{message};
+            die $response_code . " " . $response->{message};
         }
     } else {
         my $msg = "An error occured while sending a JSON REST request to the Unified API: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
-        die $msg;
+        if(!$retrying) {
+            get_logger->warn("Failed communicating with API, will retry. Failure was: ".$msg);
+            $self->connection($self->curl);
+            $self->login();
+            $self->call(@params, 1);
+        }
+        else {
+            die $msg;
+        }
     }
 }
 
