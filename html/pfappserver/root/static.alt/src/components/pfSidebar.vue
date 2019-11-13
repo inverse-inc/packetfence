@@ -171,7 +171,6 @@ export default {
     },
     can (item) {
       if ('can' in item) {
-        console.log('can item', item, this.$can.apply(null, item.can.split(' ')))
         return this.$can.apply(null, item.can.split(' '))
       }
       return true
