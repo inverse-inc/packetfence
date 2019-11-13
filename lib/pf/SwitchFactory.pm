@@ -184,6 +184,11 @@ sub instantiate {
          %$switchOverlay,
     });
 
+    # Don't let the switch overlay override the controller IP that is set in the configuration
+    if(defined $switch_data->{controllerIp}) {
+        $result->{_controllerIp} = $switch_data->{controllerIp}
+    }
+
     return $result;
 }
 
