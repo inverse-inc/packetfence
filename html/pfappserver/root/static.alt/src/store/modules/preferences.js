@@ -107,6 +107,8 @@ const actions = {
   },
   get: ({ commit }, id) => {
     commit('PREFERENCE_REQUEST')
+    return null
+    /*
     return api.getPreference(id).then(response => {
       commit('PREFERENCE_SUCCESS')
       return response
@@ -114,6 +116,7 @@ const actions = {
       commit('PREFERENCE_ERROR', err)
       throw err
     })
+    */
   },
   set: ({ commit }, data) => {
     commit('PREFERENCE_REQUEST')

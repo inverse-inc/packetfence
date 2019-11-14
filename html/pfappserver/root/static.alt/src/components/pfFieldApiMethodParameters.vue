@@ -26,7 +26,7 @@
     <b-col cols="5" align-self="start" class="pl-1">
 
       <!-- Type: SUBSTRING -->
-      <pf-form-input v-if="isFieldType(substringValueType)"
+      <pf-form-input v-if="isComponentType([componentType.SUBSTRING])"
         v-model="localApiParameters"
         ref="localApiParameters"
         :vuelidate="apiParametersVuelidateModel"
@@ -46,7 +46,8 @@
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfFieldType as fieldType,
+  pfComponentType as componentType,
+  pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
 import { required } from 'vuelidate/lib/validators'
@@ -83,9 +84,8 @@ export default {
   },
   data () {
     return {
-      default:            { api_method: null, api_parameters: null }, // default value
-      /* Generic field types */
-      substringValueType: fieldType.SUBSTRING
+      default: { api_method: null, api_parameters: null }, // default value
+      componentType // @/globals/pfField
     }
   },
   computed: {
@@ -157,7 +157,7 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (fieldTypeValues[type](this)) options.push(...fieldTypeValues[type](this))
+          if (type in fieldTypeValues) options.push(...fieldTypeValues[type]())
         }
       }
       return options
@@ -184,12 +184,14 @@ export default {
     }
   },
   methods: {
-    isFieldType (type) {
+    isComponentType (componentTypes) {
       if (!this.localApiMethod) return false
       const index = this.fields.findIndex(field => field.value === this.localApiMethod)
       if (index >= 0) {
         const field = this.fields[index]
-        if (field.types.includes(type)) return true
+        for (let t = 0; t < componentTypes.length; t++) {
+          if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
+        }
       }
       return false
     },

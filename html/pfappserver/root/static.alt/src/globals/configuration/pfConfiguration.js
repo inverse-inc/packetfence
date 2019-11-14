@@ -407,6 +407,24 @@ export const pfConfigurationActions = {
       }
     }
   },
+  set_access_duration_by_acl: {
+    value: 'set_access_duration',
+    text: i18n.t('Access duration'),
+    types: [fieldType.DURATION_BY_ACL],
+    validators: {
+      type: {
+        /* Require "set_role" */
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
+        /* Restrict "set_unreg_date" */
+        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
   set_access_durations: {
     value: 'set_access_durations',
     text: i18n.t('Sponsor access durations'),

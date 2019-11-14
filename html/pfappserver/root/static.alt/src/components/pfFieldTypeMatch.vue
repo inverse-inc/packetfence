@@ -25,29 +25,16 @@
     </b-col>
     <b-col cols="6" align-self="start" class="pl-1">
 
-      <!-- Types: CONNECTION_SUB_TYPE, CONNECTION_TYPE, DURATION, ADMINROLE, REALM, ROLE, ROLE_BY_NAME, TENANT, REALM, SWITCH, SWITCH_GROUP, TIME_BALANCE -->
-      <pf-form-chosen v-if="
-          isFieldType(connectionSubTypeValueType) ||
-          isFieldType(connectionTypeValueType) ||
-          isFieldType(durationValueType) ||
-          isFieldType(adminroleValueType) ||
-          isFieldType(realmValueType) ||
-          isFieldType(roleValueType) ||
-          isFieldType(roleByNameValueType) ||
-          isFieldType(tenantValueType) ||
-          isFieldType(ssidValueType) ||
-          isFieldType(switchValueType) ||
-          isFieldType(switchGroupValueType) ||
-          isFieldType(timeBalanceValueType)
-        "
+      <pf-form-chosen v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
         v-model="localMatch"
         ref="localMatch"
         label="name"
         track-by="value"
+        :multiple="isComponentType([componentType.SELECTMANY])"
         :disabled="disabled"
         :options="options"
         :placeholder="matchLabel"
-        :taggable="isFieldType(realmValueType) || isFieldType(ssidValueType)"
+        :taggable="isComponentType([componentType.REALM, componentType.SSID])"
         :tag-placeholder="$t('Click to add new option')"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"
@@ -55,8 +42,7 @@
         @tag="addUserTaggedOption"
       ></pf-form-chosen>
 
-      <!-- Type: DATETIME -->
-      <pf-form-datetime v-else-if="isFieldType(datetimeValueType)"
+      <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME])"
         v-model="localMatch"
         ref="localMatch"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
@@ -66,8 +52,7 @@
         :disabled="disabled"
       ></pf-form-datetime>
 
-      <!-- Type: PREFIXMULTIPLER -->
-      <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplerValueType)"
+      <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
         v-model="localMatch"
         ref="localMatch"
         :vuelidate="matchVuelidateModel"
@@ -75,8 +60,7 @@
         :disabled="disabled"
       ></pf-form-prefix-multiplier>
 
-      <!-- Type: SUBSTRING -->
-      <pf-form-input v-else-if="isFieldType(substringValueType)"
+      <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING])"
         v-model="localMatch"
         ref="localMatch"
         :vuelidate="matchVuelidateModel"
@@ -84,8 +68,7 @@
         :disabled="disabled"
       ></pf-form-input>
 
-      <!-- Type: INTEGER -->
-      <pf-form-input v-else-if="isFieldType(integerValueType)"
+      <pf-form-input v-else-if="isComponentType([componentType.INTEGER])"
         v-model="localMatch"
         ref="localMatch"
         type="number"
@@ -109,7 +92,8 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import {
-  pfFieldType as fieldType,
+  pfComponentType as componentType,
+  pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
 import { required } from 'vuelidate/lib/validators'
@@ -148,28 +132,9 @@ export default {
   },
   data () {
     return {
-      default:                    { type: null, match: null }, // default value
-      userTaggedOption:           null, // user defined option (w/ :tag="true")
-      /* Generic field types */
-      noValueType:                fieldType.NONE,
-      integerValueType:           fieldType.INTEGER,
-      substringValueType:         fieldType.SUBSTRING,
-      /* Custom element field types */
-      connectionSubTypeValueType: fieldType.CONNECTION_SUB_TYPE,
-      connectionTypeValueType:    fieldType.CONNECTION_TYPE,
-      datetimeValueType:          fieldType.DATETIME,
-      prefixmultiplerValueType:   fieldType.PREFIXMULTIPLIER,
-      timeBalanceValueType:       fieldType.TIME_BALANCE,
-      /* Promise based field types */
-      adminroleValueType:         fieldType.ADMINROLE,
-      durationValueType:          fieldType.DURATION,
-      realmValueType:             fieldType.REALM,
-      roleValueType:              fieldType.ROLE,
-      roleByNameValueType:        fieldType.ROLE_BY_NAME,
-      ssidValueType:              fieldType.SSID,
-      switchValueType:            fieldType.SWITCHE,
-      switchGroupValueType:       fieldType.SWITCH_GROUP,
-      tenantValueType:            fieldType.TENANT
+      default: { type: null, match: null }, // default value
+      userTaggedOption: null, // user defined option (w/ :tag="true")
+      componentType // @/globals/pfField
     }
   },
   computed: {
@@ -236,7 +201,7 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (fieldTypeValues[type](this)) options.push(...fieldTypeValues[type](this))
+          if (type in fieldTypeValues) options.push(...fieldTypeValues[type]())
         }
       }
       return options
@@ -263,12 +228,15 @@ export default {
     }
   },
   methods: {
-    isFieldType (type) {
-      if (!this.localType) return false
-      const index = this.fields.findIndex(field => field.value === this.localType)
-      if (index >= 0) {
-        const field = this.fields[index]
-        if (field.types.includes(type)) return true
+    isComponentType (componentTypes) {
+      if (this.localType) {
+        const index = this.fields.findIndex(field => field.value === this.localType)
+        if (index >= 0) {
+          const field = this.fields[index]
+          for (let t = 0; t < componentTypes.length; t++) {
+            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
+          }
+        }
       }
       return false
     },

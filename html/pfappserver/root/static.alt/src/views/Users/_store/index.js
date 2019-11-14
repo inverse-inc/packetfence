@@ -20,7 +20,7 @@ const inflateActions = (data) => {
     data.actions.push({ type: pfConfigurationActions.set_role.value, value: data.category })
   }
   if (data.unregdate !== '0000-00-00 00:00:00') {
-    data.actions.push({ type: pfConfigurationActions.set_unregdate.value, value: data.unregdate })
+    data.actions.push({ type: pfConfigurationActions.set_unreg_date.value, value: data.unregdate })
   }
 }
 
@@ -48,7 +48,7 @@ const deflateActions = (data) => {
         case pfConfigurationActions.set_role.value:
           data.category = action.value
           break
-        case pfConfigurationActions.set_unregdate.value:
+        case pfConfigurationActions.set_unreg_date.value:
           data.unregdate = action.value
           break
         default:
