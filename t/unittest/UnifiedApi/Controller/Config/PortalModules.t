@@ -86,7 +86,7 @@ $t->get_ok("$base_url/${pmod_1_id}")
     ->json_is( "/item",
         {
             %pmod1,
-            'multi_source_ids' => undef,
+            'multi_source_ids' => [],
             'not_deletable'    => $false,
             'fields_to_save'   => [],
             'custom_fields'    => [],
