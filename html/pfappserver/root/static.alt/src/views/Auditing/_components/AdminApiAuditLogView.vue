@@ -11,7 +11,7 @@
       <pf-form-row :column-label="$t('URL')">{{ item.url }}</pf-form-row>
       <pf-form-row :column-label="$t('Method')">{{ item.method }}</pf-form-row>
       <pf-form-row :column-label="$t('Status Code')">{{ item.status }}</pf-form-row>
-      <pf-form-row :column-label="$t('Request')">{{ item.request }}</pf-form-row>
+      <pf-form-row :column-label="$t('Request')" align-v="start"><div class="text-pre my-2">{{ formatJSON(item.request) }}</div></pf-form-row>
     </b-card>
   </b-form>
 </template>
@@ -58,6 +58,9 @@ export default {
     },
     close () {
       this.$router.push({ name: 'admin_api_audit_logs' })
+    },
+    formatJSON (string) {
+      if (string) return JSON.stringify(JSON.parse(string), undefined, 2)
     }
   },
   created () {
