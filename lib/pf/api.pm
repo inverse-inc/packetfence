@@ -350,6 +350,7 @@ sub ReAssignVlan : Public : Fork {
     }
 
     my $switch = $postdata->{switch};
+    $postdata->{'connection_type'} = pf::util::str_to_connection_type($postdata->{'connection_type'});
 
     my $filter = pf::access_filter::switch->new;
     $filter->filterSwitch('reevaluate',\$switch, $postdata);
