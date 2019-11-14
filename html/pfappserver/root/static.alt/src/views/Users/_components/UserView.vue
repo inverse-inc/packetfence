@@ -259,7 +259,6 @@ import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
@@ -291,8 +290,7 @@ export default {
     pfFormFields,
     pfFormInput,
     pfFormPassword,
-    pfFormTextarea,
-    pfFormToggle
+    pfFormTextarea
   },
   mixins: [
     validationMixin
@@ -322,7 +320,7 @@ export default {
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_access_durations,
             pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unregdate
+            pfConfigurationActions.set_unreg_date
           ]
         }
       },
