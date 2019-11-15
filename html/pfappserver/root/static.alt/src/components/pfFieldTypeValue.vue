@@ -25,33 +25,21 @@
     </b-col>
     <b-col sm="6" align-self="start" class="pl-1">
 
-      <!-- Types: OPTIONS, ADMINROLE, ROLE, ROLE_BY_NAME, ROOT_PORTAL_MODULE, TENANT, DURATION, DURATIONS, TIME_BALANCE -->
-      <pf-form-chosen v-if="
-          isFieldType(optionsType) ||
-          isFieldType(adminroleValueType) ||
-          isFieldType(roleValueType) ||
-          isFieldType(roleByNameValueType) ||
-          isFieldType(rootPortalModuleType) ||
-          isFieldType(tenantValueType) ||
-          isFieldType(durationValueType) ||
-          isFieldType(durationsValueType) ||
-          isFieldType(timeBalanceValueType)
-        "
+      <pf-form-chosen v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
         v-model="localValue"
         v-on="listeners"
         v-bind="fieldAttrs"
         ref="localValue"
         label="name"
         track-by="value"
-        :multiple="isFieldType(durationsValueType)"
+        :multiple="isComponentType([componentType.SELECTMANY])"
         :placeholder="placeholder"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
       ></pf-form-chosen>
 
-      <!-- Type: DATETIME -->
-      <pf-form-datetime v-else-if="isFieldType(datetimeValueType)"
+      <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME])"
         v-model="localValue"
         ref="localValue"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
@@ -62,8 +50,7 @@
         :disabled="disabled"
       ></pf-form-datetime>
 
-      <!-- Type: PREFIXMULTIPLER -->
-      <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplerValueType)"
+      <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
         v-model="localValue"
         ref="localValue"
         :placeholder="valuePlaceholder"
@@ -72,8 +59,7 @@
         :disabled="disabled"
       ></pf-form-prefix-multiplier>
 
-      <!-- Type: SUBSTRING -->
-      <pf-form-input v-else-if="isFieldType(substringValueType)"
+      <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING])"
         v-model="localValue"
         ref="localValue"
         :placeholder="valuePlaceholder"
@@ -82,8 +68,7 @@
         :disabled="disabled"
       ></pf-form-input>
 
-      <!-- Type: INTEGER -->
-      <pf-form-input v-else-if="isFieldType(integerValueType)"
+      <pf-form-input v-else-if="isComponentType([componentType.INTEGER])"
         v-model="localValue"
         ref="localValue"
         type="number"
@@ -108,7 +93,8 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import {
-  pfFieldType as fieldType,
+  pfComponentType as componentType,
+  pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
 import { required } from 'vuelidate/lib/validators'
@@ -147,24 +133,8 @@ export default {
   },
   data () {
     return {
-      default:                  { type: null, value: null }, // default value
-      /* Generic field types */
-      noValueType:              fieldType.NONE,
-      integerValueType:         fieldType.INTEGER,
-      substringValueType:       fieldType.SUBSTRING,
-      optionsType:              fieldType.OPTIONS,
-      /* Custom element field types */
-      datetimeValueType:        fieldType.DATETIME,
-      prefixmultiplerValueType: fieldType.PREFIXMULTIPLIER,
-      timeBalanceValueType:     fieldType.TIME_BALANCE,
-      /* Promise based field types */
-      adminroleValueType:       fieldType.ADMINROLE,
-      durationValueType:        fieldType.DURATION,
-      durationsValueType:       fieldType.DURATIONS,
-      roleValueType:            fieldType.ROLE,
-      roleByNameValueType:      fieldType.ROLE_BY_NAME,
-      rootPortalModuleType:     fieldType.ROOT_PORTAL_MODULE,
-      tenantValueType:          fieldType.TENANT
+      default: { type: null, value: null }, // default value
+      componentType // @/globals/pfField
     }
   },
   computed: {
@@ -233,7 +203,9 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (fieldTypeValues[type](this)) options.push(...fieldTypeValues[type](this))
+          if (fieldTypeValues[type](this)) {
+            options.push(...fieldTypeValues[type](this))
+          }
         }
       }
       return options
@@ -282,12 +254,14 @@ export default {
     }
   },
   methods: {
-    isFieldType (type) {
+    isComponentType (componentTypes) {
       if (this.localType) {
         const index = this.fields.findIndex(field => field.value === this.localType)
         if (index >= 0) {
           const field = this.fields[index]
-          if (field.types.includes(type)) return true
+          for (let t = 0; t < componentTypes.length; t++) {
+            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
+          }
         }
       }
       return false

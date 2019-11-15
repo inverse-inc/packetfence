@@ -6,53 +6,7 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-
-export const pfConfigurationAccessDurationSerialize = (arr = []) => {
-  return arr.map(duration => {
-    if (!duration) return
-    const {
-      interval = '',
-      unit = '',
-      base = '',
-      extendedInterval = '',
-      extendedUnit = ''
-    } = duration
-    let str = interval + unit
-    if (base && extendedInterval && extendedUnit) {
-      str += base
-      str += ((extendedInterval >= 0) ? '+' : '') + extendedInterval // add leading '+'
-      str += extendedUnit
-    }
-    return str
-  }).join(',')
-}
-
-export const pfConfigurationAccessDurationDeserialize = (csv = '') => {
-  if (!csv) return []
-  return csv.split(',').map((duration) => {
-    // destructure duration using regular expression
-    const [
-      // eslint-disable-next-line no-unused-vars
-      _, // ignore
-      interval, // \d+
-      unit, // [smhDWMY]{1}
-      base, // [FR]
-      // eslint-disable-next-line no-unused-vars
-      __, // ignore
-      extendedInterval, // [+-]\d+
-      extendedUnit // [smhDWMY]{1}
-    ] = duration.match(/(\d+)([smhDWMY]){1}([FR])?(([+-]\d+)([smhDWMY]){1})?/)
-    return {
-      interval: interval,
-      unit: unit,
-      base: base,
-      extendedInterval: (~~extendedInterval !== 0)
-        ? ~~extendedInterval.toString() // drop leading '+'
-        : undefined,
-      extendedUnit: extendedUnit
-    }
-  })
-}
+import duration from '@/utils/duration'
 
 export const pfConfigurationAccessDurationViewFields = (context = {}) => {
   const {
@@ -96,8 +50,8 @@ export const pfConfigurationAccessDurationViewFields = (context = {}) => {
                 ...pfConfigurationAttributesFromMeta(meta, 'default_access_duration'),
                 ...{
                   options: ('access_duration_choices' in form && form.access_duration_choices) // could be undefined or null
-                    ? form.access_duration_choices.map(duration => {
-                      const strDuration = pfConfigurationAccessDurationSerialize([duration])
+                    ? form.access_duration_choices.map(_duration => {
+                      const strDuration = duration.serialize(_duration)
                       return { text: strDuration, value: strDuration }
                     })
                     : []

@@ -403,13 +403,13 @@ export default {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
           fields: [
-            pfConfigurationActions.set_access_duration,
-            pfConfigurationActions.set_access_level,
+            pfConfigurationActions.set_access_duration_by_acl_user,
+            pfConfigurationActions.set_access_level_by_acl_user,
             pfConfigurationActions.mark_as_sponsor,
-            pfConfigurationActions.set_role,
+            pfConfigurationActions.set_role_by_acl_user,
             pfConfigurationActions.set_access_durations,
             pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unregdate
+            pfConfigurationActions.set_unreg_date_by_acl_user
           ]
         }
       },
@@ -560,7 +560,7 @@ export default {
       }
     }
   },
-  created () {
+  mounted () {
     this.$store.dispatch('config/getAdminRoles')
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getTenants')
