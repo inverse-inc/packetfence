@@ -736,7 +736,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
       ]
     },
     {
-      if: switchTypeSupport(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']),
+      if: switchTypeSupport(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x', 'VPN']),
       tab: i18n.t('RADIUS'),
       fields: [
         {
