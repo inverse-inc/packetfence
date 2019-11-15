@@ -20,8 +20,10 @@ with qw(
 );
 
 use pf::admin_roles;
+use pf::constants::config;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use pf::Authentication::constants;
+use List::MoreUtils qw(all);
 
 ## Definition
 has_field 'id' =>
@@ -115,9 +117,23 @@ has_field 'allowed_access_durations' =>
    element_attr => {'data-placeholder' => 'Click to add a admin roles' },
    tags => { after_element => \&help,
              help => 'A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used'},
+   apply => [
+        { check => \&check_allowed_access_durations, message => "One or many access durations are invalid" },
+   ],
   );
 
 sub build_do_form_wrapper{ 0 }
+
+=head2 check_allowed_access_durations
+
+check_allowed_access_durations
+
+=cut
+
+sub check_allowed_access_durations {
+    my ($value, $field) = @_;
+    return all { /$pf::constants::config::TIME_MODIFIER_RE/ } split(/\s*,\s*/, $value);
+}
 
 sub options_actions {
     my $self = shift;
