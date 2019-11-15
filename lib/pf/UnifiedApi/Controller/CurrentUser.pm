@@ -17,6 +17,7 @@ use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES);
 use pf::Authentication::constants;
 use pf::nodecategory;
 use pf::config qw(%Config %ConfigRoles);
+use List::Util qw(maxstr);
 
 sub _allowed_options {
     my ($self, $option, $key, $standard_options) = @_;
@@ -49,7 +50,13 @@ sub get_all_roles {
 
 sub allowed_user_unreg_date {
     my ($self) = @_;
-    return $self->_allowed_options('allowed_unreg_date', 'undeg_date', sub {} );
+    my $admin_roles = $self->stash->{admin_roles};
+    my @options = admin_allowed_options($admin_roles, 'allowed_unreg_date');
+    if (@options == 0) {
+        return $self->render(json => { items => [] });
+    }
+
+    return $self->render(json => { items => [ maxstr @options ] });
 }
 
 sub allowed_user_roles {
