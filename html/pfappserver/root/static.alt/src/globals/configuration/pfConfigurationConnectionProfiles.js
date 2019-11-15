@@ -291,6 +291,11 @@ export const pfConfigurationConnectionProfilesListColumns = [
     visible: true
   },
   {
+    key: 'not_sortable',
+    required: true,
+    visible: false
+  },
+  {
     key: 'buttons',
     label: '',
     locked: true
