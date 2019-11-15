@@ -17,7 +17,8 @@ import {
   requireAnySiblingFields,
   restrictAllSiblingFields,
   limitSiblingFields,
-  isPattern
+  isPattern,
+  isValidUnregDateByAclUser
 } from '@/globals/pfValidators'
 
 const {
@@ -407,10 +408,10 @@ export const pfConfigurationActions = {
       }
     }
   },
-  set_access_duration_by_acl: {
+  set_access_duration_by_acl_user: {
     value: 'set_access_duration',
     text: i18n.t('Access duration'),
-    types: [fieldType.DURATION_BY_ACL],
+    types: [fieldType.DURATION_BY_ACL_USER],
     validators: {
       type: {
         /* Require "set_role" */
@@ -445,6 +446,16 @@ export const pfConfigurationActions = {
     value: 'set_access_level',
     text: i18n.t('Access level'),
     types: [fieldType.ADMINROLE],
+    validators: {
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_access_level_by_acl_user: {
+    value: 'set_access_level',
+    text: i18n.t('Access level'),
+    types: [fieldType.ADMINROLE_BY_ACL_USER],
     validators: {
       value: {
         [i18n.t('Value required.')]: required
@@ -532,6 +543,38 @@ export const pfConfigurationActions = {
       }
     }
   },
+  set_role_by_acl_node: {
+    value: 'set_role',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE_BY_ACL_NODE],
+    validators: {
+      type: {
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_role_by_acl_user: {
+    value: 'set_role',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE_BY_ACL_USER],
+    validators: {
+      type: {
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
   set_tenant_id: {
     value: 'set_tenant_id',
     text: i18n.t('Tenant ID'),
@@ -581,6 +624,31 @@ export const pfConfigurationActions = {
       },
       value: {
         [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD')
+      }
+    }
+  },
+  set_unreg_date_by_acl_user: {
+    value: 'set_unreg_date',
+    text: i18n.t('Unregistration date'),
+    placeholder: 'YYYY-MM-DD',
+    /* TODO - Workaround for Issue #4672
+     * types: [fieldType.DATETIME],
+     * moments: ['1 days', '1 weeks', '1 months', '1 years'],
+     */
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Require "set_role" */
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
+        /* Restrict "set_access_duration" */
+        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFields('type', 'set_access_duration'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD'),
+        /* Limit maximum date w/ current user ACL */
+        [i18n.t('Date exceeds maximum allowed by current user.')]: isValidUnregDateByAclUser('YYYY-MM-DD')
       }
     }
   },

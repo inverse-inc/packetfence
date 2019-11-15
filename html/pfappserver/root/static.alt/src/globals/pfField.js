@@ -3,78 +3,91 @@ import store from '@/store'
 import i18n from '@/utils/locale'
 
 export const pfComponentType = {
-  NONE:                              'none',
-  INTEGER:                           'integer',
-  SUBSTRING:                         'substring',
-  SELECTONE:                         'selectone',
-  SELECTMANY:                        'selectmany',
-  DATE:                              'date',
-  DATETIME:                          'datetime',
-  PREFIXMULTIPLIER:                  'prefixmultiplier',
-  TOGGLE:                            'toggle'
+  NONE:                                'none',
+  DATE:                                'date',
+  DATETIME:                            'datetime',
+  INTEGER:                             'integer',
+  PREFIXMULTIPLIER:                    'prefixmultiplier',
+  SELECTONE:                           'selectone',
+  SELECTMANY:                          'selectmany',
+  SUBSTRING:                           'substring',
+  TOGGLE:                              'toggle'
 }
 
 export const pfFieldType = {
   /* Static field types */
-  NONE:                              'none',
-  INTEGER:                           'integer',
-  SUBSTRING:                         'substring',
-  CONNECTION_TYPE:                   'connection_type',
-  CONNECTION_SUB_TYPE:               'connection_sub_type',
-  DATE:                              'date',
-  DATETIME:                          'datetime',
-  GENDER:                            'gender',
-  NODE_STATUS:                       'node_status',
-  PREFIXMULTIPLIER:                  'prefixmultiplier',
-  SELECTMANY:                        'selectmany',
-  TIME_BALANCE:                      'time_balance',
-  YESNO:                             'yesno',
-  URL:                               'substring',
+  NONE:                                'none',
+  INTEGER:                             'integer',
+  SUBSTRING:                           'substring',
+  CONNECTION_TYPE:                     'connection_type',
+  CONNECTION_SUB_TYPE:                 'connection_sub_type',
+  DATE:                                'date',
+  DATETIME:                            'datetime',
+  GENDER:                              'gender',
+  NODE_STATUS:                         'node_status',
+  PREFIXMULTIPLIER:                    'prefixmultiplier',
+  SELECTMANY:                          'selectmany',
+  TIME_BALANCE:                        'time_balance',
+  YESNO:                               'yesno',
+  URL:                                 'substring',
 
   /* Promise field types */
-  ADMINROLE:                         'adminrole',
-  DURATION:                          'duration',
-  DURATIONS:                         'durations',
-  OPTIONS:                           'options',
-  REALM:                             'realm',
-  ROLE:                              'role',
-  ROLE_BY_NAME:                      'role_by_name',
-  ROOT_PORTAL_MODULE:                'root_portal_module',
-  SOURCE:                            'source',
-  SSID:                              'ssid',
-  SWITCHE:                           'switche',
-  SWITCH_GROUP:                      'switch_group',
-  TENANT:                            'tenant'
+  ADMINROLE:                           'adminrole',
+  ADMINROLE_BY_ACL_USER:               'adminrole_by_acl_user',
+  DURATION:                            'duration',
+  DURATION_BY_ACL_USER:                'duration_by_acl_user',
+  DURATIONS:                           'durations',
+  OPTIONS:                             'options',
+  REALM:                               'realm',
+  ROLE:                                'role',
+  ROLE_BY_NAME:                        'role_by_name',
+  ROLE_BY_ACL_NODE:                    'role_by_acl_node',
+  ROLE_BY_ACL_USER:                    'role_by_acl_user',
+  ROOT_PORTAL_MODULE:                  'root_portal_module',
+  SOURCE:                              'source',
+  SSID:                                'ssid',
+  SWITCHE:                             'switche',
+  SWITCH_GROUP:                        'switch_group',
+  TENANT:                              'tenant'
 }
 
 export const pfFieldTypeComponent = {
-  [pfFieldType.ADMINROLE]:           pfComponentType.SELECTONE,
-  [pfFieldType.CONNECTION_TYPE]:     pfComponentType.SELECTONE,
-  [pfFieldType.CONNECTION_SUB_TYPE]: pfComponentType.SELECTONE,
-  [pfFieldType.DATE]:                pfComponentType.DATE,
-  [pfFieldType.DATETIME]:            pfComponentType.DATETIME,
-  [pfFieldType.DURATION]:            pfComponentType.SELECTONE,
-  [pfFieldType.DURATIONS]:           pfComponentType.SELECTMANY,
-  [pfFieldType.GENDER]:              pfComponentType.SELECTONE,
-  [pfFieldType.INTEGER]:             pfComponentType.INTEGER,
-  [pfFieldType.NODE_STATUS]:         pfComponentType.SELECTONE,
-  [pfFieldType.NONE]:                pfComponentType.NONE,
-  [pfFieldType.OPTIONS]:             pfComponentType.SELECTONE,
-  [pfFieldType.PREFIXMULTIPLIER]:    pfComponentType.PREFIXMULTIPLIER,
-  [pfFieldType.REALM]:               pfComponentType.SELECTONE,
-  [pfFieldType.ROLE]:                pfComponentType.SELECTONE,
-  [pfFieldType.ROLE_BY_NAME]:        pfComponentType.SELECTONE,
-  [pfFieldType.ROOT_PORTAL_MODULE]:  pfComponentType.SELECTONE,
-  [pfFieldType.SELECTMANY]:          pfComponentType.SELECTMANY,
-  [pfFieldType.SOURCE]:              pfComponentType.SELECTONE,
-  [pfFieldType.SSID]:                pfComponentType.SELECTONE,
-  [pfFieldType.SUBSTRING]:           pfComponentType.SUBSTRING,
-  [pfFieldType.SWITCHE]:             pfComponentType.SELECTONE,
-  [pfFieldType.SWITCH_GROUP]:        pfComponentType.SELECTONE,
-  [pfFieldType.TENANT]:              pfComponentType.SELECTONE,
-  [pfFieldType.TIME_BALANCE]:        pfComponentType.SELECTONE,
-  [pfFieldType.URL]:                 pfComponentType.SUBSTRING,
-  [pfFieldType.YESNO]:               pfComponentType.TOGGLE
+  /* native component types */
+  [pfFieldType.NONE]:                  pfComponentType.NONE,
+  [pfFieldType.DATE]:                  pfComponentType.DATE,
+  [pfFieldType.DATETIME]:              pfComponentType.DATETIME,
+  [pfFieldType.INTEGER]:               pfComponentType.INTEGER,
+  [pfFieldType.PREFIXMULTIPLIER]:      pfComponentType.PREFIXMULTIPLIER,
+  [pfFieldType.SELECTONE]:             pfComponentType.SELECTONE,
+  [pfFieldType.SELECTMANY]:            pfComponentType.SELECTMANY,
+  [pfFieldType.SUBSTRING]:             pfComponentType.SUBSTRING,
+  [pfFieldType.TOGGLE]:                pfComponentType.TOGGLE,
+
+  /* additional component types */
+  [pfFieldType.ADMINROLE]:             pfComponentType.SELECTONE,
+  [pfFieldType.ADMINROLE_BY_ACL_USER]: pfComponentType.SELECTONE,
+  [pfFieldType.CONNECTION_TYPE]:       pfComponentType.SELECTONE,
+  [pfFieldType.CONNECTION_SUB_TYPE]:   pfComponentType.SELECTONE,
+  [pfFieldType.DURATION]:              pfComponentType.SELECTONE,
+  [pfFieldType.DURATION_BY_ACL_USER]:  pfComponentType.SELECTONE,
+  [pfFieldType.DURATIONS]:             pfComponentType.SELECTMANY,
+  [pfFieldType.GENDER]:                pfComponentType.SELECTONE,
+  [pfFieldType.NODE_STATUS]:           pfComponentType.SELECTONE,
+  [pfFieldType.OPTIONS]:               pfComponentType.SELECTONE,
+  [pfFieldType.REALM]:                 pfComponentType.SELECTONE,
+  [pfFieldType.ROLE]:                  pfComponentType.SELECTONE,
+  [pfFieldType.ROLE_BY_NAME]:          pfComponentType.SELECTONE,
+  [pfFieldType.ROLE_BY_ACL_NODE]:      pfComponentType.SELECTONE,
+  [pfFieldType.ROLE_BY_ACL_USER]:      pfComponentType.SELECTONE,
+  [pfFieldType.ROOT_PORTAL_MODULE]:    pfComponentType.SELECTONE,
+  [pfFieldType.SOURCE]:                pfComponentType.SELECTONE,
+  [pfFieldType.SSID]:                  pfComponentType.SELECTONE,
+  [pfFieldType.SWITCHE]:               pfComponentType.SELECTONE,
+  [pfFieldType.SWITCH_GROUP]:          pfComponentType.SELECTONE,
+  [pfFieldType.TENANT]:                pfComponentType.SELECTONE,
+  [pfFieldType.TIME_BALANCE]:          pfComponentType.SELECTONE,
+  [pfFieldType.URL]:                   pfComponentType.SUBSTRING,
+  [pfFieldType.YESNO]:                 pfComponentType.TOGGLE
 }
 
 export const pfFieldTypeValues = {
@@ -82,9 +95,17 @@ export const pfFieldTypeValues = {
     store.dispatch('config/getAdminRoles')
     return store.getters['config/adminRolesList']
   },
+  [pfFieldType.ADMINROLE_BY_ACL_USER]: () => {
+    store.dispatch('session/getAllowedUserAccessLevels')
+    return store.getters['session/allowedUserAccessLevelsList']
+  },
   [pfFieldType.DURATION]: () => {
     store.dispatch('config/getBaseGuestsAdminRegistration')
     return store.getters['config/accessDurationsList']
+  },
+  [pfFieldType.DURATION_BY_ACL_USER]: () => {
+    store.dispatch('session/getAllowedUserAccessDurations')
+    return store.getters['session/allowedUserAccessDurationsList']
   },
   [pfFieldType.DURATIONS]: () => {
     store.dispatch('config/getBaseGuestsAdminRegistration')
@@ -118,6 +139,14 @@ export const pfFieldTypeValues = {
   [pfFieldType.ROLE_BY_NAME]: () => {
     store.dispatch('config/getRoles')
     return pfFieldTypeValues[pfFieldType.ROLE]().map(role => { return { value: role.name, name: role.name } })
+  },
+  [pfFieldType.ROLE_BY_ACL_NODE]: () => {
+    store.dispatch('session/getAllowedNodeRoles')
+    return store.getters['session/allowedNodeRolesList']
+  },
+  [pfFieldType.ROLE_BY_ACL_USER]: () => {
+    store.dispatch('session/getAllowedUserRoles')
+    return store.getters['session/allowedUserRolesList']
   },
   [pfFieldType.ROOT_PORTAL_MODULE]: () => {
     store.dispatch('config/getPortalModules')

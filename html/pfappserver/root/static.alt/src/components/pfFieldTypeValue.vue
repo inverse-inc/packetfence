@@ -203,7 +203,7 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (type in fieldTypeValues) options.push(...fieldTypeValues[type]())
+          if (type in fieldTypeValues) options.push(...fieldTypeValues[type](this))
         }
       }
       return options

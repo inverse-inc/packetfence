@@ -3,6 +3,7 @@
  * "config" store module
  */
 import apiCall from '@/utils/api'
+import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
 
 const api = {
@@ -483,61 +484,8 @@ const getters = {
   },
   accessDurationsList: state => {
     if (!state.baseGuestsAdminRegistration) return []
-    const unit2str = (unit, isPlural = false) => {
-      const plural = (isPlural) ? 's' : ''
-      switch (unit) {
-        case 's': return (plural) ? i18n.t('seconds') : i18n.t('second')
-        case 'm': return (plural) ? i18n.t('minutes') : i18n.t('minute')
-        case 'h': return (plural) ? i18n.t('hours') : i18n.t('hour')
-        case 'D': return (plural) ? i18n.t('days') : i18n.t('day')
-        case 'W': return (plural) ? i18n.t('weeks') : i18n.t('week')
-        case 'M': return (plural) ? i18n.t('months') : i18n.t('month')
-        case 'Y': return (plural) ? i18n.t('years') : i18n.t('year')
-      }
-    }
-    const unit2seconds = (unit) => {
-      let seconds = 1
-      switch (unit) { // compound seconds w/ fallthrough
-        case 'Y': seconds *= 12
-          /* falls through */
-        case 'M': seconds *= 30.4375 // leap-year
-          /* falls through */
-        case 'W': seconds *= 7
-          /* falls through */
-        case 'D': seconds *= 24
-          /* falls through */
-        case 'h': seconds *= 60
-          /* falls through */
-        case 'm': seconds *= 60
-          /* falls through */
-      }
-      return seconds
-    }
-    return state.baseGuestsAdminRegistration.access_duration_choices.split(',').map((duration) => {
-      // destructure duration using regular expression
-      const [
-        // eslint-disable-next-line no-unused-vars
-        _, // ignore
-        interval, // \d+
-        unit, // [smhDWMY]{1}
-        base, // [FR]
-        // eslint-disable-next-line no-unused-vars
-        __, // ignore
-        extendedInterval, // [+-]\d+
-        extendedUnit // [smhDWMY]{1}
-      ] = duration.match(/(\d+)([smhDWMY]){1}([FR])?(([+-]\d+)([smhDWMY]){1})?/)
-      let name = interval + ' ' + unit2str(unit, Math.abs(interval) > 1)
-      if (base && extendedInterval && extendedUnit) {
-        let baseStr = ''
-        switch (base) {
-          case 'F': baseStr = unit2str('D'); break // relative to start of day
-          case 'R': baseStr = unit2str(unit); break // relative to start of period (unit)
-        }
-        name += ' (@' + baseStr + ' ' + extendedInterval + ' ' + unit2str(extendedUnit, Math.abs(extendedInterval) > 1) + ')'
-      }
-      // fwd `sort`ing
-      const sort = (~~interval * unit2seconds(unit)) + (~~extendedInterval * unit2seconds(extendedUnit))
-      return { name: name, value: duration, sort: sort }
+    return state.baseGuestsAdminRegistration.access_duration_choices.split(',').map((accessDuration) => {
+      return duration.deserialize(accessDuration)
     }).sort((a, b) => {
       return (a.sort > b.sort) ? 1 : -1
     })
