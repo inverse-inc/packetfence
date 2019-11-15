@@ -26,6 +26,7 @@ use pf::util;
 use pf::constants::pfqueue qw(
     $PFQUEUE_WORKERS_DEFAULT
     $PFQUEUE_WEIGHT_DEFAULT
+    $PFQUEUE_HASHED_DEFAULT
     $PFQUEUE_MAX_TASKS_DEFAULT
     $PFQUEUE_TASK_JITTER_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT
@@ -44,7 +45,8 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-    my %tmp_cfg = %{ $self->{cfg} };
+    my @queues;
+    my %tmp_cfg = (%{ $self->{cfg} }, queues => \@queues);
     my $max_tasks = $tmp_cfg{pfqueue}{max_tasks};
     if (!defined($max_tasks) || $max_tasks <= 0) {
         $tmp_cfg{pfqueue}{max_tasks} = $PFQUEUE_MAX_TASKS_DEFAULT;
@@ -57,7 +59,12 @@ sub build_child {
         # Set defaults
         $data->{workers} //= $PFQUEUE_WORKERS_DEFAULT;
         $data->{weight} //= $PFQUEUE_WEIGHT_DEFAULT;
-        push @{$tmp_cfg{queues}},{ %$data, name => $queue };
+        $data->{hashed} //= $PFQUEUE_HASHED_DEFAULT;
+        if (isenabled ($data->{hashed})) {
+            push @queues, (map { real_name => $queue, name => "${queue}_${_}", workers => 1, weight => 0 }, (0...$data->{workers}-1));
+        } else {
+            push @{$tmp_cfg{queues}},{ %$data, name => $queue, real_name => $queue };
+        }
     }
     my %redis_args;
     my $consumer = $tmp_cfg{consumer};
