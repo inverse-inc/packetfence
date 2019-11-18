@@ -482,10 +482,10 @@ export default {
       return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      if (this.modeIndex === 0) {
-        return this.$v.single.$invalid || this.isLoading
-      } else {
-        return false
+      if (this.modeIndex === 0) { // single
+        return this.$v.single.$invalid || this.$v.localUser.$invalid || this.isLoading
+      } else { // multiple
+        return this.$v.multiple.$invalid || this.$v.localUser.$invalid || this.isLoading
       }
     },
     createdUsers () {
