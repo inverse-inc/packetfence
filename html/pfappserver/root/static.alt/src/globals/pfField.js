@@ -183,7 +183,7 @@ export const pfFieldTypeValues = {
       { name: 'Wireless-Web-Auth', value: 'Wireless-Web-Auth' },
       { name: 'Wireless-802.11-EAP', value: 'Wireless-802.11-EAP' },
       { name: 'VPN-Access', value: 'VPN-Access' },
-      { name: 'CLI-Access', value: 'CLI-Access' },
+      { name: 'CLI-Access', value: 'CLI-Access' }
     ]
   },
   [pfFieldType.CONNECTION_SUB_TYPE]: () => {
@@ -244,21 +244,21 @@ export const pfFieldTypeValues = {
       { name: 'SecuriSuite-EAP', value: 'SecuriSuite-EAP' },
       { name: 'SentriNET', value: 'SentriNET' },
       { name: 'VALUE', value: 'VALUE' },
-      { name: 'Zonelabs', value: 'Zonelabs' },
+      { name: 'Zonelabs', value: 'Zonelabs' }
     ]
   },
   [pfFieldType.GENDER]: () => {
     return [
       { name: i18n.t('Male'), value: 'm' },
       { name: i18n.t('Female'), value: 'f' },
-      { name: i18n.t('Other'), value: 'o' },
+      { name: i18n.t('Other'), value: 'o' }
     ]
   },
   [pfFieldType.NODE_STATUS]: () => {
     return [
       { name: i18n.t('Registered'), value: 'reg' },
       { name: i18n.t('Unregistered'), value: 'unreg' },
-      { name: i18n.t('Pending'), value: 'pending' },
+      { name: i18n.t('Pending'), value: 'pending' }
     ]
   },
   [pfFieldType.TIME_BALANCE]: () => {
@@ -269,13 +269,13 @@ export const pfFieldTypeValues = {
       { name: i18n.t('1 day'), value: '1D' },
       { name: i18n.t('2 days'), value: '2D' },
       { name: i18n.t('3 days'), value: '3D' },
-      { name: i18n.t('5 days'), value: '5D' },
+      { name: i18n.t('5 days'), value: '5D' }
     ]
   },
   [pfFieldType.YESNO]: () => {
     return [
       { name: i18n.t('Yes'), value: 'yes' },
-      { name: i18n.t('No'), value: 'no' },
+      { name: i18n.t('No'), value: 'no' }
     ]
   }
 }
