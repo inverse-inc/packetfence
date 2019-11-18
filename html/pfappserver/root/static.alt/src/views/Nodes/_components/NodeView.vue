@@ -590,7 +590,7 @@ export default {
       return this.$store.state.$_nodes.nodes[this.mac]
     },
     roles () {
-      return this.$store.getters['config/rolesList']
+      return this.$store.getters['session/allowedNodeRolesList']
     },
     rolesWithNull () {
       // prepend a null value to roles
@@ -917,10 +917,10 @@ export default {
     this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
       this.nodeContent = node
     })
-    this.$store.dispatch('config/getRoles')
     if (this.$can.apply(null, ['read', 'security_events'])) {
       this.$store.dispatch('config/getSecurityEvents')
     }
+    this.$store.dispatch('session/getAllowedNodeRoles')
   },
   mounted () {
     this.setupVis()
