@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Test::Mojo;
 use pf::UnifiedApi::Search;
 
@@ -174,6 +174,21 @@ is_deeply(
         pid => { "-like" => "%lzammit%" },
     },
     "pid LIKE '%lzammit%'"
+);
+
+is_deeply(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
+        {
+            "field" => "pid",
+            "op"    => "contains",
+            "value" => undef,
+        }
+    ),
+    {
+        pid => { "-like" => "%%" },
+    },
+
+    "pid LIKE NULL"
 );
 
 is_deeply(

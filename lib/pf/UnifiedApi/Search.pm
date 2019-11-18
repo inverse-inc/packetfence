@@ -183,7 +183,7 @@ Converts like queries to the SQL::Abstract version
 
 sub like_query_to_sql {
     my ($q) = @_;
-    my $value = $q->{value};
+    my $value = $q->{value} // '';
     my $op = $q->{op};
     my $format = exists $LIKE_FORMAT{$op} ? $LIKE_FORMAT{$op} : $DEFAULT_LIKE_FORMAT;
     return { $q->{field} => { $OP_TO_SQL_OP{$op} => escape_like($q->{value}, $format) } };
