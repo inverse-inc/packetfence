@@ -82,7 +82,7 @@ export default {
       return this.$store.state.notification.all
     },
     newNotifications () {
-      return this.$store.state.notification.all.filter(n => n.new)
+      return this.notifications.filter(n => n.new)
     },
     count () {
       return this.unread.length || this.notifications.length
@@ -91,7 +91,7 @@ export default {
       return this.notifications.length === 0
     },
     unread () {
-      return this.$store.state.notification.all.filter(n => n.unread)
+      return this.notifications.filter(n => n.unread)
     },
     variant () {
       return (this.unread.length > 0) ? 'danger' : 'secondary'
@@ -103,7 +103,7 @@ export default {
     },
     markAsRead () {
       this.visible = false
-      this.$store.state.notification.all.forEach((notification) => {
+      this.notifications.forEach((notification) => {
         notification.unread = false
       })
     },
