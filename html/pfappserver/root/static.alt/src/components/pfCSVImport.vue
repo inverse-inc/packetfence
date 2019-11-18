@@ -146,8 +146,20 @@
               </b-col>
               <b-col>
 
-                <!-- BEGIN SUBSTRING -->
-                <pf-form-input v-if="isFieldType(substringValueType, staticMap)"
+                <pf-form-chosen v-if="isComponentType([componentType.SELECTMANY, componentType.SELECTONE], staticMap)"
+                  :value="staticMap.value"
+                  label="name"
+                  track-by="value"
+                  :ref="staticMap.key"
+                  :disabled="isDisabled"
+                  :multiple="isComponentType([componentType.SELECTMANY], staticMap)"
+                  :options="fieldTypeValues[staticMap.key](this)"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  @input="staticMap.value = $event"
+                  collapse-object
+                ></pf-form-chosen>
+
+                <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :disabled="isDisabled"
@@ -155,8 +167,7 @@
                   :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-input>
 
-                <!-- BEGIN DATE -->
-                <pf-form-datetime v-else-if="isFieldType(dateValueType, staticMap)"
+                <pf-form-datetime v-else-if="isComponentType([componentType.DATE], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :config="{format: 'YYYY-MM-DD'}"
@@ -165,8 +176,7 @@
                   :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-datetime>
 
-                <!-- BEGIN DATETIME -->
-                <pf-form-datetime v-else-if="isFieldType(datetimeValueType, staticMap)"
+                <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
@@ -175,8 +185,7 @@
                   :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-datetime>
 
-                <!-- BEGIN PREFIXMULTIPLIER -->
-                <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplierValueType, staticMap)"
+                <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLIER], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :disabled="isDisabled"
@@ -184,8 +193,7 @@
                   :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-prefix-multiplier>
 
-                <!-- BEGIN YESNO -->
-                <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMap)"
+                <pf-form-toggle  v-else-if="isComponentType([componentType.TOGGLE], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :disabled="isDisabled"
@@ -193,59 +201,6 @@
                   :vuelidate="getStaticMappingVuelidateValue(index)"
                 >{{ (staticMap.value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
 
-                <!-- BEGIN GENDER -->
-                <pf-form-chosen v-else-if="isFieldType(genderValueType, staticMap)"
-                  :value="staticMap.value"
-                  label="name"
-                  track-by="value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :options="fieldTypeValues[genderValueType]()"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
-                  @input="staticMap.value = $event"
-                  collapse-object
-                ></pf-form-chosen>
-
-                <!-- BEGIN NODE_STATUS -->
-                <pf-form-chosen v-else-if="isFieldType(nodeStatusValueType, staticMap)"
-                  :value="staticMap.value"
-                  label="name"
-                  track-by="value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :options="fieldTypeValues[nodeStatusValueType]()"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
-                  @input="staticMap.value = $event"
-                  collapse-object
-                ></pf-form-chosen>
-
-                <!-- BEGIN ROLE -->
-                <pf-form-chosen v-else-if="isFieldType(roleValueType, staticMap)"
-                  :value="staticMap.value"
-                  label="name"
-                  track-by="value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :options="fieldTypeValues[roleValueType](context)"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
-                  @input="staticMap.value = $event"
-                  collapse-object
-                ></pf-form-chosen>
-
-                <!-- BEGIN SOURCE -->
-                <pf-form-chosen v-else-if="isFieldType(sourceValueType, staticMap)"
-                  :value="staticMap.value"
-                  label="name"
-                  track-by="value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :options="fieldTypeValues[sourceValueType](context)"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
-                  @input="staticMap.value = $event"
-                  collapse-object
-                ></pf-form-chosen>
-
-                <!-- BEGIN ***CATCHALL*** -->
                 <pf-form-input v-else
                   v-model="staticMap.value"
                   :ref="staticMap.key"
@@ -449,7 +404,8 @@ import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormToggle from '@/components/pfFormToggle'
 
 import {
-  pfFieldType as fieldType,
+  pfComponentType as componentType,
+  pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
 import {
@@ -514,11 +470,13 @@ export default {
   data () {
     return {
       // expose globals
-      bytes: bytes, // @/utils/bytes
-      encoding: encoding, // @/utils/encoding
-      fieldTypeValues: fieldTypeValues, // @/globals/pfField
+      bytes, // @/utils/bytes
+      encoding, // @/utils/encoding
+      componentType, // @/globals/pfField
+      fieldTypeValues, // @/globals/pfField
       context: this,
 
+      /*
       substringValueType: fieldType.SUBSTRING,
       dateValueType: fieldType.DATE,
       datetimeValueType: fieldType.DATETIME,
@@ -528,6 +486,7 @@ export default {
       roleValueType: fieldType.ROLE,
       sourceValueType: fieldType.SOURCE,
       yesnoValueType: fieldType.YESNO,
+      */
 
       config: {
         // Papa parse config
@@ -741,13 +700,14 @@ export default {
     deleteImportMapping (index) {
       this.$set(this.importMapping, index, null)
     },
-    isFieldType (type, input) {
-      if (!input.key) return false
-      const index = this.fields.findIndex(field => input.key === field.value)
-      if (index >= 0) {
-        const field = this.fields[index]
-        if ('types' in field && field.types.includes(type)) {
-          return true
+    isComponentType (componentTypes, { key }) {
+      if (key) {
+        const index = this.fields.findIndex(field => field.value === key)
+        if (index >= 0) {
+          const field = this.fields[index]
+          for (let t = 0; t < componentTypes.length; t++) {
+            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
+          }
         }
       }
       return false
