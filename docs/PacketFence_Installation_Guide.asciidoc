@@ -5768,7 +5768,7 @@ Procedure:
 
 Reinstall PacketFence (to avoid creating var directories by hand):
 
- # yum reinstall packetfence\* --enablerepo=packetfence
+ # yum reinstall packetfence --enablerepo=packetfence
 
 Restore files (overwrite packages files):
 
