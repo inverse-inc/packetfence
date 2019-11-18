@@ -1098,6 +1098,17 @@ Lastly, run the following script on the remote server to start the slave replica
 
 The "MySQL master ip address" is the ip address of the master server where you created the backup file. Not the VIP of the primary cluster.
 
+In the case when you run the script you have the following message:
+
+ ERROR 1045 (28000) at line 1: Access denied for user 'root'@'%' (using password: YES)
+ Unable to grant replication on user pfcluster at ./addons/makeslave.pl line 42, <STDIN> line 2.
+
+Then you need to be sure that the root user exist in the remote database and have the correct permissions (SELECT and GRANT):
+
+ SELECT * FROM mysql.user WHERE User='root' and host ='%'\G
+ GRANT GRANT OPTION  ON *.* TO root@'%' identified by 'password';
+ GRANT SELECT ON *.* TO root@'%' identified by 'password';
+
 Alternatively, to start the slave manually refer to the following:
 
 Edit the file /var/lib/mysql/xtrabackup_binlog_info and note the file name and the position:
