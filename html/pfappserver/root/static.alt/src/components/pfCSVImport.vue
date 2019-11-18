@@ -475,19 +475,6 @@ export default {
       componentType, // @/globals/pfField
       fieldTypeValues, // @/globals/pfField
       context: this,
-
-      /*
-      substringValueType: fieldType.SUBSTRING,
-      dateValueType: fieldType.DATE,
-      datetimeValueType: fieldType.DATETIME,
-      prefixmultiplierValueType: fieldType.PREFIXMULTIPLIER,
-      genderValueType: fieldType.GENDER,
-      nodeStatusValueType: fieldType.NODE_STATUS,
-      roleValueType: fieldType.ROLE,
-      sourceValueType: fieldType.SOURCE,
-      yesnoValueType: fieldType.YESNO,
-      */
-
       config: {
         // Papa parse config
         delimiter: '', // auto-detect
