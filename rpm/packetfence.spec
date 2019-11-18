@@ -588,6 +588,19 @@ fi
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 
+# Handle 9.2 migration from several RPM to one package
+# At this stage, packetfence-config unit has been reinstalled but not taken into account
+# restart of service is necessary to avoid a long wait and failures of
+# next commands
+if [ $(/bin/systemctl show -p NeedDaemonReload packetfence-config | awk -F '=' '{print $2}') == "yes" ]; then
+    echo "Systemd need a reload to take packetfence-config into account"
+    /bin/systemctl daemon-reload
+    echo "Starting packetfence-config service early to avoid timeout caused by service"
+    /bin/systemctl start packetfence-config
+else
+    echo "packetfence-config service will be started by packetfence-httpd.admin service later"
+fi
+
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
