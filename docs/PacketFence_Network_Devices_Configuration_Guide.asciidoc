@@ -4968,6 +4968,8 @@ image::cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius ad
 
 image::cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 
+WARNING: When creating interfaces, it's important to configure DHCP servers. Otherwise, WLC will block DHCP requests.
+
 You are good to go!
 
 Wireless LAN Controller (WLC) Web Auth
