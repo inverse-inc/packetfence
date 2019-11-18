@@ -31,8 +31,8 @@ include::includes/license.asciidoc[]
 == General Upgrade Tips
 
 
-Database backup
-^^^^^^^^^^^^^^^
+=== Database backup
+
 
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
@@ -44,24 +44,24 @@ If your database is more than a few hundred megabytes, you may also want to cons
 It is also possible to simply backup the actual MySQL files themselves -- as long as the database is not currently running.
 To do so, stop MySQL and then copy all files under /var/lib/mysql to a secure directory.
 
-PacketFence configurations and codebase backup
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=== PacketFence configurations and codebase backup
+
 
 Taking a complete backup of your current installation is strongly recommended.
 You can take a backup of the pf directory with the following command:
 
   tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
 
-Upgrade procedure
------------------
+== Upgrade procedure
+
 
 NOTE: These are general upgrade instructions. Make sure to go through (read) the upgrade instructions specific to the upgrade path taken since some steps may be required to be done *BEFORE* the packages upgrades.
 
-### For a clustered environment
+=== For a clustered environment
 
 Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluster] section.
 
-### For a standalone server
+=== For a standalone server
 
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
 To do so, run the following commands:
@@ -2011,14 +2011,16 @@ Starting from now, PacketFence will be released as an unique RPM package for
 x86_64 architectures. To remove properly older RPM packages, you need to follow these steps:
 
 . Stop services:
++
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pf stop
 systemctl stop packetfence-config
 ----
++
 
 . Uninstall old RPM without running post-uninstallation steps:
-
++
 [source,bash]
 ----
 rpm -e --nodeps --noscripts packetfence-config
@@ -2026,17 +2028,20 @@ rpm -e --nodeps --noscripts packetfence-config
 # run only if packetfence-remote-arp-sensor has been installed
 rpm -e --nodeps --noscripts packetfence-remote-arp-sensor
 ----
++
 
 . Update [package]`packetfence-release` and [package]`packetfence` packages:
-
++
 [source,bash]
 ----
 yum update packetfence-release --enablerepo=packetfence
 yum update packetfence --enablerepo=packetfence
 mv -f /usr/local/pf/conf/pfconfig.conf.rpmsave /usr/local/pf/conf/pfconfig.conf
 ----
++
 
 . Restart services:
++
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd fixpermissions
