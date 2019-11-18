@@ -23,13 +23,15 @@ BEGIN {
 }
 
 use pf::ConfigStore::Firewall_SSO;
-use Test::More tests => 4;
+use pf::ConfigStore::Source;
+use Test::More tests => 7;
 use Test::Mojo;
 use JSON::MaybeXS;
 use Utils;
 use pf::dal::admin_api_audit_log;
 
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Firewall_SSO");
+my ($fh1, $filename1) = Utils::tempfileForConfigStore("pf::ConfigStore::Source");
 
 #This test will running last
 use Test::NoWarnings;
@@ -38,34 +40,64 @@ my $test_id = "test_id_$$";
 my $test_username = "USERNAME_$$";
 my $collection_base_url = '/api/v1/config/firewalls';
 my $base_url = '/api/v1/config/firewall';
-my $password = "password";
+my $password = "password_$$";
 
-$t->post_ok(
-    $collection_base_url => { 'X-PacketFence-Username' => $test_username } =>
-      json => {
+test_password_masked_on_create(
+    '/api/v1/config/firewalls',
+     {
         id       => $test_id,
         password => $password,
         username => "bob",
         type     => "JSONRPC"
-      }
-)->status_is(201);
-
-my ($status, $iter) = pf::dal::admin_api_audit_log->search(
-    -where => {
-        user_name => $test_username,
-    }, 
-    -limit => 1,
-    order_by => '-created_at',
+     },
+     $test_username,
+    'password',
+    $password
 );
 
+test_password_masked_on_create(
+    '/api/v1/config/sources',
+     {
+        id       => $test_id,
+        password => $password,
+        username => "bob",
+        type     => "AD",
+        host => '127.0.0.1',
+        description => 'bob',
+        encryption => 'none',
+        basedn => 'bob',
+        scope => 'base',
+        usernameattribute => 'sAMAccountName',
+     },
+     "${test_username}_$$",
+    'password',
+    $password
+);
 
-my $log = $iter->next;
-if (!defined ($log)) {
-    BAIL_OUT("Cannot find log");
+sub test_password_masked_on_create {
+    my ($path, $payload, $user, $pass_field, $password) = @_;
+    $t->post_ok(
+        $path => { 'X-PacketFence-Username' => $user } =>
+          json =>  $payload
+    )->status_is(201);
+
+    my ($status, $iter) = pf::dal::admin_api_audit_log->search(
+        -where => {
+            user_name => $user,
+        }, 
+        -limit => 1,
+        order_by => '-created_at',
+    );
+
+    my $log = $iter->next;
+    if (!defined ($log)) {
+        BAIL_OUT("Cannot find log");
+    }
+
+    my $request = decode_json($log->{request});
+    isnt($request->{$pass_field}, $password, "Password not saved");
 }
 
-my $request = decode_json($log->{request});
-isnt($request->{password}, $password, "Password not saved");
 
 =head1 AUTHOR
 
