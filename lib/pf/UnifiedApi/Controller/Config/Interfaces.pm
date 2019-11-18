@@ -164,6 +164,17 @@ sub get {
     }
 }
 
+=head2 id
+
+id
+
+=cut
+
+sub id {
+    my ($self) = @_;
+    return $self->stash->{interface_id};
+}
+
 =head2 create
 
 Create a new virtual interface
