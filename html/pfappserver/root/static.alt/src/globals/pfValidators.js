@@ -302,9 +302,9 @@ export const isValidUnregDateByAclUser = (dateFormat = 'YYYY-MM-DD', allowZero =
     if (!value || (value === dateFormat.replace(/[a-z]/gi, '0') && allowZero)) return true
     value = parse(format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat))
     return store.dispatch('session/getAllowedUserUnregDate').then((response) => {
-      const { 0: unreg_date } = response
-      if (unreg_date) {
-        return compareAsc(parse(unreg_date), value) >= 0
+      const { 0: unregDate } = response
+      if (unregDate) {
+        return compareAsc(parse(unregDate), value) >= 0
       }
       return true
     }).catch(() => {
