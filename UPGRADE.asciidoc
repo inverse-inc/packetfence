@@ -1,17 +1,35 @@
-PacketFence Upgrade Guide
-=========================
+= PacketFence Upgrade Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
 :toc: left
 
-include::docs/includes/global-attributes.asciidoc[]
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: images
+endif::[]
 
-http://www.packetfence.org/
+////
+
+    This file is part of the PacketFence project.
+
+////
+
+include::includes/global-attributes.asciidoc[]
+
+== About this Guide
+
+This guide covers procedures to upgrade PacketFence servers.
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
 
 
-General Upgrade Tips
---------------------
+== General Upgrade Tips
+
 
 Database backup
 ^^^^^^^^^^^^^^^
