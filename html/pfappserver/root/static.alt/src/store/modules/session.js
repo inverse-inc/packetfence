@@ -154,7 +154,7 @@ const getters = {
   isLoadingAllowedUserRoles: state => state.isLoadingAllowedUserRolesStatus === types.LOADING,
   isLoadingAllowedUserUnregDate: state => state.isLoadingAllowedUserUnregDateStatus === types.LOADING,
   allowedNodeRoles: state => state.allowedNodeRoles || [],
-  allowedNodeRolesList: state => (state.allowedNodeRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}` } }),
+  allowedNodeRolesList: state => (state.allowedNodeRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
   allowedUserAccessDurations: state => state.allowedUserAccessDurations || [],
   allowedUserAccessDurationsList: state => (state.allowedUserAccessDurations || []).map(_accessDuration => {
     const { access_duration: accessDuration } = _accessDuration
@@ -171,7 +171,7 @@ const getters = {
   }),
   allowedUserActions: state => state.allowedUserActions || [],
   allowedUserRoles: state => state.allowedUserRoles || [],
-  allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}` } }),
+  allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || []
 }
 
@@ -272,88 +272,64 @@ const actions = {
     return Promise.resolve(params.lang)
   },
   getAllowedNodeRoles: ({ state, getters, commit }) => {
-    if (getters.isLoadingAllowedNodeRoles) {
+    if (state.allowedNodeRoles) {
       return Promise.resolve(state.allowedNodeRoles)
     }
-    if (!state.allowedNodeRoles) {
-      commit('ALLOWED_NODE_ROLES_REQUEST')
-      return api.getAllowedNodeRoles().then(response => {
-        commit('ALLOWED_NODE_ROLES_UPDATED', response.data.items)
-        return state.allowedNodeRoles
-      })
-    } else {
-      return Promise.resolve(state.allowedNodeRoles)
-    }
+    commit('ALLOWED_NODE_ROLES_REQUEST')
+    return api.getAllowedNodeRoles().then(response => {
+      commit('ALLOWED_NODE_ROLES_UPDATED', response.data.items)
+      return state.allowedNodeRoles
+    })
   },
   getAllowedUserAccessDurations: ({ state, getters, commit }) => {
-    if (getters.isLoadingAllowedUserAccessDurations) {
+    if (state.allowedUserAccessDurations) {
       return Promise.resolve(state.allowedUserAccessDurations)
     }
-    if (!state.allowedUserAccessDurations) {
-      commit('ALLOWED_USER_ACCESS_DURATIONS_REQUEST')
-      return api.getAllowedUserAccessDurations().then(response => {
-        commit('ALLOWED_USER_ACCESS_DURATIONS_UPDATED', response.data.items)
-        return state.allowedUserAccessDurations
-      })
-    } else {
-      return Promise.resolve(state.allowedUserAccessDurations)
-    }
+    commit('ALLOWED_USER_ACCESS_DURATIONS_REQUEST')
+    return api.getAllowedUserAccessDurations().then(response => {
+      commit('ALLOWED_USER_ACCESS_DURATIONS_UPDATED', response.data.items)
+      return state.allowedUserAccessDurations
+    })
   },
   getAllowedUserAccessLevels: ({ state, getters, commit }) => {
-    if (getters.isLoadingAllowedUserAccessLevels) {
+    if (state.allowedUserAccessLevels) {
       return Promise.resolve(state.allowedUserAccessLevels)
     }
-    if (!state.allowedUserAccessLevels) {
-      commit('ALLOWED_USER_ACCESS_LEVELS_REQUEST')
-      return api.getAllowedUserAccessLevels().then(response => {
-        commit('ALLOWED_USER_ACCESS_LEVELS_UPDATED', response.data.items)
-        return state.allowedUserAccessLevels
-      })
-    } else {
-      return Promise.resolve(state.allowedUserAccessLevels)
-    }
+    commit('ALLOWED_USER_ACCESS_LEVELS_REQUEST')
+    return api.getAllowedUserAccessLevels().then(response => {
+      commit('ALLOWED_USER_ACCESS_LEVELS_UPDATED', response.data.items)
+      return state.allowedUserAccessLevels
+    })
   },
   getAllowedUserActions: ({ state, getters, commit }) => {
-    if (getters.isLoadingAllowedUserActions) {
+    if (state.allowedUserActions) {
       return Promise.resolve(state.allowedUserActions)
     }
-    if (!state.allowedUserActions) {
-      commit('ALLOWED_USER_ACTIONS_REQUEST')
-      return api.getAllowedUserActions().then(response => {
-        commit('ALLOWED_USER_ACTIONS_UPDATED', response.data.items)
-        return state.allowedUserActions
-      })
-    } else {
-      return Promise.resolve(state.allowedUserActions)
-    }
+    commit('ALLOWED_USER_ACTIONS_REQUEST')
+    return api.getAllowedUserActions().then(response => {
+      commit('ALLOWED_USER_ACTIONS_UPDATED', response.data.items)
+      return state.allowedUserActions
+    })
   },
   getAllowedUserRoles: ({ state, getters, commit }) => {
-    if (getters.isLoadingAllowedUserRoles) {
+    if (state.allowedUserRoles) {
       return Promise.resolve(state.allowedUserRoles)
     }
-    if (!state.allowedUserRoles) {
-      commit('ALLOWED_USER_ROLES_REQUEST')
-      return api.getAllowedUserRoles().then(response => {
-        commit('ALLOWED_USER_ROLES_UPDATED', response.data.items)
-        return state.allowedUserRoles
-      })
-    } else {
-      return Promise.resolve(state.allowedUserRoles)
-    }
+    commit('ALLOWED_USER_ROLES_REQUEST')
+    return api.getAllowedUserRoles().then(response => {
+      commit('ALLOWED_USER_ROLES_UPDATED', response.data.items)
+      return state.allowedUserRoles
+    })
   },
   getAllowedUserUnregDate: ({ state, getters, commit }) => {
-    if (getters.isLoadingAllowedUserUnregDate) {
+    if (state.allowedUserUnregDate) {
       return Promise.resolve(state.allowedUserUnregDate)
     }
-    if (!state.allowedUserUnregDate) {
-      commit('ALLOWED_USER_UNREG_DATE_REQUEST')
-      return api.getAllowedUserUnregDate().then(response => {
-        commit('ALLOWED_USER_UNREG_DATE_UPDATED', response.data.items)
-        return state.allowedUserUnregDate
-      })
-    } else {
-      return Promise.resolve(state.allowedUserUnregDate)
-    }
+    commit('ALLOWED_USER_UNREG_DATE_REQUEST')
+    return api.getAllowedUserUnregDate().then(response => {
+      commit('ALLOWED_USER_UNREG_DATE_UPDATED', response.data.items)
+      return state.allowedUserUnregDate
+    })
   }
 }
 
