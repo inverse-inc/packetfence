@@ -7,6 +7,7 @@
 // to display images directly on GitHub
 ifdef::env-github[]
 :imagesdir: images
+:extra_path: docs/
 endif::[]
 
 ////
@@ -15,7 +16,7 @@ endif::[]
 
 ////
 
-include::includes/global-attributes.asciidoc[]
+include::{extra_path}includes/global-attributes.asciidoc[]
 
 == About this Guide
 
