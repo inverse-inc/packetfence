@@ -14,7 +14,7 @@
 #==============================================================================
 Name:       packetfence
 Version:    9.1.9
-Release:    2%{?dist}
+Release:    3%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Daemons
@@ -587,6 +587,19 @@ fi
 %post
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
+
+# Handle 9.2 migration from several RPM to one package
+# At this stage, packetfence-config unit file is "not-found" by systemd
+# daemon-reload is necessary to take new unit file into account
+# Restart of service is necessary to avoid long wait and failures of next commands
+if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print $2}')" == "not-found" ]; then
+    echo "Systemd need a reload to take new packetfence-config unit file into account"
+    /bin/systemctl daemon-reload
+    echo "Starting packetfence-config service early to avoid failures when running next commands"
+    /bin/systemctl start packetfence-config
+else
+    echo "packetfence-config service will be started by packetfence-httpd.admin service later"
+fi
 
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
@@ -1236,6 +1249,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Tue Nov 19 2019 Inverse <info@inverse.ca> - 9.1.9-3
+- Start packetfence-config early to avoid issues during 9.2 upgrade
+
 * Fri Oct 11 2019 Inverse <info@inverse.ca> - 9.1.9-2
 - Obsoletes old packetfence packages
 - Simplify FreeRADIUS dependencies
