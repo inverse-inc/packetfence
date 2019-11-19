@@ -595,7 +595,7 @@ echo "Adding PacketFence config startup script"
 if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print $2}')" == "not-found" ]; then
     echo "Systemd need a reload to take new packetfence-config unit file into account"
     /bin/systemctl daemon-reload
-    echo "Starting packetfence-config service early to avoid timeout caused by service"
+    echo "Starting packetfence-config service early to avoid failures when running next commands"
     /bin/systemctl start packetfence-config
 else
     echo "packetfence-config service will be started by packetfence-httpd.admin service later"
