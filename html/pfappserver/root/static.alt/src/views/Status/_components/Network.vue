@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body class="mt-3" ref="networkGraphContainer">
+  <b-card no-body ref="networkGraphContainer">
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Network'"></h4>
@@ -37,7 +37,7 @@
             <div class="input-group-prepend">
               <div class="input-group-text"><icon name="search"></icon></div>
             </div>
-            <b-form-input v-model="quickCondition" type="text" :placeholder="$t('Search by...')"></b-form-input>
+            <b-form-input v-model="quickCondition" type="text" :placeholder="$t('Search by MAC, Device Class/Manufacturer/Version, IP Address, SSID, Computer Name, Machine Account, Owner or User Agent.')"></b-form-input>
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="!quickCondition">{{ $t('Clear') }}</b-button>
             <b-button-group class="ml-1" :disabled="!quickCondition">
               <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
@@ -124,6 +124,7 @@
         </b-row>
 
         <pf-network-graph ref="networkGraph"
+          class="mt-3"
           :dimensions="dimensions"
           :nodes="nodes"
           :links="links"
@@ -186,7 +187,7 @@ export default {
         palette: 'status', // autoreg|status|online|voip
         miniMapHeight: undefined,
         miniMapWidth: 200,
-        miniMapPosition: 'bottom-left',
+        miniMapPosition: 'top-left',
         minZoom: 0,
         maxZoom: 4,
         mouseWheelZoom: true,
@@ -226,8 +227,8 @@ export default {
           op: 'or',
           values: [{
             field: 'last_seen',
-            op: 'greater_than_equals',
-            value: '1970-01-01 00:00:00'
+            op: 'greater_than',
+            value: ''
           }]
         }]
       },
@@ -507,66 +508,69 @@ export default {
   },
   methods: {
     setDimensions () {
-      // get width of svg container
-      const { $refs: { networkGraph: { $el: { offsetWidth: width = 0 } = {} } = {} } = {} } = this
-      this.$set(this.dimensions, 'width', width)
-      if (this.dimensions.fit === 'max') {
-        this.$set(this.dimensions, 'height', width)
-      } else {
-        // get height of window document
-        const documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-        const { $refs: { networkGraph: { $el = {} } = {} } = {} } = this
-        const { top: networkGraphTop } = $el.getBoundingClientRect()
-        const padding = 20 + 16 /* padding = 20, margin = 16 */
-        const height = documentHeight - networkGraphTop - padding
-        this.$set(this.dimensions, 'height', height)
-        if (height < 0) {
-          setTimeout(this.setDimensions, 100) // try again when DOM is ready
+      this.$nextTick(() => {
+        // get width of svg container
+        const { $refs: { networkGraph: { $el: { offsetWidth: width = 0 } = {} } = {} } = {} } = this
+        this.$set(this.dimensions, 'width', width)
+        if (this.dimensions.fit === 'max') {
+          this.$set(this.dimensions, 'height', width)
+        } else {
+          // get height of window document
+          const documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+          const { $refs: { networkGraph: { $el = {} } = {} } = {} } = this
+          const { top: networkGraphTop } = $el.getBoundingClientRect()
+          const padding = 20 + 16 /* padding = 20, margin = 16 */
+          let height = documentHeight - networkGraphTop - padding
+          if (height < 0) { // DOM not ready
+            setTimeout(this.setDimensions, 100) // try again when DOM is ready
+          } else {
+            height = Math.max(height, width / 2) // minimum height of 1/2 width
+            this.$set(this.dimensions, 'height', height)
+          }
         }
-      }
+      })
     },
     onSubmit (liveMode = false) {
       const { condition: query = null, limit, palettes } = this
-      if (query) {
-        if (!liveMode) this.isLoading = true
-        const request = {
-          cursor: 0,
-          limit,
-          fields: [...(new Set([ // unique set
-            ...['mac', 'last_seen'].map(key => `node.${key}`), // include `node.mac` and `node.last_seen`
-            ...[this.options.sort].map(key => (key.includes('.')) ? key : `node.${key}`), // include `options`.`sort`
-            ...Object.keys(palettes).map(key => `node.${key}`), // include node fields for palettes
-            ...['description', 'type'].map(key => `switch.${key}`), // include `switch` data
-            ...['connection_type', 'port', 'realm', 'role', 'ssid', 'switch_mac', 'vlan'].map(key => `locationlog.${key}`) // include `locationlog` data
-          ]))],
-          sort: [`${this.options.sort} ${this.options.order}`],
-          query
-        }
-        const start = performance.now()
-        api.networkGraph(request).then(response => {
-          let { network_graph: { nodes = [], links = [] } = {} } = response
-          if (nodes.length === 1 && nodes.filter(n => n.type !== 'packetfence').length === 0) { // ignore single `packetfence` node
-            this.nodes = []
-          } else {
-            this.nodes = nodes
-          }
-          this.links = links
-          if (!this.advancedMode) {
-            this.advancedCondition = this.buildCondition(this.quickCondition)
-          }
-          this.$nextTick(() => {
-            this.liveModeAllowed = true
-          })
-        }).catch(() => {
-          this.nodes = []
-          this.links = []
-          this.liveMode = false
-          this.liveModeAllowed = false
-        }).then(() => { // finally
-          if (!liveMode) this.isLoading = false
-          this.liveModeIntervalMs = Math.max(this.liveModeIntervalMs, performance.now() - start) // adjust polling interval
-        })
+      if (!liveMode) this.isLoading = true
+      const request = {
+        cursor: 0,
+        limit,
+        fields: [...(new Set([ // unique set
+          ...['mac', 'last_seen'].map(key => `node.${key}`), // include `node.mac` and `node.last_seen`
+          ...[this.options.sort].map(key => (key.includes('.')) ? key : `node.${key}`), // include `options`.`sort`
+          ...Object.keys(palettes).map(key => `node.${key}`), // include node fields for palettes
+          ...['description', 'type'].map(key => `switch.${key}`), // include `switch` data
+          ...['connection_type', 'port', 'realm', 'role', 'ssid', 'switch_mac', 'vlan'].map(key => `locationlog.${key}`) // include `locationlog` data
+        ]))],
+        sort: [`${this.options.sort} ${this.options.order}`],
+        query
       }
+      const start = performance.now()
+      api.networkGraph(request).then(response => {
+        let { network_graph: { nodes = [], links = [] } = {} } = response
+        if (nodes.length === 1 && nodes.filter(n => n.type !== 'packetfence').length === 0) { // ignore single `packetfence` node
+          this.nodes = []
+        } else {
+          this.nodes = nodes
+        }
+        this.links = links
+        if (!this.advancedMode) {
+          this.advancedCondition = this.buildCondition(this.quickCondition)
+        }
+        this.$nextTick(() => {
+          this.liveModeAllowed = true
+        })
+      }).catch(() => {
+        this.nodes = []
+        this.links = []
+        this.liveMode = false
+        this.liveModeAllowed = false
+      }).then(() => { // finally
+        if (!liveMode) this.isLoading = false
+        this.liveModeIntervalMs = Math.max(this.liveModeIntervalMs, performance.now() - start) // adjust polling interval
+      })
+
     },
     onReset () {
       this.advancedCondition = this.defaultCondition
@@ -639,6 +643,12 @@ export default {
     }
   },
   watch: {
+    advancedCondition: {
+      handler: function (a, b) {
+        this.setDimensions()
+      },
+      deep: true
+    },
     advancedMode: {
       handler: function (a, b) {
         this.setDimensions()
@@ -670,10 +680,11 @@ export default {
             this.advancedMode = false
           } else {
             // query is custom
+            this.quickCondition = null
             this.advancedMode = true
           }
-          this.onSubmit()
         }
+        this.onSubmit()
       },
       deep: true,
       immediate: true
@@ -702,10 +713,11 @@ export default {
     }
   },
   mounted () {
-    this.setDimensions()
     if (!this.query) {
       this.advancedCondition = this.defaultCondition
+      this.onSubmit()
     }
+    this.setDimensions()
   },
   beforeDestroy () {
     if (this.liveModeInterval) {

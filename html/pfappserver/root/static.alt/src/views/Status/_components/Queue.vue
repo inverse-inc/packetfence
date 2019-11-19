@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card no-body class="mt-3">
+    <b-card no-body>
       <b-card-header>
         <h4 class="d-inline" v-t="'Queue'"></h4>
       </b-card-header>

@@ -221,10 +221,12 @@
     <div class="emptyContainer" v-show="!isLoading && localNodes.length === 0 && localLinks.length === 0">
       <b-row class="justify-content-md-center text-secondary">
         <b-col cols="12" md="auto">
-          <b-media>
+          <b-media no-body>
             <icon name="search" scale="2" v-slot:aside></icon>
-            <h4 v-t="'No Network Data'"></h4>
-            <p class="font-weight-light" v-t="'Please refine your search.'"></p>
+            <div class="mx-2">
+              <h4 v-t="'No Network Data'"></h4>
+              <p class="font-weight-light" v-t="'Please refine your search.'"></p>
+            </div>
           </b-media>
         </b-col>
       </b-row>
@@ -234,10 +236,12 @@
     <div class="loadingContainer" v-show="isLoading">
       <b-row class="justify-content-md-center text-secondary">
         <b-col cols="12" md="auto">
-          <b-media>
+          <b-media no-body>
             <icon name="circle-notch" scale="2" v-slot:aside spin></icon>
-            <h4 v-t="'Loading Network Data'"></h4>
-            <p class="font-weight-light" v-t="'Please wait...'"></p>
+            <div class="mx-2">
+              <h4 v-t="'Loading Network Data'"></h4>
+              <p class="font-weight-light" v-t="'Please wait...'"></p>
+            </div>
           </b-media>
         </b-col>
       </b-row>
@@ -436,7 +440,7 @@ export default {
       return `${minX} ${minY} ${width} ${height}`
     },
     showMiniMap () {
-      return (~~this.config.miniMapHeight > 0 || ~~this.config.miniMapWidth > 0) && ~~this.config.maxZoom > ~~this.config.minZoom
+      return (~~this.config.miniMapHeight > 0 || ~~this.config.miniMapWidth > 0) && ~~this.config.maxZoom > ~~this.config.minZoom && this.zoom > 0
     },
     innerMiniMapProps () {
       const {

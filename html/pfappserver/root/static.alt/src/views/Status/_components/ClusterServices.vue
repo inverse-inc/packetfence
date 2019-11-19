@@ -1,5 +1,5 @@
 <template>
-    <b-card no-body class="mt-3">
+    <b-card no-body>
       <b-card-header>
         <h4 class="mb-0" v-t="'Cluster Services'"></h4>
       </b-card-header>

@@ -4,7 +4,7 @@
       <h5 class="mb-0 text-nowrap">{{ $t('Switch') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
     </b-card-header>
-    <div class="card-body" v-if="isLoading || !isError">
+    <div class="card-body" v-if="isLoading || (!isError && Object.keys(switche).length > 0)">
       <b-container class="my-3 px-0" v-if="isLoading">
         <b-row class="justify-content-md-center text-secondary">
           <b-col cols="12" md="auto" class="w-100 text-center">
