@@ -589,11 +589,11 @@ chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 
 # Handle 9.2 migration from several RPM to one package
-# At this stage, packetfence-config unit has been reinstalled but not taken into account
-# restart of service is necessary to avoid a long wait and failures of
-# next commands
-if [ $(/bin/systemctl show -p NeedDaemonReload packetfence-config | awk -F '=' '{print $2}') == "yes" ]; then
-    echo "Systemd need a reload to take packetfence-config into account"
+# At this stage, packetfence-config unit file is "not-found" by systemd
+# daemon-reload is necessary to take new unit file into account
+# Restart of service is necessary to avoid long wait and failures of next commands
+if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print $2}')" == "not-found" ]; then
+    echo "Systemd need a reload to take new packetfence-config unit file into account"
     /bin/systemctl daemon-reload
     echo "Starting packetfence-config service early to avoid timeout caused by service"
     /bin/systemctl start packetfence-config
