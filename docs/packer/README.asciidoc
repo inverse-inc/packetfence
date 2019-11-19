@@ -7,7 +7,7 @@ To build PacketFence, we use link:http://packer.io[Packer] to create link:https:
 PacketFence rely on link:https://hub.docker.com/u/buildpkg[buildpkg Docker
 images] to run GitLab pipeline with
 link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools[gitlab-buildpkg-tools]. Packer
-template ([filename]`buildpkg.json`) use these images as base to build
+template ([filename]`pfbuild.json`) use these images as base to build
 inverseinc Docker images.
 
 ==== Custom build dependencies
