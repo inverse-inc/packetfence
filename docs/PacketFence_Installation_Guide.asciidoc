@@ -255,8 +255,7 @@ server, DHCP server, RADIUS server) using:
 
 [source,bash]
 ----
-sudo apt-key adv --keyserver keys.gnupg.net \
---recv-key 0xFE9E84327B18FF82B0378B6719CDA6A9810273C4
+wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install packetfence
 ----
