@@ -59,21 +59,23 @@ You can take a backup of the pf directory with the following command:
 
 A PacketFence upgrade consists of following steps:
 
-. preliminary steps to run before packages upgrades
-. packages upgrades
-. configuration migrations
-. database schema upgrade
+. stop all PacketFence services (see <<stop-services>> section)
+. preliminary steps to run before packages upgrades (see sections for your upgrade path)
+. packages upgrades (see <<packages-upgrades>> section)
+. configuration migrations (see sections for your upgrade path)
+. database schema upgrade (see sections for your upgrade path)
+. restart all PacketFence services (see <<restart-services>> section)
 
 IMPORTANT: Before starting packages upgrades, make sure to go through (read) the upgrade
 instructions specific to the upgrade path taken since some preliminary steps may be
 required to be done *BEFORE* the packages upgrades.
 
-=== For a clustered environment
+==== Clustered environment: specific procedure
 
 Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluster] section.
 
-[#standalone]
-=== For a standalone server
+[#stop-services]
+=== Stop all PacketFence services
 
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
 To do so, run the following commands:
@@ -84,8 +86,14 @@ To do so, run the following commands:
 systemctl stop packetfence-config
 ----
 
+[#pkg-upgrades]
+=== Packages upgrades
 
-[#standalone-rpm]
+IMPORTANT: Again, before starting packages upgrades, make sure to go through (read) the upgrade
+instructions specific to the upgrade path taken since some preliminary steps may be
+required to be done *BEFORE* the packages upgrades.
+
+[#pkg-upgrades-rpm]
 RHEL / CentOS based systems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -146,7 +154,8 @@ Debian based systems
 
 Debian installation system should have interactively asked for existing modified files.
 
-=== Restart of services
+[#restart-services]
+=== Restart all PacketFence services
 
 Once the additionnal steps below are completed, restart `packetfence-config` and `packetfence`:
 
@@ -2023,7 +2032,7 @@ NOTE: This step need to be done *before* packages upgrade.
 Starting from now, PacketFence will be released as an unique RPM package for
 `x86_64` architectures. To remove properly older RPM packages, you need to follow these steps:
 
-. Follow instructions as mentioned in <<standalone,standalone server upgrade procedure section>> and stop before upgrading PacketFence packages using [command]`yum`
+. Follow instructions mentioned in <<stop-services>> section and stop before starting packages upgrades
 . Uninstall old RPM without running post-uninstallation steps:
 +
 [source,bash]
@@ -2043,7 +2052,7 @@ mv -f /usr/local/pf/conf/pfconfig.conf.rpmsave /usr/local/pf/conf/pfconfig.conf
 ----
 +
 
-. Upgrade PacketFence packages by following [command]`yum` instructions in <<standalone-rpm>> section
+. Upgrade PacketFence packages by following instructions in <<pkg-upgrades-rpm,Packages upgrades>> section
 . Continue upgrade procedure
 
 At the end of upgrade procedure, you should have only one RPM package called
@@ -2075,6 +2084,9 @@ An SQL upgrade script has been provided to upgrade the database from the X.X sch
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+[source,bash]
+----
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+----
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence X.Y.Z).
