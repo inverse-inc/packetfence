@@ -153,7 +153,7 @@
                   :ref="staticMap.key"
                   :disabled="isDisabled"
                   :multiple="isComponentType([componentType.SELECTMANY], staticMap)"
-                  :options="fieldTypeValues[staticMap.key](this)"
+                  :options="getStaticMappingOptions(staticMap)"
                   :vuelidate="getStaticMappingVuelidateValue(index)"
                   @input="staticMap.value = $event"
                   collapse-object
@@ -473,7 +473,6 @@ export default {
       bytes, // @/utils/bytes
       encoding, // @/utils/encoding
       componentType, // @/globals/pfField
-      fieldTypeValues, // @/globals/pfField
       context: this,
       config: {
         // Papa parse config
@@ -698,6 +697,21 @@ export default {
         }
       }
       return false
+    },
+    getStaticMappingOptions ({ key }) {
+      let options = []
+      if (key) {
+        const index = this.fields.findIndex(field => field.value === key)
+        if (index >= 0) {
+          const field = this.fields[index]
+          for (const type of this.fields[index].types) {
+            if (type in fieldTypeValues) {
+             options.push(...fieldTypeValues[type](this))
+            }
+          }
+        }
+      }
+      return options
     },
     getStaticMappingVuelidateValue (index) {
       const { $v: { staticMapping: { [index]: { value = { $invalid: false } } = {} } = {} } = {} } = this
