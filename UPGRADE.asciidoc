@@ -55,8 +55,18 @@ You can take a backup of the pf directory with the following command:
 
 == Upgrade procedure
 
+=== Steps
 
-NOTE: These are general upgrade instructions. Make sure to go through (read) the upgrade instructions specific to the upgrade path taken since some steps may be required to be done *BEFORE* the packages upgrades.
+A PacketFence upgrade consists of following steps:
+
+. preliminary steps to run before packages upgrades
+. packages upgrades
+. configuration migrations
+. database schema upgrade
+
+IMPORTANT: Before starting packages upgrades, make sure to go through (read) the upgrade
+instructions specific to the upgrade path taken since some preliminary steps may be
+required to be done *BEFORE* the packages upgrades.
 
 === For a clustered environment
 
