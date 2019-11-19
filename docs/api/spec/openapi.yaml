@@ -1419,6 +1419,10 @@ components:
           description: When enabled, PacketFence will not use the role initialy computed
             on the portal but will use the dot1x username to recompute the role.
           type: string
+        mac_auth_recompute_role_from_portal:
+          description: When enabled, PacketFence will not use the role initialy computed
+            on the portal but will use an authorized source if defined to recompute the role.
+          type: string
         dot1x_unset_on_unmatch:
           description: When enabled, PacketFence will unset the role of the device
             if no authentication sources returned one.

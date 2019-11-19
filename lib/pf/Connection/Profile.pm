@@ -506,6 +506,17 @@ sub dot1xRecomputeRoleFromPortal {
     return $self->{'_dot1x_recompute_role_from_portal'};
 }
 
+=item macAuthRecomputeRoleFromPortal
+
+Reuse the mac address on a authorize source when authenticating
+
+=cut
+
+sub macAuthRecomputeRoleFromPortal {
+    my ($self) = @_;
+    return $self->{'_mac_auth_recompute_role_from_portal'};
+}
+
 =item dot1xUnsetOnUnmatch
 
 On autoreg if no authentication source return a role then unset the current node one
