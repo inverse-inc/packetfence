@@ -160,7 +160,7 @@ sub handleResults {
     my $result = eval {decode_json($response_body) };
     if ($@) {
         get_logger->error("$@");
-        return ($FALSE, "Invalid request");
+        return ($FALSE, "Invalid response");
     }
     if ($result->{result}) {
         get_logger->info( "Authentication valid with $username in custom source");

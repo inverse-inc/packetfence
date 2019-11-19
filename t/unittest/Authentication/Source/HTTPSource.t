@@ -29,7 +29,7 @@ use pf::Authentication::Source::HTTPSource;
 use Test::NoWarnings;
 my $source = pf::Authentication::Source::HTTPSource->new({id => 'test'});
 
-is_deeply([$source->handleResults('"{}"', "source")], [0, "Invalid request"]);
+is_deeply([$source->handleResults('"{}"', "source")], [0, "Invalid response"]);
 is_deeply([$source->handleResults("{}", "source")], [0, "Authentication failed"]);
 is_deeply([$source->handleResults('{"result":1, "message": "Success"}', "source")], [1, "Success"]);
 
