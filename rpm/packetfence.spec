@@ -14,7 +14,7 @@
 #==============================================================================
 Name:       packetfence
 Version:    9.1.9
-Release:    2%{?dist}
+Release:    3%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Daemons
@@ -1249,6 +1249,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Tue Nov 19 2019 Inverse <info@inverse.ca> - 9.1.9-3
+- Start packetfence-config early to avoid issues during 9.2 upgrade
+
 * Fri Oct 11 2019 Inverse <info@inverse.ca> - 9.1.9-2
 - Obsoletes old packetfence packages
 - Simplify FreeRADIUS dependencies
