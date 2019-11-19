@@ -38,7 +38,10 @@ include::{extra_path}includes/license.asciidoc[]
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
 
-  mysqldump --opt --routines -u root -p pf | gzip > /root/packetfence_db.sql.gz
+[source,bash]
+----
+mysqldump --opt --routines -u root -p pf | gzip > /root/packetfence_db.sql.gz
+----
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
@@ -51,7 +54,10 @@ To do so, stop MySQL and then copy all files under /var/lib/mysql to a secure di
 Taking a complete backup of your current installation is strongly recommended.
 You can take a backup of the pf directory with the following command:
 
-  tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
+[source,bash]
+----
+tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
+----
 
 == Upgrade procedure
 
