@@ -62,6 +62,7 @@ NOTE: These are general upgrade instructions. Make sure to go through (read) the
 
 Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluster] section.
 
+[#standalone]
 === For a standalone server
 
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
@@ -74,6 +75,7 @@ systemctl stop packetfence-config
 ----
 
 
+[#standalone-rpm]
 RHEL / CentOS based systems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -87,7 +89,7 @@ Due to disconnection issues with the systemd-logind service while yum is perform
 
 Run the following command to update PacketFence:
 
-  yum update packetfence --enablerepo=packetfence
+  yum update packetfence packetfence-release --enablerepo=packetfence
   
 Since PacketFence heavily relies on Fingerbank, it is recommended to make sure you are running the latest version:
 
@@ -2004,22 +2006,14 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 == Upgrading from a version prior to X.Y.Z
 
 
-=== Merge of all RPM packages into one
+=== Merge of all RPM packages into one (RHEL / CentOS only)
 
 NOTE: This step need to be done *before* packages upgrade.
 
 Starting from now, PacketFence will be released as an unique RPM package for
-x86_64 architectures. To remove properly older RPM packages, you need to follow these steps:
+`x86_64` architectures. To remove properly older RPM packages, you need to follow these steps:
 
-. Stop services:
-+
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd service pf stop
-systemctl stop packetfence-config
-----
-+
-
+. Follow instructions as mentioned in <<standalone,standalone server upgrade procedure section>> and stop before upgrading PacketFence packages using [command]`yum`
 . Uninstall old RPM without running post-uninstallation steps:
 +
 [source,bash]
@@ -2031,33 +2025,23 @@ rpm -e --nodeps --noscripts packetfence-remote-arp-sensor
 ----
 +
 
-. Update [package]`packetfence-release` and [package]`packetfence` packages:
+. Recopy previous [filename]`pfconfig.conf` filename to its original location:
 +
 [source,bash]
 ----
-yum update packetfence-release --enablerepo=packetfence
-yum update packetfence --enablerepo=packetfence
 mv -f /usr/local/pf/conf/pfconfig.conf.rpmsave /usr/local/pf/conf/pfconfig.conf
 ----
 +
 
-. Restart services:
-+
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd fixpermissions
-/usr/local/pf/bin/pfcmd pfconfig clear_backend
-systemctl restart packetfence-config
-/usr/local/pf/bin/pfcmd configreload hard
-/usr/local/pf/bin/pfcmd service pf restart
-----
+. Upgrade PacketFence packages by following [command]`yum` instructions in <<standalone-rpm>> section
+. Continue upgrade procedure
 
-At the end of the process, you should have only one RPM package called
+At the end of upgrade procedure, you should have only one RPM package called
 [package]`packetfence`. If you previously installed
 [package]`packetfence-release` package in order to have PacketFence repository
 installed, this one has been upgraded to latest version.
 
-=== New GPG key for Debian installations
+=== New GPG key for Debian installations (Debian only)
 
 NOTE: This step need to be done *before* packages upgrade.
 
