@@ -9,7 +9,7 @@ ifdef::env-github[]
 :imagesdir: images
 :extra_path: docs/
 endif::[]
-
+:extra_path:
 ////
 
     This file is part of the PacketFence project.
@@ -22,11 +22,11 @@ include::{extra_path}includes/global-attributes.asciidoc[]
 
 This guide covers procedures to upgrade PacketFence servers.
 
-include::includes/additional-info.asciidoc[]
+include::{extra_path}includes/additional-info.asciidoc[]
 
-include::includes/commercial-support.asciidoc[]
+include::{extra_path}includes/commercial-support.asciidoc[]
 
-include::includes/license.asciidoc[]
+include::{extra_path}includes/license.asciidoc[]
 
 
 == General Upgrade Tips
