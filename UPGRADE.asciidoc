@@ -136,9 +136,9 @@ Debian based systems
 
 Debian installation system should have interactively asked for existing modified files.
 
-'''
+=== Restart of services
 
-Once the additionnal steps below are completed, restart packetfence-config and packetfence
+Once the additionnal steps below are completed, restart `packetfence-config` and `packetfence`:
 
 [source,bash]
 ----
@@ -2050,6 +2050,12 @@ In order to install new versions of Debian packages, you will need to add a new 
 [source,bash]
 ----
 curl -L https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+----
+
+You can safely remove the oldest one:
+[source,bash]
+----
+sudo apt-key del FE9E84327B18FF82B0378B6719CDA6A9810273C4
 ----
 
 === Database schema
