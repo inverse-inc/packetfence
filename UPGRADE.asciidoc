@@ -2049,7 +2049,7 @@ In order to install new versions of Debian packages, you will need to add a new 
 
 [source,bash]
 ----
-curl -L https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 ----
 
 You can safely remove the oldest one:
