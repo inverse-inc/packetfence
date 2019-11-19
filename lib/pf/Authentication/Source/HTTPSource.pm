@@ -147,22 +147,29 @@ sub authenticate {
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
     if ($curl_return_code == 0 && $response_code == 200) {
-        my $result = decode_json($response_body);
-        if($result->{result}){
-            get_logger->info("Authentication valid with $username in custom source");
-        }
-        else {
-            get_logger->info("Authentication invalid with $username in custom source. Error is : ".$result->{message});
-        }
-        return ($result->{result}, $result->{message});
-    }
-    else {
+        return $self->handleResults($response_body, $username);
+    } else {
         my $curl_error = $curl->errbuf;
         get_logger->error("Could get proper reply for authentication request to ".$self->host.". Server replied with $response_body. Curl error : $curl_error");
         return ($FALSE, 'Unable to contact authentication server.');
     }
+}
 
+sub handleResults {
+    my ($self, $response_body, $username) = @_;
+    my $result = eval {decode_json($response_body) };
+    if ($@) {
+        get_logger->error("$@");
+        return ($FALSE, "Invalid request");
+    }
+    if ($result->{result}) {
+        get_logger->info( "Authentication valid with $username in custom source");
+    } else {
+        $result->{message} //= "Authentication failed";
+        get_logger->info( "Authentication invalid with $username in custom source. Error is : " . $result->{message} );
+    }
 
+    return ( $result->{result} // $FALSE, $result->{message} ); 
 }
 
 =head2 match
