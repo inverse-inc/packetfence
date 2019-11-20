@@ -14,7 +14,7 @@
 #==============================================================================
 Name:       packetfence
 Version:    9.1.9
-Release:    3%{?dist}
+Release:    1%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Daemons
