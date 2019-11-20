@@ -136,12 +136,11 @@ yum update fingerbank --enablerepo=packetfence
 ----
 
 PacketFence and Fingerbank should now be upgraded. However, there may be extra
-steps required depending on the version you are upgrading from. Please review
-the following notes about upgrading from an older release.
+steps required depending on the version you are upgrading from.
 
 ==== Debian based systems
 
-Run the following command to update PacketFence:
+Run the following commands to update PacketFence:
 
 [source,bash]
 ----
@@ -156,16 +155,16 @@ Since PacketFence heavily relies on Fingerbank, it is recommended to make sure y
 apt install fingerbank
 ----
 
-PacketFence and Fingerbank should now be upgraded. However, there may be extra steps required depending on the version you are upgrading from. Please review the following notes about upgrading from an older release.
-
-'''
-
-You should take care to review any changes to configuration files and merge them if required. 
-To find out which configuration files have changed run this command:
+PacketFence and Fingerbank should now be upgraded. However, there may be extra
+steps required depending on the version you are upgrading from.
 
 ==== New versions of configuration files
 
+You should take care to review any changes to configuration files and merge them if required. 
+
 ===== RHEL / CentOS based systems
+
+To find out which configuration files have changed run following command:
 
 [source,bash]
 ----
