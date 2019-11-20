@@ -292,6 +292,27 @@ export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM
   })
 }
 
+export const isValidUnregDateByAclUser = (dateFormat = 'YYYY-MM-DD', allowZero = true) => {
+  return (0, _common.withParams)({
+    type: 'isValidUnregDateByAclUser',
+    dateFormat: dateFormat,
+    allowZero: allowZero
+  }, function (value) {
+    // ignore empty or zero'd (0000-00-00...)
+    if (!value || (value === dateFormat.replace(/[a-z]/gi, '0') && allowZero)) return true
+    value = parse(format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat))
+    return store.dispatch('session/getAllowedUserUnregDate').then((response) => {
+      const { 0: unregDate } = response
+      if (unregDate) {
+        return compareAsc(parse(unregDate), value) >= 0
+      }
+      return true
+    }).catch(() => {
+      return true
+    })
+  })
+}
+
 export const isFilenameWithExtension = (extensions = ['html']) => {
   return (0, _common.withParams)({
     type: 'isFilenameWithExtension',

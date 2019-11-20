@@ -1,14 +1,14 @@
-
 /**
  * "session" store module
  */
 import Acl from 'vue-browser-acl'
 import Vue from 'vue'
-import i18n from '@/utils/locale'
 import qs from 'qs'
 import router from '@/router'
-import apiCall, { pfappserverCall } from '@/utils/api'
 import { types } from '@/store'
+import apiCall, { pfappserverCall } from '@/utils/api'
+import i18n from '@/utils/locale'
+import duration from '@/utils/duration'
 
 const STORAGE_TOKEN_KEY = 'user-token'
 
@@ -53,6 +53,24 @@ const api = {
   },
   getLanguage: (locale) => {
     return apiCall.get(`translation/${locale}`)
+  },
+  getAllowedNodeRoles: () => {
+    return apiCall.get(`current_user/allowed_node_roles`)
+  },
+  getAllowedUserAccessDurations: () => {
+    return apiCall.get(`current_user/allowed_user_access_durations`)
+  },
+  getAllowedUserAccessLevels: () => {
+    return apiCall.get(`current_user/allowed_user_access_levels`)
+  },
+  getAllowedUserActions: () => {
+    return apiCall.get(`current_user/allowed_user_actions`)
+  },
+  getAllowedUserRoles: () => {
+    return apiCall.get(`current_user/allowed_user_roles`)
+  },
+  getAllowedUserUnregDate: () => {
+    return apiCall.get(`current_user/allowed_user_unreg_date`)
   }
 }
 
@@ -71,7 +89,25 @@ const state = {
   languages: [],
   api: true,
   charts: true,
-  formErrors: {}
+  formErrors: {},
+  isLoadingAllowedNodeRoles: false,
+  isLoadingAllowedUserAccessDurations: false,
+  isLoadingAllowedUserAccessLevels: false,
+  isLoadingAllowedUserActions: false,
+  isLoadingAllowedUserRoles: false,
+  isLoadingAllowedUserUnregDate: false,
+  allowedNodeRoles: false,
+  allowedNodeRolesStatus: '',
+  allowedUserAccessDurations: false,
+  allowedUserAccessDurationsStatus: '',
+  allowedUserAccessLevels: false,
+  allowedUserAccessLevelsStatus: '',
+  allowedUserActions: false,
+  allowedUserActionsStatus: '',
+  allowedUserRoles: false,
+  allowedUserRolesStatus: '',
+  allowedUserUnregDate: false,
+  allowedUserUnregDateStatus: ''
 }
 
 const setupAcl = (acl) => {
@@ -110,7 +146,33 @@ const getters = {
       return (state.expires_at - now)
     }
     return false
-  }
+  },
+  isLoadingAllowedNodeRoles: state => state.isLoadingAllowedNodeRolesStatus === types.LOADING,
+  isLoadingAllowedUserAccessDurations: state => state.isLoadingAllowedUserAccessDurationsStatus === types.LOADING,
+  isLoadingAllowedUserAccessLevels: state => state.isLoadingAllowedUserAccessDurationsStatus === types.LOADING,
+  isLoadingAllowedUserActions: state => state.isLoadingAllowedUserActionsStatus === types.LOADING,
+  isLoadingAllowedUserRoles: state => state.isLoadingAllowedUserRolesStatus === types.LOADING,
+  isLoadingAllowedUserUnregDate: state => state.isLoadingAllowedUserUnregDateStatus === types.LOADING,
+  allowedNodeRoles: state => state.allowedNodeRoles || [],
+  allowedNodeRolesList: state => (state.allowedNodeRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
+  allowedUserAccessDurations: state => state.allowedUserAccessDurations || [],
+  allowedUserAccessDurationsList: state => (state.allowedUserAccessDurations || []).map(_accessDuration => {
+    const { access_duration: accessDuration } = _accessDuration
+    return duration.deserialize(accessDuration) // deserialize
+  }).filter(
+    accessDuration => accessDuration // strip invalid
+  ).sort((a, b) => {
+    return (a.sort > b.sort) ? 1 : -1
+  }),
+  allowedUserAccessLevels: state => state.allowedUserAccessLevels || [],
+  allowedUserAccessLevelsList: state => (state.allowedUserAccessLevels || []).map(_accessLevel => {
+    const { access_level: accessLevel } = _accessLevel
+    return { value: accessLevel, name: accessLevel }
+  }),
+  allowedUserActions: state => state.allowedUserActions || [],
+  allowedUserRoles: state => state.allowedUserRoles || [],
+  allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
+  allowedUserUnregDate: state => state.allowedUserUnregDate || []
 }
 
 const actions = {
@@ -144,6 +206,12 @@ const actions = {
     commit('EXPIRES_AT_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
+    commit('ALLOWED_NODE_ROLES_DELETED')
+    commit('ALLOWED_USER_ACCESS_DURATIONS_DELETED')
+    commit('ALLOWED_USER_ACCESS_LEVELS_DELETED')
+    commit('ALLOWED_USER_ACTIONS_DELETED')
+    commit('ALLOWED_USER_ROLES_DELETED')
+    commit('ALLOWED_USER_UNREG_DATE_DELETED')
   },
   resolveLogin: ({ state }) => {
     if (state.loginPromise === null) {
@@ -202,6 +270,66 @@ const actions = {
       return Promise.resolve(setI18nLanguage(params.lang))
     }
     return Promise.resolve(params.lang)
+  },
+  getAllowedNodeRoles: ({ state, getters, commit }) => {
+    if (state.allowedNodeRoles) {
+      return Promise.resolve(state.allowedNodeRoles)
+    }
+    commit('ALLOWED_NODE_ROLES_REQUEST')
+    return api.getAllowedNodeRoles().then(response => {
+      commit('ALLOWED_NODE_ROLES_UPDATED', response.data.items)
+      return state.allowedNodeRoles
+    })
+  },
+  getAllowedUserAccessDurations: ({ state, getters, commit }) => {
+    if (state.allowedUserAccessDurations) {
+      return Promise.resolve(state.allowedUserAccessDurations)
+    }
+    commit('ALLOWED_USER_ACCESS_DURATIONS_REQUEST')
+    return api.getAllowedUserAccessDurations().then(response => {
+      commit('ALLOWED_USER_ACCESS_DURATIONS_UPDATED', response.data.items)
+      return state.allowedUserAccessDurations
+    })
+  },
+  getAllowedUserAccessLevels: ({ state, getters, commit }) => {
+    if (state.allowedUserAccessLevels) {
+      return Promise.resolve(state.allowedUserAccessLevels)
+    }
+    commit('ALLOWED_USER_ACCESS_LEVELS_REQUEST')
+    return api.getAllowedUserAccessLevels().then(response => {
+      commit('ALLOWED_USER_ACCESS_LEVELS_UPDATED', response.data.items)
+      return state.allowedUserAccessLevels
+    })
+  },
+  getAllowedUserActions: ({ state, getters, commit }) => {
+    if (state.allowedUserActions) {
+      return Promise.resolve(state.allowedUserActions)
+    }
+    commit('ALLOWED_USER_ACTIONS_REQUEST')
+    return api.getAllowedUserActions().then(response => {
+      commit('ALLOWED_USER_ACTIONS_UPDATED', response.data.items)
+      return state.allowedUserActions
+    })
+  },
+  getAllowedUserRoles: ({ state, getters, commit }) => {
+    if (state.allowedUserRoles) {
+      return Promise.resolve(state.allowedUserRoles)
+    }
+    commit('ALLOWED_USER_ROLES_REQUEST')
+    return api.getAllowedUserRoles().then(response => {
+      commit('ALLOWED_USER_ROLES_UPDATED', response.data.items)
+      return state.allowedUserRoles
+    })
+  },
+  getAllowedUserUnregDate: ({ state, getters, commit }) => {
+    if (state.allowedUserUnregDate) {
+      return Promise.resolve(state.allowedUserUnregDate)
+    }
+    commit('ALLOWED_USER_UNREG_DATE_REQUEST')
+    return api.getAllowedUserUnregDate().then(response => {
+      commit('ALLOWED_USER_UNREG_DATE_UPDATED', response.data.items)
+      return state.allowedUserUnregDate
+    })
   }
 }
 
@@ -268,6 +396,66 @@ const mutations = {
   },
   FORM_ERROR: (state, data) => {
     state.formErrors = data
+  },
+  ALLOWED_NODE_ROLES_REQUEST: (state) => {
+    state.allowedNodeRolesStatus = types.LOADING
+  },
+  ALLOWED_NODE_ROLES_UPDATED: (state, data) => {
+    state.allowedNodeRolesStatus = types.SUCCESS
+    state.allowedNodeRoles = data
+  },
+  ALLOWED_NODE_ROLES_DELETED: (state) => {
+    state.allowedNodeRoles = false
+  },
+  ALLOWED_USER_ACCESS_DURATIONS_REQUEST: (state) => {
+    state.allowedUserAccessDurationsStatus = types.LOADING
+  },
+  ALLOWED_USER_ACCESS_DURATIONS_UPDATED: (state, data) => {
+    state.allowedUserAccessDurationsStatus = types.SUCCESS
+    state.allowedUserAccessDurations = data
+  },
+  ALLOWED_USER_ACCESS_DURATIONS_DELETED: (state) => {
+    state.allowedUserAccessDurations = false
+  },
+  ALLOWED_USER_ACCESS_LEVELS_REQUEST: (state) => {
+    state.allowedUserAccessLevelsStatus = types.LOADING
+  },
+  ALLOWED_USER_ACCESS_LEVELS_UPDATED: (state, data) => {
+    state.allowedUserAccessLevelsStatus = types.SUCCESS
+    state.allowedUserAccessLevels = data
+  },
+  ALLOWED_USER_ACCESS_LEVELS_DELETED: (state) => {
+    state.allowedUserAccessLevels = false
+  },
+  ALLOWED_USER_ACTIONS_REQUEST: (state) => {
+    state.allowedUserActionsStatus = types.LOADING
+  },
+  ALLOWED_USER_ACTIONS_UPDATED: (state, data) => {
+    state.allowedUserActionsStatus = types.SUCCESS
+    state.allowedUserActions = data
+  },
+  ALLOWED_USER_ACTIONS_DELETED: (state, data) => {
+    state.allowedUserActions = false
+  },
+  ALLOWED_USER_ROLES_REQUEST: (state) => {
+    state.allowedUserRolesStatus = types.LOADING
+  },
+  ALLOWED_USER_ROLES_UPDATED: (state, data) => {
+    state.allowedUserRolesStatus = types.SUCCESS
+    state.allowedUserRoles = data
+  },
+  ALLOWED_USER_ROLES_DELETED: (state, data) => {
+    state.allowedUserRoles = false
+  },
+  ALLOWED_USER_UNREG_DATE_REQUEST: (state) => {
+    state.allowedUserUnregDateStatus = types.LOADING
+  },
+  ALLOWED_USER_UNREG_DATE_UPDATED: (state, data) => {
+    state.allowedUserUnregDateStatus = types.SUCCESS
+    state.allowedUserUnregDate = data
+  },
+  ALLOWED_USER_UNREG_DATE_DELETED: (state, data) => {
+    state.allowedUserUnregDate = false
   }
 }
 

@@ -133,7 +133,7 @@ export default {
       return conditionValues[conditionType.NODE_STATUS]
     },
     roles () {
-      return this.$store.getters['config/rolesList']
+      return this.$store.getters['session/allowedNodeRolesList']
     },
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
@@ -174,7 +174,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('config/getRoles')
+    this.$store.dispatch('session/getAllowedNodeRoles')
   }
 }
 </script>

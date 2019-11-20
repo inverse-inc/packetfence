@@ -15,7 +15,9 @@ pf::UnifiedApi::Controller::Users::Password
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
+use pf::nodecategory qw(nodecategory_view);
 use pf::dal::password;
+use pf::admin_roles;
 has dal => 'pf::dal::password';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
@@ -61,6 +63,55 @@ sub _handle_password_data {
     }
     return $data;
 }
+
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self, $json) = @_;
+    my $roles = $self->stash->{admin_roles};
+    my @errors;
+    if (exists $json->{category} && defined $json->{category}) {
+        my $nc = nodecategory_view($json->{category});
+        if ($nc) {
+            my $name = $nc->{name};
+            if (!check_allowed_options($roles, 'allowed_roles', $name)) {
+                push @errors, { field => 'category', message => "$name is not allowed" };
+            }
+        }
+    }
+
+    if (exists $json->{access_level} && defined $json->{access_level}) {
+        my $access_level = $json->{access_level};
+        if (!check_allowed_options($roles, 'allowed_access_levels', split(/\s*,\s*/, $access_level))) {
+             push @errors, { field => 'access_level', message => "$access_level is not allowed" };
+        }
+    }
+
+    if (exists $json->{access_duration} && defined $json->{access_duration}) {
+        my $access_duration = $json->{access_duration};
+        if (!check_allowed_options($roles, 'allowed_access_durations', $access_duration)) {
+             push @errors, { field => 'access_duration', message => "$access_duration is not allowed" };
+        }
+    }
+
+    if (exists $json->{unregdate} && defined $json->{unregdate}) {
+        my $unreg_date = $json->{unregdate};
+        if (!check_allowed_unreg_date($roles, $unreg_date)) {
+            push @errors, { field => 'unregdate', message => "$unreg_date is not allowed" };
+        }
+    }
+
+    if (@errors) {
+        return 422, {message => "Invalid input", errors => \@errors};
+    }
+
+    return 200, undef;
+}
+
 
 =head1 AUTHOR
 

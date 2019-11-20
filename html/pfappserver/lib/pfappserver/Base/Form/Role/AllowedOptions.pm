@@ -16,6 +16,7 @@ use namespace::autoclean;
 use HTML::FormHandler::Moose::Role;
 
 use pf::admin_roles;
+use pf::Authentication::constants;
 
 has user_roles => (is => 'rw', default => sub { [] });
 
@@ -28,6 +29,38 @@ Get the allowed options based of the
 sub _get_allowed_options {
     my ($self, $option) = @_;
     return admin_allowed_options($self->user_roles, $option);
+}
+
+=head2 allowed_access_levels
+
+The list of allowed access levels
+
+=cut
+
+sub allowed_access_levels {
+    my ($self) = @_;
+    my @options_values = $self->_get_allowed_options('allowed_access_levels');
+    unless( @options_values ) {
+        @options_values = keys %ADMIN_ROLES;
+    }
+
+    return @options_values;
+}
+
+=head2 allowed_actions
+
+The list of allowed actions
+
+=cut
+
+sub allowed_actions {
+    my ($self) = @_;
+    my @actions = $self->_get_allowed_options('allowed_actions');
+    unless( @actions ) {
+        @actions = map {@$_} values %Actions::ACTIONS;
+    }
+
+    return @actions;
 }
 
 around ACCEPT_CONTEXT => sub {

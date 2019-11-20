@@ -149,6 +149,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_fingerbank_routes($api_v1_route->any("/fingerbank")->to(controller => 'Fingerbank')->name("api.v1.Fingerbank"));
     $self->setup_api_v1_reports_routes($api_v1_route->any("/reports")->name("api.v1.Reports"));
     $self->setup_api_v1_dynamic_reports_routes($api_v1_route);
+    $self->setup_api_v1_current_user_routes($api_v1_route);
     $self->setup_api_v1_services_routes($api_v1_route);
     $self->setup_api_v1_cluster_routes($api_v1_route);
     $self->setup_api_v1_authentication_routes($api_v1_route);
@@ -306,6 +307,29 @@ sub setup_api_v1_config_misc_routes {
     $root->register_sub_action({ controller => 'Config', action => 'fix_permissions', method => 'POST' });
     $root->register_sub_action({ controller => 'Config', action => 'checkup', method => 'GET' });
     return ;
+}
+
+=head2 setup_api_v1_current_user_routes
+
+setup_api_v1_current_user_routes
+
+=cut
+
+sub setup_api_v1_current_user_routes {
+    my ($self, $root) = @_;
+    my $route = $root->any("/current_user")->to( controller => "CurrentUser" )->name("CurrentUser");
+    $route->register_sub_actions(
+        {
+            actions => [
+                qw(
+                  allowed_user_unreg_date allowed_user_roles allowed_node_roles
+                  allowed_user_access_levels allowed_user_actions allowed_user_access_durations
+                )
+            ],
+            method => 'GET'
+        }
+    );
+    return;
 }
 
 =head2 setup_api_v1_tenants_routes

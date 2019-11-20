@@ -175,7 +175,7 @@ export default {
         {
           value: 'category_id',
           text: this.$i18n.t('Role'),
-          types: [fieldType.ROLE],
+          types: [fieldType.ROLE_BY_ACL_NODE],
           required: false,
           formatter: formatter.categoryIdFromIntOrString,
           validators: buildValidationFromColumnSchemas({
@@ -216,7 +216,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('config/getRoles')
+    this.$store.dispatch('session/getAllowedNodeRoles')
   }
 }
 </script>

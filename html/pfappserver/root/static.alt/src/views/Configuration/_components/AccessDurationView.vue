@@ -28,10 +28,9 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationAccessDurationViewFields as fields,
-  pfConfigurationAccessDurationSerialize as serialize,
-  pfConfigurationAccessDurationDeserialize as deserialize
+  pfConfigurationAccessDurationViewFields as fields
 } from '@/globals/configuration/pfConfigurationAccessDuration'
+import duration from '@/utils/duration'
 
 const { validationMixin } = require('vuelidate')
 
@@ -83,8 +82,8 @@ export default {
         this.options = options
         this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(form => {
           if ('access_duration_choices' in form && form.access_duration_choices.constructor === String) {
-            // split and map access_duration_choices
-            form.access_duration_choices = deserialize(form.access_duration_choices)
+            // split and deserialize access_duration_choices
+            form.access_duration_choices = form.access_duration_choices.split(',').map((accessDuration) => duration.deserialize(accessDuration))
           }
           this.form = form
         })
@@ -92,7 +91,8 @@ export default {
     },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      form.access_duration_choices = serialize(form.access_duration_choices) // re-join access_duration_choices
+      // serialize and join access_duration_choices
+      form.access_duration_choices = form.access_duration_choices.map(accessDuration => duration.serialize(accessDuration)).join(',')
       this.$store.dispatch('$_bases/updateGuestsAdminRegistration', form)
     }
   },
