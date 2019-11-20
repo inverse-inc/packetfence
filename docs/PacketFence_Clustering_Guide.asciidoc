@@ -1,5 +1,4 @@
-Clustering Quick Installation Guide
-===================================
+= Clustering Quick Installation Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -1388,7 +1387,7 @@ Next, upgrade your operating system and PacketFence on node C:
 
 NOTE: If you reboot your server during this procedure, make sure you set the systemd target to multi-user (`systemctl set-default multi-user.target`) before rebooting and back to packetfence-cluster (`systemctl set-default packetfence-cluster.target`) after it boots up. This will make sure your services don't start up after the reboot.
 
-Now, make sure you follow the directives in the upgrade guide (`UPGRADE.asciidoc`) as you would on a standalone server with the exception of the database schema updates.
+Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asciidoc#,upgrade guide>> as you would on a standalone server with the exception of the database schema updates.
 
 Migrating service on node C
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1436,7 +1435,7 @@ Complete upgrade of node C
 ++++++++++++++++++++++++++
 
 From that moment node C is in standalone for its database. We can proceed to update the database schema so it matches the one of the latest version.
-In order to do so, upgrade the database schema using the instructions provided in `UPGRADE.asciidoc`.
+In order to do so, upgrade the database schema using the instructions provided in <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade guide>>.
 
 Stop service on nodes A and B
 +++++++++++++++++++++++++++++
