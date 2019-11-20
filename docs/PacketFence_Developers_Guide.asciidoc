@@ -1135,7 +1135,7 @@ repositories.
 
 ===== Day to day usage
 
-To keep your machine up-to-date, you can run following commands:
+To keep your machine up-to-date, you can run the following commands:
 
 [source,bash]
 ----
@@ -1158,26 +1158,6 @@ ansible-playbook site.yml --limit pfcen7night
 
 It's possible because we use a static Ansible inventory. This inventory is
 also used by Vagrant to start virtual machines.
-
-New Exception handling techniques under testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Little attention was given to error-handling in PacketFence's early design. This is understandable as it
-wasn't probably the most bang-for-the-buck thing to do. However we must now live with a large code base that
-explodes at runtime or that doesn't differentiate an erroneous condition from an undefined or 0 value.
-Refactoring to improve error-handling will be gradual but new code should follow these tips:
-
-. use `Try::Tiny`
-. wrap stuff in `try {...} catch {...};` (and optionally a `finally {...};`)
-. in the code use `die(...);` to throw an exception and make the error message meaningful
-. in the catch block, use `$logger->logcarp("explanation: $_")` if I want output to the CLI, otherwise, choose wisely
-
-This catches a lot of errors (including runtime crashers) and allows us to recover from these
-conditions.
-
-So far, it is mandatory to wrap the Web Services enabled network devices modules' code since
-`SOAP::Lite` will die on you if host is unreachable for example (actually it's `LWP::UserAgent`
-who will).
 
 
 Contributing
