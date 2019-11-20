@@ -201,12 +201,6 @@ const mutations = {
   },
   ITEM_SUCCESS: (state) => {
     state.itemStatus = types.SUCCESS
-  },
-  SAML_REQUEST: (state, type) => {
-
-  },
-  SAML_REPLACED: (state, xml) => {
-
   }
 }
 
