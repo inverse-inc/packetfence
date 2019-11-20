@@ -41,7 +41,7 @@ _Developer's Guide_ (pdf)::
   This is, at least, a partial file of PacketFence contributors.
 `NEWS.asciidoc`::
   Covers noteworthy features, improvements and bug fixes by release.
-`UPGRADE.asciidoc`::
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
 
