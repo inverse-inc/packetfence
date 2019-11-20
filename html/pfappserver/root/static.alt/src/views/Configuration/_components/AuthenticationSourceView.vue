@@ -33,7 +33,17 @@
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1 mr-3" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
+        <template v-if="samlMetaData">
+          <b-button class="mr-1" size="sm" variant="outline-secondary" @click="showSamlMetaDataModal = true">{{ $t('View Service Provider Metadata') }}</b-button>
+          <b-modal v-model="showSamlMetaDataModal" title="Service Provider Metadata" size="lg" centered cancel-disabled>
+            <b-form-textarea ref="samlMetaDataTextarea" v-model="samlMetaData" :rows="27" :max-rows="27" readonly></b-form-textarea>
+            <template v-slot:modal-footer>
+              <b-button variant="secondary" class="mr-1" @click="showSamlMetaDataModal = false">{{ $t('Close') }}</b-button>
+              <b-button variant="primary" @click="copySamlMetaData">{{ $t('Copy to Clipboard') }}</b-button>
+            </template>
+          </b-modal>
+        </template>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -88,7 +98,9 @@ export default {
     return {
       form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView,
-      options: {}
+      options: {},
+      samlMetaData: false, // will be overloaded with data from the store
+      showSamlMetaDataModal: false
     }
   },
   validations () {
@@ -124,6 +136,7 @@ export default {
   },
   methods: {
     init () {
+      this.samlMetaData = false
       if (this.id) {
         // existing
         this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
@@ -132,6 +145,11 @@ export default {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.form = form
             this.sourceType = form.type
+            if (form.type === 'SAML') {
+              this.$store.dispatch(`${this.storeName}/getAuthenticationSourceSAMLMetaData`, this.id).then(xml => {
+                this.samlMetaData = xml
+              })
+            }
           })
         })
       } else {
@@ -174,6 +192,14 @@ export default {
     },
     setValidations (validations) {
       this.$set(this, 'formValidations', validations)
+    },
+    copySamlMetaData () {
+      if (document.queryCommandSupported('copy')) {
+        this.$refs.samlMetaDataTextarea.$el.select()
+        document.execCommand('copy')
+        this.showSamlMetaDataModal = false
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('XML copied to clipboard') })
+      }
     }
   },
   created () {
