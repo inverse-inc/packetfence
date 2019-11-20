@@ -151,7 +151,7 @@ the `user-0.slice`.
 .Get latest version of [package]`ipset` package from packetfence repository
 [source,bash]
 ----
-yum update ipset --enablerepo=packetfence
+yum update ipset ipset-libs --enablerepo=packetfence
 ----
 
 
