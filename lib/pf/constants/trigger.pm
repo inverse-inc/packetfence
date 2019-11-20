@@ -82,6 +82,7 @@ our $TRIGGER_MAP = {
     "node_discovered" => "Node discovered",
     "new_dhcp_info_from_managed_network" => "DHCP packet received from managed network",
     "new_dhcp_info_from_production_network" => "DHCP packet received from production network",
+    "node_maintenance" => "Node maintenance",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
