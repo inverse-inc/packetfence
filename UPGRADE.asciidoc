@@ -197,13 +197,6 @@ systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd service pf restart
 ----
 
-Don't forget to edit the [file]`/usr/local/pf/conf/currently-at` file to match the newly updated version:
-
-[source,bash]
-----
-cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
-----
-
 
 Upgrading from a version prior to 4.0.0
 ---------------------------------------
