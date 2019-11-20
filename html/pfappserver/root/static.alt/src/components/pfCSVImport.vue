@@ -690,9 +690,9 @@ export default {
       if (key) {
         const index = this.fields.findIndex(field => field.value === key)
         if (index >= 0) {
-          const field = this.fields[index]
+          const fieldTypeComponents = this.fields[index].types.map(type => fieldTypeComponent[type])
           for (let t = 0; t < componentTypes.length; t++) {
-            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
+            if (fieldTypeComponents.includes(componentTypes[t])) return true
           }
         }
       }
