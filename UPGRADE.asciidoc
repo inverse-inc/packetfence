@@ -2111,4 +2111,9 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
 ----
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence X.Y.Z).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence X.Y.Z):
+
+[source,bash]
+----
+cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
+----
