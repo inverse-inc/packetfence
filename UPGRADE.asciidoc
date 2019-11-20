@@ -61,6 +61,7 @@ tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude
 
 == Upgrade procedure
 
+[#upgrade-steps]
 === Steps
 
 A PacketFence upgrade consists of following steps:
@@ -184,7 +185,8 @@ Debian installation system should have interactively asked for existing modified
 [#restart-services]
 === Restart all PacketFence services
 
-Once the additionnal steps below are completed, restart `packetfence-config` and `packetfence`:
+Once all <<upgrade-steps,steps of upgrade procedure>> are completed, restart
+`packetfence-config` and `packetfence` services:
 
 [source,bash]
 ----
