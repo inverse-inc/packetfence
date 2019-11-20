@@ -76,13 +76,27 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'api_max_expiration.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'api_max_expiration.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.interval', i18n.t('Interval'))
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.interval', i18n.t('Interval')),
+                ...{
+                  [i18n.t('Interval required.')]: requiredIf(() => {
+                    return 'api_max_expiration' in form && form.api_max_expiration.unit !== null
+                  })
+                }
+              }
             },
             {
               key: 'api_max_expiration.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'api_max_expiration.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.unit', i18n.t('Unit'))
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.unit', i18n.t('Unit')),
+                ...{
+                  [i18n.t('Unit required.')]: requiredIf(() => {
+                    return 'api_max_expiration' in form && form.api_max_expiration.interval !== null
+                  })
+                }
+              }
             }
           ]
         },
