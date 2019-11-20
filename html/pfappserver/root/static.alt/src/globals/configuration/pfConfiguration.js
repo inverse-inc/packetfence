@@ -543,22 +543,6 @@ export const pfConfigurationActions = {
       }
     }
   },
-  set_role_by_acl_node: {
-    value: 'set_role',
-    text: i18n.t('Role'),
-    types: [fieldType.ROLE_BY_ACL_NODE],
-    validators: {
-      type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required
-      }
-    }
-  },
   set_role_by_acl_user: {
     value: 'set_role',
     text: i18n.t('Role'),
