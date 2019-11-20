@@ -1,5 +1,4 @@
-Installation Guide
-==================
+= Installation Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book

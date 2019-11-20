@@ -1,5 +1,5 @@
-Network Devices Configuration Guide
-===================================
+= Network Devices Configuration Guide
+
 :encoding: UTF-8
 :lang: en
 :doctype: book

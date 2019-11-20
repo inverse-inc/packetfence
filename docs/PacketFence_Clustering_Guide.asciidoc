@@ -1,5 +1,4 @@
-Clustering Quick Installation Guide
-===================================
+= Clustering Quick Installation Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
