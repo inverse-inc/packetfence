@@ -186,7 +186,7 @@ sub like_query_to_sql {
     my $value = $q->{value} // '';
     my $op = $q->{op};
     my $format = exists $LIKE_FORMAT{$op} ? $LIKE_FORMAT{$op} : $DEFAULT_LIKE_FORMAT;
-    return { $q->{field} => { $OP_TO_SQL_OP{$op} => escape_like($q->{value}, $format) } };
+    return { $q->{field} => { $OP_TO_SQL_OP{$op} => escape_like($value, $format) } };
 }
 
 =head2 searchQueryToSqlAbstract
