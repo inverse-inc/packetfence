@@ -215,7 +215,7 @@
         </b-tab>
 
         <b-tab title="IPv4 Addresses">
-          <template v-slot:title>
+          <template v-slottitle>
             {{ $t('IPv4') }} <b-badge pill v-if="node && node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
           </template>
           <b-table v-if="node && node.ip4"
@@ -620,30 +620,30 @@ export default {
       return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
     },
     applyReevaluateAccess () {
-      this.$store.dispatch(`${this.storeName}/reevaluateAccessNode`, this.mac).then(() => {
+      this.$store.dispatch(`${this.storeName}/reevaluateAccessNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Node access reevaluation initialized') })
-      }).catch(() => {
+      }).catch((response) => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node access reevaluation failed') })
       })
     },
     applyRefreshFingerbank () {
-      this.$store.dispatch(`${this.storeName}/refreshFingerbankNode`, this.mac).then(() => {
+      this.$store.dispatch(`${this.storeName}/refreshFingerbankNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Node device profiling initialized') })
-      }).catch(() => {
+      }).catch((response) => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node device profiling failed') })
       })
     },
     applyRestartSwitchport () {
-      this.$store.dispatch(`${this.storeName}/restartSwitchportNode`, this.mac).then(() => {
+      this.$store.dispatch(`${this.storeName}/restartSwitchportNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Node switchport restarted') })
-      }).catch(() => {
+      }).catch((response) => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node switchport restart failed') })
       })
     },
     canReevaluateAccess (node) {
       return (node && node.locations && node.locations.length > 0)
     },
-    cannotReevaluateAccessTooltip () {
+    cannotReevaluateAccessTooltip (node) {
       return this.$i18n.t('Node has no locations.')
     },
     canRestartSwitchport (node) {
@@ -652,7 +652,7 @@ export default {
         network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
       ).length > 0)
     },
-    cannotRestartSwitchportTooltip () {
+    cannotRestartSwitchportTooltip (node) {
       return this.$i18n.t('Node has no open wired connections.')
     },
     close () {
@@ -673,7 +673,7 @@ export default {
       return desc
     },
     save () {
-      this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(() => {
+      this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(response => {
         this.close()
       })
     },
@@ -684,7 +684,7 @@ export default {
       this.$store.dispatch('$_nodes/applySecurityEventNode', { security_event_id: this.triggerSecurityEvent, mac: this.mac })
     },
     deleteNode () {
-      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(() => {
+      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
         this.close()
       })
     },
@@ -726,12 +726,12 @@ export default {
         }
         if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
           this.addVisGroup({
-            id: `${this.mac}-regsitered`,
+            id: `${this.mac}-registered`,
             content: this.$i18n.t('Registered')
           })
           this.addVisItem({
             id: 'regdate',
-            group: `${this.mac}-regsitered`,
+            group: `${this.mac}-registered`,
             start: new Date(node.regdate),
             end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
             content: this.$i18n.t('Registered')
@@ -774,7 +774,7 @@ export default {
           })
         }
         try {
-          node.ip4.history.forEach(function (ip4) {
+          node.ip4.history.forEach(function (ip4, index, ip4s) {
             this.addVisGroup({
               id: `${this.mac}-ipv4`,
               content: this.$i18n.t('IPv4 Addresses')
@@ -791,7 +791,7 @@ export default {
           // noop
         }
         try {
-          node.ip6.history.forEach(function (ip6) {
+          node.ip6.history.forEach(function (ip6, index, ip6s) {
             this.addVisGroup({
               id: `${this.mac}-ipv6`,
               content: this.$i18n.t('IPv6 Addresses')
@@ -808,7 +808,7 @@ export default {
           // noop
         }
         try {
-          node.locations.forEach(function (location) {
+          node.locations.forEach(function (location, index, locations) {
             this.addVisGroup({
               id: `${this.mac}-location`,
               content: this.$i18n.t('Locations')
@@ -825,13 +825,13 @@ export default {
           // noop
         }
         try {
-          node.security_events.forEach(function (securityEvent) {
+          node.security_events.forEach(function (securityEvent, index, securityEvents) {
             this.addVisGroup({
               id: `${this.mac}-security_event`,
               content: this.$i18n.t('Security Events')
             })
             this.addVisItem({
-              id: `security_event${securityEvent.security_event_id}`,
+              id: `security_event-${securityEvent.security_event_id}`,
               group: `${this.mac}-security_event`,
               start: new Date(securityEvent.start_date),
               end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
@@ -842,14 +842,14 @@ export default {
           // noop
         }
         try {
-          node.dhcpoption82.forEach(function (dhcpoption82) {
+          node.dhcpoption82.forEach(function (dhcpoption82, index, dhcpoption82s) {
             this.addVisGroup({
-              id: this.visGroupIds.DHCPOPTION82,
+              id: `${this.mac}-dhcpoption82`,
               content: this.$i18n.t('DHCP Option 82')
             })
             this.addVisItem({
-              id: `dhcpoption82${dhcpoption82.created_at}`,
-              group: this.visGroupIds.DHCPOPTION82,
+              id: `dhcpoption82-${dhcpoption82.created_at}`,
+              group: `${this.mac}-dhcpoption82`,
               start: new Date(dhcpoption82.created_at),
               content: ((dhcpoption82.switch_id) ? (`${dhcpoption82.switch_id}/`) : '') + ((dhcpoption82.port) ? `${this.$i18n.t('Port')}:${dhcpoption82.port}/` : '') + `VLAN:${dhcpoption82.vlan}`
             })
@@ -875,37 +875,37 @@ export default {
   },
   watch: {
     node: {
-      handler: function () {
+      handler: function (a, b) {
         this.redrawVis()
       },
       deep: true
     },
     'node.ip4': {
-      handler: function () {
+      handler: function (a, b) {
         this.redrawVis()
       },
       deep: true
     },
     'node.ip6': {
-      handler: function () {
+      handler: function (a, b) {
         this.redrawVis()
       },
       deep: true
     },
     'node.locations': {
-      handler: function () {
+      handler: function (a, b) {
         this.redrawVis()
       },
       deep: true
     },
     'node.security_events': {
-      handler: function () {
+      handler: function (a, b) {
         this.redrawVis()
       },
       deep: true
     },
     'node.dhcpoption82': {
-      handler: function () {
+      handler: function (a, b) {
         this.redrawVis()
       },
       deep: true
