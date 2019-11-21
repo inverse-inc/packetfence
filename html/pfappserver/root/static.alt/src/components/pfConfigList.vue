@@ -160,12 +160,6 @@ export default {
     },
     searchableQuickCondition () {
       return this.config.searchableQuickCondition
-    },
-    sortableItems () {
-      return this.items.filter(item => !item.not_sortable)
-    },
-    notSortableItems () {
-      return this.items.filter(item => item.not_sortable)
     }
   },
   methods: {
