@@ -422,7 +422,7 @@ export default {
           item: 'bottom'
         },
         selectable: false,
-        stack: false,
+        stack: true,
         tooltip: {
           followMouse: true
         }
@@ -691,43 +691,47 @@ export default {
     redrawVis () {
       // buffer async calls to redraw
       if (this.timeoutVis) clearTimeout(this.timeoutVis)
-      this.timeoutVis = setTimeout(this.setupVis, 100)
+      this.timeoutVis = setTimeout(() => {
+        this.setupVis()
+        const { $refs: { timeline: { redraw = () => {} } = {} } = {} } = this
+        redraw()
+      }, 100)
     },
     setupVis () {
       const node = this.$store.state.$_nodes.nodes[this.mac]
       if (node) {
         if (node.detect_date && node.detect_date !== '0000-00-00 00:00:00') {
           this.addVisGroup({
-            id: this.mac + '-seen',
+            id: `${this.mac}-seen`,
             content: this.$i18n.t('Seen')
           })
           this.addVisItem({
             id: 'detect',
-            group: this.mac + '-seen',
+            group: `${this.mac}-seen`,
             start: new Date(node.detect_date),
             end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00' && node.last_seen !== node.detect_date) ? new Date(node.last_seen) : null,
             content: this.$i18n.t('Detected')
           })
         } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
           this.addVisGroup({
-            id: this.mac + '-seen',
+            id: `${this.mac}-seen`,
             content: this.$i18n.t('Seen')
           })
           this.addVisItem({
             id: 'last_seen',
-            group: this.mac + '-seen',
+            group: `${this.mac}-seen`,
             start: new Date(node.last_seen),
             content: this.$i18n.t('Last Seen')
           })
         }
         if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
           this.addVisGroup({
-            id: this.mac + '-registered',
+            id: `${this.mac}-regsitered`,
             content: this.$i18n.t('Registered')
           })
           this.addVisItem({
             id: 'regdate',
-            group: this.mac + '-registered',
+            group: `${this.mac}-regsitered`,
             start: new Date(node.regdate),
             end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
             content: this.$i18n.t('Registered')
@@ -735,36 +739,36 @@ export default {
         }
         if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
           this.addVisGroup({
-            id: this.mac + '-general',
+            id: `${this.mac}-general`,
             content: this.$i18n.t('General')
           })
           this.addVisItem({
             id: 'last_arp',
-            group: this.mac + '-general',
+            group: `${this.mac}-general`,
             start: new Date(node.last_arp),
             content: this.$i18n.t('Last ARP')
           })
         }
         if (node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00') {
           this.addVisGroup({
-            id: this.mac + '-general',
+            id: `${this.mac}-general`,
             content: this.$i18n.t('General')
           })
           this.addVisItem({
             id: 'last_dhcp',
-            group: this.mac + '-general',
+            group: `${this.mac}-general`,
             start: new Date(node.last_dhcp),
             content: this.$i18n.t('Last DHCP')
           })
         }
         if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
           this.addVisGroup({
-            id: this.mac + '-general',
+            id: `${this.mac}-general`,
             content: this.$i18n.t('General')
           })
           this.addVisItem({
             id: 'lastskip',
-            group: this.mac + '-general',
+            group: `${this.mac}-general`,
             start: new Date(node.lastskip),
             content: this.$i18n.t('Last Skip')
           })
@@ -772,12 +776,12 @@ export default {
         try {
           node.ip4.history.forEach(function (ip4) {
             this.addVisGroup({
-              id: this.mac + '-ipv4',
+              id: `${this.mac}-ipv4`,
               content: this.$i18n.t('IPv4 Addresses')
             })
             this.addVisItem({
-              id: 'ipv4-' + ip4.ip,
-              group: this.mac + '-ipv4',
+              id: `ipv4-${ip4.ip}`,
+              group: `${this.mac}-ipv4`,
               start: new Date(ip4.start_time),
               end: (ip4.end_time !== '0000-00-00 00:00:00' && ip4.end_time !== ip4.start_time) ? new Date(ip4.end_time) : null,
               content: ip4.ip
@@ -789,12 +793,12 @@ export default {
         try {
           node.ip6.history.forEach(function (ip6) {
             this.addVisGroup({
-              id: this.mac + '-ipv6',
+              id: `${this.mac}-ipv6`,
               content: this.$i18n.t('IPv6 Addresses')
             })
             this.addVisItem({
-              id: 'ipv6-' + ip6.ip,
-              group: this.mac + '-ipv6',
+              id: `ipv6-${ip6.ip}`,
+              group: `${this.mac}-ipv6`,
               start: new Date(ip6.start_time),
               end: (ip6.end_time !== '0000-00-00 00:00:00' && ip6.end_time !== ip6.start_time) ? new Date(ip6.end_time) : null,
               content: ip6.ip
@@ -806,15 +810,15 @@ export default {
         try {
           node.locations.forEach(function (location) {
             this.addVisGroup({
-              id: this.mac + '-location',
+              id: `${this.mac}-location`,
               content: this.$i18n.t('Locations')
             })
             this.addVisItem({
-              id: 'location-' + location.id,
-              group: this.mac + '-location',
+              id: `location-${location.id}`,
+              group: `${this.mac}-location`,
               start: new Date(location.start_time),
               end: (location.end_time && location.end_time !== '0000-00-00 00:00:00' && location.end_time !== location.start_time) ? new Date(location.end_time) : null,
-              content: location.ssid + '/' + this.$i18n.t('Role') + ':' + location.role + '/VLAN:' + location.vlan
+              content: `${location.ssid}/${this.$i18n.t('Role')}:${location.role}/VLAN:${location.vlan}`
             })
           })
         } catch (e) {
@@ -823,12 +827,12 @@ export default {
         try {
           node.security_events.forEach(function (securityEvent) {
             this.addVisGroup({
-              id: this.mac + '-security_event',
+              id: `${this.mac}-security_event`,
               content: this.$i18n.t('Security Events')
             })
             this.addVisItem({
-              id: 'security_event' + securityEvent.security_event_id,
-              group: this.mac + '-security_event',
+              id: `security_event${securityEvent.security_event_id}`,
+              group: `${this.mac}-security_event`,
               start: new Date(securityEvent.start_date),
               end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
               content: this.securityEventDescription(securityEvent.security_event_id)
@@ -840,14 +844,14 @@ export default {
         try {
           node.dhcpoption82.forEach(function (dhcpoption82) {
             this.addVisGroup({
-              id: this.mac + '-dhcpoption82',
+              id: this.visGroupIds.DHCPOPTION82,
               content: this.$i18n.t('DHCP Option 82')
             })
             this.addVisItem({
-              id: 'dhcpoption82' + dhcpoption82.created_at,
-              group: this.mac + '-dhcpoption82',
+              id: `dhcpoption82${dhcpoption82.created_at}`,
+              group: this.visGroupIds.DHCPOPTION82,
               start: new Date(dhcpoption82.created_at),
-              content: ((dhcpoption82.switch_id) ? (dhcpoption82.switch_id + '/') : '') + ((dhcpoption82.port) ? this.$i18n.t('Port') + ':' + dhcpoption82.port + '/' : '') + 'VLAN:' + dhcpoption82.vlan
+              content: ((dhcpoption82.switch_id) ? (`${dhcpoption82.switch_id}/`) : '') + ((dhcpoption82.port) ? `${this.$i18n.t('Port')}:${dhcpoption82.port}/` : '') + `VLAN:${dhcpoption82.vlan}`
             })
           })
         } catch (e) {
