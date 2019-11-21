@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import store from '@/store'
 
 const types = {
   LOADING: 'loading',
@@ -420,6 +421,7 @@ const actions = {
     data.id = 'guests_admin_registration'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
+      store.commit('config/BASE_GUESTS_ADMIN_REGISTRATION_DELETED') // purge config cache
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
