@@ -1424,6 +1424,9 @@ const mutations = {
     state.baseGuestsAdminRegistration = baseGuestsAdminRegistration
     state.baseGuestsAdminRegistrationStatus = types.SUCCESS
   },
+  BASE_GUESTS_ADMIN_REGISTRATION_DELETED: (state) => {
+    state.baseGuestsAdminRegistration = false
+  },
   BASE_INLINE_REQUEST: (state) => {
     state.baseInlineStatus = types.LOADING
   },
