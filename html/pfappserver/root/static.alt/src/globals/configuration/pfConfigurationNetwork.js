@@ -113,8 +113,8 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('network.dhcp_process_ipv6'),
-          text: i18n.t('Enable/disable ipv6 dhcp packets processing by pfdhcplistener.'),
+          label: i18n.t('IPv6 DHCP handling'),
+          text: i18n.t('IPv6 DHCP packet processing by pfdhcplistener.'),
           fields: [
             {
               key: 'dhcp_process_ipv6',
