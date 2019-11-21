@@ -21,6 +21,6 @@ gitlab_buildpkg_tools__deb_pkgs: []
 
 # we install packetfence-release package here to:
 # - install packetfence repos (for install dependencies)
-# - test packetfence-release RPM built in pipeline
+# - test packetfence-release RPM built in pipeline (available in /src/public directory)
 gitlab_buildpkg_tools__rpm_pkgs:
   - packetfence-release
