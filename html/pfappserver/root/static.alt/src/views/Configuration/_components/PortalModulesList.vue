@@ -11,7 +11,7 @@
       <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
         <b-form-row class="justify-content-end">
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
-          <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)"/>
+          <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)" reverse/>
           <b-form @submit.prevent="save(rootModule)">
             <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-t="'Save'"></pf-button-save>
           </b-form>
