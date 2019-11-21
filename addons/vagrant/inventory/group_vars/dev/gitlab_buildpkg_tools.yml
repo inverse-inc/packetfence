@@ -14,7 +14,7 @@ gitlab_buildpkg_tools__deb_ppa:
     baseurl: '{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main'
     # temp because apt_key module invocation doesn't yet support
     # installing a key from a file
-    gpgkey: 'http://inverse.ca/downloads/RPM-GPG-KEY-PACKETFENCE-CENTOS'
+    gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
 # we only install repos at this step
 gitlab_buildpkg_tools__deb_pkgs: []
