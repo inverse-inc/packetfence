@@ -18,6 +18,3 @@ packetfence_install__deb:
                         else ["debian","debian-devel"] }}'
 
 # config
-# database
-packetfence_install__database_host_pf: 127.0.0.1
-packetfence_install__database_host_pfconfig: 127.0.0.1
