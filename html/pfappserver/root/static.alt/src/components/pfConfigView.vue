@@ -18,6 +18,9 @@
             no-body
           ></b-tab>
         </template>
+        <template v-slot:tabs-end>
+          <slot name="tabs-end" />
+        </template>
       </b-tabs>
       <template v-for="(tab, t) in form.fields">
         <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
