@@ -14,9 +14,10 @@
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + U" to="/users" :active="$route.path.startsWith('/user')" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + C" to="/configuration" :active="$route.path.startsWith('/configuration')" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
         </b-navbar-nav>
-        <div class="ml-auto"></div>
-        <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
-        <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
+        <b-nav-text class="ml-auto">
+          <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
+          <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
+        </b-nav-text>
         <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item-dropdown right>
             <template v-slot:button-content>
@@ -208,7 +209,7 @@ export default {
     altShiftUKey (pressed) {
       if (pressed) this.$router.push('/users')
     },
-    showDocumentationViewer: function (a, b) {
+    showDocumentationViewer: function (a) {
       if (a) { // shown
         this.documentationViewerClass = 'pf-documentation-enter'
       } else {
