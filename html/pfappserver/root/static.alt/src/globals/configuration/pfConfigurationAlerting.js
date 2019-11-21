@@ -13,6 +13,7 @@ import {
   isPort,
   emailsCsv
 } from '@/globals/pfValidators'
+const { email } = require('vuelidate/lib/validators')
 
 export const pfConfigurationAlertingViewFields = (context = {}) => {
   const {
@@ -38,7 +39,12 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses'))
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses')),
+                ...{
+                  [i18n.t('Invalid email address.')]: emailsCsv
+                }
+              }
             }
           ]
         },
@@ -50,7 +56,12 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'fromaddr',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'fromaddr'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'fromaddr', i18n.t('Email'))
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'fromaddr', i18n.t('Email')),
+                ...{
+                  [i18n.t('Invalid email address.')]: email
+                }
+              }
             }
           ]
         },
