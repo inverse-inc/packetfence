@@ -14,6 +14,7 @@ const types = {
 // Default values
 const state = {
   cache: {}, // items details
+  saml_metadata: {}, // SAML
   message: '',
   itemStatus: ''
 }
@@ -76,6 +77,19 @@ const actions = {
     return api.authenticationSource(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  getAuthenticationSourceSAMLMetaData: ({ state, commit }, id) => {
+    if (state.saml_metadata[id]) {
+      return Promise.resolve(state.saml_metadata[id]).then(saml_metadata => saml_metadata)
+    }
+    commit('ITEM_REQUEST')
+    return api.authenticationSourceSAMLMetaData(id).then(xml => {
+      commit('SAML_METADATA_REPLACED', { id, xml })
+      return xml
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -170,6 +184,10 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+  },
+  SAML_METADATA_REPLACED: (state, { id, xml }) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.saml_metadata, id, xml)
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS

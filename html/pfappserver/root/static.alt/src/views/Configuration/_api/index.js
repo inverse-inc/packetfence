@@ -62,6 +62,11 @@ export default {
       return response.data
     })
   },
+  authenticationSourceSAMLMetaData: id => {
+    return apiCall.get(['config', 'source', id, 'saml_metadata']).then(response => {
+      return response.data
+    })
+  },
   createAuthenticationSource: data => {
     return apiCall.post('config/sources', data).then(response => {
       return response.data

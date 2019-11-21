@@ -149,6 +149,23 @@ sub test {
     return;
 }
 
+=head2 saml_metadata
+
+saml_metadata
+
+=cut
+
+sub saml_metadata {
+    my ($self) = @_;
+    my $id = $self->id;
+    my $source = pf::authentication::getAuthenticationSource($id);
+    if ($source->{type} ne 'SAML') {
+        return $self->render_error(405, "$id cannot is not a SAML source");
+    }
+    my $xml = $source->generate_sp_metadata();
+    return $self->render(text => $xml);;
+}
+
 sub cleanup_item {
     my ($self, $item) = @_;
     $item = $self->SUPER::cleanup_item($item);
