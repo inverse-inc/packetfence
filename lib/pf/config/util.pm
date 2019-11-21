@@ -422,7 +422,7 @@ sub get_realm_authentication_source {
         $matched_realm = 'default';
         @found = grep { $_->realmIsAllowed('default') } @{$sources};
     }
-    get_logger->info("Used realm $realm is associated to the configured realm $matched_realm");
+    get_logger->debug("Used realm $realm is associated to the configured realm $matched_realm");
 
     return \@found;
 }
