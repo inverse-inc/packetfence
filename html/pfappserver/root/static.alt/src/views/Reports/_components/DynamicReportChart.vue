@@ -43,8 +43,8 @@
                   </b-button-group>
               </b-form-row>
             </b-popover>
-            <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-            <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+            <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
+            <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
           </b-form>
         </b-col>
       </b-row>
@@ -72,23 +72,32 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoadingReport"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoadingReport"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" :filename="`${report.description}.csv`" :disabled="isLoading"
+              <pf-button-export-to-csv class="mb-3" :filename="`${report.description}.csv`" :disabled="isLoadingReport"
                 :columns="visibleColumns" :data="items"
               />
             </b-row>
           </b-container>
         </b-col>
       </b-row>
-      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
+      <b-table v-if="isLoadingReport"
+        :items="[]" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged"
         show-empty responsive hover no-local-sorting no-provider-sorting striped>
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading">{{ $t('No report data found') }}</pf-empty-table>
+          <pf-empty-table :isLoading="true"></pf-empty-table>
+        </template>
+      </b-table>
+      <b-table v-else
+        :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged"
+        show-empty responsive hover no-local-sorting no-provider-sorting striped>
+        <template v-slot:empty>
+          <pf-empty-table :isLoading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
         </template>
         <template v-for="nodeField in nodeFields" :v-slot:nodeField="data">
           <router-link v-if="data" :key="nodeField" :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
@@ -150,8 +159,8 @@ export default {
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    isLoadingReport () {
+      return this.isLoading || this.$store.getters[`${this.storeName}/isLoading`]
     },
     parsedColumns () {
       let parsedColumns = []
@@ -327,7 +336,6 @@ export default {
         this.buildPropsFromReport()
       }
     }
-
   }
 }
 </script>

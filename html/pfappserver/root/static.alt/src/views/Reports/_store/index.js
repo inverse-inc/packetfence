@@ -33,6 +33,9 @@ const actions = {
     return api.report(id).then(response => {
       commit('REPORT_REPLACED', response)
       return response
+    }).catch(err => {
+      commit('REPORT_ERROR', err.response)
+      reject(err)
     })
   },
   searchReport: ({ commit }, data) => {

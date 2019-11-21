@@ -47,7 +47,7 @@ export default {
         this.dynamicReports = reports.sort((a, b) => {
           return a.description.localeCompare(b.description)
         }).filter(report => {
-          return !report.type
+          return !report.type || report.type !== 'builtin'
         }).map(report => {
           return {
             name: report.description,
