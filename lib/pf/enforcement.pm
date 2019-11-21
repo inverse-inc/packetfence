@@ -86,14 +86,13 @@ sub reevaluate_access {
     $logger->info("re-evaluating access ($function called)");
     $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $ip = pf::ip4log::mac2ip($mac);
-    if(isenabled($Config{advanced}{sso_on_access_reevaluation})){
+    if (isenabled($Config{advanced}{sso_on_access_reevaluation})) {
         my $node = node_attributes($mac);
-        if($ip){
+        if ($ip) {
             my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
             my $client = pf::client::getClient();
             $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
-        }
-        else {
+        } else {
             $logger->error("Can't do SSO for $mac because can't find its IP address");
         }
     }
@@ -134,8 +133,7 @@ sub reevaluate_access {
                     }
                 }
             }
-        }
-        else {
+        } else {
             $logger->debug("is already properly enforced in firewall, no change required");
         }
         return 1;
@@ -160,6 +158,8 @@ sub _vlan_reevaluation {
         return $FALSE;
     }
 
+    my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'} );
+
     my $args = {
         switch => $switch,
         switch_mac => $locationlog_entry->{'switch_mac'},
@@ -171,50 +171,46 @@ sub _vlan_reevaluation {
         ifDesc => $locationlog_entry->{'ifDesc'},
         user_name => $locationlog_entry->{'dot1x_username'},
         session_id => $locationlog_entry->{'session_id'},
-        connection_type => $locationlog_entry->{'connection_type'},
+        connection_type => $conn_type,
         connection_sub_type => $locationlog_entry->{'connection_sub_type'},
         ssid => $locationlog_entry->{'ssid'},
         role => $locationlog_entry->{'role'},
         vlan => $locationlog_entry->{'vlan'},
         node_info => pf::node::node_attributes($mac),
         profile => pf::Connection::ProfileFactory->instantiate($mac),
-        conn_type => str_to_connection_type($locationlog_entry->{'connection_type'} )
     };
 
     if ( _should_we_reassign_vlan( $mac, $args, %opts ) ) {
 
         $logger->info( "switch port is (".$args->{'switch'}->{_id}.") ifIndex ".$args->{'ifIndex'}
                 . "connection type: "
-                . $connection_type_explained{$args->{'conn_type'}} );
+                . $connection_type_explained{$conn_type});
 
         my $client;
         my $cluster_deauth;
         if ($cluster_enabled && isenabled($Config{active_active}{centralized_deauth})){
             $client = pf::client::getManagementClient();
             $cluster_deauth = 1;
-        }
-        else {
+        } else {
             $client = pf::api::queue->new(queue => 'priority');
             $cluster_deauth = 0;
         }
 
-        if ( ( $args->{'conn_type'} & $WIRED ) == $WIRED ) {
+        if ( ( $conn_type & $WIRED ) == $WIRED ) {
             $logger->debug("Calling API with ReAssign request on switch (".$args->{'switch'}.")");
             if ($cluster_deauth) {
                 $client->notify( 'ReAssignVlan_in_queue', $args );
             } else {
                 $client->notify( 'ReAssignVlan', $args );
             }
-        }
-        elsif ( ( ( $args->{'conn_type'} & $WIRELESS ) == $WIRELESS ) || ( ( $args->{'conn_type'} & $WEBAUTH ) == $WEBAUTH ) || ( ( $args->{'conn_type'} & $VIRTUAL ) == $VIRTUAL ) ) {
+        } elsif ( $conn_type & ($WIRELESS | $WEBAUTH | $VIRTUAL) ) {
             $logger->debug("Calling API with desAssociate request on switch (".$args->{'switch'}->{_id}.")");
             if ($cluster_deauth) {
                 $client->notify( 'desAssociate_in_queue', $args );
             } else {
                 $client->notify( 'desAssociate', $args );
             }
-        }
-        else {
+        } else {
             $logger->error("Connection type is neither wired nor wireless. Cannot reevaluate VLAN");
             return 0;
         }
