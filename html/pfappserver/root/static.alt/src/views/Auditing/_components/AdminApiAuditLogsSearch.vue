@@ -3,19 +3,14 @@
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
-      <h4 class="mb-0" v-t="'Search Admin API Audit Audit Logs'"></h4>
+      <h4 class="mb-0" v-t="'Search Admin API Audit Logs'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by MAC or IP')" save-search-namespace="admin_api_audit_logs"
+    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by user name, action or object id')" save-search-namespace="admin_api_audit_logs"
       :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
-            <template slot="button-content">
-              <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
-            </template>
-          </b-dropdown>
           <b-dropdown size="sm" variant="link" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
@@ -60,20 +55,8 @@
         @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting striped
       >
-        <template slot="HEAD_actions">
-          <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
-          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
-          <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
-        </template>
-        <template slot="actions" slot-scope="data">
-          <div class="text-nowrap">
-            <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
-            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index] && tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
-          </div>
-        </template>
-        <div slot="answer" slot-scope="{ value }" v-html="value"></div>
-        <template slot="empty">
-          <pf-empty-table :isLoading="isLoading" :text="$t('Admin API Audit Audit Logs not found or setting is disabled in configuration.(You can enable this setting in Configuration->System Configuration->Admin API Audit Configuration)')">{{ $t('No logs found') }}</pf-empty-table>
+        <template v-slot:empty>
+          <pf-empty-table :isLoading="isLoading" :text="$t('Admin API Audit Audit Logs not found or setting is disabled in configuration. You can enable this setting in Configuration → System Configuration → Admin API Audit Configuration.')">{{ $t('No logs found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>
@@ -85,7 +68,6 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
-import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
@@ -94,7 +76,6 @@ import pfFormToggle from '@/components/pfFormToggle'
 export default {
   name: 'admin-api-audit-logs-search',
   mixins: [
-    pfMixinSelectable,
     pfMixinSearchable
   ],
   components: {
@@ -116,8 +97,9 @@ export default {
           values: [{
             op: 'or',
             values: [
+              { field: 'user_name', op: 'contains', value: null },
               { field: 'action', op: 'contains', value: null },
-              { field: 'user_name', op: 'contains', value: null }
+              { field: 'object_id', op: 'contains', value: null }
             ]
           }]
         },
@@ -173,14 +155,6 @@ export default {
         }
       ],
       columns: [
-        {
-          key: 'actions',
-          label: this.$i18n.t('Actions'),
-          locked: true,
-          formatter: (value, key, item) => {
-            return item.id
-          }
-        },
         {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
@@ -240,8 +214,9 @@ export default {
           {
             op: 'or',
             values: [
-              { field: 'object_id', op: 'contains', value: quickCondition },
-              { field: 'user_name', op: 'contains', value: quickCondition }
+              { field: 'user_name', op: 'contains', value: quickCondition },
+              { field: 'action', op: 'contains', value: quickCondition },
+              { field: 'object_id', op: 'contains', value: quickCondition }
             ]
           }
         ]
@@ -255,7 +230,7 @@ export default {
           }) >= 0
         }).length !== condition.values[0].values.length
     },
-    onRowClick (item, index) {
+    onRowClick (item) {
       this.$router.push({ name: 'admin_api_audit_log', params: { id: item.id } })
     }
   }
