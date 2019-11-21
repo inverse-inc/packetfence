@@ -30,12 +30,14 @@ const actions = {
       return Promise.resolve(state.reports[id])
     }
     commit('REPORT_REQUEST')
-    return api.report(id).then(response => {
-      commit('REPORT_REPLACED', response)
-      return response
-    }).catch(err => {
-      commit('REPORT_ERROR', err.response)
-      reject(err)
+    return new Promise((resolve, reject) => {
+      api.report(id).then(response => {
+        commit('REPORT_REPLACED', response)
+        resolve(response)
+      }).catch(err => {
+        commit('REPORT_ERROR', err.response)
+        reject(err)
+      })
     })
   },
   searchReport: ({ commit }, data) => {
