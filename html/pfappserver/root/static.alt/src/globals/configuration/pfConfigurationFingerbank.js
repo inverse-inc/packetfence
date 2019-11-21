@@ -293,7 +293,7 @@ export const pfConfigurationFingerbankDeviceChangeDetectionViewFields = (context
           text: i18n.t('Whether or not the Fingerbank device change feature is enabled.'),
           fields: [
             {
-              key: 'enabled',
+              key: 'enable',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
