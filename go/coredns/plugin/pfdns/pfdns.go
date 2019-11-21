@@ -26,6 +26,7 @@ import (
 	cache "github.com/patrickmn/go-cache"
 
 	//Import mysql driver
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -753,7 +754,10 @@ func (pf *pfdns) MakeKeyCache(mac string, category string, security_event bool, 
 }
 
 func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
-	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+	var portal pfconfigdriver.PfConfCaptivePortal
+
+	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
+
 	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
 	var err error
 	for _, v := range portal.DetectionMecanismUrls {
@@ -785,7 +789,6 @@ func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
 	if pf.detectionMechanisms == nil {
 		return false
 	}
-
 	for _, rgx := range pf.detectionMechanisms {
 		if rgx.MatchString(e) {
 			return true
