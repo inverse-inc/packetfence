@@ -338,7 +338,7 @@ sub firewallsso : Public {
 
 sub ReAssignVlan : Public : Fork {
     my ($class, $postdata )  = @_;
-    my @require = qw(connection_type switch_id mac ifIndex);
+    my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata->{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
