@@ -373,7 +373,7 @@ sub ReAssignVlan : Public : Fork {
 sub rebless_switch {
     my ($switch) = @_;
     if (ref($switch) eq 'HASH') {
-        return bless($switch, "pf::Switch::$switch->{type}");
+        return bless($switch, "pf::Switch::$switch->{_type}");
     }
 
     return $switch;
