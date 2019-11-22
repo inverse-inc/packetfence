@@ -12,7 +12,7 @@ Object for collecting pfqueue stats
 
 use Moo;
 use namespace::autoclean;
-use pf::config::pfqueue;
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::log;
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX $PFQUEUE_EXPIRED_COUNTER);

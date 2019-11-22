@@ -38,7 +38,7 @@ use pf::file_paths qw($var_dir);;
 use pf::util;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT $PFQUEUE_TASK_JITTER_DEFAULT);
-use pf::config::pfqueue;
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::services::util;
 use pf::db;
 use Config::IniFiles;

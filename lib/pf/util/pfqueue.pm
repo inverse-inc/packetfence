@@ -15,7 +15,7 @@ pf::util::pfqueue - pfqueue
 use strict;
 use warnings;
 use pf::log;
-use pf::config::pfqueue;
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::Redis;
 
 BEGIN {

@@ -27,7 +27,7 @@ use warnings;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_EXPIRED_COUNTER);
-use pf::config::pfqueue;
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::pfqueue::stats;
 use base qw(pf::base::cmd::action_cmd);

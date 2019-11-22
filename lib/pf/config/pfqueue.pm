@@ -18,9 +18,9 @@ use pfconfig::cached_hash;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(%ConfigPfqueue);
+    @EXPORT_OK = qw(%ConfigPfqueue);
 }
 
 tie our %ConfigPfqueue, 'pfconfig::cached_hash', 'config::Pfqueue';
