@@ -243,6 +243,12 @@ func (p *Proxy) Configure(ctx context.Context) {
 		p.ShowParkingPortal = false
 	}
 
+	go func() {
+		for {
+			p.Db.Ping()
+			time.Sleep(5 * time.Second)
+		}
+	}()
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {

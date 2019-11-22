@@ -648,6 +648,13 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
+	go func() {
+		for {
+			pf.Db.Ping()
+			time.Sleep(5 * time.Second)
+		}
+	}()
+
 	return nil
 }
 
