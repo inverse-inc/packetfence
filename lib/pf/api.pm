@@ -338,7 +338,7 @@ sub firewallsso : Public {
 
 sub ReAssignVlan : Public : Fork {
     my ($class, $postdata )  = @_;
-    my @require = qw(connection_type switch mac ifIndex);
+    my @require = qw(connection_type switch_id mac ifIndex);
     my @found = grep {exists $postdata->{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
@@ -349,7 +349,7 @@ sub ReAssignVlan : Public : Fork {
         return;
     }
 
-    my $switch = $postdata->{switch};
+    my $switch = rebless_switch($postdata->{switch});
 
     my $filter = pf::access_filter::switch->new;
     $filter->filterSwitch('reevaluate',\$switch, $postdata);
@@ -368,6 +368,15 @@ sub ReAssignVlan : Public : Fork {
     else {
         $logger->error("Connection type is not wired. Could not reassign VLAN.");
     }
+}
+
+sub rebless_switch {
+    my ($switch) = @_;
+    if (ref($switch) eq 'HASH') {
+        return bless($switch, "pf::Switch::$switch->{type}");
+    }
+
+    return $switch;
 }
 
 =head2 ReAssignVlan_in_queue
@@ -390,7 +399,7 @@ sub desAssociate : Public : Fork {
 
     my $logger = pf::log::get_logger();
 
-    my $switch = $postdata->{switch};
+    my $switch = rebless_switch($postdata->{switch});
 
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
