@@ -12,7 +12,7 @@ const apiCall = axios.create({
 
 function _encodeURL (url) {
   if (Array.isArray(url)) {
-    return url.map(segment => encodeURIComponent(segment.replace('/', '~'))).join('/')
+    return url.map(segment => encodeURIComponent(segment.toString().replace('/', '~'))).join('/')
   } else {
     return url
   }
