@@ -25,7 +25,7 @@ use pf::log;
 use Readonly;
 use NetAddr::IP;
 use pf::constants;
-use pf::config::cluster;
+use pf::config::cluster qw($host_id);
 
 BEGIN {
     use Exporter ();

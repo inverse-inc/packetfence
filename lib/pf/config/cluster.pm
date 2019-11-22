@@ -17,9 +17,9 @@ use strict;
 use warnings;
 
 use Exporter;
-our ( @ISA, @EXPORT );
+our ( @ISA, @EXPORT_OK );
 @ISA = qw(Exporter);
-@EXPORT = qw($cluster_enabled $multi_zone_enabled $host_id $master_multi_zone);
+@EXPORT_OK = qw($cluster_enabled $multi_zone_enabled $host_id $master_multi_zone);
 
 use pf::log;
 use File::Slurp qw(read_file write_file);

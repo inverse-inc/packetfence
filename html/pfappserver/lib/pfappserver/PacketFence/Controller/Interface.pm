@@ -31,7 +31,7 @@ use pfappserver::Form::Interface::Create;
 use pfappserver::Base::Action::AdminRole;
 use pf::config;
 use List::MoreUtils qw(all);
-use pf::config::cluster;
+use pf::config::cluster qw($multi_zone_enabled);
 
 BEGIN {
     extends 'Catalyst::Controller';

@@ -21,7 +21,7 @@ use pf::log;
 use List::MoreUtils qw(uniq);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
-use pf::config::cluster;
+use pf::config::cluster qw($cluster_enabled);
 use pf::constants;
 use pf::CHI;
 use pf::generate_filter qw(filter_with_offset_limit);

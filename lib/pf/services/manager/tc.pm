@@ -31,9 +31,8 @@ use pf::iptables;
 
 use IPC::Cmd qw[can_run run];
 use pf::constants qw($TRUE $FALSE);
-use pf::config::cluster;
+use pf::config::cluster qw($host_id);
 
-my $host_id = $pf::config::cluster::host_id;
 tie our %ConfigTrafficShaping, 'pfconfig::cached_hash', "config::TrafficShaping";
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";

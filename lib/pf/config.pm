@@ -242,6 +242,8 @@ tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
 
 my $host_id = $pf::config::cluster::host_id;
 # Cluster compatible namespaces requiring the host ID to be provided
+our %SwitchConfig;
+tie %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
 tie %Config, 'pfconfig::cached_hash', "config::Pf($host_id)";
 tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints($host_id)";
 tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints($host_id)";

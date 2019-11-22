@@ -30,7 +30,7 @@ use pfconfig::cached_array;
 use pf::cluster;
 use pf::nodecategory;
 use Sys::Hostname;
-use pf::config::cluster;
+use pf::config::cluster qw($host_id);
 DateTime::Locale->add_aliases({
     'i_default' => 'en',
 });

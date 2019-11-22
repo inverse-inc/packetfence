@@ -31,6 +31,7 @@ use pf::cluster;
 use pf::Connection::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
 use pf::config qw(%connection_type %ConfigSwitchesGroup);
+use pf::config::cluster qw($cluster_enabled);
 use pf::constants qw($TRUE $FALSE);
 use pf::locationlog qw(locationlog_unique_ssids);
 use pf::util;

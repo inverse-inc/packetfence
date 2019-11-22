@@ -45,7 +45,7 @@ use pf::ip4log;
 use pf::authentication;
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
-use pf::config::cluster;
+use pf::config::cluster qw($host_id);
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';

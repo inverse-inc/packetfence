@@ -31,7 +31,7 @@ use NetAddr::IP;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::access_filter::switch;
-use pf::config::cluster;
+use pf::config::cluster qw($host_id);
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";

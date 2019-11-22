@@ -37,7 +37,7 @@ use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
 use POSIX qw(ceil);
 use Crypt::CBC;
-use pf::config::cluster;
+use pf::config::cluster qw($host_id);
 use Role::Tiny qw();
 
 
@@ -58,8 +58,6 @@ our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @c
 tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 our $CLUSTER = "CLUSTER";
-
-our $host_id = $pf::config::cluster::host_id;
 
 $cluster_enabled = $pf::config::cluster::cluster_enabled;
 
