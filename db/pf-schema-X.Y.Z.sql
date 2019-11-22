@@ -380,7 +380,8 @@ CREATE TABLE `locationlog` (
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
-  KEY `locationlog_ssid` (`ssid`)
+  KEY `locationlog_ssid` (`ssid`),
+  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_archive` (

@@ -76,8 +76,8 @@ CREATE TABLE IF NOT EXISTS `admin_api_audit_log` (
 --
 -- Add an index on ssid on the locationlog
 --
-\! echo "Adding index 'locationlog_ssid' to 'locationlog' table...";
-ALTER TABLE locationlog ADD INDEX IF NOT EXISTS `locationlog_ssid` (`ssid`);
+\! echo "Adding index 'locationlog_ssid' and 'locationlog_session_id_end_time' to 'locationlog' table...";
+ALTER TABLE locationlog ADD INDEX IF NOT EXISTS `locationlog_ssid` (`ssid`), ADD INDEX IF NOT EXISTS `locationlog_session_id_end_time` (`session_id`, `end_time`);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
