@@ -223,12 +223,13 @@ variables:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
 .install_script:
-  before_script:
-    - fixme
   script:
-    -
+    # temp: https://github.com/hashicorp/vagrant/issues/10958
+    - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
+    - cd ${VAGRANT_DIR} ; vagrant up ${VM_NAME} --provider=libvirt --destroy-on-error
   after_script:
-    - fixme
+    - cd ${VAGRANT_DIR} ; vagrant destroy -f ${VM_NAME}
+    - rm -rf .vagrant/ roles/ collections/
     
 
 ################################################################################
@@ -399,12 +400,16 @@ pages:
 # INSTALL JOBS
 ########################################
 install_pkg_dev_and_release_centos_7:
+  variables:
+    VM_NAME: pfcen7dev
   extends:
     - .install_job
     - .install_script
     - .job_dev_and_release_triggers
 
 install_pkg_dev_and_release_debian_stretch:
+  variables:
+    VM_NAME: pfdeb9dev
   extends:
     - .install_job
     - .install_script
