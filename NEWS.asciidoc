@@ -63,6 +63,7 @@ Enhancements
 * pfperl-api port number changed to 22224
 * Autoreg for mac-auth with an authorize source
 * Parking portal has been moved in the haproxy and httpd.dispatcher services and deprecates the dedicated httpd.parking service
+* Inline access to the documentation from the Web admin interface
 
 Bug Fixes
 +++++++++
