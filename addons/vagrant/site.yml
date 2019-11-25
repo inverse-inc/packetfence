@@ -25,11 +25,14 @@
 - hosts: pfservers
   name: install pf on standalone
   become: True
+  collections:
+    - inverse_inc.packetfence
 
+  # search roles in collection
   roles:
-    - role: inverse_inc.packetfence.packetfence_common
+    - role: packetfence_common
       tags: install
-    - role: inverse_inc.packetfence.packetfence_install
+    - role: packetfence_install
       tags: install
 
   tasks:
@@ -53,6 +56,8 @@
 - hosts: dev
   name: install additionnal stuff for dev machines
   become: True
+  collections:
+    - inverse_inc.packetfence
 
   roles:
     - role: geerlingguy.nodejs
@@ -60,6 +65,6 @@
         nodejs_version: "10.x"
       tags: nodejs
       
-    - role: inverse_inc.packetfence.packetfence_dev
+    - role: packetfence_dev
       tags: dev
 
