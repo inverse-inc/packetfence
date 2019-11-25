@@ -394,7 +394,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type) && ~~form.nat_enabled === 0,
+          if: ['inlinel2'].includes(form.type) && form.nat_enabled !== 'enabled',
           label: null, /* no label */
           fields: [
             {
