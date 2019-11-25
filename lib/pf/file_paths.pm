@@ -112,7 +112,8 @@ our (
     $fingerbank_config_file,
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
-    $api_i18n_dir
+    $api_i18n_dir,
+    $iptable_config_file
 );
 
 BEGIN {
@@ -202,6 +203,7 @@ BEGIN {
         $fingerbank_default_config_file
         $fingerbank_doc_file
         $api_i18n_dir
+        $iptable_config_file
     );
 }
 
@@ -316,6 +318,7 @@ $pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
+$iptable_config_file = catfile($conf_dir, "iptables.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -404,4 +407,3 @@ USA.
 =cut
 
 1;
-
