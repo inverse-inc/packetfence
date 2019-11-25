@@ -29,8 +29,9 @@ Vagrant.configure("2") do |pfservers|
     ansible.config_file = "ansible.cfg"
     ansible.inventory_path = "inventory"
     ansible.galaxy_role_file = "requirements.yml"
+    ansible.skip_tags = ["api_config", "api_sources", "api_users", "build"]
     # only for debug
-    #ansible.verbose = "-v"
+    ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end
 
   # Use to run only tasks tagged "install" in site.yml
