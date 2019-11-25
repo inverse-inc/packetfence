@@ -140,21 +140,14 @@ export default {
         return this.value.actions && this.value.actions.includes('unreg')
       },
       set (newValue) {
-        let index
         if (newValue) {
           // add unreg
-          this.value.actions.push('unreg')
+          this.addValueAction('unreg')
           // remove autoreg
-          index = this.value.actions.indexOf('autoreg')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('autoreg')
         } else {
-          // add unreg
-          index = this.value.actions.indexOf('unreg')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          // remove unreg
+          this.removeValueAction('unreg')
         }
       }
     },
@@ -163,28 +156,18 @@ export default {
         return this.value.actions && this.value.actions.includes('autoreg')
       },
       set (newValue) {
-        let index
         if (newValue) {
           // add autoreg
-          this.value.actions.push('autoreg')
+          this.addValueAction('autoreg')
           // add role
-          this.value.actions.push('role')
+          this.addValueAction('role')
           // remove unreg
-          index = this.value.actions.indexOf('unreg')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('unreg')
         } else {
           // remove autoreg
-          index = this.value.actions.indexOf('autoreg')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('autoreg')
           // remove role
-          index = this.value.actions.indexOf('role')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('role')
         }
       }
     },
@@ -193,14 +176,10 @@ export default {
         return this.value.actions && this.value.actions.includes('reevaluate_access')
       },
       set (newValue) {
-        let index
         if (newValue) {
-          this.value.actions.push('reevaluate_access')
+          this.addValueAction('reevaluate_access')
         } else {
-          index = this.value.actions.indexOf('reevaluate_access')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('reevaluate_access')
         }
       }
     },
@@ -209,14 +188,10 @@ export default {
         return this.value.actions && this.value.actions.includes('email_admin')
       },
       set (newValue) {
-        let index
         if (newValue) {
-          this.value.actions.push('email_admin')
+          this.addValueAction('email_admin')
         } else {
-          index = this.value.actions.indexOf('email_admin')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('email_admin')
         }
       }
     },
@@ -225,14 +200,10 @@ export default {
         return this.value.actions && this.value.actions.includes('email_user')
       },
       set (newValue) {
-        let index
         if (newValue) {
-          this.value.actions.push('email_user')
+          this.addValueAction('email_user')
         } else {
-          index = this.value.actions.indexOf('email_user')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('email_user')
         }
       }
     },
@@ -241,14 +212,10 @@ export default {
         return this.value.actions && this.value.actions.includes('external')
       },
       set (newValue) {
-        let index
         if (newValue) {
-          this.value.actions.push('external')
+          this.addValueAction('external')
         } else {
-          index = this.value.actions.indexOf('external')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('external')
         }
       }
     },
@@ -257,14 +224,10 @@ export default {
         return this.value.actions && this.value.actions.includes('close')
       },
       set (newValue) {
-        let index
         if (newValue) {
-          this.value.actions.push('close')
+          this.addValueAction('close')
         } else {
-          index = this.value.actions.indexOf('close')
-          if (index >= 0) {
-            this.value.actions.splice(index, 1)
-          }
+          this.removeValueAction('close')
         }
       }
     }
@@ -279,6 +242,13 @@ export default {
         }
       }
       return options
+    },
+    addValueAction (action) {
+      this.removeValueAction(action) // remove dups
+      this.value.actions.push(action)
+    },
+    removeValueAction (action) {
+      this.value.actions = this.value.actions.filter(a => a !== action)
     }
   },
   watch: {
