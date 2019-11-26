@@ -193,9 +193,9 @@ variables:
 
 .rpm_script:
   script:
-    - cp ${RPM_DIR}/.rpmmacros ${HOME}
     # temp
-    - make conf/git_commit_id
+    - echo "%git_commit $CI_COMMIT_SHA" >> ${RPM_DIR}/.rpmmacros
+    - cp ${RPM_DIR}/.rpmmacros ${HOME}
     - ci-build-pkg ${RPM_DIR}
 
 .deb_script:
