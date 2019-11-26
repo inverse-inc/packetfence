@@ -13,7 +13,7 @@ Actions for Dynamic Routing
 use strict;
 use warnings;
 use base qw(Exporter);
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
     %AUTHENTICATION_ACTIONS
 );
 

@@ -23,7 +23,9 @@ use List::MoreUtils qw(any);
 use pf::node;
 use pf::person;
 use pf::util;
-use captiveportal::Base::Actions;
+use captiveportal::Base::Actions qw(
+   %AUTHENTICATION_ACTIONS
+);
 use captiveportal::DynamicRouting::Detach;
 
 has id => (is => 'ro', required => 1);
