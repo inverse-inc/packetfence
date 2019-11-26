@@ -28,7 +28,7 @@ use pf::file_paths qw($pf_default_file $pf_config_file);
 use pf::IniFiles;
 
 our $VERSION = 1.000000;
-our @EXPORT = qw($statsd);
+our @EXPORT_OK = qw($statsd);
 our $statsd;
 
 our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
