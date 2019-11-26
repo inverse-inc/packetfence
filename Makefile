@@ -260,3 +260,7 @@ html_install:
 	cp -v --no-dereference $(SRC_HTML_PFAPPDIR_STATIC)/alt \
 	    $(DESTDIR)$(HTML_PFAPPDIR_STATIC)
 
+.PHONY: conf/git_commit_id
+conf/git_commit_id:
+	echo $$CI_COMMIT_SHA > $@
+
