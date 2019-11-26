@@ -194,12 +194,16 @@ variables:
 .rpm_script:
   script:
     - cp ${RPM_DIR}/.rpmmacros ${HOME}
+    # temp
+    - make conf/git_commit_id
     - ci-build-pkg ${RPM_DIR}
 
 .deb_script:
   script:
     - ./${CIDIR}/debian/convert-to-native-package.sh
     - cp ${CIDIR}/debian/.devscripts ${HOME}
+    # temp
+    - make conf/git_commit_id
     - quilt push
     - ci-build-pkg ${DEB_DIR}
   variables:
