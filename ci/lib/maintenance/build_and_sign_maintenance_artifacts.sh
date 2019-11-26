@@ -84,6 +84,7 @@ build_artifacts() {
 # sign artifacts for all distributions using artifacts
 # of previous build jobs
 sign_artifacts() {
+    configure_and_check
     configure_gpg
     log_section "Display artifacts.."
     tree $RESULT_DIR
