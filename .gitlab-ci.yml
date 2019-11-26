@@ -223,6 +223,9 @@ variables:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
 .install_script:
+  variables:
+    ANSIBLE_SKIP_TAGS: 'build'
+    # set VAGRANT_ANSIBLE_VERBOSE to true if you want debug
   script:
     # temp: https://github.com/hashicorp/vagrant/issues/10958
     - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
@@ -278,7 +281,7 @@ pfbuild_release:
     # based on their branch name using CI_COMMIT_REF_SLUG
     # CI_COMMIT_TAG contains vX.Y.Z
     # PF_RELEASE_REV contains X.Y
-    # DOCKER_EXTRA_TAG contains maintenance-X.Y
+    # DOCKER_EXTRA_TAG contains maintenance-X-Y
     - PF_RELEASE_REV=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' conf/pf-release)
     - export DOCKER_EXTRA_TAG=maintenance-${PF_RELEASE_REV/./-}
     - make -e -C ${PACKERDIR} pfbuild
