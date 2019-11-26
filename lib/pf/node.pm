@@ -89,7 +89,7 @@ use pf::constants qw(
     $default_pid
     $admin_pid
 );
-use pf::config::security_event;
+use pf::config::security_event qw(@BANDWIDTH_EXPIRED_SECURITY_EVENTS);
 use pf::config qw(
     %connection_type_to_str
     $INLINE

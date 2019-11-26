@@ -60,7 +60,7 @@ use pf::config qw(
 );
 use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
-use pf::config::security_event;
+use pf::config::security_event qw(@ACCOUNTING_TRIGGERS);
 use pf::db;
 use pf::error qw(is_error);
 use pf::security_event;

@@ -52,7 +52,9 @@ use pf::dal::inline_accounting;
 use pf::error qw(is_error is_success);
 use pf::dal::node;
 use pf::security_event;
-use pf::config::security_event;
+use pf::config::security_event qw(
+   @BANDWIDTH_EXPIRED_SECURITY_EVENTS
+);
 use pf::constants qw(
     $ZERO_DATE
 );

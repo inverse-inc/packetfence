@@ -21,9 +21,9 @@ tie our @ACCOUNTING_TRIGGERS, 'pfconfig::cached_array' => 'resource::accounting_
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         @BANDWIDTH_EXPIRED_SECURITY_EVENTS
         @ACCOUNTING_TRIGGERS
     );

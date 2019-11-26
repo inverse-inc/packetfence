@@ -23,7 +23,9 @@ use pf::log;
 use List::Util qw(first);
 use pf::config;
 use pf::security_event;
-use pf::config::security_event;
+use pf::config::security_event qw(
+   @BANDWIDTH_EXPIRED_SECURITY_EVENTS
+);
 use pf::config::util;
 use pf::web::guest;
 use pf::util;
