@@ -13,7 +13,6 @@ use Moose;
 use pf::Authentication::constants;
 use pf::config qw(%Config);
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::authentication::messages;
 use pf::log;
 use pf::util;
 

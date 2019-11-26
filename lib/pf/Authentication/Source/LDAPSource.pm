@@ -10,7 +10,11 @@ pf::Authentication::Source::LDAPSource
 
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::authentication::messages;
+use pf::constants::authentication::messages qw(
+    $COMMUNICATION_ERROR_MSG
+    $AUTH_FAIL_MSG
+    $AUTH_SUCCESS_MSG
+);
 use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT $DEFAULT_LDAP_CONNECTION_TIMEOUT);
 use pf::Authentication::Condition;
 use pf::CHI;

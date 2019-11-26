@@ -10,7 +10,11 @@ pf::Authentication::Source::RADIUSSource
 
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
-use pf::constants::authentication::messages;
+use pf::constants::authentication::messages qw(
+    $COMMUNICATION_ERROR_MSG
+    $AUTH_FAIL_MSG
+    $AUTH_SUCCESS_MSG
+);
 use pf::log;
 use pf::config qw(%Config);
 

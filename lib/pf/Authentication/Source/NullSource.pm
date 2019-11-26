@@ -15,7 +15,6 @@ use strict;
 use warnings;
 use Moose;
 use pf::constants;
-use pf::constants::authentication::messages;
 use pf::config;
 use Email::Valid;
 use pf::util;

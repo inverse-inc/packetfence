@@ -27,7 +27,6 @@ BEGIN {
 use pf::constants;
 use pf::constants::realm;
 use pf::Authentication::constants;
-use pf::constants::authentication::messages;
 
 # pf core libs
 

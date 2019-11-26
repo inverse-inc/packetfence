@@ -18,7 +18,6 @@ use Moose;
 use pf::constants;
 use pf::config;
 use pf::Authentication::constants;
-use pf::constants::authentication::messages;
 use pf::util;
 use pf::constants::role qw($REJECT_ROLE);
 

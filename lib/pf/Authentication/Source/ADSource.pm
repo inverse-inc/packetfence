@@ -9,7 +9,6 @@ pf::Authentication::Source::ADSource
 =cut
 
 use pf::Authentication::constants;
-use pf::constants::authentication::messages;
 use pf::Authentication::Source::LDAPSource;
 use pf::constants;
 

@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use Readonly;
 use base qw(Exporter);
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
   $COMMUNICATION_ERROR_MSG $AUTH_FAIL_MSG $AUTH_SUCCESS_MSG $INVALID_EMAIL_MSG $LOCALDOMAIN_EMAIL_UNAUTHORIZED $EMAIL_UNAUTHORIZED
 );
 

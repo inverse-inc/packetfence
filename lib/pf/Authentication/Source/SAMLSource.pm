@@ -11,7 +11,6 @@ Model for a SAML source
 =cut
 
 use pf::Authentication::constants;
-use pf::constants::authentication::messages;
 use pf::constants;
 use pf::config;
 use Template::AutoFilter;

@@ -11,7 +11,11 @@ pf::Authentication::Source::SQLSource
 use pf::constants qw($TRUE $FALSE);
 use pf::password;
 use pf::Authentication::constants;
-use pf::constants::authentication::messages;
+use pf::constants::authentication::messages qw(
+    $COMMUNICATION_ERROR_MSG
+    $AUTH_FAIL_MSG
+    $AUTH_SUCCESS_MSG
+);
 use pf::Authentication::Action;
 use pf::Authentication::Source;
 

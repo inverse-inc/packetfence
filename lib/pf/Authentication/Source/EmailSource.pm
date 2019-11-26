@@ -10,7 +10,6 @@ pf::Authentication::Source::EmailSource
 
 use pf::Authentication::constants;
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::authentication::messages;
 use pf::log;
 
 use Moose;
