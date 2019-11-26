@@ -23,7 +23,9 @@ use pf::authentication();
 use pf::Authentication::constants;
 use pf::config();
 use pf::config::util();
-use pf::config::trapping_range;
+use pf::config::trapping_range qw(
+   @TRAPPING_RANGE
+);
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();

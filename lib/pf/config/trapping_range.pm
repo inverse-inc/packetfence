@@ -20,9 +20,9 @@ tie our @TRAPPING_RANGE, 'pfconfig::cached_array' => 'resource::trapping_range';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         @TRAPPING_RANGE
     );
 }
