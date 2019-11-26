@@ -227,7 +227,7 @@ variables:
     # temp: https://github.com/hashicorp/vagrant/issues/10958
     - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
     - cd ${VAGRANT_DIR}
-    - vagrant box update
+    - vagrant box update ${VM_NAME}
     - vagrant up ${VM_NAME} --provider=libvirt --destroy-on-error
   after_script:
     - cd ${VAGRANT_DIR} ; vagrant destroy -f ${VM_NAME}
