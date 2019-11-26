@@ -21,7 +21,9 @@ use base ('pf::Switch::Cisco::WLC');
 
 use Net::SNMP;
 use Try::Tiny;
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa);

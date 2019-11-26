@@ -15,7 +15,7 @@ pf::UnifiedApi::Controller::Config
 use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
-use pf::constants;
+use pf::constants qw($TRUE);
 use List::MoreUtils qw(any);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;

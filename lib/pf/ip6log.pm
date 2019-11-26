@@ -24,7 +24,7 @@ use pf::config qw(
     $management_network
     %Config
 );
-use pf::constants;
+use pf::constants qw($TRUE $ZERO_DATE);
 use pf::dal;
 use pf::dal::ip6log;
 use pf::dal::ip6log_archive;

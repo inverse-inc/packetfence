@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::WirelessProfile;
 use Moose;
 use namespace::autoclean;
 use File::Slurp qw(read_file);
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::util qw (isenabled);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }

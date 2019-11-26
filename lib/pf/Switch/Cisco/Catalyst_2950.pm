@@ -90,7 +90,10 @@ use Carp;
 use Net::SNMP;
 use Data::Dumper;
 
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::config qw(
     $ROLE_API_LEVEL
     $MAC

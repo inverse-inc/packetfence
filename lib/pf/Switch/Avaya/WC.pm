@@ -36,7 +36,9 @@ use warnings;
 
 use base ('pf::Switch');
 
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw(
     $MAC
     $SSID

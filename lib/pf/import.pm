@@ -31,7 +31,10 @@ use Text::CSV;
 use POSIX;
 
 use pf::error;
-use pf::constants;
+use pf::constants qw(
+   $default_pid
+   $ZERO_DATE
+);
 use pf::config qw(%Config);
 use pf::node;
 use pf::nodecategory qw(nodecategory_lookup);

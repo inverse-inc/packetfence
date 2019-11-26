@@ -24,7 +24,9 @@ pf::cmd::pf::renew_lets_encrypt
 use strict;
 use warnings;
 use pf::cluster;
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::config::util;
 use pf::util;

@@ -16,7 +16,10 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::I18N::pfappserver;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::error qw(is_success is_error);
 use pf::dal::user_preference;
 

@@ -56,7 +56,7 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::accounting qw(node_accounting_current_sessionid);
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::config qw(
     $MAC
     $SSID

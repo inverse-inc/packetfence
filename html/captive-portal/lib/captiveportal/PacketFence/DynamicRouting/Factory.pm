@@ -22,7 +22,7 @@ use Module::Pluggable
   inner       => 0,
   require     => 1;
 use pfconfig::cached_hash;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use Graph;
 use List::MoreUtils qw(any);

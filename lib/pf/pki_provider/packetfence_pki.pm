@@ -16,7 +16,10 @@ use strict;
 use warnings;
 use Moo;
 use WWW::Curl::Easy;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use URI::Escape::XS qw(uri_escape uri_unescape);
 
 extends 'pf::pki_provider';

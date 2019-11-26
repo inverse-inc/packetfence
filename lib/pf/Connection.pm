@@ -2,7 +2,10 @@ package pf::Connection;
 
 use Moose;
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::radius::constants;
 use pf::config qw(
     $WIRELESS_MAC_AUTH

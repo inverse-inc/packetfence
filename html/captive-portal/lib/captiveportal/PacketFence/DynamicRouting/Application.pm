@@ -15,7 +15,10 @@ use Moose;
 use CHI;
 use Cache::FileCache;
 use Template::AutoFilter;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::web::constants;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);

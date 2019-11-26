@@ -20,7 +20,7 @@ use pf::UnifiedApi::Search::Builder::Fingerbank;
 use fingerbank::API;
 use pf::cluster;
 use pf::fingerbank;
-use pf::constants;
+use pf::constants qw($TRUE);
 
 =head2 url_param_name
 

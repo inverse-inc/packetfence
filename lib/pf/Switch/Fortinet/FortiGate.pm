@@ -29,7 +29,10 @@ use pf::util;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use pf::log;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::config qw ($WEBAUTH_WIRELESS);
 use pf::constants::role qw($REJECT_ROLE);

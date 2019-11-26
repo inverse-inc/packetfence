@@ -19,7 +19,9 @@ use pfappserver::Base::Model::Search;
 use pf::log;
 use pf::util qw(calc_page_count clean_mac valid_mac);
 use pf::SearchBuilder;
-use pf::constants;
+use pf::constants qw(
+   $ZERO_DATE
+);
 use pf::SearchBuilder::Node;
 use pf::node qw(node_custom_search);
 use HTTP::Status qw(:constants);

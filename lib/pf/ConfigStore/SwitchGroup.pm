@@ -13,7 +13,7 @@ pf::ConfigStore::SwitchGroup;
 =cut
 
 use Moo;
-use pf::constants;
+use pf::constants qw($FALSE);
 use namespace::autoclean;
 use pf::ConfigStore::Group;
 

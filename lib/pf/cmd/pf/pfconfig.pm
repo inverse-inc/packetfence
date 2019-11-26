@@ -31,7 +31,9 @@ use pfconfig::util;
 use pfconfig::cached;
 use Data::Dumper;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use base qw(pf::base::cmd::action_cmd);
 
 =head2 namespace_verify

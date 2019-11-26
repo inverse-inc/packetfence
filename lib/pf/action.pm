@@ -29,7 +29,9 @@ use pf::security_event_config;
 use pf::config qw(access_duration);
 
 use pf::provisioner;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+);
 use pf::dal::action;
 use pf::error qw(is_error is_success);
 

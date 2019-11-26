@@ -30,14 +30,17 @@ use pf::file_paths qw(
     $var_dir
 );
 use pf::util;
-use pf::constants;
+use pf::constants qw (
+    $TRUE
+    $FALSE
+);
 use pf::constants::cluster qw(@FILES_TO_SYNC);
 use Config::IniFiles;
 use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
 use POSIX qw(ceil);
 use Crypt::CBC;
-use pf::config::cluster qw($host_id);
+use pf::config::cluster qw($host_id $multi_zone_enabled);
 use Role::Tiny qw();
 
 

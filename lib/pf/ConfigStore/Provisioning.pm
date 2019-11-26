@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 use pf::file_paths qw($provisioning_config_file);
 use pf::util;
-use pf::constants;
+use pf::constants qw($FALSE);
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
 

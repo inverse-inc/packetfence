@@ -46,7 +46,10 @@ use POSIX;
 use Net::SNMP;
 
 use pf::Switch::constants;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::util;
 
 use base ('pf::Switch::Netgear');

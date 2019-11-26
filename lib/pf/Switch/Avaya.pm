@@ -35,7 +35,9 @@ use Try::Tiny;
 
 use base ('pf::Switch::Nortel');
 
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw(
     $WIRED_MAC_AUTH
     $WIRED_802_1X

@@ -19,7 +19,10 @@ use strict;
 use warnings;
 
 use pf::cluster;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::config qw(
     %Config
     @internal_nets

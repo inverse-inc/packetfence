@@ -16,7 +16,10 @@ use warnings;
 
 use pf::log;
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::constants::role;
 use pf::config qw(
     $IPTABLES_MARK_UNREG

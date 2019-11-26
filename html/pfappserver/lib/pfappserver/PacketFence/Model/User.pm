@@ -32,7 +32,10 @@ use pf::enforcement qw(reevaluate_access);
 use pf::util;
 use pf::config::util;
 use pf::web::guest;
-use pf::constants;
+use pf::constants qw(
+   $default_pid
+   $ZERO_DATE
+);
 use pf::authentication;
 use pf::sms_carrier;
 

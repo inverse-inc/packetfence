@@ -49,7 +49,10 @@ BEGIN {
 use pf::authentication;
 use pf::log;
 use pf::Authentication::constants;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::config qw(
     %CAPTIVE_PORTAL
     %Config

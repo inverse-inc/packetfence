@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
-use pf::constants;
+use pf::constants qw($FALSE);;
 
 =head2 value
 

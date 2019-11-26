@@ -13,7 +13,10 @@ Controls the caching of the NT hashes for domains
 use strict;
 use warnings;
 
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::authentication;
 use pf::config qw(%ConfigDomain);
 use Net::LDAP::Control::Paged;

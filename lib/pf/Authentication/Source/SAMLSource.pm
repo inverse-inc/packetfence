@@ -11,7 +11,10 @@ Model for a SAML source
 =cut
 
 use pf::Authentication::constants;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::config;
 use Template::AutoFilter;
 use File::Slurp qw(read_file write_file);

@@ -33,7 +33,10 @@ use pf::Portal::Session;
 use pf::util;
 use pf::web::constants;
 use pf::web::util;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::access_filter::switch;
 use pf::dal;
 

@@ -35,7 +35,10 @@ use Try::Tiny;
 
 use base ('pf::Switch::Cisco');
 
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::config qw(
     $MAC
     $VIRTUAL_VPN

@@ -21,7 +21,9 @@ use Module::Pluggable
   inner       => 0,
   require     => 1;
 use List::MoreUtils qw(any);
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+);
 
 our @MODULES;
 

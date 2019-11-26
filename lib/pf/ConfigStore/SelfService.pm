@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 use pf::file_paths qw($self_service_config_file $self_service_default_config_file);
 use pf::util;
-use pf::constants;
+use pf::constants qw($FALSE);
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
 

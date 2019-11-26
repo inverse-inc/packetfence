@@ -1,4 +1,5 @@
 package pf::provisioner::mobileconfig;
+
 =head1 NAME
 
 pf::provisioner::mobileconfig add documentation
@@ -17,7 +18,10 @@ use warnings;
 use Crypt::SMIME;
 use MIME::Base64 qw(decode_base64);
 use pf::log;
-use pf::constants;
+use pf::constants qw(
+    $default_pid
+    $FALSE
+);
 use fingerbank::Constant;
 
 use pf::person;

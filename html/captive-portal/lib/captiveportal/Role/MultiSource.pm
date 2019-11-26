@@ -14,7 +14,10 @@ use Moose::Role;
 use pf::log;
 use List::Util qw(first);
 use List::MoreUtils qw(uniq);
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 
 has 'source_id' => (is => 'rw', trigger => \&_build_sources );
 

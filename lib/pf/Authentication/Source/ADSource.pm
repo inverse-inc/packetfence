@@ -10,7 +10,7 @@ pf::Authentication::Source::ADSource
 
 use pf::Authentication::constants;
 use pf::Authentication::Source::LDAPSource;
-use pf::constants;
+use pf::constants qw($FALSE);
 
 use Moose;
 extends 'pf::Authentication::Source::LDAPSource';

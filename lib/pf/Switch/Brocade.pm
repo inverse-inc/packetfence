@@ -71,7 +71,9 @@ sub description { 'Brocade Switches' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::constants;
+use pf::constants qw(
+    $FALSE
+);
 use pf::config qw(
     $MAC
     $PORT

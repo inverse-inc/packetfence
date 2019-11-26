@@ -24,7 +24,12 @@ use LWP::UserAgent;
 use Readonly;
 use URI::Escape::XS qw(uri_escape);
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+    $HTTPS_PORT
+    $HTTPS
+);
 use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node;

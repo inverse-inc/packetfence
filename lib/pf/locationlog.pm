@@ -74,7 +74,7 @@ use pf::error qw(is_error is_success);
 use pf::node;
 use pf::util;
 use pf::config::util;
-use pf::constants;
+use pf::constants qw($ZERO_DATE);
 
 =head1 DATA FORMAT
 

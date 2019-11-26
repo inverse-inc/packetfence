@@ -23,7 +23,7 @@ use Readonly;
 use base ('pf::scan');
 
 use pf::CHI;
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
 use pf::config qw(%Config);
 use pf::util;

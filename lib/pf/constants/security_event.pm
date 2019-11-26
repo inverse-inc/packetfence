@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use Readonly;
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::constants::role qw($ISOLATION_ROLE $VOICE_ROLE $INLINE_ROLE);
 
 our @EXPORT_OK = qw($MAX_SECURITY_EVENT_ID $LOST_OR_STOLEN %NON_WHITELISTABLE_ROLES);

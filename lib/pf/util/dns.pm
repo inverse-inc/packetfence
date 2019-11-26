@@ -15,7 +15,7 @@ Util functions for DNS
 use strict;
 use warnings;
 
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pfconfig::cached_hash;
 
 tie our %passthroughs, 'pfconfig::cached_hash', 'resource::passthroughs';

@@ -64,7 +64,10 @@ use Net::SNMP;
 use SOAP::Lite;
 use Try::Tiny;
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::constants::role qw($VOICE_ROLE);
 use pf::config qw(
     $MAC

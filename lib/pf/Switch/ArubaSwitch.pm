@@ -36,7 +36,9 @@ sub description { 'Aruba Switches' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw(
     $MAC
     $PORT

@@ -33,7 +33,10 @@ use pf::constants::pfqueue qw(
     $RESULT_KEY
 );
 use JSON::MaybeXS;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::log;
 
 sub empty {};

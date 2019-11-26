@@ -16,7 +16,10 @@ use strict;
 use warnings;
 use Moose;
 use JSON::MaybeXS;
-use pf::constants;
+use pf::constants qw(
+    $FALSE
+    $TRUE
+);
 use pf::config;
 use pf::util;
 use WWW::Curl::Easy;

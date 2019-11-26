@@ -25,7 +25,9 @@ use pf::config qw(
     $WIRELESS_MAC_AUTH
     $WEBAUTH_WIRELESS
 );
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::node;
 use pf::util;
 use pf::security_event;

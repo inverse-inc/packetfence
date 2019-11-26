@@ -20,7 +20,7 @@ use Readonly;
 use pf::constants::filters;
 use pf::validation::profile_filters;
 use Graph;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::config qw(
     %Config

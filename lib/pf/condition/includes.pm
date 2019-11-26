@@ -16,7 +16,7 @@ Check if an array includes the value defined in the condition
 use strict;
 use warnings;
 use Moose;
-use pf::constants;
+use pf::constants qw($FALSE);
 use Scalar::Util qw(reftype);
 use List::MoreUtils qw(any);
 extends qw(pf::condition);

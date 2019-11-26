@@ -24,7 +24,7 @@ use IO::Interface::Simple;
 use pf::log;
 use Readonly;
 use NetAddr::IP;
-use pf::constants;
+use pf::constants qw($HTTP_PORT $HTTPS_PORT);
 use pf::config::cluster qw($host_id);
 
 BEGIN {

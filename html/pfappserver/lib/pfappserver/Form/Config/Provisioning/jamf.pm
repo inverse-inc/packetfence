@@ -14,7 +14,12 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::constants;
+use pf::constants qw(
+   $HTTP
+   $HTTPS
+   $HTTPS_PORT
+   $TRUE
+);
 
 has_field 'host' => (
     type => 'Text',

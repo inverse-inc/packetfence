@@ -22,7 +22,7 @@ use pf::file_paths qw(
 use pf::log;
 use pf::util;
 use pf::cluster;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use NetAddr::IP;
 
 use pf::config qw(

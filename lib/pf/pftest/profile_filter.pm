@@ -26,7 +26,9 @@ use base qw(pf::cmd);
 use pf::Connection::ProfileFactory;
 use pf::util qw(clean_mac);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+);
 
 sub parseArgs {
     my ($self) = @_;

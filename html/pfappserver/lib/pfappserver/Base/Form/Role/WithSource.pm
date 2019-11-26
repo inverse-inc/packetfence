@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose::Role;
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::log;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 
 after 'setup' => sub {
     my ($self) = @_;

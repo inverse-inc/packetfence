@@ -14,7 +14,9 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::util;
 use pf::config::util;
 use pf::error qw(is_success);

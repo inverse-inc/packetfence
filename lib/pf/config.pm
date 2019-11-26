@@ -24,7 +24,10 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 use strict;
 use warnings;
 use pf::log;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;

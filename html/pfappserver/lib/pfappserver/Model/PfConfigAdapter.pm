@@ -7,7 +7,9 @@ extends 'Catalyst::Model';
 use Try::Tiny;
 
 use pf::log;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+);
 use pf::config qw(
     $management_network
     %Config

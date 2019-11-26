@@ -28,7 +28,7 @@ use pf::config::util;
 use pf::web::guest;
 use pf::util;
 use pf::node;
-use pf::constants;
+use pf::constants qw($TRUE $default_pid);
 
 has '+pid_field' => (default => sub { "email" });
 

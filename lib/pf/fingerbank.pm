@@ -25,7 +25,7 @@ use fingerbank::Util;
 use fingerbank::DB_Factory;
 use fingerbank::Constant qw($UPSTREAM_SCHEMA);
 use pf::cluster;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::fingerbank qw($RATE_LIMIT);
 use pf::error qw(is_success);
 

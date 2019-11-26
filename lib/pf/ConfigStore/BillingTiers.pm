@@ -14,7 +14,7 @@ pf::ConfigStore::BillingTiers
 use strict;
 use warnings;
 use Moo;
-use pf::constants;
+use pf::constants qw($FALSE);
 use pf::file_paths qw($billing_tiers_config_file);
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';

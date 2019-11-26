@@ -48,7 +48,9 @@ use Net::SNMP;
 
 use base ('pf::Switch::Dlink');
 
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw(
     $MAC
     $SSID

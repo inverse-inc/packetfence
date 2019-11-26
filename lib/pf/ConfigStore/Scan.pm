@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 use pf::file_paths qw($scan_config_file);
 extends 'pf::ConfigStore';
-use pf::constants;
+use pf::constants qw($FALSE);
 with 'pf::ConfigStore::Role::ReverseLookup';
 use pfconfig::cached_hash;
 tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';

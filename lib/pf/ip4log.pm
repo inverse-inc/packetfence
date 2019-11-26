@@ -24,7 +24,10 @@ use pf::config qw(
     $management_network
     %Config
 );
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $ZERO_DATE
+);
 use pf::dal;
 use pf::dal::ip4log;
 use pf::dal::ip4log_archive;

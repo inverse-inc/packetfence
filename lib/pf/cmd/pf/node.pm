@@ -35,7 +35,10 @@ use base qw(pf::base::cmd::action_cmd);
 use pf::node;
 use pf::util;
 use pf::log;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::enforcement;
 my $pid_re = qr{(?:

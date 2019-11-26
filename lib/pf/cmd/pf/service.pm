@@ -69,7 +69,10 @@ use pf::config qw(%Config);
 use pf::config::util;
 use pf::util;
 use pf::util::console;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
 use List::MoreUtils qw(part any true all);

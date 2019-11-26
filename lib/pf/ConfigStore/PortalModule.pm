@@ -21,7 +21,7 @@ use pf::file_paths qw(
 );
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
-use pf::constants;
+use pf::constants qw($FALSE);
 use pf::log;
 
 sub configFile { $portal_modules_config_file};

@@ -20,7 +20,9 @@ use warnings;
 use pf::log;
 
 use base ('pf::Switch::Dell');
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH

@@ -15,7 +15,10 @@ deletion, read info, ...
 
 use strict;
 use warnings;
-use pf::constants;
+use pf::constants qw(
+    $default_pid
+    $ZERO_DATE
+);
 use pf::log;
 use pf::password;
 use DateTime;

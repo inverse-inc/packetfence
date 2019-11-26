@@ -41,7 +41,10 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::accounting qw(node_accounting_dynauth_attr);
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::config qw(
     $MAC
     $SSID

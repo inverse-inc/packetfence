@@ -17,7 +17,12 @@ use Moo;
 extends 'pf::provisioner';
 
 use JSON::MaybeXS qw(decode_json encode_json);
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+    $HTTPS
+    $HTTPS_PORT
+);
 use pf::util qw(clean_mac);
 use LWP::UserAgent;
 use HTTP::Request::Common;

@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
-use pf::constants;
+use pf::constants qw($FALSE);
 use Scalar::Util qw(reftype);
 
 =head2 key

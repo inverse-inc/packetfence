@@ -15,7 +15,10 @@ pf::UnifiedApi::Controller::DynamicReports
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::error qw(is_error);
 use pf::ConfigStore::Report;
 use pf::UnifiedApi::Search;

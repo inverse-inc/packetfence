@@ -30,7 +30,9 @@ use warnings;
 
 use base ('pf::Switch::Juniper::EX2200');
 
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 sub description { 'Juniper EX 2300 Series' }
 
 # importing switch constants

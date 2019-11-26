@@ -33,7 +33,7 @@ An example of a new service foo
 use strict;
 
 use Moo;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::file_paths qw($var_dir $install_dir $systemd_unit_dir);
 use pf::log;
 use pf::util;

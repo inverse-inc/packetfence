@@ -23,7 +23,10 @@ use Readonly;
 
 use pf::authentication;
 use pf::Connection;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::constants::role qw($VOICE_ROLE);
 use pf::constants::realm;

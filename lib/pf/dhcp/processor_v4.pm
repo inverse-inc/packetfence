@@ -20,7 +20,10 @@ extends 'pf::dhcp::processor';
 
 use Try::Tiny;
 use pf::client;
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::constants::IP qw($IPV4);
 use pf::config qw(

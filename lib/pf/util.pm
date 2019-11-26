@@ -45,7 +45,11 @@ use Net::Ping;
 use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::CHI;
-use pf::constants qw($DIR_MODE);
+use pf::constants qw(
+    $DIR_MODE
+    $TRUE
+    $FALSE
+);
 
 BEGIN {
     use Exporter ();
@@ -107,7 +111,6 @@ BEGIN {
 
 # TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
 #      being able to use pf::util
-use pf::constants;
 use pf::constants::config qw(
     %connection_type
     $UNKNOWN

@@ -18,7 +18,10 @@ use warnings;
 use pf::log;
 use pf::security_event;
 use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID $PARKING_DHCP_GROUP_NAME);
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::config qw(%Config);
 use pf::util;
 use pf::api::unifiedapiclient;

@@ -12,7 +12,10 @@ We must at least always have one rule defined, the fallback one.
 
 use pf::log;
 use pf::config;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use Moose;
 use pf::util;
 use pf::Authentication::constants;

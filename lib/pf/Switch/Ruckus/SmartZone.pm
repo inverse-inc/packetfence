@@ -17,7 +17,9 @@ use base ('pf::Switch::Ruckus');
 
 use Try::Tiny;
 use pf::accounting qw(node_accounting_dynauth_attr);
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+);
 use pf::util;
 use LWP::UserAgent;
 use pf::node;

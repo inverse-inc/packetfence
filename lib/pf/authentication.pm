@@ -15,7 +15,9 @@ use warnings;
 
 use pf::log;
 
-use pf::constants;
+use pf::constants qw(
+    $FALSE
+);
 use pf::config;
 use pf::config::util;
 

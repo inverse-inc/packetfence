@@ -40,7 +40,9 @@ use Net::SNMP;
 
 use base ('pf::Switch::HP::Procurve_2500');
 
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw(
     $MAC
     $PORT

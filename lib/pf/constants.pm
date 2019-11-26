@@ -1,4 +1,5 @@
 package pf::constants;
+
 =head1 NAME
 
 pf::constants add documentation
@@ -15,7 +16,7 @@ use strict;
 use warnings;
 use Readonly;
 use base qw(Exporter);
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
     $FALSE $TRUE $YES $NO $default_pid $admin_pid $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR $CYAN_COLOR $MAGENTA_COLOR
     $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE $SPACE $SPACE_NUMBERS $DEFAULT_TENANT_ID $DIR_MODE $PFCMD_MODE
 );

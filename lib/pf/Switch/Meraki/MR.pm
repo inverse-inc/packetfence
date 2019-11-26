@@ -31,7 +31,9 @@ use warnings;
 
 use base ('pf::Switch');
 
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw($WIRELESS_MAC_AUTH $WEBAUTH_WIRELESS);
 use pf::util;
 use pf::node;

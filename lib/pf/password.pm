@@ -66,7 +66,11 @@ BEGIN {
     );
 }
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+    $ZERO_DATE
+);
 use pf::config qw(%Config);
 use pf::error qw(is_error is_success);;
 use pf::dal::password;

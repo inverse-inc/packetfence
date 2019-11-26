@@ -12,7 +12,7 @@ pf::SwitchSupports
 
 use strict;
 use warnings;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(uniq);
 
 sub import {

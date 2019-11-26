@@ -75,7 +75,7 @@ use warnings;
 use pf::log;
 use Readonly;
 
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::config qw(
     %ConfigFloatingDevices
     $WIRED_MAC_AUTH

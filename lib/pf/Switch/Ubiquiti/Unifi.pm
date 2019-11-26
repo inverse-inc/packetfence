@@ -27,7 +27,7 @@ use DateTime::Format::MySQL;
 use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::file_paths qw($var_dir);
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::util;
 use pf::node;
 use pf::config qw(

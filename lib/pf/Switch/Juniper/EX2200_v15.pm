@@ -19,7 +19,9 @@ use warnings;
 
 use base ('pf::Switch::Juniper::EX2200');
 
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH

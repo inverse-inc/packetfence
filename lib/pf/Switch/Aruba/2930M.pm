@@ -19,7 +19,9 @@ VoIP not tested using MAC Authentication/802.1X
 use strict;
 use warnings;
 use base ('pf::Switch::HP::Procurve_2920');
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::util;
 use pf::radius::constants;
 sub description {'Aruba 2930M Series'}

@@ -27,7 +27,9 @@ use pf::config qw(
     $MAC
     $PORT
 );
-use pf::constants;
+use pf::constants qw(
+   $TRUE
+);
 use pf::Switch::constants;
 use pf::util;
 use pf::accounting qw(node_accounting_dynauth_attr);

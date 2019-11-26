@@ -51,7 +51,7 @@ use pf::util;
 use pf::util::radius qw(perform_coa);
 use pf::web::util;
 use pf::radius::constants;
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::config;
 use pf::locationlog;
 use pf::config qw(

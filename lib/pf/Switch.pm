@@ -25,7 +25,7 @@ use Try::Tiny;
 our $VERSION = 2.10;
 
 use pf::CHI;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE $DEFAULT_TENANT_ID);
 use pf::constants::role qw($VOICE_ROLE $REGISTRATION_ROLE $REJECT_ROLE);
 use pf::config qw(
     $ROLES_API_LEVEL

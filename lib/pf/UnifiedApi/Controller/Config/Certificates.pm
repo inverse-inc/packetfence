@@ -23,7 +23,7 @@ use File::Slurp qw(read_file);
 use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::log;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 
 my $CERT_DELIMITER = "-----END CERTIFICATE-----";
 

@@ -48,7 +48,10 @@ BEGIN {
     );
 }
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::config qw(
     $BANDWIDTH_DIRECTION_RE
     $BANDWIDTH_UNITS_RE

@@ -13,7 +13,7 @@ Provisioning module
 use Moose;
 extends 'captiveportal::DynamicRouting::Module';
 
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::eap_type qw($EAP_TLS);
 use pf::log;
 use captiveportal::DynamicRouting::Module::TLSEnrollment;

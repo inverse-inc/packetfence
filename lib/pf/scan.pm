@@ -28,7 +28,11 @@ BEGIN {
     @ISA = qw(Exporter);
 }
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+    $ZERO_DATE
+);
 use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
 use pf::dal::scan;

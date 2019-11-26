@@ -19,7 +19,7 @@ use pf::log;
 use Net::SNMP;
 use Try::Tiny;
 
-use pf::constants;
+use pf::constants qw($TRUE);
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;

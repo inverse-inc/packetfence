@@ -3,7 +3,7 @@ use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
 use pf::config qw(%ConfigSelfService);
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::node;
 use pf::util;

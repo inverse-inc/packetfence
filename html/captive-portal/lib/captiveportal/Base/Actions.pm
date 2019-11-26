@@ -21,7 +21,7 @@ use pf::authentication;
 use pf::config;
 use pf::Authentication::constants;
 use pf::util;
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::constants::realm;
 
 our %AUTHENTICATION_ACTIONS = (

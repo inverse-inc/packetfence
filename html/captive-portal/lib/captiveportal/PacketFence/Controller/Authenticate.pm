@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::Authenticate;
 
 use Moose;
 use namespace::autoclean;
-use pf::constants;
+use pf::constants qw($default_pid);
 use pf::constants::eap_type qw($EAP_TLS);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 use pf::constants::realm;

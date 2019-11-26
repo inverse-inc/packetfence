@@ -15,7 +15,10 @@ pf::provisioner
 use strict;
 use warnings;
 use Moo;
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::config;
 use pf::fingerbank;
 use Readonly;

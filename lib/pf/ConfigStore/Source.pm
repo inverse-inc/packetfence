@@ -14,7 +14,7 @@ pf::ConfigStore::Source
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
-use pf::constants;
+use pf::constants qw($FALSE);
 use namespace::autoclean;
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);

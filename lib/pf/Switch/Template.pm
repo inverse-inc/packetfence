@@ -16,7 +16,7 @@ use base ('pf::Switch');
 use Try::Tiny;
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::Switch::constants;
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::util qw(isenabled);
 use List::MoreUtils qw(uniq);
 use pf::constants::role qw($REJECT_ROLE);

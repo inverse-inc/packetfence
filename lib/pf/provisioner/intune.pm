@@ -20,7 +20,7 @@ use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use WWW::Curl::Form;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::ip4log;
 use pf::ConfigStore::Provisioning;

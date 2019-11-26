@@ -82,7 +82,13 @@ BEGIN {
     );
 }
 
-use pf::constants;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+    $ZERO_DATE
+    $default_pid
+    $admin_pid
+);
 use pf::config::security_event;
 use pf::config qw(
     %connection_type_to_str

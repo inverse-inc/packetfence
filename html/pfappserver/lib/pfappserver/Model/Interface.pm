@@ -15,7 +15,10 @@ use Moose;
 use namespace::autoclean;
 use Net::Netmask;
 
-use pf::constants;
+use pf::constants qw(
+   $FALSE
+   $TRUE
+);
 use pf::config qw(%ConfigDomain);
 use pf::error qw(is_error is_success);
 use pf::util;

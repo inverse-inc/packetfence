@@ -21,7 +21,7 @@ use pf::file_paths qw(
     $server_cert
     $server_key
 );
-use pf::constants;
+use pf::constants qw($TRUE);
 
 extends 'pf::services::manager';
 
