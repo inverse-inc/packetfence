@@ -26,7 +26,11 @@ use pf::file_paths qw(
     $conf_dir
     $install_dir
 );
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   %ConfigCluster
+   $host_id
+);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::config qw(
     %Config

@@ -44,7 +44,9 @@ use pf::file_paths qw(
 use pf::dal;
 use pf::locationlog;
 use pf::node;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
 use pf::roles::custom $ROLES_API_LEVEL;

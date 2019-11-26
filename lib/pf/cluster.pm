@@ -53,9 +53,9 @@ use Module::Pluggable
 
 
 use Exporter;
-our ( @ISA, @EXPORT );
+our ( @ISA, @EXPORT_OK );
 @ISA = qw(Exporter);
-@EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts @db_cluster_servers @db_cluster_hosts @config_cluster_servers @config_cluster_hosts $cluster_enabled $host_id $CLUSTER $cluster_name);
+@EXPORT_OK = qw(%ConfigCluster @cluster_servers @cluster_hosts @db_cluster_servers @db_cluster_hosts @config_cluster_servers @config_cluster_hosts $cluster_enabled $host_id $CLUSTER $cluster_name);
 
 our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts, @db_cluster_servers, @db_cluster_hosts, @config_cluster_servers, @config_cluster_hosts);
 tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';

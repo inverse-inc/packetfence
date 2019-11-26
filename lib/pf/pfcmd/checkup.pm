@@ -75,7 +75,9 @@ use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::config::builder::pfdetect;
 use pf::config::builder::scoped_filter_engines;
 use pf::IniFiles;

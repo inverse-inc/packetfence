@@ -18,7 +18,10 @@ modules.
 use strict;
 use warnings;
 
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   $host_id
+);
 use pf::constants qw(
     $TRUE
     $FALSE

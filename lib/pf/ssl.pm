@@ -21,7 +21,9 @@ use File::Slurp qw(read_file write_file);
 use LWP::UserAgent;
 use pf::util;
 use pf::log;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::config qw($OS);
 use Readonly;
 

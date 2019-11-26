@@ -23,7 +23,9 @@ pf::cmd::pf::renew_lets_encrypt
 
 use strict;
 use warnings;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::constants qw(
    $TRUE
 );

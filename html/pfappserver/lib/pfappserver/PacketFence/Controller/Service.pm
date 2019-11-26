@@ -17,7 +17,11 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   %ConfigCluster
+   $host_id
+);
 
 use pf::services;
 

@@ -33,7 +33,10 @@ use pf::file_paths qw(
 use pf::log;
 use pf::util;
 use pf::constants qw($SPACE $SPACE_NUMBERS);
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   $host_id
+);
 
 extends 'pf::services::manager';
 

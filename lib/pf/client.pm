@@ -20,7 +20,9 @@ use Module::Pluggable
   sub_name    => 'modules',
   inner       => 0,
   require     => 1;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::constants::api;
 
 my @MODULES = __PACKAGE__->modules;

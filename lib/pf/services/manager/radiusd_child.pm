@@ -27,7 +27,9 @@ use pfconfig::cached_array;
 use pfconfig::cached_hash;
 
 use pf::authentication;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::util;
 use Socket;
 

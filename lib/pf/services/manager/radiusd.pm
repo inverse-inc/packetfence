@@ -19,7 +19,9 @@ use List::MoreUtils qw(any);
 use Moo;
 
 use pf::authentication;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::file_paths qw(
     $var_dir
     $conf_dir

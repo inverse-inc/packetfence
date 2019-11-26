@@ -56,7 +56,9 @@ use pf::util;
 use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
-use pf::cluster;
+use pf::cluster qw(
+    $cluster_enabled
+);
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::ip4log;
 use pf::Connection::ProfileFactory;

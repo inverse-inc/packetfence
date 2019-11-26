@@ -20,7 +20,9 @@ use pf::admin_roles;
 use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(none);
 use pf::pfcmd::checkup;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;

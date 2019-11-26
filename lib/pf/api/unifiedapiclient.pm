@@ -33,7 +33,9 @@ use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
 use pf::constants::api;
 use POSIX::AtFork;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 
 =head1 Attributes
 

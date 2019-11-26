@@ -25,7 +25,7 @@ use warnings;
 use Moo;
 use MIME::Base64;
 use pf::log;
-use pf::cluster;
+use pf::cluster qw($cluster_enabled);
 use POSIX::AtFork;
 use pf::api::unifiedapiclient;
 use pf::config qw(%Config);

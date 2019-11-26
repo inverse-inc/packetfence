@@ -18,7 +18,10 @@ use pf::file_paths qw($install_dir);
 use pf::util;
 use pf::config qw($management_network);
 use Moo;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   $host_id
+);
 use pf::config qw(@radius_ints);
 use List::MoreUtils qw(uniq);
 

@@ -19,7 +19,9 @@ use List::MoreUtils qw(uniq);
 
 use pf::log;
 use pf::util;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::config qw(
     %Config
     $OS

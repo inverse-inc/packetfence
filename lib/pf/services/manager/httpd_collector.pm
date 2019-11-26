@@ -21,7 +21,10 @@ use pf::config qw(
     %Config
     $OS
 );
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   %ConfigCluster
+);
 use List::MoreUtils qw(uniq);
 use pf::file_paths qw(
     $install_dir

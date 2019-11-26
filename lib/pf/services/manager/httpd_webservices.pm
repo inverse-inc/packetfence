@@ -20,7 +20,10 @@ use pf::config qw(
     $management_network
     %Config
 );
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   %ConfigCluster
+);
 use List::MoreUtils qw(uniq);
 
 extends 'pf::services::manager::httpd';

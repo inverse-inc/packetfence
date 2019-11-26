@@ -77,7 +77,9 @@ use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_S
 use pf::services;
 use List::MoreUtils qw(part any true all);
 use pf::constants::services qw(JUST_MANAGED);
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 
 my $logger = get_logger();
 

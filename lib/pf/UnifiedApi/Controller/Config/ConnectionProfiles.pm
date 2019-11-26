@@ -23,7 +23,10 @@ use POSIX qw(:errno_h);
 use JSON::MaybeXS qw();
 use File::Find;
 use File::stat;
-use pf::cluster;
+use pf::cluster qw(
+   $CLUSTER
+   $cluster_enabled
+);
 use File::Spec::Functions qw(catfile splitpath);
 use pf::util;
 use List::Util qw(any first none);

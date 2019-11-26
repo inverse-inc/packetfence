@@ -16,7 +16,9 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
-use pf::cluster;
+use pf::cluster qw(
+   $host_id
+);
 use Fcntl qw(SEEK_SET);
 
 sub get {

@@ -21,7 +21,9 @@ use Moo;
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::util::console;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub {'pf'} );

@@ -27,7 +27,10 @@ use pf::config qw(
     @listen_ints
 );
 use pfconfig::cached_array;
-use pf::cluster;
+use pf::cluster qw(
+   @config_cluster_servers
+   @cluster_hosts
+);
 use pf::nodecategory;
 use Sys::Hostname;
 use pf::config::cluster qw($host_id);

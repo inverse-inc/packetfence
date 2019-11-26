@@ -28,7 +28,9 @@ use pf::util;
 use pf::config::util;
 use pf::constants::config;
 use pf::web::constants();
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 
 extends 'pf::services::manager::httpd';
 

@@ -60,8 +60,12 @@ use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;
 use pf::security_event qw(security_event_view_open_uniq security_event_count);
 use pf::authentication;
-use pf::cluster;
-use pf::ConfigStore::Provisioning;
+use pf::cluster qw(
+    %ConfigCluster
+    $CLUSTER
+    $cluster_enabled
+);
+
 use pf::ConfigStore::Domain;
 
 # This is the content that needs to match in the iptable rules for the service

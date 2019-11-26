@@ -21,7 +21,9 @@ use pf::file_paths qw(
 
 use pf::log;
 use pf::util;
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::constants qw($TRUE $FALSE);
 use NetAddr::IP;
 

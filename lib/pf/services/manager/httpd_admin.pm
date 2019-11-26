@@ -34,7 +34,10 @@ use pf::config qw(
     $management_network
     $OS
 );
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+   %ConfigCluster
+);
 
 =head2 vhosts
 

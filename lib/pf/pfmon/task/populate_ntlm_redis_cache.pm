@@ -18,7 +18,9 @@ use Moose;
 extends qw(pf::pfmon::task);
 use pf::client;
 use pf::config qw(%ConfigDomain);
-use pf::cluster;
+use pf::cluster qw(
+   $cluster_enabled
+);
 use pf::constants qw($FALSE);
 use pf::log;
 use pf::util qw(isenabled);
