@@ -13,7 +13,7 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Administration_Guide-docinfo.xml for authors, copyright
+    See PacketFence_Installation_Guide-docinfo.xml for authors, copyright
     and license information.
 
 ////
