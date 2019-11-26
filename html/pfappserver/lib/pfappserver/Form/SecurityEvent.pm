@@ -32,7 +32,9 @@ use pf::action;
 use pf::log;
 use pf::constants::security_event qw($MAX_SECURITY_EVENT_ID %NON_WHITELISTABLE_ROLES);
 use pf::class qw(class_next_security_event_id);
-use pf::security_event_config;
+use pf::security_event_config qw(
+   %SecurityEvent_Config
+);
 my $ID_ERR_MSG = "The security event ID should be between 1 and 2000000000";
 
 # Form select options

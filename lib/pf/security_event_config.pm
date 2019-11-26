@@ -31,10 +31,10 @@ tie %SecurityEvent_Config, 'pfconfig::cached_hash', 'config::SecurityEvents';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(%SecurityEvent_Config);
+    @EXPORT_OK = qw(%SecurityEvent_Config);
 }
 
 sub loadSecurityEventsIntoDb {
