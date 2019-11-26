@@ -61,17 +61,16 @@ tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude
 
 == Upgrade procedure
 
-[#upgrade-steps]
 === Steps
 
 A PacketFence upgrade consists of following steps:
 
-. stop all PacketFence services (see <<stop-services>> section)
+. stop all PacketFence services (see <<_stop_all_packetfence_services,Stop all PacketFence services>> section)
 . preliminary step(s) to run before packages upgrades (see sections for your upgrade path)
-. packages upgrades (see <<pkg-upgrades>> section)
+. packages upgrades (see <<_packages_upgrades,Package upgrades>> section)
 . configuration migration(s) (see sections for your upgrade path)
 . database schema upgrade(s) (see sections for your upgrade path)
-. restart all PacketFence services (see <<restart-services>> section)
+. restart all PacketFence services (see <<_restart_all_packetfence_services,Restart all PacketFence services>> section)
 
 Upgrade notes for a given upgrade path are cumulative. That is to say, if you
 are upgrading from version 7.0 to version 9.0 you must apply in order all:
@@ -90,7 +89,6 @@ required to be done *BEFORE* the packages upgrades.
 
 Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluster] section.
 
-[#stop-services]
 === Stop all PacketFence services
 
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
@@ -102,14 +100,12 @@ To do so, run the following commands:
 systemctl stop packetfence-config
 ----
 
-[#pkg-upgrades]
 === Packages upgrades
 
 IMPORTANT: Again, before starting packages upgrades, make sure to go through (read) the upgrade
 instructions specific to the upgrade path taken since some preliminary steps may be
 required to be done *BEFORE* the packages upgrades.
 
-[#pkg-upgrades-rpm]
 ==== RHEL / CentOS based systems
 
 Run the following command to update PacketFence:
@@ -198,10 +194,9 @@ PacketFence.
 
 Debian installation system should have interactively asked for existing modified files.
 
-[#restart-services]
 === Restart all PacketFence services
 
-Once all <<upgrade-steps,steps of upgrade procedure>> are completed, restart
+Once all <<_steps,steps of upgrade procedure>> are completed, restart
 `packetfence-config` and `packetfence` services:
 
 [source,bash]
@@ -965,7 +960,7 @@ NOTE: This step need to be done *before* packages upgrade.
 Starting from now, PacketFence will be released as an unique RPM package for
 `x86_64` architectures. To remove properly older RPM packages, you need to follow these steps:
 
-. Follow instructions mentioned in <<stop-services>> section and stop before starting packages upgrades
+. Follow instructions mentioned in <<_stop_all_packetfence_services,Stop all PacketFence services>> section and stop before starting packages upgrades
 . Uninstall old RPM without running post-uninstallation steps:
 +
 [source,bash]
@@ -985,7 +980,7 @@ mv -f /usr/local/pf/conf/pfconfig.conf.rpmsave /usr/local/pf/conf/pfconfig.conf
 ----
 +
 
-. Upgrade PacketFence packages by following instructions in <<pkg-upgrades-rpm,Packages upgrades>> section
+. Upgrade PacketFence packages by following instructions in <<_packages_upgrades,Packages upgrades>> section for RHEL / CentOS based systems
 . Continue upgrade procedure
 
 At the end of upgrade procedure, you should have only one RPM package called
