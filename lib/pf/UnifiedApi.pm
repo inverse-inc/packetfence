@@ -599,7 +599,6 @@ sub setup_api_v1_nodes_routes {
     $collection_route->register_sub_action({
         method => 'POST',
         action => 'network_graph',
-        auditable => 1
     });
 
     return ( $collection_route, $resource_route );
