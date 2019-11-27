@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::util;
 use pf::file_paths qw($cluster_config_file);
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
@@ -64,15 +65,16 @@ sub build_multi_zone {
     # Ensure the default cluster has at least an empty hashref
     $tmp_cfg{DEFAULT} = {};
 
-    my %clusters_uniq;
+    my @clusters;
     foreach my $section (@{$self->{ordered_sections}}){
         # we don't want double groups
         if ($section =~ m/^([a-zA-Z0-9]+)\s[a-zA-Z0-9]+$/i) {
-            $clusters_uniq{$1} = 1;
+            push @clusters, $1;
         }
     }
 
-    my @clusters = keys(%clusters_uniq);
+    @clusters = uniq(@clusters);
+    $self->{_clusters_uniq_list} = \@clusters;
 
     foreach my $cluster (@clusters) {
         map {
