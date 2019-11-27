@@ -33,7 +33,6 @@ BEGIN { use_ok('pf::nodecategory') }
 
 # subs
 can_ok('pf::nodecategory', qw(
-    nodecategory_db_prepare
     nodecategory_view_all
     nodecategory_view
     nodecategory_view_by_name

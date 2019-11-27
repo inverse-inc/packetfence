@@ -23,7 +23,7 @@ BEGIN {
     use_ok('pf::floatingdevice::custom');
 }
 
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::config;
 use pf::SwitchFactory;
 

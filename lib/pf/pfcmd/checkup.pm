@@ -50,6 +50,7 @@ use pf::util;
 use pf::config::util;
 use pf::services;
 use pf::authentication;
+use pf::authentication qw(%guest_self_registration);
 use NetAddr::IP;
 use pf::web::filter;
 use pfconfig::manager;

@@ -24,9 +24,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::realm;
 use pf::Authentication::constants;
+use pf::constants::authentication::messages qw($AUTH_SUCCESS_MSG $AUTH_FAIL_MSG);
 
 # pf core libs
 

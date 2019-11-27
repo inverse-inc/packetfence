@@ -8,13 +8,13 @@ use lib '/usr/local/pf/lib';
 use pf::services::util;
 use POSIX qw(:signal_h pause :sys_wait_h setuid setgid);
 use pf::log;
-use pf::cluster;
+use pf::cluster qw($cluster_enabled);
 use pf::config qw(
     %Config
 );
 use pf::util;
 use DBI;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use JSON::MaybeXS;
 use pf::CHI;
 use List::MoreUtils qw(any);

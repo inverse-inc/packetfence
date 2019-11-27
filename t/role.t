@@ -29,7 +29,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use setup_test_config; }
 
-use pf::constants;
+use pf::constants qw($FALSE);
 use pf::config qw(%Config);
 use pf::SwitchFactory;
 use pf::Switch::constants;

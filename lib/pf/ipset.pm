@@ -43,6 +43,7 @@ use pf::nodecategory;
 use pf::util;
 use pf::ip4log;
 use pf::authentication;
+use pf::authentication qw(%guest_self_registration);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster qw($host_id);

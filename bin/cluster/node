@@ -34,7 +34,7 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 use pf::constants qw($TRUE $FALSE);
-use pf::cluster;
+use pf::cluster qw(%ConfigCluster);
 use pf::util;
 use Pod::Usage;
 

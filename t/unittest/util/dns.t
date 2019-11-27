@@ -29,7 +29,7 @@ use Test::More tests => 37;
 use Test::NoWarnings;
 use Socket;
 
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use_ok("pf::util::dns");
 
 my ($match, $ports);

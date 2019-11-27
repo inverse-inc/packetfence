@@ -34,6 +34,7 @@ use pf::config::util;
 use pf::util::apache qw(url_parser);
 use pf::web::constants;
 use pf::authentication;
+use pf::authentication qw(%guest_self_registration);
 use pf::log;
 use pf::cluster;
 use Template;

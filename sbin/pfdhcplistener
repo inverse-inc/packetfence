@@ -33,7 +33,7 @@ BEGIN {
 
 use Try::Tiny;
 use pf::util::dhcp;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
 use pf::config qw(
     %Config
@@ -58,7 +58,7 @@ use NetPacket::IPv6;
 use NetPacket::UDP;
 use pf::CHI::Request;
 use pf::api::queue_cluster;
-use pf::cluster;
+use pf::cluster qw($cluster_enabled);
 
 # initialization
 # --------------

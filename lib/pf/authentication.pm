@@ -65,12 +65,11 @@ tie %guest_self_registration, 'pfconfig::cached_hash', 'resource::guest_self_reg
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT , @EXPORT_OK);
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT =
       qw(
-            @authentication_sources
             availableAuthenticationSourceTypes
             newAuthenticationSource
             getAuthenticationSource
@@ -78,8 +77,9 @@ BEGIN {
             deleteAuthenticationSource
             getAuthenticationClassByType
             getInternalAuthenticationSources
-            %guest_self_registration
        );
+
+    @EXPORT_OK = qw(@authentication_sources %guest_self_registration @EXPORT);
 }
 
 our @SOURCES = __PACKAGE__->sources();
