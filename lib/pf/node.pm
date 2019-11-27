@@ -766,16 +766,16 @@ sub nodes_maintenance {
     while (my $row = $iter->next()) {
         my $currentMac = $row->{mac};
         pf::dal->set_tenant($row->{tenant_id});
-        node_deregister($currentMac);
 
-	my $apiclient = pf::client::getClient;
-
+        my $apiclient = pf::client::getClient;
         my %violation_data = (
             'mac'   => $currentMac,
             'tid'   => 'node_maintenance',
             'type'  => 'internal',
         );
-        $apiclient->notify('trigger_violation', %violation_data);
+        $apiclient->call('trigger_violation', %violation_data);
+
+        node_deregister($currentMac);
 
         require pf::enforcement;
         pf::enforcement::reevaluate_access( $currentMac, 'manage_deregister' );
