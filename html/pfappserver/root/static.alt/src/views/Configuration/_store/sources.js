@@ -59,7 +59,7 @@ const actions = {
       throw err
     })
   },
-  getAuthenticationSourcesByType: ({ state, commit }, type) => {
+  getAuthenticationSourcesByType: (context, type) => {
     const params = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(','),

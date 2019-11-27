@@ -77,7 +77,6 @@ import pfMixinSearchable from '@/components/pfMixinSearchable'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import draggable from 'vuedraggable'
 import PortalModule from './PortalModule'
-import PortalModuleButton from './PortalModuleButton'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
@@ -94,7 +93,6 @@ export default {
   components: {
     draggable,
     PortalModule,
-    PortalModuleButton,
     pfButtonHelp,
     pfButtonSave,
     pfButtonDelete
@@ -295,7 +293,7 @@ export default {
     remove (id) {
       const index = this.items.findIndex(module => module.id === id)
       if (index >= 0) {
-        this.$store.dispatch(`${this.storeName}/deletePortalModule`, id).then(response => {
+        this.$store.dispatch(`${this.storeName}/deletePortalModule`, id).then(() => {
           this.$delete(this.items, index)
         })
       }

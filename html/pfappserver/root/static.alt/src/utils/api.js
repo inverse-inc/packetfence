@@ -145,7 +145,7 @@ apiCall.interceptors.response.use((response) => {
       if (!error.response.data.quiet) {
         store.commit('session/EXPIRED')
         // Reply request once the session is restored
-        return store.dispatch('session/resolveLogin').then(response => {
+        return store.dispatch('session/resolveLogin').then(() => {
           const { method, url, params, data } = config
           return apiCall.request({ method, baseURL: '', url, params, data, headers: { 'X-Replay': 'true' } })
         })
@@ -168,7 +168,7 @@ apiCall.interceptors.response.use((response) => {
         // eslint-disable-next-line
         console.warn(error.response.data)
         if (error.response.data.errors) {
-          error.response.data.errors.forEach((err, errIndex) => {
+          error.response.data.errors.forEach((err) => {
             let msg = `${err['field']}: ${err['message']}`
             // eslint-disable-next-line
             console.warn(msg)
@@ -180,7 +180,7 @@ apiCall.interceptors.response.use((response) => {
       }
       if (['patch', 'post', 'put', 'delete'].includes(config.method) && error.response.data.errors) {
         let formErrors = {}
-        error.response.data.errors.forEach((err, errIndex) => {
+        error.response.data.errors.forEach((err) => {
           formErrors[err['field']] = err['message']
         })
         if (Object.keys(formErrors).length > 0) {

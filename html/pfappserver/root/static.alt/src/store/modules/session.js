@@ -238,7 +238,7 @@ const actions = {
     })
   },
   logout: ({ dispatch }) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // Perform logout through pfappserver to delete the HTTP cookie
       pfappserverCall.get('logout')
       dispatch('delete')
