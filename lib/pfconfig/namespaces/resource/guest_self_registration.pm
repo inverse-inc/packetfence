@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use pf::util qw(is_in_list);
-use pf::constants;
+use pf::constants qw($TRUE);
 use pf::constants::config;
 use List::MoreUtils qw(none any);
 

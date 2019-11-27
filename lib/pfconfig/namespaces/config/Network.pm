@@ -19,7 +19,7 @@ use warnings;
 
 use pf::log;
 use pfconfig::namespaces::config;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
 use pf::file_paths qw($network_config_file);
 use pf::constants::config;
 use pfconfig::util qw(is_type_inline);
