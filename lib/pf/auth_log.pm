@@ -15,16 +15,6 @@ Readonly our $FAILED => "failed";
 Readonly our $INCOMPLETE => "incomplete";
 Readonly our $INVALIDATED => "invalidated";
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT );
-    @ISA = qw(Exporter);
-    @EXPORT = qw(
-        auth_log_db_prepare
-        $auth_log_db_prepared
-    );
-}
-
 use pf::dal;
 use pf::dal::auth_log;
 use pf::constants qw($ZERO_DATE);

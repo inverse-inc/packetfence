@@ -22,8 +22,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        $dns_audit_log_db_prepared
-        dns_audit_log_db_prepare
         dns_audit_log_delete
         dns_audit_log_add
         dns_audit_log_view

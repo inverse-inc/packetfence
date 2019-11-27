@@ -67,9 +67,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        security_event_db_prepare
-        $security_event_db_prepared
-
         security_event_force_close
         security_event_close
         security_event_view

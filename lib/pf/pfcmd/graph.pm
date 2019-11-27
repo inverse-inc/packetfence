@@ -17,9 +17,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(
-        $graph_db_prepared
-        graph_db_prepare
-
         graph_unregistered
         graph_registered
         graph_detected

@@ -16,9 +16,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(
-        $dashboard_db_prepared
-        dashboard_db_prepare
-
         nugget_recent_security_events
         nugget_recent_security_events_opened
         nugget_recent_security_events_closed

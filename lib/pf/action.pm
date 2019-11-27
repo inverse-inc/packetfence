@@ -69,8 +69,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        $action_db_prepared  action_db_prepare
-
         action_add           action_exist
         action_view          action_view_all
         action_delete        action_delete_all

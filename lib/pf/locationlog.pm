@@ -29,9 +29,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(
-        $locationlog_db_prepared
-        locationlog_db_prepare
-
         locationlog_history_mac
         locationlog_history_switchport
 

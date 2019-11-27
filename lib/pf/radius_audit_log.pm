@@ -22,8 +22,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        $radius_audit_log_db_prepared
-        radius_audit_log_db_prepare
         radius_audit_log_delete
         radius_audit_log_add
         radius_audit_log_view

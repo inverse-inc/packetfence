@@ -29,9 +29,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        nodecategory_db_prepare
-        $nodecategory_db_prepared
-
         nodecategory_populate_from_config
         nodecategory_upsert
         nodecategory_view_all

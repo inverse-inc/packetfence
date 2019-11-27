@@ -34,9 +34,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        freeradius_db_prepare
-        $freeradius_db_prepared
-
         freeradius_populate_nas_config
     );
 }
@@ -49,20 +46,9 @@ use pf::util qw(valid_mac);
 use pf::error qw(is_error);
 use pf::constants qw($DEFAULT_TENANT_ID);
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $freeradius_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $freeradius_statements = {};
-
-
 =head1 SUBROUTINES
 
 =over
-
-=head2 freeradius_db_prepare
-
-Prepares all the SQL statements related to this module
 
 =cut
 

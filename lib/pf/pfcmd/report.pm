@@ -27,9 +27,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(
-        $report_db_prepared
-        report_db_prepare
-
         report_osclassbandwidth
         report_osclassbandwidth_all
         report_osclassbandwidth_day
