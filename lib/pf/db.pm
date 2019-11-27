@@ -48,9 +48,10 @@ our $MAX_STATEMENT_TIME = 0.0;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly db_set_max_statement_timeout $MYSQL_READONLY_ERROR);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly db_set_max_statement_timeout);
+    @EXPORT_OK = qw($MYSQL_READONLY_ERROR);
 
 }
 

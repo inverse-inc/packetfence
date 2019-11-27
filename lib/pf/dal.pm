@@ -19,6 +19,7 @@ Which generates all the companion modules for table in the database.
 use strict;
 use warnings;
 use pf::db;
+use pf::db qw($MYSQL_READONLY_ERROR);
 use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
