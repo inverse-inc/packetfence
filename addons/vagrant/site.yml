@@ -1,5 +1,5 @@
 ---
-- hosts: ['nightly', 'dev']
+- hosts: pfservers
   name: upgrade OS to latest version
   become: True
   gather_facts: False
