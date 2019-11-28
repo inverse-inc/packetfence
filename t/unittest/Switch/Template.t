@@ -61,6 +61,12 @@ for my $file (@FILES) {
     is_deeply(\%args, { last_accounting => { c => 3, d => 4 }}, "updateArgsVariablesForSet ignored existing args");
 }
 
+{
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
+    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
+    print STDERR "$switchdeauthMethod $deauthTechniques\n";
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
