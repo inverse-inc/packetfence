@@ -857,6 +857,7 @@ export default {
             }).catch((err) => {
               reject(err) // stop processing
             })
+            await this.importPromise({ items: [] }, dryRun).then(() => {}) // call Promise to guarantee minimum 1 empty payload
             this.$bvModal.show(`importProgress-${this.uuid}`) // re-open modal in case parent squashed it
           })
         })
