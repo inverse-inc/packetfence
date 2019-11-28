@@ -13,6 +13,10 @@ const route = {
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
+    if (!store.state.tests) {
+      // Register store module only once
+      store.registerModule('tests', TestsStore)
+    }
     next()
   },
   children: [
