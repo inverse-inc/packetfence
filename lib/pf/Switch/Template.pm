@@ -121,7 +121,7 @@ sub returnRadiusAccessAccept {
     if ( (!$tmp_args{'wasInline'} || ($tmp_args{'wasInline'} && $tmp_args{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         my $vlanTemplate = $self->{_template}{acceptVlan};
         if ( defined $vlanTemplate &&  defined($tmp_args{'vlan'}) && $tmp_args{'vlan'} ne "" && $tmp_args{'vlan'} ne 0) {
-            $self->updateArgsVariablesForSet($vlanTemplate, \%tmp_args);
+            $self->updateArgsVariablesForSet(\%tmp_args, $vlanTemplate);
             $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS Access-Accept");
             my ($attrs, undef) = $self->makeRadiusAttributes($vlanTemplate, \%tmp_args);
             $radius_reply_ref = { @$attrs };
@@ -138,7 +138,7 @@ sub returnRadiusAccessAccept {
         my $roleTemplate = $self->{_template}{acceptRole};
         $tmp_args{role} = $role;
         if (defined $roleTemplate && defined($role) && $role ne "" ) {
-            $self->updateArgsVariablesForSet($roleTemplate, \%tmp_args);
+            $self->updateArgsVariablesForSet(\%tmp_args, $roleTemplate);
             my ($attrs, undef) = $self->makeRadiusAttributes($roleTemplate, \%tmp_args);
             $radius_reply_ref = {
                 %$radius_reply_ref,
@@ -242,7 +242,7 @@ sub handleDisconnect {
         disconnectIp => $send_disconnect_to,
         mac => $mac,
     );
-    $self->updateArgsVariablesForSet($radiusDisconnect, \%args);
+    $self->updateArgsVariablesForSet(\%args, $radiusDisconnect);
     my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, { disconnectIp => $send_disconnect_to, mac => $mac });
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
@@ -298,7 +298,7 @@ sub handleCoa {
         mac => $mac,
         role => $role,
     );
-    $self->updateArgsVariablesForSet($radiusDisconnect, \%args);
+    $self->updateArgsVariablesForSet(\%args, $radiusDisconnect);
     my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, { disconnectIp => $send_disconnect_to, mac => $mac });
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
