@@ -375,7 +375,7 @@ sub rebless_switch {
     my ($switch) = @_;
     if (ref($switch) eq 'HASH') {
         my $type = $switch->{_type};
-        my $module ? exists $pf::SwitchFactory::TemplateSwitches{$type} ? "pf::Switch::Template" : "pf::Switch::$type";
+        my $module = exists $pf::SwitchFactory::TemplateSwitches{$type} ? "pf::Switch::Template" : "pf::Switch::$type";
         Module::Load::load($module);
         return bless($switch, $module);
     }
