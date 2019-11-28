@@ -300,7 +300,7 @@ sub parent_data {
     my %data;
     my $captures = $self->stash->{'mojo.captures'};
     @data{values %$map} = @{$captures}{keys %$map};
-    %data = map { $_ => uri_unescape($data{$_}) } keys(%data);
+    %data = map { $_ => $self->escape_url_param($data{$_}) } keys(%data);
 
     return \%data;
 }
