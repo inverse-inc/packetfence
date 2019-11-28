@@ -265,6 +265,7 @@ sub preloadAllModules {
     my ($class) = @_;
     unless (@MODULES) {
         @MODULES  = $class->_all_modules;
+        load("pf::Switch::Template");
         buildTypeToModuleMap();
         buildVendorsList();
     }
@@ -279,6 +280,7 @@ Preloads only the configured switch modules
 sub preloadConfiguredModules {
     my ($class) = @_;
     unless (@MODULES) {
+        load("pf::Switch::Template");
         @MODULES = $class->_configured_modules;
         buildTypeToModuleMap();
     }

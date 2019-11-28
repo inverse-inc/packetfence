@@ -369,9 +369,10 @@ sub ReAssignVlan : Public : Fork {
 sub rebless_switch {
     my ($switch) = @_;
     if (ref($switch) eq 'HASH') {
-        my $type = "pf::Switch::$switch->{_type}";
-        Module::Load::load($type);
-        return bless($switch, $type);
+        my $type = $switch->{_type};
+        my $module ? exists $pf::SwitchFactory::TemplateSwitches{$type} ? "pf::Switch::Template" : "pf::Switch::$type";
+        Module::Load::load($module);
+        return bless($switch, $module);
     }
 
     return $switch;
