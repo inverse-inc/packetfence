@@ -19,6 +19,7 @@ use JSON::MaybeXS;
 use base qw(pf::api::attributes);
 use threads::shared;
 use pf::log();
+use Module::Load qw();
 use pf::authentication();
 use pf::Authentication::constants;
 use pf::config();
@@ -373,7 +374,9 @@ sub ReAssignVlan : Public : Fork {
 sub rebless_switch {
     my ($switch) = @_;
     if (ref($switch) eq 'HASH') {
-        return bless($switch, "pf::Switch::$switch->{_type}");
+        my $type = "pf::Switch::$switch->{_type}";
+        Module::Load::load($type);
+        return bless($switch, $type);
     }
 
     return $switch;
