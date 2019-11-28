@@ -1024,6 +1024,25 @@ Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to m
 cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 ----
 
+== Upgrading from a version prior to X.Y.Z
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+----
+
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence X.Y.Z):
+
+[source,bash]
+----
+cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
+----
+
 == Archived upgrade notes
 
 include::{extra_path}upgrade-notes/archived_upgrade_notes.asciidoc[]
