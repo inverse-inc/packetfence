@@ -88,7 +88,7 @@ sub checkForParking :Private {
         get_logger->warn("Client should not have reached the normal portal as it is in parking. Retriggering parking actions.");
         pf::parking::park($c->portalSession->clientMac, $c->portalSession->clientIP->normalizedIP);
         # Redirecting back to the portal so it is caught by the parking portal
-        $c->res->redirect("http://$fqdn/captive-portal");
+        $c->res->redirect("http://$fqdn");
         $c->detach();
     }
 }
