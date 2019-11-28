@@ -120,7 +120,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p.handleParking(ctx, w, r)
+	parking := p.handleParking(ctx, w, r)
 
 	if r.URL.Path == "/kindle-wifi/wifistub.html" {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "KINDLE WIFI PROBE HANDLING"))
@@ -148,28 +148,19 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var PortalURL url.URL
-		var found bool
-		found = false
-		srcIP := net.ParseIP(r.Header.Get("X-Forwarded-For"))
-		for i := 0; i <= len(passThrough.PortalURL); i++ {
-			if found {
-				break
-			}
-			for c, d := range passThrough.PortalURL[i] {
-				if c.Contains(srcIP) {
-					PortalURL = *d
-					found = true
-					break
-				}
-			}
-		}
+		_, PortalURL := p.detectPortalURL(r)
 
 		if (passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
 			PortalURL.Scheme = "http"
 		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
 		PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
+
+		if parking {
+			PortalURL.Path = ""
+			PortalURL.RawQuery = ""
+		}
+
 		w.Header().Set("Location", PortalURL.String())
 		w.WriteHeader(http.StatusFound)
 		if r.Method != "HEAD" {
@@ -234,6 +225,8 @@ func (p *Proxy) Configure(ctx context.Context) {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database security_event prepared statement error: %s", err)
 	}
 	p.apiClient = unifiedapiclient.NewFromConfig(ctx)
+
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Parking)
 
 	parking := pfconfigdriver.Config.PfConf.Parking
 
@@ -425,8 +418,14 @@ func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
 	return mac, err
 }
 
-func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *http.Request) bool {
+
+	found, PortalURL := p.detectPortalURL(r)
+
 	var ipAddress string
+	reverseHost := "127.0.0.1:5252"
+
+	rgx, _ := regexp.Compile("/common")
 
 	fwdAddress := r.Header.Get("X-Forwarded-For")
 	if fwdAddress != "" {
@@ -442,25 +441,52 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 
 	if ipAddress != "" {
 		MAC, err := p.IP2Mac(ctx, ipAddress)
-
 		if err == nil {
 			if p.HasSecurityEvents(ctx, MAC) && p.ShowParkingPortal {
-				if r.RequestURI == "/release-parking" {
-					reqURL := r.URL
-					// Call the API
-					err = p.APIUnpark(ctx, MAC, ipAddress)
-					if err == nil {
-						reqURL.Path = "/back-on-network.html"
-					} else {
-						reqURL.Path = "/max-attempts.html"
+				if found && (PortalURL.Host == r.Host) {
+					if r.RequestURI == "/release-parking" {
+						reqURL := r.URL
+						// Call the API
+						err = p.APIUnpark(ctx, MAC, ipAddress)
+						if err == nil {
+							reqURL.Path = "/back-on-network.html"
+						} else {
+							reqURL.Path = "/max-attempts.html"
+						}
+						r.URL = reqURL
 					}
-					r.URL = reqURL
+					if rgx.MatchString(r.RequestURI) {
+						reverseHost = "127.0.0.1:8889"
+					}
+					log.LoggerWContext(ctx).Info("Parking detected for " + MAC)
+					p.reverse(ctx, w, r, reverseHost)
 				}
-				log.LoggerWContext(ctx).Info("Parking detected for " + MAC)
-				p.reverse(ctx, w, r, "127.0.0.1:5252")
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
+func (p *Proxy) detectPortalURL(r *http.Request) (bool, url.URL) {
+	var PortalURL url.URL
+	var found bool
+	found = false
+	srcIP := net.ParseIP(r.Header.Get("X-Forwarded-For"))
+	for i := 0; i <= len(passThrough.PortalURL); i++ {
+		if found {
+			break
+		}
+		for c, d := range passThrough.PortalURL[i] {
+			if c.Contains(srcIP) {
+				PortalURL = *d
+				found = true
+				break
 			}
 		}
 	}
+	return found, PortalURL
 }
 
 func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Request, host string) {
@@ -501,6 +527,7 @@ func (p *Proxy) APIUnpark(ctx context.Context, mac string, ip string) error {
 	data, err := json.Marshal(payload)
 
 	err = p.apiClient.CallWithStringBody(ctx, "POST", "/api/v1/node/"+mac+"/unpark", string(data), &raw)
+
 	if err != nil {
 		log.LoggerWContext(ctx).Error("API error: " + err.Error())
 		return err
