@@ -202,7 +202,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'window_dynamic',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: 'enabled', unchecked: 'disabled' }
               }
             }
           ]
