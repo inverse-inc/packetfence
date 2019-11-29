@@ -12,20 +12,18 @@ const route = {
   meta: {
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
-  beforeEnter: (to, from, next) => {
-    if (!store.state.tests) {
-      // Register store module only once
-      store.registerModule('tests', TestsStore)
-    }
-    next()
-  },
   children: [
     {
       path: 'test001',
       name: 'test001',
       component: Test001,
-      props: (route) => ({ storeName: '$_tests', query: route.query.query }),
-      meta: {
+      props: (route) => ({ storeName: 'tests', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.tests) {
+          // Register store module only once
+          store.registerModule('tests', TestsStore)
+        }
+        next()
       }
     }
   ]
