@@ -4,7 +4,6 @@
       <h4 class="mb-0" v-t="'Test 001'"></h4>
     </b-card-header>
     <div class="card-body">
-<pre>{{ JSON.stringify($v.$invalid, null, 2) }}</pre>
 <pre>{{ JSON.stringify($form, null, 2) }}</pre>
       <b-input-group>
         <b-form-input v-model="$form.firstname" placeholder="Enter your first name" :state="state('$form.firstname')"></b-form-input>
@@ -15,7 +14,10 @@
         <b-form-invalid-feedback :state="state('$form.lastname')">{{ feedback('$form.lastname') }}</b-form-invalid-feedback>
       </b-input-group>
 
+      <br/><br/>
+
       <h2>Children (Array)</h2>
+
       <b-input-group>
         <b-form-input v-model="$form.children[0].firstname" placeholder="Enter child first name" :state="state('$form.children.0.firstname')"></b-form-input>
         <b-form-invalid-feedback :state="state('$form.children.0.firstname')">{{ feedback('$form.children.0.firstname') }}</b-form-invalid-feedback>
@@ -53,6 +55,8 @@
 </template>
 
 <script>
+import { required, minLength } from 'vuelidate/lib/validators'
+
 export default {
   name: 'test001',
   props: {
@@ -62,7 +66,56 @@ export default {
       required: true
     }
   },
+  data () {
+    return {
+      form: {
+        firstname: null,
+        lastname: 'satkunas',
+        children: [
+          {
+            firstname: 'child1',
+            lastname: 'satkunas'
+          },
+          {
+            firstname: 'child2',
+            lastname: 'satkunas'
+          },
+          {
+            firstname: 'child3',
+            lastname: 'satkunas'
+          }
+        ]
+      },
+      validations: {
+        $form: {
+          firstname: {
+            ['First name required.']: required,
+            ['Minimum length 3 characters.']: minLength(3)
+          },
+          lastname: {
+            ['Last name required.']: required,
+            ['Minimum length 3 characters.']: minLength(3)
+          },
+          children: {
+            $each: {
+              firstname: {
+                ['First name required.']: required,
+                ['Minimum length 3 characters.']: minLength(3)
+              },
+              lastname: {
+                ['Last name required.']: required,
+                ['Minimum length 3 characters.']: minLength(3)
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   computed: {
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isLoading`]
+    },
     $form () { // (rw)
       return this.$store.getters[`${this.storeName}/$form`]
     },
@@ -77,11 +130,8 @@ export default {
     }
   },
   created () {
-    /*
-    setTimeout(() => {
-      this.$store.dispatch(`${this.storeName}/$touch`)
-    }, 3000)
-    */
+    this.$store.dispatch(`${this.storeName}/setForm`, this.form)
+    this.$store.dispatch(`${this.storeName}/setValidations`, this.validations)
   }
 }
 </script>

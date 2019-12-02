@@ -1,65 +1,61 @@
 import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
-import { required, minLength } from 'vuelidate/lib/validators'
+import { types } from '@/store'
+
+/**
+ * Helper to proxy a deeply nested object that does not throw an exception when accessing an undefined property.
+ * Allows a component template to reference a state - or a part of a state - that does not yet exist.
+ *
+ * @param {Object} obj - any object you wish to safely proxy.
+ * @return {Object} a safe object where any non-existent key can be referenced without generating an exception.
+ */
+const safe = (obj) => {
+  obj = (obj && obj.constructor === Object) ? obj : {}
+  return new Proxy(obj, {
+    get: (target, property, receiver) => {
+      if (property === 'toJSON') return () => target
+      if (property === Symbol.toPrimitive) return () => ''
+      return (property in target && target[property])
+        ? (target[property].constructor === Object)
+          ? safe(Reflect.get(target, property, receiver))
+          : Reflect.get(target, property, receiver)
+        : safe()
+    }
+  })
+}
 
 export default {
   namespaced: true,
   state: () => {
     return {
-      $form: {
-        firstname: 'darren',
-        lastname: 'satkunas',
-        children: [
-          {
-            firstname: 'child1',
-            lastname: 'satkunas'
-          },
-          {
-            firstname: 'child2',
-            lastname: 'satkunas'
-          },
-          {
-            firstname: 'child3',
-            lastname: 'satkunas'
-          }
-        ]
-      },
-      $validations: {
-        $form: {
-          firstname: {
-            ['First name required.']: required,
-            ['Minimum length 3 characters.']: minLength(3)
-          },
-          lastname: {
-            ['Last name required.']: required,
-            ['Minimum length 3 characters.']: minLength(3)
-          },
-          children: {
-            $each: {
-              firstname: {
-                ['First name required.']: required,
-                ['Minimum length 3 characters.']: minLength(3)
-              },
-              lastname: {
-                ['Last name required.']: required,
-                ['Minimum length 3 characters.']: minLength(3)
-              }
-            }
-          }
-        }
-      },
+
+      $form: false,
+      $formStatus: '',
+      $formMessage: '',
+
+      $validations: false,
+      $validationsStatus: '',
+      $validationsMessage: ''
     }
   },
   getters: { // { state, getters, rootState, rootGetters }
-    $form: (state) => state.$form,
+    isLoading: (state, getters) => getters.$formLoading || getters.$validationsLoading,
+    $form: (state) => {
+console.log('get $form')
+      return safe(state.$form)
+    },
+    $formLoading: (state) => state.$formStatus === types.LOADING,
     $validations: (state) => state.$validations,
-    $validator: (state, getters) => { // vuelidate sandbox
+    $validationsLoading: (state) => state.$validationsStatus === types.LOADING,
+    $validator: (state) => { // vuelidate sandbox
       return new Vue({
         mixins: [ validationMixin ],
         computed: {
           $form () { return state.$form }
         },
-        validations () { return state.$validations }
+        validations () {
+          return state.$validations
+        }
       })
     },
     $v: (state, getters) => {
@@ -94,8 +90,58 @@ export default {
   actions: { // { state, rootState, commit, dispatch, getters, rootGetters }
     $touch: ({ getters }) => {
       getters.$validator.$v.$touch()
+    },
+    setForm: ({ state, commit }, form) => {
+      commit('SET_FORM_REQUEST')
+      return new Promise((resolve, reject) => {
+        Promise.resolve(form).then(form => {
+          commit('SET_FORM_SUCCESS', form)
+          resolve(state.$form)
+        }).catch(err => {
+          commit('SET_FORM_ERROR', err)
+          reject(err)
+        })
+      })
+    },
+    setValidations: ({ state, commit, dispatch }, validations) => {
+      commit('SET_VALIDATIONS_REQUEST')
+      return new Promise((resolve, reject) => {
+        Promise.resolve(validations).then(validations => {
+          commit('SET_VALIDATIONS_SUCCESS', validations)
+          resolve(state.$validations)
+        }).catch(err => {
+          commit('SET_VALIDATIONS_ERROR', err)
+          reject(err)
+        })
+      })
     }
   },
   mutations: { // state
+    SET_FORM_REQUEST: (state) => {
+      state.$formStatus = types.LOADING
+    },
+    SET_FORM_ERROR: (state, data) => {
+      state.$formStatus = types.ERROR
+      const { response: { data: { message = '' } = {} } = {} } = data
+      state.$formMessage = message
+    },
+    SET_FORM_SUCCESS: (state, form) => {
+      state.$form = form
+      state.$formStatus = types.SUCCESS
+      state.$formMessage = ''
+    },
+    SET_VALIDATIONS_REQUEST: (state) => {
+      state.$validationsStatus = types.LOADING
+    },
+    SET_VALIDATIONS_ERROR: (state, data) => {
+      state.$validationsStatus = types.ERROR
+      const { response: { data: { message = '' } = {} } = {} } = data
+      state.$validationsMessage = message
+    },
+    SET_VALIDATIONS_SUCCESS: (state, validations) => {
+      state.$validations = validations
+      state.$validationsStatus = types.SUCCESS
+      state.$validationsMessage = ''
+    }
   }
 }
