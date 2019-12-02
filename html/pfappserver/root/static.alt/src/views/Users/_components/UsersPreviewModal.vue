@@ -75,7 +75,7 @@ export default {
     }
   },
   watch: {
-    users (a, b) {
+    users (a) {
       if (a.find(user => user.email)) {
         this.usersFields.find(field => field.key === 'email').visible = true
       }

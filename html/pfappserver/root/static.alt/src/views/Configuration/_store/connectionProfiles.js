@@ -138,7 +138,7 @@ const actions = {
       throw err
     })
   },
-  files: ({ state, commit }, data) => {
+  files: ({ commit }, data) => {
     const sort = 'sort' in data ? data.sort.join(',') : 'type,name'
     const params = {
       id: data.id,
@@ -210,7 +210,7 @@ const actions = {
   },
   deleteFile: ({ commit, dispatch }, params) => {
     commit('FILE_REQUEST', types.DELETING)
-    return api.deleteConnectionProfileFile(params).then(response => {
+    return api.deleteConnectionProfileFile(params).then(() => {
       commit('FILE_DESTROYED')
       return dispatch('files', { id: params.id })
     }).catch(err => {
@@ -261,7 +261,7 @@ const mutations = {
     state.files.status = types.SUCCESS
     Vue.set(state.files.cache, data.id, data.files)
   },
-  FILE_DESTROYED: (state, id) => {
+  FILE_DESTROYED: (state) => {
     state.files.status = types.SUCCESS
   },
   FILE_ERROR: (state, response) => {

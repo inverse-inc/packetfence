@@ -271,7 +271,7 @@ const actions = {
     if (id in blacklistedServices) return
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_STOPPING', index)
-    return api.stopService(id).then(response => {
+    return api.stopService(id).then(() => {
       commit('SERVICE_STOPPED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -384,7 +384,7 @@ const mutations = {
   ALARMS_REQUEST: (state) => {
     state.alarmsStatus = types.LOADING
   },
-  ALARMS_UPDATED: (state, alarms) => {
+  ALARMS_UPDATED: (state) => {
     state.alarmsStatus = types.SUCCESS
     // state.alarms = alarms // no caching necessary for now
   },
@@ -401,7 +401,7 @@ const mutations = {
       return { name }
     }))
   },
-  SERVICES_SUCCESS: (state, services) => {
+  SERVICES_SUCCESS: (state) => {
     state.servicesStatus = types.SUCCESS
   },
   SERVICES_ERROR: (state) => {

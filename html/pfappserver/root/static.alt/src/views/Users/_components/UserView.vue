@@ -690,7 +690,7 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_users/updateUser', this.userContent).then(response => {
+      this.$store.dispatch('$_users/updateUser', this.userContent).then(() => {
         if (this.hasPassword) {
           this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.userContent))
         }
@@ -700,7 +700,7 @@ export default {
       })
     },
     deleteUser () {
-      this.$store.dispatch('$_users/deleteUser', this.pid).then(response => {
+      this.$store.dispatch('$_users/deleteUser', this.pid).then(() => {
         this.close()
       })
     },
@@ -715,7 +715,7 @@ export default {
       console.log('closeSecurityEvents')
     },
     unassignNodes () {
-      this.$store.dispatch('$_users/unassignUserNodes', this.pid).then(response => {
+      this.$store.dispatch('$_users/unassignUserNodes', this.pid).then(() => {
         this.userContent.nodes = []
       })
     },

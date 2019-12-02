@@ -63,7 +63,7 @@ const route = {
       component: UserView,
       props: (route) => ({ storeName: '$_users', pid: route.params.pid }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_users/getUser', to.params.pid).then(user => {
+        store.dispatch('$_users/getUser', to.params.pid).then(() => {
           next()
         })
       },
