@@ -181,6 +181,37 @@ sub returnRadiusAccessAccept {
     return [$status, %$radius_reply_ref];
 }
 
+sub canDoAcceptUrl {
+    my ($self) = @_;
+    return defined ($self->{_template}{acceptUrl}) &&  isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement();
+}
+
+sub acceptUrlAttributes {
+    my ($self, $args) = @_;
+    if (!$self->canDoAcceptUrl) {
+        return undef;
+    }
+
+    my $user_role = $args->{user_role};
+    if (!defined $user_role || $user_role eq '') {
+        return undef;
+    }
+
+    my $redirect_url = $self->getUrlByName($user_role);
+    if (!defined $redirect_url) {
+        return undef;
+    }
+
+    $args->{role} = $self->getRoleByName($user_role);
+    $args->{'session_id'} = $self->setSession($args);
+    $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+    $args->{redirect_url} = $redirect_url;
+    my $template = $self->{_template}{acceptUrl};
+    $self->updateArgsVariablesForSet($args, $template);
+    my ($attrs, undef) = $self->makeRadiusAttributes($template, $args);
+    return $attrs;
+}
+
 =item radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.

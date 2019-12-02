@@ -29,9 +29,23 @@ BEGIN {
 }
 
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 6;
+use Test::More tests => (scalar @FILES) + 14;
 #This test will running last
 use Test::NoWarnings;
+
+{
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.28');
+    ok($switch->supportsExternalPortal(), "supportsExternalPortal");
+    ok($switch->canDoAcceptUrl(), "canDoAcceptUrl");
+    is_deeply($switch->acceptUrlAttributes({mac => "aa:bb:cc:dd:ee:ff"}), undef, "acceptUrlAttributes");
+    my $attrs = $switch->acceptUrlAttributes({mac => "aa:bb:cc:dd:ee:ff", user_role => "bob"});
+    is(@$attrs, 4);
+    is_deeply([@{$attrs}[0,1,2]], ['Cisco-AVPair','url-redirect-acl=Pre-Auth','Cisco-AVPair'], "acceptUrlAttributes");
+    my $url= $attrs->[3];
+    ok($url =~ /^url-redirect=/);
+    ok($url =~ m#http://10.0.60.149/PacketFence::Test/#);
+}
+
 for my $file (@FILES) {
     my $name = pf::util::template_switch::fileNameToModuleName($SWITCH_DIR, $file);
     my $ini = pf::IniFiles->new( -file => $file, -fallback => $name);
@@ -62,7 +76,7 @@ for my $file (@FILES) {
 }
 
 {
-    my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.27');
     ok($switch->supportsExternalPortal(), "supportsExternalPortal");
 }
 
