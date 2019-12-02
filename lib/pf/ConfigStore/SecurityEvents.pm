@@ -20,6 +20,7 @@ use pf::file_paths qw(
 );
 use List::MoreUtils qw(uniq);
 use pf::security_event_config;
+use pf::util qw(isenabled);
 
 extends 'pf::ConfigStore';
 
@@ -139,8 +140,10 @@ sub cleanupAfterRead {
     if($security_event->{user_mail_message} && ref($security_event->{user_mail_message}) eq 'ARRAY'){
         $security_event->{user_mail_message} = join("\n", @{$security_event->{user_mail_message}});
     }
-    if ( exists $security_event->{window} ) {
-        $security_event->{'window_dynamic'} = $security_event->{window};
+
+    if ( exists $security_event->{window} && $security_event->{'window'} eq 'dynamic' ) {
+        $security_event->{'window_dynamic'} = 'enabled';
+        delete $security_event->{window};
     }
 }
 
@@ -157,10 +160,10 @@ sub cleanupBeforeCommit {
     }
 
     $self->flatten_list($security_event, qw(actions trigger whitelisted_roles));
-    if ($security_event->{'window_dynamic'}) {
+    my $window_dynamic = delete $security_event->{'window_dynamic'};
+    if (defined $window_dynamic && ($window_dynamic eq 'dynamic' || isenabled($window_dynamic))) {
         $security_event->{'window'} = 'dynamic';
     }
-    delete $security_event->{'window_dynamic'};
 }
 
 sub commit {

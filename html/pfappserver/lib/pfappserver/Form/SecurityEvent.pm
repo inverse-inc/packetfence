@@ -183,9 +183,10 @@ has_field 'grace' =>
   );
 has_field 'window_dynamic' =>
   (
-   type => 'Checkbox',
+   type => 'Toggle',
    label => 'Dynamic Window',
-   checkbox_value => 'dynamic',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
    tags => { after_element => \&help,
              help => 'Only works for accounting security events.  The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month.  If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).' },
   );
