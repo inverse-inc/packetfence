@@ -27,6 +27,7 @@ our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';
 our $DISCONNECT_TYPE_BOTH = 'coaOrDisconnect';
 our @RADIUS_ATTRIBUTE_SETS = qw(acceptVlan acceptRole acceptUrl reject disconnect coa voip bounce cliAuthorizeRead cliAuthorizeWrite);
 our @SUPPORTS = qw(
+  ExternalPortal
   RadiusDynamicVlanAssignment
   WiredMacAuth
   WiredDot1x
