@@ -17,10 +17,6 @@ export default {
       type: Boolean,
       default: undefined
     },
-    lastValidValue: {
-      type: String,
-      default: null
-    },
     keyName: {
       type: String,
       default: null
