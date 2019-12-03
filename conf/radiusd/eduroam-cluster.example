@@ -29,6 +29,10 @@ server eduroam.cluster {
         authorize {
             suffix
             ntdomain
+            update control {
+                   Load-Balance-Key := "%{Calling-Station-Id}"
+                   Proxy-To-Realm := "eduroam.cluster"
+            }
             if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
                     update request {
                             NAS-IP-Address := "%{Packet-Src-IP-Address}"
