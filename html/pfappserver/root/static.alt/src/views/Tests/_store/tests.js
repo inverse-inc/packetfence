@@ -2,49 +2,36 @@ import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
 import { types } from '@/store'
 
-/**
- * Helper to proxy a deeply nested object that does not throw an exception when accessing an undefined property.
- * Allows a component template to reference a state - or a part of a state - that does not yet exist.
- *
- * @param {Object} obj - any object you wish to safely proxy.
- * @return {Object} a safe object where any non-existent key can be referenced without generating an exception.
- */
-const safe = (obj) => {
-  obj = (obj && obj.constructor === Object) ? obj : {}
-  return new Proxy(obj, {
-    get: (target, property, receiver) => {
-      if (property === 'toJSON') return () => target
-      if (property === Symbol.toPrimitive) return () => ''
-      return (property in target && target[property])
-        ? (target[property].constructor === Object)
-          ? safe(Reflect.get(target, property, receiver))
-          : Reflect.get(target, property, receiver)
-        : safe()
-    }
-  })
-}
-
 export default {
   namespaced: true,
   state: () => {
     return {
 
-      $form: false,
+      $form: {},
       $formStatus: '',
       $formMessage: '',
 
-      $validations: false,
+      $validations: {},
       $validationsStatus: '',
       $validationsMessage: ''
     }
   },
   getters: { // { state, getters, rootState, rootGetters }
     isLoading: (state, getters) => getters.$formLoading || getters.$validationsLoading,
-    $form: (state) => {
-console.log('get $form')
-      return safe(state.$form)
-    },
+    $form: (state) => state.$form,
     $formLoading: (state) => state.$formStatus === types.LOADING,
+    $formNS: (state, getters) => (namespace, $form = getters.$form) => {
+      while (namespace) { // handle namespace
+        if (!$form) break
+        let [ first, ...remainder ] = namespace.split('.') // split namespace
+        namespace = remainder.join('.')
+        if (first in $form)
+          $form = $form[first]
+        else
+          break
+      }
+      return $form || {}
+    },
     $validations: (state) => state.$validations,
     $validationsLoading: (state) => state.$validationsStatus === types.LOADING,
     $validator: (state) => { // vuelidate sandbox
@@ -61,8 +48,9 @@ console.log('get $form')
     $v: (state, getters) => {
       return Object.assign({}, getters.$validator.$v)
     },
-    $vNamespace: (state, getters) => (namespace, $v = getters.$validator.$v) => {
+    $vuelidateNS: (state, getters) => (namespace, $v = getters.$validator.$v) => {
       while (namespace) { // handle namespace
+        if (!$v) break
         let [ first, ...remainder ] = namespace.split('.') // split namespace
         namespace = remainder.join('.')
         if (first in $v)
@@ -70,21 +58,61 @@ console.log('get $form')
         else if (!isNaN(+first))
           $v = $v.$each[first] // index property
         else
-          return $v
+          break
       }
-      return $v
+      return $v || {}
     },
-    $state: (state, getters) => (namespace) => {
-      let $v = getters.$vNamespace(namespace)
-      return !$v.$invalid
+    $stateNS: (state, getters) => (namespace) => {
+      const { $invalid = false, $dirty = false, $anyDirty = false, $error = false, $anyError = false, $pending = false } = getters.$vuelidateNS(namespace)
+      return { $invalid, $dirty, $anyDirty, $error, $anyError, $pending }
     },
-    $feedback: (state, getters) => (namespace, separator = ' ') => {
-      let $v = getters.$vNamespace(namespace)
+    $feedbackNS: (state, getters) => (namespace, separator = ' ') => {
+      let $v = getters.$vuelidateNS(namespace)
       let feedback = []
-      for (let validation of Object.keys($v.$params)) {
-        if (!$v[validation]) feedback.push(validation)
+      if ('$params' in $v) {
+        for (let validation of Object.keys($v.$params)) {
+          if (!$v[validation]) feedback.push(validation)
+        }
       }
       return feedback.join(separator).trim()
+    },
+    $vModel: (state, getters) => {
+      /**
+      * Proxy - helper to proxy a deeply nested object that avoids an exception when accessing an undefined property.
+      * Allows a component template to reference a state - or a part of a state - that does not yet exist.
+      */
+      return new Proxy(state.$form, {
+        has: (target, namespace) => true, // always satisfy
+        get: (target, namespace) => {
+          while (namespace) { // handle namespace
+            let [ first, ...remainder ] = namespace.split('.') // split namespace
+            namespace = remainder.join('.')
+            if (!(first in target)) { // not defined
+              Vue.set(target, first, (remainder.length === 0) ? undefined : {})
+            }
+            target = target[first]
+          }
+          return target
+        },
+        set: (target, namespace, value) => {
+          while (namespace) { // handle namespace
+            let [ first, ...remainder ] = namespace.split('.') // split namespace
+            namespace = remainder.join('.')
+            if (target && (first in target || !isNaN(+first))) {
+              if (namespace) {
+                target = target[first] // named property
+              } else {
+                Vue.set(target, first, value)
+                return true
+              }
+            } else {
+              return false
+            }
+          }
+          target = value
+          return true
+        }
+      })
     }
   },
   actions: { // { state, rootState, commit, dispatch, getters, rootGetters }

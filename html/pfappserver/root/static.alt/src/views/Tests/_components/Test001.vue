@@ -6,12 +6,12 @@
     <div class="card-body">
 <pre>{{ JSON.stringify($form, null, 2) }}</pre>
       <b-input-group>
-        <b-form-input v-model="$form.firstname" placeholder="Enter your first name" :state="state('$form.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.firstname')">{{ feedback('$form.firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['firstname']" placeholder="Enter your first name" :state="isValidNS('$form.firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.firstname')">{{ feedbackNS('$form.firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="$form.lastname" placeholder="Enter your last name" :state="state('$form.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.lastname')">{{ feedback('$form.lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['lastname']" placeholder="Enter your last name" :state="isValidNS('$form.lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.lastname')">{{ feedbackNS('$form.lastname') }}</b-form-invalid-feedback>
       </b-input-group>
 
       <br/><br/>
@@ -19,32 +19,32 @@
       <h2>Children (Array)</h2>
 
       <b-input-group>
-        <b-form-input v-model="$form.children[0].firstname" placeholder="Enter child first name" :state="state('$form.children.0.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.children.0.firstname')">{{ feedback('$form.children.0.firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children.0.firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children.0.firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children.0.firstname')">{{ feedbackNS('$form.children.0.firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="$form.children[0].lastname" placeholder="Enter child last name" :state="state('$form.children.0.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.children.0.lastname')">{{ feedback('$form.children.0.lastname') }}</b-form-invalid-feedback>
-      </b-input-group>
-      <hr/>
-
-      <b-input-group>
-        <b-form-input v-model="$form.children[1].firstname" placeholder="Enter child first name" :state="state('$form.children.1.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.children.1.firstname')">{{ feedback('$form.children.1.firstname') }}</b-form-invalid-feedback>
-      </b-input-group>
-      <b-input-group>
-        <b-form-input v-model="$form.children[1].lastname" placeholder="Enter child last name" :state="state('$form.children.1.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.children.1.lastname')">{{ feedback('$form.children.1.lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children.0.lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children.0.lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children.0.lastname')">{{ feedbackNS('$form.children.0.lastname') }}</b-form-invalid-feedback>
       </b-input-group>
       <hr/>
 
       <b-input-group>
-        <b-form-input v-model="$form.children[2].firstname" placeholder="Enter child first name" :state="state('$form.children.2.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.children.2.firstname')">{{ feedback('$form.children.2.firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children.1.firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children.1.firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children.1.firstname')">{{ feedbackNS('$form.children.1.firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="$form.children[2].lastname" placeholder="Enter child last name" :state="state('$form.children.2.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="state('$form.children.2.lastname')">{{ feedback('$form.children.2.lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children.1.lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children.1.lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children.1.lastname')">{{ feedbackNS('$form.children.1.lastname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <hr/>
+
+      <b-input-group>
+        <b-form-input v-model="vModel['children.2.firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children.2.firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children.2.firstname')">{{ feedbackNS('$form.children.2.firstname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <b-input-group>
+        <b-form-input v-model="vModel['children.2.lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children.2.lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children.2.lastname')">{{ feedbackNS('$form.children.2.lastname') }}</b-form-invalid-feedback>
       </b-input-group>
       <hr/>
 
@@ -79,11 +79,11 @@ export default {
           {
             firstname: 'child2',
             lastname: 'satkunas'
-          },
+          }/*,
           {
             firstname: 'child3',
             lastname: 'satkunas'
-          }
+          }*/
         ]
       },
       validations: {
@@ -113,20 +113,31 @@ export default {
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
-    },
-    $form () { // (rw)
-      return this.$store.getters[`${this.storeName}/$form`]
-    },
+    // temporary
     $v () { // (ro)
       return this.$store.getters[`${this.storeName}/$v`]
     },
-    state () {
-      return (namespace) => this.$store.getters[`${this.storeName}/$state`](namespace)
+    $form () {
+      return this.$store.getters[`${this.storeName}/$form`]
     },
-    feedback () {
-      return (namespace) => this.$store.getters[`${this.storeName}/$feedback`](namespace)
+
+
+
+
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isLoading`]
+    },
+    stateNS () {
+      return (namespace) => this.$store.getters[`${this.storeName}/$stateNS`](namespace)
+    },
+    isValidNS () {
+      return (namespace) => !this.stateNS(namespace).$invalid
+    },
+    feedbackNS () {
+      return (namespace) => this.$store.getters[`${this.storeName}/$feedbackNS`](namespace)
+    },
+    vModel () {
+      return this.$store.getters[`${this.storeName}/$vModel`]
     }
   },
   created () {
