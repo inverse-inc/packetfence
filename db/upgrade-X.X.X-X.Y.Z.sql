@@ -79,7 +79,8 @@ CREATE TABLE IF NOT EXISTS `locationlog_history` (
   KEY `locationlog_view_mac` (`tenant_id`, `mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
-  KEY `locationlog_ssid` (`ssid`)
+  KEY `locationlog_ssid` (`ssid`),
+  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`)
 ) ENGINE=InnoDB;
 
 INSERT INTO locationlog_history (
@@ -129,7 +130,9 @@ ALTER TABLE `locationlog`
     DROP COLUMN id,
     DROP COLUMN end_time,
     DROP INDEX locationlog_view_mac,
+    DROP INDEX locationlog_session_id_end_time,
     ADD  PRIMARY KEY (`tenant_id`, `mac`),
+    ADD  KEY `locationlog_session_id` (`session_id`),
     ADD CONSTRAINT `locationlog_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`);
 
 DELIMITER /
