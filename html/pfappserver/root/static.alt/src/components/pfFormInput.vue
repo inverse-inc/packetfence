@@ -68,10 +68,6 @@ export default {
       type: Boolean,
       default: false
     },
-    formatter: {
-      type: Function,
-      default: null
-    },
     test: {
       type: Function,
       default: null
@@ -87,7 +83,7 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return (this.formatter) ? this.formatter(this.value) : this.value
+        return this.value
       },
       set (newValue) {
         this.$emit('input', newValue || null)
