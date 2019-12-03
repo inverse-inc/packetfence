@@ -8,8 +8,6 @@
         v-bind="$attrs"
         :state="isValid()"
         @input.native="validate()"
-        @keyup.native="onChange($event)"
-        @change.native="onChange($event)"
       >
         <!-- BEGIN SLOTS -->
         <!-- Forward named slots -->

@@ -15,8 +15,6 @@
         :type="type"
         :state="isValid()"
         @input.native="validate()"
-        @keyup.native="onChange($event)"
-        @change.native="onChange($event)"
         @focus.native="focus = true"
         @blur.native="focus = false"
       ></b-form-input>

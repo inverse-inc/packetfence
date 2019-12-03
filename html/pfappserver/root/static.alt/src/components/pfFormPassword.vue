@@ -14,7 +14,6 @@
         :disabled="disabled"
         @input.native="validate()"
         @keyup.native="resetTest($event)"
-        @change.native="onChange($event)"
         @focus.native="focus = true"
         @blur.native="focus = false"
       >
@@ -200,7 +199,6 @@ export default {
     resetTest (event) {
       this.testResult = null
       this.testMessage = null
-      this.onChange(event)
     },
     generatePassword () {
       this.inputValue = password.generate(this.options)
