@@ -1,5 +1,5 @@
 import store from '@/store'
-import TestsStore from '../_store/tests'
+import FormStore from '@/store/base/form'
 
 const TestsView = () => import(/* webpackChunkName: "Auditing" */ '../')
 const Test001 = () => import(/* webpackChunkName: "Auditing" */ '../_components/Test001')
@@ -21,7 +21,7 @@ const route = {
       beforeEnter: (to, from, next) => {
         if (!store.state.tests) {
           // Register store module only once
-          store.registerModule('tests', TestsStore)
+          store.registerModule('tests', FormStore)
         }
         next()
       }

@@ -4,7 +4,6 @@
       <h4 class="mb-0" v-t="'Test 001'"></h4>
     </b-card-header>
     <div class="card-body">
-<pre>{{ JSON.stringify($form, null, 2) }}</pre>
       <b-input-group>
         <b-form-input v-model="vModel['firstname']" placeholder="Enter your first name" :state="isValidNS('firstname')"></b-form-input>
         <b-form-invalid-feedback :state="isValidNS('firstname')">{{ feedbackNS('firstname') }}</b-form-invalid-feedback>
@@ -58,8 +57,6 @@
       </b-input-group>
       <hr/>
 
-
-<pre>{{ JSON.stringify($v, null, 2) }}</pre>
     </div>
   </b-card>
 </template>
@@ -89,11 +86,12 @@ export default {
           {
             firstname: 'child2',
             lastname: 'satkunas'
-          }/*,
+          },
+          {},
           {
             firstname: 'child3',
             lastname: 'satkunas'
-          }*/
+          }
         ]
       },
       validations: {
@@ -122,16 +120,14 @@ export default {
   },
   computed: {
     // temporary
+    /*
     $v () { // (ro)
       return this.$store.getters[`${this.storeName}/$vuelidate`]
     },
     $form () {
       return this.$store.getters[`${this.storeName}/$form`]
     },
-
-
-
-
+    */
     isLoading () {
       return this.$store.getters[`${this.storeName}/isLoading`]
     },
