@@ -57,32 +57,26 @@
           />
           <pf-form-input :column-label="$t('Telephone number')"
             v-model="userContent.telephone"
-            :filter="globals.regExp.stringPhone"
             :vuelidate="$v.userContent.telephone"
           />
           <pf-form-input :column-label="$t('Cellphone number')"
             v-model="userContent.cell_phone"
-            :filter="globals.regExp.stringPhone"
             :vuelidate="$v.userContent.cell_phone"
           />
           <pf-form-input :column-label="$t('Workphone number')"
             v-model="userContent.work_phone"
-            :filter="globals.regExp.stringPhone"
             :vuelidate="$v.userContent.work_phone"
           />
           <pf-form-input :column-label="$t('Apartment number')"
             v-model="userContent.apartment_number"
-            :filter="globals.regExp.stringPhone"
             :vuelidate="$v.userContent.apartment_number"
           />
           <pf-form-input :column-label="$t('Building Number')"
             v-model="userContent.building_number"
-            :filter="globals.regExp.stringPhone"
             :vuelidate="$v.userContent.building_number"
           />
           <pf-form-input :column-label="$t('Room Number')"
             v-model="userContent.room_number"
-            :filter="globals.regExp.stringPhone"
             :vuelidate="$v.userContent.room_number"
           />
           <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
@@ -271,7 +265,6 @@ import {
   conditional,
   compareDate
 } from '@/globals/pfValidators'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfDatabaseSchema as schema,
   buildValidationFromTableSchemas
@@ -301,7 +294,6 @@ export default {
   data () {
     return {
       globals: {
-        regExp: regExp,
         schema: schema
       },
       tabIndex: 0,

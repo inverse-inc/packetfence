@@ -66,32 +66,26 @@
                 />
                 <pf-form-input :column-label="$t('Telephone number')"
                   v-model="single.telephone"
-                  :filter="globals.regExp.stringPhone"
                   :vuelidate="$v.single.telephone"
                 />
                 <pf-form-input :column-label="$t('Cellphone number')"
                   v-model="single.cell_phone"
-                  :filter="globals.regExp.stringPhone"
                   :vuelidate="$v.single.cell_phone"
                 />
                 <pf-form-input :column-label="$t('Workphone number')"
                   v-model="single.work_phone"
-                  :filter="globals.regExp.stringPhone"
                   :vuelidate="$v.single.work_phone"
                 />
                 <pf-form-input :column-label="$t('Apartment number')"
                   v-model="single.apartment_number"
-                  :filter="globals.regExp.stringPhone"
                   :vuelidate="$v.single.apartment_number"
                 />
                 <pf-form-input :column-label="$t('Building Number')"
                   v-model="single.building_number"
-                  :filter="globals.regExp.stringPhone"
                   :vuelidate="$v.single.building_number"
                 />
                 <pf-form-input :column-label="$t('Room Number')"
                   v-model="single.room_number"
-                  :filter="globals.regExp.stringPhone"
                   :vuelidate="$v.single.room_number"
                 />
                 <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
@@ -309,7 +303,6 @@ import {
   pfDatabaseSchema as schema,
   buildValidationFromTableSchemas
 } from '@/globals/pfDatabaseSchema'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 
 const { validationMixin } = require('vuelidate')
@@ -333,7 +326,6 @@ export default {
   data () {
     return {
       globals: {
-        regExp: regExp,
         schema: schema
       },
       modeIndex: 0,

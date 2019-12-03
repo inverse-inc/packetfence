@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import pfMixinForm from '@/components/pfMixinForm'
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
