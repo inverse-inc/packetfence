@@ -6,12 +6,12 @@
     <div class="card-body">
 <pre>{{ JSON.stringify($form, null, 2) }}</pre>
       <b-input-group>
-        <b-form-input v-model="vModel['firstname']" placeholder="Enter your first name" :state="isValidNS('$form.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.firstname')">{{ feedbackNS('$form.firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['firstname']" placeholder="Enter your first name" :state="isValidNS('firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('firstname')">{{ feedbackNS('firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="vModel['lastname']" placeholder="Enter your last name" :state="isValidNS('$form.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.lastname')">{{ feedbackNS('$form.lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['lastname']" placeholder="Enter your last name" :state="isValidNS('lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('lastname')">{{ feedbackNS('lastname') }}</b-form-invalid-feedback>
       </b-input-group>
 
       <br/><br/>
@@ -19,32 +19,42 @@
       <h2>Children (Array)</h2>
 
       <b-input-group>
-        <b-form-input v-model="vModel['children[0].firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children[0].firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children[0].firstname')">{{ feedbackNS('$form.children[0].firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[0].firstname']" placeholder="Enter child first name" :state="isValidNS('children[0].firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[0].firstname')">{{ feedbackNS('children[0].firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="vModel['children[0].lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children[0].lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children[0].lastname')">{{ feedbackNS('$form.children[0].lastname') }}</b-form-invalid-feedback>
-      </b-input-group>
-      <hr/>
-
-      <b-input-group>
-        <b-form-input v-model="vModel['children[1].firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children[1].firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children[1].firstname')">{{ feedbackNS('$form.children[1].firstname') }}</b-form-invalid-feedback>
-      </b-input-group>
-      <b-input-group>
-        <b-form-input v-model="vModel['children[1].lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children[1].lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children[1].lastname')">{{ feedbackNS('$form.children[1].lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[0].lastname']" placeholder="Enter child last name" :state="isValidNS('children[0].lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[0].lastname')">{{ feedbackNS('children[0].lastname') }}</b-form-invalid-feedback>
       </b-input-group>
       <hr/>
 
       <b-input-group>
-        <b-form-input v-model="vModel['children[2].firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children[2].firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children[2].firstname')">{{ feedbackNS('$form.children[2].firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[1].firstname']" placeholder="Enter child first name" :state="isValidNS('children[1].firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[1].firstname')">{{ feedbackNS('children[1].firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="vModel['children[2].lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children[2].lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children[2].lastname')">{{ feedbackNS('$form.children[2].lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[1].lastname']" placeholder="Enter child last name" :state="isValidNS('children[1].lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[1].lastname')">{{ feedbackNS('children[1].lastname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <hr/>
+
+      <b-input-group>
+        <b-form-input v-model="vModel['children[2].firstname']" placeholder="Enter child first name" :state="isValidNS('children[2].firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[2].firstname')">{{ feedbackNS('children[2].firstname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <b-input-group>
+        <b-form-input v-model="vModel['children[2].lastname']" placeholder="Enter child last name" :state="isValidNS('children[2].lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[2].lastname')">{{ feedbackNS('children[2].lastname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <hr/>
+
+      <b-input-group>
+        <b-form-input v-model="vModel['children[3].firstname']" placeholder="Enter child first name" :state="isValidNS('children[3].firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[3].firstname')">{{ feedbackNS('children[3].firstname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <b-input-group>
+        <b-form-input v-model="vModel['children[3].lastname']" placeholder="Enter child last name" :state="isValidNS('children[3].lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('children[3].lastname')">{{ feedbackNS('children[3].lastname') }}</b-form-invalid-feedback>
       </b-input-group>
       <hr/>
 
@@ -87,25 +97,23 @@ export default {
         ]
       },
       validations: {
-        $form: {
-          firstname: {
-            ['First name required.']: required,
-            ['Minimum length 3 characters.']: minLength(3)
-          },
-          lastname: {
-            ['Last name required.']: required,
-            ['Minimum length 3 characters.']: minLength(3)
-          },
-          children: {
-            $each: {
-              firstname: {
-                ['First name required.']: required,
-                ['Minimum length 3 characters.']: minLength(3)
-              },
-              lastname: {
-                ['Last name required.']: required,
-                ['Minimum length 3 characters.']: minLength(3)
-              }
+        firstname: {
+          ['First name required.']: required,
+          ['Minimum length 3 characters.']: minLength(3)
+        },
+        lastname: {
+          ['Last name required.']: required,
+          ['Minimum length 3 characters.']: minLength(3)
+        },
+        children: {
+          $each: {
+            firstname: {
+              ['First name required.']: required,
+              ['Minimum length 3 characters.']: minLength(3)
+            },
+            lastname: {
+              ['Last name required.']: required,
+              ['Minimum length 3 characters.']: minLength(3)
             }
           }
         }
@@ -115,7 +123,7 @@ export default {
   computed: {
     // temporary
     $v () { // (ro)
-      return this.$store.getters[`${this.storeName}/$v`]
+      return this.$store.getters[`${this.storeName}/$vuelidate`]
     },
     $form () {
       return this.$store.getters[`${this.storeName}/$form`]
@@ -142,7 +150,7 @@ export default {
   },
   created () {
     this.$store.dispatch(`${this.storeName}/setForm`, this.form)
-    this.$store.dispatch(`${this.storeName}/setValidations`, this.validations)
+    this.$store.dispatch(`${this.storeName}/setFormValidations`, this.validations)
   }
 }
 </script>

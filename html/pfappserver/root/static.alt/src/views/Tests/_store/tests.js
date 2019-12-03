@@ -6,12 +6,13 @@ export default {
   namespaced: true,
   state: () => {
     return {
-
       $form: {},
       $formStatus: '',
       $formMessage: '',
 
-      $validations: {},
+      $validations: {
+        $form: {}
+      },
       $validationsStatus: '',
       $validationsMessage: ''
     }
@@ -45,10 +46,10 @@ export default {
         }
       })
     },
-    $v: (state, getters) => {
-      return Object.assign({}, getters.$validator.$v)
+    $vuelidate: (state, getters) => {
+      return Object.assign({}, getters.$validator.$v.$form)
     },
-    $vuelidateNS: (state, getters) => (namespace, $v = getters.$validator.$v) => {
+    $vuelidateNS: (state, getters) => (namespace, $v = getters.$validator.$v.$form) => {
       while (namespace) { // handle namespace
         if (!$v) break
         let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
@@ -78,7 +79,7 @@ export default {
     },
     $vModel: (state, getters) => {
       /**
-      * Proxy - helper to proxy a deeply nested object that avoids an exception when accessing an undefined property.
+      * Proxy - helper to avoid exception when accessing an undefined property.
       * Allows a component template to reference a state - or a part of a state - that does not yet exist.
       */
       return new Proxy(state.$form, {
@@ -88,7 +89,7 @@ export default {
             let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
             namespace = remainder.join('.')
             if (!(first in target)) { // not defined
-              Vue.set(target, first, (remainder.length === 0) ? undefined : {})
+              Vue.set(target, first, (remainder.length === 0) ? undefined : {}) // make reactive
             }
             target = target[first]
           }
@@ -131,14 +132,14 @@ export default {
         })
       })
     },
-    setValidations: ({ state, commit, dispatch }, validations) => {
-      commit('SET_VALIDATIONS_REQUEST')
+    setFormValidations: ({ state, commit, dispatch }, validations) => {
+      commit('SET_FORM_VALIDATIONS_REQUEST')
       return new Promise((resolve, reject) => {
         Promise.resolve(validations).then(validations => {
-          commit('SET_VALIDATIONS_SUCCESS', validations)
+          commit('SET_FORM_VALIDATIONS_SUCCESS', validations)
           resolve(state.$validations)
         }).catch(err => {
-          commit('SET_VALIDATIONS_ERROR', err)
+          commit('SET_FORM_VALIDATIONS_ERROR', err)
           reject(err)
         })
       })
@@ -158,16 +159,16 @@ export default {
       state.$formStatus = types.SUCCESS
       state.$formMessage = ''
     },
-    SET_VALIDATIONS_REQUEST: (state) => {
+    SET_FORM_VALIDATIONS_REQUEST: (state) => {
       state.$validationsStatus = types.LOADING
     },
-    SET_VALIDATIONS_ERROR: (state, data) => {
+    SET_FORM_VALIDATIONS_ERROR: (state, data) => {
       state.$validationsStatus = types.ERROR
       const { response: { data: { message = '' } = {} } = {} } = data
       state.$validationsMessage = message
     },
-    SET_VALIDATIONS_SUCCESS: (state, validations) => {
-      state.$validations = validations
+    SET_FORM_VALIDATIONS_SUCCESS: (state, validations) => {
+      state.$validations.$form = validations
       state.$validationsStatus = types.SUCCESS
       state.$validationsMessage = ''
     }
