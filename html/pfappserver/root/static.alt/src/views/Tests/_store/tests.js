@@ -23,7 +23,7 @@ export default {
     $formNS: (state, getters) => (namespace, $form = getters.$form) => {
       while (namespace) { // handle namespace
         if (!$form) break
-        let [ first, ...remainder ] = namespace.split('.') // split namespace
+        let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
         namespace = remainder.join('.')
         if (first in $form)
           $form = $form[first]
@@ -51,7 +51,7 @@ export default {
     $vuelidateNS: (state, getters) => (namespace, $v = getters.$validator.$v) => {
       while (namespace) { // handle namespace
         if (!$v) break
-        let [ first, ...remainder ] = namespace.split('.') // split namespace
+        let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
         namespace = remainder.join('.')
         if (first in $v)
           $v = $v[first] // named property
@@ -85,7 +85,7 @@ export default {
         has: (target, namespace) => true, // always satisfy
         get: (target, namespace) => {
           while (namespace) { // handle namespace
-            let [ first, ...remainder ] = namespace.split('.') // split namespace
+            let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
             namespace = remainder.join('.')
             if (!(first in target)) { // not defined
               Vue.set(target, first, (remainder.length === 0) ? undefined : {})
@@ -96,7 +96,7 @@ export default {
         },
         set: (target, namespace, value) => {
           while (namespace) { // handle namespace
-            let [ first, ...remainder ] = namespace.split('.') // split namespace
+            let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
             namespace = remainder.join('.')
             if (target && (first in target || !isNaN(+first))) {
               if (namespace) {

@@ -19,32 +19,32 @@
       <h2>Children (Array)</h2>
 
       <b-input-group>
-        <b-form-input v-model="vModel['children.0.firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children.0.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children.0.firstname')">{{ feedbackNS('$form.children.0.firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[0].firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children[0].firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children[0].firstname')">{{ feedbackNS('$form.children[0].firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="vModel['children.0.lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children.0.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children.0.lastname')">{{ feedbackNS('$form.children.0.lastname') }}</b-form-invalid-feedback>
-      </b-input-group>
-      <hr/>
-
-      <b-input-group>
-        <b-form-input v-model="vModel['children.1.firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children.1.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children.1.firstname')">{{ feedbackNS('$form.children.1.firstname') }}</b-form-invalid-feedback>
-      </b-input-group>
-      <b-input-group>
-        <b-form-input v-model="vModel['children.1.lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children.1.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children.1.lastname')">{{ feedbackNS('$form.children.1.lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[0].lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children[0].lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children[0].lastname')">{{ feedbackNS('$form.children[0].lastname') }}</b-form-invalid-feedback>
       </b-input-group>
       <hr/>
 
       <b-input-group>
-        <b-form-input v-model="vModel['children.2.firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children.2.firstname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children.2.firstname')">{{ feedbackNS('$form.children.2.firstname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[1].firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children[1].firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children[1].firstname')">{{ feedbackNS('$form.children[1].firstname') }}</b-form-invalid-feedback>
       </b-input-group>
       <b-input-group>
-        <b-form-input v-model="vModel['children.2.lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children.2.lastname')"></b-form-input>
-        <b-form-invalid-feedback :state="isValidNS('$form.children.2.lastname')">{{ feedbackNS('$form.children.2.lastname') }}</b-form-invalid-feedback>
+        <b-form-input v-model="vModel['children[1].lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children[1].lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children[1].lastname')">{{ feedbackNS('$form.children[1].lastname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <hr/>
+
+      <b-input-group>
+        <b-form-input v-model="vModel['children[2].firstname']" placeholder="Enter child first name" :state="isValidNS('$form.children[2].firstname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children[2].firstname')">{{ feedbackNS('$form.children[2].firstname') }}</b-form-invalid-feedback>
+      </b-input-group>
+      <b-input-group>
+        <b-form-input v-model="vModel['children[2].lastname']" placeholder="Enter child last name" :state="isValidNS('$form.children[2].lastname')"></b-form-input>
+        <b-form-invalid-feedback :state="isValidNS('$form.children[2].lastname')">{{ feedbackNS('$form.children[2].lastname') }}</b-form-invalid-feedback>
       </b-input-group>
       <hr/>
 
