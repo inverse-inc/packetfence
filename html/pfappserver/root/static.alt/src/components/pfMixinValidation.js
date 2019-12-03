@@ -17,10 +17,6 @@ export default {
       type: Boolean,
       default: undefined
     },
-    filter: {
-      type: RegExp,
-      default: null
-    },
     lastValidValue: {
       type: String,
       default: null
@@ -72,24 +68,6 @@ export default {
             this.vuelidate.$touch()
           },
           time: this.vuelidateDebouncerTime
-        })
-      }
-    },
-    onChange () {
-      if (this.filter) {
-        // this.value is one char behind, wait until next tick for our v-model to update
-        this.$nextTick(() => {
-          if (!this.value || this.value.length === 0) {
-            this.lastValidValue = ''
-          } else {
-            if (this.filter.test(this.value)) {
-              // good, remember
-              this.lastValidValue = this.value
-            } else {
-              // bad, restore
-              this.value = this.lastValidValue
-            }
-          }
         })
       }
     },
