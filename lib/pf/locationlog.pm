@@ -423,7 +423,7 @@ sub locationlog_cleanup {
         $time_limit
     );
 
-    ($status, $rows2) = pf::dal::locationlog->batch_remove(
+    ($status, my $rows2) = pf::dal::locationlog->batch_remove(
         {
             -where => {
                 end_time => {
