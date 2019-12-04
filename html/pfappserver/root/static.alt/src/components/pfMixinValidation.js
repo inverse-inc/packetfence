@@ -57,6 +57,7 @@ export default {
       })
       return this.validState
     },
+    /*
     validate () {
       if (this.vuelidate && '$touch' in this.vuelidate) {
         this.vuelidateDebouncer({
@@ -67,6 +68,7 @@ export default {
         })
       }
     },
+    */
     stringifyFeedback (feedback) {
       if (feedback === null) return ''
       if (feedback instanceof Array) {

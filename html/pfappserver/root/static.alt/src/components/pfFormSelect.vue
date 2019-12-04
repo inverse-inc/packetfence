@@ -7,7 +7,6 @@
         v-model="inputValue"
         v-bind="$attrs"
         :state="isValid()"
-        @input.native="validate()"
       >
         <!-- BEGIN SLOTS -->
         <!-- Forward named slots -->

@@ -26,7 +26,6 @@
         :show-labels="false"
         :state="isValid()"
         :track-by="trackBy"
-        @input.native="validate()"
         @search-change="onSearchChange($event)"
         @open="onFocus"
         @close="onBlur"

@@ -13,7 +13,6 @@
         @keyup.native.down.stop="highlightNext"
         @keyup.native.enter.stop="selectHighlighted"
         @keyup.native.delete="hideSuggestions"
-        @input.native="validate()"
       ></b-form-input>
       <ul class="pf-autocomplete-suggestions dropdown-menu" :class="{ show: suggestions.length && visible }"
         @mouseout="resetHightlight" @mousedown="selectHighlighted">

@@ -20,7 +20,6 @@
         :placeholder="proxyPlaceholder"
         :tag-placeholder="proxyTagPlaceholder"
         @tag="addTag"
-        @input.native="validate()"
         @open="onFocus"
         @close="onBlur"
       ></multiselect>

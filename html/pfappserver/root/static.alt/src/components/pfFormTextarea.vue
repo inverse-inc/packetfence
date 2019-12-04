@@ -8,7 +8,6 @@
       v-bind="$attrs"
       :state="isValid()"
       :placeholder="filteredPlaceholder"
-      @input.native="validate()"
     ></b-form-textarea>
     <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>

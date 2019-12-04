@@ -14,7 +14,6 @@
         ref="input"
         :type="type"
         :state="isValid()"
-        @input.native="validate()"
         @focus.native="focus = true"
         @blur.native="focus = false"
       ></b-form-input>

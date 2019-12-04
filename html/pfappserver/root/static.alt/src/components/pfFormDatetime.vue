@@ -33,7 +33,6 @@
         ref="input"
         :config="combinedConfig"
         :state="isValid()"
-        @input.native="validate()"
         @focus.native="focus = true"
         @blur.native="focus = false"
       ></flat-pickr>

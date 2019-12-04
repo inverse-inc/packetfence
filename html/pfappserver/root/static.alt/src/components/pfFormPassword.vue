@@ -12,7 +12,6 @@
         :type="type"
         :state="isValid()"
         :disabled="disabled"
-        @input.native="validate()"
         @keyup.native="resetTest($event)"
         @focus.native="focus = true"
         @blur.native="focus = false"
