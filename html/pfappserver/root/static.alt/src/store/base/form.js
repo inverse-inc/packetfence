@@ -21,6 +21,14 @@ export default {
     isLoading: (state, getters) => getters.$formLoading || getters.$validationsLoading,
     $form: (state) => state.$form,
     $formLoading: (state) => state.$formStatus === types.LOADING,
+    $formMessage: (state) => state.$formMessage,
+    $formStatus: (state) => state.$formStatus,
+    $formAnyError: (state, getters) => getters.$vuelidate.$anyError,
+    $formAnyDirty: (state, getters) => getters.$vuelidate.$anyDirty,
+    $formDirty: (state, getters) => getters.$vuelidate.$dirty,
+    $formError: (state, getters) => getters.$vuelidate.$error,
+    $formInvalid: (state, getters) => getters.$vuelidate.$invalid,
+    $formPending: (state, getters) => getters.$vuelidate.$pending,
     $formNS: (state, getters) => (namespace, $form = getters.$form) => {
       while (namespace) { // handle namespace
         if (!$form) break
@@ -155,7 +163,7 @@ export default {
       state.$formMessage = message
     },
     SET_FORM_SUCCESS: (state, form) => {
-      state.$form = form
+      state.$form = Object.assign({}, form) // dereference to avoid mutations
       state.$formStatus = types.SUCCESS
       state.$formMessage = ''
     },
