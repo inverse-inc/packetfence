@@ -42,6 +42,41 @@ has_field 'type' =>
    messages => { required => 'Please select Provisioning type' },
   );
 
+has_field 'enforce',
+  (
+   type => 'Toggle',
+   label => 'Enforce',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.' },
+   default => 'enabled',
+  );
+
+has_field 'apply_role',
+  (
+   type => 'Toggle',
+   label => 'Apply role',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.' },
+   default => 'disabled',
+  );
+
+
+has_field 'role_to_apply' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Role to apply',
+   options_method => \&options_roles,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   tags => { after_element => \&help,
+             help => 'When "Apply role" is enabled, this defines the role to apply when the device is authorized with the provisioner.' },
+  );
+
 has_field 'category' =>
   (
    type => 'Select',
@@ -88,7 +123,7 @@ has_field 'pki_provider' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category pki_provider oses) ],
+   render_list => [ qw(id type description category pki_provider oses apply_role role_to_apply) ],
   );
 
 =head2 options_pki_provider

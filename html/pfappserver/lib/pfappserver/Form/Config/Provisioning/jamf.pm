@@ -69,7 +69,7 @@ has_field 'query_mobiledevices' => (
 );
 
 has_block definition => (
-    render_list => [ qw(id type description category oses host port protocol api_username api_password device_type_detection query_computers query_mobiledevices) ],
+    render_list => [ qw(id type description category oses host port protocol api_username api_password device_type_detection query_computers query_mobiledevices apply_role role_to_apply) ],
 );
 
 =head1 COPYRIGHT

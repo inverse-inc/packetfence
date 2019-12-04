@@ -24,6 +24,7 @@ use pf::factory::pki_provider;
 use List::MoreUtils qw(any);
 use pf::CHI;
 use fingerbank::Model::Device;
+use pf::util qw(isenabled);
 
 =head1 Constants
 

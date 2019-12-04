@@ -150,7 +150,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path apply_role role_to_apply) ],
   );
 
 has_block signing =>
