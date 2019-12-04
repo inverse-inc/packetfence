@@ -22,7 +22,7 @@ use pf::error qw(is_error);
 
 has dal => 'pf::dal::locationlog';
 has url_param_name => 'locationlog_id';
-has primary_key => 'id';
+has primary_key => 'mac';
 
 sub ssids {
     my ($self) = @_;
