@@ -89,6 +89,9 @@ export default {
         } else {
           this.$emit('input', newValue) // use native (v-model)
         }
+        if (!this.$debouncer) {
+          this.$debouncer = createDebouncer()
+        }
         this.$debouncer({
           handler: () => {
             if (newValue.length >= this.minLength && newValue !== this.value) {
@@ -161,9 +164,6 @@ export default {
     resetHightlight () {
       this.highlightedIndex = -1
     }
-  },
-  created () {
-    this.$debouncer = createDebouncer()
   }
 }
 </script>
