@@ -68,7 +68,6 @@ has_field 'apply_role',
 has_field 'role_to_apply' =>
   (
    type => 'Select',
-   multiple => 1,
    label => 'Role to apply',
    options_method => \&options_roles,
    element_class => ['chzn-deselect'],

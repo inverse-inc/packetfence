@@ -225,6 +225,19 @@ export const viewFields = {
       ]
     }
   },
+  tenant_code: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Tenant code'),
+      fields: [
+        {
+          key: 'tenant_code',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'tenant_code'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'tenant_code', i18n.t('Tenant code'))
+        }
+      ]
+    }
+  },
   api_uri: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Api uri'),
@@ -289,6 +302,50 @@ export const viewFields = {
           attrs: {
             values: { checked: '1', unchecked: '0' }
           }
+        }
+      ]
+    }
+  },
+  enforce: () => {
+    return {
+      label: i18n.t('Enforce'),
+      text: i18n.t('Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.'),
+      fields: [
+        {
+          key: 'enforce',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
+  apply_role: () => {
+    return {
+      label: i18n.t('Apply role'),
+      text: i18n.t('When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.'),
+      fields: [
+        {
+          key: 'apply_role',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
+  role_to_apply: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Role to apply'),
+      text: i18n.t('When "Apply role" is enabled, this defines the role to apply when the device is authorized with the provisioner.'),
+      fields: [
+        {
+          key: 'role_to_apply',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'role_to_apply'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'role_to_apply', i18n.t('Role to apply'))
         }
       ]
     }
@@ -869,6 +926,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta)
           ]
@@ -882,6 +942,9 @@ export const view = (form = {}, meta = {}) => {
             ...[
               viewFields.id(form, meta),
               viewFields.description(form, meta),
+              viewFields.enforce(form, meta),
+              viewFields.apply_role(form, meta),
+              viewFields.role_to_apply(form, meta),
               viewFields.category(form, meta),
               viewFields.ssid(form, meta),
               viewFields.broadcast(form, meta),
@@ -916,6 +979,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta)
           ]
@@ -928,6 +994,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.ssid(form, meta),
             viewFields.oses(form, meta),
@@ -942,6 +1011,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.username(form, meta),
             viewFields.password(form, meta),
@@ -961,6 +1033,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.host(form, meta),
@@ -982,6 +1057,9 @@ export const view = (form = {}, meta = {}) => {
             ...[
               viewFields.id(form, meta),
               viewFields.description(form, meta),
+              viewFields.enforce(form, meta),
+              viewFields.apply_role(form, meta),
+              viewFields.role_to_apply(form, meta),
               viewFields.category(form, meta),
               viewFields.ssid(form, meta),
               viewFields.broadcast(form, meta),
@@ -1025,6 +1103,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.username(form, meta),
@@ -1045,6 +1126,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.client_id(form, meta),
@@ -1072,6 +1156,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.host(form, meta),
@@ -1091,6 +1178,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.client_id(form, meta),
@@ -1112,6 +1202,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.username(form, meta),
@@ -1131,6 +1224,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.username(form, meta),
@@ -1150,6 +1246,9 @@ export const view = (form = {}, meta = {}) => {
             ...[
               viewFields.id(form, meta),
               viewFields.description(form, meta),
+              viewFields.enforce(form, meta),
+              viewFields.apply_role(form, meta),
+              viewFields.role_to_apply(form, meta),
               viewFields.category(form, meta),
               viewFields.ssid(form, meta),
               viewFields.broadcast(form, meta),
@@ -1184,6 +1283,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.applicationID(form, meta),
@@ -1198,6 +1300,27 @@ export const view = (form = {}, meta = {}) => {
             viewFields.windows_agent_download_uri(form, meta),
             viewFields.mac_osx_agent_download_uri(form, meta),
             viewFields.domains(form, meta)
+          ]
+        }
+      ]
+    case 'airwatch':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
+            viewFields.category(form, meta),
+            viewFields.oses(form, meta),
+            viewFields.host(form, meta),
+            viewFields.port(form, meta),
+            viewFields.protocol(form, meta),
+            viewFields.api_username(form, meta),
+            viewFields.api_password(form, meta),
+            viewFields.tenant_code(form, meta)
           ]
         }
       ]
