@@ -84,7 +84,10 @@ build_artifacts() {
 # sign artifacts for all distributions using artifacts
 # of previous build jobs
 sign_artifacts() {
-    configure_and_check
+    if [ ! -z "$CI_PROJECT_DIR" ]; then
+        RESULT_DIR="$CI_PROJECT_DIR/result"
+    fi
+    RESULT_DIR=${RESULT_DIR:-result}
     configure_gpg
     log_section "Display artifacts.."
     tree $RESULT_DIR
