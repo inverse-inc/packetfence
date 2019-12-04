@@ -368,6 +368,7 @@ CREATE TABLE `locationlog` (
   `dot1x_username` varchar(255) NOT NULL default '',
   `ssid` varchar(32) NOT NULL default '',
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
+  `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
@@ -376,9 +377,10 @@ CREATE TABLE `locationlog` (
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   PRIMARY KEY (`tenant_id`, `mac`),
+  KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
-  KEY `locationlog_session_id` (`session_id`),
+  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
   CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 

@@ -128,11 +128,10 @@ DELETE FROM locationlog
 ALTER TABLE `locationlog`
     DROP PRIMARY KEY,
     DROP COLUMN id,
-    DROP COLUMN end_time,
     DROP INDEX locationlog_view_mac,
-    DROP INDEX locationlog_session_id_end_time,
+    DROP INDEX locationlog_view_switchport,
     ADD  PRIMARY KEY (`tenant_id`, `mac`),
-    ADD  KEY `locationlog_session_id` (`session_id`),
+    ADD  KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
     ADD CONSTRAINT `locationlog_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`);
 
 DELIMITER /
