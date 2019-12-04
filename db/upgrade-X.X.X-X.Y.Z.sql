@@ -135,7 +135,7 @@ ALTER TABLE `locationlog`
     ADD CONSTRAINT `locationlog_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`);
 
 DELIMITER /
-CREATE OR REPLACE TRIGGER locationlog_insert_in_history_before_delete BEFORE DELETE on locationlog
+CREATE OR REPLACE TRIGGER locationlog_insert_in_history_after_insert AFTER UPDATE on locationlog
 FOR EACH ROW
 BEGIN
     INSERT INTO locationlog_history
@@ -151,7 +151,11 @@ BEGIN
         dot1x_username = OLD.dot1x_username,
         ssid = OLD.ssid,
         start_time = OLD.start_time,
-        end_time = NOW(),
+        end_time = CASE
+        WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
+        WHEN OLD.end_time > NOW() THEN NOW()
+        ELSE OLD.end_time
+        END,
         switch_ip = OLD.switch_ip,
         switch_mac = OLD.switch_mac,
         stripped_user_name = OLD.stripped_user_name,
