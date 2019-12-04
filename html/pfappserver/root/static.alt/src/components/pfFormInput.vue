@@ -1,18 +1,16 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
     class="pf-form-input" :class="{ 'mb-0': !columnLabel }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
-      <b-form-input
+      <b-form-input ref="input"
         v-model="inputValue"
         v-bind="$attrs"
-        ref="input"
-        :state="isValid()"
+        :state="inputState"
         :disabled="disabled"
         :readonly="readonly"
-        @input.native="validate()"
       />
       <b-input-group-append v-if="readonly || disabled || test">
         <b-button v-if="readonly || disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
@@ -22,7 +20,7 @@
           </b-button>
         </b-button-group>
         <b-button-group v-if="!disabled" rel="prefixButtonGroup">
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || isValid() === false" tabindex="-1">
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || !inputState" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
@@ -37,12 +35,11 @@
 
 <script>
 import pfMixinForm from '@/components/pfMixinForm'
-import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
   name: 'pf-form-input',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   props: {
     value: {
@@ -70,6 +67,18 @@ export default {
     test: {
       type: Function,
       default: null
+    },
+    state: {
+      type: Boolean,
+      default: null
+    },
+    stateMap: {
+      type: Object,
+      default: { false: false, true: null }
+    },
+    invalidFeedback: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -82,10 +91,32 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return this.value
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
       },
-      set (newValue) {
-        this.$emit('input', newValue || null)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
+      }
+    },
+    inputState () {
+      if (this.formStoreName) {
+        return this.stateMap[!this.formStoreState.$invalid] // use FormStore
+      } else {
+        return this.stateMap[this.state] // use native (state)
+      }
+    },
+    inputInvalidFeedback () {
+      if (this.formStoreName) {
+        return this.formStoreInvalidFeedback // use FormStore
+      } else {
+        return this.invalidFeedback // use native (invalidFeedback)
       }
     }
   },
