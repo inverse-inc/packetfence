@@ -67,18 +67,6 @@ export default {
     test: {
       type: Function,
       default: null
-    },
-    state: {
-      type: Boolean,
-      default: null
-    },
-    stateMap: {
-      type: Object,
-      default: { false: false, true: null }
-    },
-    invalidFeedback: {
-      type: String,
-      default: null
     }
   },
   data () {
@@ -103,20 +91,6 @@ export default {
         } else {
           this.$emit('input', newValue) // use native (v-model)
         }
-      }
-    },
-    inputState () {
-      if (this.formStoreName) {
-        return this.stateMap[!this.formStoreState.$invalid] // use FormStore
-      } else {
-        return this.stateMap[this.state] // use native (state)
-      }
-    },
-    inputInvalidFeedback () {
-      if (this.formStoreName) {
-        return this.formStoreInvalidFeedback // use FormStore
-      } else {
-        return this.invalidFeedback // use native (invalidFeedback)
       }
     }
   },

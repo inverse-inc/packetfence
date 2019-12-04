@@ -13,6 +13,18 @@ export default {
       type: String,
       default: null,
       required: false
+    },
+    state: {
+      type: Boolean,
+      default: null
+    },
+    stateMap: {
+      type: Object,
+      default: { false: false, true: null }
+    },
+    invalidFeedback: {
+      type: String,
+      default: null
     }
   },
   computed: {
@@ -32,6 +44,20 @@ export default {
     },
     formStoreInvalidFeedback () {
       return this.$store.getters[`${this.formStoreName}/$feedbackNS`](this.formNamespace)
+    },
+    inputState () {
+      if (this.formStoreName) {
+        return this.stateMap[!this.formStoreState.$invalid] // use FormStore
+      } else {
+        return this.stateMap[this.state] // use native (state)
+      }
+    },
+    inputInvalidFeedback () {
+      if (this.formStoreName) {
+        return this.formStoreInvalidFeedback // use FormStore
+      } else {
+        return this.invalidFeedback // use native (invalidFeedback)
+      }
     }
   }
 }
