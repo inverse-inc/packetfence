@@ -169,6 +169,7 @@ sub locationlog_view_open_switchport {
             switch => $switch,
             port => $ifIndex,
             voip => $voip,
+            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
     });
@@ -181,6 +182,7 @@ sub locationlog_view_open_switchport_no_VoIP {
             switch => $switch,
             port => $ifIndex,
             voip => { "!=" => "yes"},
+            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
     });
@@ -193,6 +195,7 @@ sub locationlog_view_open_switchport_only_VoIP {
             switch => $switch,
             port => $ifIndex,
             voip => "yes",
+            end_time => $ZERO_DATE,
         },
         -limit => 1,
         -order_by => { -desc => 'start_time' },
@@ -238,6 +241,7 @@ sub locationlog_insert_start {
         realm               => $realm,
         ifDesc              => $ifDesc,
         start_time          => \'NOW()',
+        end_time            => $ZERO_DATE,
         voip                => $voip,
         mac                 => lc($mac),
     );
@@ -247,25 +251,33 @@ sub locationlog_insert_start {
 }
 
 sub locationlog_update_end_switchport_no_VoIP {
-    my ( $switch, $ifIndex ) = @_;
-    my ($status, $rows) = pf::dal::locationlog->remove_items(
+    my ($switch, $ifIndex) = @_;
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
         -where => {
             switch => $switch,
-            port => $ifIndex,
-            voip => {"!=" => "yes"},
+            port   => $ifIndex,
+            end_time => $ZERO_DATE,
+            voip   => { "!=" => "yes" },
         },
     );
+
     return ($rows);
 }
 
 sub locationlog_update_end_switchport_only_VoIP {
-    my ( $switch, $ifIndex ) = @_;
-
-    my ($status, $rows) = pf::dal::locationlog->remove_items(
+    my ($switch, $ifIndex) = @_;
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
         -where => {
             switch => $switch,
-            port => $ifIndex,
-            voip => "yes",
+            port   => $ifIndex,
+            end_time => $ZERO_DATE,
+            voip   => "yes",
         },
     );
     return ($rows);
@@ -274,8 +286,12 @@ sub locationlog_update_end_switchport_only_VoIP {
 sub locationlog_update_end_mac {
     my ($mac, $tenant_id) = @_;
     my %options = (
+        -set => {
+            end_time => \'NOW()',
+        },
         -where => {
             mac => $mac,
+            end_time => $ZERO_DATE,
         }
     );
     if (defined $tenant_id) {
@@ -283,7 +299,7 @@ sub locationlog_update_end_mac {
         $options{-no_auto_tenant_id} = 1;
     }
 
-    my ($status, $rows) = pf::dal::locationlog->remove_items(%options);
+    my ($status, $rows) = pf::dal::locationlog->update_items(%options);
     return ($rows);
 }
 
@@ -327,12 +343,6 @@ sub locationlog_synchronize {
                     my $inline = new pf::inline::custom();
                     my $mark = $inline->{_technique}->get_mangle_mark_for_mac($mac);
                     $inline->{_technique}->iptables_unmark_node($mac,$mark) if (defined($mark));
-                }
-
-                $logger->debug("closing old locationlog entry because something about this node changed");
-
-                unless (defined (locationlog_update_end_mac($mac))) {
-                    return (0);
                 }
 
                 locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status);
@@ -399,19 +409,35 @@ sub locationlog_cleanup {
     }
 
     my $now = pf::dal->now();
-
-    my ($status, $rows) = pf::dal::locationlog_history->batch_remove(
+    my ($status, $rows1) = pf::dal::locationlog_history->batch_remove(
         {
             -where => {
                 end_time => {
                      "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ] ,
+                     "!=" => $ZERO_DATE,
                 },
             },
             -limit => $batch,
+            -no_auto_tenant_id => 1,
         },
         $time_limit
     );
-    return ($rows);
+
+    ($status, $rows2) = pf::dal::locationlog->batch_remove(
+        {
+            -where => {
+                end_time => {
+                     "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ] ,
+                     "!=" => $ZERO_DATE,
+                },
+            },
+            -limit => $batch,
+            -no_auto_tenant_id => 1,
+        },
+        $time_limit
+    );
+
+    return ($rows1 + $rows2);
 }
 
 =item * _is_locationlog_accurate
@@ -469,6 +495,7 @@ sub locationlog_get_session {
     return _db_item({
         -where => {
             session_id => $session_id,
+            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
         -limit => 1,
@@ -483,6 +510,7 @@ sub locationlog_set_session {
        },
        -where => {
            mac => $mac,
+           end_time => $ZERO_DATE,
        }
    );
    return $rows;
