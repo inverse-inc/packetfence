@@ -35,7 +35,6 @@ BEGIN {
         locationlog_history_mac
         locationlog_history_switchport
 
-        locationlog_view_open
         locationlog_view_open_mac
         locationlog_view_open_switchport
         locationlog_view_open_switchport_no_VoIP
@@ -161,12 +160,6 @@ sub locationlog_history_switchport {
         -where => $where,
         -order_by => [{-desc => 'start_time'}, {-desc => 'end_time'}],
     }));
-}
-
-sub locationlog_view_open {
-    return _db_list({
-        -order_by => { -desc => 'start_time' },
-    });
 }
 
 sub locationlog_view_open_switchport {
