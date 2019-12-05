@@ -1,5 +1,4 @@
-Developer's Guide
-=================
+= Developer's Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -1064,16 +1063,14 @@ include::packer/README.asciidoc[]
 For day to day development one can run a checkout of the current development branch in
 `/usr/local/pf/` and develop there within a working setup.
 
-[#dev-prerequisites]
-===== Prerequisites
+===== Virtual environment: prerequisites
 
 .Install following softwares:
 * link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3)
 * Virtualbox if you wan to use Virtualbox as a provider for Vagrant
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
 
-[#dev-setup]
-===== Initial setup
+===== Virtual environment: initial setup
 
 Following steps assume you use a CentOS machine but you can have same behavior
 under Debian.
@@ -1084,7 +1081,6 @@ under Debian.
 sudo yum install -y epel-release
 sudo yum install -y git python-pip
 pip install --user ansible
-pip install --user mazer
 git clone https://github.com/inverse-inc/packetfence.git
 ----
 
@@ -1092,8 +1088,8 @@ git clone https://github.com/inverse-inc/packetfence.git
 [source,bash]
 ----
 cd packetfence/addons/vagrant
-mazer install --lockfile=collections_lockfile.yml
-ansible-galaxy install -r requirements.yml
+ansible-galaxy collection install -r requirements.yml
+ansible-galaxy role install -r requirements.yml
 ----
 
 .Start CentOS 7 virtual machine via Vagrant to set up development environment:
@@ -1113,8 +1109,9 @@ running in a CentOS 7 virtual machine, located in [filename]`/usr/local/pf`
 with all dependencies installed as RPM packages. You can directly develop from
 [filename]`/usr/local/pf`.
 
-Web admin should be reachable through management IP address of pfcen7dev
-machine, configured in [filename]`addons/vagrant/inventory/hosts`.
+Web admin should be reachable through management IP address of `pfcen7dev`
+machine, configured in [filename]`addons/vagrant/inventory/hosts`. Default
+passwords are all set to `secret`.
 
 
 ==== Not so bleeding edge
@@ -1123,8 +1120,8 @@ If you prefer to use packages, you can install latest PacketFence packages from 
 
 ===== Initial setup
 
-Install <<dev-prerequisites,development prerequisites>> and follow
-<<dev-setup,initial setup>> but in place of starting `pfcen7dev`, you can
+Install <<_virtual_environment_prerequisites,prequisites>> and follow
+<<_virtual_environment_initial_setup,initial setup>> but in place of starting `pfcen7dev`, you can
 start:
 
 * `pfcen7night`
@@ -1132,6 +1129,21 @@ start:
 
 These machines will be auto-configured to install nightly builds from development
 repositories.
+
+===== Packages from PPA
+
+If you want install latest packages built in the pipeline, available on
+link:https://inverse-inc.gitlab.io/packetfence/[GitLab], you can use
+following commands:
+
+[source,bash]
+----
+cd packetfence/addons/vagrant
+CI_PROJECT_NAME="ppa" CI_PAGES_URL="http://inverse-inc.gitlab.io/packetfence" vagrant up pfdeb9night
+----
+
+WARNING: Packages available here could be build on other branches than devel.
+
 
 ===== Day to day usage
 
@@ -1144,11 +1156,11 @@ vagrant provision --provision-with=config pfcen7night
 vagrant provision --provision-with=config pfdeb9night
 ----
 
-Make sure you read the `UPGRADE` document after every upgrades to avoid any surprises.
+Make sure you read the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>> after every upgrades to avoid any surprises.
 
 ===== Running an Ansible playbook against Vagrant virtual machines
 
-If you want to use Ansible directly against Vagrant virtual machines, you can use following commands:
+If you want to use Ansible directly against Vagrant virtual machines (already started), you can use following commands:
 
 [source,bash]
 ----
@@ -1159,9 +1171,23 @@ ansible-playbook site.yml --limit pfcen7night
 It's possible because we use a static Ansible inventory. This inventory is
 also used by Vagrant to start virtual machines.
 
+===== Specific version of a package
 
-Contributing
-------------
+If you want to install a specific version of a package, you can create a YAML
+file that override default inventory, for example:
+
+[source,bash]
+----
+cd packetfence/addons/vagrant
+cat >> extra.yml << EOF
+packetfence_install__centos_packages:
+  - packetfence-9.2.0-20191126180126.98740132.0007.el7
+EOF
+ansible-playbook site.yml --limit pfcen7night -e @extra.yml
+----
+
+== Contributing
+
 
 Here are some golden rules of contributing to PacketFence:
 
