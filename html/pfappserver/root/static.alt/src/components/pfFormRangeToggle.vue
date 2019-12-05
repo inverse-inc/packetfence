@@ -237,12 +237,17 @@ export default {
 
 <style lang="scss">
 @keyframes animateCursor {
-  0%, 100% { background-color: rgba(0, 0, 0, 1); }
-  10%, 90% { background-color: rgba(0, 0, 0, 0.8); }
-  20%, 80% { background-color: rgba(0, 0, 0, 0.6); }
-  30%, 70% { background-color: rgba(0, 0, 0, 0.4); }
-  40%, 60% { background-color: rgba(0, 0, 0, 0.2); }
-  50% { background-color: rgba(0, 0, 0, 0); }
+  0%, 100% { background-color: rgba(255, 255, 255, 1); }
+  5%, 95% { background-color: rgba(255, 255, 255, 0.9); }
+  10%, 90% { background-color: rgba(255, 255, 255, 0.8); }
+  15%, 85% { background-color: rgba(255, 255, 255, 0.7); }
+  20%, 80% { background-color: rgba(255, 255, 255, 0.6); }
+  25%, 75% { background-color: rgba(255, 255, 255, 0.5); }
+  30%, 70% { background-color: rgba(255, 255, 255, 0.4); }
+  35%, 65% { background-color: rgba(255, 255, 255, 0.3); }
+  40%, 60% { background-color: rgba(255, 255, 255, 0.2); }
+  45%, 55% { background-color: rgba(255, 255, 255, 0.1); }
+  50% { background-color: rgba(255, 255, 255, 0); }
 }
 
 .pf-form-range-toggle {
