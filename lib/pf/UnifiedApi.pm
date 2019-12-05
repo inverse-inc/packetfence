@@ -538,14 +538,6 @@ sub setup_api_v1_users_routes {
         "/node/#node_id",
     );
 
-    $self->setup_api_v1_std_crud_routes(
-        $sub_resource_route,
-        "Users::Nodes::Locationlogs",
-        "/locationlogs",
-        "/locationlog/#locationlog_id",
-        "api.v1.Users.resource.Nodes.Locationlogs"
-    );
-
     my $password_route = $resource_route->any("/password")->to(controller => "Users::Password")->name("api.v1.Users.resource.Password");
     $password_route->register_sub_action({path => '', action => 'get', method => 'GET'});
     $password_route->register_sub_action({path => '', action => 'remove', method => 'DELETE', auditable => 1});

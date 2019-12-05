@@ -46,6 +46,7 @@ my %values = (
     session_id          => 'test session_id',
     ifDesc              => 'test ifDesc',
     start_time          => '0000-00-00 00:00:01',
+    end_time            => '0000-00-00 00:00:02',
     voip                => 'no',
 );
 my $status = pf::dal::locationlog->create(\%values);
@@ -236,7 +237,7 @@ $t->post_ok(
   ->status_is(200)
 ;
 
-is_deeply($t->tx->res->json->{items}[0], { mac => '01:02:03:04:05:01'});
+is_deeply($t->tx->res->json->{items}[0], { mac => '01:02:03:04:05:01'}, "fields [mac]");
 
 $t->post_ok(
     '/api/v1/locationlogs/search' => json => { }
