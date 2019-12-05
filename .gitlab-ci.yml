@@ -411,6 +411,7 @@ install_pkg_dev_and_release_centos_7:
     - .install_job
     - .install_script
     - .job_dev_and_release_triggers
+  when: manual
 
 install_pkg_dev_and_release_debian_stretch:
   variables:
@@ -419,6 +420,7 @@ install_pkg_dev_and_release_debian_stretch:
     - .install_job
     - .install_script
     - .job_dev_and_release_triggers
+  when: manual
     
 ########################################
 # UPLOAD JOBS
