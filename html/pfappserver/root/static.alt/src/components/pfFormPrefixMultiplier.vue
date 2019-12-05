@@ -14,7 +14,7 @@
         v-model="humanValue"
         v-bind="$attrs"
         :state="inputState"
-        :type="type"
+        type="number" pattern="[0-9]"
         @focus.native="focus = true"
         @blur.native="focus = false"
       ></b-form-input>
@@ -58,10 +58,6 @@ export default {
     text: {
       type: String,
       default: null
-    },
-    type: {
-      type: String,
-      default: 'number'
     },
     prependText: {
       type: String
@@ -149,6 +145,7 @@ export default {
         }
       },
       set (newValue = null) {
+        newValue = (newValue === 0) ? null : newValue
         if (this.formStoreName) {
           this.formStoreValue = newValue // use FormStore
         } else {
@@ -194,6 +191,9 @@ export default {
     }
   },
   methods: {
+    focus () {
+      this.$refs.input.focus()
+    },
     changeMultiplier (event, newIndex) {
       const curIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
       const factor = this.prefixes[newIndex].multiplier / this.prefixes[curIndex].multiplier
