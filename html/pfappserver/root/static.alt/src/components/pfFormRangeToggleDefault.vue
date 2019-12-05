@@ -35,7 +35,7 @@
           <icon v-if="icon" :name="icon"></icon>
         </input-range>
         <span class="ml-2" v-if="rightLabel">{{ rightLabel }}</span>
-        <slot class="ml-2"s/>
+        <slot class="ml-2"/>
       </label>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>

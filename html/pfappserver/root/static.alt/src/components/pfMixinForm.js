@@ -20,7 +20,7 @@ export default {
     },
     stateMap: {
       type: Object,
-      default: { false: false, true: null }
+      default: () => { return { false: false, true: null } }
     },
     invalidFeedback: {
       type: String,

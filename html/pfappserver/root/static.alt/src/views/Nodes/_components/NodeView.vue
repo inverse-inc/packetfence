@@ -14,54 +14,49 @@
           </template>
           <b-row>
             <b-col>
-              <pf-form-input :column-label="$t('Owner')"
-                v-model="nodeContent.pid"
-                :vuelidate="$v.nodeContent.pid"
+              <pf-form-autocomplete :column-label="$t('Owner')"
+                :formStoreName="formStoreName" formNamespace="pid"
+                :suggestions="matchingUsers"
+                placeholder="default"
+                @search="searchUsers"
               />
               <pf-form-select :column-label="$t('Status')"
-                v-model="nodeContent.status"
+                :formStoreName="formStoreName" formNamespace="status"
                 :options="statuses"
-                :vuelidate="$v.nodeContent.status"
               />
               <pf-form-select :column-label="$t('Role')"
-                v-model="nodeContent.category_id"
+                :formStoreName="formStoreName" formNamespace="category_id"
                 :options="rolesWithNull"
-                :vuelidate="$v.nodeContent.category_id"
               />
               <pf-form-datetime :column-label="$t('Unregistration')"
-                v-model="nodeContent.unregdate"
+                :formStoreName="formStoreName" formNamespace="unregdate"
                 :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
-                :vuelidate="$v.nodeContent.unregdate"
-              ></pf-form-datetime>
+              />
               <pf-form-input :column-label="$t('Access Time Balance')"
-                v-model="nodeContent.time_balance"
-                :text="$t('seconds')"
-                :vuelidate="$v.nodeContent.time_balance"
+                :formStoreName="formStoreName" formNamespace="time_balance"
+                :text="$t('Seconds')"
                 type="number"
               />
               <pf-form-prefix-multiplier :column-label="$t('Bandwidth Balance')"
-                v-model="nodeContent.bandwidth_balance"
-                :max="globals.sqlLimits.ubigint.max"
-                :vuelidate="$v.nodeContent.bandwidth_balance"
-              ></pf-form-prefix-multiplier>
-              <pf-form-toggle :column-label="$t('Voice Over IP')"
-                v-model="nodeContent.voip"
+                :formStoreName="formStoreName" formNamespace="bandwidth_balance"
+                :max="sqlLimits.ubigint.max"
+              />
+              <pf-form-range-toggle :column-label="$t('Voice Over IP')"
+                :formStoreName="formStoreName" formNamespace="voip"
                 :values="{checked: 'yes', unchecked: 'no'}"
-                :vuelidate="$v.nodeContent.voip"
-              >{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+                :rightLabels="{checked: $t('Yes'), unchecked: $t('No')}"
+              />
               <pf-form-input :column-label="$t('Bypass VLAN')"
-                v-model="nodeContent.bypass_vlan"
-                :vuelidate="$v.nodeContent.bypass_vlan"
+                :formStoreName="formStoreName" formNamespace="bypass_vlan"
                 type="text"
               />
               <pf-form-select :column-label="$t('Bypass Role')"
-                v-model="nodeContent.bypass_role_id"
+                :formStoreName="formStoreName" formNamespace="bypass_role_id"
                 :options="rolesWithNull"
-                :vuelidate="$v.nodeContent.bypass_role_id"
-              ></pf-form-select>
+              />
               <pf-form-textarea :column-label="$t('Notes')"
+                :formStoreName="formStoreName" formNamespace="notes"
                 v-model="nodeContent.notes"
-                :vuelidate="$v.nodeContent.notes"
                 rows="3" max-rows="3"
               />
             </b-col>
@@ -219,7 +214,7 @@
             {{ $t('IPv4') }} <b-badge pill v-if="node && node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
           </template>
           <b-table v-if="node && node.ip4"
-            :items="node.ip4.history" :fields="iplogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty striped>
+            :items="node.ip4.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty striped>
             <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv4 addresses found') }}</pf-empty-table>
             </template>
@@ -231,7 +226,7 @@
             {{ $t('IPv6') }} <b-badge pill v-if="node && node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
           </template>
           <b-table v-if="node && node.ip6"
-            :items="node.ip6.history" :fields="iplogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty striped>
+            :items="node.ip6.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty striped>
             <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv6 addresses found') }}</pf-empty-table>
             </template>
@@ -243,7 +238,7 @@
             {{ $t('Location') }} <b-badge pill v-if="node && node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
           </template>
           <b-table v-if="node"
-            :items="node.locations" :fields="locationFields" :sort-by="locationSortBy" :sort-desc="locationSortDesc" responsive show-empty striped>
+            :items="node.locations" :fields="locationLogFields" :sort-by="locationSortBy" :sort-desc="locationSortDesc" responsive show-empty striped>
               <template v-slot:cell(switch)="location">
                 <b-button variant="link" :to="{ name: 'switch', params: { id: location.item.switch_ip } }">{{ location.item.switch_ip }}</b-button> / <mac>{{ location.item.switch_mac }}</mac><br/>
                 <b-badge class="mr-1" v-if="location.item.port">{{ $t('Port') }}: {{ location.item.port }} <span v-if="location.item.ifDesc">({{ location.item.ifDesc }})</span></b-badge>
@@ -305,8 +300,8 @@
         </b-tab>
 
       </b-tabs>
-      <b-card-footer @mouseenter="$v.nodeContent.$touch()" v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
-        <pf-button-save class="mr-1" v-if="ifTab(['Edit'])" :disabled="invalidForm" :isLoading="isLoading"/>
+      <b-card-footer @mouseenter="/*$v.nodeContent.$touch()*/" v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
+        <pf-button-save class="mr-1" v-if="ifTab(['Edit'])" :disabled="disableSave" :isLoading="isLoading"/>
         <pf-button-delete class="mr-3" v-if="ifTab(['Edit'])" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()"/>
         <template v-if="ifTab(['Edit', 'Location'])">
           <template v-if="canReevaluateAccess(node)">
@@ -352,64 +347,85 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonRefresh from '@/components/pfButtonRefresh'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
+import pfFormAutocomplete from '@/components/pfFormAutocomplete'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import { pfEapType as eapType } from '@/globals/pfEapType'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import {
-  pfDatabaseSchema as schema,
-  buildValidationFromTableSchemas
-} from '@/globals/pfDatabaseSchema'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
-import filters from '@/utils/filters'
 import network from '@/utils/network'
+import usersApi from '@/views/Users/_api'
 
-const { validationMixin } = require('vuelidate')
-const { required } = require('vuelidate/lib/validators')
+import {
+  updateValidations,
+  ipLogFields,
+  locationLogFields,
+  securityEventFields,
+  dhcpOption82Fields
+} from '../_config/'
 
 export default {
   name: 'node-view',
   components: {
-    'timeline': Timeline,
+    Timeline,
     pfButtonSave,
     pfButtonDelete,
     pfButtonRefresh,
     pfEmptyTable,
     pfFingerbankScore,
+    pfFormAutocomplete,
     pfFormDatetime,
     pfFormInput,
+    pfFormRangeToggle,
     pfFormRow,
     pfFormPrefixMultiplier,
     pfFormSelect,
-    pfFormTextarea,
-    pfFormToggle
+    pfFormTextarea
   },
-  mixins: [
-    validationMixin
-  ],
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
     },
-    mac: String
+    mac: { // from router
+      type: String,
+      default: null
+    }
   },
   data () {
     return {
-      globals: {
-        regExp: regExp,
-        sqlLimits: sqlLimits
-      },
+      sqlLimits, // @/globals/mysqlLimits
+      tabIndex: 0,
+      tabTitle: '',
+      matchingUsers: [],
+      nodeContent: {},
+
+      ipLogFields, // ../_config/
+      iplogSortBy: 'end_time',
+      iplogSortDesc: false,
+
+      locationLogFields, // ../_config/
+      locationSortBy: 'end_time',
+      locationSortDesc: false,
+
+      securityEventFields, // ../_config/
+      securityEventSortBy: 'release_date',
+      securityEventSortDesc: true,
+
+      dhcpOption82Fields, // ../_config/
+      dhcpOption82SortBy: 'created_at',
+      dhcpOption82SortDesc: true,
+
+      triggerSecurityEvent: null,
       visGroups: new DataSet(),
       visItems: new DataSet(),
       visOptions: {
@@ -426,181 +442,32 @@ export default {
         tooltip: {
           followMouse: true
         }
-      },
-      tabIndex: 0,
-      tabTitle: '',
-      nodeContent: {},
-      iplogFields: [
-        {
-          key: 'ip',
-          label: this.$i18n.t('IP Address'),
-          sortable: true
-        },
-        {
-          key: 'start_time',
-          label: this.$i18n.t('Start Time'),
-          sortable: true,
-          formatter: filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'end_time',
-          label: this.$i18n.t('End Time'),
-          sortable: true,
-          formatter: filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'type',
-          label: this.$i18n.t('Type'),
-          sortable: true
-        }
-      ],
-      iplogSortBy: 'end_time',
-      iplogSortDesc: false,
-      locationFields: [
-        {
-          key: 'switch',
-          label: this.$i18n.t('Switch/AP'),
-          sortable: true
-        },
-        {
-          key: 'connection_type',
-          label: this.$i18n.t('Connection Type'),
-          sortable: true
-        },
-        {
-          key: 'dot1x_username',
-          label: this.$i18n.t('Username'),
-          sortable: true
-        },
-        {
-          key: 'start_time',
-          label: this.$i18n.t('Start Time'),
-          sortable: true,
-          formatter: filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'end_time',
-          label: this.$i18n.t('End Time'),
-          sortable: true,
-          formatter: filters.shortDateTime,
-          class: 'text-nowrap'
-        }
-      ],
-      locationSortBy: 'end_time',
-      locationSortDesc: false,
-      securityEventFields: [
-        {
-          key: 'description',
-          label: this.$i18n.t('Security Event'),
-          sortable: true
-        },
-        {
-          key: 'start_date',
-          label: this.$i18n.t('Start Time'),
-          sortable: true,
-          formatter: filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'release_date',
-          label: this.$i18n.t('Release Date'),
-          sortable: true,
-          formatter: filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'status',
-          label: this.$i18n.t('Status'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'buttons',
-          label: '',
-          locked: true,
-          class: 'text-right'
-        }
-      ],
-      securityEventSortBy: 'release_date',
-      securityEventSortDesc: true,
-      dhcpOption82Fields: [
-        {
-          key: 'created_at',
-          label: this.$i18n.t('Created At'),
-          sortable: true,
-          formatter: filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'vlan',
-          label: this.$i18n.t('VLAN'),
-          sortable: true
-        },
-        {
-          key: 'switch_id',
-          label: this.$i18n.t('Switch IP'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'option82_switch',
-          label: this.$i18n.t('Switch MAC'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'port',
-          label: this.$i18n.t('Port'),
-          sortable: true
-        },
-        {
-          key: 'module',
-          label: this.$i18n.t('Module'),
-          sortable: true
-        },
-        {
-          key: 'host',
-          label: this.$i18n.t('Host'),
-          sortable: true
-        }
-      ],
-      dhcpOption82SortBy: 'created_at',
-      dhcpOption82SortDesc: true,
-      triggerSecurityEvent: null
-    }
-  },
-  validations () {
-    return {
-      nodeContent: buildValidationFromTableSchemas(
-        schema.node, // use `node` table schema
-        {
-          // additional custom validations ...
-          pid: {
-            [this.$i18n.t('Username required.')]: required
-          }
-        }
-      )
+      }
     }
   },
   computed: {
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+    },
     node () {
       return this.$store.state.$_nodes.nodes[this.mac]
     },
-    roles () {
-      return this.$store.getters['session/allowedNodeRolesList']
-    },
     rolesWithNull () {
-      // prepend a null value to roles
-      return [{ value: null, text: this.$i18n.t('No Role') }, ...this.$store.getters['config/rolesList']]
+      return [
+        { value: null, text: this.$i18n.t('No Role') }, // prepend a null value to roles
+        ...this.$store.getters['session/allowedNodeRolesList']
+      ]
     },
     securityEvents () {
       return this.$store.getters['config/sortedSecurityEvents']
     },
     securityEventsOptions () {
-      return this.securityEvents.filter(securityEvent => securityEvent.id !== 'defaults').map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
+      return this.securityEvents
+        .filter(securityEvent => securityEvent.id !== 'defaults')
+        .map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
     },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
@@ -608,37 +475,56 @@ export default {
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
     },
-    invalidForm () {
-      return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
+    disableSave () {
+      return this.invalidForm || this.isLoading
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
+    init () {
+      // setup form store module
+      this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, node)
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, updateValidations)
+      })
+    },
+    refresh () {
+      this.$store.dispatch('$_nodes/refreshNode', this.mac).then(node => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, node)
+      })
+    },
+    save () {
+      this.$store.dispatch('$_nodes/updateNode', this.form).then(response => {
+        this.close()
+      })
+    },
+    close () {
+      this.$router.back()
+    },
+    release (id) {
+      this.$store.dispatch('$_nodes/clearSecurityEventNode', { security_event_id: id, mac: this.mac })
+    },
+    trigger () {
+      this.$store.dispatch('$_nodes/applySecurityEventNode', { security_event_id: this.triggerSecurityEvent, mac: this.mac })
+    },
+    deleteNode () {
+      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
+        this.close()
+      })
+    },
     ifTab (set) {
       return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
     },
     applyReevaluateAccess () {
-      this.$store.dispatch(`${this.storeName}/reevaluateAccessNode`, this.mac).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Node access reevaluation initialized') })
-      }).catch((response) => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node access reevaluation failed') })
-      })
+      this.$store.dispatch('$_nodes/reevaluateAccessNode', this.mac)
     },
     applyRefreshFingerbank () {
-      this.$store.dispatch(`${this.storeName}/refreshFingerbankNode`, this.mac).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Node device profiling initialized') })
-      }).catch((response) => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node device profiling failed') })
-      })
+      this.$store.dispatch('$_nodes/refreshFingerbankNode', this.mac)
     },
     applyRestartSwitchport () {
-      this.$store.dispatch(`${this.storeName}/restartSwitchportNode`, this.mac).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Node switchport restarted') })
-      }).catch((response) => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node switchport restart failed') })
-      })
+      this.$store.dispatch('$_nodes/restartSwitchportNode', this.mac)
     },
     canReevaluateAccess (node) {
       return (node && node.locations && node.locations.length > 0)
@@ -655,14 +541,6 @@ export default {
     cannotRestartSwitchportTooltip (node) {
       return this.$i18n.t('Node has no open wired connections.')
     },
-    close () {
-      this.$router.back()
-    },
-    refresh () {
-      this.$store.dispatch('$_nodes/refreshNode', this.mac).then(node => {
-        this.nodeContent = node
-      })
-    },
     connectionSubType (type) {
       if (type && eapType[type]) {
         return eapType[type]
@@ -671,31 +549,6 @@ export default {
     securityEventDescription (id) {
       const { $store: { state: { config: { securityEvents: { [id]: { desc = '' } = {} } = {} } = {} } = {} } = {} } = this
       return desc
-    },
-    save () {
-      this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(response => {
-        this.close()
-      })
-    },
-    release (id) {
-      this.$store.dispatch('$_nodes/clearSecurityEventNode', { security_event_id: id, mac: this.mac })
-    },
-    trigger () {
-      this.$store.dispatch('$_nodes/applySecurityEventNode', { security_event_id: this.triggerSecurityEvent, mac: this.mac })
-    },
-    deleteNode () {
-      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
-        this.close()
-      })
-    },
-    redrawVis () {
-      // buffer async calls to redraw
-      if (this.timeoutVis) clearTimeout(this.timeoutVis)
-      this.timeoutVis = setTimeout(() => {
-        this.setupVis()
-        const { $refs: { timeline: { redraw = () => {} } = {} } = {} } = this
-        redraw()
-      }, 100)
     },
     setupVis () {
       const node = this.$store.state.$_nodes.nodes[this.mac]
@@ -871,6 +724,37 @@ export default {
         }
         this.visItems.add([item])
       }
+    },
+    redrawVis () {
+      // buffer async calls to redraw
+      if (this.timeoutVis) clearTimeout(this.timeoutVis)
+      this.timeoutVis = setTimeout(() => {
+        this.setupVis()
+        const { $refs: { timeline: { redraw = () => {} } = {} } = {} } = this
+        redraw()
+      }, 100)
+    },
+    searchUsers () {
+      let body = {
+        limit: 10,
+        fields: ['pid', 'firstname', 'lastname', 'email'],
+        sort: ['pid'],
+        query: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              { field: 'pid', op: 'contains', value: this.form.pid },
+              { field: 'firstname', op: 'contains', value: this.form.pid },
+              { field: 'lastname', op: 'contains', value: this.form.pid },
+              { field: 'email', op: 'contains', value: this.form.pid }
+            ]
+          }]
+        }
+      }
+      usersApi.search(body).then((data) => {
+        this.matchingUsers = data.items.map(item => item.pid)
+      })
     }
   },
   watch: {
@@ -918,13 +802,11 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
-      this.nodeContent = node
-    })
     if (this.$can.apply(null, ['read', 'security_events'])) {
       this.$store.dispatch('config/getSecurityEvents')
     }
     this.$store.dispatch('session/getAllowedNodeRoles')
+    this.init()
   },
   mounted () {
     this.setupVis()

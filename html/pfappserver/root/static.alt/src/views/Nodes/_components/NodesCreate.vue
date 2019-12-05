@@ -8,34 +8,28 @@
         <b-form-row align-v="center">
           <b-col sm="12">
             <pf-form-input :column-label="$t('MAC')"
-              v-model="single.mac"
-              :vuelidate="$v.single.mac"
+              :formStoreName="formStoreName" formNamespace="mac"
             />
             <pf-form-autocomplete :column-label="$t('Owner')"
-              v-model="single.pid"
+              :formStoreName="formStoreName" formNamespace="pid"
               :suggestions="matchingUsers"
-              :vuelidate="$v.single.pid"
-               placeholder="default"
+              placeholder="default"
               @search="searchUsers"
             />
             <pf-form-select :column-label="$t('Status')"
-              v-model="single.status"
+              :formStoreName="formStoreName" formNamespace="status"
               :options="statuses"
-              :vuelidate="$v.single.status"
             />
             <pf-form-select :column-label="$t('Role')"
-             v-model="single.category_id"
-             :options="roles"
-              :vuelidate="$v.single.category_id"
+              :formStoreName="formStoreName" formNamespace="category_id"
+              :options="roles"
             />
             <pf-form-datetime :column-label="$t('Unregistration')"
-              v-model="single.unregdate"
+              :formStoreName="formStoreName" formNamespace="unregdate"
               :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
-              :vuelidate="$v.single.unregdate"
             />
             <pf-form-textarea :column-label="$t('Notes')"
-              v-model="single.notes"
-              :vuelidate="$v.single.notes"
+              :formStoreName="formStoreName" formNamespace="notes"
               rows="3" max-rows="3"
             />
           </b-col>
@@ -43,7 +37,7 @@
       </b-form>
     </div>
     <b-card-footer @mouseenter="$v.$touch()">
-      <b-button variant="primary" :disabled="invalidForm" @click="create()">
+      <b-button variant="primary" :disabled="disableForm" @click="create()">
         <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
       </b-button>
     </b-card-footer>
@@ -58,25 +52,12 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import usersApi from '@/views/Users/_api'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
-import {
-  required
-} from 'vuelidate/lib/validators'
-import {
-  isMacAddress,
-  userExists,
-  nodeExists
-} from '@/globals/pfValidators'
-import {
-  pfDatabaseSchema as schema,
-  buildValidationFromTableSchemas
-} from '@/globals/pfDatabaseSchema'
 
-const { validationMixin } = require('vuelidate')
+import { form, createValidations } from '../_config/'
 
 export default {
   name: 'nodes-create',
@@ -87,11 +68,8 @@ export default {
     pfFormSelect,
     pfFormTextarea
   },
-  mixins: [
-    validationMixin
-  ],
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -99,36 +77,19 @@ export default {
   },
   data () {
     return {
-      globals: {
-        regExp: regExp,
-        schema: schema
-      },
-      single: {
-        mac: '',
-        status: 'reg'
-      },
       matchingUsers: []
     }
   },
-  validations () {
-    return {
-      single: buildValidationFromTableSchemas(
-        schema.node, // use `node` table schema
-        {
-          // additional custom validations ...
-          mac: {
-            [this.$i18n.t('MAC address required.')]: required,
-            [this.$i18n.t('Invalid MAC address.')]: isMacAddress,
-            [this.$i18n.t('MAC address exists.')]: nodeExists
-          },
-          pid: {
-            [this.$i18n.t('Owner does not exist.')]: userExists
-          }
-        }
-      )
-    }
-  },
   computed: {
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+    },
+    disableForm () {
+      return this.invalidForm || this.isLoading
+    },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
     },
@@ -137,17 +98,24 @@ export default {
     },
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
-    },
-    invalidForm () {
-      return this.$v.single.$invalid || this.isLoading
     }
   },
   methods: {
+    init () {
+      // setup form store module
+      this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, createValidations)
+    },
+    create () {
+      this.$store.dispatch('$_nodes/createNode', this.form).then(() => {
+        this.init()
+        this.close()
+      })
+    },
     close () {
       this.$router.push({ name: 'nodes' })
     },
     searchUsers () {
-      const _this = this
       let body = {
         limit: 10,
         fields: ['pid', 'firstname', 'lastname', 'email'],
@@ -157,24 +125,22 @@ export default {
           values: [{
             op: 'or',
             values: [
-              { field: 'pid', op: 'contains', value: this.single.pid },
-              { field: 'firstname', op: 'contains', value: this.single.pid },
-              { field: 'lastname', op: 'contains', value: this.single.pid },
-              { field: 'email', op: 'contains', value: this.single.pid }
+              { field: 'pid', op: 'contains', value: this.form.pid },
+              { field: 'firstname', op: 'contains', value: this.form.pid },
+              { field: 'lastname', op: 'contains', value: this.form.pid },
+              { field: 'email', op: 'contains', value: this.form.pid }
             ]
           }]
         }
       }
       usersApi.search(body).then((data) => {
-        _this.matchingUsers = data.items.map(item => item.pid)
+        this.matchingUsers = data.items.map(item => item.pid)
       })
-    },
-    create () {
-      this.$store.dispatch('$_nodes/createNode', this.single).then(() => this.close())
     }
   },
   created () {
     this.$store.dispatch('session/getAllowedNodeRoles')
+    this.init()
   }
 }
 </script>
