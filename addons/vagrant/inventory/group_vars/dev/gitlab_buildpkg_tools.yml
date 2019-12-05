@@ -8,13 +8,18 @@ gitlab_buildpkg_tools__ppa_url: '/src/public'
 gitlab_buildpkg_tools__ppa_url_deb: 'file:{{ gitlab_buildpkg_tools__ppa_url }}/debian'
 gitlab_buildpkg_tools__ppa_url_rpm: 'file://{{ gitlab_buildpkg_tools__ppa_url }}/centos'
 
-# repository name will be defined by CI_PROJECT_NAME env variable
+# redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
-  - name: '{{ lookup("env", "CI_PROJECT_NAME") }}'
+  - name: 'packetfence-local'
     baseurl: '{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main'
     # temp because apt_key module invocation doesn't yet support
     # installing a key from a file
     gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
+
+gitlab_buildpkg_tools__rpm_ppa:
+  - name: 'packetfence-local'
+    baseurl: '{{ gitlab_buildpkg_tools__ppa_url_rpm + "/$releasever/$basearch" }}'
+    gpgkey: '{{ gitlab_buildpkg_tools__ppa_url + "/GPG_PUBLIC_KEY" }}'
 
 # we only install repos at this step
 gitlab_buildpkg_tools__deb_pkgs: []
