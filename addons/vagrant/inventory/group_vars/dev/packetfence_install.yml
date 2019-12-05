@@ -17,4 +17,3 @@ packetfence_install__deb:
   repos: '{{ ["debian"] if release_status|bool
                         else ["debian","debian-devel"] }}'
 
-# config
