@@ -1,19 +1,20 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
     class="pf-form-prefix-multiplier" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+    </template>
     <b-input-group class="pf-form-prefix-multiplier-input-group">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
           {{ prependText }}
         </div>
       </b-input-group-prepend>
-      <b-form-input
-        v-model="inputValue"
+      <b-form-input ref="input"
+        v-model="humanValue"
         v-bind="$attrs"
-        ref="input"
+        :state="inputState"
         :type="type"
-        :state="isValid()"
         @focus.native="focus = true"
         @blur.native="focus = false"
       ></b-form-input>
@@ -28,16 +29,18 @@
 </template>
 
 <script>
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-prefix-multiplier',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
+/*
   model: {
     prop: 'realValue'
   },
+*/
   props: {
     realValue: {
       type: String
@@ -77,7 +80,6 @@ export default {
   },
   data () {
     return {
-      inputValue: '',
       prefixes: [
         {
           label: '',
@@ -137,70 +139,72 @@ export default {
       focus: false
     }
   },
-  methods: {
-    changeMultiplier (event, newindex) {
-      const curindex = this.prefixes.findIndex((prefix) => { return prefix.selected })
-      if (curindex >= 0) {
-        this.prefixes[curindex].selected = false
-      }
-      this.prefixes[newindex].selected = true
-      this.realValue = this.inputValue * this.prefixes[newindex].multiplier
-    },
-    setInputValueFromRealValue () {
-      // unselect all
-      this.prefixes.filter((prefix) => { return prefix.selected }).forEach((prefix) => { prefix.selected = false })
-      // sort prefixes descending using multiplier, to iterate in order
-      const prefixes = JSON.parse(JSON.stringify(this.prefixes)).sort((a, b) => a.multiplier === b.multiplier ? 0 : a.multiplier < b.multiplier ? 1 : -1)
-      // find LCD for value
-      for (let i = 0; i < prefixes.length; i++) {
-        let quotient = this.realValue / prefixes[i].multiplier
-        if (quotient >= 1 && quotient === Math.round(quotient)) {
-          const realIndex = this.prefixes.findIndex((p) => { return p.multiplier === prefixes[i].multiplier })
-          this.prefixes[realIndex].selected = true
-          this.inputValue = quotient.toString()
-          break
+  computed: {
+    inputValue: {
+      get () {
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
         }
-      }
-      if (this.prefixes.findIndex((prefix) => { return prefix.selected }) === -1) {
-        // no selection, select multiplier 1
-        const index = this.prefixes.findIndex((prefix) => { return prefix.multiplier === 1 })
-        if (index >= 0) {
-          this.prefixes[index].selected = true
+      },
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
         }
       }
     },
-    inRange (index) {
-      return this.prefixes[index].multiplier <= this.max
-    }
-  },
-  watch: {
-    realValue (a, b) {
-      if (a !== b && a !== undefined) {
-        // inputValue initialized later
-        if (!this.initialized) {
-          this.initialized = true
-          this.setInputValueFromRealValue()
+    humanValue: {
+      get () {
+        if (this.inputValue > 0) {
+          // unselect all
+          this.unSelectPrefix()
+          // sort prefixes descending using multiplier, to iterate in order
+          const prefixes = JSON.parse(JSON.stringify(this.prefixes)).sort((a, b) => a.multiplier === b.multiplier ? 0 : a.multiplier < b.multiplier ? 1 : -1)
+          // find LCD for value
+          for (let i = 0; i < prefixes.length; i++) {
+            let quotient = this.inputValue / prefixes[i].multiplier
+            if (quotient >= 1 && quotient === Math.round(quotient)) {
+              const index = this.prefixes.findIndex((p) => { return p.multiplier === prefixes[i].multiplier })
+              this.prefixes[index].selected = true
+              return quotient.toString()
+            }
+          }
+          if (this.prefixes.findIndex((prefix) => { return prefix.selected }) === -1) {
+            // no selection, select multiplier 1
+            const index = this.prefixes.findIndex((prefix) => { return prefix.multiplier === 1 })
+            if (index >= 0) {
+              this.prefixes[index].selected = true
+            }
+          }
         }
-        this.$emit('input', a)
-      }
-    },
-    inputValue (a, b) {
-      if (a !== b) {
+        return this.inputValue
+      },
+      set (newValue) {
         const selectedIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
         let multiplier = 1
         if (selectedIndex >= 0) {
           // scale up
           multiplier = this.prefixes[selectedIndex].multiplier
         }
-        this.realValue = a * multiplier
+        this.inputValue = newValue * multiplier
       }
     }
   },
-  created () {
-    if (this.value) {
-      this.realValue = this.value
+  methods: {
+    changeMultiplier (event, newIndex) {
+      const curIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
+      const factor = this.prefixes[newIndex].multiplier / this.prefixes[curIndex].multiplier
+      this.inputValue *= factor
+    },
+    inRange (index) {
+      return this.prefixes[index].multiplier <= this.max
+    },
+    unSelectPrefix () {
+      this.prefixes.filter((prefix) => { return prefix.selected }).forEach((prefix) => { prefix.selected = false })
     }
-    this.setInputValueFromRealValue()
   }
 }
 </script>
