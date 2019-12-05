@@ -25,6 +25,7 @@ use List::MoreUtils qw(any);
 use pf::CHI;
 use fingerbank::Model::Device;
 use pf::util qw(isenabled);
+use Time::HiRes qw(time);
 
 =head1 Constants
 
@@ -261,7 +262,8 @@ Check if a role should be applied to the device based on the provisioner
 sub authorize_apply_role {
     my ($self, $mac) = @_;
     my $type = $self->type;
-    return $self->cache->compute_with_undef("$type-authorize_apply_role($mac)",
+    my $started = time;
+    my $result = $self->cache->compute_with_undef("$type-authorize_apply_role($mac)",
         sub {
             if(isenabled($self->apply_role)) {
                 my $auth = $self->authorize($mac);
@@ -277,6 +279,17 @@ sub authorize_apply_role {
             return undef;
         }
     );
+
+    my $elapsed_ms = ((time - $started) * 1000);
+    my $tolerable_latency = 750;
+    if($elapsed_ms > $tolerable_latency) {
+        get_logger->warn("Computing the provisioning authorization took more than $tolerable_latency milliseconds ($elapsed_ms ms). This will have a negative impact on the RADIUS response time and can cause a RADIUS timeout.");
+    }
+    else {
+        get_logger->debug("Computing the provisioning authorization took $elapsed_ms milliseconds");
+    }
+
+    return $result;
 }
 
 

@@ -650,6 +650,7 @@ sub getNodeInfoForAutoReg {
             if(defined($role)) {
                 get_logger->info("Applying role $role");
                 $node_info{category} = $role;
+                last;
             }
         }
     }
