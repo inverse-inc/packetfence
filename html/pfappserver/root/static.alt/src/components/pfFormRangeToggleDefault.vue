@@ -1,7 +1,9 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
     class="pf-form-range-toggle-default" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+    </template>
     <b-input type="text" ref="vacuum" readonly :value="null" :disabled="disabled"
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
@@ -11,6 +13,7 @@
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-default-label">
+        <span class="mr-2" v-if="leftLabel">{{ leftLabel }}</span>
         <input-range
           :value="inputValue"
           @input="inputValue = $event"
@@ -25,13 +28,14 @@
           :tooltipFunction="tooltip"
           :width="width"
           :disabled="disabled"
-          class="mr-2"
+          class="d-inline-block"
           tabIndex="-1"
           @click="click"
         >
           <icon v-if="icon" :name="icon"></icon>
         </input-range>
-        <slot/>
+        <span class="ml-2" v-if="rightLabel">{{ rightLabel }}</span>
+        <slot class="ml-2"s/>
       </label>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -40,12 +44,12 @@
 
 <script>
 import InputRange from '@/components/InputRange'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-range-toggle-default',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     InputRange
@@ -92,11 +96,25 @@ export default {
         return (value.checked || value.unchecked || 'default' in value)
       }
     },
-    labels: {
+    innerLabels: {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
+        return (value.checked && value.unchecked)
+      }
+    },
+    leftLabels: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.checked && value.unchecked)
+      }
+    },
+    rightLabels: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.checked && value.unchecked)
       }
     },
     tooltips: {
@@ -119,7 +137,13 @@ export default {
   computed: {
     inputValue: {
       get () {
-        switch (this.value) {
+        let value
+        if (this.formStoreName) {
+          value = this.formStoreValue // use FormStore
+        } else {
+          value = this.value // use native (v-model)
+        }
+        switch (value) {
           case this.values.checked:
             return 2
           case null:
@@ -128,17 +152,23 @@ export default {
             return 0
         }
       },
-      set (newValue) {
+      set (newValue = null) {
+        let value
         switch (~~newValue) {
           case 0:
-            this.$emit('input', this.values.unchecked)
+            value = this.values.unchecked
             break
           case 1:
-            this.$emit('input', null)
+            value = null
             break
           case 2:
-            this.$emit('input', this.values.checked)
+            value = this.values.checked
             break
+        }
+        if (this.formStoreName) {
+          this.formStoreValue = value // use FormStore
+        } else {
+          this.$emit('input', value) // use native (v-model)
         }
       }
     },
@@ -174,15 +204,37 @@ export default {
           return ('unchecked' in this.icons) ? this.icons.unchecked : null
       }
     },
-    label () {
-      if (this.labels === null) return null
+    innerLabel () {
+      if (this.innerLabels === null) return null
       switch (this.inputValue) {
         case 2:
-          return ('checked' in this.labels) ? this.labels.checked : null
+          return ('checked' in this.innerLabels) ? this.innerLabels.checked : null
         case 1:
-          return ('default' in this.labels) ? this.labels.default : null
+          return ('default' in this.innerLabels) ? this.innerLabels.default : null
         case 0:
-          return ('unchecked' in this.labels) ? this.labels.unchecked : null
+          return ('unchecked' in this.innerLabels) ? this.innerLabels.unchecked : null
+      }
+    },
+    leftLabel () {
+      if (this.leftLabels === null) return null
+      switch (this.inputValue) {
+        case 2:
+          return ('checked' in this.leftLabels) ? this.leftLabels.checked : null
+        case 1:
+          return ('default' in this.leftLabels) ? this.leftLabels.default : null
+        case 0:
+          return ('unchecked' in this.leftLabels) ? this.leftLabels.unchecked : null
+      }
+    },
+    rightLabel () {
+      if (this.rightLabels === null) return null
+      switch (this.inputValue) {
+        case 2:
+          return ('checked' in this.rightLabels) ? this.rightLabels.checked : null
+        case 1:
+          return ('default' in this.rightLabels) ? this.rightLabels.default : null
+        case 0:
+          return ('unchecked' in this.rightLabels) ? this.rightLabels.unchecked : null
       }
     },
     hints () {
@@ -258,12 +310,17 @@ export default {
 
 <style lang="scss">
 @keyframes animateCursor {
-  0%, 100% { background-color: rgba(0, 0, 0, 1); }
-  10%, 90% { background-color: rgba(0, 0, 0, 0.8); }
-  20%, 80% { background-color: rgba(0, 0, 0, 0.6); }
-  30%, 70% { background-color: rgba(0, 0, 0, 0.4); }
-  40%, 60% { background-color: rgba(0, 0, 0, 0.2); }
-  50% { background-color: rgba(0, 0, 0, 0); }
+  0%, 100% { background-color: rgba(255, 255, 255, 1); }
+  5%, 95% { background-color: rgba(255, 255, 255, 0.9); }
+  10%, 90% { background-color: rgba(255, 255, 255, 0.8); }
+  15%, 85% { background-color: rgba(255, 255, 255, 0.7); }
+  20%, 80% { background-color: rgba(255, 255, 255, 0.6); }
+  25%, 75% { background-color: rgba(255, 255, 255, 0.5); }
+  30%, 70% { background-color: rgba(255, 255, 255, 0.4); }
+  35%, 65% { background-color: rgba(255, 255, 255, 0.3); }
+  40%, 60% { background-color: rgba(255, 255, 255, 0.2); }
+  45%, 55% { background-color: rgba(255, 255, 255, 0.1); }
+  50% { background-color: rgba(255, 255, 255, 0); }
 }
 
 .pf-form-range-toggle-default {
