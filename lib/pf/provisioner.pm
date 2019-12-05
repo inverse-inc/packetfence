@@ -260,19 +260,23 @@ Check if a role should be applied to the device based on the provisioner
 
 sub authorize_apply_role {
     my ($self, $mac) = @_;
-    if(isenabled($self->apply_role)) {
-        my $auth = $self->authorize($mac);
-        if($auth eq $pf::provisioner::COMMUNICATION_FAILED) {
-            get_logger->error("Will not be able to apply the role to this device since the communication with the provisioner has failed");
+    my $type = $self->type;
+    return $self->cache->compute_with_undef("$type-authorize_apply_role($mac)",
+        sub {
+            if(isenabled($self->apply_role)) {
+                my $auth = $self->authorize($mac);
+                if($auth eq $pf::provisioner::COMMUNICATION_FAILED) {
+                    get_logger->error("Will not be able to apply the role to this device since the communication with the provisioner has failed");
+                    return undef;
+                }
+                elsif($auth) {
+                    my $role = $self->role_to_apply;
+                    return $role;
+                }
+            }
             return undef;
         }
-        elsif($auth) {
-            my $role = $self->role_to_apply;
-            get_logger->info("Device has been found in provisioner. Applying role $role");
-            return $role;
-        }
-    }
-    return undef;
+    );
 }
 
 
