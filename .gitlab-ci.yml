@@ -37,6 +37,7 @@ variables:
   # env variables
   ANSIBLE_FORCE_COLOR: "true"
   ANSIBLE_STDOUT_CALLBACK: yaml
+  VAGRANT_FORCE_COLOR: "true"
 
 
 ################################################################################
@@ -225,7 +226,7 @@ variables:
 .install_script:
   variables:
     ANSIBLE_SKIP_TAGS: 'build'
-    # set VAGRANT_ANSIBLE_VERBOSE to true if you want debug
+    VAGRANT_ANSIBLE_VERBOSE: "true"
   script:
     # temp: https://github.com/hashicorp/vagrant/issues/10958
     - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
