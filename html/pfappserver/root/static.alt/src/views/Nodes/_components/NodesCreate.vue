@@ -57,7 +57,7 @@ import {
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
 
-import { form, createValidations } from '../_config/'
+import { form, createValidators } from '../_config/'
 
 export default {
   name: 'nodes-create',
@@ -104,7 +104,7 @@ export default {
     init () {
       // setup form store module
       this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, createValidations)
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, createValidators)
     },
     create () {
       this.$store.dispatch('$_nodes/createNode', this.form).then(() => {

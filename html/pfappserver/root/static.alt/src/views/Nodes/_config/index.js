@@ -2,13 +2,19 @@ import filters from '@/utils/filters'
 import i18n from '@/utils/locale'
 import {
   pfDatabaseSchema,
-  buildValidationFromTableSchemas
+  buildValidationFromTableSchemas,
+  buildValidationFromColumnSchemas
 } from '@/globals/pfDatabaseSchema'
+import { pfFieldType as fieldType } from '@/globals/pfField'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
+  categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
+  categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
   isMacAddress,
   userExists,
   nodeExists
 } from '@/globals/pfValidators'
+
 import {
   required
 } from 'vuelidate/lib/validators'
@@ -22,7 +28,7 @@ export const form = {
   notes: null
 }
 
-export const createValidations = buildValidationFromTableSchemas(
+export const createValidators = buildValidationFromTableSchemas(
   pfDatabaseSchema.node, // use `node` table schema
   {
     mac: {
@@ -36,7 +42,7 @@ export const createValidations = buildValidationFromTableSchemas(
   }
 )
 
-export const updateValidations = buildValidationFromTableSchemas(
+export const updateValidators = buildValidationFromTableSchemas(
   pfDatabaseSchema.node, // use `node` table schema
   {
     pid: {
@@ -45,6 +51,112 @@ export const updateValidations = buildValidationFromTableSchemas(
     },
   }
 )
+
+export const importFields = [
+  {
+    value: 'mac',
+    text: i18n.t('MAC Address'),
+    types: [fieldType.SUBSTRING],
+    required: true,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.mac, { required })
+  },
+  {
+    value: 'status',
+    text: i18n.t('Status'),
+    types: [fieldType.NODE_STATUS],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.status)
+  },
+  {
+    value: 'autoreg',
+    text: i18n.t('Auto Registration'),
+    types: [fieldType.YESNO],
+    required: false,
+    formatter: formatter.yesNoFromString,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.autoreg)
+  },
+  {
+    value: 'bandwidth_balance',
+    text: i18n.t('Bandwidth Balance'),
+    types: [fieldType.PREFIXMULTIPLIER],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.bandwidth_balance)
+  },
+  {
+    value: 'bypass_role_id',
+    text: i18n.t('Bypass Role'),
+    types: [fieldType.ROLE],
+    required: false,
+    formatter: formatter.categoryIdFromIntOrString,
+    validators: buildValidationFromColumnSchemas({
+      [i18n.t('Role does not exist.')]: categoryIdNumberExists,
+      [i18n.t('Role does not exist')]: categoryIdStringExists
+    })
+  },
+  {
+    value: 'bypass_vlan',
+    text: i18n.t('Bypass VLAN'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.bypass_vlan)
+  },
+  {
+    value: 'computername',
+    text: i18n.t('Computer Name'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.computername)
+  },
+  {
+    value: 'regdate',
+    text: i18n.t('Datetime Registered'),
+    types: [fieldType.DATETIME],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.regdate)
+  },
+  {
+    value: 'unregdate',
+    text: i18n.t('Datetime Unregistered'),
+    types: [fieldType.DATETIME],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.unregdate)
+  },
+  {
+    value: 'notes',
+    text: i18n.t('Notes'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.notes)
+  },
+  {
+    value: 'pid',
+    text: i18n.t('Owner'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.pid, {
+      [i18n.t('User does not exist.')]: userExists
+    })
+  },
+  {
+    value: 'category_id',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE_BY_ACL_NODE],
+    required: false,
+    formatter: formatter.categoryIdFromIntOrString,
+    validators: buildValidationFromColumnSchemas({
+      [i18n.t('Role does not exist.')]: categoryIdNumberExists,
+      [i18n.t('Role does not exist.')]: categoryIdStringExists
+    })
+  },
+  {
+    value: 'voip',
+    text: i18n.t('VoIP'),
+    types: [fieldType.YESNO],
+    required: false,
+    formatter: formatter.yesNoFromString,
+    validators: buildValidationFromColumnSchemas(pfDatabaseSchema.node.voip)
+  }
+]
 
 export const ipLogFields = [
   {

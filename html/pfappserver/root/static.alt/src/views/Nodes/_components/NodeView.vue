@@ -365,7 +365,7 @@ import network from '@/utils/network'
 import usersApi from '@/views/Users/_api'
 
 import {
-  updateValidations,
+  updateValidators,
   ipLogFields,
   locationLogFields,
   securityEventFields,
@@ -487,7 +487,7 @@ export default {
       // setup form store module
       this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
         this.$store.dispatch(`${this.formStoreName}/setForm`, node)
-        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, updateValidations)
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, updateValidators)
       })
     },
     refresh () {
