@@ -23,7 +23,7 @@
           step="1"
           :hints="hints"
           :color="color"
-          :label="label"
+          :label="innerLabel"
           :tooltip="Object.keys(tooltips).length > 0"
           :tooltipFunction="tooltip"
           :width="width"
@@ -100,28 +100,28 @@ export default {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.checked && value.unchecked)
+        return (value.checked || value.unchecked || 'default' in value)
       }
     },
     leftLabels: {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.checked && value.unchecked)
+        return (value.checked || value.unchecked || 'default' in value)
       }
     },
     rightLabels: {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.checked && value.unchecked)
+        return (value.checked || value.unchecked || 'default' in value)
       }
     },
     tooltips: {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.left || value.middle || value.right)
+        return (value.checked || value.unchecked || 'default' in value)
       }
     },
     width: {
