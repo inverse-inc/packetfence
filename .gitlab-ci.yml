@@ -230,10 +230,10 @@ variables:
     # temp: https://github.com/hashicorp/vagrant/issues/10958
     - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
     - cd ${VAGRANT_DIR}
-    - vagrant box update ${VM_NAME}
-    - vagrant up ${VM_NAME} --provider=libvirt --destroy-on-error
+    - vagrant box update ${VAGRANT_BOX}
+    - vagrant up ${VAGRANT_BOX} --provider=libvirt --destroy-on-error
   after_script:
-    - cd ${VAGRANT_DIR} ; vagrant destroy -f ${VM_NAME}
+    - cd ${VAGRANT_DIR} ; vagrant destroy -f ${VAGRANT_BOX}
     - rm -rf .vagrant/ roles/ collections/
     
 
@@ -406,7 +406,7 @@ pages:
 ########################################
 install_pkg_dev_and_release_centos_7:
   variables:
-    VM_NAME: pfcen7dev
+    VAGRANT_BOX: pfcen7dev
   extends:
     - .install_job
     - .install_script
@@ -414,7 +414,7 @@ install_pkg_dev_and_release_centos_7:
 
 install_pkg_dev_and_release_debian_stretch:
   variables:
-    VM_NAME: pfdeb9dev
+    VAGRANT_BOX: pfdeb9dev
   extends:
     - .install_job
     - .install_script
