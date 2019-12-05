@@ -28,10 +28,10 @@
         </div>
       </b-input-group-prepend>
       <flat-pickr ref="input"
-        v-model="inputValue"
+        v-model="flatpickrValue"
         v-bind="$attrs"
         :key="locale"
-        :config="combinedConfig"
+        :config="flatpickrConfig"
         :state="inputState"
         @focus.native="focus = true"
         @blur.native="focus = false"
@@ -116,7 +116,7 @@ export default {
   },
   data () {
     return {
-      defaultConfig: {
+      defaults: {
         allowInput: true,
         datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
         time_24hr: true
@@ -135,8 +135,9 @@ export default {
         }
       },
       set (newValue = null) {
-        const datetimeFormat = this.combinedConfig.datetimeFormat
-        const formattedValue = (newValue === null) ? datetimeFormat.replace(/[a-z]/gi, '0') : newValue
+        const datetimeFormat = this.convertFormat(this.options.datetimeFormat)
+        const datetimeEmpty = datetimeFormat.replace(/[a-z]/gi, '0')
+        const formattedValue = ([null, datetimeEmpty].includes(newValue)) ? datetimeEmpty : newValue
         if (this.formStoreName) {
           this.formStoreValue = formattedValue // use FormStore
         } else {
@@ -144,12 +145,20 @@ export default {
         }
       }
     },
-    combinedConfig () {
-      const minMaxConfig = {
+    flatpickrValue: { // proxy fix: flatpickr smashes '0000-00-00 00:00:00'
+      get () {
+        return (this.inputValue === this.options.datetimeFormat.replace(/[a-z]/gi, '0')) ? null : this.inputValue
+      },
+      set (newValue) {
+        this.inputValue = newValue
+      }
+    },
+    flatpickrConfig () {
+      let extraConfig = {
         minDate: (this.min === '0000-00-00 00:00:00') ? new Date(-8640000000000000) : this.min,
         maxDate: (this.max === '0000-00-00 00:00:00') ? new Date(8640000000000000) : this.max
       }
-      let config = { ...this.defaultConfig, ...minMaxConfig, ...this.config }
+      let config = { ...this.options, ...extraConfig }
       if ('datetimeFormat' in config) {
         config.datetimeFormat = this.convertFormat(config.datetimeFormat)
         if (/[HhGiSsK]+/.test(config.datetimeFormat)) {
@@ -173,6 +182,9 @@ export default {
     },
     locale () {
       return this.$i18n.locale
+    },
+    options () {
+      return { ...this.defaults, ...this.config }
     }
   },
   methods: {
@@ -254,7 +266,7 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL/CMD]+[CLICK] for cumulative change
-      const datetimeFormat = this.config.datetimeFormat || this.defaultConfig.datetimeFormat
+      const datetimeFormat = this.config.datetimeFormat || this.defaults.datetimeFormat
       const base = (event.ctrlKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
@@ -291,7 +303,7 @@ export default {
       }
     },
     formatIsTimeOnly () {
-      let datetimeFormat = this.combinedConfig.datetimeFormat
+      let datetimeFormat = this.flatpickrConfig.datetimeFormat
       if ('input' in this.$refs && 'dp' in this.$refs.input) {
         return !(/[MQDdEeWwYgX]+/.test(datetimeFormat))
       }
@@ -300,7 +312,7 @@ export default {
   },
   created () {
     // dereference inputValue and assign initialValue
-    const datetimeFormat = this.combinedConfig.datetimeFormat
+    const datetimeFormat = this.options.datetimeFormat
     if (this.inputValue instanceof Date) {
       // instanceof Date, convert to String
       this.inputValue = format(this.inputValue, datetimeFormat)
