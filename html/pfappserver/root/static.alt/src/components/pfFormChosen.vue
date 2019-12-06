@@ -1,8 +1,8 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
     class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
       <multiselect
@@ -24,7 +24,7 @@
         :preserve-search="preserveSearch"
         :searchable="searchable"
         :show-labels="false"
-        :state="isValid()"
+        :state="inputState"
         :track-by="trackBy"
         @search-change="onSearchChange($event)"
         @open="onFocus"
@@ -57,12 +57,12 @@
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import { createDebouncer } from 'promised-debounce'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForms'
 
 export default {
   name: 'pf-form-chosen',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     Multiselect
@@ -163,7 +163,12 @@ export default {
   computed: {
     inputValue: {
       get () {
-        const currentValue = this.value || ((this.multiple) ? [] : null)
+        let currentValue
+        if (this.formStoreName) {
+          currentValue = this.formStoreValue || ((this.multiple) ? [] : null) // use FormStore
+        } else {
+          currentValue = this.value || ((this.multiple) ? [] : null) // use native (v-model)
+        }
         if (this.collapseObject) {
           const options = (!this.groupValues)
             ? (this.options ? this.options : [])
@@ -193,7 +198,11 @@ export default {
             ? [...new Set(newValue.map(value => value[this.trackBy]))]
             : (newValue && newValue[this.trackBy])
         }
-        this.$emit('input', newValue)
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
     },
     forwardListeners () {
