@@ -1,15 +1,14 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !inputValue, 'is-disabled': disabled }">
     <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
-      <multiselect
-        v-model="inputValue"
+      <multiselect ref="input"
+        v-model="multiselectValue"
         v-bind="$attrs"
         v-on="forwardListeners"
-        ref="input"
         :allow-empty="allowEmpty"
         :clear-on-select="clearOnSelect"
         :disabled="disabled"
@@ -57,7 +56,7 @@
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import { createDebouncer } from 'promised-debounce'
-import pfMixinForm from '@/components/pfMixinForms'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-chosen',
@@ -163,12 +162,23 @@ export default {
   computed: {
     inputValue: {
       get () {
-        let currentValue
         if (this.formStoreName) {
-          currentValue = this.formStoreValue || ((this.multiple) ? [] : null) // use FormStore
+          return this.formStoreValue // use FormStore
         } else {
-          currentValue = this.value || ((this.multiple) ? [] : null) // use native (v-model)
+          return this.value // use native (v-model)
         }
+      },
+      set (newValue) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
+      }
+    },
+    multiselectValue: {
+      get () {
+        const currentValue = this.inputValue || ((this.multiple) ? [] : null) // use native (v-model)
         if (this.collapseObject) {
           const options = (!this.groupValues)
             ? (this.options ? this.options : [])
@@ -198,11 +208,7 @@ export default {
             ? [...new Set(newValue.map(value => value[this.trackBy]))]
             : (newValue && newValue[this.trackBy])
         }
-        if (this.formStoreName) {
-          this.formStoreValue = newValue // use FormStore
-        } else {
-          this.$emit('input', newValue) // use native (v-model)
-        }
+        this.inputValue = newValue
       }
     },
     forwardListeners () {
