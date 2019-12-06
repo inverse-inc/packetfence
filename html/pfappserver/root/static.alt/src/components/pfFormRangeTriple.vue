@@ -273,13 +273,13 @@ export default {
       }
       const keyCode = String.fromCharCode(event.keyCode).toLowerCase()
       switch (true) {
-        case 'left' in this.values && this.values.left && keyCode === this.values.left.charAt(0).toLowerCase():
+        case 'left' in this.values && this.values.left && keyCode === this.values.left.toString().charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 0) // set index 0
           break
-        case 'middle' in this.values && this.values.middle && keyCode === this.values.middle.charAt(0).toLowerCase():
+        case 'middle' in this.values && this.values.middle && keyCode === this.values.middle.toString().charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 1) // set index 1
           break
-        case 'right' in this.values && this.values.right && keyCode === this.values.right.charAt(0).toLowerCase():
+        case 'right' in this.values && this.values.right && keyCode === this.values.right.toString().charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 2) // set index 2
           break
       }

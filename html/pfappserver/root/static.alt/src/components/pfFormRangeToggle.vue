@@ -219,13 +219,13 @@ export default {
           this.$set(this, 'inputValue', 1) // set index 1
           return
       }
-      if (this.values.checked.charAt(0).toLowerCase() !== this.values.unchecked.charAt(0).toLowerCase()) {
+      if (this.values.checked.toString().charAt(0).toLowerCase() !== this.values.unchecked.toString().charAt(0).toLowerCase()) {
         // allow first character from value(s)
         switch (String.fromCharCode(event.keyCode).toLowerCase()) {
-          case this.values.unchecked.charAt(0).toLowerCase():
+          case this.values.unchecked.toString().charAt(0).toLowerCase():
             this.$set(this, 'inputValue', 0) // set index 0
             break
-          case this.values.checked.charAt(0).toLowerCase():
+          case this.values.checked.toString().charAt(0).toLowerCase():
             this.$set(this, 'inputValue', 1) // set index 1
             break
         }
