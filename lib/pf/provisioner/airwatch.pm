@@ -43,8 +43,6 @@ always authorize user
 sub authorize {
     my ($self, $mac) = @_;
 
-    $mac = "84:89:ad:84:08:cd";
-
     $mac = uc($mac);
     $mac =~ s/://g;
     my $payload = {"BulkValues" => {"value" => [$mac]}};
