@@ -10,6 +10,9 @@ VAGRANT_FORCE_COLOR=${VAGRANT_FORCE_COLOR:-true}
 VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
 VAGRANT_DIR=${VAGRANT_DIR:-../../../addons/vagrant}
 
+# set to yes when testing new features on collections
+LOCAL_COLLECTIONS=${LOCAL_COLLECTIONS:-no}
+
 delete_dir_if_exists() {
     local dir=${1}
     if [ -d "${dir}" ]; then
@@ -22,13 +25,21 @@ delete_dir_if_exists() {
 
 setup() {
     declare -p ANSIBLE_SKIP_TAGS VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_BOX
-
+    declare -p LOCAL_COLLECTIONS
+    
     # export because ansible is run through vagrant and this variable will
     # not be visible without
     export ANSIBLE_SKIP_TAGS
 
-    ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
+    if [ "$LOCAL_COLLECTIONS" = "no" ]; then
+        ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
+    else
+        echo "Using local collections"
+    fi
+    
     cd ${VAGRANT_DIR}
+
+    # always try to upgrade box before start
     vagrant box update ${VAGRANT_BOX}
     vagrant up ${VAGRANT_BOX} --destroy-on-error
 

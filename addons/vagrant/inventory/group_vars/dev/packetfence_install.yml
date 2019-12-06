@@ -17,3 +17,9 @@ packetfence_install__deb:
   repos: '{{ ["debian"] if release_status|bool
                         else ["debian","debian-devel"] }}'
 
+
+# config
+packetfence_install__fingerbank_setting:
+  upstream:
+    api_key: '{{ lookup("env", "FINGERBANK_API_KEY") }}'
+
