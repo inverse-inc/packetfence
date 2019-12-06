@@ -984,6 +984,34 @@ EOT
 EOT
                 $i++;
             }
+            $tags{'local_realm'} = '';
+            my @realms;
+            foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
+                 push (@realms, "Realm == \"$realm\"");
+            }
+            if (@realms) {
+                $tags{'local_realm'} .= 'if ( ';
+                $tags{'local_realm'} .=  join(' || ', @realms);
+                $tags{'local_realm'} .= ' ) {'."\n";
+                $tags{'local_realm'} .= <<"EOT";
+                update control {
+                    Proxy-To-Realm := "packetfence"
+                }
+            } else {
+                update control {
+                    Load-Balance-Key := "%{Calling-Station-Id}"
+                    Proxy-To-Realm := "eduroam.cluster"
+                }
+            }
+EOT
+            } else {
+$tags{'local_realm'} = << "EOT";
+                    update control {
+                        Load-Balance-Key := "%{Calling-Station-Id}"
+                        Proxy-To-Realm := "eduroam.cluster"
+                    }
+EOT
+            }
             parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
         } else {
             unlink($install_dir."/raddb/sites-enabled/eduroam-cluster");
