@@ -131,7 +131,7 @@ sub isAlive {
         }
     }
     my $routes_applied = $FALSE;
-    $routes_applied = defined(pf_run("route | grep ".$route_exist)) if ($route_exist);
+    $routes_applied = defined(pf_run("/sbin/route | grep ".$route_exist)) if ($route_exist);
     $routes_applied = $TRUE if (-f "$install_dir/var/routes_applied");
     return (defined($pid) && $routes_applied);
 }
