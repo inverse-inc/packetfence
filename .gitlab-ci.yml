@@ -226,7 +226,7 @@ variables:
 .install_script:
   variables:
     ANSIBLE_SKIP_TAGS: 'build'
-    VAGRANT_ANSIBLE_VERBOSE: "true"
+    # set VAGRANT_ANSIBLE_VERBOSE to true if you want debug
   script:
     # temp: https://github.com/hashicorp/vagrant/issues/10958
     - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
