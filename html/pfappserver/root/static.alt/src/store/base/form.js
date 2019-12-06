@@ -50,7 +50,11 @@ export default {
           $form () { return state.$form }
         },
         validations () {
-          return state.$validations
+          return {
+            $form: (state.$validations.$form.constructor === Function)
+              ? state.$validations.$form(state.$form)
+              : state.$validations.$form
+          }
         }
       })
     },
@@ -64,12 +68,12 @@ export default {
         namespace = remainder.join('.')
         if (first in $v)
           $v = $v[first] // named property
-        else if (!isNaN(+first))
+        else if (!isNaN(+first) && '$each' in $v && first in $v.$each)
           $v = $v.$each[first] // index property
         else
-          break
+          return {}
       }
-      return $v || {}
+      return $v
     },
     $stateNS: (state, getters) => (namespace) => {
       const { $invalid = false, $dirty = false, $anyDirty = false, $error = false, $anyError = false, $pending = false } = getters.$vuelidateNS(namespace)
