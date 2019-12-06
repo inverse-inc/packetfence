@@ -8,6 +8,8 @@
     <b-col :sm="($slots.prepend && $slots.append) ? 4 : (($slots.prepend || $slots.append) ? 5 : 6)" align-self="start">
 
       <pf-form-chosen
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}.type`"
         v-model="localType"
         v-on="forwardListeners"
         ref="localType"
@@ -15,8 +17,6 @@
         track-by="value"
         :placeholder="typeLabel"
         :options="fields"
-        :vuelidate="typeVuelidateModel"
-        :invalid-feedback="typeInvalidFeedback"
         :disabled="disabled"
         class="mr-1"
         collapse-object
@@ -26,6 +26,8 @@
     <b-col sm="6" align-self="start" class="pl-1">
 
       <pf-form-chosen v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}.value`"
         v-model="localValue"
         v-on="listeners"
         v-bind="fieldAttrs"
@@ -34,48 +36,56 @@
         track-by="value"
         :multiple="isComponentType([componentType.SELECTMANY])"
         :placeholder="placeholder"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
       ></pf-form-chosen>
 
       <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME])"
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}.value`"
         v-model="localValue"
         ref="localValue"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
         :moments="moments"
         :placeholder="valuePlaceholder"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
       ></pf-form-datetime>
 
       <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}.value`"
         v-model="localValue"
         ref="localValue"
         :placeholder="valuePlaceholder"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
       ></pf-form-prefix-multiplier>
 
       <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING])"
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}.value`"
         v-model="localValue"
         ref="localValue"
         :placeholder="valuePlaceholder"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
       ></pf-form-input>
 
       <pf-form-input v-else-if="isComponentType([componentType.INTEGER])"
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}.value`"
         v-model="localValue"
         ref="localValue"
         type="number"
         step="1"
         :placeholder="valuePlaceholder"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
+        :disabled="disabled"
+      ></pf-form-input>
+
+      <pf-form-input v-else-if="isComponentType([componentType.HIDDEN])"
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}.value`"
+        zzzv-model="localValue"
+value="1"
+        ref="localValue"
+        type="text"
         :disabled="disabled"
       ></pf-form-input>
 
@@ -97,7 +107,6 @@ import {
   pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
-import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'pf-field-type-value',
@@ -108,6 +117,16 @@ export default {
     pfFormPrefixMultiplier
   },
   props: {
+    formStoreName: {
+      type: String,
+      default: null,
+      required: false
+    },
+    formNamespace: {
+      type: String,
+      default: null,
+      required: false
+    },
     value: {
       type: Object,
       default: () => {}
@@ -121,10 +140,6 @@ export default {
     fields: {
       type: Array,
       default: () => { return [] }
-    },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
     },
     disabled: {
       type: Boolean,
@@ -231,18 +246,6 @@ export default {
       const { field: { attrs } = {} } = this
       return attrs || { options: this.options }
     },
-    typeVuelidateModel () {
-      return this.getVuelidateModel('type')
-    },
-    typeInvalidFeedback () {
-      return this.getInvalidFeedback('type')
-    },
-    valueVuelidateModel () {
-      return this.getVuelidateModel('value')
-    },
-    valueInvalidFeedback () {
-      return this.getInvalidFeedback('value')
-    },
     valuePlaceholder () {
       return this.getPlaceholder()
     },
@@ -264,20 +267,6 @@ export default {
       }
       return false
     },
-    getVuelidateModel (key = null) {
-      const { vuelidate: { [key]: model } } = this
-      return model || {}
-    },
-    getInvalidFeedback (key = null) {
-      let feedback = []
-      const vuelidate = this.getVuelidateModel(key)
-      if (vuelidate !== {} && key in vuelidate) {
-        Object.entries(vuelidate[key].$params).forEach(([k, v]) => {
-          if (vuelidate[key][k] === false) feedback.push(k.trim())
-        })
-      }
-      return feedback.join('<br/>')
-    },
     getPlaceholder () {
       if (this.localType) {
         const index = this.fields.findIndex(field => field.value === this.localType)
@@ -289,19 +278,6 @@ export default {
         }
       }
       return null
-    },
-    buildLocalValidations () {
-      const { field } = this
-      if (field) {
-        const { validators } = field
-        if (validators) {
-          return validators
-        }
-      }
-      return { type: { [this.$i18n.t('Type required.')]: required } }
-    },
-    emitValidations () {
-      this.$emit('validations', this.buildLocalValidations())
     },
     focus () {
       if (this.localType) {
@@ -323,9 +299,6 @@ export default {
     focusValue () {
       this.focusIndex(1)
     }
-  },
-  created () {
-    this.emitValidations()
   }
 }
 </script>
