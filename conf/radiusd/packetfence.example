@@ -294,8 +294,9 @@ accounting {
 
 	#  Filter attributes from the accounting response.
 	attr_filter.accounting_response
-    
-	rest
+	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
+		rest
+	}
 }
 
 
