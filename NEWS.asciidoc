@@ -25,6 +25,7 @@ Enhancements
 Bug Fixes
 +++++++++
 * Fix `pfstats` for LDAPS and StartTLS
+* Allow to run any script from a security event without a modification of sudoers file
 
 Version 9.2.0 released on 2019-11-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
