@@ -9,7 +9,6 @@ import AuditingRoute from '@/views/Auditing/_router'
 import NodesRoute from '@/views/Nodes/_router'
 import UsersRoute from '@/views/Users/_router'
 import ConfigurationRoute from '@/views/Configuration/_router'
-import TestsRoute from '@/views/Tests/_router'
 
 Vue.use(Router)
 
@@ -27,7 +26,6 @@ let router = new Router({
     NodesRoute,
     UsersRoute,
     ConfigurationRoute,
-    TestsRoute,
     DefaultRoute
   ]
 })
