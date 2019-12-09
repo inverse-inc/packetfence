@@ -1,4 +1,5 @@
 import store from '@/store'
+import FormStore from '@/store/base/form'
 import UsersView from '../'
 import UsersStore from '../_store'
 
@@ -35,7 +36,13 @@ const route = {
     {
       path: 'create',
       component: UsersCreate,
-      props: { storeName: '$_users' },
+      props: { formStoreName: 'formUsersCreate' },
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formUsersCreate) { // Register store module only once
+          store.registerModule('formUsersCreate', FormStore)
+        }
+        next()
+      },
       meta: {
         can: 'create users'
       }
@@ -61,8 +68,11 @@ const route = {
       path: '/user/:pid',
       name: 'user',
       component: UserView,
-      props: (route) => ({ storeName: '$_users', pid: route.params.pid }),
+      props: (route) => ({ formStoreName: 'formUserView', pid: route.params.pid }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formUserView) { // Register store module only once
+          store.registerModule('formUserView', FormStore)
+        }
         store.dispatch('$_users/getUser', to.params.pid).then(() => {
           next()
         })
