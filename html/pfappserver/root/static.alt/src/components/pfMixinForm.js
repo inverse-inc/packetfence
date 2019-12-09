@@ -52,6 +52,18 @@ export default {
         return this.stateMap[this.state] // use native (state)
       }
     },
+    inputAnyState () {
+      if (this.formStoreName) {
+        const { $model = {}, $each = {} } = this.$store.getters[`${this.formStoreName}/$vuelidateNS`](this.formNamespace)  // use FormStore
+        for (let item of Object.keys($model)) {
+          const { $invalid = false } = $each[item]
+          if ($invalid) return this.stateMap[false]
+        }
+        return this.stateMap[true]
+      } else {
+        return this.stateMap[this.state] // use native (state)
+      }
+    },
     inputInvalidFeedback () {
       if (this.formStoreName) {
         return this.formStoreInvalidFeedback // use FormStore
