@@ -3,13 +3,9 @@
     <b-card no-body>
       <b-card-header>
         <h4 class="mb-0" v-t="'Create Users'"></h4>
-<pre>{{ JSON.stringify(form, null, 2) }}</pre>
       </b-card-header>
       <b-tabs v-model="modeIndex" card>
         <b-tab title="Single">
-<!--
-          <b-form @submit.prevent="create()" @change="$v.$touch()">
--->
           <b-form @submit.prevent="create()">
             <b-form-row align-v="center">
               <b-col sm="12">
