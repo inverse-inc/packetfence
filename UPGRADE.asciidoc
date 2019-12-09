@@ -1026,6 +1026,16 @@ cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Execute script action doesn't use sudo anymore
+
+Execute script action in security events doesn't use [command]`sudo` anymore to run scripts.
+Consequently, you should ensure that `pf` user is:
+
+* able to read and execute these scripts
+* able to run commands inside these scripts (without `sudo`)
+
+=== Database schema
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 
