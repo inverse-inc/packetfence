@@ -24,7 +24,7 @@ ExecStart=/usr/local/pf/sbin/pf-mariadb
 Restart=on-failure
 
 # Give a reasonable amount of time for the server to start up/shut down
-TimeoutSec=300
+TimeoutSec=1200
 
 # Place temp files in a secure directory, not /tmp
 PrivateTmp=true
