@@ -9,8 +9,8 @@ import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import { pfActionsFromMeta } from '@/global/pfActions'
 import {
-  pfConfigurationActionsFromMeta,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
@@ -145,7 +145,7 @@ export const pfConfigurationPortalModuleFields = {
               attrs: {
                 typeLabel: i18n.t('Select action type'),
                 valueLabel: i18n.t('Select action value'),
-                fields: pfConfigurationActionsFromMeta(meta, 'actions.type')
+                fields: pfActionsFromMeta(meta, 'actions.type')
               }
             }
           }

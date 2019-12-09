@@ -11,11 +11,11 @@ import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationActions,
   pfConfigurationAttributesFromMeta,
   pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfActions } from '@/globals/pfActions'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   alphaNum,
@@ -240,12 +240,12 @@ export const pfConfigurationAuthenticationSourceFields = {
                     valueLabel: i18n.t('Select action value'),
                     fields: [
                       ...[
-                        pfConfigurationActions.set_access_level,
-                        pfConfigurationActions.mark_as_sponsor,
-                        pfConfigurationActions.set_tenant_id
+                        pfActions.set_access_level,
+                        pfActions.mark_as_sponsor,
+                        pfActions.set_tenant_id
                       ],
                       ...((['AD', 'LDAP'].includes(sourceType))
-                        ? [pfConfigurationActions.set_access_durations]
+                        ? [pfActions.set_access_durations]
                         : []
                       )
                     ]
@@ -444,11 +444,11 @@ export const pfConfigurationAuthenticationSourceFields = {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
                     fields: [
-                      pfConfigurationActions.set_role_by_name,
-                      pfConfigurationActions.set_access_duration,
-                      pfConfigurationActions.set_unreg_date,
-                      pfConfigurationActions.set_time_balance,
-                      pfConfigurationActions.set_bandwidth_balance
+                      pfActions.set_role_by_name,
+                      pfActions.set_access_duration,
+                      pfActions.set_unreg_date,
+                      pfActions.set_time_balance,
+                      pfActions.set_bandwidth_balance
                     ]
                   },
                   invalidFeedback: [

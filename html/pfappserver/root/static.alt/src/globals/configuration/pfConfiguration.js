@@ -1,5 +1,6 @@
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
+import { pfActions } from '@/globals/pfActions'
 import {
   isPattern
 } from '@/globals/pfValidators'
@@ -192,35 +193,6 @@ export const pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta = (
             }
           }
         })
-      })
-    }
-  }
-  return fields
-}
-
-export const pfConfigurationActionsFromMeta = (meta = {}, key = null) => {
-  let fields = []
-  if (Object.keys(meta).length > 0) {
-    while (key.includes('.')) { // handle dot-notation keys ('.')
-      let [ first, ...remainder ] = key.split('.')
-      if (!(first in meta)) return {}
-      key = remainder.join('.')
-      let { [first]: { item: { properties: _collectionMeta } = {}, properties: _meta } } = meta
-      if (_collectionMeta) {
-        meta = _collectionMeta // swap ref to child
-      } else {
-        meta = _meta // swap ref to child
-      }
-    }
-    let { [key]: { allowed } = {} } = meta
-    if (allowed) {
-      allowed.forEach(type => {
-        if (pfConfigurationActions[type.value]) {
-          fields.push(pfConfigurationActions[type.value])
-        } else {
-          // eslint-disable-next-line
-          console.error(`Unknown configuration action ${type.text} (${type.value})`)
-        }
       })
     }
   }

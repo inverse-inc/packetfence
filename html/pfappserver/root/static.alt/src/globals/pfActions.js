@@ -18,6 +18,35 @@ const {
 import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 
+export const pfActionsFromMeta = (meta = {}, key = null) => {
+  let fields = []
+  if (Object.keys(meta).length > 0) {
+    while (key.includes('.')) { // handle dot-notation keys ('.')
+      let [ first, ...remainder ] = key.split('.')
+      if (!(first in meta)) return {}
+      key = remainder.join('.')
+      let { [first]: { item: { properties: _collectionMeta } = {}, properties: _meta } } = meta
+      if (_collectionMeta) {
+        meta = _collectionMeta // swap ref to child
+      } else {
+        meta = _meta // swap ref to child
+      }
+    }
+    let { [key]: { allowed } = {} } = meta
+    if (allowed) {
+      allowed.forEach(type => {
+        if (pfActions[type.value]) {
+          fields.push(pfActions[type.value])
+        } else {
+          // eslint-disable-next-line
+          console.error(`Unknown configuration action ${type.text} (${type.value})`)
+        }
+      })
+    }
+  }
+  return fields
+}
+
 export const pfActions = {
   bandwidth_balance_from_source: {
     value: 'bandwidth_balance_from_source',
