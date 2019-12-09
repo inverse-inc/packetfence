@@ -185,7 +185,7 @@ sub action_api {
     }
     $logger->warn($return);
 
-    my $cmd = "sudo $return 2>&1";
+    my $cmd = "$return 2>&1";
 
     my @lines  = pf_run($cmd);
     return;

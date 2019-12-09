@@ -91,7 +91,7 @@
       <b-col>
           <pf-form-input class="my-1"
             v-model="value.external_command"
-            :text="$t('You can use the following variables in your script launch command:<ul><li><b>$mac:</b> MAC address of the endpoint</li><li><b>$ip:</b> IP address of the endpoint</li><li><b>$vid:</b> ID of the security event</li></ul>')"></pf-form-input>
+            :text="$t('Script need to be readable and executable by pf user. You can use the following variables in your script launch command:<ul><li><b>$mac:</b> MAC address of the endpoint</li><li><b>$ip:</b> IP address of the endpoint</li><li><b>$vid:</b> ID of the security event</li></ul>')"></pf-form-input>
       </b-col>
     </b-row>
 
