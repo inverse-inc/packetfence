@@ -1,7 +1,9 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputAnyState"
     class="pf-form-fields" :class="{ 'mb-0': !columnLabel }">
+    <template v-slot:invalid-feedback>
+      {{ invalidFeedback }}
+    </template>
     <b-input-group class="pf-form-fields-input-group">
       <!--
          - Vacuum-up label click event.
@@ -24,22 +26,20 @@
         @end="onDragEnd"
       >
         <b-container
-          v-for="(_, index) in inputValue" :key="uuids[index]"
+          v-for="(_, index) in inputValue" :key="index"
           class="mx-0 px-1 pf-form-field-component-container"
           @mouseleave="onMouseLeave()"
         >
-          <component
+          <component :ref="'component-' + index"
+            :is="field.component"
+            :formStoreName="formStoreName"
+            :formNamespace="`${formNamespace}.${index}`"
             v-model="inputValue[index]"
             v-bind="field.attrs"
             v-on="field.listeners"
-            :is="field.component"
-            :key="uuids[index]"
-            :uuid="uuids[index]"
-            :vuelidate="getVuelidateModel(index)"
-            :ref="'component-' + index"
+            :key="index"
             :drag="drag"
             :disabled="disabled"
-            @validations="setChildValidations(index, $event)"
             @mouseenter="onMouseEnter(index)"
             @mousemove="onMouseEnter(index)"
             @siblings="onSiblings($event)"
@@ -73,14 +73,14 @@
 </template>
 
 <script>
-import uuidv4 from 'uuid/v4'
 import draggable from 'vuedraggable'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
+import i18n from '@/utils/locale'
 
 export default {
   name: 'pf-form-fields',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     draggable
@@ -91,14 +91,6 @@ export default {
       default: () => { return [] }
     },
     field: {
-      type: Object,
-      default: () => { return {} }
-    },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
-    },
-    validators: {
       type: Object,
       default: () => { return {} }
     },
@@ -131,36 +123,42 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    invalidFeedback: {
+      type: String,
+      default: i18n.t('One or more errors exist.')
     }
   },
   data () {
     return {
-      validations: {}, // validations
       hover: null, // true onmouseover
-      drag: false, // true ondrag
-      uuids: [] // uuid list used to manually handle DOM redraws (https://vuejs.org/v2/api/#key)
+      drag: false // true ondrag
     }
   },
   computed: {
     inputValue: {
       get () {
-        if (this.value && this.uuids.length < this.value.length) { // only on initial load
-          this.value.forEach((_, index) => {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            this.uuids[index] = uuidv4()
-          })
+        let value
+        if (this.formStoreName) {
+          value = this.formStoreValue // use FormStore
+        } else {
+          value = this.value // use native (v-model)
         }
-        return this.value
+        return value
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
     },
     canAdd () {
-      return (!this.disabled && (!this.maxFields || this.maxFields > this.value.length))
+      return (!this.disabled && (!this.maxFields || this.maxFields > this.inputValue.length))
     },
     canDel () {
-      return (!this.disabled && (!this.minFields || this.minFields < this.value.length))
+      return (!this.disabled && (!this.minFields || this.minFields < this.inputValue.length))
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -175,40 +173,20 @@ export default {
         : null // use placeholder
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index), newRow, ...inputValue.slice(index)]
-      this.uuids = [...this.uuids.slice(0, index), uuidv4(), ...this.uuids.slice(index)]
-      // shift up validations
-      for (let i = length; i > index; i--) {
-        this.$set(this.validations, i, this.validations[i - 1])
-      }
-      this.$set(this.validations, index, {})
       // focus the type element in new row
       if (!clone) { // Bugfix: focusing pfFormChosen steals actionKey's onkeyup event
-        this.$nextTick(() => { // wait until DOM updates with new row
-          this.focus('component-' + index)
-        })
+        this.focus('component-' + index)
       }
-      this.emitValidations()
-      this.forceUpdate()
     },
     rowDel (index, deleteAll = this.actionKey) {
       let length = this.inputValue.length
       if (deleteAll) {
         for (let i = length - 1; i >= 0; i--) { // delete all, bottom-up
           this.$delete(this.inputValue, i)
-          this.$delete(this.uuids, i)
         }
-        this.$set(this, 'validations', {})
       } else {
         this.inputValue.splice(index, 1) // delete 1 row
-        this.uuids.splice(index, 1)
-        // shift down validations
-        for (let i = index; i < length; i++) {
-          this.$set(this.validations, i, this.validations[i + 1])
-        }
-        this.$set(this.validations, length, {})
       }
-      this.emitValidations()
-      this.forceUpdate()
     },
     onDragStart (event) {
       this.drag = true
@@ -216,27 +194,6 @@ export default {
     },
     onDragEnd (event) {
       this.drag = false
-      let { oldIndex, newIndex } = event // shifted, not swapped
-      // shift uuids
-      let uuids = this.uuids
-      uuids = [...uuids.slice(0, oldIndex), ...uuids.slice(oldIndex + 1)]
-      this.uuids = [...uuids.slice(0, newIndex), this.uuids[oldIndex], ...uuids.slice(newIndex)]
-      // adjust validations
-      let tmp = this.validations[oldIndex]
-      if (oldIndex > newIndex) {
-        // shift down (not swapped)
-        for (let i = oldIndex; i > newIndex; i--) {
-          this.$set(this.validations, i, this.validations[i - 1])
-        }
-      } else {
-        // shift up (not swapped)
-        for (let i = oldIndex; i < newIndex; i++) {
-          this.$set(this.validations, i, this.validations[i + 1])
-        }
-      }
-      this.$set(this.validations, newIndex, tmp)
-      this.emitValidations()
-      this.forceUpdate()
     },
     onMouseEnter (index) {
       if (this.drag) return
@@ -253,50 +210,16 @@ export default {
         const { $refs: { ['component-' + index]: component } } = this
         if (component) {
           const [ { [ func ]: f } ] = component
-          if (typeof f === 'function') {
+          if (f.constructor === Function) {
             f(...args)
           }
         }
       })
     },
-    forceUpdate () {
-      this.$nextTick(() => {
-        this.$forceUpdate()
-      })
-    },
     focus (ref) {
-      const { $refs: { [ref]: [ { focus } ] } } = this
-      if (focus) focus()
-    },
-    getVuelidateModel (index) {
-      if (!(index in this.vuelidate)) {
-        this.$set(this.vuelidate, index, {})
-      }
-      return this.vuelidate[index]
-    },
-    setChildValidations (index, validations) {
-      this.$set(this.validations, index, validations)
-      this.emitValidations()
-    },
-    emitValidations () {
-      // build merge of local validations and child validations
-      let validators = {}
-      if (this.inputValue) {
-        const { field: { validators: fieldValidators } } = this
-        this.inputValue.map((_, index) => {
-          if (index in this.validations) {
-            validators[index] = { ...this.validations[index], ...fieldValidators }
-          }
-        })
-      }
-      this.$emit('validations', validators)
-    }
-  },
-  created () {
-    // initial uuid setup
-    if (this.inputValue) {
-      this.inputValue.forEach((_, index) => {
-        this.uuids[index] = uuidv4()
+      this.$nextTick(() => { // wait until DOM updates with new row
+        const { $refs: { [ref]: { 0: { focus = () => {} } = {} } = {} } = {} } = this
+        focus()
       })
     }
   }
