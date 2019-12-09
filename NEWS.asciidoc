@@ -24,6 +24,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Fix `pfstats` for LDAPS and StartTLS
 
 Version 9.2.0 released on 2019-11-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
