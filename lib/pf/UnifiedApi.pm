@@ -359,17 +359,15 @@ setup_api_v1_locationlogs_routes
 
 sub setup_api_v1_locationlogs_routes {
     my ($self, $root) = @_;
-    my ($collection_route, $resource_route) =
-      $self->setup_api_v1_std_crud_routes(
-        $root,
-        "Locationlogs",
-        "/locationlogs",
-        "/locationlog/#locationlog_id",
-    );
+    my $controller = "Locationlogs";
+    my $name = $self->make_name_from_controller($root, $controller);
+    my $collection_route = $root->any("/locationlogs")->to(controller => $controller)->name($name);
 
+    $collection_route->register_sub_action({ action => 'list', path => '', method => 'GET' });
+    $collection_route->register_sub_action({ action => 'search', method => 'POST' });
     $collection_route->register_sub_action({ action => 'ssids', method => 'GET' });
 
-    return ($collection_route, $resource_route);
+    return ($collection_route, undef);
 }
 
 =head2 setup_api_v1_dhcp_option82s_routes
