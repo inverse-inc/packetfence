@@ -1,11 +1,11 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !inputValue, 'is-disabled': disabled }">
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled }">
     <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
-      <multiselect ref="input"
+      <multiselect ref="multiselect"
         v-model="multiselectValue"
         v-bind="$attrs"
         v-on="forwardListeners"
@@ -156,7 +156,7 @@ export default {
   },
   data () {
     return {
-      focus: false
+      isFocus: false
     }
   },
   computed: {
@@ -217,12 +217,16 @@ export default {
     }
   },
   methods: {
+    focus () {
+      const { $refs: { multiselect: { $el } = {} } = {} } = this
+      $el.focus()
+    },
     onFocus (event) {
-      this.focus = true
+      this.isFocus = true
       this.onSearchChange(this.inputValue)
     },
     onBlur (event) {
-      this.focus = false
+      this.isFocus = false
       this.onSearchChange(this.inputValue)
     },
     onSearchChange (query) {
