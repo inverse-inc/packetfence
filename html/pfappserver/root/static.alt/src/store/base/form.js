@@ -99,41 +99,28 @@ export default {
         get: (target, namespace) => {
           while (namespace) { // handle namespace
             let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
-            namespace = remainder.join('.')
-            if (target === null) target = Vue.observable({}) // handle null
-            if (!(first in target)) { // not defined
-              Vue.set(target, first, (remainder.length === 0) ? undefined : {}) // make reactive
+            if (remainder.length > 0) { // has remaining
+              if (!(first in target)) Vue.set(target, first, {})
+            } else { // last iteration
+              if (target === null) target = {}
+              if (!(first in target)) Vue.set(target, first, undefined)
             }
             target = target[first]
+            namespace = remainder.join('.')
           }
           return target
         },
         set: (target, namespace, value) => {
-          let first
-          let lastTarget = target
-          let lastFirst
           while (namespace) { // handle namespace
-            lastFirst = first
             let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
-            namespace = remainder.join('.')
-            if (target !== null && (first in target || !isNaN(+first))) {
-              if (namespace) { // has remaining
-                lastTarget = target
-                target = target[first] // named property
-              } else { // last iteration
-                Vue.set(target, first, value)
-                return true
-              }
-            } else {
-              if (namespace) { //has remaining
-                Vue.set(lastTarget, lastFirst, { [first]: {} })
-                lastTarget = target
-                target = target[first]
-              } else { // last iteration
-                Vue.set(lastTarget, lastFirst, { [first]: value })
-                return true
-              }
+            if (remainder.length > 0) { // has remaining
+              if (!target[first]) Vue.set(target, first, {})
+            } else { // last iteration
+              Vue.set(target, first, value)
+              return true
             }
+            target = target[first]
+            namespace = remainder.join('.')
           }
           return false
         }
