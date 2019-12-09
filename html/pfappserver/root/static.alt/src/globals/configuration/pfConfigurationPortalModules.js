@@ -9,7 +9,7 @@ import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
-import { pfActionsFromMeta } from '@/global/pfActions'
+import { pfActionsFromMeta } from '@/globals/pfActions'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
