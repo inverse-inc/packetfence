@@ -9,11 +9,11 @@ import pfFormToggle from '@/components/pfFormToggle'
 import pfTree from '@/components/pfTree'
 import {
   pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta,
-  pfConfigurationLocales
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
+import { pfLocales as locales } from '@/globals/pfLocales'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -948,7 +948,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Locale'),
                 emptyText: i18n.t('With no language specified, all supported locales will be available.'),
-                maxFields: pfConfigurationLocales.length,
+                maxFields: locales.length,
                 sortable: true,
                 field: {
                   component: pfField,
@@ -960,7 +960,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         placeholder: i18n.t('Click to select a locale'),
                         trackBy: 'value',
                         label: 'text',
-                        options: pfConfigurationLocales
+                        options: locales
                       },
                       validators: {
                         [i18n.t('Locale required.')]: required,

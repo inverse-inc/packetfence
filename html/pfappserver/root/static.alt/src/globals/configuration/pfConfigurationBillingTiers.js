@@ -3,7 +3,6 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationViewFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
@@ -145,7 +144,17 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
             }
           ]
         },
-        pfConfigurationViewFields.description,
+        {
+          label: i18n.t('Description'),
+          fields: [
+            {
+              key: 'description',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'name'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Description'))
+            }
+          ]
+        },
         {
           label: i18n.t('Price'),
           text: i18n.t('The price that will be charged to the customer.'),
