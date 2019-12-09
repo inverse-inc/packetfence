@@ -730,6 +730,15 @@ sub setup_api_v1_std_crud_readonly_routes {
     return ($collection_route, $resource_route);
 }
 
+sub make_name_from_controller {
+    my ($self, $root, $controller) = @_;
+    my $name = $controller;
+    my $root_name = $root->name;
+    $name =~ s/::/./g;
+    $name = "${root_name}.${name}";
+    return $name;
+}
+
 =head2 setup_api_v1_std_crud_routes
 
 setup_api_v1_std_crud_routes
@@ -740,9 +749,7 @@ sub setup_api_v1_std_crud_routes {
     my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
     my $root_name = $root->name;
     if (!defined $name) {
-        $name = $controller;
-        $name =~ s/::/./;
-        $name = "${root_name}.${name}";
+        $name = $self->make_name_from_controller($root, $controller);
     }
 
     my $collection_route = $root->any($collection_path)->to(controller=> $controller)->name($name);
@@ -790,11 +797,9 @@ setup_api_v1_std_config_routes
 sub setup_api_v1_std_config_routes {
     my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
     if (!defined $name) {
-        my $root_name = $root->name;
-        $name = $controller;
-        $name =~ s/::/./;
-        $name = "${root_name}.${name}";
+        $name = $self->make_name_from_controller($root, $controller);
     }
+
     my $collection_route = $root->any($collection_path)->to(controller => $controller)->name($name);
     $self->setup_api_v1_std_config_collection_routes($collection_route, $name, $controller);
     my $resource_route = $root->under($resource_path)->to(controller => $controller, action => "resource")->name("${name}.resource");
