@@ -29,17 +29,20 @@
           </b-button>
         </b-button-group>
         <b-button-group v-if="!disabled" rel="prefixButtonGroup">
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || !inputState" tabindex="-1">
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.inputValue || !inputState" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
             <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
           </b-button>
-          <b-button class="input-group-text"
-            @click.stop.prevent="toggleVisibility()"
-            @mouseover.native="startVisibility()"
-            @mousemove.native="startVisibility()"
-            @mouseout.native="stopVisibility()" :disabled="!this.value && this.type === 'password'" :pressed="showPassword" tabindex="-1"><icon name="eye"></icon></b-button>
+          <b-button-group
+            @click="toggleVisibility()"
+            @mouseover="startVisibility()"
+            @mousemove="startVisibility()"
+            @mouseout="stopVisibility()"
+          >
+            <b-button class="input-group-text" :disabled="!this.inputValue" :pressed="showPassword" tabindex="-1"><icon name="eye"></icon></b-button>
+          </b-button-group>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
@@ -173,7 +176,7 @@ export default {
       this.showPassword = true
     },
     stopVisibility () {
-       this.showPassword = false
+      this.showPassword = false
     },
     toggleVisibility () {
       this.showPassword = !this.showPassword
