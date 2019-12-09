@@ -7,12 +7,10 @@
     </b-col>
     <b-col :sm="($slots.prepend && $slots.append) ? 4 : (($slots.prepend || $slots.append) ? 5 : 6)" align-self="start">
 
-      <pf-form-chosen
+      <pf-form-chosen ref="type"
         :formStoreName="formStoreName"
         :formNamespace="`${formNamespace}.type`"
-        v-model="localType"
         v-on="forwardListeners"
-        ref="localType"
         label="text"
         track-by="value"
         :placeholder="typeLabel"
@@ -25,13 +23,11 @@
     </b-col>
     <b-col sm="6" align-self="start" class="pl-1">
 
-      <pf-form-chosen v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
+      <pf-form-chosen ref="value" v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
         :formStoreName="formStoreName"
         :formNamespace="`${formNamespace}.value`"
-        v-model="localValue"
         v-on="listeners"
         v-bind="fieldAttrs"
-        ref="localValue"
         label="name"
         track-by="value"
         :multiple="isComponentType([componentType.SELECTMANY])"
@@ -39,53 +35,35 @@
         :disabled="disabled"
       ></pf-form-chosen>
 
-      <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME])"
+      <pf-form-datetime ref="value" v-else-if="isComponentType([componentType.DATETIME])"
         :formStoreName="formStoreName"
         :formNamespace="`${formNamespace}.value`"
-        v-model="localValue"
-        ref="localValue"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
         :moments="moments"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
       ></pf-form-datetime>
 
-      <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
+      <pf-form-prefix-multiplier ref="value" v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
         :formStoreName="formStoreName"
         :formNamespace="`${formNamespace}.value`"
-        v-model="localValue"
-        ref="localValue"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
       ></pf-form-prefix-multiplier>
 
-      <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING])"
+      <pf-form-input ref="value" v-else-if="isComponentType([componentType.SUBSTRING])"
         :formStoreName="formStoreName"
         :formNamespace="`${formNamespace}.value`"
-        v-model="localValue"
-        ref="localValue"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
       ></pf-form-input>
 
-      <pf-form-input v-else-if="isComponentType([componentType.INTEGER])"
+      <pf-form-input ref="value" v-else-if="isComponentType([componentType.INTEGER])"
         :formStoreName="formStoreName"
         :formNamespace="`${formNamespace}.value`"
-        v-model="localValue"
-        ref="localValue"
         type="number"
         step="1"
         :placeholder="valuePlaceholder"
-        :disabled="disabled"
-      ></pf-form-input>
-
-      <pf-form-input v-else-if="isComponentType([componentType.HIDDEN])"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}.value`"
-        zzzv-model="localValue"
-value="1"
-        ref="localValue"
-        type="text"
         :disabled="disabled"
       ></pf-form-input>
 
@@ -102,6 +80,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfMixinForm from '@/components/pfMixinForm'
 import {
   pfComponentType as componentType,
   pfFieldTypeComponent as fieldTypeComponent,
@@ -110,6 +89,9 @@ import {
 
 export default {
   name: 'pf-field-type-value',
+  mixins: [
+    pfMixinForm
+  ],
   components: {
     pfFormChosen,
     pfFormDatetime,
@@ -117,16 +99,6 @@ export default {
     pfFormPrefixMultiplier
   },
   props: {
-    formStoreName: {
-      type: String,
-      default: null,
-      required: false
-    },
-    formNamespace: {
-      type: String,
-      default: null,
-      required: false
-    },
     value: {
       type: Object,
       default: () => {}
@@ -144,6 +116,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    drag: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -155,55 +131,25 @@ export default {
   computed: {
     inputValue: {
       get () {
-        if (!this.value || Object.keys(this.value).length === 0) {
-          // set default placeholder
-          this.$emit('input', JSON.parse(JSON.stringify(this.default))) // keep dereferenced
-          return this.default
-        }
-        return this.value
+        return { ...this.default, ...this.formStoreValue } // use FormStore
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        this.formStoreValue = newValue // use FormStore
       }
     },
-    localType: {
-      get () {
-        let type = (this.inputValue && typeof this.inputValue === 'object' && 'type' in this.inputValue) ? this.inputValue.type : this.default.type
-        // check to see if `type` exists in our available fields
-        if (type && !this.fields.find(field => field.value === type)) {
-          // discard
-          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action type "{type}" is not valid, ignoring.', { type: type }) })
-          this.$set(this.inputValue, 'type', this.default.type) // clear `type`
-          this.$set(this.inputValue, 'value', this.default.value) // clear `value`
-          return null
-        }
-        return type
-      },
-      set (newType) {
-        this.$set(this.inputValue, 'type', newType || this.default.type)
-        this.$set(this.inputValue, 'value', this.default.value) // clear `value`
-        this.emitValidations()
-        this.$nextTick(() => { // wait until DOM updates with new type
-          this.focusValue()
-        })
-      }
+    localType () {
+     return this.inputValue.type
     },
-    localValue: {
-      get () {
-        return (this.inputValue && 'value' in this.inputValue) ? this.inputValue.value : this.default.value
-      },
-      set (newValue) {
-        this.$set(this.inputValue, 'value', newValue || this.default.value)
-        this.emitValidations()
-      }
+    localValue () {
+      return this.inputValue.value
     },
     field () {
-      if (this.localType) return this.fields.find(field => field.value === this.localType)
+      if (this.inputValue.type) return this.fields.find(field => field.value === this.inputValue.type)
       return null
     },
     fieldIndex () {
-      if (this.localType) {
-        const index = this.fields.findIndex(field => field.value === this.localType)
+      if (this.inputValue.type) {
+        const index = this.fields.findIndex(field => field.value === this.inputValue.type)
         if (index >= 0) return index
       }
       return null
@@ -213,7 +159,7 @@ export default {
       return placeholder || this.valueLabel
     },
     options () {
-      if (!this.localType) return []
+      if (!this.inputValue.type) return []
       let options = []
       if (this.fieldIndex >= 0) {
         const field = this.field
@@ -229,7 +175,7 @@ export default {
       }
     },
     listeners () {
-      if (!this.localType) return []
+      if (!this.inputValue.type) return []
       let listeners = {}
       if (this.fieldIndex >= 0) {
         if (this.field.listeners) {
@@ -256,8 +202,8 @@ export default {
   },
   methods: {
     isComponentType (componentTypes) {
-      if (this.localType) {
-        const index = this.fields.findIndex(field => field.value === this.localType)
+      if (this.inputValue.type) {
+        const index = this.fields.findIndex(field => field.value === this.inputValue.type)
         if (index >= 0) {
           const field = this.fields[index]
           for (let t = 0; t < componentTypes.length; t++) {
@@ -268,8 +214,8 @@ export default {
       return false
     },
     getPlaceholder () {
-      if (this.localType) {
-        const index = this.fields.findIndex(field => field.value === this.localType)
+      if (this.inputValue.type) {
+        const index = this.fields.findIndex(field => field.value === this.inputValue.type)
         if (index >= 0) {
           const field = this.fields[index]
           if ('placeholder' in field) {
@@ -280,24 +226,30 @@ export default {
       return null
     },
     focus () {
-      if (this.localType) {
+      if (this.inputValue.type) {
         this.focusValue()
       } else {
         this.focusType()
       }
     },
-    focusIndex (index = 0) {
-      const refs = Object.values(this.$refs)
-      if (index in refs && refs[index]) {
-        const { $refs: { input: { $el } } = {} } = refs[index]
-        if ($el && 'focus' in $el) $el.focus()
-      }
-    },
     focusType () {
-      this.focusIndex(0)
+      const { $refs: { type: { focus = () => {} } = {} } = {} } = this
+      focus()
     },
     focusValue () {
-      this.focusIndex(1)
+      const { $refs: { value: { focus = () => {} } = {} } = {} } = this
+      focus()
+    }
+  },
+  watch: {
+    localType: {
+      handler: function (a, b) {
+        if (!this.drag) { // don't focus when being dragged
+          this.$nextTick(() => {
+            this.focus()
+          })
+        }
+      }
     }
   }
 }
