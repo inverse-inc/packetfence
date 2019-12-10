@@ -13,142 +13,119 @@
             {{ $t('Profile') }}
           </template>
           <pf-form-input :column-label="$t('Username (PID)')"
+            :formStoreName="formStoreName" formNamespace="pid"
+            :text="$t('The username used for login to the captive portal.')"
             readonly
-            v-model.trim="userContent.pid"
-            :text="$t('The username to use for login to the captive portal.')"/>
+          />
           <pf-form-input :column-label="$t('Email')"
-            v-model.trim="userContent.email"
-            :vuelidate="$v.userContent.email"
+            :formStoreName="formStoreName" formNamespace="email"
           />
           <pf-form-input :column-label="$t('Sponsor')"
-            v-model.trim="userContent.sponsor"
-            :vuelidate="$v.userContent.sponsor"
+            :formStoreName="formStoreName" formNamespace="sponsor"
           />
           <pf-form-input :column-label="$t('Language')"
-            v-model.trim="userContent.lang"
-            :vuelidate="$v.userContent.lang"
+            :formStoreName="formStoreName" formNamespace="lang"
           />
           <pf-form-chosen :column-label="$t('Gender')"
-            v-model="userContent.gender"
+            :formStoreName="formStoreName" formNamespace="gender"
             label="text"
             track-by="value"
             :placeholder="$t('Choose gender')"
-            :options="[{text:$t('Male'), value:'m'}, {text:$t('Female'), value:'f'}, {text:$t('Other'), value:'o'}]"
-          ></pf-form-chosen>
+            :options="genders"
+          />
           <pf-form-input :column-label="$t('Title')"
-            v-model="userContent.title"
-            :vuelidate="$v.userContent.title"
+            :formStoreName="formStoreName" formNamespace="title"
           />
           <pf-form-input :column-label="$t('Firstname')"
-            v-model="userContent.firstname"
-            :vuelidate="$v.userContent.firstname"
+            :formStoreName="formStoreName" formNamespace="firstname"
           />
           <pf-form-input :column-label="$t('Lastname')"
-            v-model="userContent.lastname"
-            :vuelidate="$v.userContent.lastname"
+            :formStoreName="formStoreName" formNamespace="lastname"
           />
           <pf-form-input :column-label="$t('Nickname')"
-            v-model="userContent.nickname"
-            :vuelidate="$v.userContent.nickname"
+            :formStoreName="formStoreName" formNamespace="nickname"
           />
           <pf-form-input :column-label="$t('Company')"
-            v-model="userContent.company"
-            :vuelidate="$v.userContent.company"
+            :formStoreName="formStoreName" formNamespace="company"
           />
           <pf-form-input :column-label="$t('Telephone number')"
-            v-model="userContent.telephone"
-            :vuelidate="$v.userContent.telephone"
+            :formStoreName="formStoreName" formNamespace="telephone"
           />
           <pf-form-input :column-label="$t('Cellphone number')"
-            v-model="userContent.cell_phone"
-            :vuelidate="$v.userContent.cell_phone"
+            :formStoreName="formStoreName" formNamespace="cell_phone"
           />
           <pf-form-input :column-label="$t('Workphone number')"
-            v-model="userContent.work_phone"
-            :vuelidate="$v.userContent.work_phone"
+            :formStoreName="formStoreName" formNamespace="work_phone"
           />
           <pf-form-input :column-label="$t('Apartment number')"
-            v-model="userContent.apartment_number"
-            :vuelidate="$v.userContent.apartment_number"
+            :formStoreName="formStoreName" formNamespace="apartment_number"
           />
           <pf-form-input :column-label="$t('Building Number')"
-            v-model="userContent.building_number"
-            :vuelidate="$v.userContent.building_number"
+            :formStoreName="formStoreName" formNamespace="building_number"
           />
           <pf-form-input :column-label="$t('Room Number')"
-            v-model="userContent.room_number"
-            :vuelidate="$v.userContent.room_number"
+            :formStoreName="formStoreName" formNamespace="room_number"
           />
-          <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
-            v-model="userContent.address"
-            :vuelidate="$v.userContent.address"
+          <pf-form-textarea :column-label="$t('Address')"
+            :formStoreName="formStoreName" formNamespace="address"
+             rows="4" max-rows="6"
           />
           <pf-form-datetime :column-label="$t('Anniversary')"
-            v-model="userContent.anniversary"
+            :formStoreName="formStoreName" formNamespace="anniversary"
             :config="{datetimeFormat: 'YYYY-MM-DD'}"
-            :vuelidate="$v.userContent.anniversary"
           />
           <pf-form-datetime :column-label="$t('Birthday')"
-            v-model="userContent.birthday"
+            :formStoreName="formStoreName" formNamespace="birthday"
             :config="{datetimeFormat: 'YYYY-MM-DD'}"
-            :vuelidate="$v.userContent.birthday"
           />
           <pf-form-input :column-label="$t('Psk')"
-            v-model="userContent.psk"
-            :vuelidate="$v.userContent.psk"
+            :formStoreName="formStoreName" formNamespace="psk"
           />
           <pf-form-textarea :column-label="$t('Notes')"
-            v-model="userContent.notes"
-            :vuelidate="$v.userContent.notes"
+            :formStoreName="formStoreName" formNamespace="notes"
             rows="3" max-rows="3"
           />
         </b-tab>
 
-        <b-tab title="Password" v-if="hasPassword">
+        <b-tab title="Password" v-if="!!form.expiration">
           <template v-slot:title>
             {{ $t('Password') }}
           </template>
-          <pf-form-password :column-label="$t('Password')" generate
-            v-model="userContent.password"
-            :vuelidate="$v.userContent.password"
-            :text="$t('Leave empty to keep current password.')"/>
+          <pf-form-password :column-label="$t('Password')"
+            :formStoreName="formStoreName" formNamespace="password"
+            :text="$t('Leave empty to keep current password.')"
+            generate
+          />
           <pf-form-input :column-label="$t('Login remaining')"
-            v-model="userContent.login_remaining"
-            :vuelidate="$v.userContent.login_remaining"
-            type="number"
+            :formStoreName="formStoreName" formNamespace="login_remaining"
             :text="$t('Leave empty to allow unlimited logins.')"/>
+            type="number"
         </b-tab>
 
-        <b-tab title="Actions" v-if="hasPassword">
+        <b-tab title="Actions" v-if="!!form.expiration">
 
           <b-form-group label-cols="3" :label="$t('Registration Window')">
             <b-row>
               <b-col>
-                <pf-form-datetime v-model="userContent.valid_from"
+                <pf-form-datetime
+                  :formStoreName="formStoreName" formNamespace="valid_from"
                   :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                  :vuelidate="$v.userContent.valid_from"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
-                <pf-form-datetime v-model="userContent.expiration"
+                <pf-form-datetime
+                  :formStoreName="formStoreName" formNamespace="expiration"
                   :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                  :vuelidate="$v.userContent.expiration"
                 />
               </b-col>
             </b-row>
           </b-form-group>
 
-          <pf-form-fields
-            v-model="userContent.actions"
-            :column-label="$t('Actions')"
+          <pf-form-fields :column-label="$t('Actions')"
+            :formStoreName="formStoreName" formNamespace="actions"
             :button-label="$t('Add Action')"
             :field="actionField"
-            :vuelidate="$v.userContent.actions"
-            :invalid-feedback="[
-              { [$t('One or more errors exist.')]: $v.userContent.actions.$invalid }
-            ]"
-            @validations="actionsValidations = $event"
             sortable
           ></pf-form-fields>
         </b-tab>
@@ -159,14 +136,16 @@
           </template>
           <b-form-row>
             <b-col>
-              <pf-form-input v-for="i in 9" v-model="userContent['custom_field_' + i]" :column-label="'Custom Field ' + i" :key="i"/>
+              <pf-form-input v-for="i in 9"  :column-label="'Custom Field ' + i" :key="i"
+                :formStoreName="formStoreName" :formNamespace="`custom_field_${i}`"
+              />
             </b-col>
           </b-form-row>
         </b-tab>
 
         <b-tab title="Devices">
           <template v-slot:title>
-            {{ $t('Devices') }} <b-badge pill v-if="hasNodes" variant="light" class="ml-1">{{ userContent.nodes.length }}</b-badge>
+            {{ $t('Devices') }} <b-badge pill v-if="hasNodes" variant="light" class="ml-1">{{ form.nodes.length }}</b-badge>
           </template>
           <b-row align-h="between" align-v="center">
             <b-col cols="auto" class="mr-auto">
@@ -188,7 +167,7 @@
             </b-col>
           </b-row>
 
-          <b-table :items="userContent.nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
+          <b-table :items="form.nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
             <template v-slot:cell(status)="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
@@ -205,9 +184,9 @@
 
         <b-tab title="Security Events">
           <template v-slot:title>
-            {{ $t('Security Events') }} <b-badge pill v-if="userContent.security_events && userContent.security_events.length > 0" variant="light" class="ml-1">{{ userContent.security_events.length }}</b-badge>
+            {{ $t('Security Events') }} <b-badge pill v-if="form.security_events && form.security_events.length > 0" variant="light" class="ml-1">{{ form.security_events.length }}</b-badge>
           </template>
-          <b-table :items="userContent.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive striped>
+          <b-table :items="form.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive striped>
             <template v-slot:cell(status)="securityEvent">
               <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="securityEvent.item.status === 'closed'">{{ $t('closed') }}</b-badge>
@@ -228,7 +207,7 @@
         </b-tab>
       </b-tabs>
       <b-card-footer @mouseenter="$v.$touch()">
-        <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Actions', 'Custom Fields'])" :disabled="invalidForm" :isLoading="isLoading">
+        <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Actions', 'Custom Fields'])" :disabled="disableSave" :isLoading="isLoading">
           <template v-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
@@ -253,23 +232,16 @@ import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
-  required,
-  minLength
-} from 'vuelidate/lib/validators'
+  actions,
+  nodeFields,
+  securityEventFields,
+  updateValidators
+} from '../_config/'
 import {
-  and,
-  not,
-  conditional,
-  compareDate
-} from '@/globals/pfValidators'
-import {
-  pfDatabaseSchema as schema,
-  buildValidationFromTableSchemas
-} from '@/globals/pfDatabaseSchema'
-const { validationMixin } = require('vuelidate')
+  pfFieldType,
+  pfFieldTypeValues
+} from '@/globals/pfField'
 
 export default {
   name: 'user-view',
@@ -285,375 +257,69 @@ export default {
     pfFormPassword,
     pfFormTextarea
   },
-  mixins: [
-    validationMixin
-  ],
   props: {
-    pid: String
+    formStoreName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
+    pid: { // from router
+      type: String,
+      default: null
+    }
   },
   data () {
     return {
-      globals: {
-        schema: schema
-      },
       tabIndex: 0,
       tabTitle: '',
       userContent: { nodes: [], security_events: [] },
-      hasPassword: false,
       actionField: {
         component: pfFieldTypeValue,
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
-          fields: [
-            pfConfigurationActions.set_access_duration_by_acl_user,
-            pfConfigurationActions.set_access_level_by_acl_user,
-            pfConfigurationActions.mark_as_sponsor,
-            pfConfigurationActions.set_role_by_acl_user,
-            pfConfigurationActions.set_access_durations,
-            pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unreg_date_by_acl_user
-          ]
+          fields: actions // ../_config/
         }
       },
-      actionsValidations: {},
-      nodeFields: [
-        {
-          key: 'tenant_id',
-          label: this.$i18n.t('Tenant'),
-          sortable: true
-        },
-        {
-          key: 'status',
-          label: this.$i18n.t('Status'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'online',
-          label: this.$i18n.t('Online/Offline'),
-          sortable: true
-        },
-        {
-          key: 'mac',
-          label: this.$i18n.t('MAC Address'),
-          required: true,
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'detect_date',
-          label: this.$i18n.t('Detected Date'),
-          sortable: true,
-          formatter: formatter.datetimeIgnoreZero,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'regdate',
-          label: this.$i18n.t('Registration Date'),
-          sortable: true,
-          visible: true,
-          formatter: formatter.datetimeIgnoreZero,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'unregdate',
-          label: this.$i18n.t('Unregistration Date'),
-          sortable: true,
-          visible: true,
-          formatter: formatter.datetimeIgnoreZero,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'computername',
-          label: this.$i18n.t('Computer Name'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'ip4log.ip',
-          label: this.$i18n.t('IPv4 Address'),
-          sortable: true
-        },
-        {
-          key: 'ip6log.ip',
-          label: this.$i18n.t('IPv6 Address'),
-          sortable: true
-        },
-        {
-          key: 'device_class',
-          label: this.$i18n.t('Device Class'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'device_manufacturer',
-          label: this.$i18n.t('Device Manufacturer'),
-          sortable: true
-        },
-        {
-          key: 'device_score',
-          label: this.$i18n.t('Device Score'),
-          sortable: true
-        },
-        {
-          key: 'device_type',
-          label: this.$i18n.t('Device Type'),
-          sortable: true
-        },
-        {
-          key: 'device_version',
-          label: this.$i18n.t('Device Version'),
-          sortable: true
-        },
-        {
-          key: 'dhcp6_enterprise',
-          label: this.$i18n.t('DHCPv6 Enterprise'),
-          sortable: true
-        },
-        {
-          key: 'dhcp6_fingerprint',
-          label: this.$i18n.t('DHCPv6 Fingerprint'),
-          sortable: true
-        },
-        {
-          key: 'dhcp_fingerprint',
-          label: this.$i18n.t('DHCP Fingerprint'),
-          sortable: true
-        },
-        {
-          key: 'category_id',
-          label: this.$i18n.t('Role'),
-          sortable: true,
-          formatter: formatter.categoryId
-        },
-        {
-          key: 'locationlog.connection_type',
-          label: this.$i18n.t('Connection Type'),
-          sortable: true
-        },
-        {
-          key: 'locationlog.session_id',
-          label: this.$i18n.t('Session ID'),
-          sortable: true
-        },
-        {
-          key: 'locationlog.switch',
-          label: this.$i18n.t('Switch Identifier'),
-          sortable: true
-        },
-        {
-          key: 'locationlog.switch_ip',
-          label: this.$i18n.t('Switch IP Address'),
-          sortable: true
-        },
-        {
-          key: 'locationlog.switch_mac',
-          label: this.$i18n.t('Switch MAC Address'),
-          sortable: true
-        },
-        {
-          key: 'locationlog.ssid',
-          label: this.$i18n.t('SSID'),
-          sortable: true
-        },
-        {
-          key: 'locationlog.vlan',
-          label: this.$i18n.t('VLAN'),
-          sortable: true
-        },
-        {
-          key: 'bypass_vlan',
-          label: this.$i18n.t('Bypass VLAN'),
-          sortable: true
-        },
-        {
-          key: 'bypass_role_id',
-          label: this.$i18n.t('Bypass Role'),
-          sortable: true,
-          formatter: formatter.bypassRoleId
-        },
-        {
-          key: 'notes',
-          label: this.$i18n.t('Notes'),
-          sortable: true
-        },
-        {
-          key: 'voip',
-          label: this.$i18n.t('VoIP'),
-          sortable: true
-        },
-        {
-          key: 'last_arp',
-          label: this.$i18n.t('Last ARP'),
-          sortable: true,
-          formatter: formatter.datetimeIgnoreZero,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'last_dhcp',
-          label: this.$i18n.t('Last DHCP'),
-          sortable: true,
-          formatter: formatter.datetimeIgnoreZero,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'machine_account',
-          label: this.$i18n.t('Machine Account'),
-          sortable: true
-        },
-        {
-          key: 'autoreg',
-          label: this.$i18n.t('Auto Registration'),
-          sortable: true
-        },
-        {
-          key: 'bandwidth_balance',
-          label: this.$i18n.t('Bandwidth Balance'),
-          sortable: true
-        },
-        {
-          key: 'time_balance',
-          label: this.$i18n.t('Time Balance'),
-          sortable: true
-        },
-        {
-          key: 'user_agent',
-          label: this.$i18n.t('User Agent'),
-          sortable: true
-        },
-        {
-          key: 'security_event.open_security_event_id',
-          label: this.$i18n.t('Security Event Open'),
-          sortable: true,
-          class: 'text-nowrap',
-          formatter: (this.$can.apply(null, ['read', 'security_events']))
-            ? formatter.securityEventIdsToDescCsv
-            : formatter.noAdminRolePermission
-        },
-        /* TODO - #4166
-        {
-          key: 'security_event.open_count',
-          label: this.$i18n.t('Security Event Open Count'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        */
-        {
-          key: 'security_event.close_security_event_id',
-          label: this.$i18n.t('Security Event Closed'),
-          sortable: true,
-          class: 'text-nowrap',
-          formatter: (this.$can.apply(null, ['read', 'security_events']))
-            ? formatter.securityEventIdsToDescCsv
-            : formatter.noAdminRolePermission
-        }
-        /* TODO - #4166
-        {
-          key: 'security_event.close_count',
-          label: this.$i18n.t('Security Event Closed Count'),
-          sortable: true,
-          class: 'text-nowrap'
-        }
-        */
-      ],
+      genders: pfFieldTypeValues[pfFieldType.GENDER](),
+      nodeFields, // ../_config/
       nodeSortBy: 'status',
       nodeSortDesc: false,
-      securityEventFields: [
-        {
-          key: 'status',
-          label: this.$i18n.t('Status'),
-          sortable: true
-        },
-        {
-          key: 'security_event_id',
-          label: this.$i18n.t('Event'),
-          required: true,
-          sortable: true,
-          formatter: (this.$can.apply(null, ['read', 'security_events']))
-            ? formatter.securityEventIdToDesc
-            : formatter.noAdminRolePermission
-        },
-        {
-          key: 'mac',
-          label: this.$i18n.t('MAC'),
-          sortable: true
-        },
-        {
-          key: 'notes',
-          label: this.$i18n.t('Description'),
-          sortable: true
-        },
-        {
-          key: 'start_date',
-          label: this.$i18n.t('Start Date'),
-          sortable: true,
-          formatter: formatter.datetimeIgnoreZero
-        },
-        {
-          key: 'release_date',
-          label: this.$i18n.t('Release Date'),
-          sortable: true,
-          formatter: formatter.datetimeIgnoreZero
-        },
-        {
-          key: 'buttons',
-          label: '',
-          locked: true
-        }
-      ],
+      securityEventFields, // ../_config/
       securityEventSortBy: 'start_date',
       securityEventSortDesc: true
     }
   },
-  validations () {
-    return {
-      userContent: buildValidationFromTableSchemas(
-        schema.person, // use `person` table schema
-        // schema.password, // use `password` table schema
-        { sponsor: schema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
-        {
-          valid_from: {
-            [this.$i18n.t('Start date required.')]: conditional(!this.hasPassword || (!!this.userContent.valid_from && this.userContent.valid_from !== '0000-00-00')),
-            [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.userContent.valid_from), not(compareDate('<=', this.userContent.expiration, 'YYYY-MM-DD'))))
-          },
-          expiration: {
-            [this.$i18n.t('End date required.')]: conditional(!this.hasPassword || (!!this.userContent.expiration && this.userContent.expiration !== '0000-00-00')),
-            [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.userContent.expiration), not(compareDate('>=', this.userContent.valid_from, 'YYYY-MM-DD'))))
-          },
-          // additional custom validations ...
-          email: {
-            [this.$i18n.t('Email address required.')]: required
-          },
-          psk: {
-            [this.$i18n.t('Minimum 8 characters.')]: minLength(8)
-          }
-        },
-        { actions: this.actionsValidations }
-      )
-    }
-  },
   computed: {
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+    },
     node () {
       return this.$store.state.$_users.users[this.pid]
     },
     isLoading () {
       return this.$store.getters['$_users/isLoading']
     },
-    invalidForm () {
-      return this.$v.userContent.$invalid || this.$store.getters['$_users/isLoading']
-    },
     hasNodes () {
-      return this.userContent.nodes && this.userContent.nodes.length > 0
+      const { form: { nodes = [] } = {} } = this
+      return nodes.length > 0
     },
     hasOpenSecurityEvents () {
-      return this.userContent.security_events.findIndex(securityEvent => securityEvent.status === 'open') > -1
+      const { form: { security_events = [] } = {} } = this
+      return security_events.findIndex(securityEvent => securityEvent.status === 'open') > -1
     },
     isDefaultUser () {
-      return this.userContent.pid === 'default'
+      const { form: { pid } = {} } = this
+      return pid === 'default'
     },
     visibleNodeFields () {
       return this.nodeFields.filter(field => field.visible || field.locked)
+    },
+    disableSave () {
+      return this.invalidForm || this.isLoading
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -663,15 +329,11 @@ export default {
     }
   },
   methods: {
-    ifTab (set) {
-      return this.$refs.tabs &&
-        this.$refs.tabs.tabs[this.tabIndex] &&
-        set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
-    },
     init () {
-      this.$store.dispatch('$_users/getUser', this.pid).then(user => {
-        this.userContent = user
-        this.hasPassword = !!user.expiration
+      this.$store.dispatch('$_users/getUser', this.pid).then(form => {
+        // setup form store module
+        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, updateValidators)
       })
     },
     close () {
@@ -682,9 +344,9 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_users/updateUser', this.userContent).then(() => {
-        if (this.hasPassword) {
-          this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.userContent))
+      this.$store.dispatch('$_users/updateUser', this.form).then(() => {
+        if (!!this.form.expiration) { // has password
+          this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form))
         }
         if (actionKey) { // [CTRL] key pressed
           this.close()
@@ -708,24 +370,33 @@ export default {
     },
     unassignNodes () {
       this.$store.dispatch('$_users/unassignUserNodes', this.pid).then(() => {
-        this.userContent.nodes = []
+        this.form.nodes = []
       })
     },
     resetPassword () {
       const data = {
         pid: this.pid,
         tenant_id: this.tenant_id,
-        password: this.userContent.password,
-        login_remaining: this.userContent.login_remaining
+        password: this.form.password,
+        login_remaining: this.form.login_remaining
       }
       this.$store.dispatch('$_users/updatePassword', data)
     },
     toggleDeviceColumn (column) {
       const index = this.nodeFields.findIndex(field => field.key === column.key)
       this.$set(this.nodeFields[index], 'visible', !this.nodeFields[index].visible)
+    },
+    ifTab (set) {
+      return this.$refs.tabs &&
+        this.$refs.tabs.tabs[this.tabIndex] &&
+        set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
     }
   },
   mounted () {
+    this.$store.dispatch('config/getAdminRoles')
+    this.$store.dispatch('config/getRoles')
+    this.$store.dispatch('config/getTenants')
+    this.$store.dispatch('config/getBaseGuestsAdminRegistration') // for access durations
     this.init()
   },
   watch: {

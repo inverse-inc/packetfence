@@ -147,10 +147,10 @@ import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
 import UsersPreviewModal from './UsersPreviewModal'
-import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
+import { pfActions } from '@/globals/pfActions'
 import {
   pfDatabaseSchema as schema,
-  buildValidationFromColumnSchemas
+  buildValidatorsFromColumnSchemas
 } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
@@ -200,105 +200,105 @@ export default {
           text: this.$i18n.t('PID'),
           types: [fieldType.SUBSTRING],
           required: true,
-          validators: buildValidationFromColumnSchemas(schema.person.pid, { required })
+          validators: buildValidatorsFromColumnSchemas(schema.person.pid, { required })
         },
         {
           value: 'password',
           text: this.$i18n.t('Password'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.password.password)
+          validators: buildValidatorsFromColumnSchemas(schema.password.password)
         },
         {
           value: 'title',
           text: this.$i18n.t('Title'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.title)
+          validators: buildValidatorsFromColumnSchemas(schema.person.title)
         },
         {
           value: 'firstname',
           text: this.$i18n.t('First Name'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.firstname)
+          validators: buildValidatorsFromColumnSchemas(schema.person.firstname)
         },
         {
           value: 'lastname',
           text: this.$i18n.t('Last Name'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.lastname)
+          validators: buildValidatorsFromColumnSchemas(schema.person.lastname)
         },
         {
           value: 'nickname',
           text: this.$i18n.t('Nickname'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.nickname)
+          validators: buildValidatorsFromColumnSchemas(schema.person.nickname)
         },
         {
           value: 'email',
           text: this.$i18n.t('Email'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.email)
+          validators: buildValidatorsFromColumnSchemas(schema.person.email)
         },
         {
           value: 'sponsor',
           text: this.$i18n.t('Sponsor'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.sponsor)
+          validators: buildValidatorsFromColumnSchemas(schema.person.sponsor)
         },
         {
           value: 'anniversary',
           text: this.$i18n.t('Anniversary'),
           types: [fieldType.DATE],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.anniversary)
+          validators: buildValidatorsFromColumnSchemas(schema.person.anniversary)
         },
         {
           value: 'birthday',
           text: this.$i18n.t('Birthday'),
           types: [fieldType.DATE],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.birthday)
+          validators: buildValidatorsFromColumnSchemas(schema.person.birthday)
         },
         {
           value: 'address',
           text: this.$i18n.t('Address'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.address)
+          validators: buildValidatorsFromColumnSchemas(schema.person.address)
         },
         {
           value: 'apartment_number',
           text: this.$i18n.t('Apartment Number'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.apartment_number)
+          validators: buildValidatorsFromColumnSchemas(schema.person.apartment_number)
         },
         {
           value: 'building_number',
           text: this.$i18n.t('Building Number'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.building_number)
+          validators: buildValidatorsFromColumnSchemas(schema.person.building_number)
         },
         {
           value: 'room_number',
           text: this.$i18n.t('Room Number'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.room_number)
+          validators: buildValidatorsFromColumnSchemas(schema.person.room_number)
         },
         {
           value: 'company',
           text: this.$i18n.t('Company'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.company)
+          validators: buildValidatorsFromColumnSchemas(schema.person.company)
         },
         {
           value: 'gender',
@@ -306,126 +306,126 @@ export default {
           types: [fieldType.GENDER],
           required: false,
           formatter: formatter.genderFromString,
-          validators: buildValidationFromColumnSchemas(schema.person.gender)
+          validators: buildValidatorsFromColumnSchemas(schema.person.gender)
         },
         {
           value: 'lang',
           text: this.$i18n.t('Language'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.lang)
+          validators: buildValidatorsFromColumnSchemas(schema.person.lang)
         },
         {
           value: 'notes',
           text: this.$i18n.t('Notes'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.notes)
+          validators: buildValidatorsFromColumnSchemas(schema.person.notes)
         },
         {
           value: 'portal',
           text: this.$i18n.t('Portal'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.portal)
+          validators: buildValidatorsFromColumnSchemas(schema.person.portal)
         },
         {
           value: 'psk',
           text: this.$i18n.t('PSK'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.psk)
+          validators: buildValidatorsFromColumnSchemas(schema.person.psk)
         },
         {
           value: 'source',
           text: this.$i18n.t('Source'),
           types: [fieldType.SOURCE],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.source, { [this.$i18n.t('Invalid source.')]: sourceExists })
+          validators: buildValidatorsFromColumnSchemas(schema.person.source, { [this.$i18n.t('Invalid source.')]: sourceExists })
         },
         {
           value: 'telephone',
           text: this.$i18n.t('Telephone'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.telephone)
+          validators: buildValidatorsFromColumnSchemas(schema.person.telephone)
         },
         {
           value: 'cell_phone',
           text: this.$i18n.t('Cellular Phone'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.cell_phone)
+          validators: buildValidatorsFromColumnSchemas(schema.person.cell_phone)
         },
         {
           value: 'work_phone',
           text: this.$i18n.t('Work Phone'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.work_phone)
+          validators: buildValidatorsFromColumnSchemas(schema.person.work_phone)
         },
         {
           value: 'custom_field_1',
           text: this.$i18n.t('Custom Field 1'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_1)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_1)
         },
         {
           value: 'custom_field_2',
           text: this.$i18n.t('Custom Field 2'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_2)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_2)
         },
         {
           value: 'custom_field_3',
           text: this.$i18n.t('Custom Field 3'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_3)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_3)
         },
         {
           value: 'custom_field_4',
           text: this.$i18n.t('Custom Field 4'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_4)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_4)
         },
         {
           value: 'custom_field_5',
           text: this.$i18n.t('Custom Field 5'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_5)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_5)
         },
         {
           value: 'custom_field_6',
           text: this.$i18n.t('Custom Field 6'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_6)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_6)
         },
         {
           value: 'custom_field_7',
           text: this.$i18n.t('Custom Field 7'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_7)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_7)
         },
         {
           value: 'custom_field_8',
           text: this.$i18n.t('Custom Field 8'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_8)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_8)
         },
         {
           value: 'custom_field_9',
           text: this.$i18n.t('Custom Field 9'),
           types: [fieldType.SUBSTRING],
           required: false,
-          validators: buildValidationFromColumnSchemas(schema.person.custom_field_9)
+          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_9)
         }
       ],
       localUser: {
@@ -450,13 +450,13 @@ export default {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
           fields: [
-            pfConfigurationActions.set_access_duration_by_acl_user,
-            pfConfigurationActions.set_access_level_by_acl_user,
-            pfConfigurationActions.mark_as_sponsor,
-            pfConfigurationActions.set_role_by_acl_user,
-            pfConfigurationActions.set_access_durations,
-            pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unreg_date_by_acl_user
+            pfActions.set_access_duration_by_acl_user,
+            pfActions.set_access_level_by_acl_user,
+            pfActions.mark_as_sponsor,
+            pfActions.set_role_by_acl_user,
+            pfActions.set_access_durations,
+            pfActions.set_tenant_id,
+            pfActions.set_unreg_date_by_acl_user
           ]
         }
       },
