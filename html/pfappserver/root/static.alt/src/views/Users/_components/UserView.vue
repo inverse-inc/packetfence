@@ -72,11 +72,11 @@
           />
           <pf-form-datetime :column-label="$t('Anniversary')"
             :formStoreName="formStoreName" formNamespace="anniversary"
-            :config="{datetimeFormat: 'YYYY-MM-DD'}"
+            :config="{datetimeFormat: schema.person.anniversary.format}"
           />
           <pf-form-datetime :column-label="$t('Birthday')"
             :formStoreName="formStoreName" formNamespace="birthday"
-            :config="{datetimeFormat: 'YYYY-MM-DD'}"
+            :config="{datetimeFormat: schema.person.birthday.format}"
           />
           <pf-form-input :column-label="$t('Psk')"
             :formStoreName="formStoreName" formNamespace="psk"
@@ -98,8 +98,9 @@
           />
           <pf-form-input :column-label="$t('Login remaining')"
             :formStoreName="formStoreName" formNamespace="login_remaining"
-            :text="$t('Leave empty to allow unlimited logins.')"/>
+            :text="$t('Leave empty to allow unlimited logins.')"
             type="number"
+          />
         </b-tab>
 
         <b-tab title="Actions" v-if="!!form.expiration">
@@ -109,14 +110,14 @@
               <b-col>
                 <pf-form-datetime
                   :formStoreName="formStoreName" formNamespace="valid_from"
-                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
                 <pf-form-datetime
                   :formStoreName="formStoreName" formNamespace="expiration"
-                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                 />
               </b-col>
             </b-row>
@@ -127,7 +128,7 @@
             :button-label="$t('Add Action')"
             :field="actionField"
             sortable
-          ></pf-form-fields>
+          />
         </b-tab>
 
         <b-tab title="Custom Fields">
@@ -238,6 +239,7 @@ import {
   securityEventFields,
   updateValidators
 } from '../_config/'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import {
   pfFieldType,
   pfFieldTypeValues
@@ -270,6 +272,7 @@ export default {
   },
   data () {
     return {
+      schema, // @/globals/pfDatabaseSchema
       tabIndex: 0,
       tabTitle: '',
       userContent: { nodes: [], security_events: [] },

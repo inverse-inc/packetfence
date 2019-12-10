@@ -84,11 +84,11 @@
                 />
                 <pf-form-datetime :column-label="$t('Anniversary')"
                   :formStoreName="formStoreName" formNamespace="single.anniversary"
-                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: schema.person.anniversary.format}"
                 />
                 <pf-form-datetime :column-label="$t('Birthday')"
                   :formStoreName="formStoreName" formNamespace="single.birthday"
-                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: schema.person.birthday.format}"
                 />
                 <pf-form-input :column-label="$t('Psk')"
                   :formStoreName="formStoreName" formNamespace="single.psk"
@@ -201,7 +201,7 @@
                   <pf-form-datetime
                     :formStoreName="formStoreName" formNamespace="common.valid_from"
                     :min="new Date()"
-                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                    :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                   />
                 </b-col>
                 <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
@@ -209,7 +209,7 @@
                   <pf-form-datetime
                     :formStoreName="formStoreName" formNamespace="common.expiration"
                     :min="new Date()"
-                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                    :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                   />
                 </b-col>
               </b-row>
@@ -250,6 +250,7 @@ import pfFormRow from '@/components/pfFormRow'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import password from '@/utils/password'
 import UsersPreviewModal from './UsersPreviewModal'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import {
   pfFieldType,
   pfFieldTypeValues
@@ -283,6 +284,7 @@ export default {
   },
   data () {
     return {
+      schema, // @/globals/pfDatabaseSchema
       actionField: {
         component: pfFieldTypeValue,
         attrs: {
