@@ -6,6 +6,10 @@ export default {
   namespaced: true,
   state: () => {
     return {
+      $meta: {},
+      $metaStatus: '',
+      $metaMessage: '',
+
       $form: {},
       $formStatus: '',
       $formMessage: '',
@@ -19,6 +23,10 @@ export default {
   },
   getters: { // { state, getters, rootState, rootGetters }
     isLoading: (state, getters) => getters.$formLoading || getters.$validationsLoading,
+    $meta: (state) => state.$meta,
+    $metaLoading: (state) => state.$metaStatus === types.LOADING,
+    $metaMessage: (state) => state.$metaMessage,
+    $metaStatus: (state) => state.$metaStatus,
     $form: (state) => state.$form,
     $formLoading: (state) => state.$formStatus === types.LOADING,
     $formMessage: (state) => state.$formMessage,
@@ -49,7 +57,7 @@ export default {
         validations () {
           return {
             $form: (state.$validations.$form.constructor === Function)
-              ? state.$validations.$form(state.$form)
+              ? state.$validations.$form(state.$form, state.$meta)
               : state.$validations.$form
           }
         }
@@ -129,6 +137,21 @@ export default {
     $touch: ({ getters }) => {
       getters.$validator.$v.$touch()
     },
+    clearMeta: ({ commit }) => {
+      commit('SET_META_SUCCESS', {})
+    },
+    setMeta: ({ state, commit }, meta) => {
+      commit('SET_META_REQUEST')
+      return new Promise((resolve, reject) => {
+        Promise.resolve(meta).then(meta => {
+          commit('SET_META_SUCCESS', meta)
+          resolve(state.$meta)
+        }).catch(err => {
+          commit('SET_META_ERROR', err)
+          reject(err)
+        })
+      })
+    },
     clearForm: ({ commit }) => {
       commit('SET_FORM_SUCCESS', {})
     },
@@ -161,6 +184,19 @@ export default {
     }
   },
   mutations: { // state
+    SET_META_REQUEST: (state) => {
+      state.$metaStatus = types.LOADING
+    },
+    SET_META_ERROR: (state, data) => {
+      state.$metaStatus = types.ERROR
+      const { response: { data: { message = '' } = {} } = {} } = data
+      state.$metaMessage = message
+    },
+    SET_META_SUCCESS: (state, form) => {
+      state.$meta = Object.assign({}, form) // dereference to avoid mutations
+      state.$metaStatus = types.SUCCESS
+      state.$metaMessage = ''
+    },
     SET_FORM_REQUEST: (state) => {
       state.$formStatus = types.LOADING
     },
