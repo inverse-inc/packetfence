@@ -215,7 +215,7 @@ export const updateValidators = (form = {}) => {
       psk: {
         [i18n.t('Minimum 8 characters.')]: minLength(8)
       },
-      actions: actionValidators(form)
+      actions: (hasPassword) ? actionValidators(form) : {}
     }
   )
 }
