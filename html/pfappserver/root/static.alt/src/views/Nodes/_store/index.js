@@ -154,7 +154,16 @@ const actions = {
     if (state.nodes[mac]) {
       commit('NODE_DESTROYED', mac)
     }
-    return dispatch('getNode', mac)
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      dispatch('getNode', mac).then(() => {
+        commit('NODE_SUCCESS')
+        resolve(state.nodes[mac])
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
   },
   createNode: ({ commit }, data) => {
     commit('NODE_REQUEST')

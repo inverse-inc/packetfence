@@ -146,7 +146,7 @@ export default {
         })
       })
     },
-    clearFormValidations: ({ commit } => {
+    clearFormValidations: ({ commit }) => {
       commit('SET_FORM_VALIDATIONS_SUCCESS', {})
     },
     setFormValidations: ({ state, commit, dispatch }, validations) => {

@@ -56,7 +56,6 @@
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 :formStoreName="formStoreName" formNamespace="notes"
-                v-model="nodeContent.notes"
                 rows="3" max-rows="3"
               />
             </b-col>
@@ -485,6 +484,8 @@ export default {
   methods: {
     init () {
       // setup form store module
+      this.$store.dispatch(`${this.formStoreName}/clearForm`)
+      this.$store.dispatch(`${this.formStoreName}/clearFormValidations`)
       this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
         this.$store.dispatch(`${this.formStoreName}/setForm`, node)
         this.$store.dispatch(`${this.formStoreName}/setFormValidations`, updateValidators)

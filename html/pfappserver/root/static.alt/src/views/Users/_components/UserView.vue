@@ -308,11 +308,11 @@ export default {
     },
     hasNodes () {
       const { form: { nodes = [] } = {} } = this
-      return nodes.length > 0
+      return (Array.isArray(nodes) && nodes.length > 0)
     },
     hasOpenSecurityEvents () {
       const { form: { security_events = [] } = {} } = this
-      return security_events.findIndex(securityEvent => securityEvent.status === 'open') > -1
+      return (Array.isArray(security_events) && security_events.findIndex(securityEvent => securityEvent.status === 'open') > -1)
     },
     isDefaultUser () {
       const { form: { pid } = {} } = this
@@ -333,9 +333,11 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_users/getUser', this.pid).then(form => {
+      this.$store.dispatch(`${this.formStoreName}/clearForm`)
+      this.$store.dispatch(`${this.formStoreName}/clearFormValidations`)
+      this.$store.dispatch('$_users/getUser', this.pid).then(user => {
         // setup form store module
-        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+        this.$store.dispatch(`${this.formStoreName}/setForm`, user)
         this.$store.dispatch(`${this.formStoreName}/setFormValidations`, updateValidators)
       })
     },
@@ -343,7 +345,9 @@ export default {
       this.$router.back()
     },
     refresh () {
-      this.$store.dispatch('$_users/refreshUser', this.pid)
+      this.$store.dispatch('$_users/refreshUser', this.pid).then(user => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, user)
+      })
     },
     save () {
       const actionKey = this.actionKey
