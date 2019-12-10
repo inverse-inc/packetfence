@@ -416,32 +416,34 @@ DELIMITER /
 CREATE OR REPLACE TRIGGER locationlog_insert_in_history_after_insert AFTER UPDATE on locationlog
 FOR EACH ROW
 BEGIN
-    INSERT INTO locationlog_history
-    SET
-        tenant_id = OLD.tenant_id,
-        mac = OLD.mac,
-        switch = OLD.switch,
-        port = OLD.port,
-        vlan = OLD.vlan,
-        role = OLD.role,
-        connection_type = OLD.connection_type,
-        connection_sub_type = OLD.connection_sub_type,
-        dot1x_username = OLD.dot1x_username,
-        ssid = OLD.ssid,
-        start_time = OLD.start_time,
-        end_time = CASE
-        WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
-        WHEN OLD.end_time > NOW() THEN NOW()
-        ELSE OLD.end_time
-        END,
-        switch_ip = OLD.switch_ip,
-        switch_mac = OLD.switch_mac,
-        stripped_user_name = OLD.stripped_user_name,
-        realm = OLD.realm,
-        session_id = OLD.session_id,
-        ifDesc = OLD.ifDesc,
-        voip = OLD.voip
-    ;
+    IF OLD.session_id = NEW.session_id THEN
+        INSERT INTO locationlog_history
+        SET
+            tenant_id = OLD.tenant_id,
+            mac = OLD.mac,
+            switch = OLD.switch,
+            port = OLD.port,
+            vlan = OLD.vlan,
+            role = OLD.role,
+            connection_type = OLD.connection_type,
+            connection_sub_type = OLD.connection_sub_type,
+            dot1x_username = OLD.dot1x_username,
+            ssid = OLD.ssid,
+            start_time = OLD.start_time,
+            end_time = CASE
+            WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
+            WHEN OLD.end_time > NOW() THEN NOW()
+            ELSE OLD.end_time
+            END,
+            switch_ip = OLD.switch_ip,
+            switch_mac = OLD.switch_mac,
+            stripped_user_name = OLD.stripped_user_name,
+            realm = OLD.realm,
+            session_id = OLD.session_id,
+            ifDesc = OLD.ifDesc,
+            voip = OLD.voip
+        ;
+  END IF;
 END /
 DELIMITER ;
 
