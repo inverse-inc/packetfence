@@ -31,6 +31,7 @@
         label="name"
         track-by="value"
         :multiple="isComponentType([componentType.SELECTMANY])"
+        :close-on-select="isComponentType([componentType.SELECTONE])"
         :placeholder="placeholder"
         :disabled="disabled"
       ></pf-form-chosen>
