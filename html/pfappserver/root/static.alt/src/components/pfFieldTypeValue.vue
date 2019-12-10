@@ -244,11 +244,17 @@ export default {
   watch: {
     localType: {
       handler: function (a, b) {
-        if (!this.drag) { // don't focus when being dragged
-          this.$nextTick(() => {
-            this.focus()
-          })
-        }
+        this.$nextTick(() => {
+          const field = this.field
+          if ('staticValue' in field) {
+            this.$set(this.formStoreValue, 'value', field.staticValue) // set static value
+          } else {
+            this.$set(this.formStoreValue, 'value', null) // clear value
+            if (!this.drag) { // don't focus when being dragged
+              this.focus()
+            }
+          }
+        })
       }
     }
   }
