@@ -13,7 +13,7 @@ import {
 } from '@/globals/configuration/pfConfiguration'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import { pfLocales as locales } from '@/globals/pfLocales'
+import { pfLocalesList as localesList } from '@/globals/pfLocales'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -948,7 +948,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Locale'),
                 emptyText: i18n.t('With no language specified, all supported locales will be available.'),
-                maxFields: locales.length,
+                maxFields: localesList.length,
                 sortable: true,
                 field: {
                   component: pfField,
@@ -960,7 +960,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         placeholder: i18n.t('Click to select a locale'),
                         trackBy: 'value',
                         label: 'text',
-                        options: locales
+                        options: localesList
                       },
                       validators: {
                         [i18n.t('Locale required.')]: required,

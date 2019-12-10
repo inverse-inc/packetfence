@@ -9,4 +9,6 @@ export const pfLocales = [
   'nl_NL',
   'pl_PL',
   'pt_BR'
-].map(locale => { return { text: locale, value: locale } })
+]
+
+export const pfLocalesList = pfLocales.map(locale => { return { text: locale, value: locale } })
