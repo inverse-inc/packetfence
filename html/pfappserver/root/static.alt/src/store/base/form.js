@@ -22,7 +22,7 @@ export default {
     }
   },
   getters: { // { state, getters, rootState, rootGetters }
-    isLoading: (state, getters) => getters.$formLoading || getters.$validationsLoading,
+    isLoading: (state, getters) => getters.$metaLoading || getters.$formLoading || getters.$validationsLoading,
     $meta: (state) => state.$meta,
     $metaLoading: (state) => state.$metaStatus === types.LOADING,
     $metaMessage: (state) => state.$metaMessage,
@@ -137,6 +137,16 @@ export default {
     $touch: ({ getters }) => {
       getters.$validator.$v.$touch()
     },
+    setOptions: ({ dispatch }, options) => { // shortcut for setMeta
+      return new Promise((resolve, reject) => {
+        const { meta } = options
+        dispatch('setMeta', meta).then(response => {
+          resolve(response)
+        }).catch(err => {
+          reject(err)
+        })
+      })
+    },
     clearMeta: ({ commit }) => {
       commit('SET_META_SUCCESS', {})
     },
@@ -192,8 +202,8 @@ export default {
       const { response: { data: { message = '' } = {} } = {} } = data
       state.$metaMessage = message
     },
-    SET_META_SUCCESS: (state, form) => {
-      state.$meta = Object.assign({}, form) // dereference to avoid mutations
+    SET_META_SUCCESS: (state, meta) => {
+      state.$meta = Object.assign({}, meta) // dereference to avoid mutations
       state.$metaStatus = types.SUCCESS
       state.$metaMessage = ''
     },
