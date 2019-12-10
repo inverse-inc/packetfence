@@ -131,6 +131,9 @@ export default {
     $touch: ({ getters }) => {
       getters.$validator.$v.$touch()
     },
+    clearForm: ({ commit }) => {
+      commit('SET_FORM_SUCCESS', {})
+    },
     setForm: ({ state, commit }, form) => {
       commit('SET_FORM_REQUEST')
       return new Promise((resolve, reject) => {
@@ -142,6 +145,9 @@ export default {
           reject(err)
         })
       })
+    },
+    clearFormValidations: ({ commit } => {
+      commit('SET_FORM_VALIDATIONS_SUCCESS', {})
     },
     setFormValidations: ({ state, commit, dispatch }, validations) => {
       commit('SET_FORM_VALIDATIONS_REQUEST')
