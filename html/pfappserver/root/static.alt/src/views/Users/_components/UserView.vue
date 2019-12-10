@@ -207,7 +207,7 @@
           </b-table>
         </b-tab>
       </b-tabs>
-      <b-card-footer @mouseenter="$v.$touch()">
+      <b-card-footer>
         <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Actions', 'Custom Fields'])" :disabled="disableSave" :isLoading="isLoading">
           <template v-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>

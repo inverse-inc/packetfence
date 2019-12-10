@@ -140,7 +140,7 @@ export const createValidators = (form = {}) => {
     } = {},
     common: {
       valid_from,
-      expiration
+      expiration,
     } = {}
   } = form
   const prefixMaxLength = pfDatabaseSchema.person.pid.maxLength - Math.floor(Math.log10(quantity || 1) + 1)
@@ -189,7 +189,7 @@ export const createValidators = (form = {}) => {
         [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
         [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
       },
-      actions: actionValidators(form)
+      actions: actionValidators(form.common)
     }
   }
 }
