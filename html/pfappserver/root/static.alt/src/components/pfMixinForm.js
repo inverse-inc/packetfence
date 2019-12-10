@@ -54,7 +54,7 @@ export default {
     },
     inputAnyState () {
       if (this.formStoreName) {
-        const { $model = {}, $each = {} } = this.$store.getters[`${this.formStoreName}/$vuelidateNS`](this.formNamespace)  // use FormStore
+        const { $model = {}, $each = {} } = this.$store.getters[`${this.formStoreName}/$vuelidateNS`](this.formNamespace) // use FormStore
         for (let item of Object.keys($model)) {
           const { $invalid = false } = $each[item]
           if ($invalid) return this.stateMap[false]

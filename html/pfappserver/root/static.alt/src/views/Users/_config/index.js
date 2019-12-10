@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import store from '@/store'
 import i18n from '@/utils/locale'
 import { pfActions } from '@/globals/pfActions'
@@ -57,10 +58,10 @@ export const actionValidators = (form = {}) => {
         /* 'set_unreg_date' requires 'set_role' */
         [i18n.t('Action requires "Set Role".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_role').length > 0),
         /* 'set_unreg_date' restricts 'set_access_duration' */
-        [i18n.t('Action conflicts with "Access duration".')]:  conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_access_duration').length === 0)
+        [i18n.t('Action conflicts with "Access duration".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_access_duration').length === 0)
       },
       value: {
-        [i18n.t('Value required')]: required,
+        [i18n.t('Value required')]: required
       }
     }
   }
@@ -688,7 +689,7 @@ export const nodeFields = [
     key: 'user_agent',
     label: i18n.t('User Agent'),
     sortable: true
-  },
+  }
   /* TODO $can
   {
     key: 'security_event.open_security_event_id',

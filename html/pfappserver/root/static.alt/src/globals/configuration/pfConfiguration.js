@@ -1,6 +1,5 @@
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
-import { pfActions } from '@/globals/pfActions'
 import {
   isPattern
 } from '@/globals/pfValidators'

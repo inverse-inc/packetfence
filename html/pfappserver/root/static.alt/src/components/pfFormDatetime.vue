@@ -17,7 +17,7 @@
  -->
  <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus}">
     <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
@@ -33,8 +33,8 @@
         :key="locale"
         :config="flatpickrConfig"
         :state="inputState"
-        @focus.native="focus = true"
-        @blur.native="focus = false"
+        @focus.native="isFocus = true"
+        @blur.native="isFocus = false"
       ></flat-pickr>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
@@ -122,7 +122,7 @@ export default {
         time_24hr: true
       },
       initialValue: undefined,
-      focus: false
+      isFocus: false
     }
   },
   computed: {

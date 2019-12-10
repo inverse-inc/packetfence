@@ -260,7 +260,6 @@ import {
   actions,
   passwordOptions
 } from '../_config/'
-import { format } from 'date-fns'
 
 export default {
   name: 'users-create',

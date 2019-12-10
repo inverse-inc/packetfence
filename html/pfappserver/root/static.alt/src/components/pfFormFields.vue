@@ -167,7 +167,6 @@ export default {
   methods: {
     rowAdd (index = 0, clone = this.actionKey) {
       let inputValue = this.inputValue || []
-      let length = inputValue.length
       let newRow = (clone && (index - 1) in inputValue)
         ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone, dereference
         : null // use placeholder

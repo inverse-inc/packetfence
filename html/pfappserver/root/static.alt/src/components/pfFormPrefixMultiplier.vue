@@ -1,6 +1,6 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
-    class="pf-form-prefix-multiplier" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    class="pf-form-prefix-multiplier" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus}">
     <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
@@ -15,8 +15,8 @@
         v-bind="$attrs"
         :state="inputState"
         type="number" pattern="[0-9]"
-        @focus.native="focus = true"
-        @blur.native="focus = false"
+        @focus.native="isFocus = true"
+        @blur.native="isFocus = false"
       ></b-form-input>
       <b-input-group-append>
         <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
@@ -36,7 +36,7 @@ export default {
   mixins: [
     pfMixinForm
   ],
-/*
+  /*
   model: {
     prop: 'realValue'
   },
@@ -132,7 +132,7 @@ export default {
           selected: false
         }
       ],
-      focus: false
+      isFocus: false
     }
   },
   computed: {
@@ -165,6 +165,7 @@ export default {
             let quotient = this.inputValue / prefixes[i].multiplier
             if (quotient >= 1 && quotient === Math.round(quotient)) {
               const index = this.prefixes.findIndex((p) => { return p.multiplier === prefixes[i].multiplier })
+              // eslint-disable-next-line vue/no-side-effects-in-computed-properties
               this.prefixes[index].selected = true
               return quotient.toString()
             }
@@ -173,6 +174,7 @@ export default {
             // no selection, select multiplier 1
             const index = this.prefixes.findIndex((prefix) => { return prefix.multiplier === 1 })
             if (index >= 0) {
+              // eslint-disable-next-line vue/no-side-effects-in-computed-properties
               this.prefixes[index].selected = true
             }
           }

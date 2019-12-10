@@ -131,7 +131,6 @@
 </template>
 
 <script>
-import { format } from 'date-fns'
 import pfCSVImport from '@/components/pfCSVImport'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormDatetime from '@/components/pfFormDatetime'

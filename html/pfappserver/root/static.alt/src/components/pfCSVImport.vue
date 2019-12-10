@@ -699,9 +699,9 @@ export default {
         const index = this.fields.findIndex(field => field.value === key)
         if (index >= 0) {
           const field = this.fields[index]
-          for (const type of this.fields[index].types) {
+          for (const type of field.types) {
             if (type in fieldTypeValues) {
-             options.push(...fieldTypeValues[type](this))
+              options.push(...fieldTypeValues[type](this))
             }
           }
         }

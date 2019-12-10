@@ -96,7 +96,7 @@ const mutations = {
   },
   $RESET: (state) => {
     const newState = initialState()
-    for (const key of Object.keys(newState)) {  // preserve reactivity
+    for (const key of Object.keys(newState)) { // preserve reactivity
       state[key] = newState[key]
     }
   }

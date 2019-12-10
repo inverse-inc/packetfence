@@ -48,7 +48,7 @@ export const updateValidators = buildValidatorsFromTableSchemas(
     pid: {
       [i18n.t('Username required.')]: required,
       [i18n.t('Owner does not exist.')]: userExists
-    },
+    }
   }
 )
 
@@ -251,7 +251,7 @@ export const securityEventFields = [
   }
 ]
 
-export const dhcpOption82Fields =[
+export const dhcpOption82Fields = [
   {
     key: 'created_at',
     label: i18n.t('Created At'),

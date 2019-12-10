@@ -139,7 +139,7 @@ export default {
       }
     },
     localType () {
-     return this.inputValue.type
+      return this.inputValue.type
     },
     localValue () {
       return this.inputValue.value

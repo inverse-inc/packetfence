@@ -32,12 +32,9 @@ export default {
     $formNS: (state, getters) => (namespace, $form = getters.$form) => {
       while (namespace) { // handle namespace
         if (!$form) break
-        let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
+        let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
         namespace = remainder.join('.')
-        if (first in $form)
-          $form = $form[first]
-        else
-          break
+        if (first in $form) { $form = $form[first] } else { break }
       }
       return $form || {}
     },
@@ -64,14 +61,15 @@ export default {
     $vuelidateNS: (state, getters) => (namespace, $v = getters.$validator.$v.$form) => {
       while (namespace) { // handle namespace
         if (!$v) break
-        let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
+        let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
         namespace = remainder.join('.')
-        if (first in $v)
-          $v = $v[first] // named property
-        else if (!isNaN(+first) && '$each' in $v && first in $v.$each)
-          $v = $v.$each[first] // index property
-        else
+        if (first in $v) { // named property
+          $v = $v[first]
+        } else if (!isNaN(+first) && '$each' in $v && first in $v.$each) { // index property
+          $v = $v.$each[first]
+        } else {
           return {}
+        }
       }
       return $v
     },
@@ -98,7 +96,7 @@ export default {
         has: (target, namespace) => true, // always satisfy
         get: (target, namespace) => {
           while (namespace) { // handle namespace
-            let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
+            let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
             if (remainder.length > 0) { // has remaining
               if (!(first in target)) Vue.set(target, first, {})
             } else { // last iteration
@@ -112,7 +110,7 @@ export default {
         },
         set: (target, namespace, value) => {
           while (namespace) { // handle namespace
-            let [ first, ...remainder ] = namespace.match(/([^\.|^\][]+)/g) // split namespace
+            let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
             if (remainder.length > 0) { // has remaining
               if (!target[first]) Vue.set(target, first, {})
             } else { // last iteration

@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /**
 * "$_nodes" store module
 */

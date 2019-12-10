@@ -8,6 +8,8 @@ import {
   limitSiblingFields,
   isValidUnregDateByAclUser
 } from '@/globals/pfValidators'
+import bytes from '@/utils/bytes'
+import i18n from '@/utils/locale'
 const {
   maxValue,
   minValue,
@@ -15,8 +17,6 @@ const {
   required,
   url
 } = require('vuelidate/lib/validators')
-import bytes from '@/utils/bytes'
-import i18n from '@/utils/locale'
 
 export const pfActionsFromMeta = (meta = {}, key = null) => {
   let fields = []
