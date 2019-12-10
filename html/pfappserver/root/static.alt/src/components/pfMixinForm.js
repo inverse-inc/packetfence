@@ -56,7 +56,7 @@ export default {
       if (this.formStoreName) {
         const { $model = {}, $each = {} } = this.$store.getters[`${this.formStoreName}/$vuelidateNS`](this.formNamespace) // use FormStore
         for (let item of Object.keys($model)) {
-          const { $invalid = false } = $each[item]
+          const { [item]: { $invalid = false } = {} } = $each
           if ($invalid) return this.stateMap[false]
         }
         return this.stateMap[true]
