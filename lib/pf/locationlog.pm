@@ -67,6 +67,7 @@ use pf::config qw(
 use pf::db;
 use pf::dal;
 use pf::dal::locationlog;
+use pf::dal::locationlog_history;
 use pf::error qw(is_error is_success);
 use pf::node;
 use pf::util;
@@ -124,12 +125,21 @@ sub locationlog_history_mac {
         $where->{start_time} = { "<" => \['from_unixtime(?)', $end_time] };
         $where->{end_time} = { ">" => \['from_unixtime(?)', $start_time] };
     }
-
-    return translate_connection_type(_db_list({
-        -columns => [
+    my $columns = [
             qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc
               UNIX_TIMESTAMP(start_time)|start_timestamp
               UNIX_TIMESTAMP(end_time)|end_timestamp)
+    ];
+
+    return translate_connection_type(_db_list({
+        -from => 'locationlog',
+        -columns => $columns,
+        -union_all => [
+            pf::dal::locationlog_history->update_params_for_select(
+                -columns => $columns,
+                -from => 'locationlog_history',
+                -where => $where,
+            )
         ],
         -where => $where,
         -order_by => [{-desc => 'start_time'}, {-desc => 'end_time'}],
@@ -153,9 +163,16 @@ sub locationlog_history_switchport {
         $where->{start_time} = { "<" => \['from_unixtime(?)', $date] };
         $where->{end_time} = { ">" => \['from_unixtime(?)', $date] };
     }
+    my $columns = [qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc)];
     return translate_connection_type(_db_list({
-        -columns => [
-            qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc)
+        -from => 'locationlog',
+        -columns => $columns,
+        -union_all => [
+            pf::dal::locationlog_history->update_params_for_select(
+                -columns => $columns,
+                -from => 'locationlog_history',
+                -where => $where,
+            )
         ],
         -where => $where,
         -order_by => [{-desc => 'start_time'}, {-desc => 'end_time'}],
@@ -208,6 +225,7 @@ sub locationlog_view_open_mac {
     return _db_item({
         -where => {
             mac => $mac,
+            end_time => $ZERO_DATE,
         },
     });
 }
