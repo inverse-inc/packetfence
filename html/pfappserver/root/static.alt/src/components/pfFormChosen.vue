@@ -178,7 +178,6 @@ export default {
     },
     multiselectValue: {
       get () {
-        const currentValue = this.inputValue || ((this.multiple) ? [] : null) // use native (v-model)
         if (this.collapseObject) {
           const options = (!this.groupValues)
             ? (this.options ? this.options : [])
@@ -187,20 +186,28 @@ export default {
               return options
             }, [])
           if (options.length === 0) { // no options
-            return (this.multiple)
-              ? [...new Set(currentValue.map(value => {
+            if (this.multiple) {
+              const currentValue = (Array.isArray(this.inputValue)) ? this.inputValue : []
+              return [...new Set(currentValue.map(value => {
                 return { [this.trackBy]: value, [this.label]: value }
               }))]
-              : { [this.trackBy]: currentValue, [this.label]: currentValue }
+            } else {
+              const currentValue = (this.inputValue) ? this.inputValue : null
+              return { [this.trackBy]: currentValue, [this.label]: currentValue }
+            }
           } else { // is options
-            return (this.multiple)
-              ? [...new Set(currentValue.map(value => {
+            if (this.multiple) {
+              const currentValue = (Array.isArray(this.inputValue)) ? this.inputValue : []
+              return [...new Set(currentValue.map(value => {
                 return options.find(option => option[this.trackBy] === value) || { [this.trackBy]: value, [this.label]: value }
               }))]
-              : options.find(option => option[this.trackBy] === currentValue) || { [this.trackBy]: currentValue, [this.label]: currentValue }
+            } else {
+              const currentValue = (this.inputValue) ? this.inputValue : null
+              return options.find(option => option[this.trackBy] === currentValue) || { [this.trackBy]: currentValue, [this.label]: currentValue }
+            }
           }
         }
-        return currentValue
+        return this.inputValue
       },
       set (newValue) {
         if (this.collapseObject) {
