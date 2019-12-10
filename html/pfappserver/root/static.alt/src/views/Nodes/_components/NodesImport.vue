@@ -15,15 +15,14 @@
             </b-button-close>
             {{ file.name }}
           </template>
-          <pf-csv-import
-            :ref="'import-' + index"
+          <pf-csv-import :ref="'import-' + index"
             :file="file"
             :fields="importFields"
-            :store-name="storeName"
             :default-static-mapping="defaultStaticMapping"
             :events-listen="tabIndex === index"
             :is-loading="isLoading"
             :import-promise="importPromise"
+            store-name="$_nodes"
             hover
             striped
           ></pf-csv-import>
@@ -54,7 +53,6 @@
 <script>
 import pfCSVImport from '@/components/pfCSVImport'
 import pfFormUpload from '@/components/pfFormUpload'
-
 import { importFields } from '../_config/'
 
 export default {
@@ -62,13 +60,6 @@ export default {
   components: {
     'pf-csv-import': pfCSVImport,
     pfFormUpload
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -89,7 +80,7 @@ export default {
     },
     importPromise (payload, dryRun) {
       return new Promise((resolve, reject) => {
-        this.$store.dispatch(`${this.storeName}/bulkImport`, payload).then(result => {
+        this.$store.dispatch('$_nodes/bulkImport', payload).then(result => {
           // do something with the result, then Promise.resolve to continue processing
           resolve(result)
         }).catch(err => {

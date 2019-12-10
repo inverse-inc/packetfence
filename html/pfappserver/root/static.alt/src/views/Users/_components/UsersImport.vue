@@ -15,15 +15,14 @@
             </b-button-close>
             {{ file.name }}
           </template>
-          <pf-csv-import
-            :ref="'import-' + index"
+          <pf-csv-import :ref="'import-' + index"
             :file="file"
-            :fields="fields"
-            :store-name="storeName"
+            :fields="importFields"
             :events-listen="tabIndex === index"
             :is-loading="isLoading"
-            :is-slot-error="$v.$invalid"
+            :is-slot-error="invalidForm"
             :import-promise="importPromise"
+            store-name="$_users"
             hover
             striped
           >
@@ -36,32 +35,26 @@
                 <b-form-group label-cols="3" :label="$t('Registration Window')">
                   <b-row>
                     <b-col>
-                      <pf-form-datetime v-model="localUser.valid_from"
+                      <pf-form-datetime
+                        :formStoreName="formStoreName" formNamespace="valid_from"
                         :min="new Date()"
-                        :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                        :vuelidate="$v.localUser.valid_from"
+                        :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                       />
                     </b-col>
                     <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
                     <b-col>
-                      <pf-form-datetime v-model="localUser.expiration"
+                      <pf-form-datetime
+                        :formStoreName="formStoreName" formNamespace="expiration"
                         :min="new Date()"
-                        :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                        :vuelidate="$v.localUser.expiration"
+                        :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                       />
                     </b-col>
                   </b-row>
                 </b-form-group>
-                <pf-form-fields
-                  v-model="localUser.actions"
-                  :column-label="$t('Actions')"
+                <pf-form-fields :column-label="$t('Actions')"
+                  :formStoreName="formStoreName" formNamespace="actions"
                   :button-label="$t('Add Action')"
                   :field="actionField"
-                  :vuelidate="$v.localUser.actions"
-                  :invalid-feedback="[
-                    { [$t('One or more errors exist.')]: $v.localUser.actions.$invalid }
-                  ]"
-                  @validations="actionsValidations = $event"
                   sortable
                 ></pf-form-fields>
                 <pf-form-row align-v="start" :column-label="$t('Password Options')">
@@ -71,37 +64,38 @@
                   <b-row>
                     <b-col cols="6">
                       <pf-form-input class="p-0" type="range" min="6" max="32"
-                        v-model="passwordGenerator.pwlength"
+                        v-model="passwordOptions.pwlength"
                         :column-label="$t('Length')"
-                        :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
+                        :text="$t('{count} characters', { count: passwordOptions.pwlength })"
+                      />
                       <pf-form-toggle
-                        v-model="passwordGenerator.upper"
+                        v-model="passwordOptions.upper"
                         :column-label="$t('Uppercase')"
                         :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
                       <pf-form-toggle
-                        v-model="passwordGenerator.lower"
+                        v-model="passwordOptions.lower"
                         :column-label="$t('Lowercase')"
                         :text="$t('Include lowercase characters')">abc</pf-form-toggle>
                       <pf-form-toggle
-                        v-model="passwordGenerator.digits"
+                        v-model="passwordOptions.digits"
                         :column-label="$t('Digits')"
                         :text="$t('Include digits')">123</pf-form-toggle>
                     </b-col>
                     <b-col cols="6">
                       <pf-form-toggle
-                        v-model="passwordGenerator.special"
+                        v-model="passwordOptions.special"
                         :column-label="$t('Special')"
                         :text="$t('Include special characters')">!@#</pf-form-toggle>
                       <pf-form-toggle
-                        v-model="passwordGenerator.brackets"
+                        v-model="passwordOptions.brackets"
                         :column-label="$t('Brackets/Parenthesis')"
                         :text="$t('Include brackets')">({&lt;</pf-form-toggle>
                       <pf-form-toggle
-                        v-model="passwordGenerator.high"
+                        v-model="passwordOptions.high"
                         :column-label="$t('Accentuated')"
                         :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
                       <pf-form-toggle
-                        v-model="passwordGenerator.ambiguous"
+                        v-model="passwordOptions.ambiguous"
                         :column-label="$t('Ambiguous')"
                         :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
                     </b-col>
@@ -132,7 +126,7 @@
         </template>
       </b-tabs>
     </div>
-    <users-preview-modal v-model="showUsersPreviewModal" :store-name="storeName" />
+    <users-preview-modal v-model="showUsersPreviewModal" store-name="$_users" />
   </b-card>
 </template>
 
@@ -147,26 +141,14 @@ import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
 import UsersPreviewModal from './UsersPreviewModal'
-import { pfActions } from '@/globals/pfActions'
-import {
-  pfDatabaseSchema as schema,
-  buildValidatorsFromColumnSchemas
-} from '@/globals/pfDatabaseSchema'
-import { pfFieldType as fieldType } from '@/globals/pfField'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import password from '@/utils/password'
 import {
-  required
-} from 'vuelidate/lib/validators'
-import {
-  and,
-  not,
-  conditional,
-  compareDate,
-  sourceExists
-} from '@/globals/pfValidators'
-
-const { validationMixin } = require('vuelidate')
+  actions,
+  passwordOptions,
+  importFields,
+  importForm, importValidators
+} from '../_config/'
 
 export default {
   name: 'users-import',
@@ -180,11 +162,8 @@ export default {
     pfFormUpload,
     UsersPreviewModal
   },
-  mixins: [
-    validationMixin
-  ],
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -192,280 +171,38 @@ export default {
   },
   data () {
     return {
+      importFields, // ../_config/
+      passwordOptions, // ../_config/
+      schema, // @/globals/pfDatabaseSchema
       files: [],
       tabIndex: 0,
-      fields: [
-        {
-          value: 'pid',
-          text: this.$i18n.t('PID'),
-          types: [fieldType.SUBSTRING],
-          required: true,
-          validators: buildValidatorsFromColumnSchemas(schema.person.pid, { required })
-        },
-        {
-          value: 'password',
-          text: this.$i18n.t('Password'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.password.password)
-        },
-        {
-          value: 'title',
-          text: this.$i18n.t('Title'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.title)
-        },
-        {
-          value: 'firstname',
-          text: this.$i18n.t('First Name'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.firstname)
-        },
-        {
-          value: 'lastname',
-          text: this.$i18n.t('Last Name'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.lastname)
-        },
-        {
-          value: 'nickname',
-          text: this.$i18n.t('Nickname'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.nickname)
-        },
-        {
-          value: 'email',
-          text: this.$i18n.t('Email'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.email)
-        },
-        {
-          value: 'sponsor',
-          text: this.$i18n.t('Sponsor'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.sponsor)
-        },
-        {
-          value: 'anniversary',
-          text: this.$i18n.t('Anniversary'),
-          types: [fieldType.DATE],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.anniversary)
-        },
-        {
-          value: 'birthday',
-          text: this.$i18n.t('Birthday'),
-          types: [fieldType.DATE],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.birthday)
-        },
-        {
-          value: 'address',
-          text: this.$i18n.t('Address'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.address)
-        },
-        {
-          value: 'apartment_number',
-          text: this.$i18n.t('Apartment Number'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.apartment_number)
-        },
-        {
-          value: 'building_number',
-          text: this.$i18n.t('Building Number'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.building_number)
-        },
-        {
-          value: 'room_number',
-          text: this.$i18n.t('Room Number'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.room_number)
-        },
-        {
-          value: 'company',
-          text: this.$i18n.t('Company'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.company)
-        },
-        {
-          value: 'gender',
-          text: this.$i18n.t('Gender'),
-          types: [fieldType.GENDER],
-          required: false,
-          formatter: formatter.genderFromString,
-          validators: buildValidatorsFromColumnSchemas(schema.person.gender)
-        },
-        {
-          value: 'lang',
-          text: this.$i18n.t('Language'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.lang)
-        },
-        {
-          value: 'notes',
-          text: this.$i18n.t('Notes'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.notes)
-        },
-        {
-          value: 'portal',
-          text: this.$i18n.t('Portal'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.portal)
-        },
-        {
-          value: 'psk',
-          text: this.$i18n.t('PSK'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.psk)
-        },
-        {
-          value: 'source',
-          text: this.$i18n.t('Source'),
-          types: [fieldType.SOURCE],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.source, { [this.$i18n.t('Invalid source.')]: sourceExists })
-        },
-        {
-          value: 'telephone',
-          text: this.$i18n.t('Telephone'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.telephone)
-        },
-        {
-          value: 'cell_phone',
-          text: this.$i18n.t('Cellular Phone'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.cell_phone)
-        },
-        {
-          value: 'work_phone',
-          text: this.$i18n.t('Work Phone'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.work_phone)
-        },
-        {
-          value: 'custom_field_1',
-          text: this.$i18n.t('Custom Field 1'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_1)
-        },
-        {
-          value: 'custom_field_2',
-          text: this.$i18n.t('Custom Field 2'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_2)
-        },
-        {
-          value: 'custom_field_3',
-          text: this.$i18n.t('Custom Field 3'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_3)
-        },
-        {
-          value: 'custom_field_4',
-          text: this.$i18n.t('Custom Field 4'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_4)
-        },
-        {
-          value: 'custom_field_5',
-          text: this.$i18n.t('Custom Field 5'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_5)
-        },
-        {
-          value: 'custom_field_6',
-          text: this.$i18n.t('Custom Field 6'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_6)
-        },
-        {
-          value: 'custom_field_7',
-          text: this.$i18n.t('Custom Field 7'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_7)
-        },
-        {
-          value: 'custom_field_8',
-          text: this.$i18n.t('Custom Field 8'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_8)
-        },
-        {
-          value: 'custom_field_9',
-          text: this.$i18n.t('Custom Field 9'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidatorsFromColumnSchemas(schema.person.custom_field_9)
-        }
-      ],
-      localUser: {
-        valid_from: format(new Date(), 'YYYY-MM-DD'),
-        expiration: null,
-        actions: []
-      },
-      showUsersPreviewModal: false,
-      passwordGenerator: {
-        pwlength: 8,
-        upper: true,
-        lower: true,
-        digits: true,
-        special: false,
-        brackets: false,
-        high: false,
-        ambiguous: false
-      },
       actionField: {
         component: pfFieldTypeValue,
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
-          fields: [
-            pfActions.set_access_duration_by_acl_user,
-            pfActions.set_access_level_by_acl_user,
-            pfActions.mark_as_sponsor,
-            pfActions.set_role_by_acl_user,
-            pfActions.set_access_durations,
-            pfActions.set_tenant_id,
-            pfActions.set_unreg_date_by_acl_user
-          ]
+          fields: actions // ../_config/
         }
       },
-      actionsValidations: {},
       isLoading: false,
+      showUsersPreviewModal: false,
       createdUsers: {}
     }
   },
+  computed: {
+    form () { // common form across all files[]
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+    }
+  },
   methods: {
+    init () {
+      // setup form store module
+      this.$store.dispatch(`${this.formStoreName}/setForm`, importForm)
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, importValidators)
+    },
     abortFile (index) {
       this.files[index].reader.abort()
     },
@@ -479,12 +216,12 @@ export default {
           payload.items = payload.items.map(item => { // glue payload together with local slot
             let merged = { ...item, ...this.localUser }
             if (!('password' in merged)) { // generate a unique password
-              merged.password = password.generate(this.passwordGenerator)
+              merged.password = password.generate(passwordOptions)
             }
             return merged
           })
         }
-        this.$store.dispatch(`${this.storeName}/bulkImport`, payload).then(result => {
+        this.$store.dispatch('$_users/bulkImport', payload).then(result => {
           // do something with the result, then Promise.resolve to continue processing
           if (!dryRun) {
             this.createdUsers = result.reduce((createdUsers, result) => {
@@ -498,7 +235,7 @@ export default {
             }, this.createdUsers)
             if (!result || result.length === 0) { // empty result when processing is completed
               if (Object.values(this.createdUsers).length > 0) {
-                this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, Object.values(this.createdUsers))
+                this.$store.commit('$_users/CREATED_USERS_REPLACED', Object.values(this.createdUsers))
                 this.showUsersPreviewModal = true
               }
             }
@@ -511,25 +248,9 @@ export default {
       })
     }
   },
-  created () {
+  mounted () {
     this.$store.dispatch('config/getSources')
-  },
-  validations () {
-    return {
-      localUser: {
-        valid_from: {
-          [this.$i18n.t('Start date required.')]: conditional(!!this.localUser.valid_from && this.localUser.valid_from !== '0000-00-00'),
-          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-          [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.localUser.valid_from), not(compareDate('<=', this.localUser.expiration, 'YYYY-MM-DD'))))
-        },
-        expiration: {
-          [this.$i18n.t('End date required.')]: conditional(!!this.localUser.expiration && this.localUser.expiration !== '0000-00-00'),
-          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-          [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.localUser.expiration), not(compareDate('>=', this.localUser.valid_from, 'YYYY-MM-DD'))))
-        },
-        actions: this.actionsValidations
-      }
-    }
+    this.init()
   }
 }
 </script>

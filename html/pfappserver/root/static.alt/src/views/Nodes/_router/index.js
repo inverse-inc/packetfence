@@ -55,7 +55,6 @@ const route = {
     {
       path: 'import',
       component: NodesImport,
-      props: { storeName: '$_nodes' },
       meta: {
         can: 'create nodes'
       }

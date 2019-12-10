@@ -3,15 +3,18 @@ import i18n from '@/utils/locale'
 import { pfActions } from '@/globals/pfActions'
 import {
   pfDatabaseSchema,
+  buildValidatorsFromColumnSchemas,
   buildValidatorsFromTableSchemas
 } from '@/globals/pfDatabaseSchema'
+import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
   and,
   not,
   conditional,
   compareDate,
-  userExists
+  userExists,
+  sourceExists
 } from '@/globals/pfValidators'
 import {
   required,
@@ -219,6 +222,267 @@ export const updateValidators = (form = {}) => {
     }
   )
 }
+
+export const importForm = {
+  valid_from: format(new Date(), pfDatabaseSchema.password.valid_from.datetimeFormat),
+  expiration: null,
+  actions: []
+}
+
+export const importValidators = (form = {}) => {
+  const {
+    expiration,
+    valid_from
+  } = form
+  return {
+    valid_from: {
+      [i18n.t('Start date required.')]: conditional(!!valid_from && valid_from !== '0000-00-00'),
+      [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+      [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
+    },
+    expiration: {
+      [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00'),
+      [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+      [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
+    },
+    actions: actionValidators(form)
+  }
+}
+
+export const importFields = [
+  {
+    value: 'pid',
+    text: i18n.t('PID'),
+    types: [fieldType.SUBSTRING],
+    required: true,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.pid, { required })
+  },
+  {
+    value: 'password',
+    text: i18n.t('Password'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.password.password)
+  },
+  {
+    value: 'title',
+    text: i18n.t('Title'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.title)
+  },
+  {
+    value: 'firstname',
+    text: i18n.t('First Name'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.firstname)
+  },
+  {
+    value: 'lastname',
+    text: i18n.t('Last Name'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.lastname)
+  },
+  {
+    value: 'nickname',
+    text: i18n.t('Nickname'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.nickname)
+  },
+  {
+    value: 'email',
+    text: i18n.t('Email'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.email)
+  },
+  {
+    value: 'sponsor',
+    text: i18n.t('Sponsor'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.sponsor)
+  },
+  {
+    value: 'anniversary',
+    text: i18n.t('Anniversary'),
+    types: [fieldType.DATE],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.anniversary)
+  },
+  {
+    value: 'birthday',
+    text: i18n.t('Birthday'),
+    types: [fieldType.DATE],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.birthday)
+  },
+  {
+    value: 'address',
+    text: i18n.t('Address'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.address)
+  },
+  {
+    value: 'apartment_number',
+    text: i18n.t('Apartment Number'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.apartment_number)
+  },
+  {
+    value: 'building_number',
+    text: i18n.t('Building Number'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.building_number)
+  },
+  {
+    value: 'room_number',
+    text: i18n.t('Room Number'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.room_number)
+  },
+  {
+    value: 'company',
+    text: i18n.t('Company'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.company)
+  },
+  {
+    value: 'gender',
+    text: i18n.t('Gender'),
+    types: [fieldType.GENDER],
+    required: false,
+    formatter: formatter.genderFromString,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.gender)
+  },
+  {
+    value: 'lang',
+    text: i18n.t('Language'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.lang)
+  },
+  {
+    value: 'notes',
+    text: i18n.t('Notes'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.notes)
+  },
+  {
+    value: 'portal',
+    text: i18n.t('Portal'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.portal)
+  },
+  {
+    value: 'psk',
+    text: i18n.t('PSK'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.psk)
+  },
+  {
+    value: 'source',
+    text: i18n.t('Source'),
+    types: [fieldType.SOURCE],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.source, { [i18n.t('Invalid source.')]: sourceExists })
+  },
+  {
+    value: 'telephone',
+    text: i18n.t('Telephone'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.telephone)
+  },
+  {
+    value: 'cell_phone',
+    text: i18n.t('Cellular Phone'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.cell_phone)
+  },
+  {
+    value: 'work_phone',
+    text: i18n.t('Work Phone'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.work_phone)
+  },
+  {
+    value: 'custom_field_1',
+    text: i18n.t('Custom Field 1'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_1)
+  },
+  {
+    value: 'custom_field_2',
+    text: i18n.t('Custom Field 2'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_2)
+  },
+  {
+    value: 'custom_field_3',
+    text: i18n.t('Custom Field 3'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_3)
+  },
+  {
+    value: 'custom_field_4',
+    text: i18n.t('Custom Field 4'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_4)
+  },
+  {
+    value: 'custom_field_5',
+    text: i18n.t('Custom Field 5'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_5)
+  },
+  {
+    value: 'custom_field_6',
+    text: i18n.t('Custom Field 6'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_6)
+  },
+  {
+    value: 'custom_field_7',
+    text: i18n.t('Custom Field 7'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_7)
+  },
+  {
+    value: 'custom_field_8',
+    text: i18n.t('Custom Field 8'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_8)
+  },
+  {
+    value: 'custom_field_9',
+    text: i18n.t('Custom Field 9'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_9)
+  }
+]
 
 export const nodeFields = [
   {
