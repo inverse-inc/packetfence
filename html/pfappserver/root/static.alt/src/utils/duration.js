@@ -40,7 +40,7 @@ const duration = {
       base = '',
       extendedInterval = '',
       extendedUnit = ''
-    } = object
+    } = object || {}
     let str = interval + unit
     if (base && extendedInterval && extendedUnit) {
       str += base
