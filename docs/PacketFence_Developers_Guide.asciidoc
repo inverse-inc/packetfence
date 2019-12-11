@@ -1186,6 +1186,11 @@ EOF
 ansible-playbook site.yml --limit pfcen7night -e @extra.yml
 ----
 
+== Running tests
+
+include::tests/README.asciidoc[]
+
+
 == Contributing
 
 

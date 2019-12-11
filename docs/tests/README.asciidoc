@@ -1,0 +1,48 @@
+=== Unit tests
+
+==== Unit tests: prerequisites
+
+.Prerequisites to run unit tests:
+* MariaDB up and running
+* PacketFence package(s) installed with all dependencies in [filename]`/usr/local/pf` directory
+* Fingerbank API key configured
+* Environment variables defined:
+** `_PF_TEST_MGMT_INT_`
+** `_PF_TEST_MGMT_IP_`
+** `_PF_TEST_MGMT_MASK_`
+* <<_basic_setup,Golang environment>>
+
+You can meet these prerequisites by starting a Vagrant virtual machine
+following guide: FIXME
+
+FIXME: packetfence sources will be available under /src
+
+==== Running all unit tests
+
+When your virtual machine is up and running, you can run following command
+from your host machine:
+
+[source,bash]
+----
+vagrant provision --provision-with=run-unit-tests pfcen7dev
+----
+
+This will upload [filename]`run-unit-tests.sh` script on virtual machine to
+run it. If you prefer, you can also run this script directly from your virtual
+machine:
+
+[source,bash]
+----
+/src/ci/lib/install/run-unit-tests.sh
+----
+
+IMPORTANT: Don't forget to run a `vagrant rsync VM_NAME` to upload latest
+changes made in PF sources to [filename]`/src` directory.
+
+==== Running Perl unit tests
+
+FIXME
+
+==== Running Golang unit tests
+
+See <<_running_the_tests,Golang section>>.
