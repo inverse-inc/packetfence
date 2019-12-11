@@ -1509,7 +1509,13 @@ const route = {
       path: 'active_active',
       name: 'active_active',
       component: ActiveActiveView,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ formStoreName: 'formActiveActive', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formActiveActive) { // Register store module only once
+          store.registerModule('formActiveActive', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'radius',
