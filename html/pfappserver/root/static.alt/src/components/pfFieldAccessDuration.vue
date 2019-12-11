@@ -7,41 +7,34 @@
     </b-col>
     <b-col cols="1" align-self="start">
 
-      <pf-form-input
-        v-model="localInterval"
-        ref="localInterval"
+      <pf-form-input ref="interval"
+        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.interval`"
         :placeholder="'#'"
-        :vuelidate="intervalVuelidateModel"
-        :invalid-feedback="intervalInvalidFeedback"
         :disabled="disabled"
         class="mr-1"
-      ></pf-form-input>
+      />
 
     </b-col>
     <b-col cols="2" align-self="start">
 
-      <pf-form-chosen
-        v-model="localUnit"
-        ref="localUnit"
-        label="text"
-        track-by="value"
+      <pf-form-chosen ref="unit"
+        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.unit`"
         :placeholder="$t('Choose')"
         :options="intervals"
         :disabled="disabled || intervals.length === 0"
-        :vuelidate="unitVuelidateModel"
-        :invalid-feedback="unitInvalidFeedback"
         :clearOnSelect="false"
         :allowEmpty="false"
+        label="text"
+        track-by="value"
         class="mr-1"
         collapse-object
-      ></pf-form-chosen>
+      />
 
     </b-col>
     <b-col cols="1" align-self="start" class="text-center">
 
-      <pf-form-range-triple
-        v-model="localBase"
-        ref="localBase"
+      <pf-form-range-triple ref="base"
+        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.base`"
         :values="{ left: null, middle: 'F', right: 'R' }"
         :icons="{ left: 'times', middle: 'step-backward', right: 'fast-backward' }"
         :colors="{ left: null, middle: 'var(--primary)', right: 'var(--success)' }"
@@ -53,39 +46,33 @@
         :disabled="disabled"
         class="mr-1"
         width="80"
-      ></pf-form-range-triple>
+      />
 
     </b-col>
     <b-col cols="1" align-self="start">
 
-      <pf-form-input v-if="localBase"
-        v-model="localExtendedInterval"
-        ref="localExtendedInterval"
+      <pf-form-input ref="extendedInterval" v-if="localBase"
+        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.extendedInterval`"
         :placeholder="'#'"
-        :vuelidate="extendedIntervalVuelidateModel"
-        :invalid-feedback="extendedIntervalInvalidFeedback"
         :disabled="disabled"
         class="mr-1"
-      ></pf-form-input>
+      />
 
     </b-col>
     <b-col cols="2" align-self="start">
 
-      <pf-form-chosen v-if="localBase"
-        v-model="localExtendedUnit"
-        ref="localExtendedUnit"
-        label="text"
-        track-by="value"
+      <pf-form-chosen ref="extendedUnit" v-if="localBase"
+        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.extendedUnit`"
         :placeholder="$t('Choose')"
         :options="intervals"
         :disabled="disabled || intervals.length === 0"
-        :vuelidate="extendedUnitVuelidateModel"
-        :invalid-feedback="extendednitInvalidFeedback"
         :clearOnSelect="false"
         :allowEmpty="false"
+        label="text"
+        track-by="value"
         class="mr-1"
         collapse-object
-      ></pf-form-chosen>
+      />
 
     </b-col>
     <b-col cols="3" align-self="start" class="text-center col-form-label-lg">
@@ -102,17 +89,8 @@
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeTriple from '@/components/pfFormRangeTriple'
-import {
-  required,
-  integer,
-  minValue
-} from 'vuelidate/lib/validators'
-import {
-  conditional,
-  and,
-  not,
-  or
-} from '@/globals/pfValidators'
+import pfMixinForm from '@/components/pfMixinForm'
+import duration from '@/utils/duration'
 import {
   format,
   addSeconds,
@@ -138,15 +116,10 @@ export default {
     pfFormInput,
     pfFormRangeTriple
   },
+  mixins: [
+    pfMixinForm
+  ],
   props: {
-    value: {
-      type: Object,
-      default: () => { return this.default }
-    },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
-    },
     drag: {
       type: Boolean
     },
@@ -171,100 +144,38 @@ export default {
     }
   },
   computed: {
-    inputValue: {
+    inputValue: { // new
       get () {
-        if (!this.value || Object.keys(this.value).length === 0) {
-          // set default placeholder
-          this.$emit('input', JSON.parse(JSON.stringify(this.default))) // keep dereferenced
-          return this.default
-        }
-        return this.value
+        return { ...this.default, ...this.formStoreValue } // use FormStore
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+
+        // serialize
+
+        this.formStoreValue = newValue // use FormStore
       }
     },
-    localInterval: {
-      get () {
-        return (this.inputValue && 'interval' in this.inputValue) ? this.inputValue.interval : this.default.interval
-      },
-      set (newInterval) {
-        this.$set(this, 'inputValue', { ...this.inputValue, ...{ interval: newInterval || this.default.interval } })
-        this.emitValidations()
-      }
+    localInterval () {
+      return this.inputValue.interval
     },
-    localUnit: {
-      get () {
-        return (this.inputValue && 'unit' in this.inputValue) ? this.inputValue.unit : this.default.unit
-      },
-      set (newUnit) {
-        this.$set(this, 'inputValue', { ...this.inputValue, ...{ unit: newUnit || this.default.unit } })
-        this.emitValidations()
-      }
+    localUnit () {
+      return this.inputValue.unit
     },
-    localBase: {
-      get () {
-        return (this.inputValue && 'base' in this.inputValue) ? this.inputValue.base : this.default.base
-      },
-      set (newBase) {
-        this.$set(this, 'inputValue', { ...this.inputValue, ...{ base: newBase || this.default.base } })
-        this.emitValidations()
-      }
+    localBase () {
+      return this.inputValue.base
     },
-    localExtendedInterval: {
-      get () {
-        return (this.inputValue && 'extendedInterval' in this.inputValue) ? this.inputValue.extendedInterval : this.default.extendedInterval
-      },
-      set (newExtendedInterval) {
-        this.$set(this, 'inputValue', { ...this.inputValue, ...{ extendedInterval: newExtendedInterval || this.default.extendedInterval } })
-        this.emitValidations()
-      }
+    localExtendedInterval () {
+      return this.inputValue.extendedInterval
     },
-    localExtendedUnit: {
-      get () {
-        return (this.inputValue && 'extendedUnit' in this.inputValue) ? this.inputValue.extendedUnit : this.default.extendedUnit
-      },
-      set (newExtendedUnit) {
-        this.$set(this, 'inputValue', { ...this.inputValue, ...{ extendedUnit: newExtendedUnit || this.default.extendedUnit } })
-        this.emitValidations()
-      }
-    },
-    intervalVuelidateModel () {
-      return this.getVuelidateModel('interval')
-    },
-    intervalInvalidFeedback () {
-      return this.getInvalidFeedback('interval')
-    },
-    unitVuelidateModel () {
-      return this.getVuelidateModel('unit')
-    },
-    unitInvalidFeedback () {
-      return this.getInvalidFeedback('unit')
-    },
-    baseVuelidateModel () {
-      return this.getVuelidateModel('base')
-    },
-    baseInvalidFeedback () {
-      return this.getInvalidFeedback('base')
-    },
-    extendedIntervalVuelidateModel () {
-      return this.getVuelidateModel('extendedInterval')
-    },
-    extendedIntervalInvalidFeedback () {
-      return this.getInvalidFeedback('extendedInterval')
-    },
-    extendedUnitVuelidateModel () {
-      return this.getVuelidateModel('extendedUnit')
-    },
-    extendedUnitInvalidFeedback () {
-      return this.getInvalidFeedback('extendedUnit')
+    localExtendedUnit () {
+      return this.inputValue.extendedUnit
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
     },
     example () {
-      if (this.vuelidate.$anyError) return '0000-00-00 00:00:00'
+      if (this.formStoreState.$invalid) return '0000-00-00 00:00:00'
       let date = this.date
       switch (this.inputValue.base) {
         case 'F': // beginning of day
@@ -303,61 +214,7 @@ export default {
       return format(date, 'YYYY-MM-DD HH:mm:ss')
     }
   },
-  methods: {
-    getVuelidateModel (key = null) {
-      const { vuelidate: { [key]: model } } = this
-      return model || {}
-    },
-    getInvalidFeedback (key = null) {
-      let feedback = []
-      const vuelidate = this.getVuelidateModel(key)
-      if (vuelidate !== {} && key in vuelidate) {
-        Object.entries(vuelidate[key].$params).forEach(([k, v]) => {
-          if (vuelidate[key][k] === false) feedback.push(k.trim())
-        })
-      }
-      return feedback.join('<br/>')
-    },
-    buildLocalValidations () {
-      const { field } = this
-      if (field) {
-        const { validators } = field
-        if (validators) {
-          return validators
-        }
-      }
-      return {
-        interval: {
-          [this.$i18n.t('Positive #\'s.')]: and(required, integer, minValue(1))
-        },
-        unit: {
-          [this.$i18n.t('Required.')]: required
-        },
-        extendedInterval: {
-          [this.$i18n.t('Non-zero #\'s.')]: not(and(
-            conditional(!!this.localBase),
-            or(
-              not(integer),
-              conditional(~~this.localExtendedInterval === 0)
-            )
-          ))
-        },
-        extendedUnit: {
-          [this.$i18n.t('Required.')]: not(and(
-            conditional(!!this.localBase),
-            not(required)
-          ))
-        }
-      }
-    },
-    emitValidations () {
-      this.$nextTick(() => {
-        this.$emit('validations', this.buildLocalValidations())
-      })
-    }
-  },
   created () {
-    this.emitValidations()
     setInterval(() => {
       this.date = new Date()
     }, 1000)

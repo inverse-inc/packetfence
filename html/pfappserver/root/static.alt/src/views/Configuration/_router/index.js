@@ -1,4 +1,5 @@
 import store from '@/store'
+import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
 import AdminRolesStore from '../_store/adminRoles'
 import AuthenticationSourcesStore from '../_store/sources'
@@ -1214,7 +1215,13 @@ const route = {
       path: 'access_duration',
       name: 'access_duration',
       component: AccessDurationView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formAccessDuration', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formAccessDuration) { // Register store module only once
+          store.registerModule('formAccessDuration', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'self_services',
