@@ -27,11 +27,19 @@
   become: True
   collections:
     - inverse_inc.packetfence
+    - debops.debops
 
-  # search roles in collection
+  # search roles in collections
   roles:
+
+    # inject environment variables for unit tests only for 'dev' servers
+    - role: environment
+      when: "'dev' in group_names"
+      tags: env
+
     - role: packetfence_common
       tags: install
+
     - role: packetfence_install
       tags: install
 
@@ -69,4 +77,3 @@
       
     - role: packetfence_dev
       tags: dev
-
