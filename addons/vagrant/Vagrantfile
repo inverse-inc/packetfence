@@ -30,7 +30,7 @@ Vagrant.configure("2") do |pfservers|
     ansible.inventory_path = "inventory"
     ansible.galaxy_role_file = "requirements.yml"
     # only for debug
-    #ansible.verbose = "-v"
+    ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end
 
   # Use to run only tasks tagged "install" in site.yml
@@ -40,7 +40,7 @@ Vagrant.configure("2") do |pfservers|
     config.inventory_path = "inventory"
     config.tags = "install"
     # only for debug
-    #ansible.verbose = "-v"
+    config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end
 
   # Use to run only tasks tagged "upgrade" in site.yml
@@ -50,7 +50,7 @@ Vagrant.configure("2") do |pfservers|
     config.inventory_path = "inventory"
     config.tags = "upgrade"
     # only for debug
-    #ansible.verbose = "-v"
+    config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end
 
   pfservers.vm.provision "api_config", type:"ansible", run:"never" do |config|
@@ -60,7 +60,7 @@ Vagrant.configure("2") do |pfservers|
     config.tags = "install"
     config.start_at_task = "include api_config tasks"
     # only for debug
-    #ansible.verbose = "-v"
+    config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end
 
   # loop on **all** host(s) in pfservers group in inventory to create VM(s)

@@ -1,7 +1,8 @@
 ---
-- hosts: nightly
+- hosts: pfservers
   name: upgrade OS to latest version
   become: True
+  gather_facts: False
   tags: upgrade
 
   # to ensure nightly builds are always installed
@@ -13,7 +14,7 @@
         name: '*'
         state: latest
 
-- hosts: nightly
+- hosts: ['nightly', 'dev']
   name: install packetfence development packages
   become: True
 
@@ -24,11 +25,14 @@
 - hosts: pfservers
   name: install pf on standalone
   become: True
+  collections:
+    - inverse_inc.packetfence
 
+  # search roles in collection
   roles:
-    - role: inverse_inc.packetfence.packetfence_common
+    - role: packetfence_common
       tags: install
-    - role: inverse_inc.packetfence.packetfence_install
+    - role: packetfence_install
       tags: install
 
   tasks:
@@ -48,10 +52,14 @@
     - name: apply new iptables rule for vagrant management
       command: "{{ packetfence_install__pfcmd }} service iptables restart"
       when: site_register_iptables_rule is changed
+      tags: vagrant
 
 - hosts: dev
   name: install additionnal stuff for dev machines
   become: True
+  tags: build
+  collections:
+    - inverse_inc.packetfence
 
   roles:
     - role: geerlingguy.nodejs
@@ -59,6 +67,6 @@
         nodejs_version: "10.x"
       tags: nodejs
       
-    - role: inverse_inc.packetfence.packetfence_dev
+    - role: packetfence_dev
       tags: dev
 

@@ -1,11 +1,9 @@
 ---
-release_status: '{{ True if lookup("env", "CI_COMMIT_TAG") == "stable"
-                         else False }}'
-
+packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.devel.noarch.rpm'
 packetfence_install__centos:
-  repo: '{{ "packetfence" if release_status|bool
-                          else "packetfence-devel" }}'
+  repo: packetfence-devel
 
 packetfence_install__deb:
-  repos: '{{ ["debian"] if release_status|bool
-                        else ["debian","debian-devel"] }}'
+  repos:
+    - debian
+    - debian-devel

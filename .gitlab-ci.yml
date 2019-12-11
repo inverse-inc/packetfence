@@ -37,6 +37,7 @@ variables:
   # env variables
   ANSIBLE_FORCE_COLOR: "true"
   ANSIBLE_STDOUT_CALLBACK: yaml
+  VAGRANT_FORCE_COLOR: "true"
 
 
 ################################################################################
@@ -128,6 +129,11 @@ variables:
   dependencies:
     - build_maintenance_centos_7
     - build_maintenance_debian_stretch
+
+.install_job:
+  stage: install
+  dependencies:
+    - pages
   tags:
     - inverse.ca
     - shell
@@ -217,6 +223,21 @@ variables:
   script:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
+.install_script:
+  variables:
+    ANSIBLE_SKIP_TAGS: 'build'
+    # set VAGRANT_ANSIBLE_VERBOSE to true if you want debug
+  script:
+    # temp: https://github.com/hashicorp/vagrant/issues/10958
+    - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
+    - cd ${VAGRANT_DIR}
+    - vagrant box update ${VAGRANT_BOX}
+    - vagrant up ${VAGRANT_BOX} --provider=libvirt --destroy-on-error
+  after_script:
+    - cd ${VAGRANT_DIR} ; vagrant destroy -f ${VAGRANT_BOX}
+    - rm -rf .vagrant/ roles/ collections/
+    
+
 ################################################################################
 # STAGES
 ################################################################################
@@ -261,7 +282,7 @@ pfbuild_release:
     # based on their branch name using CI_COMMIT_REF_SLUG
     # CI_COMMIT_TAG contains vX.Y.Z
     # PF_RELEASE_REV contains X.Y
-    # DOCKER_EXTRA_TAG contains maintenance-X.Y
+    # DOCKER_EXTRA_TAG contains maintenance-X-Y
     - PF_RELEASE_REV=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' conf/pf-release)
     - export DOCKER_EXTRA_TAG=maintenance-${PF_RELEASE_REV/./-}
     - make -e -C ${PACKERDIR} pfbuild
@@ -381,6 +402,27 @@ pages:
   extends:
     - .job_dev_and_release_triggers
 
+########################################
+# INSTALL JOBS
+########################################
+install_pkg_dev_and_release_centos_7:
+  variables:
+    VAGRANT_BOX: pfcen7dev
+  extends:
+    - .install_job
+    - .install_script
+    - .job_dev_and_release_triggers
+  when: manual
+
+install_pkg_dev_and_release_debian_stretch:
+  variables:
+    VAGRANT_BOX: pfdeb9dev
+  extends:
+    - .install_job
+    - .install_script
+    - .job_dev_and_release_triggers
+  when: manual
+    
 ########################################
 # UPLOAD JOBS
 ########################################
