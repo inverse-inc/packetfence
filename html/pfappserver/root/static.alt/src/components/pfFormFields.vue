@@ -267,13 +267,13 @@ export default {
     line-height: auto;
   }
   &.is-focus {
-    > .form-row > [role="group"] > .pf-form-fields-input-group {
+    [role="group"] > .pf-form-fields-input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
-    > .form-row > [role="group"] > .pf-form-fields-input-group {
+    [role="group"] > .pf-form-fields-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
