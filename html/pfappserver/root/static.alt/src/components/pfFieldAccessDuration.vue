@@ -90,7 +90,6 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeTriple from '@/components/pfFormRangeTriple'
 import pfMixinForm from '@/components/pfMixinForm'
-import duration from '@/utils/duration'
 import {
   format,
   addSeconds,
@@ -149,9 +148,6 @@ export default {
         return { ...this.default, ...this.formStoreValue } // use FormStore
       },
       set (newValue = null) {
-
-        // serialize
-
         this.formStoreValue = newValue // use FormStore
       }
     },
