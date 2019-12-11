@@ -13,10 +13,10 @@
         <template v-for="(tab, t) in view">
           <b-tab v-if="!('if' in tab) || tab.if" :key="t"
             :disabled="tab.disabled"
-            :title-link-class="{ 'text-danger': getTabErrorCount(t) > 0 }"
+            :title-link-class="{ 'is-invalid': tabErrorCount[t] > 0 }"
             :title="tab.tab"
             no-body
-          ></b-tab>
+          />
         </template>
         <template v-slot:tabs-end>
           <slot name="tabs-end" />
@@ -32,9 +32,6 @@
               :label-class="[(row.label && row.cols) ? '' : 'text-left', (row.cols) ? '' : 'offset-sm-3']"
               class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.cols }"
             >
-<!--
-          ^^^    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
--->
               <b-input-group align-v="start">
                 <template v-for="col in row.cols">
                   <span v-if="col.text" :key="col.index" class="d-inline py-2" :class="col.class">{{ col.text }}</span>
@@ -134,6 +131,18 @@ export default {
         return false
       }
       return true
+    },
+    tabErrorCount () {
+      return this.view.map(view => {
+        return view.rows.reduce((rowCount, row) => {
+          if (!('cols' in row)) return rowCount
+          return row.cols.reduce((colCount, col) => {
+            if (!('namespace' in col)) return colCount
+            if (this.$store.getters[`${this.formStoreName}/$stateNS`](col.namespace).$invalid) colCount++
+            return colCount
+          }, rowCount)
+        }, 0)
+      })
     }
   },
   methods: {
@@ -158,19 +167,6 @@ export default {
         c.push('col-sm-12') // use entire width
       }
       return c.join(' ')
-    },
-    getTabErrorCount (tabIndex) {
-      return this.view[tabIndex].fields.reduce((tabCount, tab) => {
-        if (!('fields' in tab)) return tabCount // ignore labels
-        return tab.rows.reduce((rowCount, row) => {
-/* TODO
-          if (row.key in this.vuelidate && this.vuelidate[row.key].$anyError) {
-            rowCount++
-          }
-*/
-          return fieldCount
-        }, tabCount)
-      }, 0)
     },
     kebabCaseListeners (listeners) {
       if (listeners) {
@@ -202,6 +198,12 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  .nav-tabs .nav-link.is-invalid {
+    color: $form-feedback-invalid-color;
+  }
+  .nav-tabs .nav-link.active.is-invalid {
+    border-color: $form-feedback-invalid-color;
   }
 }
 </style>
