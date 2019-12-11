@@ -6,5 +6,8 @@ environment__group_variables:
     value: "{{ packetfence_install__mgmt_interface['ip'] }}"
     
   - name: 'PF_TEST_MGMT_MASK'
-    value: "{{ packetfence_install__mgmt_interface['mask'] }}"    
+    value: "{{ packetfence_install__mgmt_interface['mask'] }}"
 
+  # completely unsecure but it's only for short-lived virtual machines
+  - name: 'MYSQL_PWD'
+    value: "{{ packetfence_install__database_root_pass }}"

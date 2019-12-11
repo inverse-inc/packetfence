@@ -108,6 +108,7 @@ Vagrant.configure("2") do |pfservers|
 
       # provisioner for dev machines
       #srv.vm.provision "setup-dev-env", type: "shell", path: "../dev-helpers/setup-dev-env.sh"
+      srv.vm.provision "run-unit-tests", type: "shell", path: "../../ci/lib/install/run-unit-tests.sh"
     end
   end
 end
