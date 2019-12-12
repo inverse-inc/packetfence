@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :form-store-name="formStoreName"
+    :is-loading="isLoading"
     :disabled="isLoading"
-    :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    :isNew="isNew"
-    :isClone="isClone"
-    @validations="setValidations($event)"
+    :is-deletable="isDeletable"
+    :is-new="isNew"
+    :is-clone="isClone"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -23,7 +21,7 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -42,23 +40,19 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationWrixLocationViewFields as fields,
-  pfConfigurationWrixLocationViewDefaults as defaults
-} from '@/globals/configuration/pfConfigurationWrixLocations'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/wrixLocation'
 
 export default {
   name: 'wrix-location-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -76,29 +70,21 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: defaults(this), // will be overloaded with the data from the store
-      formValidations: {} // will be overloaded with data from the pfConfigView,
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/wrixLocation
     },
     invalidForm () {
-      return this.$v.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_wrix_locations/isLoading']
     },
     isDeletable () {
       if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
@@ -114,15 +100,28 @@ export default {
     }
   },
   methods: {
-    close (event) {
+    init () {
+      const { isNew, isClone, isDeletable } = this
+      this.$store.dispatch(`${this.formStoreName}/setMeta`, { isNew, isClone, isDeletable })
+      if (this.id) {
+        this.$store.dispatch('$_wrix_locations/getWrixLocation', this.id).then(form => {
+          if (this.isClone) {
+            form.id = `${form.id}-${this.$i18n.t('copy')}`
+          }
+          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+        })
+      }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
+    },
+    close () {
       this.$router.push({ name: 'wrixLocations' })
     },
     clone () {
       this.$router.push({ name: 'cloneWrixLocation' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createWrixLocation`, this.form).then(response => {
+      this.$store.dispatch('$_wrix_locations/createWrixLocation', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -130,39 +129,26 @@ export default {
         }
       })
     },
-    save (event) {
+    remove () {
+      this.$store.dispatch('$_wrix_locations/deleteWrixLocation', this.id).then(() => {
+        this.close()
+      })
+    },
+    save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateWrixLocation`, this.form).then(response => {
+      this.$store.dispatch('$_wrix_locations/updateWrixLocation', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
-    },
-    remove (event) {
-      this.$store.dispatch(`${this.storeName}/deleteWrixLocation`, this.id).then(response => {
-        this.close()
-      })
-    },
-    setValidations (validations) {
-      this.$set(this, 'formValidations', validations)
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch(`${this.storeName}/getWrixLocation`, this.id).then(form => {
-        if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-        this.form = form
-      })
-    }
+    this.init()
   },
   watch: {
-    id: {
-      handler: function (a, b) {
-        this.init()
-      }
-    },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

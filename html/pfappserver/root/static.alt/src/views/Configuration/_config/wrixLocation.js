@@ -10,13 +10,12 @@ import {
   hasWRIXLocations,
   WRIXLocationExists
 } from '@/globals/pfValidators'
-
-const {
+import {
   maxLength,
   required
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
-export const pfConfigurationWrixLocationsListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('WRIX Identifier'),
@@ -31,7 +30,7 @@ export const pfConfigurationWrixLocationsListColumns = [
   }
 ]
 
-export const pfConfigurationWrixLocationsListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('WRIX Identifier'),
@@ -39,10 +38,10 @@ export const pfConfigurationWrixLocationsListFields = [
   }
 ]
 
-export const pfConfigurationWrixLocationsListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationWrixLocationsListColumns,
-    fields: pfConfigurationWrixLocationsListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'wrixLocation', params: { id: item.id } }
     },
@@ -75,37 +74,32 @@ export const pfConfigurationWrixLocationsListConfig = () => {
   }
 }
 
-export const pfConfigurationWrixLocationViewFields = (context) => {
+export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
     isClone = false
-  } = context
+  } = meta
   return [
     {
       tab: i18n.t('Identification'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Id'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 disabled: (!isNew && !isClone)
-              },
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('WRIX Location exists.')]: not(and(required, conditional(isNew || isClone), hasWRIXLocations, WRIXLocationExists))
               }
             }
           ]
         },
         {
           label: i18n.t('Provider Identifier'),
-          fields: [
+          cols: [
             {
-              key: 'Provider_Identifier',
+              namespace: 'Provider_Identifier',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -116,9 +110,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location Identifier'),
-          fields: [
+          cols: [
             {
-              key: 'Location_Identifier',
+              namespace: 'Location_Identifier',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -129,9 +123,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Service Provider Brand'),
-          fields: [
+          cols: [
             {
-              key: 'Service_Provider_Brand',
+              namespace: 'Service_Provider_Brand',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -144,12 +138,12 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
     },
     {
       tab: i18n.t('Location'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Location Type'),
-          fields: [
+          cols: [
             {
-              key: 'Location_Type',
+              namespace: 'Location_Type',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -160,9 +154,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Sub Location Type'),
-          fields: [
+          cols: [
             {
-              key: 'Sub_Location_Type',
+              namespace: 'Sub_Location_Type',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -173,9 +167,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('English Location Name'),
-          fields: [
+          cols: [
             {
-              key: 'English_Location_Name',
+              namespace: 'English_Location_Name',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -186,9 +180,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location Address 1'),
-          fields: [
+          cols: [
             {
-              key: 'Location_Address1',
+              namespace: 'Location_Address1',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -199,9 +193,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location Address 2'),
-          fields: [
+          cols: [
             {
-              key: 'Location_Address2',
+              namespace: 'Location_Address2',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -211,9 +205,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('English Location City'),
-          fields: [
+          cols: [
             {
-              key: 'English_Location_City',
+              namespace: 'English_Location_City',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -224,9 +218,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location Zip Postal Code'),
-          fields: [
+          cols: [
             {
-              key: 'Location_Zip_Postal_Code',
+              namespace: 'Location_Zip_Postal_Code',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -237,9 +231,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location State Province Name'),
-          fields: [
+          cols: [
             {
-              key: 'Location_State_Province_Name',
+              namespace: 'Location_State_Province_Name',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -250,9 +244,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location Country Name'),
-          fields: [
+          cols: [
             {
-              key: 'Location_Country_Name',
+              namespace: 'Location_Country_Name',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -263,9 +257,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location Phone Number'),
-          fields: [
+          cols: [
             {
-              key: 'Location_Phone_Number',
+              namespace: 'Location_Phone_Number',
               component: pfFormInput,
               validators: {
                 [i18n.t('Value required.')]: required,
@@ -276,9 +270,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Location URL'),
-          fields: [
+          cols: [
             {
-              key: 'Location_URL',
+              namespace: 'Location_URL',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -288,9 +282,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Coverage Area'),
-          fields: [
+          cols: [
             {
-              key: 'Coverage_Area',
+              namespace: 'Coverage_Area',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -302,12 +296,12 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
     },
     {
       tab: i18n.t('SSID'),
-      fields: [
+      rows: [
         {
           label: i18n.t('SSID Open Auth'),
-          fields: [
+          cols: [
             {
-              key: 'SSID_Open_Auth',
+              namespace: 'SSID_Open_Auth',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -317,9 +311,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('SSID Broadcasted'),
-          fields: [
+          cols: [
             {
-              key: 'SSID_Broadcasted',
+              namespace: 'SSID_Broadcasted',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'Y', unchecked: 'N' }
@@ -329,9 +323,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('WEP Key'),
-          fields: [
+          cols: [
             {
-              key: 'WEP_Key',
+              namespace: 'WEP_Key',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -341,9 +335,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('WEP Key Entry Method'),
-          fields: [
+          cols: [
             {
-              key: 'WEP_Key_Entry_Method',
+              namespace: 'WEP_Key_Entry_Method',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -353,9 +347,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('WEP Key Size'),
-          fields: [
+          cols: [
             {
-              key: 'WEP_Key_Size',
+              namespace: 'WEP_Key_Size',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -365,9 +359,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('SSID 1X'),
-          fields: [
+          cols: [
             {
-              key: 'SSID_1X',
+              namespace: 'SSID_1X',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -377,9 +371,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('SSID 1X Broadcasted'),
-          fields: [
+          cols: [
             {
-              key: 'SSID_1X_Broadcasted',
+              namespace: 'SSID_1X_Broadcasted',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'Y', unchecked: 'N' }
@@ -389,9 +383,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Security Protocol 1X'),
-          fields: [
+          cols: [
             {
-              key: 'Security_Protocol_1X',
+              namespace: 'Security_Protocol_1X',
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
@@ -413,9 +407,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Restricted Access'),
-          fields: [
+          cols: [
             {
-              key: 'Restricted_Access',
+              namespace: 'Restricted_Access',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'Y', unchecked: 'N' }
@@ -425,9 +419,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Client Support'),
-          fields: [
+          cols: [
             {
-              key: 'Client_Support',
+              namespace: 'Client_Support',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -437,9 +431,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('MAC Address'),
-          fields: [
+          cols: [
             {
-              key: 'MAC_Address',
+              namespace: 'MAC_Address',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -451,12 +445,12 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
     },
     {
       tab: i18n.t('Hours'),
-      fields: [
+      rows: [
         {
           label: i18n.t('UTC Timezone'),
-          fields: [
+          cols: [
             {
-              key: 'UTC_Timezone',
+              namespace: 'UTC_Timezone',
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
@@ -863,9 +857,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Open Monday'),
-          fields: [
+          cols: [
             {
-              key: 'Open_Monday',
+              namespace: 'Open_Monday',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -875,9 +869,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Open Tuesday'),
-          fields: [
+          cols: [
             {
-              key: 'Open_Tuesday',
+              namespace: 'Open_Tuesday',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -887,9 +881,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Open Wednesday'),
-          fields: [
+          cols: [
             {
-              key: 'Open_Wednesday',
+              namespace: 'Open_Wednesday',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -899,9 +893,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Open Thursday'),
-          fields: [
+          cols: [
             {
-              key: 'Open_Thursday',
+              namespace: 'Open_Thursday',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -911,9 +905,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Open Friday'),
-          fields: [
+          cols: [
             {
-              key: 'Open_Friday',
+              namespace: 'Open_Friday',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -923,9 +917,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Open Saturday'),
-          fields: [
+          cols: [
             {
-              key: 'Open_Saturday',
+              namespace: 'Open_Saturday',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -935,9 +929,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Open Sunday'),
-          fields: [
+          cols: [
             {
-              key: 'Open_Sunday',
+              namespace: 'Open_Sunday',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -949,12 +943,12 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
     },
     {
       tab: i18n.t('Longitude/Latitude'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Longitude'),
-          fields: [
+          cols: [
             {
-              key: 'Longitude',
+              namespace: 'Longitude',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -964,9 +958,9 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
         },
         {
           label: i18n.t('Latitude'),
-          fields: [
+          cols: [
             {
-              key: 'Latitude',
+              namespace: 'Latitude',
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
@@ -979,6 +973,121 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
   ]
 }
 
-export const pfConfigurationWrixLocationViewDefaults = () => {
-  return {}
+export const validators = (meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255),
+      [i18n.t('WRIX Location exists.')]: not(and(required, conditional(isNew || isClone), hasWRIXLocations, WRIXLocationExists))
+    },
+    Provider_Identifier: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_Identifier: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Service_Provider_Brand: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_Type: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Sub_Location_Type: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    English_Location_Name: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_Address1: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_Address2: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    English_Location_City: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_Zip_Postal_Code: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_State_Province_Name: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_Country_Name: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_Phone_Number: {
+      [i18n.t('Value required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Location_URL: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Coverage_Area: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    SSID_Open_Auth: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    WEP_Key: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    WEP_Key_Entry_Method: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    WEP_Key_Size: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    SSID_1X: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Client_Support: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    MAC_Address: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Open_Monday: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Open_Tuesday: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Open_Wednesday: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Open_Thursday: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Open_Friday: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Open_Saturday: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Open_Sunday: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Longitude: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    Latitude: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    }
+  }
 }

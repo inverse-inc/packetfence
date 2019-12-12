@@ -1044,21 +1044,30 @@ const route = {
       path: 'wrix',
       name: 'wrixLocations',
       component: WrixLocationsList,
-      props: (route) => ({ storeName: '$_wrix_locations', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'wrix/new',
       name: 'newWrixLocation',
       component: WrixLocationView,
-      props: (route) => ({ storeName: '$_wrix_locations', isNew: true })
+      props: () => ({ formStoreName: 'formWrixLocation', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formWrixLocation) { // Register store module only once
+          store.registerModule('formWrixLocation', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'wrix/:id',
       name: 'wrixLocation',
       component: WrixLocationView,
-      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formWrixLocation', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
+        if (!store.state.formWrixLocation) { // Register store module only once
+          store.registerModule('formWrixLocation', FormStore)
+        }
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(() => {
           next()
         })
       }
@@ -1067,8 +1076,11 @@ const route = {
       path: 'wrix/:id/clone',
       name: 'cloneWrixLocation',
       component: WrixLocationView,
-      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formWrixLocation', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formAdminRole) { // Register store module only once
+          store.registerModule('formWrixLocation', FormStore)
+        }
         store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
           next()
         })
