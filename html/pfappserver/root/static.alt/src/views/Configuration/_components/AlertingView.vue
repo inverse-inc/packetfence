@@ -1,11 +1,9 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    @validations="formValidations = $event"
+    :view="view"
     @save="save"
   >
     <template v-slot:header>
@@ -14,7 +12,7 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
@@ -28,55 +26,50 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationAlertingViewFields as fields
-} from '@/globals/configuration/pfConfigurationAlerting'
-
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/alerting'
 
 export default {
   name: 'alerting-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
+  props: {
+    formStoreName: {
+      type: String,
+      default: null,
+      required: true
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters['$_bases/isLoading']
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/alerting
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_bases/isWaiting']
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_bases/isLoading']
     }
   },
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsAlerting').then(options => {
-        this.options = options
-        this.$store.dispatch('$_bases/getAlerting').then(form => {
-          form.test_emailaddr = form.emailaddr // copy recipients into SMTP test
-          this.form = form
-        })
+        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
       })
+      this.$store.dispatch('$_bases/getAlerting').then(form => {
+        form.test_emailaddr = form.emailaddr // copy recipients into SMTP test
+        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+      })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     save () {
       this.$store.dispatch('$_bases/updateAlerting', this.form)

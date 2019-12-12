@@ -13,36 +13,26 @@ import {
   isPort,
   emailsCsv
 } from '@/globals/pfValidators'
-const { email } = require('vuelidate/lib/validators')
+import {
+  email
+} from 'vuelidate/lib/validators'
 
-export const pfConfigurationAlertingViewFields = (context = {}) => {
-  const {
-    form = {},
-    options: {
-      meta = {}
-    }
-  } = context
+export const view = (form = {}, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Recipients'),
           text: i18n.t('Comma-separated list of email addresses to which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message goes to.'),
-          fields: [
+          cols: [
             {
-              key: 'emailaddr',
+              namespace: 'emailaddr',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'emailaddr'),
                 ...{
                   rows: 3
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses')),
-                ...{
-                  [i18n.t('Invalid email address.')]: emailsCsv
                 }
               }
             }
@@ -51,103 +41,86 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
         {
           label: i18n.t('Sender'),
           text: i18n.t('Email address from which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message are sent. Empty means root@<server-domain-name>.'),
-          fields: [
+          cols: [
             {
-              key: 'fromaddr',
+              namespace: 'fromaddr',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'fromaddr'),
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'fromaddr', i18n.t('Email')),
-                ...{
-                  [i18n.t('Invalid email address.')]: email
-                }
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'fromaddr')
             }
           ]
         },
         {
           label: i18n.t('SMTP server'),
           text: i18n.t(`Server through which to send messages to the above emailaddr. The default is localhost - be sure you're running an SMTP host locally if you don't change it!`),
-          fields: [
+          cols: [
             {
-              key: 'smtpserver',
+              namespace: 'smtpserver',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtpserver'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtpserver', i18n.t('Server'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'smtpserver')
             }
           ]
         },
         {
           label: i18n.t('Subject prefix'),
           text: i18n.t('Subject prefix for email notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message.'),
-          fields: [
+          cols: [
             {
-              key: 'subjectprefix',
+              namespace: 'subjectprefix',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'subjectprefix'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'subjectprefix', i18n.t('Prefix'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'subjectprefix')
             }
           ]
         },
         {
           label: i18n.t('SMTP encryption'),
           text: i18n.t('Encryption style when connecting to the SMTP server.'),
-          fields: [
+          cols: [
             {
-              key: 'smtp_encryption',
+              namespace: 'smtp_encryption',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_encryption'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_encryption', i18n.t('Encryption'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_encryption')
             }
           ]
         },
         {
           label: i18n.t('SMTP port'),
           text: i18n.t('The port of the SMTP server. If the port is set to 0 then port is calculated by the encryption type. none: 25, ssl: 465, starttls: 587.'),
-          fields: [
+          cols: [
             {
-              key: 'smtp_port',
+              namespace: 'smtp_port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_port'),
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', i18n.t('Port')),
-                ...{
-                  [i18n.t('Invalid port.')]: isPort
-                }
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_port')
             }
           ]
         },
         {
           label: i18n.t('SMTP username'),
           text: i18n.t('The username used to connect to the SMTP server.'),
-          fields: [
+          cols: [
             {
-              key: 'smtp_username',
+              namespace: 'smtp_username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_username', i18n.t('Username'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_username')
             }
           ]
         },
         {
           label: i18n.t('SMTP password'),
           text: i18n.t('The password used to connect to the SMTP server.'),
-          fields: [
+          cols: [
             {
-              key: 'smtp_password',
+              namespace: 'smtp_password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_password', i18n.t('Password'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_password')
             }
           ]
         },
         {
           label: i18n.t('SMTP Check SSL'),
           text: i18n.t('Verify SSL connection.'),
-          fields: [
+          cols: [
             {
-              key: 'smtp_verifyssl',
+              namespace: 'smtp_verifyssl',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -158,9 +131,9 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
         {
           label: i18n.t('SMTP timeout'),
           text: i18n.t('The timeout in seconds for sending an email.'),
-          fields: [
+          cols: [
             {
-              key: 'smtp_timeout',
+              namespace: 'smtp_timeout',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'smtp_timeout'),
@@ -168,17 +141,16 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
                   type: 'number',
                   step: 1
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_timeout', i18n.t('Timeout'))
+              }
             }
           ]
         },
         {
           label: i18n.t('SMTP test'),
           text: i18n.t('Comma-delimited list of email address(es) to receive test message.'),
-          fields: [
+          cols: [
             {
-              key: 'test_emailaddr',
+              namespace: 'test_emailaddr',
               component: pfFormInput,
               attrs: {
                 test: () => {
@@ -188,9 +160,6 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
                     throw err
                   })
                 }
-              },
-              validators: {
-                [i18n.t('Invalid email address.')]: emailsCsv
               }
             }
           ]
@@ -198,4 +167,36 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  return {
+    emailaddr: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses')),
+      ...{
+        [i18n.t('Invalid email address.')]: emailsCsv
+      }
+    },
+    fromaddr: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'fromaddr', i18n.t('Email')),
+      ...{
+        [i18n.t('Invalid email address.')]: email
+      }
+    },
+    smtpserver: pfConfigurationValidatorsFromMeta(meta, 'smtpserver', i18n.t('Server')),
+    subjectprefix: pfConfigurationValidatorsFromMeta(meta, 'subjectprefix', i18n.t('Prefix')),
+    smtp_encryption: pfConfigurationValidatorsFromMeta(meta, 'smtp_encryption', i18n.t('Encryption')),
+    smtp_port: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', i18n.t('Port')),
+      ...{
+        [i18n.t('Invalid port.')]: isPort
+      }
+    },
+    smtp_username: pfConfigurationValidatorsFromMeta(meta, 'smtp_username', i18n.t('Username')),
+    smtp_password: pfConfigurationValidatorsFromMeta(meta, 'smtp_password', i18n.t('Password')),
+    smtp_timeout: pfConfigurationValidatorsFromMeta(meta, 'smtp_timeout', i18n.t('Timeout')),
+    test_emailaddr: {
+      [i18n.t('Invalid email address.')]: emailsCsv
+    }
+  }
 }
