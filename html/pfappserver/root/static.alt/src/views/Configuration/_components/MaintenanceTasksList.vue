@@ -53,13 +53,6 @@ export default {
     pfEmptyTable,
     pfFormRangeToggle
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
       config: config(this)
@@ -67,17 +60,17 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_maintenance_tasks/isLoading']
     }
   },
   methods: {
     toggleStatus (item, newStatus) {
       switch (newStatus) {
         case 'enabled':
-          this.$store.dispatch(`${this.storeName}/enableMaintenanceTask`, item)
+          this.$store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item)
           break
         case 'disabled':
-          this.$store.dispatch(`${this.storeName}/disableMaintenanceTask`, item)
+          this.$store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item)
           break
       }
     }
