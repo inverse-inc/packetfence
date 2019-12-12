@@ -19,7 +19,7 @@ use pf::cluster;
 
 sub servers {
     my ($self) = @_;
-    my @servers = pf::cluster::enabled_servers;
+    my @servers = pf::cluster::config_enabled_servers;
     $self->render(json => { items => \@servers });
 }
 
