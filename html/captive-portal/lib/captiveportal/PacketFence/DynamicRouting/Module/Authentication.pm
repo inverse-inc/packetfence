@@ -233,12 +233,9 @@ Transfer $self->app->session->{saving_fields} in $self->app->session->{saved_fie
 sub transfer_saving_fields {
     my ($self) = @_;
 
-    foreach my $key (keys %{$self->app->session->{saving_fields}}) {
-        if (grep { $_ eq $key } @{$self->fields_to_save}) {
-            $self->app->session->{saved_fields}->{$key} = $self->app->session->{saving_fields}->{$key};
-        }
+    foreach my $key (@{$self->fields_to_save}) {
+        $self->app->session->{saved_fields}->{$key} = $self->request_fields->{$key};
     }
-    delete $self->app->session->{saving_fields};
 }
 
 =head2 auth_source_params
@@ -357,6 +354,8 @@ sub update_person_from_fields {
     my ($self, %options) = @_;
     $options{additionnal_fields} //= {};
     my $lang = clean_locale($self->app->session->{locale});
+
+    $self->transfer_saving_fields();
     
     # we assume we use 'username' field as the PID when using 'reuseDot1x' feature
     if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
@@ -369,7 +368,7 @@ sub update_person_from_fields {
     }
 
     # not sure we should set the portal + source here...
-    person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
+    person_modify($options{pid}, %{$self->app->session->{saved_fields}}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
 }
 
 =head1 AUTHOR
