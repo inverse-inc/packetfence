@@ -5,6 +5,7 @@
 import apiCall from '@/utils/api'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
+import acl from '@/utils/acl'
 
 const api = {
   getAdminRoles () {
@@ -314,7 +315,7 @@ const helpers = {
     let ret = []
     if (switches) {
       let groups = [...new Set(switches.map(sw => sw.group))]
-      groups.forEach(function (group, index, groups) {
+      groups.forEach(function (group) {
         ret.push({ group: group, switches: switches.filter(sw => sw.group === group) })
       })
     }
@@ -1183,15 +1184,18 @@ const actions = {
     if (getters.isLoadingSecurityEvents) {
       return Promise.resolve(state.securityEvents)
     }
-    if (!state.securityEvents) {
-      commit('SECURITY_EVENTS_REQUEST')
-      return api.getSecurityEvents().then(response => {
-        commit('SECURITY_EVENTS_UPDATED', response.data.items)
-        return state.securityEvents
-      })
+    if (acl.$can('read', 'security_events')) {
+      if (!state.securityEvents) {
+        commit('SECURITY_EVENTS_REQUEST')
+        return api.getSecurityEvents().then(response => {
+          commit('SECURITY_EVENTS_UPDATED', response.data.items)
+          return state.securityEvents
+        })
+      }
     } else {
-      return Promise.resolve(state.securityEvents)
+      commit('SECURITY_EVENTS_UPDATED', [])
     }
+    return Promise.resolve(state.securityEvents)
   },
   getSources: ({ state, getters, commit }) => {
     if (getters.isLoadingSources) {
@@ -1229,7 +1233,7 @@ const actions = {
       commit('SWICTHES_REQUEST')
       return api.getSwitches().then(response => {
         // group can be undefined
-        response.data.items.forEach(function (item, index, items) {
+        response.data.items.forEach(function (item, index) {
           response.data.items[index] = Object.assign({ group: item.group || 'Default' }, item)
         })
         commit('SWICTHES_UPDATED', response.data.items)
