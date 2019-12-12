@@ -8,28 +8,28 @@
         <b-form-row align-v="center">
           <b-col sm="12">
             <pf-form-input :column-label="$t('MAC')"
-              :formStoreName="formStoreName" formNamespace="mac"
+              :form-store-name="formStoreName" form-namespace="mac"
             />
             <pf-form-autocomplete :column-label="$t('Owner')"
-              :formStoreName="formStoreName" formNamespace="pid"
+              :form-store-name="formStoreName" form-namespace="pid"
               :suggestions="matchingUsers"
               placeholder="default"
               @search="searchUsers"
             />
             <pf-form-select :column-label="$t('Status')"
-              :formStoreName="formStoreName" formNamespace="status"
+              :form-store-name="formStoreName" form-namespace="status"
               :options="statuses"
             />
             <pf-form-select :column-label="$t('Role')"
-              :formStoreName="formStoreName" formNamespace="category_id"
+              :form-store-name="formStoreName" form-namespace="category_id"
               :options="roles"
             />
             <pf-form-datetime :column-label="$t('Unregistration')"
-              :formStoreName="formStoreName" formNamespace="unregdate"
+              :form-store-name="formStoreName" form-namespace="unregdate"
               :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
             />
             <pf-form-textarea :column-label="$t('Notes')"
-              :formStoreName="formStoreName" formNamespace="notes"
+              :form-store-name="formStoreName" form-namespace="notes"
               rows="3" max-rows="3"
             />
           </b-col>

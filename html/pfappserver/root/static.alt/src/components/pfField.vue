@@ -7,8 +7,8 @@
     </b-col>
     <b-col cols="10" align-self="start">
       <component ref="component"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}`"
+        :form-store-mame="formStoreName"
+        :form-namespace="`${formNamespace}`"
         v-bind="field.attrs"
         v-on="forwardListeners"
         :is="field.component"

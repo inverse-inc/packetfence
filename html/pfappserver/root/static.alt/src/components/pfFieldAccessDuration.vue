@@ -8,7 +8,7 @@
     <b-col cols="1" align-self="start">
 
       <pf-form-input ref="interval"
-        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.interval`"
+        :form-store-name="formStoreName" :form-namespace="`${formNamespace}.interval`"
         :placeholder="'#'"
         :disabled="disabled"
         class="mr-1"
@@ -18,7 +18,7 @@
     <b-col cols="2" align-self="start">
 
       <pf-form-chosen ref="unit"
-        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.unit`"
+        :form-store-name="formStoreName" :form-namespace="`${formNamespace}.unit`"
         :placeholder="$t('Choose')"
         :options="intervals"
         :disabled="disabled || intervals.length === 0"
@@ -34,7 +34,7 @@
     <b-col cols="1" align-self="start" class="text-center">
 
       <pf-form-range-triple ref="base"
-        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.base`"
+        :form-store-name="formStoreName" :form-namespace="`${formNamespace}.base`"
         :values="{ left: null, middle: 'F', right: 'R' }"
         :icons="{ left: 'times', middle: 'step-backward', right: 'fast-backward' }"
         :colors="{ left: null, middle: 'var(--primary)', right: 'var(--success)' }"
@@ -52,7 +52,7 @@
     <b-col cols="1" align-self="start">
 
       <pf-form-input ref="extendedInterval" v-if="localBase"
-        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.extendedInterval`"
+        :form-store-name="formStoreName" :form-namespace="`${formNamespace}.extendedInterval`"
         :placeholder="'#'"
         :disabled="disabled"
         class="mr-1"
@@ -62,7 +62,7 @@
     <b-col cols="2" align-self="start">
 
       <pf-form-chosen ref="extendedUnit" v-if="localBase"
-        :formStoreName="formStoreName" :formNamespace="`${formNamespace}.extendedUnit`"
+        :form-store-name="formStoreName" :form-namespace="`${formNamespace}.extendedUnit`"
         :placeholder="$t('Choose')"
         :options="intervals"
         :disabled="disabled || intervals.length === 0"

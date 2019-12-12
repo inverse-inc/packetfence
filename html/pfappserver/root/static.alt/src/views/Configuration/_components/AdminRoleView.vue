@@ -1,6 +1,6 @@
 <template>
   <pf-config-view
-    :formStoreName="formStoreName"
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
     :isDeletable="isDeletable"

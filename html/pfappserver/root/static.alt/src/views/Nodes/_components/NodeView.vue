@@ -15,47 +15,47 @@
           <b-row>
             <b-col>
               <pf-form-autocomplete :column-label="$t('Owner')"
-                :formStoreName="formStoreName" formNamespace="pid"
+                :form-store-name="formStoreName" form-namespace="pid"
                 :suggestions="matchingUsers"
                 placeholder="default"
                 @search="searchUsers"
               />
               <pf-form-select :column-label="$t('Status')"
-                :formStoreName="formStoreName" formNamespace="status"
+                :form-store-name="formStoreName" form-namespace="status"
                 :options="statuses"
               />
               <pf-form-select :column-label="$t('Role')"
-                :formStoreName="formStoreName" formNamespace="category_id"
+                :form-store-name="formStoreName" form-namespace="category_id"
                 :options="rolesWithNull"
               />
               <pf-form-datetime :column-label="$t('Unregistration')"
-                :formStoreName="formStoreName" formNamespace="unregdate"
+                :form-store-name="formStoreName" form-namespace="unregdate"
                 :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
               />
               <pf-form-input :column-label="$t('Access Time Balance')"
-                :formStoreName="formStoreName" formNamespace="time_balance"
+                :form-store-name="formStoreName" form-namespace="time_balance"
                 :text="$t('Seconds')"
                 type="number"
               />
               <pf-form-prefix-multiplier :column-label="$t('Bandwidth Balance')"
-                :formStoreName="formStoreName" formNamespace="bandwidth_balance"
+                :form-store-name="formStoreName" form-namespace="bandwidth_balance"
                 :max="sqlLimits.ubigint.max"
               />
               <pf-form-range-toggle :column-label="$t('Voice Over IP')"
-                :formStoreName="formStoreName" formNamespace="voip"
+                :form-store-name="formStoreName" form-namespace="voip"
                 :values="{checked: 'yes', unchecked: 'no'}"
                 :rightLabels="{checked: $t('Yes'), unchecked: $t('No')}"
               />
               <pf-form-input :column-label="$t('Bypass VLAN')"
-                :formStoreName="formStoreName" formNamespace="bypass_vlan"
+                :form-store-name="formStoreName" form-namespace="bypass_vlan"
                 type="text"
               />
               <pf-form-select :column-label="$t('Bypass Role')"
-                :formStoreName="formStoreName" formNamespace="bypass_role_id"
+                :form-store-name="formStoreName" form-namespace="bypass_role_id"
                 :options="rolesWithNull"
               />
               <pf-form-textarea :column-label="$t('Notes')"
-                :formStoreName="formStoreName" formNamespace="notes"
+                :form-store-name="formStoreName" form-namespace="notes"
                 rows="3" max-rows="3"
               />
             </b-col>

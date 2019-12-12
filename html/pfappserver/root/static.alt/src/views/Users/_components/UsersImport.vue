@@ -36,7 +36,7 @@
                   <b-row>
                     <b-col>
                       <pf-form-datetime
-                        :formStoreName="formStoreName" formNamespace="valid_from"
+                        :form-store-name="formStoreName" form-namespace="valid_from"
                         :min="new Date()"
                         :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                       />
@@ -44,7 +44,7 @@
                     <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
                     <b-col>
                       <pf-form-datetime
-                        :formStoreName="formStoreName" formNamespace="expiration"
+                        :form-store-name="formStoreName" form-namespace="expiration"
                         :min="new Date()"
                         :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                       />
@@ -52,7 +52,7 @@
                   </b-row>
                 </b-form-group>
                 <pf-form-fields :column-label="$t('Actions')"
-                  :formStoreName="formStoreName" formNamespace="actions"
+                  :form-store-name="formStoreName" form-namespace="actions"
                   :button-label="$t('Add Action')"
                   :field="actionField"
                   sortable

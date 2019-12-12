@@ -8,8 +8,8 @@
     <b-col :sm="($slots.prepend && $slots.append) ? 4 : (($slots.prepend || $slots.append) ? 5 : 6)" align-self="start">
 
       <pf-form-chosen ref="type"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}.type`"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.type`"
         v-on="forwardListeners"
         label="text"
         track-by="value"
@@ -24,8 +24,8 @@
     <b-col sm="6" align-self="start" class="pl-1">
 
       <pf-form-chosen ref="value" v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}.value`"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
         v-on="listeners"
         v-bind="fieldAttrs"
         label="name"
@@ -37,8 +37,8 @@
       ></pf-form-chosen>
 
       <pf-form-datetime ref="value" v-else-if="isComponentType([componentType.DATETIME])"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}.value`"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
         :moments="moments"
         :placeholder="valuePlaceholder"
@@ -46,22 +46,22 @@
       ></pf-form-datetime>
 
       <pf-form-prefix-multiplier ref="value" v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}.value`"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
       ></pf-form-prefix-multiplier>
 
       <pf-form-input ref="value" v-else-if="isComponentType([componentType.SUBSTRING])"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}.value`"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
       ></pf-form-input>
 
       <pf-form-input ref="value" v-else-if="isComponentType([componentType.INTEGER])"
-        :formStoreName="formStoreName"
-        :formNamespace="`${formNamespace}.value`"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
         type="number"
         step="1"
         :placeholder="valuePlaceholder"

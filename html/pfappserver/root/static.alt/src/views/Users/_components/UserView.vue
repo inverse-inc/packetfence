@@ -13,76 +13,76 @@
             {{ $t('Profile') }}
           </template>
           <pf-form-input :column-label="$t('Username (PID)')"
-            :formStoreName="formStoreName" formNamespace="pid"
+            :form-store-name="formStoreName" form-namespace="pid"
             :text="$t('The username used for login to the captive portal.')"
             readonly
           />
           <pf-form-input :column-label="$t('Email')"
-            :formStoreName="formStoreName" formNamespace="email"
+            :form-store-name="formStoreName" form-namespace="email"
           />
           <pf-form-input :column-label="$t('Sponsor')"
-            :formStoreName="formStoreName" formNamespace="sponsor"
+            :form-store-name="formStoreName" form-namespace="sponsor"
           />
           <pf-form-input :column-label="$t('Language')"
-            :formStoreName="formStoreName" formNamespace="lang"
+            :form-store-name="formStoreName" form-namespace="lang"
           />
           <pf-form-chosen :column-label="$t('Gender')"
-            :formStoreName="formStoreName" formNamespace="gender"
+            :form-store-name="formStoreName" form-namespace="gender"
             label="text"
             track-by="value"
             :placeholder="$t('Choose gender')"
             :options="genders"
           />
           <pf-form-input :column-label="$t('Title')"
-            :formStoreName="formStoreName" formNamespace="title"
+            :form-store-name="formStoreName" form-namespace="title"
           />
           <pf-form-input :column-label="$t('Firstname')"
-            :formStoreName="formStoreName" formNamespace="firstname"
+            :form-store-name="formStoreName" form-namespace="firstname"
           />
           <pf-form-input :column-label="$t('Lastname')"
-            :formStoreName="formStoreName" formNamespace="lastname"
+            :form-store-name="formStoreName" form-namespace="lastname"
           />
           <pf-form-input :column-label="$t('Nickname')"
-            :formStoreName="formStoreName" formNamespace="nickname"
+            :form-store-name="formStoreName" form-namespace="nickname"
           />
           <pf-form-input :column-label="$t('Company')"
-            :formStoreName="formStoreName" formNamespace="company"
+            :form-store-name="formStoreName" form-namespace="company"
           />
           <pf-form-input :column-label="$t('Telephone number')"
-            :formStoreName="formStoreName" formNamespace="telephone"
+            :form-store-name="formStoreName" form-namespace="telephone"
           />
           <pf-form-input :column-label="$t('Cellphone number')"
-            :formStoreName="formStoreName" formNamespace="cell_phone"
+            :form-store-name="formStoreName" form-namespace="cell_phone"
           />
           <pf-form-input :column-label="$t('Workphone number')"
-            :formStoreName="formStoreName" formNamespace="work_phone"
+            :form-store-name="formStoreName" form-namespace="work_phone"
           />
           <pf-form-input :column-label="$t('Apartment number')"
-            :formStoreName="formStoreName" formNamespace="apartment_number"
+            :form-store-name="formStoreName" form-namespace="apartment_number"
           />
           <pf-form-input :column-label="$t('Building Number')"
-            :formStoreName="formStoreName" formNamespace="building_number"
+            :form-store-name="formStoreName" form-namespace="building_number"
           />
           <pf-form-input :column-label="$t('Room Number')"
-            :formStoreName="formStoreName" formNamespace="room_number"
+            :form-store-name="formStoreName" form-namespace="room_number"
           />
           <pf-form-textarea :column-label="$t('Address')"
-            :formStoreName="formStoreName" formNamespace="address"
+            :form-store-name="formStoreName" form-namespace="address"
              rows="4" max-rows="6"
           />
           <pf-form-datetime :column-label="$t('Anniversary')"
-            :formStoreName="formStoreName" formNamespace="anniversary"
+            :form-store-name="formStoreName" form-namespace="anniversary"
             :config="{datetimeFormat: schema.person.anniversary.format}"
           />
           <pf-form-datetime :column-label="$t('Birthday')"
-            :formStoreName="formStoreName" formNamespace="birthday"
+            :form-store-name="formStoreName" form-namespace="birthday"
             :config="{datetimeFormat: schema.person.birthday.format}"
           />
           <pf-form-input :column-label="$t('Psk')"
-            :formStoreName="formStoreName" formNamespace="psk"
+            :form-store-name="formStoreName" form-namespace="psk"
           />
           <pf-form-textarea :column-label="$t('Notes')"
-            :formStoreName="formStoreName" formNamespace="notes"
+            :form-store-name="formStoreName" form-namespace="notes"
             rows="3" max-rows="3"
           />
         </b-tab>
@@ -92,12 +92,12 @@
             {{ $t('Password') }}
           </template>
           <pf-form-password :column-label="$t('Password')"
-            :formStoreName="formStoreName" formNamespace="password"
+            :form-store-name="formStoreName" form-namespace="password"
             :text="$t('Leave empty to keep current password.')"
             generate
           />
           <pf-form-input :column-label="$t('Login remaining')"
-            :formStoreName="formStoreName" formNamespace="login_remaining"
+            :form-store-name="formStoreName" form-namespace="login_remaining"
             :text="$t('Leave empty to allow unlimited logins.')"
             type="number"
           />
@@ -109,14 +109,14 @@
             <b-row>
               <b-col>
                 <pf-form-datetime
-                  :formStoreName="formStoreName" formNamespace="valid_from"
+                  :form-store-name="formStoreName" form-namespace="valid_from"
                   :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
                 <pf-form-datetime
-                  :formStoreName="formStoreName" formNamespace="expiration"
+                  :form-store-name="formStoreName" form-namespace="expiration"
                   :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                 />
               </b-col>
@@ -124,7 +124,7 @@
           </b-form-group>
 
           <pf-form-fields :column-label="$t('Actions')"
-            :formStoreName="formStoreName" formNamespace="actions"
+            :form-store-name="formStoreName" form-namespace="actions"
             :button-label="$t('Add Action')"
             :field="actionField"
             sortable
@@ -138,7 +138,7 @@
           <b-form-row>
             <b-col>
               <pf-form-input v-for="i in 9"  :column-label="'Custom Field ' + i" :key="i"
-                :formStoreName="formStoreName" :formNamespace="`custom_field_${i}`"
+                :form-store-name="formStoreName" :form-namespace="`custom_field_${i}`"
               />
             </b-col>
           </b-form-row>

@@ -32,8 +32,8 @@
         >
           <component :ref="'component-' + index"
             :is="field.component"
-            :formStoreName="formStoreName"
-            :formNamespace="`${formNamespace}.${index}`"
+            :form-store-name="formStoreName"
+            :form-namespace="`${formNamespace}.${index}`"
             v-model="inputValue[index]"
             v-bind="field.attrs"
             v-on="field.listeners"
