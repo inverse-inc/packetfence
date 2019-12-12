@@ -1,35 +1,14 @@
 /**
  * "session" store module
  */
-import Acl from 'vue-browser-acl'
-import Vue from 'vue'
 import qs from 'qs'
-import router from '@/router'
 import { types } from '@/store'
+import acl, { setupAcl } from '@/utils/acl'
 import apiCall, { pfappserverCall } from '@/utils/api'
 import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
 
 const STORAGE_TOKEN_KEY = 'user-token'
-
-const ADMIN_ROLES_ACTIONS = [
-  'create',
-  'create_overwrite',
-  'create_multiple',
-  'delete',
-  'mark_as_sponsor',
-  'read',
-  'read_sponsored',
-  'set_access_level',
-  'set_access_duration',
-  'set_bandwidth_balance',
-  'set_role',
-  'set_tenant_id',
-  'set_time_balance',
-  'set_unreg_date',
-  'update',
-  'write'
-]
 
 const api = {
   login: user => {
@@ -110,30 +89,6 @@ const state = {
   allowedUserUnregDateStatus: ''
 }
 
-const setupAcl = (acl) => {
-  if (!Vue.$acl) Vue.$acl = acl
-  for (const role of state.roles) {
-    let action = ''
-    let target = ''
-    for (const currentAction of ADMIN_ROLES_ACTIONS) {
-      if (role.toLowerCase().endsWith(currentAction)) {
-        action = currentAction.replace(/_/g, '-')
-        target = role.substring(0, role.length - action.length - 1).toLowerCase()
-        break
-      }
-    }
-    if (!target) {
-      // eslint-disable-next-line
-      console.warn(`No action found for ${role}`)
-      action = 'access'
-      target = role.toLowerCase()
-    }
-    // eslint-disable-next-line
-    console.debug('configure acl ' + action + ' => ' + target)
-    acl.rule(action, target, () => true)
-  }
-}
-
 const getters = {
   isLoading: state => state.loginStatus === types.LOADING,
   isAuthenticated: state => !!state.token && state.roles.length > 0,
@@ -186,22 +141,18 @@ const actions = {
       return Promise.reject(new Error('No token'))
     }
   },
-  update: ({ state, commit, dispatch }, token) => {
+  update: ({ commit, dispatch }, token) => {
     localStorage.setItem(STORAGE_TOKEN_KEY, token)
     api.setToken(token)
     commit('TOKEN_UPDATED', token)
     return dispatch('getTokenInfo').then(roles => {
       commit('ROLES_UPDATED', roles)
-      if (Vue.$acl) {
-        setupAcl(Vue.$acl)
-      } else {
-        Vue.use(Acl, () => state.roles, setupAcl, { caseMode: false, router })
-      }
+      setupAcl()
     })
   },
   delete: ({ commit }) => {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
-    if (Vue.$acl) Vue.$acl = Vue.$acl.reset()
+    acl.reset()
     commit('TOKEN_DELETED')
     commit('EXPIRES_AT_DELETED')
     commit('USERNAME_DELETED')
@@ -271,7 +222,7 @@ const actions = {
     }
     return Promise.resolve(params.lang)
   },
-  getAllowedNodeRoles: ({ state, getters, commit }) => {
+  getAllowedNodeRoles: ({ state, commit }) => {
     if (state.allowedNodeRoles) {
       return Promise.resolve(state.allowedNodeRoles)
     }
@@ -281,7 +232,7 @@ const actions = {
       return state.allowedNodeRoles
     })
   },
-  getAllowedUserAccessDurations: ({ state, getters, commit }) => {
+  getAllowedUserAccessDurations: ({ state, commit }) => {
     if (state.allowedUserAccessDurations) {
       return Promise.resolve(state.allowedUserAccessDurations)
     }
@@ -291,7 +242,7 @@ const actions = {
       return state.allowedUserAccessDurations
     })
   },
-  getAllowedUserAccessLevels: ({ state, getters, commit }) => {
+  getAllowedUserAccessLevels: ({ state, commit }) => {
     if (state.allowedUserAccessLevels) {
       return Promise.resolve(state.allowedUserAccessLevels)
     }
@@ -301,7 +252,7 @@ const actions = {
       return state.allowedUserAccessLevels
     })
   },
-  getAllowedUserActions: ({ state, getters, commit }) => {
+  getAllowedUserActions: ({ state, commit }) => {
     if (state.allowedUserActions) {
       return Promise.resolve(state.allowedUserActions)
     }
@@ -311,7 +262,7 @@ const actions = {
       return state.allowedUserActions
     })
   },
-  getAllowedUserRoles: ({ state, getters, commit }) => {
+  getAllowedUserRoles: ({ state, commit }) => {
     if (state.allowedUserRoles) {
       return Promise.resolve(state.allowedUserRoles)
     }
@@ -321,7 +272,7 @@ const actions = {
       return state.allowedUserRoles
     })
   },
-  getAllowedUserUnregDate: ({ state, getters, commit }) => {
+  getAllowedUserUnregDate: ({ state, commit }) => {
     if (state.allowedUserUnregDate) {
       return Promise.resolve(state.allowedUserUnregDate)
     }
@@ -434,7 +385,7 @@ const mutations = {
     state.allowedUserActionsStatus = types.SUCCESS
     state.allowedUserActions = data
   },
-  ALLOWED_USER_ACTIONS_DELETED: (state, data) => {
+  ALLOWED_USER_ACTIONS_DELETED: (state) => {
     state.allowedUserActions = false
   },
   ALLOWED_USER_ROLES_REQUEST: (state) => {
@@ -444,7 +395,7 @@ const mutations = {
     state.allowedUserRolesStatus = types.SUCCESS
     state.allowedUserRoles = data
   },
-  ALLOWED_USER_ROLES_DELETED: (state, data) => {
+  ALLOWED_USER_ROLES_DELETED: (state) => {
     state.allowedUserRoles = false
   },
   ALLOWED_USER_UNREG_DATE_REQUEST: (state) => {
@@ -454,7 +405,7 @@ const mutations = {
     state.allowedUserUnregDateStatus = types.SUCCESS
     state.allowedUserUnregDate = data
   },
-  ALLOWED_USER_UNREG_DATE_DELETED: (state, data) => {
+  ALLOWED_USER_UNREG_DATE_DELETED: (state) => {
     state.allowedUserUnregDate = false
   }
 }
