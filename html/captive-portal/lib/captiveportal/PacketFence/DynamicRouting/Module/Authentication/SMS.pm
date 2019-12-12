@@ -217,7 +217,6 @@ sub validate_pin {
     }
     my $mac = $self->current_mac;
     if (my $record = pf::activation::validate_code_with_mac($SMS_ACTIVATION, $pin, $mac)) {
-        $self->transfer_saving_fields();
         return ($TRUE, 0, $record);
     }
     pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED, $self->app->profile->name);
