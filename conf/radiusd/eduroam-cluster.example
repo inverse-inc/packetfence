@@ -27,6 +27,7 @@ server eduroam.cluster {
         }
 
         authorize {
+            packetfence-set-realm-if-machine
             suffix
             ntdomain
             %%local_realm%%
