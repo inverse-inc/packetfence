@@ -146,7 +146,8 @@ export default {
                 if (!('cols' in row)) return rowCount
                 return row.cols.reduce((colCount, col) => {
                   if (!('namespace' in col)) return colCount
-                  if (this.$store.getters[`${this.formStoreName}/$stateNS`](col.namespace).$invalid) colCount++
+                  const { $invalid = false, $pending = false } = this.$store.getters[`${this.formStoreName}/$stateNS`](col.namespace)
+                  if ($invalid && !$pending) colCount++
                   return colCount
                 }, rowCount)
               }, 0)
