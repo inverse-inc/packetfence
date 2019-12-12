@@ -16,12 +16,11 @@ import {
   hasAdminRoles,
   adminRoleExists
 } from '@/globals/pfValidators'
-
-const {
+import {
   required
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
-export const pfConfigurationAdminRolesListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Role Name'),
@@ -42,7 +41,7 @@ export const pfConfigurationAdminRolesListColumns = [
   }
 ]
 
-export const pfConfigurationAdminRolesListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Role Name'),
@@ -55,10 +54,10 @@ export const pfConfigurationAdminRolesListFields = [
   }
 ]
 
-export const pfConfigurationAdminRoleListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationAdminRolesListColumns,
-    fields: pfConfigurationAdminRolesListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'admin_role', params: { id: item.id } }
     },
@@ -98,7 +97,7 @@ export const pfConfigurationAdminRoleListConfig = () => {
   }
 }
 
-export const pfConfigurationAdminRoleActions = [
+export const actions = [
   {
     group: 'Admin Roles',
     items: [
@@ -434,36 +433,28 @@ export const pfConfigurationAdminRoleActions = [
   }
 ]
 
-export const pfConfigurationAdminRoleViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
+  const {
+    actions: formActions = [] // rename to avoid conflict w/ global
+  } = form
   const {
     isNew = false,
-    isClone = false,
-    options: {
-      meta = {}
-    },
-    form = {}
-  } = context
-
+    isClone = false
+  } = meta
   return [
     {
       tab: i18n.t('General'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Name'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
-                ...{
-                  [i18n.t('Admin Role exists.')]: not(and(required, conditional(isNew || isClone), hasAdminRoles, adminRoleExists))
                 }
               }
             }
@@ -471,20 +462,19 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Description'),
-          fields: [
+          cols: [
             {
-              key: 'description',
+              namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'description')
             }
           ]
         },
         {
           label: i18n.t('Actions'),
-          fields: [
+          cols: [
             {
-              key: 'actions',
+              namespace: 'actions',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Action'),
@@ -502,22 +492,17 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
                         groupValues: 'items',
                         trackBy: 'value',
                         label: 'text',
-                        options: pfConfigurationAdminRoleActions,
+                        options: actions.map(group => {
+                          return { ...group, ...{ items: group.items.map(item => {
+                            return { ...item, ...{ $isDisabled: (formActions && formActions.includes(item.value)) } }
+                          }) } }
+                        }),
                         optionsLimit: 500
-
-                      },
-                      validators: {
-                        [i18n.t('Action required.')]: required,
-                        [i18n.t('Duplicate action.')]: conditional((value) => {
-                          return !(form.actions.filter(v => v === value).length > 1)
-                        })
                       }
                     }
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Action(s) contain one or more errors.')]: true }
-                ]
+                invalidFeedback: i18n.t('Action(s) contain one or more errors.')
               }
             }
           ]
@@ -526,49 +511,46 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('User Options'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Allowed user access levels'),
           text: i18n.t('List of access levels available to the admin user. If none are provided then all access levels are available.'),
-          fields: [
+          cols: [
             {
-              key: 'allowed_access_levels',
+              namespace: 'allowed_access_levels',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_levels'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_levels', i18n.t('Access Levels'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_levels')
             }
           ]
         },
         {
           label: i18n.t('Allowed user roles'),
           text: i18n.t('List of roles available to the admin user to assign to a user. If none are provided then all roles are available.'),
-          fields: [
+          cols: [
             {
-              key: 'allowed_roles',
+              namespace: 'allowed_roles',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_roles'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_roles', i18n.t('Roles'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_roles')
             }
           ]
         },
         {
           label: i18n.t('Allowed user access durations'),
           text: i18n.t('A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used.'),
-          fields: [
+          cols: [
             {
-              key: 'allowed_access_durations',
+              namespace: 'allowed_access_durations',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_durations'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_durations', i18n.t('Durations'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_durations')
             }
           ]
         },
         {
           label: i18n.t('Maximum allowed unregistration date'),
           text: i18n.t('The maximal unregistration date that can be set.'),
-          fields: [
+          cols: [
             {
-              key: 'allowed_unreg_date',
+              namespace: 'allowed_unreg_date',
               component: pfFormDatetime,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'allowed_unreg_date'),
@@ -577,20 +559,18 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
                     datetimeFormat: 'YYYY-MM-DD'
                   }
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_unreg_date', i18n.t('Datetime'))
+              }
             }
           ]
         },
         {
           label: i18n.t('Allowed actions'),
           text: i18n.t('List of actions available to the admin user. If none are provided then all actions are available.'),
-          fields: [
+          cols: [
             {
-              key: 'allowed_actions',
+              namespace: 'allowed_actions',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_actions'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_actions', i18n.t('Actions'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_actions')
             }
           ]
         }
@@ -598,20 +578,50 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('Node Options'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Allowed node roles'),
           text: i18n.t('List of roles available to the admin user to assign to a node. If none are provided then all roles are available.'),
-          fields: [
+          cols: [
             {
-              key: 'allowed_node_roles',
+              namespace: 'allowed_node_roles',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_node_roles'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_node_roles', i18n.t('Roles'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_node_roles')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    actions = []
+  } = form
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...{
+        [i18n.t('Admin Role exists.')]: not(and(required, conditional(isNew || isClone), hasAdminRoles, adminRoleExists))
+      }
+    },
+    description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
+    actions: {
+      $each: {
+        [i18n.t('Action required.')]: required,
+        [i18n.t('Duplicate action.')]: conditional((value) => !(actions.filter(v => v === value).length > 1))
+      }
+    },
+    allowed_access_levels: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_levels', i18n.t('Access Levels')),
+    allowed_roles: pfConfigurationValidatorsFromMeta(meta, 'allowed_roles', i18n.t('Roles')),
+    allowed_access_durations: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_durations', i18n.t('Durations')),
+    allowed_unreg_date: pfConfigurationValidatorsFromMeta(meta, 'allowed_unreg_date', i18n.t('Datetime')),
+    allowed_actions: pfConfigurationValidatorsFromMeta(meta, 'allowed_actions', i18n.t('Actions')),
+    allowed_node_roles: pfConfigurationValidatorsFromMeta(meta, 'allowed_node_roles', i18n.t('Roles'))
+  }
 }

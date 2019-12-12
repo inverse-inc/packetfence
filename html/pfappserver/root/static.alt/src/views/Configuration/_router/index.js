@@ -1533,20 +1533,29 @@ const route = {
       path: 'admin_roles',
       name: 'admin_roles',
       component: AdminRolesList,
-      props: (route) => ({ storeName: '$_admin_roles', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'admin_roles/new',
       name: 'newAdminRole',
       component: AdminRoleView,
-      props: (route) => ({ storeName: '$_admin_roles', isNew: true })
+      props: (route) => ({ formStoreName: 'formAdminRole', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formAdminRole) { // Register store module only once
+          store.registerModule('formAdminRole', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'admin_role/:id',
       name: 'admin_role',
       component: AdminRoleView,
-      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formAdminRole', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formAdminRole) { // Register store module only once
+          store.registerModule('formAdminRole', FormStore)
+        }
         store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
           next()
         })
@@ -1556,8 +1565,11 @@ const route = {
       path: 'admin_role/:id/clone',
       name: 'cloneAdminRole',
       component: AdminRoleView,
-      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formAdminRole', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formAdminRole) { // Register store module only once
+          store.registerModule('formAdminRole', FormStore)
+        }
         store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
           next()
         })
