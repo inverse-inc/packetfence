@@ -6,17 +6,15 @@
       <slot name="prepend"></slot>
     </b-col>
     <b-col cols="10" align-self="start">
-      <component
-        v-model="inputValue"
+      <component ref="component"
+        :formStoreName="formStoreName"
+        :formNamespace="`${formNamespace}`"
         v-bind="field.attrs"
         v-on="forwardListeners"
         :is="field.component"
-        :vuelidate="vuelidate"
         :disabled="disabled"
-        ref="component"
         no-gutter
       ></component>
-
     </b-col>
     <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="append"></slot>
@@ -26,18 +24,19 @@
 
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import pfMixinForm from '@/components/pfMixinForm'
+
 export default {
   name: 'pf-field',
+  mixins: [
+    pfMixinForm
+  ],
   props: {
     value: {
       type: Object,
       default: () => { return this.default }
     },
     field: {
-      type: Object,
-      default: () => { return {} }
-    },
-    vuelidate: {
       type: Object,
       default: () => { return {} }
     },
@@ -54,11 +53,10 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return this.value
+        return { ...this.default, ...this.formStoreValue } // use FormStore
       },
-      set (newValue) {
-        this.emitValidations()
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        this.formStoreValue = newValue // use FormStore
       }
     },
     forwardListeners () {
@@ -67,26 +65,10 @@ export default {
     }
   },
   methods: {
-    buildLocalValidations () {
-      const { field } = this
-      if (field) {
-        const { validators } = field
-        if (validators) {
-          return validators
-        }
-      }
-      return {}
-    },
-    emitValidations () {
-      this.$emit('validations', this.buildLocalValidations())
-    },
     focus () {
-      const { component: { $refs: { input: { $el } } } } = this.$refs
-      if ('focus' in $el) $el.focus()
+      const { $refs: { component: { focus = () => {} } = {} } = {} } = this
+      focus()
     }
-  },
-  created () {
-    this.emitValidations()
   }
 }
 </script>
