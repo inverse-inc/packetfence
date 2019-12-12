@@ -9,7 +9,7 @@
           </h4>
         </slot>
       </b-card-header>
-      <b-tabs v-if="view[0].tab || view.length > 1" v-model="tabIndex" :key="tabKey" card>
+      <b-tabs v-if="view && (view[0].tab || view.length > 1)" v-model="tabIndex" :key="tabKey" card>
         <template v-for="(tab, t) in view">
           <b-tab v-if="!('if' in tab) || tab.if" :key="t"
             :disabled="tab.disabled"
