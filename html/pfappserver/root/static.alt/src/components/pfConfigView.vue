@@ -115,6 +115,7 @@ export default {
     return {
       tabKey: uuidv4(), // control tabs DOM rendering
       tabIndex: this.initialTabIndex,
+      tabErrorCountCache: false,
       defaultComponent: pfFormInput
     }
   },
@@ -132,17 +133,29 @@ export default {
       }
       return true
     },
-    tabErrorCount () {
-      return this.view.map(view => {
-        return view.rows.reduce((rowCount, row) => {
-          if (!('cols' in row)) return rowCount
-          return row.cols.reduce((colCount, col) => {
-            if (!('namespace' in col)) return colCount
-            if (this.$store.getters[`${this.formStoreName}/$stateNS`](col.namespace).$invalid) colCount++
-            return colCount
-          }, rowCount)
-        }, 0)
-      })
+    tabErrorCount: {
+      get () {
+        if (!this.tabErrorCountDebouncer) {
+          this.tabErrorCountDebouncer = createDebouncer()
+          this.tabErrorCountCache = this.view.map(() => 0)
+        }
+        this.tabErrorCountDebouncer({
+          handler: () => {
+            this.tabErrorCountCache = this.view.map(view => {
+              return view.rows.reduce((rowCount, row) => {
+                if (!('cols' in row)) return rowCount
+                return row.cols.reduce((colCount, col) => {
+                  if (!('namespace' in col)) return colCount
+                  if (this.$store.getters[`${this.formStoreName}/$stateNS`](col.namespace).$invalid) colCount++
+                  return colCount
+                }, rowCount)
+              }, 0)
+            })
+          },
+          time: 1000 // 1 second
+        })
+        return this.tabErrorCountCache
+      }
     }
   },
   methods: {
@@ -198,6 +211,9 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  .nav-tabs .nav-link {
+    transition: 300ms ease all;
   }
   .nav-tabs .nav-link.is-invalid {
     color: $form-feedback-invalid-color;
