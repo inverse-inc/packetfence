@@ -47,7 +47,7 @@ export default {
     },
     inputState () {
       if (this.formStoreName) {
-        return this.stateMap[!this.formStoreState.$invalid] // use FormStore
+        return this.stateMap[!this.formStoreState.$invalid || this.formStoreState.$pending] // use FormStore
       } else {
         return this.stateMap[this.state] // use native (state)
       }
