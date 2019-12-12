@@ -13,20 +13,20 @@
         :readonly="readonly"
       />
       <b-input-group-append v-if="readonly || disabled || test">
-        <b-button v-if="readonly || disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
         <b-button-group v-else-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
           </b-button>
         </b-button-group>
-        <b-button-group v-if="!disabled" rel="prefixButtonGroup">
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || !inputState" tabindex="-1">
+        <b-button-group v-if="test" rel="prefixButtonGroup">
+          <b-button class="input-group-text" @click="runTest()" :disabled="readonly || disabled || isTesting || !inputValue || inputState === false" tabindex="-1">
             {{ $t('Test') }}
-            <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
-            <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
-            <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
+            <icon v-show="isTesting" name="circle-notch" spin class="ml-3 mr-1"></icon>
+            <icon v-if="testResult !== null && testResult" name="check" class="ml-3 mr-1 text-success"></icon>
+            <icon v-if="testResult !== null && !testResult" name="times" class="ml-3 mr-1 text-danger"></icon>
           </b-button>
         </b-button-group>
+        <b-button v-if="!isTesting && (readonly || disabled)" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
