@@ -45,7 +45,7 @@
         :disabled="disabled"
       ></pf-form-datetime>
 
-      <pf-form-prefix-multiplier ref="value" v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
+      <pf-form-prefix-multiplier ref="value" v-else-if="isComponentType([componentType.PREFIXMULTIPLIER])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.value`"
         :placeholder="valuePlaceholder"
