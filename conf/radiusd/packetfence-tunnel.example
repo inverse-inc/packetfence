@@ -284,7 +284,7 @@ post-auth {
 	update {
 		&request:User-Password := "******"
 	}
-	if (&control:PacketFence-Authorization-Status == "deny") {
+	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {
@@ -627,7 +627,7 @@ post-auth {
 	update {
 		&request:User-Password := "******"
 	}
-	if (&control:PacketFence-Authorization-Status == "deny") {
+	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {
