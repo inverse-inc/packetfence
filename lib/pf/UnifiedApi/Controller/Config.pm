@@ -120,31 +120,12 @@ sub search_builder {
 
 sub list {
     my ($self) = @_;
-    my $cs = $self->config_store;
     my ($status, $search_info_or_error) = $self->build_list_search_info;
     if (is_error($status)) {
         return $self->render(json => $search_info_or_error, status => $status);
     }
 
-    my $items = $self->do_search($search_info_or_error);
-    if (!$search_info_or_error->{raw}) {
-        $items = $self->cleanup_items($items);
-    }
-
-
-    my $fields = $search_info_or_error->{fields};
-    if (defined $fields && @$fields) {
-        $self->remove_fields($fields, $items);
-    }
-
-    $self->render(
-        json => {
-            items  => $items,
-            nextCursor => ( @$items + ( $search_info_or_error->{cursor} // 0 ) ),
-            prevCursor => ( $search_info_or_error->{cursor} // 0 ),
-        },
-        status => 200,
-    );
+    return $self->handle_search($search_info_or_error);
 }
 
 =head2 cleanup_items
@@ -200,10 +181,10 @@ build_list_search_info
 sub build_list_search_info {
     my ($self) = @_;
     my $params = $self->req->query_params->to_hash;
-    my $info = {
+    my %search_info = (
+        configStore => $self->config_store,
         cursor => 0,
         limit => 25,
-        filter => sub { 1 },
         (
             map {
                 exists $params->{$_}
@@ -223,8 +204,9 @@ sub build_list_search_info {
                 $_ => isenabled($params->{$_})
             } qw(raw)
         )
-    };
-    return 200, $info;
+    );
+    $search_info{sort} = $self->normalize_sort_specs($search_info{sort});
+    return 200, \%search_info;
 }
 
 =head2 items
