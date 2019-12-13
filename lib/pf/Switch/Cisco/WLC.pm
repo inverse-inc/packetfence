@@ -416,10 +416,6 @@ sub returnRadiusAccessAccept {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
             $redirect_url .= '/' unless $redirect_url =~ m(\/$);
             $redirect_url .= $args->{'session_id'};
-            # Cisco and Meraki started adding "&redirect_url=http://example.com" unconditionnaly to the redirect URL.
-            # This means that since we don't have any query parameters that generated paths like "/Cisco::WLC/sid123456&redirect_url=http://example.com" which extracts the SID as sid123456&redirect_url=http://example.com
-            # We add empty query parameters to our path as a workaround
-            $redirect_url .= "?";
             #override role if a role in role map is define
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
@@ -611,7 +607,7 @@ sub parseExternalPortalRequest {
 
     # Cisco WLC uses external portal session ID handling process
     my $uri = $r->uri;
-    return unless ($uri =~ /.*sid(.*[^\/])/);
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
     my $session_id = $1;
 
     my $locationlog = pf::locationlog::locationlog_get_session($session_id);

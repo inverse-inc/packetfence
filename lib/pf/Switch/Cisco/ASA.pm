@@ -398,7 +398,7 @@ sub parseExternalPortalRequest {
 
     # Cisco ASA uses external portal session ID handling process
     my $uri = $r->uri;
-    return unless ($uri =~ /.*sid(.*[^\/])/);
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
     my $session_id = $1;
 
     my $locationlog = pf::locationlog::locationlog_get_session($session_id);
