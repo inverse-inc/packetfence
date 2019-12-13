@@ -14,12 +14,9 @@ import {
   hasWmiRules,
   wmiRuleExists
 } from '@/globals/pfValidators'
+import { required } from 'vuelidate/lib/validators'
 
-const {
-  required
-} = require('vuelidate/lib/validators')
-
-export const pfConfigurationWmiRulesListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('WMI Rule'),
@@ -46,7 +43,7 @@ export const pfConfigurationWmiRulesListColumns = [
   }
 ]
 
-export const pfConfigurationWmiRulesListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('WMI Rule'),
@@ -59,10 +56,10 @@ export const pfConfigurationWmiRulesListFields = [
   }
 ]
 
-export const pfConfigurationWmiRuleListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationWmiRulesListColumns,
-    fields: pfConfigurationWmiRulesListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'wmiRule', params: { id: item.id } }
     },
@@ -99,35 +96,26 @@ export const pfConfigurationWmiRuleListConfig = () => {
   }
 }
 
-export const pfConfigurationWmiRuleViewFields = (context = {}) => {
+export const view = (form, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
-    options: {
-      meta = {}
-    }
-  } = context
+    isClone = false
+  } = meta
 
   return [
     {
       tab: null, // ignore tabs
-      fields: [
+      rows: [
         {
           label: i18n.t('WMI Rule'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Rule')),
-                ...{
-                  [i18n.t('WMI Rule exists.')]: not(and(required, conditional(isNew || isClone), hasWmiRules, wmiRuleExists))
                 }
               }
             }
@@ -136,61 +124,77 @@ export const pfConfigurationWmiRuleViewFields = (context = {}) => {
         {
           label: i18n.t('On node tab'),
           text: i18n.t('Scan this WMI element while editing a node.'),
-          fields: [
+          cols: [
             {
-              key: 'on_tab',
+              namespace: 'on_tab',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: '1', unchecked: '0' },
+                colors: { checked: 'var(--success)', unchecked: 'var(--danger)' }
               }
             }
           ]
         },
         {
           label: i18n.t('Namespace'),
-          fields: [
+          cols: [
             {
-              key: 'namespace',
+              namespace: 'namespace',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'namespace'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'namespace', i18n.t('Namespace'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'namespace')
             }
           ]
         },
         {
           label: i18n.t('Request'),
-          fields: [
+          cols: [
             {
-              key: 'request',
+              namespace: 'request',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'request'),
                 ...{
                   rows: 3
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'request', i18n.t('Request'))
+              }
             }
           ]
         },
         {
           label: i18n.t('Rules Actions'),
           text: i18n.t('Add an action based on the result of the request.'),
-          fields: [
+          cols: [
             {
-              key: 'action',
+              namespace: 'action',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'action'),
                 ...{
                   rows: 5
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'action', i18n.t('Action'))
+              }
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Rule')),
+      ...{
+        [i18n.t('WMI Rule exists.')]: not(and(required, conditional(isNew || isClone), hasWmiRules, wmiRuleExists))
+      },
+    },
+    namespace: pfConfigurationValidatorsFromMeta(meta, 'namespace', i18n.t('Namespace')),
+    request: pfConfigurationValidatorsFromMeta(meta, 'request', i18n.t('Request')),
+    action: pfConfigurationValidatorsFromMeta(meta, 'action', i18n.t('Action'))
+  }
 }

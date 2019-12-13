@@ -243,7 +243,7 @@ const route = {
       path: 'roles/new',
       name: 'newRole',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles', isNew: true })
+      props: () => ({ storeName: '$_roles', isNew: true })
     },
     {
       path: 'role/:id',
@@ -855,14 +855,23 @@ const route = {
       path: 'scans/wmi_rules/new',
       name: 'newWmiRule',
       component: WmiRuleView,
-      props: (route) => ({ storeName: '$_wmi_rules', isNew: true })
+      props: () => ({ formStoreName: 'formWmiRule', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formWmiRule) { // Register store module only once
+          store.registerModule('formWmiRule', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'scans/wmi_rule/:id',
       name: 'wmiRule',
       component: WmiRuleView,
-      props: (route) => ({ storeName: '$_wmi_rules', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formWmiRule', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formWmiRule) { // Register store module only once
+          store.registerModule('formWmiRule', FormStore)
+        }
         store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
           next()
         })
@@ -872,8 +881,11 @@ const route = {
       path: 'scans/wmi_rule/:id/clone',
       name: 'cloneWmiRule',
       component: WmiRuleView,
-      props: (route) => ({ storeName: '$_wmi_rules', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formWmiRule', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formWmiRule) { // Register store module only once
+          store.registerModule('formWmiRule', FormStore)
+        }
         store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
           next()
         })
@@ -1078,7 +1090,7 @@ const route = {
       component: WrixLocationView,
       props: (route) => ({ formStoreName: 'formWrixLocation', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formAdminRole) { // Register store module only once
+        if (!store.state.formWrixLocation) { // Register store module only once
           store.registerModule('formWrixLocation', FormStore)
         }
         store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
@@ -1289,7 +1301,7 @@ const route = {
       component: SelfServiceView,
       props: (route) => ({ storeName: '$_self_services', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_self_services/getSelfService', to.params.id).then(object => {
+        store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })
       }
@@ -1300,7 +1312,7 @@ const route = {
       component: SelfServiceView,
       props: (route) => ({ storeName: '$_self_services', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_self_services/getSelfService', to.params.id).then(object => {
+        store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })
       }

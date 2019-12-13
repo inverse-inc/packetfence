@@ -8,13 +8,14 @@
         <scan-engines-list storeName="$_scans" />
       </b-tab>
       <b-tab :title="$t('WMI Rules')" @click="changeTab('wmi_rules')">
-        <wmi-rules-list storeName="$_wmi_rules" />
+        <wmi-rules-list formStoreName="formWmiRule" />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
+import FormStore from '@/store/base/form'
 import ScanEnginesList from './ScanEnginesList'
 import WmiRulesList from './WmiRulesList'
 
@@ -41,6 +42,11 @@ export default {
   methods: {
     changeTab (name) {
       this.$router.push(`./${name}`)
+    }
+  },
+  beforeMount () {
+    if (!this.$store.state.formWmiRule) { // Register store module only once
+      this.$store.registerModule('formWmiRule', FormStore)
     }
   }
 }

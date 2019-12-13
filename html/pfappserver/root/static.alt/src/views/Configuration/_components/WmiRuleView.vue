@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :form-store-name="formStoreName"
+    :is-loading="isLoading"
     :disabled="isLoading"
-    :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    :isNew="isNew"
-    :isClone="isClone"
-    @validations="formValidations = $event"
+    :is-deletable="isDeletable"
+    :is-new="isNew"
+    :is-clone="isClone"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -23,7 +21,7 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -46,22 +44,19 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationWmiRuleViewFields as fields
-} from '@/globals/configuration/pfConfigurationWmiRules'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/wmiRule'
 
 export default {
   name: 'wmi-rule-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -79,36 +74,27 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/wmiRule
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
-    },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
     isDeletable () {
       if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
+    },
+    isLoading () {
+      return this.$store.getters['$_wmi_rules/isLoading']
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -119,17 +105,20 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        this.options = options
-        if (this.id) {
-          // existing
-          this.$store.dispatch(`${this.storeName}/getWmiRule`, this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
+      this.$store.dispatch('$_wmi_rules/options', this.id).then(options => {
+        const { meta = {} } = options
+        const { isNew, isClone, isDeletable } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable } })
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
+        if (this.id) { // existing
+          this.$store.dispatch('$_wmi_rules/getWmiRule', this.id).then(form => {
+            if (this.isClone) {
+              form.id = `${form.id}-${this.$i18n.t('copy')}`
+            }
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
-        } else {
-          // new
-          this.form = defaults(options.meta) // set defaults
+        } else { // new
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
         }
       })
     },
@@ -141,7 +130,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createWmiRule`, this.form).then(response => {
+      this.$store.dispatch('$_wmi_rules/createWmiRule', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -149,17 +138,17 @@ export default {
         }
       })
     },
+    remove () {
+      this.$store.dispatch('$_wmi_rules/deleteWmiRule', this.id).then(() => {
+        this.close()
+      })
+    },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateWmiRule`, this.form).then(response => {
+      this.$store.dispatch('$_wmi_rules/updateWmiRule', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
-      })
-    },
-    remove () {
-      this.$store.dispatch(`${this.storeName}/deleteWmiRule`, this.id).then(response => {
-        this.close()
       })
     }
   },
@@ -167,13 +156,8 @@ export default {
     this.init()
   },
   watch: {
-    id: {
-      handler: function (a, b) {
-        this.init()
-      }
-    },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
