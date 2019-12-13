@@ -40,7 +40,12 @@ sub search {
         return $self->render(json => $search_info_or_error, status => $status);
     }
 
-    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    return $self->handle_search($search_info_or_error);
+}
+
+sub handle_search {
+    my ($self, $search_info) = @_;
+    my ($status, $response) = $self->search_builder->search($search_info);
     if ( is_error($status) ) {
         return $self->render_error(
             $status,
@@ -48,14 +53,12 @@ sub search {
             $response->{errors}
         );
     }
-    unless ($search_info_or_error->{raw}) {
-        local $_;
-        $response->{items} = [
-            map { $self->cleanup_item($_) } @{$response->{items} // []}
-        ];
+
+    unless ($search_info->{raw}) {
+        $response->{items} = $self->cleanup_items($response->{items} // []);
     }
 
-    my $fields = $search_info_or_error->{fields};
+    my $fields = $search_info->{fields};
     if (defined $fields && @$fields) {
         $self->remove_fields($fields, $response->{items});
     }
