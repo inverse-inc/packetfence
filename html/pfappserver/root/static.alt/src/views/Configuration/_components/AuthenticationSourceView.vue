@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
     :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="setValidations($event)"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -24,7 +22,7 @@
       <b-badge class="ml-2" variant="secondary" v-t="sourceType"></b-badge>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -35,7 +33,7 @@
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
         <pf-button-delete v-if="isDeletable" class="ml-1 mr-3" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
         <template v-if="samlMetaData">
-          <b-button class="mr-1" size="sm" variant="outline-secondary" @click="showSamlMetaDataModal = true">{{ $t('View Service Provider Metadata') }}</b-button>
+          <b-button class="ml-1 mr-1" size="sm" variant="outline-secondary" @click="showSamlMetaDataModal = true">{{ $t('View Service Provider Metadata') }}</b-button>
           <b-modal v-model="showSamlMetaDataModal" title="Service Provider Metadata" size="lg" centered cancel-disabled>
             <b-form-textarea ref="samlMetaDataTextarea" v-model="samlMetaData" :rows="27" :max-rows="27" readonly></b-form-textarea>
             <template v-slot:modal-footer>
@@ -57,22 +55,19 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationAuthenticationSourceViewFields as fields
-} from '@/globals/configuration/pfConfigurationAuthenticationSources'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/authenticationSource'
 
 export default {
   name: 'authentication-source-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -96,33 +91,29 @@ export default {
   },
   data () {
     return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView,
-      options: {},
       samlMetaData: false, // will be overloaded with data from the store
       showSamlMetaDataModal: false
     }
   },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/adminRole
     },
     invalidForm () {
-      return this.$v.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_sources/isLoading']
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
@@ -139,14 +130,16 @@ export default {
       this.samlMetaData = false
       if (this.id) {
         // existing
-        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = options
-          this.$store.dispatch(`${this.storeName}/getAuthenticationSource`, this.id).then(form => {
+        this.$store.dispatch('$_sources/optionsById', this.id).then(options => {
+          this.$store.dispatch('$_sources/getAuthenticationSource', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
             this.sourceType = form.type
+            const { meta = {} } = options
+            const { isNew, isClone, isDeletable, sourceType } = this
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, sourceType } })
             if (form.type === 'SAML') {
-              this.$store.dispatch(`${this.storeName}/getAuthenticationSourceSAMLMetaData`, this.id).then(xml => {
+              this.$store.dispatch('$_sources/getAuthenticationSourceSAMLMetaData', this.id).then(xml => {
                 this.samlMetaData = xml
               })
             }
@@ -154,12 +147,15 @@ export default {
         })
       } else {
         // new
-        this.$store.dispatch(`${this.storeName}/optionsBySourceType`, this.sourceType).then(options => {
-          this.options = options
-          this.form = defaults(options.meta) // set defaults
+        this.$store.dispatch('$_sources/optionsBySourceType', this.sourceType).then(options => {
+          const { meta = {} } = options
+          const { isNew, isClone, isDeletable, sourceType } = this
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, sourceType } })
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
           this.form.type = this.sourceType
         })
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close (event) {
       this.$router.push({ name: 'sources' })
@@ -169,7 +165,7 @@ export default {
     },
     create (event) {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createAuthenticationSource`, this.form).then(response => {
+      this.$store.dispatch('$_sources/createAuthenticationSource', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -179,19 +175,16 @@ export default {
     },
     save (event) {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateAuthenticationSource`, this.form).then(response => {
+      this.$store.dispatch('$_sources/updateAuthenticationSource', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove (event) {
-      this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, this.id).then(response => {
+      this.$store.dispatch('$_sources/deleteAuthenticationSource', this.id).then(response => {
         this.close()
       })
-    },
-    setValidations (validations) {
-      this.$set(this, 'formValidations', validations)
     },
     copySamlMetaData () {
       if (document.queryCommandSupported('copy')) {

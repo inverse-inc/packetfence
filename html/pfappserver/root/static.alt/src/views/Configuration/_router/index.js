@@ -339,20 +339,29 @@ const route = {
       path: 'sources',
       name: 'sources',
       component: AuthenticationSourcesList,
-      props: (route) => ({ storeName: '$_sources', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'sources/new/:sourceType',
       name: 'newAuthenticationSource',
       component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', isNew: true, sourceType: route.params.sourceType })
+      props: (route) => ({ formStoreName: 'formAuthenticationSource', isNew: true, sourceType: route.params.sourceType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formAuthenticationSource) { // Register store module only once
+          store.registerModule('formAuthenticationSource', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'source/:id',
       name: 'source',
       component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formAuthenticationSource', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formAuthenticationSource) { // Register store module only once
+          store.registerModule('formAuthenticationSource', FormStore)
+        }
         store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
           next()
         })
@@ -362,8 +371,11 @@ const route = {
       path: 'source/:id/clone',
       name: 'cloneAuthenticationSource',
       component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formAuthenticationSource', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formAuthenticationSource) { // Register store module only once
+          store.registerModule('formAuthenticationSource', FormStore)
+        }
         store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
           next()
         })

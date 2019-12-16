@@ -149,9 +149,7 @@ import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfTableSortable from '@/components/pfTableSortable'
-import {
-  pfConfigurationAuthenticationSourceListConfig as config
-} from '@/globals/configuration/pfConfigurationAuthenticationSources'
+import { config } from '../_config/authenticationSource'
 
 export default {
   name: 'authentication-sources-list',
@@ -162,16 +160,9 @@ export default {
     pfEmptyTable,
     pfTableSortable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this),
+      config: config(this), // ../_config/authenticationSource
       sources: [],
       draggingRow: null,
       draggingRowIndex: null
@@ -179,7 +170,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_sources/isLoading']
     },
     internalSources () {
       return this.sources.filter(source => source.id !== 'local' && source.class === 'internal')
@@ -196,7 +187,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/all`).then(sources => {
+      this.$store.dispatch('$_sources/all').then(sources => {
         this.sources = sources
       })
     },
@@ -204,7 +195,7 @@ export default {
       this.$router.push({ name: 'cloneAuthenticationSource', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, item.id).then(response => {
+      this.$store.dispatch('$_sources/deleteAuthenticationSource', item.id).then(response => {
         this.init()
       })
     },
@@ -227,7 +218,7 @@ export default {
         ...this.sources.filter(_item => !items.map(item => item.id).includes(_item.id)), // all but sorted items
         ...items // sorted items
       ]
-      this.$store.dispatch(`${this.storeName}/sortAuthenticationSources`, items.map(item => item.id)).then(response => {
+      this.$store.dispatch('$_sources/sortAuthenticationSources', items.map(item => item.id)).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Authentication sources resorted.') })
       })
     },
