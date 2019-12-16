@@ -218,6 +218,7 @@
               :form-store-name="formStoreName" form-namespace="common.actions"
               :button-label="$t('Add Action')"
               :field="actionField"
+              :invalid-feedback="$t('Action(s) contain one or more errors.')"
               sortable
             ></pf-form-fields>
           </b-col>

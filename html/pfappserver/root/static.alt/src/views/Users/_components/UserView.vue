@@ -127,6 +127,7 @@
             :form-store-name="formStoreName" form-namespace="actions"
             :button-label="$t('Add Action')"
             :field="actionField"
+            :invalid-feedback="$t('Action(s) contain one or more errors.')"
             sortable
           />
         </b-tab>

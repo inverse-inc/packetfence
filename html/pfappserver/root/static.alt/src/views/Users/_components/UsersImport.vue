@@ -55,6 +55,7 @@
                   :form-store-name="formStoreName" form-namespace="actions"
                   :button-label="$t('Add Action')"
                   :field="actionField"
+                  :invalid-feedback="$t('Action(s) contain one or more errors.')"
                   sortable
                 ></pf-form-fields>
                 <pf-form-row align-v="start" :column-label="$t('Password Options')">
