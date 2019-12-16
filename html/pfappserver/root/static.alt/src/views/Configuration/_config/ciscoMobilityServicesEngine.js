@@ -7,21 +7,16 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
-export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {}) => {
-  const {
-    options: {
-      meta = {}
-    }
-  } = context
+export const view = (form = {}, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Enable MSE'),
-          fields: [
+          cols: [
             {
-              key: 'enabled',
+              namespace: 'enabled',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -31,40 +26,45 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
         },
         {
           label: i18n.t('URL of MSE service'),
-          fields: [
+          cols: [
             {
-              key: 'url',
+              namespace: 'url',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'url'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'url')
             }
           ]
         },
         {
           label: i18n.t('Username'),
           text: i18n.t('Username for MSE service.'),
-          fields: [
+          cols: [
             {
-              key: 'user',
+              namespace: 'user',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'user'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Username'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'user')
             }
           ]
         },
         {
           label: i18n.t('Password'),
           text: i18n.t('Password for MSE service.'),
-          fields: [
+          cols: [
             {
-              key: 'pass',
+              namespace: 'pass',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pass'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pass', i18n.t('Password'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pass')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  return {
+    url: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL'),
+    user: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Username')),
+    pass: pfConfigurationValidatorsFromMeta(meta, 'pass', i18n.t('Password'))
+  }
 }

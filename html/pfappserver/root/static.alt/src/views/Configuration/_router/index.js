@@ -958,7 +958,13 @@ const route = {
       path: 'mse',
       name: 'mse',
       component: CiscoMobilityServicesEngineView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formCiscoMobilityServicesEngine', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formCiscoMobilityServicesEngine) { // Register store module only once
+          store.registerModule('formCiscoMobilityServicesEngine', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'webservices',
