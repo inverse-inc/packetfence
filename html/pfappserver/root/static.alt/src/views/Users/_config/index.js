@@ -140,7 +140,7 @@ export const createValidators = (form = {}) => {
     } = {},
     common: {
       valid_from,
-      expiration,
+      expiration
     } = {}
   } = form
   const prefixMaxLength = pfDatabaseSchema.person.pid.maxLength - Math.floor(Math.log10(quantity || 1) + 1)

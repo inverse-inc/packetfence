@@ -76,7 +76,6 @@
 <script>
 import draggable from 'vuedraggable'
 import pfMixinForm from '@/components/pfMixinForm'
-import i18n from '@/utils/locale'
 
 export default {
   name: 'pf-form-fields',

@@ -13,7 +13,7 @@
         :readonly="readonly"
       />
       <b-input-group-append v-if="readonly || disabled || test">
-        <b-button-group v-else-if="test" rel="testResultGroup">
+        <b-button-group v-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
           </b-button>

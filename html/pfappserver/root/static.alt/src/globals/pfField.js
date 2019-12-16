@@ -13,7 +13,7 @@ export const pfComponentType = {
   SELECTMANY:                          'selectmany',
   SUBSTRING:                           'substring',
   TOGGLE:                              'toggle',
-  TIME:                                'time',
+  TIME:                                'time'
 }
 
 export const pfFieldType = {

@@ -136,11 +136,15 @@ export default {
     tabErrorCount: {
       get () {
         if (!this.tabErrorCountDebouncer) {
+          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
           this.tabErrorCountDebouncer = createDebouncer()
+          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
           this.tabErrorCountCache = this.view.map(() => 0)
         }
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.tabErrorCountDebouncer({
           handler: () => {
+          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.tabErrorCountCache = this.view.map(view => {
               return view.rows.reduce((rowCount, row) => {
                 if (!('cols' in row)) return rowCount
@@ -174,7 +178,7 @@ export default {
     },
     getClass (row, col) {
       let c = ['px-0'] // always remove padding
-      const { attrs: { ['class']: classDefinition } = {} } = col
+      const { attrs: { 'class': classDefinition } = {} } = col
       if (classDefinition) { // if class is defined
         c.push(classDefinition) // use manual definition
       } else if (row.cols.length === 1) { // else if row is singular
