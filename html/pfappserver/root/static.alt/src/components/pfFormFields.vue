@@ -1,5 +1,5 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputAnyState"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputStateIfInvalidFeedback"
     class="pf-form-fields" :class="{ 'mb-0': !columnLabel }">
     <template v-slot:invalid-feedback>
       {{ invalidFeedback }}
@@ -14,7 +14,8 @@
       <b-container v-if="!inputValue || inputValue.length === 0"
         class="mx-0 px-0"
       >
-        <b-button variant="outline-secondary" @click.stop="rowAdd()" :disabled="disabled">{{ buttonLabel || $t('Add row') }}</b-button>
+        <b-button :variant="(inputState === false) ? 'outline-danger' : 'outline-secondary'" @click.stop="rowAdd()" :disabled="disabled">{{ buttonLabel || $t('Add row') }}</b-button>
+        <small v-if="inputState === false" class="ml-2 text-danger">{{ inputInvalidFeedback }}</small>
         <small v-if="emptyText" class="ml-2">{{ emptyText }}</small>
       </b-container>
 
@@ -123,10 +124,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false
-    },
-    invalidFeedback: {
-      type: String,
-      default: i18n.t('One or more errors exist.')
     }
   },
   data () {
@@ -267,13 +264,15 @@ export default {
     line-height: auto;
   }
   &.is-focus {
-    [role="group"] > .pf-form-fields-input-group {
+    > [role="group"] > .pf-form-fields-input-group,
+    > .form-row > [role="group"] > .pf-form-fields-input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
-    [role="group"] > .pf-form-fields-input-group {
+    > [role="group"] > .pf-form-fields-input-group,
+    > .form-row > [role="group"] > .pf-form-fields-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
