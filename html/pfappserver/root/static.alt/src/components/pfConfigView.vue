@@ -127,8 +127,8 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
     isDeletable () {
-      const { form: { not_deletable: notDeletable = false } = {} } = this
-      if (this.isNew || this.isClone || notDeletable) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
