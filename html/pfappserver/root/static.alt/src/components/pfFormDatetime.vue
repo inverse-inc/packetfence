@@ -168,6 +168,11 @@ export default {
           config.enableTime = false
           config.enableSeconds = false
         }
+        if (/[YyFMmndJjlD]+/.test(config.datetimeFormat)) {
+          config.noCalendar = false
+        } else {
+          config.noCalendar = true
+        }
       }
       switch (this.locale) {
         case 'fr':
@@ -178,6 +183,7 @@ export default {
           config.locale = english
           break
       }
+      config.dateFormat = config.datetimeFormat // rename datetimeFormat to dateFormat (flatpickr)
       return config
     },
     locale () {
