@@ -90,15 +90,15 @@ import {
 
 export default {
   name: 'pf-field-type-value',
-  mixins: [
-    pfMixinForm
-  ],
   components: {
     pfFormChosen,
     pfFormDatetime,
     pfFormInput,
     pfFormPrefixMultiplier
   },
+  mixins: [
+    pfMixinForm
+  ],
   props: {
     value: {
       type: Object,
@@ -245,17 +245,17 @@ export default {
   watch: {
     localType: {
       handler: function (a, b) {
-        this.$nextTick(() => {
+        if (!this.drag) { // don't focus when being dragged
           const field = this.field
-          if ('staticValue' in field) {
+          if (field && 'staticValue' in field) {
             this.$set(this.formStoreValue, 'value', field.staticValue) // set static value
           } else {
             this.$set(this.formStoreValue, 'value', null) // clear value
-            if (!this.drag) { // don't focus when being dragged
+            this.$nextTick(() => {
               this.focus()
-            }
+            })
           }
-        })
+        }
       }
     }
   }

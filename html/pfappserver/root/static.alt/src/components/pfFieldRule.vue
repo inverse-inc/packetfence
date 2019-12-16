@@ -1,5 +1,5 @@
 <template>
-  <b-form-group class="pf-field-rule" :state="inputState">
+  <b-form-group class="pf-field-rule" :state="inputStateIfInvalidFeedback">
     <template v-slot:invalid-feedback>
       {{ invalidFeedback }}
     </template>

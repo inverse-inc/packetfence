@@ -52,6 +52,12 @@ export default {
         return this.stateMap[this.state] // use native (state)
       }
     },
+    inputStateIfInvalidFeedback () {
+      if (this.invalidFeedback) {
+        return this.inputState
+      }
+      return null
+    },
     inputAnyState () {
       if (this.formStoreName) {
         const { $model, $each } = this.$store.getters[`${this.formStoreName}/$vuelidateNS`](this.formNamespace) // use FormStore
