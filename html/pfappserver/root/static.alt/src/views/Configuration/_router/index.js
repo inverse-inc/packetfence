@@ -1079,7 +1079,13 @@ const route = {
       path: 'captive_portal',
       name: 'captive_portal',
       component: CaptivePortalView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formCaptivePortal', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formCaptivePortal) { // Register store module only once
+          store.registerModule('formCaptivePortal', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'filters',
