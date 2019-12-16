@@ -354,7 +354,7 @@ export default {
     save () {
       const actionKey = this.actionKey
       this.$store.dispatch('$_users/updateUser', this.form).then(() => {
-        if (!!this.form.expiration) { // has password
+        if (this.form.expiration) { // has password
           this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form))
         }
         if (actionKey) { // [CTRL] key pressed

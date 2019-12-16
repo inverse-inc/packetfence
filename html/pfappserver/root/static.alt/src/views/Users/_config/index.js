@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import store from '@/store'
 import i18n from '@/utils/locale'
+import acl from '@/utils/acl'
 import { pfActions } from '@/globals/pfActions'
 import {
   pfDatabaseSchema,
@@ -689,18 +690,16 @@ export const nodeFields = [
     key: 'user_agent',
     label: i18n.t('User Agent'),
     sortable: true
-  }
-  /* TODO $can
+  },
   {
     key: 'security_event.open_security_event_id',
     label: i18n.t('Security Event Open'),
     sortable: true,
     class: 'text-nowrap',
-    formatter: (this.$can.apply(null, ['read', 'security_events']))
+    formatter: (acl.$can('read', 'security_events'))
       ? formatter.securityEventIdsToDescCsv
       : formatter.noAdminRolePermission
   },
-  */
   /* TODO - #4166
   {
     key: 'security_event.open_count',
@@ -709,17 +708,15 @@ export const nodeFields = [
     class: 'text-nowrap'
   },
   */
-  /* TODO $can
   {
     key: 'security_event.close_security_event_id',
     label: i18n.t('Security Event Closed'),
     sortable: true,
     class: 'text-nowrap',
-    formatter: (this.$can.apply(null, ['read', 'security_events']))
+    formatter: (acl.$can('read', 'security_events'))
       ? formatter.securityEventIdsToDescCsv
       : formatter.noAdminRolePermission
   }
-  */
   /* TODO - #4166
   {
     key: 'security_event.close_count',
@@ -736,17 +733,15 @@ export const securityEventFields = [
     label: i18n.t('Status'),
     sortable: true
   },
-  /* TODO $can
   {
     key: 'security_event_id',
     label: i18n.t('Event'),
     required: true,
     sortable: true,
-    formatter: (this.$can.apply(null, ['read', 'security_events']))
+    formatter: (acl.$can('read', 'security_events'))
       ? formatter.securityEventIdToDesc
       : formatter.noAdminRolePermission
   },
-  */
   {
     key: 'mac',
     label: i18n.t('MAC'),
