@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('Scan Engines')" @click="changeTab('scan_engines')">
-        <scan-engines-list storeName="$_scans" />
+        <scan-engines-list formStoreName="formScanEngine" />
       </b-tab>
       <b-tab :title="$t('WMI Rules')" @click="changeTab('wmi_rules')">
         <wmi-rules-list formStoreName="formWmiRule" />
@@ -45,6 +45,9 @@ export default {
     }
   },
   beforeMount () {
+    if (!this.$store.state.formScanEngine) { // Register store module only once
+      this.$store.registerModule('formScanEngine', FormStore)
+    }
     if (!this.$store.state.formWmiRule) { // Register store module only once
       this.$store.registerModule('formWmiRule', FormStore)
     }

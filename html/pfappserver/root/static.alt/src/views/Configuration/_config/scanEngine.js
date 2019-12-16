@@ -17,10 +17,9 @@ import {
   hasScans,
   scanExists
 } from '@/globals/pfValidators'
+import { required } from 'vuelidate/lib/validators'
 
-const { required } = require('vuelidate/lib/validators')
-
-export const pfConfigurationScanEngineListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Name'),
@@ -53,7 +52,7 @@ export const pfConfigurationScanEngineListColumns = [
   }
 ]
 
-export const pfConfigurationScanEngineListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Name'),
@@ -76,15 +75,14 @@ export const pfConfigurationScanEngineListFields = [
   }
 ]
 
-export const pfConfigurationScanEngineListConfig = (context = {}) => {
-  const { $i18n } = context
+export const config = () => {
   return {
-    columns: pfConfigurationScanEngineListColumns,
-    fields: pfConfigurationScanEngineListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'scanEngine', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by name, ip, port or type'),
+    searchPlaceholder: i18n.t('Search by name, ip, port or type'),
     searchableOptions: {
       searchApiEndpoint: 'config/scans',
       defaultSortKeys: ['id'],
@@ -121,36 +119,26 @@ export const pfConfigurationScanEngineListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationScanEngineViewFields = (context = {}) => {
+export const view = (meta = {}) => {
   const {
     isNew = false,
     isClone = false,
-    scanType = null, // from router,
-    options: {
-      meta = {}
-    },
-    form = {}
-  } = context
+    scanType = null, // from router
+  } = meta
   return [
     {
       tab: null, // ignore tabs
-      fields: [
+      rows: [
         {
           label: i18n.t('Name'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
-                ...{
-                  [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasScans, scanExists))
                 }
               }
             }
@@ -159,46 +147,42 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
         {
           if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
           label: i18n.t('Hostname or IP Address'),
-          fields: [
+          cols: [
             {
-              key: 'ip',
+              namespace: 'ip',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ip'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ip')
             }
           ]
         },
         {
           label: i18n.t('Username'),
-          fields: [
+          cols: [
             {
-              key: 'username',
+              namespace: 'username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'username')
             }
           ]
         },
         {
           if: ['wmi'].includes(scanType),
           label: i18n.t('Domain'),
-          fields: [
+          cols: [
             {
-              key: 'domain',
+              namespace: 'domain',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'domain'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'domain')
             }
           ]
         },
         {
           label: i18n.t('Password'),
-          fields: [
+          cols: [
             {
-              key: 'password',
+              namespace: 'password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'password')
             }
           ]
         },
@@ -206,12 +190,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
           label: i18n.t('Port of the service'),
           text: i18n.t('If you use an alternative port, please specify.'),
-          fields: [
+          cols: [
             {
-              key: 'port',
+              namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
             }
           ]
         },
@@ -219,12 +202,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['nessus', 'nessus6'].includes(scanType),
           label: i18n.t('Nessus client policy'),
           text: i18n.t('Name of the policy to use on the nessus server.'),
-          fields: [
+          cols: [
             {
-              key: 'nessus_clientpolicy',
+              namespace: 'nessus_clientpolicy',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'nessus_clientpolicy'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'nessus_clientpolicy', i18n.t('Policy'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'nessus_clientpolicy')
             }
           ]
         },
@@ -232,12 +214,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['nessus6'].includes(scanType),
           label: i18n.t('Nessus scanner name'),
           text: i18n.t('Name of the scanner to use on the nessus server.'),
-          fields: [
+          cols: [
             {
-              key: 'scannername',
+              namespace: 'scannername',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'scannername'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'scannername', i18n.t('Name'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'scannername')
             }
           ]
         },
@@ -245,12 +226,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['openvas'].includes(scanType),
           label: i18n.t('Alert ID'),
           text: i18n.t('ID of the alert configuration on the OpenVAS server.'),
-          fields: [
+          cols: [
             {
-              key: 'openvas_alertid',
+              namespace: 'openvas_alertid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_alertid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_alertid', 'ID')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_alertid')
             }
           ]
         },
@@ -258,12 +238,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['openvas'].includes(scanType),
           label: i18n.t('Scan config ID'),
           text: i18n.t('ID of the scanning configuration on the OpenVAS server.'),
-          fields: [
+          cols: [
             {
-              key: 'openvas_configid',
+              namespace: 'openvas_configid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_configid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_configid', 'ID')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_configid')
             }
           ]
         },
@@ -271,12 +250,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['openvas'].includes(scanType),
           label: i18n.t('Report format ID'),
           text: i18n.t('ID of the "CSV Results" report format on the OpenVAS server.'),
-          fields: [
+          cols: [
             {
-              key: 'openvas_reportformatid',
+              namespace: 'openvas_reportformatid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_reportformatid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_reportformatid', 'ID')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_reportformatid')
             }
           ]
         },
@@ -284,9 +262,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['rapid7'].includes(scanType),
           label: i18n.t('Verify Hostname'),
           text: i18n.t('Verify hostname of server when connecting to the API.'),
-          fields: [
+          cols: [
             {
-              key: 'verify_hostname',
+              namespace: 'verify_hostname',
               component: pfFormToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -298,12 +276,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['rapid7'].includes(scanType),
           label: i18n.t('Scan Engine'),
           text: i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.'),
-          fields: [
+          cols: [
             {
-              key: 'engine_id',
+              namespace: 'engine_id',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'engine_id'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'engine_id', i18n.t('Engine'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'engine_id')
             }
           ]
         },
@@ -311,12 +288,11 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['rapid7'].includes(scanType),
           label: i18n.t('Scan Template'),
           text: i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.'),
-          fields: [
+          cols: [
             {
-              key: 'template_id',
+              namespace: 'template_id',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'template_id'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'template_id', i18n.t('Template'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'template_id')
             }
           ]
         },
@@ -324,24 +300,22 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['rapid7'].includes(scanType),
           label: i18n.t('Site'),
           text: i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.'),
-          fields: [
+          cols: [
             {
-              key: 'site_id',
+              namespace: 'site_id',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'site_id'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'site_id', i18n.t('Site'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'site_id')
             }
           ]
         },
         {
           label: i18n.t('Roles'),
           text: i18n.t('Nodes with the selected roles will be affected.'),
-          fields: [
+          cols: [
             {
-              key: 'categories',
+              namespace: 'categories',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'categories'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'categories', i18n.t('Categories'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'categories')
             }
           ]
         },
@@ -349,39 +323,36 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
           label: i18n.t('OS'),
           text: i18n.t('Nodes with the selected OS will be affected.'),
-          fields: [
+          cols: [
             {
-              key: 'oses',
+              namespace: 'oses',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'oses'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'oses', 'OS')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'oses')
             }
           ]
         },
         {
           label: i18n.t('Duration'),
           text: i18n.t('Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete.'),
-          fields: [
+          cols: [
             {
-              key: 'duration.interval',
+              namespace: 'duration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.interval', i18n.t('Interval'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.interval')
             },
             {
-              key: 'duration.unit',
+              namespace: 'duration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.unit', i18n.t('Unit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.unit')
             }
           ]
         },
         {
           label: i18n.t('Scan before registration'),
           text: i18n.t('If this option is enabled, the PF system will scan host before the registration.'),
-          fields: [
+          cols: [
             {
-              key: 'pre_registration',
+              namespace: 'pre_registration',
               component: pfFormToggle,
               attrs: {
                 values: { checked: 1, unchecked: 0 }
@@ -392,9 +363,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
         {
           label: i18n.t('Scan on registration'),
           text: i18n.t('If this option is enabled, the PF system will scan each host after registration is complete.'),
-          fields: [
+          cols: [
             {
-              key: 'registration',
+              namespace: 'registration',
               component: pfFormToggle,
               attrs: {
                 values: { checked: 1, unchecked: 0 }
@@ -405,9 +376,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
         {
           label: i18n.t('Scan after registration'),
           text: i18n.t('If this option is enabled, the PF system will scan host after on the production vlan.'),
-          fields: [
+          cols: [
             {
-              key: 'post_registration',
+              namespace: 'post_registration',
               component: pfFormToggle,
               attrs: {
                 values: { checked: 1, unchecked: 0 }
@@ -419,9 +390,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           if: ['wmi'].includes(scanType),
           label: i18n.t('WMI Rules'),
           text: i18n.t('If this option is enabled, the PF system will scan host after on the production vlan.'),
-          fields: [
+          cols: [
             {
-              key: 'wmi_rules',
+              namespace: 'wmi_rules',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Rule'),
@@ -441,11 +412,6 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
                           label: 'text',
                           multiple: false
                         }
-                      },
-                      validators: {
-                        [i18n.t('Duplicate Rule.')]: conditional((value) => {
-                          return !(form.wmi_rules.filter(v => v === value).length > 1)
-                        })
                       }
                     }
 
@@ -461,4 +427,43 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...{
+        [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasScans, scanExists))
+      }
+    },
+    ip: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP'),
+    username: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username')),
+    domain: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain')),
+    password: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password')),
+    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
+    nessus_clientpolicy: pfConfigurationValidatorsFromMeta(meta, 'nessus_clientpolicy', i18n.t('Policy')),
+    scannername: pfConfigurationValidatorsFromMeta(meta, 'scannername', i18n.t('Name')),
+    openvas_alertid: pfConfigurationValidatorsFromMeta(meta, 'openvas_alertid', 'ID'),
+    openvas_configid: pfConfigurationValidatorsFromMeta(meta, 'openvas_configid', 'ID'),
+    openvas_reportformatid: pfConfigurationValidatorsFromMeta(meta, 'openvas_reportformatid', 'ID'),
+    engine_id: pfConfigurationValidatorsFromMeta(meta, 'engine_id', i18n.t('Engine')),
+    template_id: pfConfigurationValidatorsFromMeta(meta, 'template_id', i18n.t('Template')),
+    site_id: pfConfigurationValidatorsFromMeta(meta, 'site_id', i18n.t('Site')),
+    categories: pfConfigurationValidatorsFromMeta(meta, 'categories', i18n.t('Categories')),
+    oses: pfConfigurationValidatorsFromMeta(meta, 'oses', 'OS'),
+    'duration.interval': pfConfigurationValidatorsFromMeta(meta, 'duration.interval', i18n.t('Interval')),
+    'duration.unit': pfConfigurationValidatorsFromMeta(meta, 'duration.unit', i18n.t('Unit')),
+    wmi_rules: {
+      $each: {
+        [i18n.t('Duplicate Rule.')]: conditional((value) => {
+          return !(form.wmi_rules.filter(v => v === value).length > 1)
+        })
+      }
+    }
+  }
 }

@@ -802,6 +802,9 @@ const route = {
       component: FingerbankUserAgentView,
       props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formScanEngine) { // Register store module only once
+          store.registerModule('formScanEngine', FormStore)
+        }
         store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
           next()
         })
@@ -815,20 +818,29 @@ const route = {
       path: 'scans/scan_engines',
       name: 'scanEngines',
       component: ScansTabs,
-      props: (route) => ({ tab: 'scan_engines', storeName: '$_scans', query: route.query.query })
+      props: (route) => ({ tab: 'scan_engines', query: route.query.query })
     },
     {
       path: 'scans/scan_engines/new/:scanType',
       name: 'newScanEngine',
       component: ScanEngineView,
-      props: (route) => ({ storeName: '$_scans', isNew: true, scanType: route.params.scanType })
+      props: (route) => ({ formStoreName: 'formScanEngine', isNew: true, scanType: route.params.scanType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formScanEngine) { // Register store module only once
+          store.registerModule('formScanEngine', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'scans/scan_engine/:id',
       name: 'scanEngine',
       component: ScanEngineView,
-      props: (route) => ({ storeName: '$_scans', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formScanEngine', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formScanEngine) { // Register store module only once
+          store.registerModule('formScanEngine', FormStore)
+        }
         store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
           next()
         })
@@ -838,8 +850,11 @@ const route = {
       path: 'scans/scan_engine/:id/clone',
       name: 'cloneScanEngine',
       component: ScanEngineView,
-      props: (route) => ({ storeName: '$_scans', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formScanEngine', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formScanEngine) { // Register store module only once
+          store.registerModule('formScanEngine', FormStore)
+        }
         store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
           next()
         })
@@ -849,7 +864,7 @@ const route = {
       path: 'scans/wmi_rules',
       name: 'wmiRules',
       component: ScansTabs,
-      props: (route) => ({ storeName: '$_scans', tab: 'wmi_rules', query: route.query.query })
+      props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
     {
       path: 'scans/wmi_rules/new',
