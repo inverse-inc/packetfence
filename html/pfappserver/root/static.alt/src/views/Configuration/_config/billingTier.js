@@ -14,10 +14,11 @@ import {
   hasBillingTiers,
   billingTierExists
 } from '@/globals/pfValidators'
+import {
+  required
+} from 'vuelidate/lib/validators'
 
-const { required } = require('vuelidate/lib/validators')
-
-export const pfConfigurationBillingTiersListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -44,7 +45,7 @@ export const pfConfigurationBillingTiersListColumns = [
   }
 ]
 
-export const pfConfigurationBillingTiersListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -57,15 +58,14 @@ export const pfConfigurationBillingTiersListFields = [
   }
 ]
 
-export const pfConfigurationBillingTiersListConfig = (context = {}) => {
-  const { $i18n } = context
+export const config = (context = {}) => {
   return {
-    columns: pfConfigurationBillingTiersListColumns,
-    fields: pfConfigurationBillingTiersListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'billing_tier', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier, name or description'),
+    searchPlaceholder: i18n.t('Search by identifier, name or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/billing_tiers',
       defaultSortKeys: ['id'],
@@ -100,34 +100,25 @@ export const pfConfigurationBillingTiersListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationBillingTierViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
     isClone = false,
-    options: {
-      meta = {}
-    }
-  } = context
+  } = meta
   return [
     {
       tab: null, // ignore tabs
-      fields: [
+      rows: [
         {
           label: i18n.t('Billing Tier'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
-                ...{
-                  [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), hasBillingTiers, billingTierExists))
                 }
               }
             }
@@ -135,47 +126,36 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Name'),
-          fields: [
+          cols: [
             {
-              key: 'name',
+              namespace: 'name',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Name'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'name')
             }
           ]
         },
         {
           label: i18n.t('Description'),
-          fields: [
+          cols: [
             {
-              key: 'description',
+              namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Description'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'name')
             }
           ]
         },
         {
           label: i18n.t('Price'),
           text: i18n.t('The price that will be charged to the customer.'),
-          fields: [
+          cols: [
             {
-              key: 'price',
+              namespace: 'price',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'price'),
                 ...{
                   type: 'number',
                   step: '0.01'
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'price', i18n.t('Price')),
-                ...{
-                  [i18n.t('Invalid price.')]: conditional((value) => {
-                    if (!value) return true
-                    return parseFloat(value) >= 0 && ((value || '').split('.')[1] || []).length <= 2
-                  })
                 }
               }
             }
@@ -184,39 +164,36 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
         {
           label: i18n.t('Role'),
           text: i18n.t('The target role of the devices that use this tier.'),
-          fields: [
+          cols: [
             {
-              key: 'role',
+              namespace: 'role',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'role'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'role', i18n.t('Role'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'role')
             }
           ]
         },
         {
           label: i18n.t('Access Duration'),
           text: i18n.t('The access duration of the devices that use this tier.'),
-          fields: [
+          cols: [
             {
-              key: 'access_duration.interval',
+              namespace: 'access_duration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.interval', i18n.t('Interval'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.interval')
             },
             {
-              key: 'access_duration.unit',
+              namespace: 'access_duration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.unit', i18n.t('Unit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.unit')
             }
           ]
         },
         {
           label: i18n.t('Use Time Balance'),
           text: i18n.t('Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.'),
-          fields: [
+          cols: [
             {
-              key: 'use_time_balance',
+              namespace: 'use_time_balance',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -227,4 +204,45 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false,
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...{
+        [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), hasBillingTiers, billingTierExists))
+      }
+    },
+    name: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Name')),
+    description: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Description')),
+    price: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'price', i18n.t('Price')),
+      ...{
+        [i18n.t('Invalid price.')]: conditional((value) => {
+          if (!value) return true
+          return parseFloat(value) >= 0 && ((value || '').split('.')[1] || []).length <= 2
+        })
+      }
+    },
+    role: pfConfigurationValidatorsFromMeta(meta, 'role', i18n.t('Role')),
+    access_duration: {
+      interval: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'access_duration.interval', i18n.t('Interval')),
+        ...{
+          [i18n.t('Interval required.')]: required
+        }
+      },
+      unit: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'access_duration.unit', i18n.t('Unit')),
+        ...{
+          [i18n.t('Unit required.')]: required
+        }
+      }
+    }
+  }
 }

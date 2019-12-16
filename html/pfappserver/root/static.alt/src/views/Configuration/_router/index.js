@@ -1091,20 +1091,29 @@ const route = {
       path: 'billing_tiers',
       name: 'billing_tiers',
       component: BillingTiersList,
-      props: (route) => ({ storeName: '$_billing_tiers', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'billing_tiers/new',
       name: 'newBillingTier',
       component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
+      props: (route) => ({ formStoreName: 'formBillingTier', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formBillingTier) { // Register store module only once
+          store.registerModule('formBillingTier', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'billing_tier/:id',
       name: 'billing_tier',
       component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formBillingTier', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formBillingTier) { // Register store module only once
+          store.registerModule('formBillingTier', FormStore)
+        }
         store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
           next()
         })
@@ -1114,8 +1123,11 @@ const route = {
       path: 'billing_tier/:id/clone',
       name: 'cloneBillingTier',
       component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formBillingTier', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formBillingTier) { // Register store module only once
+          store.registerModule('formBillingTier', FormStore)
+        }
         store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
           next()
         })
