@@ -1,5 +1,5 @@
 <template>
-  <b-form-row class="pf-field-attribute-operator-value mx-0 mb-1 px-0" align-v="center"
+  <b-form-row class="pf-field-attribute-operator-value mx-0 mb-1 px-0" align-v="center" no-gutters
     v-on="forwardListeners"
   >
     <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
@@ -7,15 +7,13 @@
     </b-col>
     <b-col class="pl-0" sm="3" align-self="start">
 
-      <pf-form-chosen
-        v-model="localAttribute"
-        ref="localAttribute"
+      <pf-form-chosen ref="attribute"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.attribute`"
         label="text"
         track-by="value"
         :placeholder="attributeLabel"
         :options="fields"
-        :vuelidate="attributeVuelidateModel"
-        :invalid-feedback="attributeInvalidFeedback"
         :disabled="disabled"
         collapse-object
       ></pf-form-chosen>
@@ -23,59 +21,46 @@
     </b-col>
     <b-col class="pl-1" sm="3" align-self="start">
 
-      <pf-form-chosen v-if="localAttribute"
-        v-model="localOperator"
-        ref="localOperator"
+      <pf-form-chosen ref="operator" v-if="localAttribute"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.operator`"
         label="text"
         track-by="value"
         :placeholder="operatorLabel"
         :options="operators"
-        :disabled="disabled || operators.length === 0"
-        :vuelidate="operatorVuelidateModel"
-        :invalid-feedback="operatorInvalidFeedback"
+        :disabled="disabled"
         collapse-object
       ></pf-form-chosen>
 
     </b-col>
     <b-col class="pl-1" sm="4" align-self="start">
 
-      <!-- Types: LDAPATTRIBUTE, SUBSTRING, TIME_PERIOD -->
-      <pf-form-input v-if="
-          isAttributeType(ldapAttributeConditionType) ||
-          isAttributeType(substringConditionType) ||
-          isAttributeType(timePeriodConditionType)
-        "
-        v-model="localValue"
-        ref="localValue"
+      <pf-form-input ref="value" v-if="isComponentType([componentType.SUBSTRING])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
         :placeholder="valueLabel"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
       ></pf-form-input>
 
-      <!-- Type: TIME -->
-      <pf-form-datetime v-else-if="isAttributeType(timeConditionType)"
-        v-model="localValue"
-        ref="localValue"
+      <pf-form-datetime ref="value" v-else-if="isComponentType([componentType.TIME])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
         :config="{useCurrent: false, datetimeFormat: 'HH:mm'}"
-        placeholder="HH:mm"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
+        placeholder="HH:mm"
       ></pf-form-datetime>
 
-      <!-- Type: CONNECTION -->
-      <pf-form-chosen v-else-if="isAttributeType(connectionConditionType)"
-        v-model="localValue"
-        ref="localValue"
+      <pf-form-chosen ref="value" v-else-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.value`"
+        v-bind="fieldAttrs"
         group-label="group"
         group-values="items"
         label="text"
         track-by="value"
+        :multiple="isComponentType([componentType.SELECTMANY])"
+        :close-on-select="isComponentType([componentType.SELECTONE])"
         :placeholder="valueLabel"
-        :options="values"
-        :vuelidate="valueVuelidateModel"
-        :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
         collapse-object
       ></pf-form-chosen>
@@ -93,12 +78,13 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfMixinForm from '@/components/pfMixinForm'
 import {
-  pfAuthenticationConditionType as authenticationConditionType,
-  pfAuthenticationConditionOperators as authenticationConditionOperators,
-  pfAuthenticationConditionValues as authenticationConditionValues
-} from '@/globals/pfAuthenticationConditions'
-import { required } from 'vuelidate/lib/validators'
+  pfComponentType as componentType,
+  pfFieldTypeComponent as fieldTypeComponent,
+  pfFieldTypeOperators as fieldTypeOperators,
+  pfFieldTypeValues as fieldTypeValues
+} from '@/globals/pfField'
 
 export default {
   name: 'pf-field-attribute-operator-value',
@@ -108,6 +94,9 @@ export default {
     pfFormInput,
     pfFormPrefixMultiplier
   },
+  mixins: [
+    pfMixinForm
+  ],
   props: {
     value: {
       type: Object,
@@ -126,84 +115,38 @@ export default {
       type: Array,
       default: () => { return [] }
     },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
-    },
     disabled: {
+      type: Boolean,
+      default: false
+    },
+    drag: {
       type: Boolean,
       default: false
     }
   },
   data () {
     return {
-      default:                    { attribute: null, operator: null, value: null }, // default value
-      noConditionType:            authenticationConditionType.NONE,
-      connectionConditionType:    authenticationConditionType.CONNECTION,
-      ldapAttributeConditionType: authenticationConditionType.LDAPATTRIBUTE,
-      substringConditionType:     authenticationConditionType.SUBSTRING,
-      timeConditionType:          authenticationConditionType.TIME,
-      timePeriodConditionType:    authenticationConditionType.TIME_PERIOD
+      default: { attribute: null, operator: null, value: null }, // default value
+      componentType // @/globals/pfField
     }
   },
   computed: {
     inputValue: {
       get () {
-        if (!this.value || Object.keys(this.value).length === 0) {
-          // set default placeholder
-          this.$emit('input', JSON.parse(JSON.stringify(this.default))) // keep dereferenced
-          return this.default
-        }
-        return this.value
+        return { ...this.default, ...this.formStoreValue } // use FormStore
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        this.formStoreValue = newValue // use FormStore
       }
     },
-    localAttribute: {
-      get () {
-        let attribute = (this.inputValue && 'attribute' in this.inputValue) ? this.inputValue.attribute : this.default.attribute
-        // check to see if `attribute` exists in our available fields
-        if (attribute && !this.fields.find(field => field.value === attribute)) {
-          // discard
-          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Condition attribute "{attribute}" is not valid, ignoring...', { attribute: attribute }) })
-          this.$set(this.inputValue, 'attribute', this.default.attribute) // clear `attribute`
-          this.$set(this.inputValue, 'operator', this.default.operator) // clear `operator`
-          this.$set(this.inputValue, 'value', this.default.value) // clear `value`
-          return null
-        }
-        return attribute
-      },
-      set (newAttribute) {
-        this.$set(this.inputValue, 'attribute', newAttribute || this.default.attribute)
-        this.$set(this.inputValue, 'operator', this.default.operator) // clear `operator`
-        this.$set(this.inputValue, 'value', this.default.value) // clear `value`
-        this.emitValidations()
-        this.$nextTick(() => { // wait until DOM updates with new attribute
-          this.focusOperator()
-        })
-      }
+    localAttribute () {
+      return this.inputValue.attribute
     },
-    localOperator: {
-      get () {
-        return (this.inputValue && 'operator' in this.inputValue) ? this.inputValue.operator : this.default.operator
-      },
-      set (newValue) {
-        this.$set(this.inputValue, 'operator', newValue || this.default.operator)
-        this.emitValidations()
-        this.$nextTick(() => { // wait until DOM updates with new attribute
-          this.focusValue()
-        })
-      }
+    localOperator () {
+      return this.inputValue.operator
     },
-    localValue: {
-      get () {
-        return (this.inputValue && 'value' in this.inputValue) ? this.inputValue.value : this.default.value
-      },
-      set (newValue) {
-        this.$set(this.inputValue, 'value', newValue || this.default.value)
-        this.emitValidations()
-      }
+    localValue () {
+      return this.inputValue.value
     },
     field () {
       if (this.localAttribute) return this.fields.find(field => field.value === this.localAttribute)
@@ -222,43 +165,25 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (authenticationConditionOperators[type]) {
-            operators.push(...Object.keys(authenticationConditionOperators[type]).map(oper => { return { text: oper, value: oper } }))
-          }
+          if (type in fieldTypeOperators) operators.push(...fieldTypeOperators[type])
         }
       }
       return operators
     },
-    values () {
+    options () {
       if (!this.localAttribute) return []
-      let values = []
+      let options = []
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (authenticationConditionValues[type]) {
-            values.push(...authenticationConditionValues[type](this.$store))
-          }
+          if (type in fieldTypeValues) options.push(...fieldTypeValues[type](this))
         }
       }
-      return values
+      return options
     },
-    attributeVuelidateModel () {
-      return this.getVuelidateModel('attribute')
-    },
-    attributeInvalidFeedback () {
-      return this.getInvalidFeedback('attribute')
-    },
-    operatorVuelidateModel () {
-      return this.getVuelidateModel('operator')
-    },
-    operatorInvalidFeedback () {
-      return this.getInvalidFeedback('operator')
-    },
-    valueVuelidateModel () {
-      return this.getVuelidateModel('value')
-    },
-    valueInvalidFeedback () {
-      return this.getInvalidFeedback('value')
+    fieldAttrs () {
+      const { field: { attrs } = {} } = this
+      return attrs || { options: this.options }
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
@@ -266,65 +191,63 @@ export default {
     }
   },
   methods: {
-    isAttributeType (type) {
-      if (!this.localAttribute) return false
-      const index = this.fields.findIndex(field => field.value === this.localAttribute)
-      if (index >= 0) {
-        const field = this.fields[index]
-        if (field.types.includes(type)) return true
+    isComponentType (componentTypes) {
+      if (this.localAttribute) {
+        const index = this.fields.findIndex(field => field.value === this.localAttribute)
+        if (index >= 0) {
+          const field = this.fields[index]
+          for (let t = 0; t < componentTypes.length; t++) {
+            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
+          }
+        }
       }
       return false
     },
-    getVuelidateModel (key = null) {
-      const { vuelidate: { [key]: model } } = this
-      return model || {}
-    },
-    getInvalidFeedback (key = null) {
-      let feedback = []
-      const vuelidate = this.getVuelidateModel(key)
-      if (vuelidate !== {} && key in vuelidate) {
-        Object.entries(vuelidate[key].$params).forEach(([k, v]) => {
-          if (vuelidate[key][k] === false) feedback.push(k.trim())
-        })
-      }
-      return feedback.join('<br/>')
-    },
-    buildLocalValidations () {
-      const { field } = this
-      if (field) {
-        const { validators } = field
-        if (validators) {
-          return validators
-        }
-      }
-      return { attribute: { [this.$i18n.t('Attribute required.')]: required } }
-    },
-    emitValidations () {
-      this.$emit('validations', this.buildLocalValidations())
-    },
     focus () {
       if (this.localAttribute) {
-        this.focusValue()
+        if (this.localOperator) {
+          this.focusValue()
+        } else {
+          this.focusOperator()
+        }
       } else {
-        this.focusType()
+        this.focusAttribute()
       }
     },
-    focusIndex (index = 0) {
-      const { [index]: { $refs: { input: { $el } } } } = Object.values(this.$refs)
-      if ('focus' in $el) $el.focus()
-    },
-    focusType () {
-      this.focusIndex(0)
+    focusAttribute () {
+      const { $refs: { attribute: { focus = () => {} } = {} } = {} } = this
+      focus()
     },
     focusOperator () {
-      this.focusIndex(1)
+      const { $refs: { operator: { focus = () => {} } = {} } = {} } = this
+      focus()
     },
     focusValue () {
-      this.focusIndex(2)
+      const { $refs: { value: { focus = () => {} } = {} } = {} } = this
+      focus()
     }
   },
-  created () {
-    this.emitValidations()
+  watch: {
+    localAttribute: {
+      handler: function (a, b) {
+        if (!this.drag) { // don't focus when being dragged
+          this.$set(this.formStoreValue, 'operator', null) // clear operator
+          this.$nextTick(() => {
+            this.focusOperator()
+          })
+        }
+      }
+    },
+    localOperator: {
+      handler: function (a, b) {
+        if (!this.drag) { // don't focus when being dragged
+          this.$set(this.formStoreValue, 'value', null) // clear value
+          this.$nextTick(() => {
+            this.focusValue()
+          })
+        }
+      }
+    }
   }
 }
 </script>
