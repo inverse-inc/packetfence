@@ -46,7 +46,8 @@ sub init {
 sub build_child {
     my ($self) = @_;
     my @queues;
-    my %tmp_cfg = (%{ $self->{cfg} }, queues => \@queues);
+    my %queue_config;
+    my %tmp_cfg = (%{ $self->{cfg} }, queues => \@queues, queue_config => \%queue_config);
     my $max_tasks = $tmp_cfg{pfqueue}{max_tasks};
     if (!defined($max_tasks) || $max_tasks <= 0) {
         $tmp_cfg{pfqueue}{max_tasks} = $PFQUEUE_MAX_TASKS_DEFAULT;
@@ -61,10 +62,12 @@ sub build_child {
         $data->{weight} //= $PFQUEUE_WEIGHT_DEFAULT;
         $data->{hashed} //= $PFQUEUE_HASHED_DEFAULT;
         if (isenabled ($data->{hashed})) {
-            push @queues, (map { real_name => $queue, name => "${queue}_${_}", workers => 1, weight => 0 }, (0...$data->{workers}-1));
+            push @queues, (map { real_name => $queue, name => sprintf("%s_%03d",$queue, $_), workers => 1, weight => 0 }, (0...$data->{workers}-1));
         } else {
             push @{$tmp_cfg{queues}},{ %$data, name => $queue, real_name => $queue };
         }
+
+        $queue_config{$queue} = $data;
     }
     my %redis_args;
     my $consumer = $tmp_cfg{consumer};
