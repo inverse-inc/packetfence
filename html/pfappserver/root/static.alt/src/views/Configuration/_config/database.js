@@ -6,77 +6,77 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
-export const pfConfigurationDatabaseViewFields = (context = {}) => {
-  const {
-    options: {
-      meta = {}
-    }
-  } = context
+export const view = (form = {}, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Hostname'),
           text: i18n.t('Server the mysql server is running on.'),
-          fields: [
+          cols: [
             {
-              key: 'host',
+              namespace: 'host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'host')
             }
           ]
         },
         {
           label: i18n.t('Port'),
           text: i18n.t('Port the mysql server is running on.'),
-          fields: [
+          cols: [
             {
-              key: 'port',
+              namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
             }
           ]
         },
         {
           label: i18n.t('Database name'),
           text: i18n.t('Name of the mysql database used by PacketFence.'),
-          fields: [
+          cols: [
             {
-              key: 'db',
+              namespace: 'db',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'db'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'db', i18n.t('Database'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'db')
             }
           ]
         },
         {
           label: i18n.t('User'),
           text: i18n.t('Username of the account with access to the mysql database used by PacketFence.'),
-          fields: [
+          cols: [
             {
-              key: 'user',
+              namespace: 'user',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'user'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('User'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'user')
             }
           ]
         },
         {
           label: i18n.t('Password'),
           text: i18n.t('Password for the mysql database used by PacketFence.'),
-          fields: [
+          cols: [
             {
-              key: 'pass',
+              namespace: 'pass',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pass'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Password'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pass')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  return {
+    host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')),
+    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
+    db: pfConfigurationValidatorsFromMeta(meta, 'db', i18n.t('Database')),
+    user: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('User')),
+    pass: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Password'))
+  }
 }
