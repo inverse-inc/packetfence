@@ -71,8 +71,8 @@ const idParentParamsFromV = (vBase, vMember) => {
 export const and = (...validators) => {
   return _common.withParams({ type: 'and' }, function (...args) {
     return (
-      validators.length > 0 &&
-      Promise.all(validators.map(fn => fn.apply(this, args))).then(values => {
+      validators.filter(v => v).length > 0 &&
+      Promise.all(validators.filter(v => v).map(fn => fn.apply(this, args))).then(values => {
         return values.reduce((valid, value) => {
           return valid && value
         }, true)
@@ -83,10 +83,10 @@ export const and = (...validators) => {
 
 // Default vuelidate |or| replacement, handles Promises
 export const or = (...validators) => {
-  return _common.withParams({ type: 'and' }, function (...args) {
+  return _common.withParams({ type: 'or' }, function (...args) {
     return (
-      validators.length > 0 &&
-      Promise.all(validators.map(fn => fn.apply(this, args))).then(values => {
+      validators.filter(v => v).length > 0 &&
+      Promise.all(validators.filter(v => v).map(fn => fn.apply(this, args))).then(values => {
         return values.reduce((valid, value) => {
           return valid || value
         }, false)
