@@ -1,17 +1,17 @@
 import i18n from '@/utils/locale'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
-export const pfConfigurationDnsViewFields = () => {
+export const view = (form = {}, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
-          label: i18n.t('Record dns requests and replies in SQL tables'),
-          text: i18n.t('Record dns requests and replies in the SQL tables.'),
-          fields: [
+          label: i18n.t('Record DNS'),
+          text: i18n.t('Record DNS requests and replies in the SQL tables.'),
+          cols: [
             {
-              key: 'record_dns_in_sql',
+              namespace: 'record_dns_in_sql',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -22,4 +22,8 @@ export const pfConfigurationDnsViewFields = () => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  return {}
 }

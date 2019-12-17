@@ -1635,7 +1635,13 @@ const route = {
       path: 'dns',
       name: 'dns',
       component: DnsView,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ formStoreName: 'formDns', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formDns) { // Register store module only once
+          store.registerModule('formDns', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'admin_roles',
