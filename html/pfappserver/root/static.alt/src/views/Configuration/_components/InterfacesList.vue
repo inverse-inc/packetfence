@@ -173,15 +173,9 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationInterfacesListColumns as columnsInterface
-} from '@/globals/configuration/pfConfigurationInterfaces'
-import {
-  pfConfigurationLayer2NetworksListColumns as columnsLayer2Network
-} from '@/globals/configuration/pfConfigurationLayer2Networks'
-import {
-  pfConfigurationRoutedNetworksListColumns as columnsRoutedNetwork
-} from '@/globals/configuration/pfConfigurationRoutedNetworks'
+import { columns as columnsInterface } from '../_config/interface'
+import { columns as columnsLayer2Network } from '../_config/layer2Network'
+import { columns as columnsRoutedNetwork } from '../_config/routedNetwork'
 
 export default {
   name: 'interfaces-list',

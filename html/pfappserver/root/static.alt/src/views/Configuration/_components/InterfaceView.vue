@@ -1,15 +1,13 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :isClonable="isClonable"
     :isDeletable="isDeletable"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -27,8 +25,8 @@
       </template>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
@@ -47,22 +45,19 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationInterfaceViewFields as fields
-} from '@/globals/configuration/pfConfigurationInterfaces'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/interface'
 
 export default {
   name: 'interface-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfButtonDelete,
     pfButtonSave,
     pfConfigView
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -80,38 +75,36 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {} // will be overloaded with data from the pfConfigView
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/interface
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_interfaces/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     isClonable () {
-      return !this.isNew && !this.isClone && this.isVlan
+      const { isNew, isClone, isVlan } = this
+      return !isNew && !isClone && isVlan
     },
     isDeletable () {
-      return !this.isNew && !this.isClone && this.isVlan
+      const { isNew, isClone, isVlan } = this
+      return !isNew && !isClone && isVlan
     },
     isVlan () {
-      return (this.form && this.form.master)
+      const { form: { master = false } = {} } = this
+      return master
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -122,23 +115,21 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/getInterface`, this.id).then(form => {
+      this.$store.dispatch('$_interfaces/getInterface', this.id).then(form => {
         if (this.isNew) {
-          this.form = {
-            id: form.id,
-            type: 'none'
-          }
+          this.$store.dispatch(`${this.formStoreName}/setForm`, { id: form.id, type: 'none' })
         } else {
-          this.form = form
+          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
         }
       })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'interfaces' })
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createInterface`, this.form).then(response => {
+      this.$store.dispatch('$_interfaces/createInterface', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -148,14 +139,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateInterface`, this.form).then(response => {
+      this.$store.dispatch('$_interfaces/updateInterface', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove (id) {
-      this.$store.dispatch(`${this.storeName}/deleteInterface`, this.id).then(response => {
+      this.$store.dispatch('$_interfaces/deleteInterface', this.id).then(response => {
         this.close()
       })
     }

@@ -13,13 +13,12 @@ import {
   hasInterfaces,
   interfaceVlanExists
 } from '@/globals/pfValidators'
-
-const {
+import {
   required,
   ipAddress
-} = require('vuelidate/lib/validators')
+} from '@/globals/pfValidators'
 
-export const pfConfigurationInterfaceTypes = [
+export const typesList = [
   { value: 'none', text: i18n.t('None') },
   { value: 'dns-enforcement', text: i18n.t('DNS Enforcement') },
   { value: 'inlinel2', text: i18n.t('Inline Layer 2') },
@@ -30,7 +29,7 @@ export const pfConfigurationInterfaceTypes = [
   { value: 'other', text: i18n.t('Other') }
 ]
 
-export const pfConfigurationInterfaceDaemons = [
+export const daemonsList = [
   { value: 'dhcp', text: 'dhcp' },
   { value: 'dns', text: 'dns' },
   { value: 'portal', text: 'portal' },
@@ -39,12 +38,12 @@ export const pfConfigurationInterfaceDaemons = [
 
 ]
 
-export const pfConfigurationInterfacesTypeFormatter = (value) => {
+export const typeFormatter = (value) => {
   if (value === null || value === '') return null
-  return pfConfigurationInterfaceTypes.find(type => type.value === value).text
+  return typesList.find(type => type.value === value).text
 }
 
-export const pfConfigurationInterfacesSortColumns = { // maintain hierarchical ordering (master => vlans)
+export const sortColumns = { // maintain hierarchical ordering (master => vlans)
   id: (itemA, itemB, sortDesc) => {
     const sortMod = (sortDesc) ? -1 : 1
     switch (true) {
@@ -162,7 +161,7 @@ export const pfConfigurationInterfacesSortColumns = { // maintain hierarchical o
   }
 }
 
-export const pfConfigurationInterfacesListColumns = [
+export const columns = [
   {
     key: 'is_running',
     label: i18n.t('Status'),
@@ -174,14 +173,14 @@ export const pfConfigurationInterfacesListColumns = [
     required: true,
     sortable: true,
     visible: true,
-    sort: pfConfigurationInterfacesSortColumns.id
+    sort: sortColumns.id
   },
   {
     key: 'ipaddress',
     label: i18n.t('IPv4 Address'),
     sortable: true,
     visible: true,
-    sort: pfConfigurationInterfacesSortColumns.ipaddress
+    sort: sortColumns.ipaddress
   },
   {
     key: 'ipv6_address',
@@ -200,27 +199,27 @@ export const pfConfigurationInterfacesListColumns = [
     label: i18n.t('Netmask'),
     sortable: true,
     visible: true,
-    sort: pfConfigurationInterfacesSortColumns.netmask
+    sort: sortColumns.netmask
   },
   {
     key: 'network',
     label: i18n.t('Default Network'),
     sortable: true,
     visible: true,
-    sort: pfConfigurationInterfacesSortColumns.network
+    sort: sortColumns.network
   },
   {
     key: 'type',
     label: i18n.t('Type'),
     visible: true,
-    formatter: pfConfigurationInterfacesTypeFormatter
+    formatter: typeFormatter
   },
   {
     key: 'additional_listening_daemons',
     label: i18n.t('Daemons'),
     visible: true,
     formatter: (value) => {
-      if (value.constructor === Array && value.length > 0) {
+      if (value && value.constructor === Array && value.length > 0) {
         return value
       }
       return null // otherwise '[]' is displayed in cell
@@ -238,24 +237,25 @@ export const pfConfigurationInterfacesListColumns = [
   }
 ]
 
-export const pfConfigurationInterfaceViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
+  const {
+    type
+  } = form
   const {
     isNew = false,
     isClone = false,
     isVlan = false,
-    id = null,
-    form = {}
-  } = context
-
+    id = null
+  } = meta
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Interface'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 disabled: true
@@ -266,88 +266,74 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
         {
           if: (isNew || isClone || isVlan),
           label: i18n.t('Virtual LAN ID'),
-          fields: [
+          cols: [
             {
-              key: 'vlan',
+              namespace: 'vlan',
               component: pfFormInput,
               attrs: {
                 type: 'number',
                 step: 1
-              },
-              validators: {
-                [i18n.t('VLAN required.')]: required,
-                [i18n.t('Invalid VLAN.')]: isVLAN,
-                [i18n.t('VLAN exists.')]: not(and(required, hasInterfaces, interfaceVlanExists(id)))
               }
             }
           ]
         },
         {
           label: i18n.t('IPv4 Address'),
-          fields: [
+          cols: [
             {
-              key: 'ipaddress',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid IPv4 address.')]: ipAddress
-              }
+              namespace: 'ipaddress',
+              component: pfFormInput
             }
           ]
         },
         {
           label: i18n.t('Netmask'),
-          fields: [
+          cols: [
             {
-              key: 'netmask',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid IPv4 address.')]: ipAddress
-              }
+              namespace: 'netmask',
+              component: pfFormInput
             }
           ]
         },
         {
           label: i18n.t('IPv6 Address'),
-          fields: [
+          cols: [
             {
-              key: 'ipv6_address',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid IPv6 address.')]: ipv6Address
-              }
+              namespace: 'ipv6_address',
+              component: pfFormInput
             }
           ]
         },
         {
           label: i18n.t('IPv6 Prefix'),
-          fields: [
+          cols: [
             {
-              key: 'ipv6_prefix',
+              namespace: 'ipv6_prefix',
               component: pfFormInput
             }
           ]
         },
         {
           label: i18n.t('Type'),
-          fields: [
+          cols: [
             {
-              key: 'type',
+              namespace: 'type',
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
                 placeholder: i18n.t('Click to add a type'),
                 trackBy: 'value',
                 label: 'text',
-                options: pfConfigurationInterfaceTypes
+                options: typesList
               }
             }
           ]
         },
         {
           label: i18n.t('Additional listening daemon(s)'),
-          fields: [
+          cols: [
             {
-              key: 'additional_listening_daemons',
+              namespace: 'additional_listening_daemons',
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
@@ -358,28 +344,28 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
                 allowEmpty: true,
                 clearOnSelect: false,
                 closeOnSelect: false,
-                options: pfConfigurationInterfaceDaemons
+                options: daemonsList
               }
             }
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type),
+          if: ['inlinel2'].includes(type),
           label: i18n.t('DNS'),
           text: i18n.t('The DNS server(s) of your network. (comma limited)'),
-          fields: [
+          cols: [
             {
-              key: 'dns',
+              namespace: 'dns',
               component: pfFormInput
             }
           ]
         },
         {
-          if: ['dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration'].includes(form.type),
+          if: ['dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration'].includes(type),
           label: i18n.t('Enable DHCP Server'),
-          fields: [
+          cols: [
             {
-              key: 'dhcpd_enabled',
+              namespace: 'dhcpd_enabled',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -388,11 +374,11 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type),
+          if: ['inlinel2'].includes(type),
           label: i18n.t('Enable NAT'),
-          fields: [
+          cols: [
             {
-              key: 'nat_enabled',
+              namespace: 'nat_enabled',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -401,9 +387,9 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type) && form.nat_enabled !== 'enabled',
+          if: ['inlinel2'].includes(type) && form.nat_enabled !== 'enabled',
           label: null, /* no label */
-          fields: [
+          cols: [
             {
               component: pfFormHtml,
               attrs: {
@@ -416,12 +402,12 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type),
+          if: ['inlinel2'].includes(type),
           label: i18n.t('Split network by role'),
           text: i18n.t('This will create a small network for each roles.'),
-          fields: [
+          cols: [
             {
-              key: 'split_network',
+              namespace: 'split_network',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -430,23 +416,20 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type),
+          if: ['inlinel2'].includes(type),
           label: i18n.t('Registration IP Address CIDR format'),
           text: i18n.t('When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).'),
-          fields: [
+          cols: [
             {
-              key: 'reg_network',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid CIDR.')]: isCIDR
-              }
+              namespace: 'reg_network',
+              component: pfFormInput
             }
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type),
+          if: ['inlinel2'].includes(type),
           label: null, /* no label */
-          fields: [
+          cols: [
             {
               component: pfFormHtml,
               attrs: {
@@ -459,12 +442,12 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
-          if: ['inlinel2'].includes(form.type),
+          if: ['inlinel2'].includes(type),
           label: i18n.t('Enable CoA'),
           text: i18n.t('Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints.'),
-          fields: [
+          cols: [
             {
-              key: 'coa',
+              namespace: 'coa',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -473,11 +456,11 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
-          if: ['none', 'management'].includes(form.type),
+          if: ['none', 'management'].includes(type),
           label: i18n.t('High availability'),
-          fields: [
+          cols: [
             {
-              key: 'high_availability',
+              namespace: 'high_availability',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: '1', unchecked: '0' }
@@ -488,4 +471,47 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    type
+  } = form
+  const {
+    isNew = false,
+    isClone = false,
+    isVlan = false,
+    id = null
+  } = meta
+  return {
+    ...((isNew || isClone || isVlan)
+      ? {
+        vlan: {
+          [i18n.t('VLAN required.')]: required,
+          [i18n.t('Invalid VLAN.')]: isVLAN,
+          [i18n.t('VLAN exists.')]: not(and(required, hasInterfaces, interfaceVlanExists(id)))
+        }
+      }
+      : {}
+    ),
+    ...{
+      ipaddress: {
+        [i18n.t('Invalid IPv4 address.')]: ipAddress
+      },
+      netmask: {
+        [i18n.t('Invalid IPv4 address.')]: ipAddress
+      },
+      ipv6_address: {
+        [i18n.t('Invalid IPv6 address.')]: ipv6Address
+      }
+    },
+    ...((['inlinel2'].includes(type))
+      ? {
+        reg_network: {
+          [i18n.t('Invalid CIDR.')]: isCIDR
+        }
+      }
+      : {}
+    )
+  }
 }

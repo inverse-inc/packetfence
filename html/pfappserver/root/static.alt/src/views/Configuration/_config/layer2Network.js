@@ -15,28 +15,22 @@ import {
   layer2NetworkExists,
   isFQDN
 } from '@/globals/pfValidators'
+import {
+  required,
+  ipAddress
+} from '@/globals/pfValidators'
 
-const {
-  ipAddress,
-  required
-} = require('vuelidate/lib/validators')
-
-export const pfConfigurationLayer2NetworkHtmlNote = `<div class="alert alert-warning">
+export const htmlNote = `<div class="alert alert-warning">
   <strong>${i18n.t('Note')}</strong>
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
 </div>`
 
-export const pfConfigurationLayer2NetworkDHCPAlgo = [
+export const dhcpList = [
   { value: '1', text: i18n.t('Random') },
   { value: '2', text: i18n.t('Oldest Released') }
 ]
 
-export const pfConfigurationLayer2NetworkDHCPAlgoFormatter = (value) => {
-  if (value === null || value === '') return null
-  return pfConfigurationLayer2NetworkDHCPAlgo.find(type => type.value === value).text
-}
-
-export const pfConfigurationLayer2NetworksListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Network'),
@@ -81,37 +75,27 @@ export const pfConfigurationLayer2NetworksListColumns = [
   }
 ]
 
-export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
   const {
-    isNew = false,
-    isClone = false,
-    options: {
-      meta = {}
-    },
-    form = {}
-  } = context
-
+    fake_mac_enabled
+  } = form
+  const {
+    isNew = false
+  } = meta
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Layer2 Network'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
-                  disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
-                ...{
-                  [i18n.t('Network exists.')]: not(and(required, conditional(isNew || isClone), hasLayer2Networks, layer2NetworkExists)),
-                  [i18n.t('Invalid IP Address.')]: ipAddress
+                  disabled: (!isNew)
                 }
               }
             }
@@ -119,37 +103,30 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Algorithm'),
-          fields: [
+          cols: [
             {
-              key: 'algorithm',
+              namespace: 'algorithm',
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
                 placeholder: i18n.t('Click to choose the algorithm'),
                 trackBy: 'value',
                 label: 'text',
-                options: pfConfigurationLayer2NetworkDHCPAlgo
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm'))
+                options: dhcpList
+              }
             }
           ]
         },
         {
           label: i18n.t('Starting IP Address'),
-          fields: [
+          cols: [
             {
-              key: 'dhcp_start',
+              namespace: 'dhcp_start',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_start'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
-                ...{
-                  [i18n.t('Invalid IP Address.')]: ipAddress
+                  disabled: (fake_mac_enabled === '1')
                 }
               }
             }
@@ -157,20 +134,14 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Ending IP Address'),
-          fields: [
+          cols: [
             {
-              key: 'dhcp_end',
+              namespace: 'dhcp_end',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_start'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
-                ...{
-                  [i18n.t('Invalid IP Address.')]: ipAddress
+                  disabled: (fake_mac_enabled === '1')
                 }
               }
             }
@@ -178,89 +149,79 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Default Lease Time'),
-          fields: [
+          cols: [
             {
-              key: 'dhcp_default_lease_time',
+              namespace: 'dhcp_default_lease_time',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_default_lease_time'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (fake_mac_enabled === '1')
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time'))
+              }
             }
           ]
         },
         {
           label: i18n.t('Max Lease Time'),
-          fields: [
+          cols: [
             {
-              key: 'dhcp_max_lease_time',
+              namespace: 'dhcp_max_lease_time',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_max_lease_time'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (fake_mac_enabled === '1')
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time'))
+              }
             }
           ]
         },
         {
           label: i18n.t('IP Addresses reserved'),
           text: i18n.t('Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool.'),
-          fields: [
+          cols: [
             {
-              key: 'ip_reserved',
+              namespace: 'ip_reserved',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'ip_reserved'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1'),
+                  disabled: (fake_mac_enabled === '1'),
                   rows: 5
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_reserved', i18n.t('Addresses'))
+              }
             }
           ]
         },
         {
           label: i18n.t('IP Addresses assigned'),
           text: i18n.t('List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13.'),
-          fields: [
+          cols: [
             {
-              key: 'ip_assigned',
+              namespace: 'ip_assigned',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'ip_assigned'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1'),
+                  disabled: (fake_mac_enabled === '1'),
                   rows: 5
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_assigned', i18n.t('Addresses'))
+              }
             }
           ]
         },
         {
           label: i18n.t('Portal FQDN'),
           text: i18n.t('Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server.'),
-          fields: [
+          cols: [
             {
-              key: 'portal_fqdn',
+              namespace: 'portal_fqdn',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'portal_fqdn'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'portal_fqdn', 'FQDN'),
-                ...{
-                  [i18n.t('Invalid FQDN.')]: isFQDN
+                  disabled: (fake_mac_enabled === '1')
                 }
               }
             }
@@ -268,11 +229,11 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
         },
         {
           label: null, /* no label */
-          fields: [
+          cols: [
             {
               component: pfFormHtml,
               attrs: {
-                html: pfConfigurationLayer2NetworkHtmlNote
+                html: htmlNote
               }
             }
           ]
@@ -280,4 +241,41 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
       ]
     }
   ]
+}
+export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...{
+        [i18n.t('Network exists.')]: not(and(required, conditional(isNew), hasLayer2Networks, layer2NetworkExists)),
+        [i18n.t('Invalid IP Address.')]: ipAddress
+      }
+    },
+    algorithm: pfConfigurationValidatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm')),
+    dhcp_start: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
+      ...{
+        [i18n.t('Invalid IP Address.')]: ipAddress
+      }
+    },
+    dhcp_end: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_end', 'IP'),
+      ...{
+        [i18n.t('Invalid IP Address.')]: ipAddress
+      }
+    },
+    dhcp_default_lease_time: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time')),
+    dhcp_max_lease_time: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time')),
+    ip_reserved: pfConfigurationValidatorsFromMeta(meta, 'ip_reserved', i18n.t('Addresses')),
+    ip_assigned: pfConfigurationValidatorsFromMeta(meta, 'ip_assigned', i18n.t('Addresses')),
+    portal_fqdn: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'portal_fqdn', 'FQDN'),
+      ...{
+        [i18n.t('Invalid FQDN.')]: isFQDN
+      }
+    }
+  }
 }

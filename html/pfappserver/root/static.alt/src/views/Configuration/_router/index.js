@@ -1418,8 +1418,11 @@ const route = {
       path: 'interface/:id',
       name: 'interface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_interfaces', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formInterface) { // Register store module only once
+          store.registerModule('formInterface', FormStore)
+        }
         store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
@@ -1429,8 +1432,11 @@ const route = {
       path: 'interface/:id/clone',
       name: 'cloneInterface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formInterface) { // Register store module only once
+          store.registerModule('formInterface', FormStore)
+        }
         store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
@@ -1440,8 +1446,11 @@ const route = {
       path: 'interface/:id/new',
       name: 'newInterface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isNew: true }),
+      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id, isNew: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formInterface) { // Register store module only once
+          store.registerModule('formInterface', FormStore)
+        }
         store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
@@ -1451,8 +1460,11 @@ const route = {
       path: 'interfaces/layer2_network/:id',
       name: 'layer2_network',
       component: Layer2NetworkView,
-      props: (route) => ({ storeName: '$_layer2_networks', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formLayer2Network', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formLayer2Network) { // Register store module only once
+          store.registerModule('formLayer2Network', FormStore)
+        }
         store.dispatch('$_layer2_networks/getLayer2Network', to.params.id).then(() => {
           next()
         })
@@ -1468,8 +1480,11 @@ const route = {
       path: 'interfaces/routed_network/:id',
       name: 'routed_network',
       component: RoutedNetworkView,
-      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRoutedNetwork', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formRoutedNetwork) { // Register store module only once
+          store.registerModule('formRoutedNetwork', FormStore)
+        }
         store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })
@@ -1479,8 +1494,11 @@ const route = {
       path: 'interfaces/routed_network/:id/clone',
       name: 'cloneRoutedNetwork',
       component: RoutedNetworkView,
-      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRoutedNetwork', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formRoutedNetwork) { // Register store module only once
+          store.registerModule('formRoutedNetwork', FormStore)
+        }
         store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })

@@ -8,13 +8,13 @@
         <network-view form-store-name="formNetwork" />
       </b-tab>
       <b-tab :title="$t('Interfaces')" @click="changeTab('interfaces')">
-        <interfaces-list form-store-name="formInterface" />
+        <interfaces-list />
       </b-tab>
       <b-tab :title="$t('Inline')" @click="changeTab('inline')">
         <inline-view form-store-name="formInline" />
       </b-tab>
       <b-tab :title="$t('Inline Traffic Shaping')" @click="changeTab('traffic_shapings')">
-        <traffic-shapings-list form-store-name="formTrafficShaping" />
+        <traffic-shapings-list />
       </b-tab>
       <b-tab :title="$t('Fencing')" @click="changeTab('fencing')">
         <fencing-view form-store-name="formFencing" />
@@ -68,14 +68,8 @@ export default {
     if (!this.$store.state.formNetwork) { // Register store module only once
       this.$store.registerModule('formNetwork', FormStore)
     }
-    if (!this.$store.state.formInterface) { // Register store module only once
-      this.$store.registerModule('formInterface', FormStore)
-    }
     if (!this.$store.state.formInline) { // Register store module only once
       this.$store.registerModule('formInline', FormStore)
-    }
-    if (!this.$store.state.formTrafficShaping) { // Register store module only once
-      this.$store.registerModule('formTrafficShaping', FormStore)
     }
     if (!this.$store.state.formFencing) { // Register store module only once
       this.$store.registerModule('formFencing', FormStore)
