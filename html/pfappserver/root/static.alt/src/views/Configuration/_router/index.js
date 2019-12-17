@@ -251,7 +251,7 @@ const route = {
       component: RoleView,
       props: (route) => ({ storeName: '$_roles', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_roles/getRole', to.params.id).then(object => {
+        store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
       }
@@ -262,7 +262,7 @@ const route = {
       component: RoleView,
       props: (route) => ({ storeName: '$_roles', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_roles/getRole', to.params.id).then(object => {
+        store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
       }
@@ -277,7 +277,7 @@ const route = {
       path: 'domains/new',
       name: 'newDomain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains', isNew: true })
+      props: () => ({ storeName: '$_domains', isNew: true })
     },
     {
       path: 'domain/:id',
@@ -285,7 +285,7 @@ const route = {
       component: DomainView,
       props: (route) => ({ storeName: '$_domains', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_domains/getDomain', to.params.id).then(object => {
+        store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })
       }
@@ -296,7 +296,7 @@ const route = {
       component: DomainView,
       props: (route) => ({ storeName: '$_domains', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_domains/getDomain', to.params.id).then(object => {
+        store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })
       }
@@ -311,7 +311,7 @@ const route = {
       path: 'realms/new',
       name: 'newRealm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms', isNew: true })
+      props: () => ({ storeName: '$_realms', isNew: true })
     },
     {
       path: 'realm/:id',
@@ -319,7 +319,7 @@ const route = {
       component: RealmView,
       props: (route) => ({ storeName: '$_realms', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_realms/getRealm', to.params.id).then(object => {
+        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
           next()
         })
       }
@@ -330,7 +330,7 @@ const route = {
       component: RealmView,
       props: (route) => ({ storeName: '$_realms', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_realms/getRealm', to.params.id).then(object => {
+        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
           next()
         })
       }
@@ -362,7 +362,7 @@ const route = {
         if (!store.state.formAuthenticationSource) { // Register store module only once
           store.registerModule('formAuthenticationSource', FormStore)
         }
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
           next()
         })
       }
@@ -376,7 +376,7 @@ const route = {
         if (!store.state.formAuthenticationSource) { // Register store module only once
           store.registerModule('formAuthenticationSource', FormStore)
         }
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
           next()
         })
       }
@@ -399,7 +399,7 @@ const route = {
       component: SwitchView,
       props: (route) => ({ storeName: '$_switches', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+        store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
           next()
         })
       }
@@ -410,7 +410,7 @@ const route = {
       component: SwitchView,
       props: (route) => ({ storeName: '$_switches', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+        store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
           next()
         })
       }
@@ -425,7 +425,7 @@ const route = {
       path: 'switch_groups/new',
       name: 'newSwitchGroup',
       component: SwitchGroupView,
-      props: (route) => ({ storeName: '$_switch_groups', isNew: true })
+      props: () => ({ storeName: '$_switch_groups', isNew: true })
     },
     {
       path: 'switch_group/:id',
@@ -433,7 +433,7 @@ const route = {
       component: SwitchGroupView,
       props: (route) => ({ storeName: '$_switch_groups', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
       }
@@ -444,7 +444,7 @@ const route = {
       component: SwitchGroupView,
       props: (route) => ({ storeName: '$_switch_groups', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
       }
@@ -459,7 +459,7 @@ const route = {
       path: 'connection_profiles/new',
       name: 'newConnectionProfile',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', isNew: true })
+      props: () => ({ storeName: '$_connection_profiles', isNew: true })
     },
     {
       path: 'connection_profile/:id',
@@ -467,7 +467,7 @@ const route = {
       component: ConnectionProfileView,
       props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
       }
@@ -478,7 +478,7 @@ const route = {
       component: ConnectionProfileView,
       props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
       }
@@ -489,7 +489,7 @@ const route = {
       component: ConnectionProfileView,
       props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, tabIndex: 2 }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
       }
@@ -539,7 +539,7 @@ const route = {
       path: 'fingerbank/local/combinations/new',
       name: 'newFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+      props: () => ({ isNew: true, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/local/combination/:id',
@@ -547,7 +547,7 @@ const route = {
       component: FingerbankCombinationView,
       props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
           next()
         })
       }
@@ -558,7 +558,7 @@ const route = {
       component: FingerbankCombinationView,
       props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
           next()
         })
       }
@@ -587,7 +587,7 @@ const route = {
       component: FingerbankDeviceView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -598,7 +598,7 @@ const route = {
       component: FingerbankDeviceView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -621,7 +621,7 @@ const route = {
       component: FingerbankDhcpFingerprintView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -632,7 +632,7 @@ const route = {
       component: FingerbankDhcpFingerprintView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -655,7 +655,7 @@ const route = {
       component: FingerbankDhcpVendorView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -666,7 +666,7 @@ const route = {
       component: FingerbankDhcpVendorView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -689,7 +689,7 @@ const route = {
       component: FingerbankDhcpv6FingerprintView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -700,7 +700,7 @@ const route = {
       component: FingerbankDhcpv6FingerprintView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -723,7 +723,7 @@ const route = {
       component: FingerbankDhcpv6EnterpriseView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
           next()
         })
       }
@@ -734,7 +734,7 @@ const route = {
       component: FingerbankDhcpv6EnterpriseView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
           next()
         })
       }
@@ -757,7 +757,7 @@ const route = {
       component: FingerbankMacVendorView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -768,7 +768,7 @@ const route = {
       component: FingerbankMacVendorView,
       props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -783,7 +783,7 @@ const route = {
       path: 'fingerbank/local/user_agents/new',
       name: 'newFingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+      props: () => ({ isNew: true, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/local/user_agent/:id',
@@ -791,7 +791,7 @@ const route = {
       component: FingerbankUserAgentView,
       props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
           next()
         })
       }
@@ -805,7 +805,7 @@ const route = {
         if (!store.state.formScanEngine) { // Register store module only once
           store.registerModule('formScanEngine', FormStore)
         }
-        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
           next()
         })
       }
@@ -841,7 +841,7 @@ const route = {
         if (!store.state.formScanEngine) { // Register store module only once
           store.registerModule('formScanEngine', FormStore)
         }
-        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
           next()
         })
       }
@@ -855,7 +855,7 @@ const route = {
         if (!store.state.formScanEngine) { // Register store module only once
           store.registerModule('formScanEngine', FormStore)
         }
-        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
           next()
         })
       }
@@ -887,7 +887,7 @@ const route = {
         if (!store.state.formWmiRule) { // Register store module only once
           store.registerModule('formWmiRule', FormStore)
         }
-        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
+        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
           next()
         })
       }
@@ -901,7 +901,7 @@ const route = {
         if (!store.state.formWmiRule) { // Register store module only once
           store.registerModule('formWmiRule', FormStore)
         }
-        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
+        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
           next()
         })
       }
@@ -916,7 +916,7 @@ const route = {
       path: 'security_events/new',
       name: 'newSecurityEvent',
       component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', isNew: true })
+      props: () => ({ storeName: '$_security_events', isNew: true })
     },
     {
       path: 'security_event/:id',
@@ -924,7 +924,7 @@ const route = {
       component: SecurityEventView,
       props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
       }
@@ -935,7 +935,7 @@ const route = {
       component: SecurityEventView,
       props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
       }
@@ -965,7 +965,7 @@ const route = {
       component: FirewallView,
       props: (route) => ({ storeName: '$_firewalls', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
           next()
         })
       }
@@ -976,7 +976,7 @@ const route = {
       component: FirewallView,
       props: (route) => ({ storeName: '$_firewalls', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
           next()
         })
       }
@@ -1023,7 +1023,7 @@ const route = {
       component: SyslogParserView,
       props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })
       }
@@ -1034,7 +1034,7 @@ const route = {
       component: SyslogParserView,
       props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })
       }
@@ -1057,7 +1057,7 @@ const route = {
       component: SyslogForwarderView,
       props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
           next()
         })
       }
@@ -1068,7 +1068,7 @@ const route = {
       component: SyslogForwarderView,
       props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
           next()
         })
       }
@@ -1114,7 +1114,7 @@ const route = {
         if (!store.state.formWrixLocation) { // Register store module only once
           store.registerModule('formWrixLocation', FormStore)
         }
-        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(() => {
           next()
         })
       }
@@ -1154,7 +1154,7 @@ const route = {
       path: 'billing_tiers/new',
       name: 'newBillingTier',
       component: BillingTierView,
-      props: (route) => ({ formStoreName: 'formBillingTier', isNew: true }),
+      props: () => ({ formStoreName: 'formBillingTier', isNew: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formBillingTier) { // Register store module only once
           store.registerModule('formBillingTier', FormStore)
@@ -1171,7 +1171,7 @@ const route = {
         if (!store.state.formBillingTier) { // Register store module only once
           store.registerModule('formBillingTier', FormStore)
         }
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(() => {
           next()
         })
       }
@@ -1185,7 +1185,7 @@ const route = {
         if (!store.state.formBillingTier) { // Register store module only once
           store.registerModule('formBillingTier', FormStore)
         }
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(() => {
           next()
         })
       }
@@ -1208,7 +1208,7 @@ const route = {
       component: PkiProviderView,
       props: (route) => ({ storeName: '$_pki_providers', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })
       }
@@ -1219,7 +1219,7 @@ const route = {
       component: PkiProviderView,
       props: (route) => ({ storeName: '$_pki_providers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })
       }
@@ -1242,7 +1242,7 @@ const route = {
       component: ProvisioningView,
       props: (route) => ({ storeName: '$_provisionings', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })
       }
@@ -1253,7 +1253,7 @@ const route = {
       component: ProvisioningView,
       props: (route) => ({ storeName: '$_provisionings', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })
       }
@@ -1276,7 +1276,7 @@ const route = {
       component: PortalModuleView,
       props: (route) => ({ storeName: '$_portalmodules', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
+        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
           next()
         })
       }
@@ -1287,7 +1287,7 @@ const route = {
       component: PortalModuleView,
       props: (route) => ({ storeName: '$_portalmodules', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
+        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
           next()
         })
       }
@@ -1314,7 +1314,7 @@ const route = {
       path: 'self_services/new',
       name: 'newSelfService',
       component: SelfServiceView,
-      props: (route) => ({ storeName: '$_self_services', isNew: true })
+      props: () => ({ storeName: '$_self_services', isNew: true })
     },
     {
       path: 'self_service/:id',
@@ -1369,7 +1369,7 @@ const route = {
       component: InterfaceView,
       props: (route) => ({ storeName: '$_interfaces', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
       }
@@ -1380,7 +1380,7 @@ const route = {
       component: InterfaceView,
       props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
       }
@@ -1391,7 +1391,7 @@ const route = {
       component: InterfaceView,
       props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isNew: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
       }
@@ -1402,7 +1402,7 @@ const route = {
       component: Layer2NetworkView,
       props: (route) => ({ storeName: '$_layer2_networks', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_layer2_networks/getLayer2Network', to.params.id).then(object => {
+        store.dispatch('$_layer2_networks/getLayer2Network', to.params.id).then(() => {
           next()
         })
       }
@@ -1411,7 +1411,7 @@ const route = {
       path: 'interfaces/routed_networks/new',
       name: 'newRoutedNetwork',
       component: RoutedNetworkView,
-      props: (route) => ({ storeName: '$_routed_networks', isNew: true })
+      props: () => ({ storeName: '$_routed_networks', isNew: true })
     },
     {
       path: 'interfaces/routed_network/:id',
@@ -1419,7 +1419,7 @@ const route = {
       component: RoutedNetworkView,
       props: (route) => ({ storeName: '$_routed_networks', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })
       }
@@ -1430,7 +1430,7 @@ const route = {
       component: RoutedNetworkView,
       props: (route) => ({ storeName: '$_routed_networks', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })
       }
@@ -1459,7 +1459,7 @@ const route = {
       component: TrafficShapingView,
       props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(object => {
+        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(() => {
           next()
         })
       }
@@ -1486,7 +1486,7 @@ const route = {
       path: 'floating_devices/new',
       name: 'newFloatingDevice',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
+      props: () => ({ storeName: '$_floatingdevices', isNew: true })
     },
     {
       path: 'floating_device/:id',
@@ -1494,7 +1494,7 @@ const route = {
       component: FloatingDeviceView,
       props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -1505,7 +1505,7 @@ const route = {
       component: FloatingDeviceView,
       props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -1563,7 +1563,7 @@ const route = {
       component: MaintenanceTaskView,
       props: (route) => ({ storeName: '$_maintenance_tasks', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(object => {
+        store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(() => {
           next()
         })
       }
@@ -1620,7 +1620,7 @@ const route = {
       path: 'admin_roles/new',
       name: 'newAdminRole',
       component: AdminRoleView,
-      props: (route) => ({ formStoreName: 'formAdminRole', isNew: true }),
+      props: () => ({ formStoreName: 'formAdminRole', isNew: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formAdminRole) { // Register store module only once
           store.registerModule('formAdminRole', FormStore)
@@ -1637,7 +1637,7 @@ const route = {
         if (!store.state.formAdminRole) { // Register store module only once
           store.registerModule('formAdminRole', FormStore)
         }
-        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(() => {
           next()
         })
       }
@@ -1651,7 +1651,7 @@ const route = {
         if (!store.state.formAdminRole) { // Register store module only once
           store.registerModule('formAdminRole', FormStore)
         }
-        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(() => {
           next()
         })
       }
