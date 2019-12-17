@@ -26,6 +26,7 @@ use pf::config::util;
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::config qw(%Config);
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::util::pfqueue qw(task_counter_id consumer_redis_client);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
 
@@ -92,7 +93,7 @@ sub doTask {
     }
 
     my $client = pf::pfqueue::producer::redis->new(queue => 'pfsnmp');
-    $client->submit("pfsnmp", "pfsnmp", $trap);
+    $client->submit_hashed($ConfigPfqueue{pfsnmp}{workers}, $switch_id, "pfsnmp", "pfsnmp", $trap);
     return undef, undef;
 }
 
