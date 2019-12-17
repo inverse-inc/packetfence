@@ -22,7 +22,7 @@
     </template>
     <template v-slot:footer>
       <b-card-footer>
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
@@ -89,6 +89,9 @@ export default {
     },
     isLoading () {
       return this.$store.getters['$_admin_roles/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     isDeletable () {
       const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this

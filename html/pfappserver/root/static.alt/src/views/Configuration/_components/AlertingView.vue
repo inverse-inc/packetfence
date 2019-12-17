@@ -13,7 +13,7 @@
     </template>
     <template v-slot:footer>
       <b-card-footer>
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -58,6 +58,9 @@ export default {
     },
     isLoading () {
       return this.$store.getters['$_bases/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     }
   },
   methods: {

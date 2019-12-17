@@ -33,17 +33,19 @@
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'lock', unchecked: 'lock' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
           disabled
-        >{{ (item.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        />
         <pf-form-range-toggle v-else
           v-model="item.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
           :disabled="isLoading"
           @input="toggleStatus(item, $event)"
           @click.stop.prevent
-        >{{ (item.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        />
       </template>
     </pf-config-list>
   </b-card>
@@ -55,9 +57,7 @@ import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationConnectionProfileListConfig as config
-} from '@/globals/configuration/pfConfigurationConnectionProfiles'
+import { config } from '../_config/connectionProfile'
 
 export default {
   name: 'connection-profiles-list',
@@ -68,13 +68,6 @@ export default {
     pfEmptyTable,
     pfFormRangeToggle
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
       config: config(this)
@@ -82,7 +75,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_connection_profilesisLoading']
     }
   },
   methods: {
@@ -93,7 +86,7 @@ export default {
       this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, item.id).then(response => {
+      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -101,13 +94,13 @@ export default {
     toggleStatus (item, newStatus) {
       switch (newStatus) {
         case 'enabled':
-          this.$store.dispatch(`${this.storeName}/enableConnectionProfile`, item).then(response => {
+          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(response => {
             const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
             this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' })
           })
           break
         case 'disabled':
-          this.$store.dispatch(`${this.storeName}/disableConnectionProfile`, item).then(response => {
+          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(response => {
             const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
             this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' })
           })
@@ -115,7 +108,7 @@ export default {
       }
     },
     sort (items) {
-      this.$store.dispatch(`${this.storeName}/sortConnectionProfiles`, items.map(item => item.id)).then(response => {
+      this.$store.dispatch('$_connection_profiles/sortConnectionProfiles', items.map(item => item.id)).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Connection profiles resorted.') })
       })
     }

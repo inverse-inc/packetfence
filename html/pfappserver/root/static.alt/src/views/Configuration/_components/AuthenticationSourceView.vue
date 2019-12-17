@@ -103,7 +103,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/adminRole
+      return view(this.form, this.meta) // ../_config/authenticationSource
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]
@@ -151,7 +151,7 @@ export default {
           const { meta = {} } = options
           const { isNew, isClone, isDeletable, sourceType } = this
           this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, sourceType } })
-          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
           this.form.type = this.sourceType
         })
       }
