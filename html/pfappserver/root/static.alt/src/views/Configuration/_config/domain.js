@@ -21,7 +21,7 @@ const {
   required
 } = require('vuelidate/lib/validators')
 
-export const pfConfigurationDomainsListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -53,7 +53,7 @@ export const pfConfigurationDomainsListColumns = [
   }
 ]
 
-export const pfConfigurationDomainsListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Name'),
@@ -66,10 +66,10 @@ export const pfConfigurationDomainsListFields = [
   }
 ]
 
-export const pfConfigurationDomainsListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationDomainsListColumns,
-    fields: pfConfigurationDomainsListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'domain', params: { id: item.id } }
     },
@@ -106,35 +106,26 @@ export const pfConfigurationDomainsListConfig = () => {
   }
 }
 
-export const pfConfigurationDomainViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
-    options: {
-      meta = {}
-    }
-  } = context
+    isClone = false
+  } = meta
   return [
     {
       tab: i18n.t('Settings'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Identifier'),
           text: i18n.t(`Specify a unique identifier for your configuration.<br/>This doesn't have to be related to your domain.`),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
-                ...{
-                  [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
                 }
               }
             }
@@ -142,93 +133,86 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Workgroup'),
-          fields: [
+          cols: [
             {
-              key: 'workgroup',
+              namespace: 'workgroup',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'workgroup'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'workgroup', i18n.t('Workgroup'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'workgroup')
             }
           ]
         },
         {
           label: i18n.t('DNS name of the domain'),
           text: i18n.t('The DNS name (FQDN) of the domain.'),
-          fields: [
+          cols: [
             {
-              key: 'dns_name',
+              namespace: 'dns_name',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_name', i18n.t('DNS name'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_name')
             }
           ]
         },
         {
           label: i18n.t(`This server's name`),
           text: i18n.t(`This server's name (account name) in your Active Directory. Use '%h' to automatically use this server hostname.`),
-          fields: [
+          cols: [
             {
-              key: 'server_name',
+              namespace: 'server_name',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'server_name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'server_name', i18n.t('Server name'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'server_name')
             }
           ]
         },
         {
           label: i18n.t('Sticky DC'),
           text: i18n.t(`This is used to specify a sticky domain controller to connect to. If not specified, default '*' will be used to connect to any available domain controller.`),
-          fields: [
+          cols: [
             {
-              key: 'sticky_dc',
+              namespace: 'sticky_dc',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'sticky_dc'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'sticky_dc', i18n.t('Sticky DC'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'sticky_dc')
             }
           ]
         },
         {
           label: i18n.t('Active Directory server'),
           text: i18n.t('The IP address or DNS name of your Active Directory server.'),
-          fields: [
+          cols: [
             {
-              key: 'ad_server',
+              namespace: 'ad_server',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ad_server'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ad_server', i18n.t('Server'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ad_server')
             }
           ]
         },
         {
           label: i18n.t('DNS server(s)'),
           text: i18n.t('The IP address(es) of the DNS server(s) for this domain. Comma delimited if multiple.'),
-          fields: [
+          cols: [
             {
-              key: 'dns_servers',
+              namespace: 'dns_servers',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_servers'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_servers', i18n.t('Servers'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_servers')
             }
           ]
         },
         {
           label: i18n.t('OU'),
           text: i18n.t(`Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a '/'. E.g. "Computers/Servers/Unix". IMPORTANT NOTE: Due to a bug in the current version of samba, you will need to precreate a computer object in the OU you specify above when you're not using the default value ('Computers'). Otherwise you will get the following error: "Failed to join domain: failed to precreate account in ou ou=XYZ,dc=ACME,dc=CORP: No such object"`),
-          fields: [
+          cols: [
             {
-              key: 'ou',
+              namespace: 'ou',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ou'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ou', 'OU')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ou')
             }
           ]
         },
         {
           label: i18n.t('ntlmv2 only'),
           text: i18n.t('If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level'),
-          fields: [
+          cols: [
             {
-              key: 'ntlmv2_only',
+              namespace: 'ntlmv2_only',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: '1', unchecked: '0' }
@@ -239,9 +223,9 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
         {
           label: i18n.t('Allow on registration'),
           text: i18n.t('If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.'),
-          fields: [
+          cols: [
             {
-              key: 'registration',
+              namespace: 'registration',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: '1', unchecked: '0' }
@@ -251,7 +235,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
         },
         {
           label: null, /* no label */
-          fields: [
+          cols: [
             {
               component: pfFormHtml,
               attrs: {
@@ -267,13 +251,13 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('NTLM cache'),
-      fields: [
+      rows: [
         {
           label: i18n.t('NTLM cache'),
           text: i18n.t('Should the NTLM cache be enabled for this domain?'),
-          fields: [
+          cols: [
             {
-              key: 'ntlm_cache',
+              namespace: 'ntlm_cache',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -284,50 +268,47 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
         {
           label: i18n.t('Source'),
           text: i18n.t('The source to use to connect to your Active Directory server for NTLM caching.'),
-          fields: [
+          cols: [
             {
-              key: 'ntlm_cache_source',
+              namespace: 'ntlm_cache_source',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_source'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_source', i18n.t('Source'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_source')
             }
           ]
         },
         {
           label: i18n.t('LDAP filter'),
           text: i18n.t('An LDAP query to filter out the users that should be cached.'),
-          fields: [
+          cols: [
             {
-              key: 'ntlm_cache_filter',
+              namespace: 'ntlm_cache_filter',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_filter'),
                 ...{
                   rows: 3
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_filter', i18n.t('Filter'))
+              }
             }
           ]
         },
         {
           label: i18n.t('Expiration'),
           text: i18n.t('The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.'),
-          fields: [
+          cols: [
             {
-              key: 'ntlm_cache_expiry',
+              namespace: 'ntlm_cache_expiry',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_expiry'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_expiry', i18n.t('Expiration'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_expiry')
             }
           ]
         },
         {
           label: i18n.t('NTLM cache background job'),
           text: i18n.t('When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).'),
-          fields: [
+          cols: [
             {
-              key: 'ntlm_cache_batch',
+              namespace: 'ntlm_cache_batch',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -338,9 +319,9 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
         {
           label: i18n.t('NTLM cache background job individual fetch'),
           text: i18n.t('Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.'),
-          fields: [
+          cols: [
             {
-              key: 'ntlm_cache_batch_one_at_a_time',
+              namespace: 'ntlm_cache_batch_one_at_a_time',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -351,9 +332,9 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
         {
           label: i18n.t('NTLM cache on connection'),
           text: i18n.t('When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.'),
-          fields: [
+          cols: [
             {
-              key: 'ntlm_cache_on_connection',
+              namespace: 'ntlm_cache_on_connection',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -364,4 +345,29 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...{
+        [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
+      }
+    },
+    workgroup: pfConfigurationValidatorsFromMeta(meta, 'workgroup', i18n.t('Workgroup')),
+    dns_name: pfConfigurationValidatorsFromMeta(meta, 'dns_name', i18n.t('DNS name')),
+    server_name: pfConfigurationValidatorsFromMeta(meta, 'server_name', i18n.t('Server name')),
+    sticky_dc: pfConfigurationValidatorsFromMeta(meta, 'sticky_dc', i18n.t('Sticky DC')),
+    ad_server: pfConfigurationValidatorsFromMeta(meta, 'ad_server', i18n.t('Server')),
+    dns_servers: pfConfigurationValidatorsFromMeta(meta, 'dns_servers', i18n.t('Servers')),
+    ou: pfConfigurationValidatorsFromMeta(meta, 'ou', 'OU'),
+    ntlm_cache_source: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_source', i18n.t('Source')),
+    ntlm_cache_filter: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_filter', i18n.t('Filter')),
+    ntlm_cache_expiry: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_expiry', i18n.t('Expiration'))
+  }
 }

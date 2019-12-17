@@ -114,9 +114,7 @@ import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
-import {
-  pfConfigurationDomainsListConfig as config
-} from '@/globals/configuration/pfConfigurationDomains'
+import { config } from '../_config/domain'
 import {
   required
 } from 'vuelidate/lib/validators'
@@ -137,11 +135,6 @@ export default {
     validationMixin
   ],
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     autoJoinDomain: { // from DomainView, through router
       type: Object,
       default: null
@@ -227,7 +220,7 @@ export default {
     },
     doJoin (item) {
       this.$set(this.join, 'showWaitModal', true)
-      this.$store.dispatch(`${this.storeName}/joinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+      this.$store.dispatch('$_domains/joinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
         Object.keys(this.domainJoinTests).forEach(id => { // refresh all
@@ -237,7 +230,7 @@ export default {
     },
     doRejoin (item) {
       this.$set(this.join, 'showWaitModal', true)
-      this.$store.dispatch(`${this.storeName}/rejoinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+      this.$store.dispatch('$_domains/rejoinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
         Object.keys(this.domainJoinTests).forEach(id => { // refresh all
@@ -247,7 +240,7 @@ export default {
     },
     doUnjoin (item) {
       this.$set(this.join, 'showWaitModal', true)
-      this.$store.dispatch(`${this.storeName}/unjoinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+      this.$store.dispatch('$_domains/unjoinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
         Object.keys(this.domainJoinTests).forEach(id => { // refresh all
@@ -256,7 +249,7 @@ export default {
       })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteDomain`, item.id).then(response => {
+      this.$store.dispatch('$_domains/deleteDomain', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -265,7 +258,7 @@ export default {
       if (!(item.id in this.domainJoinTests)) {
         this.$set(this.domainJoinTests, item.id, {})
       }
-      this.$store.dispatch(`${this.storeName}/testDomain`, item.id).then(response => {
+      this.$store.dispatch('$_domains/testDomain', item.id).then(response => {
         this.$set(this.domainJoinTests, item.id, response)
       })
       return true

@@ -271,20 +271,29 @@ const route = {
       path: 'domains',
       name: 'domains',
       component: DomainsTabs,
-      props: (route) => ({ tab: 'domains', storeName: '$_domains', autoJoinDomain: route.params.autoJoinDomain, query: route.query.query })
+      props: (route) => ({ tab: 'domains', autoJoinDomain: route.params.autoJoinDomain, query: route.query.query })
     },
     {
       path: 'domains/new',
       name: 'newDomain',
       component: DomainView,
-      props: () => ({ storeName: '$_domains', isNew: true })
+      props: () => ({ formStoreName: 'formDomain', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formDomain) { // Register store module only once
+          store.registerModule('formDomain', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'domain/:id',
       name: 'domain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formDomain', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formDomain) { // Register store module only once
+          store.registerModule('formDomain', FormStore)
+        }
         store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })
@@ -294,8 +303,11 @@ const route = {
       path: 'domain/:id/clone',
       name: 'cloneDomain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formDomain', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formDomain) { // Register store module only once
+          store.registerModule('formDomain', FormStore)
+        }
         store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })

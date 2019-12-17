@@ -5,10 +5,10 @@
         </b-card-header>
         <b-tabs ref="tabs" v-model="tabIndex" card>
             <b-tab :title="$t('Active Directory Domains')" @click="changeTab('domains')" no-body>
-                <domains-list storeName="$_domains" :autoJoinDomain="autoJoinDomain" />
+                <domains-list :autoJoinDomain="autoJoinDomain" />
             </b-tab>
             <b-tab :title="$t('Realms')" @click="changeTab('realms')" no-body>
-                <realms-list storeName="$_realms" />
+                <realms-list />
             </b-tab>
         </b-tabs>
     </b-card>
