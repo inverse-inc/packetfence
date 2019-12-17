@@ -18,7 +18,7 @@
         :disabled="disabled"
         class="mr-1"
         collapse-object
-      ></pf-form-chosen>
+      />
 
     </b-col>
     <b-col sm="6" align-self="start" class="pl-1">
@@ -26,38 +26,38 @@
       <pf-form-chosen ref="value" v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.value`"
-        v-on="listeners"
-        v-bind="fieldAttrs"
-        label="name"
-        track-by="value"
+        v-on="valueListeners"
+        v-bind="valueAttrs"
         :multiple="isComponentType([componentType.SELECTMANY])"
         :close-on-select="isComponentType([componentType.SELECTONE])"
-        :placeholder="placeholder"
+        :placeholder="valuePlaceholder"
         :disabled="disabled"
-      ></pf-form-chosen>
+        label="name"
+        track-by="value"
+      />
 
       <pf-form-datetime ref="value" v-else-if="isComponentType([componentType.DATETIME])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.value`"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
-        :moments="moments"
+        :moments="valueMoments"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
-      ></pf-form-datetime>
+      />
 
       <pf-form-prefix-multiplier ref="value" v-else-if="isComponentType([componentType.PREFIXMULTIPLIER])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.value`"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
-      ></pf-form-prefix-multiplier>
+      />
 
       <pf-form-input ref="value" v-else-if="isComponentType([componentType.SUBSTRING])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.value`"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
-      ></pf-form-input>
+      />
 
       <pf-form-input ref="value" v-else-if="isComponentType([componentType.INTEGER])"
         :form-store-name="formStoreName"
@@ -66,7 +66,7 @@
         step="1"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
-      ></pf-form-input>
+      />
 
     </b-col>
     <b-col v-if="$slots.append" sm="1" align-self="start" class="text-center col-form-label">
@@ -102,7 +102,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => {}
+      default: () => { return this.default }
     },
     typeLabel: {
       type: String
@@ -145,22 +145,22 @@ export default {
       return this.inputValue.value
     },
     field () {
-      if (this.inputValue.type) return this.fields.find(field => field.value === this.inputValue.type)
+      if (this.localType) return this.fields.find(field => field.value === this.localType)
       return null
     },
     fieldIndex () {
-      if (this.inputValue.type) {
-        const index = this.fields.findIndex(field => field.value === this.inputValue.type)
+      if (this.localType) {
+        const index = this.fields.findIndex(field => field.value === this.localType)
         if (index >= 0) return index
       }
       return null
     },
     placeholder () {
-      const { fieldAttrs: { placeholder } = {} } = this
+      const { valueAttrs: { placeholder } = {} } = this
       return placeholder || this.valueLabel
     },
     options () {
-      if (!this.inputValue.type) return []
+      if (!this.localType) return []
       let options = []
       if (this.fieldIndex >= 0) {
         const field = this.field
@@ -170,31 +170,21 @@ export default {
       }
       return options
     },
-    optionsSearchFunction () {
-      if (this.field) {
-        return this.field.optionsSearchFunction
-      }
+    valueAttrs () {
+      const { field: { attrs } = {}, options } = this
+      return attrs || { options }
     },
-    listeners () {
-      if (!this.inputValue.type) return []
-      let listeners = {}
-      if (this.fieldIndex >= 0) {
-        if (this.field.listeners) {
-          listeners = this.field.listeners
-        }
-      }
-      return listeners
+    valueListeners () {
+      const { field: { listeners } = {} } = this
+      return listeners || {}
     },
-    moments () {
-      if ('moments' in this.field) return this.field.moments
-      return []
-    },
-    fieldAttrs () {
-      const { field: { attrs } = {} } = this
-      return attrs || { options: this.options }
+    valueMoments () {
+      const { field: { moments } = {} } = this
+      return moments || []
     },
     valuePlaceholder () {
-      return this.getPlaceholder()
+      const { field: { placeholder } = {} } = this
+      return placeholder || null
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
@@ -203,31 +193,15 @@ export default {
   },
   methods: {
     isComponentType (componentTypes) {
-      if (this.inputValue.type) {
-        const index = this.fields.findIndex(field => field.value === this.inputValue.type)
-        if (index >= 0) {
-          const field = this.fields[index]
-          for (let t = 0; t < componentTypes.length; t++) {
-            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
-          }
+      if (this.field) {
+        for (let t = 0; t < componentTypes.length; t++) {
+          if (this.field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
         }
       }
       return false
     },
-    getPlaceholder () {
-      if (this.inputValue.type) {
-        const index = this.fields.findIndex(field => field.value === this.inputValue.type)
-        if (index >= 0) {
-          const field = this.fields[index]
-          if ('placeholder' in field) {
-            return field.placeholder
-          }
-        }
-      }
-      return null
-    },
     focus () {
-      if (this.inputValue.type) {
+      if (this.localType) {
         this.focusValue()
       } else {
         this.focusType()
