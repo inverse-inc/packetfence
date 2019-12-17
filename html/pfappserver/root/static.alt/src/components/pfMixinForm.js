@@ -1,6 +1,10 @@
 /**
  * Mixin for FormStore module.
 **/
+import { createDebouncer } from 'promised-debounce'
+
+const $inputDebouncer = {} // debounce input(s)
+
 export default {
   name: 'pf-mixin-form',
   props: {
@@ -27,6 +31,11 @@ export default {
       default: null
     }
   },
+  data () {
+    return {
+      $inputDebouncer: false
+    }
+  },
   computed: {
     vModel () {
       return this.$store.getters[`${this.formStoreName}/$vModel`]
@@ -36,7 +45,15 @@ export default {
         return this.vModel[this.formNamespace]
       },
       set (newValue) {
-        this.vModel[this.formNamespace] = newValue
+        if (!this.$inputDebouncer) {
+          this.$inputDebouncer = createDebouncer()
+        }
+        this.$inputDebouncer({
+          handler: () => {
+            this.vModel[this.formNamespace] = newValue
+          },
+          time: 300
+        })
       }
     },
     formStoreState () {
