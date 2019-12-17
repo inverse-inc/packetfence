@@ -317,20 +317,29 @@ const route = {
       path: 'realms',
       name: 'realms',
       component: DomainsTabs,
-      props: (route) => ({ tab: 'realms', storeName: '$_realms', query: route.query.query })
+      props: (route) => ({ tab: 'realms', query: route.query.query })
     },
     {
       path: 'realms/new',
       name: 'newRealm',
       component: RealmView,
-      props: () => ({ storeName: '$_realms', isNew: true })
+      props: () => ({ formStoreName: 'formRealm', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRealm) { // Register store module only once
+          store.registerModule('formRealm', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'realm/:id',
       name: 'realm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formRealm) { // Register store module only once
+          store.registerModule('formRealm', FormStore)
+        }
         store.dispatch('$_realms/getRealm', to.params.id).then(() => {
           next()
         })
@@ -340,8 +349,11 @@ const route = {
       path: 'realm/:id/clone',
       name: 'cloneRealm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formRealm) { // Register store module only once
+          store.registerModule('formRealm', FormStore)
+        }
         store.dispatch('$_realms/getRealm', to.params.id).then(() => {
           next()
         })
