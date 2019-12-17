@@ -1,11 +1,9 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    @validations="formValidations = $event"
+    :view="view"
     @save="save"
   >
     <template v-slot:header>
@@ -14,8 +12,8 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -28,54 +26,52 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationDatabaseAdvancedViewFields as fields
-} from '@/globals/configuration/pfConfigurationDatabaseAdvanced'
-
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/databaseAdvanced'
 
 export default {
   name: 'database-advanced-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
+  props: {
+    formStoreName: {
+      type: String,
+      default: null,
+      required: true
     }
   },
   computed: {
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/databaseAdvanced
+    },
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+    },
     isLoading () {
       return this.$store.getters['$_bases/isLoading']
     },
-    invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_bases/isWaiting']
-    },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     }
   },
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsDatabaseAdvanced').then(options => {
-        this.options = options
-        this.$store.dispatch('$_bases/getDatabaseAdvanced').then(form => {
-          this.form = form
-        })
+        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
       })
+      this.$store.dispatch('$_bases/getDatabaseAdvanced').then(form => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+      })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     save () {
       this.$store.dispatch('$_bases/updateDatabaseAdvanced', this.form)

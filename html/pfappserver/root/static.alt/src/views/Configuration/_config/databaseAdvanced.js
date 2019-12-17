@@ -6,173 +6,173 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
-export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
-  const {
-    options: {
-      meta = {}
-    }
-  } = context
+export const view = (form = {}, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Key buffer size'),
           text: i18n.t('The key_buffer_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'key_buffer_size',
+              namespace: 'key_buffer_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'key_buffer_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'key_buffer_size', i18n.t('Size'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'key_buffer_size')
             }
           ]
         },
         {
           label: i18n.t('InnoDB buffer pool size'),
           text: i18n.t('The innodb_buffer_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'innodb_buffer_pool_size',
+              namespace: 'innodb_buffer_pool_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_buffer_pool_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'innodb_buffer_pool_size', i18n.t('Size'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_buffer_pool_size')
             }
           ]
         },
         {
           label: i18n.t('InnoDB additionnal mem pool size'),
           text: i18n.t('The innodb_additional_mem_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'innodb_additional_mem_pool_size',
+              namespace: 'innodb_additional_mem_pool_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_additional_mem_pool_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'innodb_additional_mem_pool_size', i18n.t('Size'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_additional_mem_pool_size')
             }
           ]
         },
         {
           label: i18n.t('Query cache size'),
           text: i18n.t('The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'query_cache_size',
+              namespace: 'query_cache_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'query_cache_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'query_cache_size', i18n.t('Size'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'query_cache_size')
             }
           ]
         },
         {
           label: i18n.t('Thread concurrency'),
           text: i18n.t('The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'thread_concurrency',
+              namespace: 'thread_concurrency',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'thread_concurrency'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'thread_concurrency', i18n.t('Concurrency'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'thread_concurrency')
             }
           ]
         },
         {
           label: i18n.t('Max connections'),
           text: i18n.t('The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'max_connections',
+              namespace: 'max_connections',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'max_connections'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_connections', i18n.t('Connections'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'max_connections')
             }
           ]
         },
         {
           label: i18n.t('Table cache'),
           text: i18n.t('The table_cache MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'table_cache',
+              namespace: 'table_cache',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'table_cache'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'table_cache', i18n.t('Cache'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'table_cache')
             }
           ]
         },
         {
           label: i18n.t('Thread cache size'),
           text: i18n.t('The thread_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'thread_cache_size',
+              namespace: 'thread_cache_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'thread_cache_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'thread_cache_size', i18n.t('Size'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'thread_cache_size')
             }
           ]
         },
         {
           label: i18n.t('Max allowed packets'),
           text: i18n.t('The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'max_allowed_packet',
+              namespace: 'max_allowed_packet',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'max_allowed_packet'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_allowed_packet', i18n.t('Packets'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'max_allowed_packet')
             }
           ]
         },
         {
           label: i18n.t('Performance schema'),
           text: i18n.t('The performance_schema MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'performance_schema',
+              namespace: 'performance_schema',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'performance_schema'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'performance_schema', i18n.t('Schema'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'performance_schema')
             }
           ]
         },
         {
           label: i18n.t('Max connect errors'),
           text: i18n.t('The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
-          fields: [
+          cols: [
             {
-              key: 'max_connect_errors',
+              namespace: 'max_connect_errors',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'max_connect_errors'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'max_connect_errors')
             }
           ]
         },
         {
           label: i18n.t('Master/Slave mode'),
           text: i18n.t('Enable master/slave replication.'),
-          fields: [
+          cols: [
             {
-              key: 'masterslave',
+              namespace: 'masterslave',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'masterslave'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'masterslave', i18n.t('Mode'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'masterslave')
             }
           ]
         },
         {
           label: i18n.t('Other MySQL Servers'),
           text: i18n.t('Comma delimited IPv4 address of other member MySQL members - used to sync the database.'),
-          fields: [
+          cols: [
             {
-              key: 'other_members',
+              namespace: 'other_members',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'other_members'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'other_members', 'Other MySQL Servers')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'other_members')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  return {
+    key_buffer_size: pfConfigurationValidatorsFromMeta(meta, 'key_buffer_size', i18n.t('Size')),
+    innodb_buffer_pool_size: pfConfigurationValidatorsFromMeta(meta, 'innodb_buffer_pool_size', i18n.t('Size')),
+    innodb_additional_mem_pool_size: pfConfigurationValidatorsFromMeta(meta, 'innodb_additional_mem_pool_size', i18n.t('Size')),
+    query_cache_size: pfConfigurationValidatorsFromMeta(meta, 'query_cache_size', i18n.t('Size')),
+    thread_concurrency: pfConfigurationValidatorsFromMeta(meta, 'thread_concurrency', i18n.t('Concurrency')),
+    max_connections: pfConfigurationValidatorsFromMeta(meta, 'max_connections', i18n.t('Connections')),
+    table_cache: pfConfigurationValidatorsFromMeta(meta, 'table_cache', i18n.t('Cache')),
+    thread_cache_size: pfConfigurationValidatorsFromMeta(meta, 'thread_cache_size', i18n.t('Size')),
+    max_allowed_packet: pfConfigurationValidatorsFromMeta(meta, 'max_allowed_packet', i18n.t('Packets')),
+    performance_schema: pfConfigurationValidatorsFromMeta(meta, 'performance_schema', i18n.t('Schema')),
+    max_connect_errors: pfConfigurationValidatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors')),
+    masterslave: pfConfigurationValidatorsFromMeta(meta, 'masterslave', i18n.t('Mode')),
+    other_members: pfConfigurationValidatorsFromMeta(meta, 'other_members', 'Other MySQL Servers')
+  }
 }
