@@ -1,11 +1,13 @@
+import router from '@/router'
+import store from '@/store'
 import i18n from '@/utils/locale'
 import pfField from '@/components/pfField'
 import pfFieldTypeMatch from '@/components/pfFieldTypeMatch'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import pfTree from '@/components/pfTree'
 import {
   pfConfigurationAttributesFromMeta,
@@ -25,81 +27,38 @@ import {
   isPort,
   limitSiblingFields
 } from '@/globals/pfValidators'
-
-const {
+import {
   required,
   maxLength
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
-export const pfConfigurationConnectionProfileFilters = {
+export const filters = {
   connection_sub_type: {
     value: 'connection_sub_type',
     text: i18n.t('Connection Sub Type'),
-    types: [fieldType.CONNECTION_SUB_TYPE],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required
-      }
-    }
+    types: [fieldType.CONNECTION_SUB_TYPE]
   },
   connection_type: {
     value: 'connection_type',
     text: i18n.t('Connection Type'),
-    types: [fieldType.CONNECTION_TYPE],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required
-      }
-    }
+    types: [fieldType.CONNECTION_TYPE]
   },
   network: {
     value: 'network',
     text: i18n.t('Network'),
-    types: [fieldType.SUBSTRING],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.SUBSTRING]
   },
   node_role: {
     value: 'node_role',
     text: i18n.t('Node role'),
-    types: [fieldType.ROLE_BY_NAME],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required
-      }
-    }
+    types: [fieldType.ROLE_BY_NAME]
   },
   port: {
     value: 'port',
     text: i18n.t('Port'),
     types: [fieldType.INTEGER],
     validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
       match: {
-        [i18n.t('Match required.')]: required,
         [i18n.t('Invalid Port Number.')]: isPort
       }
     }
@@ -107,73 +66,29 @@ export const pfConfigurationConnectionProfileFilters = {
   realm: {
     value: 'realm',
     text: i18n.t('Realm'),
-    types: [fieldType.REALM],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.REALM]
   },
   ssid: {
     value: 'ssid',
     text: i18n.t('SSID'),
-    types: [fieldType.SSID],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.SSID]
   },
   switch: {
     value: 'switch',
     text: i18n.t('Switch'),
-    types: [fieldType.SWITCHE],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.SWITCHE]
   },
   switch_group: {
     value: 'switch_group',
     text: i18n.t('Switch Group'),
-    types: [fieldType.SWITCH_GROUP],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required
-      }
-    }
+    types: [fieldType.SWITCH_GROUP]
   },
   switch_mac: {
     value: 'switch_mac',
     text: i18n.t('Switch MAC'),
     types: [fieldType.SUBSTRING],
     validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
       match: {
-        [i18n.t('Match required.')]: required,
         [i18n.t('Invalid MAC address.')]: isMacAddress
       }
     }
@@ -183,94 +98,39 @@ export const pfConfigurationConnectionProfileFilters = {
     text: i18n.t('Switch Port'),
     types: [fieldType.SUBSTRING],
     validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
       match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+        [i18n.t('Invalid Port Number.')]: isPort
       }
     }
   },
   tenant: {
     value: 'tenant',
     text: i18n.t('Tenant'),
-    types: [fieldType.TENANT],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.TENANT]
   },
   time: {
     value: 'time',
     text: i18n.t('Time period'),
-    types: [fieldType.SUBSTRING],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.SUBSTRING]
   },
   uri: {
     value: 'uri',
     text: i18n.t('URI'),
-    types: [fieldType.SUBSTRING],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.SUBSTRING]
   },
   fqdn: {
     value: 'fqdn',
     text: i18n.t('FQDN'),
-    types: [fieldType.SUBSTRING],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.SUBSTRING]
   },
   vlan: {
     value: 'vlan',
     text: i18n.t('VLAN'),
-    types: [fieldType.SUBSTRING],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
-      },
-      match: {
-        [i18n.t('Match required.')]: required,
-        [i18n.t('Maximum 255 characters.')]: maxLength(255)
-      }
-    }
+    types: [fieldType.SUBSTRING]
   }
 }
 
-export const pfConfigurationConnectionProfilesListColumns = [
+export const columns = [
   {
     key: 'status',
     label: i18n.t('Status'),
@@ -302,7 +162,7 @@ export const pfConfigurationConnectionProfilesListColumns = [
   }
 ]
 
-export const pfConfigurationConnectionProfilesListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -315,15 +175,14 @@ export const pfConfigurationConnectionProfilesListFields = [
   }
 ]
 
-export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
-  const { $i18n } = context
+export const config = () => {
   return {
-    columns: pfConfigurationConnectionProfilesListColumns,
-    fields: pfConfigurationConnectionProfilesListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'connection_profile', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/connection_profiles',
       defaultSortKeys: ['id'],
@@ -356,47 +215,44 @@ export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
   const {
-    $router = {},
+    id,
+    filter,
+    advanced_filter,
+    sources = [],
+    billing_tiers = [],
+    provisioners = [],
+    scans = [],
+    locale = []
+  } = form
+  const {
     isNew = false,
     isClone = false,
-    storeName = null,
-    form = {},
     files = [],
     sortFiles = null,
-    options: {
-      meta = {}
-    },
-    general = {},
     createDirectory = null,
     deleteFile = null
-  } = context
+  } = meta
 
   // fields differ w/ & wo/ 'default'
-  const isDefault = (form.id === 'default')
+  const isDefault = (id === 'default')
 
   return [
     {
       tab: i18n.t('Settings'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Profile Name'),
           text: i18n.t('A profile id can only contain alphanumeric characters, dashes, period and or underscores.'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
-                ...{
-                  [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
                 }
               }
             }
@@ -404,22 +260,21 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Profile Description'),
-          fields: [
+          cols: [
             {
-              key: 'description',
+              namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'description')
             }
           ]
         },
         {
           if: !isDefault,
           label: i18n.t('Enable profile'),
-          fields: [
+          cols: [
             {
-              key: 'status',
-              component: pfFormToggle,
+              namespace: 'status',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -429,22 +284,21 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Root Portal Module'),
           text: i18n.t('The Root Portal Module to use.'),
-          fields: [
+          cols: [
             {
-              key: 'root_module',
+              namespace: 'root_module',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'root_module'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'root_module', i18n.t('Module'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'root_module')
             }
           ]
         },
         {
           label: i18n.t('Activate preregistration'),
           text: i18n.t('This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have "Create local account" enabled.'),
-          fields: [
+          cols: [
             {
-              key: 'preregistration',
-              component: pfFormToggle,
+              namespace: 'preregistration',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -454,10 +308,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Automatically register devices'),
           text: i18n.t('This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.'),
-          fields: [
+          cols: [
             {
-              key: 'autoregister',
-              component: pfFormToggle,
+              namespace: 'autoregister',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -467,10 +321,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Reuse dot1x credentials'),
           text: i18n.t('This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.'),
-          fields: [
+          cols: [
             {
-              key: 'reuse_dot1x_credentials',
-              component: pfFormToggle,
+              namespace: 'reuse_dot1x_credentials',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -480,10 +334,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Dot1x recompute role from portal'),
           text: i18n.t('When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.'),
-          fields: [
+          cols: [
             {
-              key: 'dot1x_recompute_role_from_portal',
-              component: pfFormToggle,
+              namespace: 'dot1x_recompute_role_from_portal',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -493,10 +347,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('MAC Auth recompute role from portal'),
           text: i18n.t('When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.'),
-          fields: [
+          cols: [
             {
-              key: 'mac_auth_recompute_role_from_portal',
-              component: pfFormToggle,
+              namespace: 'mac_auth_recompute_role_from_portal',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -506,10 +360,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Dot1x unset on unmatch'),
           text: i18n.t('When enabled, PacketFence will unset the role of the device if no authentication sources returned one.'),
-          fields: [
+          cols: [
             {
-              key: 'dot1x_unset_on_unmatch',
-              component: pfFormToggle,
+              namespace: 'dot1x_unset_on_unmatch',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -519,10 +373,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Enable DPSK'),
           text: i18n.t('This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'),
-          fields: [
+          cols: [
             {
-              key: 'dpsk',
-              component: pfFormToggle,
+              namespace: 'dpsk',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -532,22 +386,21 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Default PSK key'),
           text: i18n.t('This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.'),
-          fields: [
+          cols: [
             {
-              key: 'default_psk_key',
+              namespace: 'default_psk_key',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'default_psk_key'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'default_psk_key', i18n.t('Key'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'default_psk_key')
             }
           ]
         },
         {
           label: i18n.t('Automatically deregister devices on accounting stop'),
           text: i18n.t('This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.'),
-          fields: [
+          cols: [
             {
-              key: 'unreg_on_acct_stop',
-              component: pfFormToggle,
+              namespace: 'unreg_on_acct_stop',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -557,33 +410,31 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('VLAN pool technique'),
           text: i18n.t('The algorithm used to calculate the VLAN in a VLAN pool.'),
-          fields: [
+          cols: [
             {
-              key: 'vlan_pool_technique',
+              namespace: 'vlan_pool_technique',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'vlan_pool_technique'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'vlan_pool_technique', i18n.t('Algorithm'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'vlan_pool_technique')
             }
           ]
         },
         {
           if: !isDefault,
           label: i18n.t('Filters'),
-          fields: [
+          cols: [
             {
-              key: 'filter_match_style',
+              namespace: 'filter_match_style',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'filter_match_style'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'filter_match_style', i18n.t('Filters'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'filter_match_style')
             }
           ]
         },
         {
           if: !isDefault,
           label: i18n.t('Filter'),
-          fields: [
+          cols: [
             {
-              key: 'filter',
+              namespace: 'filter',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Filter'),
@@ -595,31 +446,26 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                     typeLabel: i18n.t('Select filter type'),
                     matchLabel: i18n.t('Select filter match'),
                     fields: [
-                      pfConfigurationConnectionProfileFilters.connection_sub_type,
-                      pfConfigurationConnectionProfileFilters.connection_type,
-                      pfConfigurationConnectionProfileFilters.network,
-                      pfConfigurationConnectionProfileFilters.node_role,
-                      pfConfigurationConnectionProfileFilters.port,
-                      pfConfigurationConnectionProfileFilters.realm,
-                      pfConfigurationConnectionProfileFilters.ssid,
-                      pfConfigurationConnectionProfileFilters.switch,
-                      pfConfigurationConnectionProfileFilters.switch_group,
-                      pfConfigurationConnectionProfileFilters.switch_mac,
-                      pfConfigurationConnectionProfileFilters.switch_port,
-                      pfConfigurationConnectionProfileFilters.tenant,
-                      pfConfigurationConnectionProfileFilters.time,
-                      pfConfigurationConnectionProfileFilters.uri,
-                      pfConfigurationConnectionProfileFilters.fqdn,
-                      pfConfigurationConnectionProfileFilters.vlan
+                      filters.connection_sub_type,
+                      filters.connection_type,
+                      filters.network,
+                      filters.node_role,
+                      filters.port,
+                      filters.realm,
+                      filters.ssid,
+                      filters.switch,
+                      filters.switch_group,
+                      filters.switch_mac,
+                      filters.switch_port,
+                      filters.tenant,
+                      filters.time,
+                      filters.uri,
+                      filters.fqdn,
+                      filters.vlan
                     ]
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Filter(s) contain one or more errors.')]: true }
-                ]
-              },
-              validators: {
-                [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
+                invalidFeedback: i18n.t('Filter(s) contain one or more errors.')
               }
             }
           ]
@@ -627,20 +473,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           if: !isDefault,
           label: i18n.t('Advanced filter'),
-          fields: [
+          cols: [
             {
-              key: 'advanced_filter',
+              namespace: 'advanced_filter',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'advanced_filter'),
                 ...{
                   rows: 3
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
-                ...{
-                  [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
                 }
               }
             }
@@ -648,9 +488,9 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Sources'),
-          fields: [
+          cols: [
             {
-              key: 'sources',
+              namespace: 'sources',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Source'),
@@ -664,30 +504,20 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       attrs: {
                         ...pfConfigurationAttributesFromMeta(meta, 'sources'),
                         ...{ multiple: false, closeOnSelect: true }
-                      },
-                      validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'sources', i18n.t('Sources')),
-                        ...{
-                          [i18n.t('Duplicate source.')]: conditional((value) => {
-                            return !(form.sources.filter(v => v === value).length > 1)
-                          })
-                        }
                       }
                     }
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Source(s) contain one or more errors.')]: true }
-                ]
+                invalidFeedback: i18n.t('Source(s) contain one or more errors.')
               }
             }
           ]
         },
         {
           label: i18n.t('Billing Tiers'),
-          fields: [
+          cols: [
             {
-              key: 'billing_tiers',
+              namespace: 'billing_tiers',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Billing Tier'),
@@ -701,30 +531,20 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       attrs: {
                         ...pfConfigurationAttributesFromMeta(meta, 'billing_tiers'),
                         ...{ multiple: false, closeOnSelect: true }
-                      },
-                      validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'billing_tiers', i18n.t('Billing tier')),
-                        ...{
-                          [i18n.t('Duplicate billing tier.')]: conditional((value) => {
-                            return !(form.billing_tiers.filter(v => v === value).length > 1)
-                          })
-                        }
                       }
                     }
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Billing Tier(s) contain one or more errors.')]: true }
-                ]
+                invalidFeedback: i18n.t('Billing Tier(s) contain one or more errors.')
               }
             }
           ]
         },
         {
           label: i18n.t('Provisioners'),
-          fields: [
+          cols: [
             {
-              key: 'provisioners',
+              namespace: 'provisioners',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Provisioner'),
@@ -738,30 +558,20 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       attrs: {
                         ...pfConfigurationAttributesFromMeta(meta, 'provisioners'),
                         ...{ multiple: false, closeOnSelect: true }
-                      },
-                      validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'provisioners', i18n.t('Provisioner')),
-                        ...{
-                          [i18n.t('Duplicate provisioner.')]: conditional((value) => {
-                            return !(form.provisioners.filter(v => v === value).length > 1)
-                          })
-                        }
                       }
                     }
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Provisioner(s) contain one or more errors.')]: true }
-                ]
+                invalidFeedback: i18n.t('Provisioner(s) contain one or more errors.')
               }
             }
           ]
         },
         {
           label: i18n.t('Scanners'),
-          fields: [
+          cols: [
             {
-              key: 'scans',
+              namespace: 'scans',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Scanner'),
@@ -775,33 +585,22 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       attrs: {
                         ...pfConfigurationAttributesFromMeta(meta, 'scans'),
                         ...{ multiple: false, closeOnSelect: true }
-                      },
-                      validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'scans', i18n.t('Scans')),
-                        ...{
-                          [i18n.t('Duplicate scan.')]: conditional((value) => {
-                            return !(form.scans.filter(v => v === value).length > 1)
-                          })
-                        }
                       }
                     }
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Scanners(s) contain one or more errors.')]: true }
-                ]
+                invalidFeedback: i18n.t('Scanners(s) contain one or more errors.')
               }
             }
           ]
         },
         {
           label: i18n.t('Self service policy'),
-          fields: [
+          cols: [
             {
-              key: 'self_service',
+              namespace: 'self_service',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'self_service'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'self_service', i18n.t('Registration'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'self_service')
             }
           ]
         }
@@ -809,37 +608,35 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('Captive Portal'),
-      fields: [
+      rows: [
         {
           label: i18n.t('Logo'),
-          fields: [
+          cols: [
             {
-              key: 'logo',
+              namespace: 'logo',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'logo'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'logo', i18n.t('Logo'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'logo')
             }
           ]
         },
         {
           label: i18n.t('Redirection URL'),
           text: i18n.t('Default URL to redirect to on registration/mitigation release. This is only used if a per-security event redirect URL is not defined.'),
-          fields: [
+          cols: [
             {
-              key: 'redirecturl',
+              namespace: 'redirecturl',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'redirecturl'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'redirecturl', i18n.t('Redirect'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'redirecturl')
             }
           ]
         },
         {
           label: i18n.t('Force redirection URL'),
           text: i18n.t('Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.'),
-          fields: [
+          cols: [
             {
-              key: 'always_use_redirecturl',
-              component: pfFormToggle,
+              namespace: 'always_use_redirecturl',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -849,64 +646,59 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Block Interval'),
           text: i18n.t('The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.'),
-          fields: [
+          cols: [
             {
-              key: 'block_interval.interval',
+              namespace: 'block_interval.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.interval', i18n.t('Interval'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.interval')
             },
             {
-              key: 'block_interval.unit',
+              namespace: 'block_interval.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.unit', i18n.t('Unit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.unit')
             }
           ]
         },
         {
           label: i18n.t('SMS Pin Retry Limit'),
           text: i18n.t('Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.'),
-          fields: [
+          cols: [
             {
-              key: 'sms_pin_retry_limit',
+              namespace: 'sms_pin_retry_limit',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_pin_retry_limit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_pin_retry_limit', i18n.t('Limit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_pin_retry_limit')
             }
           ]
         },
         {
           label: i18n.t('SMS Request Retry Limit'),
           text: i18n.t('Maximum number of times a user can request a SMS PIN. A value of 0 disables the limit.'),
-          fields: [
+          cols: [
             {
-              key: 'sms_request_limit',
+              namespace: 'sms_request_limit',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_request_limit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_request_limit', i18n.t('Limit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_request_limit')
             }
           ]
         },
         {
           label: i18n.t('Login Attempt Limit'),
           text: i18n.t('Limit the number of login attempts. A value of 0 disables the limit.'),
-          fields: [
+          cols: [
             {
-              key: 'login_attempt_limit',
+              namespace: 'login_attempt_limit',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'login_attempt_limit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'login_attempt_limit', i18n.t('Limit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'login_attempt_limit')
             }
           ]
         },
         {
           label: i18n.t('Allow access to registration portal when registered'),
           text: i18n.t('This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.'),
-          fields: [
+          cols: [
             {
-              key: 'access_registration_when_registered',
-              component: pfFormToggle,
+              namespace: 'access_registration_when_registered',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -915,11 +707,11 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Network Logoff'),
-          text: i18n.t('This allows users to access the network logoff page (http://{fqdn}/networklogoff) in order to terminate their network access (switch their device back to unregistered).', general),
-          fields: [
+          text: i18n.t('This allows users to access the network logoff page (http://{fqdn}/networklogoff) in order to terminate their network access (switch their device back to unregistered).', store.getters['$_bases/general']),
+          cols: [
             {
-              key: 'network_logoff',
-              component: pfFormToggle,
+              namespace: 'network_logoff',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -929,10 +721,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         {
           label: i18n.t('Network Logoff Popup'),
           text: i18n.t('When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.'),
-          fields: [
+          cols: [
             {
-              key: 'network_logoff_popup',
-              component: pfFormToggle,
+              namespace: 'network_logoff_popup',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -941,9 +733,9 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Languages'),
-          fields: [
+          cols: [
             {
-              key: 'locale',
+              namespace: 'locale',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Locale'),
@@ -961,19 +753,11 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         trackBy: 'value',
                         label: 'text',
                         options: localesList
-                      },
-                      validators: {
-                        [i18n.t('Locale required.')]: required,
-                        [i18n.t('Duplicate locale.')]: conditional((value) => {
-                          return !(form.locale.filter(v => v === value).length > 1)
-                        })
                       }
                     }
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Locale(s) contain one or more errors.')]: true }
-                ]
+                invalidFeedback: i18n.t('Locale(s) contain one or more errors.')
               }
             }
           ]
@@ -983,11 +767,11 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     {
       tab: i18n.t('Files'),
       disabled: isNew,
-      fields: [
+      rows: [
         {
-          fields: [
+          cols: [
             {
-              key: 'files',
+              namespace: 'files',
               component: pfTree,
               attrs: {
                 path: '',
@@ -1020,9 +804,9 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                     locked: true
                   }
                 ],
-                isLoadingStoreGetters: [[storeName, 'isLoading'].join('/'), [storeName, 'isLoadingFiles'].join('/')],
+                isLoadingStoreGetters: ['$_connection_profiles/isLoading', '$_connection_profiles/isLoadingFiles'],
                 previewPath: (item) => {
-                  let path = ['/config/profile', form.id, 'preview']
+                  let path = ['/config/profile', id, 'preview']
                   if (item.path) path.push(item.path)
                   path.push(item.name)
                   return path.join('/')
@@ -1031,8 +815,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 childrenIf: (item) => item.type === 'dir' && 'entries' in item,
                 sortBy: 'name',
                 onSortingChanged: sortFiles,
-                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: form.id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
-                onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: form.id, path } }),
+                onNodeClick: (item) => router.push({ name: 'connectionProfileFile', params: { id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
+                onNodeCreate: (path) => router.push({ name: 'newConnectionProfileFile', params: { id, path } }),
                 onNodeDelete: deleteFile,
                 onContainerDelete: deleteFile,
                 onContainerCreate: createDirectory
@@ -1043,4 +827,133 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    id,
+    filter = [],
+    advanced_filter,
+    sources = [],
+    billing_tiers = [],
+    provisioners = [],
+    scans = [],
+    locale = []
+  } = form
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+
+  // fields differ w/ & wo/ 'default'
+  const isDefault = (id === 'default')
+
+  return {
+    ...((isDefault)
+      ? {} // isDefault
+      : { // !isDefault
+          filter: {
+            ...{
+              [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter))),
+            },
+            ...(filter || []).map(_filter => { // index based filter validators
+              if (_filter) {
+                const { type } = _filter
+                if (type) {
+                  const { [type]: { validators: { match: matchValidators = {} } = {} } = {} } = filters
+                  if (validators) {
+                    return {
+                      match: {
+                        ...{
+                          [i18n.t('Match required.')]: required,
+                          [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                        },
+                        ...matchValidators
+                      }
+                    }
+                  }
+                }
+              }
+              return {
+                type: {
+                  [i18n.t('Type required.')]: required
+                }
+              }
+            })
+          },
+          advanced_filter: {
+            ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
+            ...{
+              [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter)))
+            }
+          }
+        }
+    ),
+    ...{
+      id: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+        ...{
+          [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
+        }
+      },
+      description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
+      root_module: pfConfigurationValidatorsFromMeta(meta, 'root_module', i18n.t('Module')),
+      default_psk_key: pfConfigurationValidatorsFromMeta(meta, 'default_psk_key', i18n.t('Key')),
+      vlan_pool_technique: pfConfigurationValidatorsFromMeta(meta, 'vlan_pool_technique', i18n.t('Algorithm')),
+      filter_match_style: pfConfigurationValidatorsFromMeta(meta, 'filter_match_style', i18n.t('Filters')),
+      sources: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'sources', i18n.t('Sources')),
+        ...{
+          $each : {
+            [i18n.t('Source required.')]: required,
+            [i18n.t('Duplicate source.')]: conditional((value) => sources.filter(v => v === value).length <= 1)
+          }
+        }
+      },
+      billing_tiers: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'billing_tiers', i18n.t('Billing tier')),
+        ...{
+          $each: {
+            [i18n.t('Billing tier required.')]: required,
+            [i18n.t('Duplicate billing tier.')]: conditional((value) => billing_tiers.filter(v => v === value).length <= 1)
+          }
+        }
+      },
+      provisioners: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'provisioners', i18n.t('Provisioner')),
+        ...{
+          $each: {
+            [i18n.t('Provisioner required.')]: required,
+            [i18n.t('Duplicate provisioner.')]: conditional((value) => provisioners.filter(v => v === value).length <= 1)
+          }
+        }
+      },
+      scans: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'scans', i18n.t('Scans')),
+        ...{
+          $each: {
+            [i18n.t('Scan required.')]: required,
+            [i18n.t('Duplicate scan.')]: conditional((value) => scans.filter(v => v === value).length <= 1)
+          }
+        }
+      },
+      self_service: pfConfigurationValidatorsFromMeta(meta, 'self_service', i18n.t('Registration')),
+      logo: pfConfigurationValidatorsFromMeta(meta, 'logo', i18n.t('Logo')),
+      redirecturl: pfConfigurationValidatorsFromMeta(meta, 'redirecturl', i18n.t('Redirect')),
+      block_interval: {
+        interval: pfConfigurationValidatorsFromMeta(meta, 'block_interval.interval', i18n.t('Interval')),
+        unit: pfConfigurationValidatorsFromMeta(meta, 'block_interval.unit', i18n.t('Unit'))
+      },
+      sms_pin_retry_limit: pfConfigurationValidatorsFromMeta(meta, 'sms_pin_retry_limit', i18n.t('Limit')),
+      sms_request_limit: pfConfigurationValidatorsFromMeta(meta, 'sms_request_limit', i18n.t('Limit')),
+      login_attempt_limit: pfConfigurationValidatorsFromMeta(meta, 'login_attempt_limit', i18n.t('Limit')),
+      locale: {
+        [i18n.t('Locale required.')]: required,
+        $each: {
+          [i18n.t('Locale required.')]: required,
+          [i18n.t('Duplicate locale.')]: conditional((value) => locale.filter(v => v === value).length <= 1)
+        }
+      }
+    }
+  }
 }

@@ -54,7 +54,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/billingTier
+      return view(this.form, this.meta) // ../_config/captivePortals
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]

@@ -459,14 +459,23 @@ const route = {
       path: 'connection_profiles/new',
       name: 'newConnectionProfile',
       component: ConnectionProfileView,
-      props: () => ({ storeName: '$_connection_profiles', isNew: true })
+      props: () => ({ formStoreName: 'formConnectionProfile', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'connection_profile/:id',
       name: 'connection_profile',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
         store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
@@ -476,8 +485,11 @@ const route = {
       path: 'connection_profile/:id/clone',
       name: 'cloneConnectionProfile',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
         store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
@@ -487,8 +499,11 @@ const route = {
       path: 'connection_profile/:id/files',
       name: 'connectionProfileFiles',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, tabIndex: 2 }),
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, tabIndex: 2 }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
         store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
@@ -498,13 +513,25 @@ const route = {
       path: 'connection_profile/:id/files/:path/new',
       name: 'newConnectionProfileFile',
       component: ConnectionProfileFileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, filename: route.params.path, isNew: true })
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, filename: route.params.path, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'connection_profile/:id/files/:filename',
       name: 'connectionProfileFile',
       component: ConnectionProfileFileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, filename: route.params.filename })
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, filename: route.params.filename }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        next()
+      }
     },
     /**
      * Compliance

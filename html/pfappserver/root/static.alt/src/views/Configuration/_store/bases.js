@@ -21,7 +21,8 @@ const state = {
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
-  isLoading: state => state.itemStatus === types.LOADING
+  isLoading: state => state.itemStatus === types.LOADING,
+  general: state => state.cache.general
 }
 
 const actions = {
