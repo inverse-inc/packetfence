@@ -997,7 +997,13 @@ const route = {
       path: 'webservices',
       name: 'webservices',
       component: WebServicesView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formWebServices', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formWebServices) { // Register store module only once
+          store.registerModule('formWebServices', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'pfdetect',

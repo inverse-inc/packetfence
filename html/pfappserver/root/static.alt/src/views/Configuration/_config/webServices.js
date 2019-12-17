@@ -6,41 +6,41 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
-export const pfConfigurationWebServicesViewFields = (context = {}) => {
-  const {
-    options: {
-      meta = {}
-    }
-  } = context
+export const view = (form, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Username'),
           text: i18n.t('The webservices user name.'),
-          fields: [
+          cols: [
             {
-              key: 'user',
+              namespace: 'user',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'user'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Username'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'user')
             }
           ]
         },
         {
           label: i18n.t('Password'),
           text: i18n.t('The webservices password.'),
-          fields: [
+          cols: [
             {
-              key: 'pass',
+              namespace: 'pass',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pass'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pass', i18n.t('Password'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pass')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form, meta = {}) => {
+  return {
+    user: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Username')),
+    pass: pfConfigurationValidatorsFromMeta(meta, 'pass', i18n.t('Password'))
+  }
 }
