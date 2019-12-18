@@ -1366,6 +1366,19 @@ sub rest_ping :Public :RestPath(/rest/ping){
     return "pong - ".$args->{message};
 }
 
+sub fingerbank_nba_webhook :Public :RestPath(/fingerbank/nba/webhook){
+    my ($class, $args, $headers) = @_;
+    if($args->{data}->{type} ne "events") {
+        die "Unsupported webhook type\n";
+    }
+
+    my $mac = pf::util::clean_mac($args->{mac});
+    for my $event (@{$args->{data}->{events}}) {
+        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => lc($event), 'type' => "internal" } );
+    }
+    return "ok";
+}
+
 =head2 radius_rest_authorize
 
 RADIUS authorize method that uses REST
