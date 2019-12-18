@@ -1350,20 +1350,29 @@ const route = {
       path: 'pki_providers',
       name: 'pki_providers',
       component: PkiProvidersList,
-      props: (route) => ({ storeName: '$_pki_providers', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'pki_providers/new/:providerType',
       name: 'newPkiProvider',
       component: PkiProviderView,
-      props: (route) => ({ storeName: '$_pki_providers', isNew: true, providerType: route.params.providerType })
+      props: (route) => ({ formStoreName: 'formPkiProvider', isNew: true, providerType: route.params.providerType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProvider) { // Register store module only once
+          store.registerModule('formPkiProvider', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'pki_provider/:id',
       name: 'pki_provider',
       component: PkiProviderView,
-      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formPkiProvider', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProvider) { // Register store module only once
+          store.registerModule('formPkiProvider', FormStore)
+        }
         store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })
@@ -1373,8 +1382,11 @@ const route = {
       path: 'pki_provider/:id/clone',
       name: 'clonePkiProvider',
       component: PkiProviderView,
-      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formPkiProvider', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProvider) { // Register store module only once
+          store.registerModule('formPkiProvider', FormStore)
+        }
         store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })

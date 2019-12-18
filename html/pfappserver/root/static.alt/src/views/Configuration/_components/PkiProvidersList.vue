@@ -33,9 +33,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationPkiProviderListConfig as config
-} from '@/globals/configuration/pfConfigurationPkiProviders'
+import { config } from '../_config/pkiProvider'
 
 export default {
   name: 'pki-providers-list',
@@ -43,13 +41,6 @@ export default {
     pfButtonDelete,
     pfConfigList,
     pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -61,7 +52,7 @@ export default {
       this.$router.push({ name: 'clonePkiProvider', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deletePkiProvider`, item.id).then(response => {
+      this.$store.dispatch('$_pki_providers/deletePkiProvider', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

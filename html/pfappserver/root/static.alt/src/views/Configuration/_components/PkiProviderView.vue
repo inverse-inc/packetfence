@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
     :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="setValidations($event)"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -24,8 +22,8 @@
       <b-badge class="ml-2" variant="secondary" v-t="providerType"></b-badge>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
@@ -47,22 +45,19 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationPkiProviderViewFields as fields
-} from '@/globals/configuration/pfConfigurationPkiProviders'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/pkiProvider'
 
 export default {
   name: 'pki-provider-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -84,33 +79,28 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView,
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/pkiProvider
     },
     invalidForm () {
-      return this.$v.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_pki_providers/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
@@ -124,24 +114,27 @@ export default {
   },
   methods: {
     init () {
-      if (this.id) {
-        // existing
-        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = options
-          this.$store.dispatch(`${this.storeName}/getPkiProvider`, this.id).then(form => {
+      if (this.id) { // existing
+        this.$store.dispatch('$_pki_providers/optionsById', this.id).then(options => {
+        const { meta = {} } = options
+        const { isNew, isClone, providerType } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, providerType } })
+          this.$store.dispatch('$_pki_providers/getPkiProvider', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
             this.providerType = form.type
           })
         })
-      } else {
-        // new
-        this.$store.dispatch(`${this.storeName}/optionsByProviderType`, this.providerType).then(options => {
-          this.options = options
-          this.form = defaults(options.meta) // set defaults
+      } else { // new
+        this.$store.dispatch('$_pki_providers/optionsByProviderType', this.providerType).then(options => {
+          const { meta = {} } = options
+          const { isNew, isClone, providerType } = this
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, providerType } })
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
           this.form.type = this.providerType
         })
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close (event) {
       this.$router.push({ name: 'pki_providers' })
@@ -151,7 +144,7 @@ export default {
     },
     create (event) {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createPkiProvider`, this.form).then(response => {
+      this.$store.dispatch('$_pki_providers/createPkiProvider', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -161,14 +154,14 @@ export default {
     },
     save (event) {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updatePkiProvider`, this.form).then(response => {
+      this.$store.dispatch('$_pki_providers/updatePkiProvider', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove (event) {
-      this.$store.dispatch(`${this.storeName}/deletePkiProvider`, this.id).then(response => {
+      this.$store.dispatch('$_pki_providers/deletePkiProvider', this.id).then(response => {
         this.close()
       })
     },
