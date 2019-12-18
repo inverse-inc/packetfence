@@ -6,28 +6,22 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-
-const {
+import {
   integer,
   minValue
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
-export const pfConfigurationInlineViewFields = (context = {}) => {
-  const {
-    options: {
-      meta = {}
-    }
-  } = context
+export const view = (form = {}, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Accounting'),
           text: i18n.t('Should we handle accouting data for inline clients? This controls inline accouting tasks in pfmon.'),
-          fields: [
+          cols: [
             {
-              key: 'accounting',
+              namespace: 'accounting',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -38,57 +32,42 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
         {
           label: i18n.t('Accounting session timeout'),
           text: i18n.t(`Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfmon runs Defaults to 300 - 5 minutes.`),
-          fields: [
+          cols: [
             {
-              key: 'layer3_accounting_session_timeout',
+              namespace: 'layer3_accounting_session_timeout',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_session_timeout'),
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_session_timeout', i18n.t('Timeout')),
-                ...{
-                  [i18n.t('Must be numeric')]: integer,
-                  [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
-                }
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_session_timeout')
             }
           ]
         },
         {
           label: i18n.t('Accounting sync interval'),
           text: i18n.t('Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds.'),
-          fields: [
+          cols: [
             {
-              key: 'layer3_accounting_sync_interval',
+              namespace: 'layer3_accounting_sync_interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_sync_interval'),
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_sync_interval', i18n.t('Interval')),
-                ...{
-                  [i18n.t('Must be numeric')]: integer,
-                  [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
-                }
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_sync_interval')
             }
           ]
         },
         {
           label: i18n.t('Ports redirect'),
           text: i18n.t(`Ports to intercept and redirect for trapped and unregistered systems. Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid certificate or if you don't use DNS (although IP-based certificates supposedly exist). Redirecting 53/udp (DNS) seems to have issues and is also not recommended.`),
-          fields: [
+          cols: [
             {
-              key: 'ports_redirect',
+              namespace: 'ports_redirect',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ports_redirect'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ports_redirect', i18n.t('Ports'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ports_redirect')
             }
           ]
         },
         {
           label: i18n.t('Reauthenticate node'),
           text: i18n.t('Should have to reauthenticate the node if vlan change.'),
-          fields: [
+          cols: [
             {
-              key: 'should_reauth_on_vlan_change',
+              namespace: 'should_reauth_on_vlan_change',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -99,21 +78,41 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
         {
           label: i18n.t('SNAT Interface'),
           text: i18n.t('Comma-separated list of interfaces used to SNAT inline level 2 traffic.'),
-          fields: [
+          cols: [
             {
-              key: 'interfaceSNAT',
+              namespace: 'interfaceSNAT',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'interfaceSNAT'),
                 ...{
                   rows: 3
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interfaces'))
+              }
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  return {
+    layer3_accounting_session_timeout: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_session_timeout', i18n.t('Timeout')),
+      ...{
+        [i18n.t('Must be numeric')]: integer,
+        [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
+      }
+    },
+    layer3_accounting_sync_interval: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_sync_interval', i18n.t('Interval')),
+      ...{
+        [i18n.t('Must be numeric')]: integer,
+        [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
+      }
+    },
+    ports_redirect: pfConfigurationValidatorsFromMeta(meta, 'ports_redirect', i18n.t('Ports')),
+    interfaceSNAT: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interfaces'))
+  }
 }

@@ -1741,14 +1741,17 @@ const route = {
       path: 'maintenance_tasks',
       name: 'maintenance_tasks',
       component: MainTabs,
-      props: (route) => ({ tab: 'maintenance_tasks', storeName: '$_maintenance_tasks', query: route.query.query })
+      props: (route) => ({ tab: 'maintenance_tasks', query: route.query.query })
     },
     {
       path: 'maintenance_task/:id',
       name: 'maintenance_task',
       component: MaintenanceTaskView,
-      props: (route) => ({ storeName: '$_maintenance_tasks', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formMaintenanceTask', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formMaintenanceTask) { // Register store module only once
+          store.registerModule('formMaintenanceTask', FormStore)
+        }
         store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(() => {
           next()
         })
