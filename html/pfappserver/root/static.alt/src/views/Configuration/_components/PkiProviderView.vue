@@ -116,13 +116,13 @@ export default {
     init () {
       if (this.id) { // existing
         this.$store.dispatch('$_pki_providers/optionsById', this.id).then(options => {
-        const { meta = {} } = options
-        const { isNew, isClone, providerType } = this
-        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, providerType } })
           this.$store.dispatch('$_pki_providers/getPkiProvider', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
             this.providerType = form.type
+            const { meta = {} } = options
+            const { isNew, isClone, providerType } = this
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, providerType } })
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         })
       } else { // new
@@ -130,8 +130,7 @@ export default {
           const { meta = {} } = options
           const { isNew, isClone, providerType } = this
           this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, providerType } })
-          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
-          this.form.type = this.providerType
+          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), ...{ type: this.providerType } }) // set defaults
         })
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
