@@ -140,7 +140,7 @@ export default {
       } else { // new
         this.$store.dispatch('$_firewalls/optionsByFirewallType', this.firewallType).then(options => {
           const { meta = {} } = options
-          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
           this.form.type = this.firewallType
           const { isNew, isClone, firewallType } = this
           this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, firewallType } })

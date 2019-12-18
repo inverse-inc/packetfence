@@ -1654,20 +1654,29 @@ const route = {
       path: 'floating_devices',
       name: 'floating_devices',
       component: FloatingDevicesList,
-      props: (route) => ({ storeName: '$_floatingdevices', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'floating_devices/new',
       name: 'newFloatingDevice',
       component: FloatingDeviceView,
-      props: () => ({ storeName: '$_floatingdevices', isNew: true })
+      props: () => ({ formStoreName: 'formFloatingDevice', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFloatingDevice) { // Register store module only once
+          store.registerModule('formFloatingDevice', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'floating_device/:id',
       name: 'floating_device',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formFloatingDevice', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formFloatingDevice) { // Register store module only once
+          store.registerModule('formFloatingDevice', FormStore)
+        }
         store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
           next()
         })
@@ -1677,8 +1686,11 @@ const route = {
       path: 'floating_device/:id/clone',
       name: 'cloneFloatingDevice',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formFloatingDevice', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formFloatingDevice) { // Register store module only once
+          store.registerModule('formFloatingDevice', FormStore)
+        }
         store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
           next()
         })

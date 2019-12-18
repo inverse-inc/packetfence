@@ -1,6 +1,6 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormToggle from '@/components/pfFormToggle'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
@@ -13,10 +13,11 @@ import {
   hasFloatingDevices,
   floatingDeviceExists
 } from '@/globals/pfValidators'
+import {
+  required
+} from 'vuelidate/lib/validators'
 
-const { required } = require('vuelidate/lib/validators')
-
-export const pfConfigurationFloatingDevicesListColumns = [
+export const columns = [
   {
     key: 'id',
     label: 'MAC',
@@ -55,7 +56,7 @@ export const pfConfigurationFloatingDevicesListColumns = [
   }
 ]
 
-export const pfConfigurationFloatingDevicesListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('MAC'),
@@ -68,15 +69,14 @@ export const pfConfigurationFloatingDevicesListFields = [
   }
 ]
 
-export const pfConfigurationFloatingDeviceListConfig = (context = {}) => {
-  const { $i18n } = context
+export const config = (context = {}) => {
   return {
-    columns: pfConfigurationFloatingDevicesListColumns,
-    fields: pfConfigurationFloatingDevicesListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'floating_device', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by MAC or IP address'),
+    searchPlaceholder: i18n.t('Search by MAC or IP address'),
     searchableOptions: {
       searchApiEndpoint: 'config/floating_devices',
       defaultSortKeys: ['id'],
@@ -109,35 +109,28 @@ export const pfConfigurationFloatingDeviceListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
+  const {
+    trunkPort
+  } = form
   const {
     isNew = false,
-    isClone = false,
-    options: {
-      meta = {}
-    },
-    form = {}
-  } = context
+    isClone = false
+  } = meta
   return [
     {
       tab: null, // ignore tabs
-      fields: [
+      rows: [
         {
           label: i18n.t('MAC Address'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'MAC'),
-                ...{
-                  [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), hasFloatingDevices, floatingDeviceExists))
                 }
               }
             }
@@ -145,34 +138,32 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
         },
         {
           label: i18n.t('IP Address'),
-          fields: [
+          cols: [
             {
-              key: 'ip',
+              namespace: 'ip',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ip'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ip')
             }
           ]
         },
         {
           label: i18n.t('Native VLAN'),
           text: i18n.t('VLAN in which PacketFence should put the port.'),
-          fields: [
+          cols: [
             {
-              key: 'pvid',
+              namespace: 'pvid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pvid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pvid', 'VLAN')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pvid')
             }
           ]
         },
         {
           label: i18n.t('Trunk Port'),
           text: i18n.t('The port must be configured as a muti-vlan port.'),
-          fields: [
+          cols: [
             {
-              key: 'trunkPort',
-              component: pfFormToggle,
+              namespace: 'trunkPort',
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' }
               }
@@ -180,19 +171,36 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
           ]
         },
         {
-          if: (form.trunkPort === 'yes'),
+          if: (trunkPort === 'yes'),
           label: i18n.t('Tagged VLANs'),
           text: i18n.t('Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.'),
-          fields: [
+          cols: [
             {
-              key: 'taggedVlan',
+              namespace: 'taggedVlan',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'taggedVlan'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'taggedVlan', 'VLAN')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'taggedVlan')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'MAC'),
+      ...{
+        [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), hasFloatingDevices, floatingDeviceExists))
+      }
+    },
+    ip: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP'),
+    pvid: pfConfigurationValidatorsFromMeta(meta, 'pvid', 'VLAN'),
+    taggedVlan: pfConfigurationValidatorsFromMeta(meta, 'taggedVlan', 'VLAN')
+  }
 }

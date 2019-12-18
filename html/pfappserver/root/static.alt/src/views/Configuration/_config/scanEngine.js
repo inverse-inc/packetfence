@@ -4,7 +4,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
-import pfFormToggle from '@/components/pfFormToggle'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
@@ -265,7 +265,7 @@ export const view = (meta = {}) => {
           cols: [
             {
               namespace: 'verify_hostname',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -353,7 +353,7 @@ export const view = (meta = {}) => {
           cols: [
             {
               namespace: 'pre_registration',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 1, unchecked: 0 }
               }
@@ -366,7 +366,7 @@ export const view = (meta = {}) => {
           cols: [
             {
               namespace: 'registration',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 1, unchecked: 0 }
               }
@@ -379,7 +379,7 @@ export const view = (meta = {}) => {
           cols: [
             {
               namespace: 'post_registration',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 1, unchecked: 0 }
               }
