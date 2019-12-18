@@ -139,7 +139,7 @@ export const validators = (form = {}, meta = {}) => {
 
 export const search = (chosen, query) => {
   if (!query) return []
-  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
+  if (chosen.inputValue !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchDhcpVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
       fields: ['id', 'value'],
@@ -152,7 +152,7 @@ export const search = (chosen, query) => {
       })
     })
   } else { // subsequent queries
-    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.inputValue) // cache current value
     return api.fingerbankSearchDhcpVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
       fields: ['id', 'value'],

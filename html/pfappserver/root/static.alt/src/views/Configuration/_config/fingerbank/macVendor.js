@@ -163,7 +163,7 @@ export const validators = (form = {}, meta = {}) => {
 
 export const search = (chosen, query) => {
   if (!query) return []
-  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
+  if (chosen.inputValue !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchMacVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
       fields: ['id', 'mac', 'name'],
@@ -176,7 +176,7 @@ export const search = (chosen, query) => {
       })
     })
   } else { // subsequent queries
-    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.inputValue) // cache current value
     return api.fingerbankSearchMacVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'contains', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
       fields: ['id', 'mac', 'name'],

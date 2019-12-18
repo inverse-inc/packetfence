@@ -259,9 +259,9 @@ export default {
     }
   },
   watch: {
-    value: {
+    inputValue: {
       handler (a, b) {
-        this.onSearchChange(a) // prime the searchable cache with our current `value`
+        this.onSearchChange(a) // prime the searchable cache with our current `inputValue`
       },
       immediate: true
     }

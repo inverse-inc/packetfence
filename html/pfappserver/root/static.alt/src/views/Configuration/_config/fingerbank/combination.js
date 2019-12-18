@@ -114,7 +114,6 @@ export const view = (form = {}, meta = {}) => {
     isNew = false,
     isClone = false
   } = meta
-console.log({ isNew, isClone })
   return [
     {
       tab: null, // ignore tabs
