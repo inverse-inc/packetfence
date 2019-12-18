@@ -1095,20 +1095,29 @@ const route = {
       path: 'firewalls',
       name: 'firewalls',
       component: FirewallsList,
-      props: (route) => ({ storeName: '$_firewalls', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'firewalls/new/:firewallType',
       name: 'newFirewall',
       component: FirewallView,
-      props: (route) => ({ storeName: '$_firewalls', isNew: true, firewallType: route.params.firewallType })
+      props: (route) => ({ formStoreName: 'formFirewall', isNew: true, firewallType: route.params.firewallType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFirewall) { // Register store module only once
+          store.registerModule('formFirewall', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'firewall/:id',
       name: 'firewall',
       component: FirewallView,
-      props: (route) => ({ storeName: '$_firewalls', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formFirewall', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formFirewall) { // Register store module only once
+          store.registerModule('formFirewall', FormStore)
+        }
         store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
           next()
         })
@@ -1118,8 +1127,11 @@ const route = {
       path: 'firewall/:id/clone',
       name: 'cloneFirewall',
       component: FirewallView,
-      props: (route) => ({ storeName: '$_firewalls', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formFirewall', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formFirewall) { // Register store module only once
+          store.registerModule('formFirewall', FormStore)
+        }
         store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
           next()
         })

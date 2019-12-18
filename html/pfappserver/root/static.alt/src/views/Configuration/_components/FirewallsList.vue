@@ -41,9 +41,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationFirewallsListConfig as config
-} from '@/globals/configuration/pfConfigurationFirewalls'
+import { config } from '../_config/firewall'
 
 export default {
   name: 'firewalls-list',
@@ -51,13 +49,6 @@ export default {
     pfButtonDelete,
     pfConfigList,
     pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -69,7 +60,7 @@ export default {
       this.$router.push({ name: 'cloneFirewall', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteFirewall`, item.id).then(response => {
+      this.$store.dispatch('$_firewalls/deleteFirewall', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
