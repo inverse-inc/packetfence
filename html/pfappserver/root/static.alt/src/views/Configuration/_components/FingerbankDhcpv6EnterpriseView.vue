@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
     :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -24,8 +22,8 @@
       <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-if="scope === 'local'">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading" v-if="scope === 'local'">
           <template v-if="isNew || isClone">{{ $t('Create') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
@@ -43,15 +41,12 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationFingerbankDhcpv6EnterpriseViewFields as fields
-} from '@/globals/configuration/pfConfigurationFingerbank'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/fingerbank/dhcpV6Enterprise'
 
 export default {
   name: 'fingerbank-dhcpv6-enterprise-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
@@ -62,7 +57,7 @@ export default {
       type: String,
       required: true
     },
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -80,32 +75,28 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {} // will be overloaded with data from the pfConfigView
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isDhcpv6EnterprisesLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/fingerbank/device
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isDhcpv6EnterprisesWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_fingerbank/isDhcpv6EnterprisesLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
@@ -119,13 +110,18 @@ export default {
   },
   methods: {
     init () {
+      const { scope, isNew, isClone } = this
+      this.$store.dispatch(`${this.formStoreName}/setMeta`, { scope, isNew, isClone })
       if (this.id) {
         // existing
-        this.$store.dispatch(`${this.storeName}/getDhcpv6Enterprise`, this.id).then(form => {
+        this.$store.dispatch('$_fingerbank/getDhcpv6Enterprise', this.id).then(form => {
           if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-          this.form = form
+          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
         })
+      } else {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, {})
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'fingerbankDhcpv6Enterprises' })
@@ -135,7 +131,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createDhcpv6Enterprise`, this.form).then(response => {
+      this.$store.dispatch('$_fingerbank/createDhcpv6Enterprise', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -145,14 +141,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateDhcpv6Enterprise`, this.form).then(response => {
+      this.$store.dispatch('$_fingerbank/updateDhcpv6Enterprise', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteDhcpv6Enterprise`, this.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteDhcpv6Enterprise', this.id).then(response => {
         this.close()
       })
     }

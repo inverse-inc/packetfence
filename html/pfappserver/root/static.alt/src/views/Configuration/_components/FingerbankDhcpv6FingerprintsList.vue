@@ -41,10 +41,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
-
-import {
-  pfConfigurationFingerbankDhcpv6FingerprintsListConfig as config
-} from '@/globals/configuration/pfConfigurationFingerbank'
+import { config } from '../_config/fingerbank/dhcpV6Fingerprint'
 
 export default {
   name: 'fingerbank-dhcpv6-fingerprints-list',
@@ -55,11 +52,6 @@ export default {
     pfFingerbankScore
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     scope: {
       type: String,
       default: 'all',
@@ -77,7 +69,7 @@ export default {
       this.$router.push({ name: 'cloneFingerbankDhcpv6Fingerprint', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteDhcpv6Fingerprint`, item.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteDhcpv6Fingerprint', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -87,7 +79,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch(`${this.storeName}/dhcpv6Fingerprints`).then(data => {
+    this.$store.dispatch('$_fingerbank/dhcpv6Fingerprints').then(data => {
       this.data = data
     })
   },

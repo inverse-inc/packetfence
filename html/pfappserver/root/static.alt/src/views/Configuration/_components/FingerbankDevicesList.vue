@@ -63,9 +63,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationFingerbankDevicesListConfig as config
-} from '@/globals/configuration/pfConfigurationFingerbank'
+import { config } from '../_config/fingerbank/device'
 
 export default {
   name: 'fingerbank-devices-list',
@@ -75,11 +73,6 @@ export default {
     pfEmptyTable
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     parentId: {
       type: Number,
       default: null
@@ -106,7 +99,7 @@ export default {
       this.$router.push({ name: 'cloneFingerbankDevice', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteDevice`, item.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteDevice', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -120,7 +113,7 @@ export default {
     buildParentTree (parentId = 0, index = 0) {
       if (index === 0) this.$set(this, 'parentTree', [])
       if (~~parentId > 0) {
-        this.$store.dispatch(`${this.storeName}/getDevice`, parentId).then(data => {
+        this.$store.dispatch('$_fingerbank/getDevice', parentId).then(data => {
           this.$set(this.parentTree, index, data)
           if (data.parent_id) this.buildParentTree(data.parent_id, ++index)
         })
