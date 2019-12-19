@@ -188,7 +188,9 @@ export default {
       this.hover = null
     },
     onDragEnd (event) {
-      this.drag = false
+      this.$nextTick(() => { // defer drag stop until after DOM redraw
+        this.drag = false
+      })
     },
     onMouseEnter (index) {
       if (this.drag) return
