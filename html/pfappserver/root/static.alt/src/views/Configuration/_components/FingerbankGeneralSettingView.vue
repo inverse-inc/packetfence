@@ -33,10 +33,11 @@
     </template>
     <template v-slot:footer>
       <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
-        <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
+        <pf-button-service service="fingerbank-collector" class="mr-1" restart start stop></pf-button-service>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -45,6 +46,7 @@
 <script>
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonService from '@/components/pfButtonService'
 import {
   pfConfigurationFingerbankGeneralSettingsViewFields as fields
 } from '@/globals/configuration/pfConfigurationFingerbank'
@@ -58,7 +60,8 @@ export default {
   ],
   components: {
     pfConfigView,
-    pfButtonSave
+    pfButtonSave,
+    pfButtonService
   },
   props: {
     storeName: { // from router
