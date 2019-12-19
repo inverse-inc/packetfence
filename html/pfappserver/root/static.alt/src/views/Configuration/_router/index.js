@@ -1827,7 +1827,13 @@ const route = {
       path: 'radius',
       name: 'radius',
       component: RadiusView,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ formStoreName: 'formRadius', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadius) { // Register store module only once
+          store.registerModule('formRadius', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'dns',
