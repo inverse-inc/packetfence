@@ -12,12 +12,9 @@ import {
   hasTrafficShapingPolicies,
   trafficShapingPolicyExists
 } from '@/globals/pfValidators'
+import { required } from 'vuelidate/lib/validators'
 
-const {
-  required
-} = require('vuelidate/lib/validators')
-
-export const pfConfigurationTrafficShapingPoliciesListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Traffic Shaping Policy Name'),
@@ -32,7 +29,7 @@ export const pfConfigurationTrafficShapingPoliciesListColumns = [
   }
 ]
 
-export const pfConfigurationTrafficShapingPoliciesListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Traffic Shaping Policy Name'),
@@ -40,10 +37,10 @@ export const pfConfigurationTrafficShapingPoliciesListFields = [
   }
 ]
 
-export const pfConfigurationTrafficShapingPoliciesListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationTrafficShapingPoliciesListColumns,
-    fields: pfConfigurationTrafficShapingPoliciesListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'traffic_shaping', params: { id: item.id } }
     },
@@ -78,23 +75,20 @@ export const pfConfigurationTrafficShapingPoliciesListConfig = () => {
   }
 }
 
-export const pfConfigurationTrafficShapingPolicyViewFields = (context = {}) => {
+export const view = (form, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
-    options: {
-      meta = {}
-    }
-  } = context
+    isClone = false
+  } = meta
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: i18n.t('Traffic Shaping Policy Name'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
@@ -114,9 +108,9 @@ export const pfConfigurationTrafficShapingPolicyViewFields = (context = {}) => {
         {
           label: i18n.t('Upload'),
           text: i18n.t(`Bandwidth must be in the following format 'nXY' where XY is one of the following KB,MB,GB,TB,PB.`),
-          fields: [
+          cols: [
             {
-              key: 'upload',
+              namespace: 'upload',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'upload'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'upload', i18n.t('Upload'))
@@ -126,9 +120,9 @@ export const pfConfigurationTrafficShapingPolicyViewFields = (context = {}) => {
         {
           label: i18n.t('Download'),
           text: i18n.t(`Bandwidth must be in the following format 'nXY' where XY is one of the following KB,MB,GB,TB,PB.`),
-          fields: [
+          cols: [
             {
-              key: 'download',
+              namespace: 'download',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'download'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'download', i18n.t('Download'))
@@ -138,4 +132,21 @@ export const pfConfigurationTrafficShapingPolicyViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...{
+        [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasTrafficShapingPolicies, trafficShapingPolicyExists))
+      }
+    },
+    upload: pfConfigurationValidatorsFromMeta(meta, 'upload', i18n.t('Upload')),
+    download: pfConfigurationValidatorsFromMeta(meta, 'download', i18n.t('Download'))
+  }
 }

@@ -1667,20 +1667,29 @@ const route = {
       path: 'traffic_shapings',
       name: 'traffic_shapings',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'traffic_shapings', storeName: '$_traffic_shaping_policies', query: route.query.query })
+      props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
     },
     {
       path: 'traffic_shaping/new/:role',
       name: 'newTrafficShaping',
       component: TrafficShapingView,
-      props: (route) => ({ storeName: '$_traffic_shaping_policies', isNew: true, role: route.params.role })
+      props: (route) => ({ formStoreName: 'formTrafficShapingPolicy', isNew: true, role: route.params.role }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formTrafficShapingPolicy) { // Register store module only once
+          store.registerModule('formTrafficShapingPolicy', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'traffic_shaping/:id',
       name: 'traffic_shaping',
       component: TrafficShapingView,
-      props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formTrafficShapingPolicy', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formTrafficShapingPolicy) { // Register store module only once
+          store.registerModule('formTrafficShapingPolicy', FormStore)
+        }
         store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(() => {
           next()
         })
