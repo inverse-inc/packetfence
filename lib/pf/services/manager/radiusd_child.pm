@@ -995,6 +995,7 @@ EOT
                 $tags{'local_realm'} .= ' ) {'."\n";
                 $tags{'local_realm'} .= <<"EOT";
                 update control {
+                    Load-Balance-Key := "%{Calling-Station-Id}"
                     Proxy-To-Realm := "packetfence"
                 }
             } else {
