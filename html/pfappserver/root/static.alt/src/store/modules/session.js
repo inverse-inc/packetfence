@@ -177,10 +177,20 @@ const actions = {
     return api.login(user).then(response => {
       const token = response.data.token
       return dispatch('update', token).then(() => {
-        commit('LOGIN_SUCCESS', token)
-        if (state.loginResolver) {
-          state.loginResolver(response)
-          state.loginPromise = null
+        const hasAccess = ['reports', 'services', 'radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log', 'nodes', 'users', 'configuration_main'].find(target => {
+          return acl.$can('read', target)
+        })
+        if (hasAccess) {
+          commit('LOGIN_SUCCESS', token)
+          if (state.loginResolver) {
+            state.loginResolver(response)
+            state.loginPromise = null
+          }
+        } else {
+          const err = { response: { data: { message: i18n.t(`You don't have enough privileges to login`) }}}
+          dispatch('delete')
+          commit('LOGIN_ERROR', err.response)
+          throw err
         }
       })
     }).catch(err => {
@@ -200,7 +210,7 @@ const actions = {
     return api.getTokenInfo(readonly).then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
       commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
-      return response.data.item.admin_actions
+      return response.data.item.admin_actions // return ACLs
     })
   },
   getTenants: ({ commit }) => {
