@@ -29,7 +29,7 @@
           </div>
           <b-row align-v="center" class="pt-5 pl-3 row-nowrap">
             <icon class="connector-circle" name="circle"></icon>
-            <portal-module :id="rootModule.id" :modules="items" :storeName="storeName" :minimize="minimize" />
+            <portal-module :id="rootModule.id" :modules="items" :minimize="minimize" />
           </b-row>
         </div>
       </b-tab>
@@ -53,7 +53,7 @@
           <draggable element="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
             :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
             ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
-            <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root></portal-module>
+            <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" v-show="mid" is-root></portal-module>
           </draggable>
         </b-tab>
         <template v-slot:tabs-end>
@@ -74,16 +74,17 @@
 
 <script>
 import pfMixinSearchable from '@/components/pfMixinSearchable'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import draggable from 'vuedraggable'
 import PortalModule from './PortalModule'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationPortalModuleTypes as moduleTypes,
-  pfConfigurationPortalModuleTypeName as moduleTypeName
-} from '@/globals/configuration/pfConfigurationPortalModules'
+  columns,
+  fields,
+  moduleTypes,
+  moduleTypeName
+} from '@/views/Configuration/_config/portalModule'
 
 export default {
   name: 'portal-modules-list',
@@ -98,11 +99,6 @@ export default {
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     searchableOptions: {
       type: Object,
       default: () => ({
@@ -124,53 +120,12 @@ export default {
   },
   data () {
     return {
+      columns, // ../_config/portalModule
+      fields, // ../_config/portalModule
       moduleTypes: moduleTypes(),
       getModuleTypeName: moduleTypeName,
       tabIndex: 0,
       minimize: false,
-      columns: [
-        {
-          key: 'id',
-          label: this.$i18n.t('Name'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'description',
-          label: this.$i18n.t('Description'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'type',
-          label: this.$i18n.t('Type'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'modules',
-          label: this.$i18n.t('Modules'),
-          sortable: true,
-          visible: true
-        }
-      ],
-      fields: [
-        {
-          value: 'id',
-          text: 'Name',
-          types: [conditionType.SUBSTRING]
-        },
-        {
-          value: 'description',
-          text: 'Description',
-          types: [conditionType.SUBSTRING]
-        },
-        {
-          value: 'type',
-          text: 'Type',
-          types: [conditionType.SUBSTRING]
-        }
-      ],
       requestPage: 1,
       currentPage: 1,
       pageSizeLimit: 1000,
@@ -279,7 +234,7 @@ export default {
       return false
     },
     save (module) {
-      this.$store.dispatch(`${this.storeName}/updatePortalModule`, module)
+      this.$store.dispatch('$_portalmodules/updatePortalModule', module)
       if (module.modules) {
         module.modules.forEach(mid => {
           const childModule = {
@@ -293,7 +248,7 @@ export default {
     remove (id) {
       const index = this.items.findIndex(module => module.id === id)
       if (index >= 0) {
-        this.$store.dispatch(`${this.storeName}/deletePortalModule`, id).then(() => {
+        this.$store.dispatch('$_portalmodules/deletePortalModule', id).then(() => {
           this.$delete(this.items, index)
         })
       }

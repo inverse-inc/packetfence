@@ -7,9 +7,10 @@ import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import { pfActionsFromMeta } from '@/globals/pfActions'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
@@ -21,12 +22,11 @@ import {
   hasPortalModules,
   portalModuleExists
 } from '@/globals/pfValidators'
-
-const {
+import {
   required
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
-const colorsList = [
+const colors = [
   // Colors for types under `Multiple`
   // https://www.colorbox.io/#steps=4#hue_start=223#hue_end=211#hue_curve=linear#sat_start=30#sat_end=30#sat_curve=linear#sat_rate=134#lum_start=48#lum_end=100#lum_curve=linear#lock_hex=
   ['#49577a', '#647ba7', '#7ea1d3', '#98caff'],
@@ -38,7 +38,52 @@ const colorsList = [
   ['#00747a', '#008379', '#008c70', '#009564', '#009e56', '#00a746', '#00af34', '#04b822', '#07c110', '#1bca0b', '#38d310', '#57dc15', '#76e41a', '#97ed1f', '#b9f625', '#dcff2b']
 ]
 
-export const pfConfigurationPortalModuleTypes = () => {
+export const columns = [
+  {
+    key: 'id',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'modules',
+    label: i18n.t('Modules'),
+    sortable: true,
+    visible: true
+  }
+]
+
+export const fields = [
+  {
+    value: 'id',
+    text: 'Name',
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: 'Description',
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: 'Type',
+    types: [conditionType.SUBSTRING]
+  }
+]
+
+export const moduleTypes = () => {
   let moduleTypes = [
     {
       name: i18n.t('Multiple'),
@@ -87,16 +132,16 @@ export const pfConfigurationPortalModuleTypes = () => {
   // Assign colors
   moduleTypes.forEach((group, i) => {
     group.types.forEach((item, j) => {
-      item.color = colorsList[i][j]
+      item.color = colors[i][j]
     })
   })
   return moduleTypes
 }
 
-export const pfConfigurationPortalModuleTypeName = (type) => {
-  let name = type
-  pfConfigurationPortalModuleTypes().find(group => {
-    const module = group.types.find(groupType => groupType.type === type)
+export const moduleTypeName = (moduleType) => {
+  let name = moduleType
+  moduleTypes().find(group => {
+    const module = group.types.find(groupType => groupType.type === moduleType)
     if (module) {
       name = module.name
       return group
@@ -105,36 +150,34 @@ export const pfConfigurationPortalModuleTypeName = (type) => {
   return name
 }
 
-export const pfConfigurationPortalModuleFields = {
-  id: ({ isNew = false, isClone = false, options: { meta = {} } } = {}) => {
+export const viewFields = {
+  id: (form = {}, meta = {}) => {
+    const {
+      isNew = false,
+      isClone = false
+    } = meta
     return {
       label: i18n.t('Name'),
-      fields: [
+      cols: [
         {
-          key: 'id',
+          namespace: 'id',
           component: pfFormInput,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'id'),
             ...{
               disabled: (!isNew && !isClone)
             }
-          },
-          validators: {
-            ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
-            ...{
-              [i18n.t('Portal module exists.')]: not(and(required, conditional(isNew || isClone), hasPortalModules, portalModuleExists))
-            }
           }
         }
       ]
     }
   },
-  actions: ({ options: { meta = {} } } = {}) => {
+  actions: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Actions'),
-      fields: [
+      cols: [
         {
-          key: 'actions',
+          namespace: 'actions',
           component: pfFormFields,
           attrs: {
             buttonLabel: i18n.t('Add Action'),
@@ -147,170 +190,159 @@ export const pfConfigurationPortalModuleFields = {
                 valueLabel: i18n.t('Select action value'),
                 fields: pfActionsFromMeta(meta, 'actions.type')
               }
-            }
+            },
+            invalidFeedback: i18n.t('Actions contain one or more errors.')
           }
         }
       ]
     }
   },
-  admin_role: ({ options: { meta = {} } } = {}) => {
+  admin_role: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Admin Roles'),
       text: i18n.t('Which roles should have access to this module to select the role'),
-      fields: [
+      cols: [
         {
-          key: 'admin_role',
+          namespace: 'admin_role',
           component: pfFormChosen,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'admin_role'),
             ...{
               multiple: true
             }
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'admin_role', i18n.t('Role'))
+          }
         }
       ]
     }
   },
-  aup_template: ({ options: { meta = {} } } = {}) => {
+  aup_template: (form = {}, meta = {}) => {
     return {
       label: i18n.t('AUP template'),
       text: i18n.t('The template to use for the Acceptable Use Policy'),
-      fields: [
+      cols: [
         {
-          key: 'aup_template',
+          namespace: 'aup_template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'aup_template'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'aup_template', i18n.t('Template'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'aup_template')
         }
       ]
     }
   },
-  custom_fields: ({ options: { meta = {} } } = {}) => {
+  custom_fields: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Mandatory fields'),
       text: i18n.t('The additionnal fields that should be required for registration'),
-      fields: [
+      cols: [
         {
-          key: 'custom_fields',
+          namespace: 'custom_fields',
           component: pfFormChosen,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'custom_fields'),
             ...{
               multiple: true
             }
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'custom_fields', i18n.t('Fields'))
+          }
         }
       ]
     }
   },
-  description: ({ options: { meta = {} } } = {}) => {
+  description: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Description'),
       text: i18n.t('The description that will be displayed to users'),
-      fields: [
+      cols: [
         {
-          key: 'description',
+          namespace: 'description',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'description')
         }
       ]
     }
   },
-  fields_to_save: ({ options: { meta = {} } } = {}) => {
+  fields_to_save: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Fields to save'),
       text: i18n.t('These fields will be saved through the registration process'),
-      fields: [
+      cols: [
         {
-          key: 'fields_to_save',
+          namespace: 'fields_to_save',
           component: pfFormChosen,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'fields_to_save'),
             ...{
               multiple: true
             }
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'fields_to_save', i18n.t('Fields'))
+          }
         }
       ]
     }
   },
-  forced_sponsor: ({ options: { meta = {} } } = {}) => {
+  forced_sponsor: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Forced Sponsor'),
       text: i18n.t('Defines the sponsor email used. Leave empty so that the user has to specify a sponsor.'),
-      fields: [
+      cols: [
         {
-          key: 'forced_sponsor',
+          namespace: 'forced_sponsor',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'forced_sponsor'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'forced_sponsor', i18n.t('Email'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'forced_sponsor')
         }
       ]
     }
   },
-  landing_template: ({ options: { meta = {} } } = {}) => {
+  landing_template: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Landgin template'),
       text: i18n.t('The template to use for the signup'),
-      fields: [
+      cols: [
         {
-          key: 'landing_template',
+          namespace: 'landing_template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'landing_template'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'landing_template', i18n.t('Template'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'landing_template')
         }
       ]
     }
   },
-  list_role: ({ options: { meta = {} } } = {}) => {
+  list_role: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Roles'),
       text: i18n.t('Which roles can be select'),
-      fields: [
+      cols: [
         {
-          key: 'list_role',
+          namespace: 'list_role',
           component: pfFormChosen,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'list_role'),
             ...{
               multiple: true
             }
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'list_role', i18n.t('Role'))
+          }
         }
       ]
     }
   },
-  message: ({ options: { meta = {} } } = {}) => {
+  message: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Message'),
       text: i18n.t('The message that will be displayed to the user. Use with caution as the HTML contained in this field will NOT be escaped.'),
-      fields: [
+      cols: [
         {
-          key: 'message',
+          namespace: 'message',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'message'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'message', i18n.t('Message'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'message')
         }
       ]
     }
   },
-  modules: (context) => {
+  modules: (form = {}, meta = {}) => {
     const {
-      form = {},
-      options: {
-        meta: { modules = {} } = {}
-      } = {}
-    } = context
+      modules
+    } = meta
     return {
       label: i18n.t('Modules'),
-      fields: [
+      cols: [
         {
-          key: 'modules',
+          namespace: 'modules',
           component: pfFormFields,
           attrs: {
             buttonLabel: i18n.t('Add Module'),
@@ -327,36 +359,23 @@ export const pfConfigurationPortalModuleFields = {
                       groupLabel: 'group',
                       groupValues: 'options'
                     }
-                  },
-                  validators: {
-                    ...pfConfigurationValidatorsFromMeta(modules, 'item', i18n.t('Module')),
-                    ...{
-                      [i18n.t('Duplicate module.')]: conditional((value) => {
-                        return !(form.modules.filter(v => v === value).length > 1)
-                      })
-                    }
                   }
                 }
               }
-            }
+            },
+            invalidFeedback: i18n.t('Modules contain one or more errors.')
           }
         }
       ]
     }
   },
-  multi_source_ids: (context) => {
-    const {
-      form = {},
-      options: {
-        meta = {}
-      } = {}
-    } = context
+  multi_source_ids: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Authentication Sources'),
       text: i18n.t('The sources to use in the module. If no sources are specified, all the sources of the connection profile will be used.'),
-      fields: [
+      cols: [
         {
-          key: 'multi_source_ids',
+          namespace: 'multi_source_ids',
           component: pfFormFields,
           attrs: {
             buttonLabel: i18n.t('Add Source'),
@@ -373,86 +392,75 @@ export const pfConfigurationPortalModuleFields = {
                       multiple: false,
                       closeOnSelect: true
                     }
-                  },
-                  validators: {
-                    ...pfConfigurationValidatorsFromMeta(meta, 'multi_source_ids', i18n.t('Source')),
-                    ...{
-                      [i18n.t('Duplicate source.')]: conditional((value) => {
-                        return !(form.multi_source_ids.filter(v => v === value).length > 1)
-                      })
-                    }
                   }
                 }
               }
-            }
+            },
+            invalidFeedback: i18n.t('Authentication sources contain one or more errors.')
           }
         }
       ]
     }
   },
-  multi_source_auth_classes: ({ options: { meta = {} } } = {}) => {
+  multi_source_auth_classes: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Sources by Auth Class'),
       text: i18n.t('The sources of these authentication classes and part of the connection profile will be added to the available sources'),
-      fields: [
+      cols: [
         {
-          key: 'multi_source_auth_classes',
+          namespace: 'multi_source_auth_classes',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_auth_classes'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'multi_source_auth_classes', i18n.t('Classes'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_auth_classes')
         }
       ]
     }
   },
-  multi_source_object_classes: ({ options: { meta = {} } } = {}) => {
+  multi_source_object_classes: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Sources by Class'),
       text: i18n.t('The sources inheriting from these classes and part of the connection profile will be added to the available sources'),
-      fields: [
+      cols: [
         {
-          key: 'multi_source_object_classes',
+          namespace: 'multi_source_object_classes',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_object_classes'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'multi_source_object_classes', i18n.t('Classes'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_object_classes')
         }
       ]
     }
   },
-  multi_source_types: ({ options: { meta = {} } } = {}) => {
+  multi_source_types: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Sources by type'),
       text: i18n.t('The sources of these types and part of the connection profile will be added to the available sources'),
-      fields: [
+      cols: [
         {
-          key: 'multi_source_types',
+          namespace: 'multi_source_types',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_types'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'multi_source_types', i18n.t('Types'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_types')
         }
       ]
     }
   },
-  pid_field: ({ options: { meta = {} } } = {}) => {
+  pid_field: (form = {}, meta = {}) => {
     return {
       label: i18n.t('PID field'),
       text: i18n.t('Which field should be used as the PID.'),
-      fields: [
+      cols: [
         {
-          key: 'pid_field',
+          namespace: 'pid_field',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'pid_field'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'pid_field', 'PID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'pid_field')
         }
       ]
     }
   },
-  show_first_module_on_default: ({ options: { meta = {} } } = {}) => {
+  show_first_module_on_default: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Show first module when none is selected'),
-      fields: [
+      cols: [
         {
-          key: 'show_first_module_on_default',
-          component: pfFormToggle,
+          namespace: 'show_first_module_on_default',
+          component: pfFormRangeToggle,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'show_first_module_on_default'),
             ...{
@@ -463,28 +471,27 @@ export const pfConfigurationPortalModuleFields = {
       ]
     }
   },
-  signup_template: ({ options: { meta = {} } } = {}) => {
+  signup_template: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Signup template'),
       text: i18n.t('The template to use for the signup'),
-      fields: [
+      cols: [
         {
-          key: 'signup_template',
+          namespace: 'signup_template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'signup_template'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'signup_template', 'Template')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'signup_template')
         }
       ]
     }
   },
-  skipable: ({ options: { meta = {} } } = {}) => {
+  skipable: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Skippable'),
       text: i18n.t('Whether or not, this message can be skipped'),
-      fields: [
+      cols: [
         {
-          key: 'skipable',
-          component: pfFormToggle,
+          namespace: 'skipable',
+          component: pfFormRangeToggle,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'skipable'),
             ...{
@@ -495,13 +502,13 @@ export const pfConfigurationPortalModuleFields = {
       ]
     }
   },
-  source_id: ({ options: { meta = {} } } = {}) => {
+  source_id: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Authentication Source'),
       text: i18n.t('The source to use in the module. If no source is specified, all the sources of the connection profile will be used.'),
-      fields: [
+      cols: [
         {
-          key: 'source_id',
+          namespace: 'source_id',
           component: pfFormChosen,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'source_id'),
@@ -513,116 +520,109 @@ export const pfConfigurationPortalModuleFields = {
       ]
     }
   },
-  ssl_mobileconfig_path: ({ options: { meta = {} } } = {}) => {
+  ssl_mobileconfig_path: (form = {}, meta = {}) => {
     return {
       label: i18n.t('SSL iOS profile URL'),
       text: i18n.t('URL of an iOS mobileconfig profile to install the certificate.'),
-      fields: [
+      cols: [
         {
-          key: 'ssl_mobileconfig_path',
+          namespace: 'ssl_mobileconfig_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_mobileconfig_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'ssl_mobileconfig_path', 'SSL iOS profile URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_mobileconfig_path')
         }
       ]
     }
   },
-  ssl_path: ({ options: { meta = {} } } = {}) => {
+  ssl_path: (form = {}, meta = {}) => {
     return {
       label: i18n.t('SSL Certificate URL'),
       text: i18n.t('URL of the SSL certificate in X509 Base64 format.'),
-      fields: [
+      cols: [
         {
-          key: 'ssl_path',
+          namespace: 'ssl_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'ssl_path', 'SSL Certificate URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_path')
         }
       ]
     }
   },
-  stone_roles: ({ options: { meta = {} } } = {}) => {
+  stone_roles: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Roles'),
       text: i18n.t('Nodes with the selected roles will be affected'),
-      fields: [
+      cols: [
         {
-          key: 'stone_roles',
+          namespace: 'stone_roles',
           component: pfFormChosen,
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'stone_roles'),
             ...{
               multiple: true
             }
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'stone_roles', i18n.t('Role'))
+          }
         }
       ]
     }
   },
-  survey_id: ({ options: { meta = {} } } = {}) => {
+  survey_id: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Survey'),
       text: i18n.t('The survey to use in this portal module. Surveys are defined in survey.conf'),
-      fields: [
+      cols: [
         {
-          key: 'survey_id',
+          namespace: 'survey_id',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'survey_id'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'survey_id', i18n.t('Survey'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'survey_id')
         }
       ]
     }
   },
-  template: ({ options: { meta = {} } } = {}) => {
+  template: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Template'),
-      fields: [
+      cols: [
         {
-          key: 'template',
+          namespace: 'template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'template'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'template', 'Template')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'template')
         }
       ]
     }
   },
-  url: ({ options: { meta = {} } } = {}) => {
+  url: (form = {}, meta = {}) => {
     return {
       label: 'URL',
       text: i18n.t('The URL on which the user should be redirected.'),
-      fields: [
+      cols: [
         {
-          key: 'url',
+          namespace: 'url',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'url'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'url')
         }
       ]
     }
   },
-  username: ({ options: { meta = {} } } = {}) => {
+  username: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Username'),
       text: i18n.t('Defines the username used for all authentications'),
-      fields: [
+      cols: [
         {
-          key: 'username',
+          namespace: 'username',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'username')
         }
       ]
     }
   },
-  with_aup: () => {
+  with_aup: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Require AUP'),
       text: i18n.t('Require the user to accept the AUP'),
-      fields: [
+      cols: [
         {
-          key: 'with_aup',
-          component: pfFormToggle,
+          namespace: 'with_aup',
+          component: pfFormRangeToggle,
           attrs: {
             values: { checked: 1, unchecked: 0 }
           }
@@ -632,20 +632,22 @@ export const pfConfigurationPortalModuleFields = {
   }
 }
 
-export const pfConfigurationPortalModuleViewFields = (context = {}) => {
-  const { moduleType = null } = context
+export const view = (form = {}, meta = {}) => {
+  const {
+    moduleType = null
+  } = meta
   switch (moduleType) {
     case 'Choice':
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.show_first_module_on_default(context),
-            pfConfigurationPortalModuleFields.template(context),
-            pfConfigurationPortalModuleFields.actions(context),
-            pfConfigurationPortalModuleFields.modules(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.show_first_module_on_default(form, meta),
+            viewFields.template(form, meta),
+            viewFields.actions(form, meta),
+            viewFields.modules(form, meta)
           ]
         }
       ]
@@ -653,11 +655,11 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.actions(context),
-            pfConfigurationPortalModuleFields.modules(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.actions(form, meta),
+            viewFields.modules(form, meta)
           ]
         }
       ]
@@ -665,17 +667,17 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            // pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.multi_source_ids(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            // viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.multi_source_ids(form, meta)
           ]
         }
       ]
@@ -683,13 +685,13 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null,
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.template(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.template(form, meta)
           ]
         }
       ]
@@ -697,19 +699,19 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            // pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.template(context),
-            pfConfigurationPortalModuleFields.actions(context),
-            pfConfigurationPortalModuleFields.modules(context),
-            pfConfigurationPortalModuleFields.multi_source_ids(context),
-            pfConfigurationPortalModuleFields.multi_source_object_classes(context),
-            pfConfigurationPortalModuleFields.multi_source_types(context),
-            pfConfigurationPortalModuleFields.multi_source_auth_classes(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            // viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.template(form, meta),
+            viewFields.actions(form, meta),
+            viewFields.modules(form, meta),
+            viewFields.multi_source_ids(form, meta),
+            viewFields.multi_source_object_classes(form, meta),
+            viewFields.multi_source_types(form, meta),
+            viewFields.multi_source_auth_classes(form, meta)
           ]
         }
       ]
@@ -717,17 +719,17 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -735,18 +737,18 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            // pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.actions(context),
-            pfConfigurationPortalModuleFields.multi_source_ids(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            // viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.actions(form, meta),
+            viewFields.multi_source_ids(form, meta)
           ]
         }
       ]
@@ -754,16 +756,16 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -780,18 +782,18 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.landing_template(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.landing_template(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -799,19 +801,19 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            // pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.username(context),
-            pfConfigurationPortalModuleFields.actions(context),
-            pfConfigurationPortalModuleFields.multi_source_ids(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            // viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.username(form, meta),
+            viewFields.actions(form, meta),
+            viewFields.multi_source_ids(form, meta)
           ]
         }
       ]
@@ -819,17 +821,17 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -837,17 +839,17 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -855,18 +857,18 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.pid_field(context),
-            pfConfigurationPortalModuleFields.source_id(context),
-            pfConfigurationPortalModuleFields.custom_fields(context),
-            pfConfigurationPortalModuleFields.fields_to_save(context),
-            pfConfigurationPortalModuleFields.with_aup(context),
-            pfConfigurationPortalModuleFields.aup_template(context),
-            pfConfigurationPortalModuleFields.signup_template(context),
-            pfConfigurationPortalModuleFields.forced_sponsor(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.pid_field(form, meta),
+            viewFields.source_id(form, meta),
+            viewFields.custom_fields(form, meta),
+            viewFields.fields_to_save(form, meta),
+            viewFields.with_aup(form, meta),
+            viewFields.aup_template(form, meta),
+            viewFields.signup_template(form, meta),
+            viewFields.forced_sponsor(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -874,11 +876,11 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.stone_roles(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.stone_roles(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -886,13 +888,13 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.message(context),
-            pfConfigurationPortalModuleFields.template(context),
-            pfConfigurationPortalModuleFields.skipable(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.message(form, meta),
+            viewFields.template(form, meta),
+            viewFields.skipable(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -900,11 +902,11 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.skipable(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.skipable(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -912,10 +914,10 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.modules(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.modules(form, meta)
           ]
         }
       ]
@@ -923,13 +925,13 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.admin_role(context),
-            pfConfigurationPortalModuleFields.list_role(context),
-            pfConfigurationPortalModuleFields.template(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.admin_role(form, meta),
+            viewFields.list_role(form, meta),
+            viewFields.template(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -937,12 +939,12 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.template(context),
-            pfConfigurationPortalModuleFields.skipable(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.template(form, meta),
+            viewFields.skipable(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -950,13 +952,13 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.ssl_path(context),
-            pfConfigurationPortalModuleFields.ssl_mobileconfig_path(context),
-            pfConfigurationPortalModuleFields.skipable(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.ssl_path(form, meta),
+            viewFields.ssl_mobileconfig_path(form, meta),
+            viewFields.skipable(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -964,12 +966,12 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.survey_id(context),
-            pfConfigurationPortalModuleFields.template(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.survey_id(form, meta),
+            viewFields.template(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
@@ -977,16 +979,401 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
-            pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context),
-            pfConfigurationPortalModuleFields.skipable(context),
-            pfConfigurationPortalModuleFields.url(context),
-            pfConfigurationPortalModuleFields.actions(context)
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.skipable(form, meta),
+            viewFields.url(form, meta),
+            viewFields.actions(form, meta)
           ]
         }
       ]
     default:
       return [{}]
+  }
+}
+
+export const validatorFields = {
+  id: (form = {}, meta = {}) => {
+    const {
+      isNew = false,
+      isClone = false
+    } = meta
+    return {
+      id: {
+        ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+        ...{
+          [i18n.t('Portal module exists.')]: not(and(required, conditional(isNew || isClone), hasPortalModules, portalModuleExists))
+        }
+      }
+    }
+  },
+  actions: (form = {}, meta = {}) => {
+    const {
+      actions = []
+    } = form
+    return {
+      actions: {
+        $each: {
+          type: {
+            [i18n.t('Action required.')]: required,
+            [i18n.t('Duplicate action.')]: conditional((value) => !(actions.filter(action => action && action.type === value).length > 1))
+          },
+          value: {
+            [i18n.t('Value required.')]: required
+          }
+        }
+      }
+    }
+  },
+  admin_role: (form = {}, meta = {}) => {
+    return { admin_role: pfConfigurationValidatorsFromMeta(meta, 'admin_role', i18n.t('Role')) }
+  },
+  aup_template: (form = {}, meta = {}) => {
+    return { aup_template: pfConfigurationValidatorsFromMeta(meta, 'aup_template', i18n.t('Template')) }
+  },
+  custom_fields: (form = {}, meta = {}) => {
+    return { custom_fields: pfConfigurationValidatorsFromMeta(meta, 'custom_fields', i18n.t('Fields')) }
+  },
+  description: (form = {}, meta = {}) => {
+    return { description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')) }
+  },
+  fields_to_save: (form = {}, meta = {}) => {
+    return { fields_to_save: pfConfigurationValidatorsFromMeta(meta, 'fields_to_save', i18n.t('Fields')) }
+  },
+  forced_sponsor: (form = {}, meta = {}) => {
+    return { forced_sponsor: pfConfigurationValidatorsFromMeta(meta, 'forced_sponsor', i18n.t('Email')) }
+  },
+  landing_template: (form = {}, meta = {}) => {
+    return { landing_template: pfConfigurationValidatorsFromMeta(meta, 'landing_template', i18n.t('Template')) }
+  },
+  list_role: (form = {}, meta = {}) => {
+    return { list_role: pfConfigurationValidatorsFromMeta(meta, 'list_role', i18n.t('Role')) }
+  },
+  message: (form = {}, meta = {}) => {
+    return { message: pfConfigurationValidatorsFromMeta(meta, 'message', i18n.t('Message')) }
+  },
+  modules: (form = {}, meta = {}) => {
+    const {
+      modules = []
+    } = form
+    return {
+      modules: {
+        $each: {
+          ...pfConfigurationValidatorsFromMeta(meta, 'modules', i18n.t('Module')),
+          ...{
+            [i18n.t('Module required.')]: required,
+            [i18n.t('Duplicate module.')]: conditional((value) => !(modules.filter(v => v === value).length > 1))
+          }
+        }
+      }
+    }
+  },
+  multi_source_ids: (form = {}, meta = {}) => {
+    const {
+      multi_source_ids = []
+    } = form
+    return {
+      multi_source_ids: {
+        $each: {
+          ...pfConfigurationValidatorsFromMeta(meta, 'multi_source_ids', i18n.t('Source')),
+          ...{
+            [i18n.t('Source required.')]: required,
+            [i18n.t('Duplicate source.')]: conditional((value) => !(multi_source_ids.filter(v => v === value).length > 1))
+          }
+        }
+      }
+    }
+  },
+  multi_source_auth_classes: (form = {}, meta = {}) => {
+    return { multi_source_auth_classes: pfConfigurationValidatorsFromMeta(meta, 'multi_source_auth_classes', i18n.t('Classes')) }
+  },
+  multi_source_object_classes: (form = {}, meta = {}) => {
+    return { multi_source_object_classes: pfConfigurationValidatorsFromMeta(meta, 'multi_source_object_classes', i18n.t('Classes')) }
+  },
+  multi_source_types: (form = {}, meta = {}) => {
+    return { multi_source_types: pfConfigurationValidatorsFromMeta(meta, 'multi_source_types', i18n.t('Types')) }
+  },
+  pid_field: (form = {}, meta = {}) => {
+    return { pid_field: pfConfigurationValidatorsFromMeta(meta, 'pid_field', 'PID') }
+  },
+  show_first_module_on_default: (form = {}, meta = {}) => {},
+  signup_template: (form = {}, meta = {}) => {
+    return { signup_template: pfConfigurationValidatorsFromMeta(meta, 'signup_template', 'Template') }
+  },
+  skipable: (form = {}, meta = {}) => {},
+  source_id: (form = {}, meta = {}) => {},
+  ssl_mobileconfig_path: (form = {}, meta = {}) => {
+    return { ssl_mobileconfig_path: pfConfigurationValidatorsFromMeta(meta, 'ssl_mobileconfig_path', 'SSL iOS profile URL') }
+  },
+  ssl_path: (form = {}, meta = {}) => {
+    return { ssl_path: pfConfigurationValidatorsFromMeta(meta, 'ssl_path', 'SSL Certificate URL') }
+  },
+  stone_roles: (form = {}, meta = {}) => {
+    return { stone_roles: pfConfigurationValidatorsFromMeta(meta, 'stone_roles', i18n.t('Role')) }
+  },
+  survey_id: (form = {}, meta = {}) => {
+    return { survey_id: pfConfigurationValidatorsFromMeta(meta, 'survey_id', i18n.t('Survey')) }
+  },
+  template: (form = {}, meta = {}) => {
+    return { template: pfConfigurationValidatorsFromMeta(meta, 'template', 'Template') }
+  },
+  url: (form = {}, meta = {}) => {
+    return { url: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL') }
+  },
+  username: (form = {}, meta = {}) => {
+    return { username: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username') }
+  },
+  with_aup: (form = {}, meta = {}) => {}
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    moduleType = null
+  } = meta
+  switch (moduleType) {
+    case 'Choice':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.show_first_module_on_default(form, meta),
+        ...validatorFields.template(form, meta),
+        ...validatorFields.actions(form, meta),
+        ...validatorFields.modules(form, meta)
+      }
+    case 'Chained':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.actions(form, meta),
+        ...validatorFields.modules(form, meta)
+      }
+    case 'Authentication::Billing':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        // ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.multi_source_ids(form, meta)
+      }
+    case 'Authentication::Blackhole':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.template(form, meta)
+      }
+    case 'Authentication::Choice':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        // ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.template(form, meta),
+        ...validatorFields.actions(form, meta),
+        ...validatorFields.modules(form, meta),
+        ...validatorFields.multi_source_ids(form, meta),
+        ...validatorFields.multi_source_object_classes(form, meta),
+        ...validatorFields.multi_source_types(form, meta),
+        ...validatorFields.multi_source_auth_classes(form, meta)
+      }
+    case 'Authentication::Email':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Authentication::Login':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        // ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.actions(form, meta),
+        ...validatorFields.multi_source_ids(form, meta)
+      }
+    case 'Authentication::Null':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    // "Authentication::OAuth"
+    case 'Authentication::OAuth::Facebook':
+    case 'Authentication::OAuth::Github':
+    case 'Authentication::OAuth::Google':
+    case 'Authentication::OAuth::Instagram':
+    case 'Authentication::OAuth::LinkedIn':
+    case 'Authentication::OAuth::OpenID':
+    case 'Authentication::OAuth::Pinterest':
+    case 'Authentication::OAuth::Twitter':
+    case 'Authentication::OAuth::WindowsLive':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.landing_template(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Authentication::Password':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        // ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.username(form, meta),
+        ...validatorFields.actions(form, meta),
+        ...validatorFields.multi_source_ids(form, meta)
+      }
+    case 'Authentication::SAML':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Authentication::SMS':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Authentication::Sponsor':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.pid_field(form, meta),
+        ...validatorFields.source_id(form, meta),
+        ...validatorFields.custom_fields(form, meta),
+        ...validatorFields.fields_to_save(form, meta),
+        ...validatorFields.with_aup(form, meta),
+        ...validatorFields.aup_template(form, meta),
+        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.forced_sponsor(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'FixedRole':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.stone_roles(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Message':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.message(form, meta),
+        ...validatorFields.template(form, meta),
+        ...validatorFields.skipable(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Provisioning':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.skipable(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Root':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.modules(form, meta)
+      }
+    case 'SelectRole':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.admin_role(form, meta),
+        ...validatorFields.list_role(form, meta),
+        ...validatorFields.template(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'ShowLocalAccount':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.template(form, meta),
+        ...validatorFields.skipable(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'SSL_Inspection':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.ssl_path(form, meta),
+        ...validatorFields.ssl_mobileconfig_path(form, meta),
+        ...validatorFields.skipable(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'Survey':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.survey_id(form, meta),
+        ...validatorFields.template(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    case 'URL':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.skipable(form, meta),
+        ...validatorFields.url(form, meta),
+        ...validatorFields.actions(form, meta)
+      }
+    default:
+      return {}
   }
 }

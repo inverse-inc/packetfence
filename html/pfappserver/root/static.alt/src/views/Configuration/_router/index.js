@@ -1430,20 +1430,29 @@ const route = {
       path: 'portal_modules',
       name: 'portal_modules',
       component: PortalModulesList,
-      props: (route) => ({ storeName: '$_portalmodules', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'portal_modules/new/:moduleType',
       name: 'newPortalModule',
       component: PortalModuleView,
-      props: (route) => ({ storeName: '$_portalmodules', isNew: true, moduleType: route.params.moduleType })
+      props: (route) => ({ formStoreName: 'formPortalModule', isNew: true, moduleType: route.params.moduleType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPortalModule) { // Register store module only once
+          store.registerModule('formPortalModule', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'portal_module/:id',
       name: 'portal_module',
       component: PortalModuleView,
-      props: (route) => ({ storeName: '$_portalmodules', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formPortalModule', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formPortalModule) { // Register store module only once
+          store.registerModule('formPortalModule', FormStore)
+        }
         store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
           next()
         })
@@ -1453,8 +1462,11 @@ const route = {
       path: 'portal_module/:id/clone',
       name: 'clonePortalModule',
       component: PortalModuleView,
-      props: (route) => ({ storeName: '$_portalmodules', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formPortalModule', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formPortalModule) { // Register store module only once
+          store.registerModule('formPortalModule', FormStore)
+        }
         store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
           next()
         })
