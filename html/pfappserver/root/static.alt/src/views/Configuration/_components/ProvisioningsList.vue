@@ -49,9 +49,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationProvisioningListConfig as config
-} from '@/globals/configuration/pfConfigurationProvisionings'
+import { config } from '../_config/provisioning'
 
 export default {
   name: 'provisionings-list',
@@ -60,13 +58,6 @@ export default {
     pfButtonHelp,
     pfConfigList,
     pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -78,7 +69,7 @@ export default {
       this.$router.push({ name: 'cloneProvisioning', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteProvisioning`, item.id).then(response => {
+      this.$store.dispatch('$_provisionings/deleteProvisioning', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

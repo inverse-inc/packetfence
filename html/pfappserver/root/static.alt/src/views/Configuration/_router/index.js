@@ -1396,20 +1396,29 @@ const route = {
       path: 'provisionings',
       name: 'provisionings',
       component: ProvisioningsList,
-      props: (route) => ({ storeName: '$_provisionings', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'provisionings/new/:provisioningType',
       name: 'newProvisioning',
       component: ProvisioningView,
-      props: (route) => ({ storeName: '$_provisionings', isNew: true, provisioningType: route.params.provisioningType })
+      props: (route) => ({ formStoreName: 'formProvisioning', isNew: true, provisioningType: route.params.provisioningType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formProvisioning) { // Register store module only once
+          store.registerModule('formProvisioning', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'provisioning/:id',
       name: 'provisioning',
       component: ProvisioningView,
-      props: (route) => ({ storeName: '$_provisionings', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formProvisioning', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formProvisioning) { // Register store module only once
+          store.registerModule('formProvisioning', FormStore)
+        }
         store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })
@@ -1419,8 +1428,11 @@ const route = {
       path: 'provisioning/:id/clone',
       name: 'cloneProvisioning',
       component: ProvisioningView,
-      props: (route) => ({ storeName: '$_provisionings', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formProvisioning', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formProvisioning) { // Register store module only once
+          store.registerModule('formProvisioning', FormStore)
+        }
         store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })
