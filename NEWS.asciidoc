@@ -20,7 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* Don't try to do firewall sso if the service is disabled
 
 Bug Fixes
 +++++++++
