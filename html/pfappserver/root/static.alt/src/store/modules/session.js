@@ -187,7 +187,7 @@ const actions = {
             state.loginPromise = null
           }
         } else {
-          const err = { response: { data: { message: i18n.t(`You don't have enough privileges to login`) }}}
+          const err = { response: { data: { message: i18n.t(`You don't have enough privileges to login`) } } }
           dispatch('delete')
           commit('LOGIN_ERROR', err.response)
           throw err

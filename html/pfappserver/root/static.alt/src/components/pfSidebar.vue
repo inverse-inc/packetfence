@@ -178,7 +178,7 @@ export default {
   },
   watch: {
     '$route': {
-      handler: function (to, from) {
+      handler: function () {
         this.findActiveSections(this.value, [])
       },
       immediate: true
