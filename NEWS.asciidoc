@@ -26,6 +26,9 @@ Bug Fixes
 +++++++++
 * Fix `pfstats` for LDAPS and StartTLS
 * Allow to run any script from a security event without a modification of sudoers file
+* Fix machine auth failed on eduroam virtual server.
+* Fix allow external radius accounting from eduroam server (they use it to detect if a server is alive)
+* Fix eduroam load-balancing issue on local realm.
 
 Version 9.2.0 released on 2019-11-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
