@@ -237,20 +237,29 @@ const route = {
       path: 'roles',
       name: 'roles',
       component: RolesList,
-      props: (route) => ({ storeName: '$_roles', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'roles/new',
       name: 'newRole',
       component: RoleView,
-      props: () => ({ storeName: '$_roles', isNew: true })
+      props: () => ({ formStoreName: 'formRole', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRole) { // Register store module only once
+          store.registerModule('formRole', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'role/:id',
       name: 'role',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRole', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formRole) { // Register store module only once
+          store.registerModule('formRole', FormStore)
+        }
         store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
@@ -260,8 +269,11 @@ const route = {
       path: 'role/:id/clone',
       name: 'cloneRole',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRole', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formRole) { // Register store module only once
+          store.registerModule('formRole', FormStore)
+        }
         store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
