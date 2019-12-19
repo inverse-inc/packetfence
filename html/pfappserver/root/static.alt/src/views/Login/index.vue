@@ -8,13 +8,11 @@
 </template>
 
 <script>
-import pfButtonSave from '@/components/pfButtonSave'
 import pfFormLogin from '@/components/pfFormLogin'
 
 export default {
   name: 'Login',
   components: {
-    pfButtonSave,
     pfFormLogin
   },
   methods: {
