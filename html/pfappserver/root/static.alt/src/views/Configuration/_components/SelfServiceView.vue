@@ -82,7 +82,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/database
+      return view(this.form, this.meta) // ../_config/selfService
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]

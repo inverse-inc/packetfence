@@ -1781,7 +1781,13 @@ const route = {
       path: 'snmp_traps',
       name: 'snmp_traps',
       component: SnmpTrapView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formSnmpTrap', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSnmpTrap) { // Register store module only once
+          store.registerModule('formSnmpTrap', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'certificates',
