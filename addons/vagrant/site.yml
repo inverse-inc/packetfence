@@ -27,15 +27,9 @@
   become: True
   collections:
     - inverse_inc.packetfence
-    - debops.debops
 
   # search roles in collections
   roles:
-
-    # inject environment variables for unit tests only for 'dev' servers
-    - role: environment
-      when: "'dev' in group_names"
-      tags: env
 
     - role: packetfence_common
       tags: install
@@ -62,11 +56,26 @@
       when: site_register_iptables_rule is changed
       tags: vagrant
 
+- hosts: dev
+  name: configure environment for tests
+  become: True
+  collections:
+    - debops.debops
+
+  roles:
+
+    # inject environment variables here to not conflict with install
+    - role: environment
+      tags: env
+
+  tasks:
+
     # will install Golang version detected in Golang binaries
     - name: configure golang environment
       script: ../dev-helpers/setup-go-env.sh
       args:
         creates: /usr/local/go/bin/go
+      tags: go
 
 - hosts: dev
   name: install additionnal stuff for dev machines
