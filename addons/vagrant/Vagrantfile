@@ -111,8 +111,8 @@ Vagrant.configure("2") do |pfservers|
       srv.vm.provision "run-unit-tests", type: "shell", run:"never" do |config|
         config.path = "../../ci/lib/install/run-unit-tests.sh"
         config.env = {
-          PERL_TESTS: "ENV['PERL_TESTS'] || yes",
-          GOLANG_TESTS: "ENV['GOLANG_TESTS'] || yes"
+          PERL_TESTS: ENV['PERL_TESTS'] || "yes",
+          GOLANG_TESTS: ENV['GOLANG_TESTS'] || "yes"
         }
       end
     end
