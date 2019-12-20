@@ -16,6 +16,11 @@ with 'pfappserver::Base::Form::Role::Help';
 use pfappserver::Form::Field::DynamicList;
 use pf::log;
 
+has_field '+type' =>
+  (
+   default => 'regex',
+  );
+
 =head2 rules
 
 The list of rule
