@@ -1066,20 +1066,29 @@ const route = {
       path: 'security_events',
       name: 'security_events',
       component: SecurityEventsList,
-      props: (route) => ({ storeName: '$_security_events', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'security_events/new',
       name: 'newSecurityEvent',
       component: SecurityEventView,
-      props: () => ({ storeName: '$_security_events', isNew: true })
+      props: () => ({ formStoreName: 'formSecurityEvent', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSecurityEvent) { // Register store module only once
+          store.registerModule('formSecurityEvent', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'security_event/:id',
       name: 'security_event',
       component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSecurityEvent', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSecurityEvent) { // Register store module only once
+          store.registerModule('formSecurityEvent', FormStore)
+        }
         store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
@@ -1089,8 +1098,11 @@ const route = {
       path: 'security_event/:id/clone',
       name: 'cloneSecurityEvent',
       component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSecurityEvent', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSecurityEvent) { // Register store module only once
+          store.registerModule('formSecurityEvent', FormStore)
+        }
         store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
@@ -1512,20 +1524,29 @@ const route = {
       path: 'self_services',
       name: 'self_services',
       component: SelfServicesList,
-      props: (route) => ({ storeName: '$_self_services', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'self_services/new',
       name: 'newSelfService',
       component: SelfServiceView,
-      props: () => ({ storeName: '$_self_services', isNew: true })
+      props: () => ({ formStoreName: 'formSelfService', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSelfService) { // Register store module only once
+          store.registerModule('formSelfService', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'self_service/:id',
       name: 'self_service',
       component: SelfServiceView,
-      props: (route) => ({ storeName: '$_self_services', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSelfService', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSelfService) { // Register store module only once
+          store.registerModule('formSelfService', FormStore)
+        }
         store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })
@@ -1535,8 +1556,11 @@ const route = {
       path: 'self_service/:id/clone',
       name: 'cloneSelfService',
       component: SelfServiceView,
-      props: (route) => ({ storeName: '$_self_services', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSelfService', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSelfService) { // Register store module only once
+          store.registerModule('formSelfService', FormStore)
+        }
         store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })

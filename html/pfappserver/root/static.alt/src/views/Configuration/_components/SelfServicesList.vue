@@ -33,9 +33,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationSelfServicesListConfig as config
-} from '@/globals/configuration/pfConfigurationSelfServices'
+import { config } from '../_config/selfService'
 
 export default {
   name: 'self-services-list',
@@ -44,13 +42,6 @@ export default {
     pfButtonHelp,
     pfConfigList,
     pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -62,7 +53,7 @@ export default {
       this.$router.push({ name: 'cloneSelfService', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSelfService`, item.id).then(response => {
+      this.$store.dispatch('$_self_services/deleteSelfService', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

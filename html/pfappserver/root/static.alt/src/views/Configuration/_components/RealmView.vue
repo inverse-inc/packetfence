@@ -121,8 +121,8 @@ export default {
         } else { // new
           this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
         }
-        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
       })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'realms' })

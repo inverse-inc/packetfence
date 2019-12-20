@@ -13,12 +13,11 @@ import {
   hasSelfServices,
   selfServiceExists
 } from '@/globals/pfValidators'
-
-const {
+import {
   required
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
-export const pfConfigurationSelfServicesListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -39,7 +38,7 @@ export const pfConfigurationSelfServicesListColumns = [
   }
 ]
 
-export const pfConfigurationSelfServicesListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -52,15 +51,14 @@ export const pfConfigurationSelfServicesListFields = [
   }
 ]
 
-export const pfConfigurationSelfServicesListConfig = (context = {}) => {
-  const { $i18n } = context
+export const config = (context = {}) => {
   return {
-    columns: pfConfigurationSelfServicesListColumns,
-    fields: pfConfigurationSelfServicesListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'self_service', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/self_services',
       defaultSortKeys: ['id'],
@@ -93,34 +91,25 @@ export const pfConfigurationSelfServicesListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationSelfServiceViewFields = (context = {}) => {
+export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
-    options: {
-      meta = {}
-    }
-  } = context
+    isClone = false
+  } = meta
   return [
     {
       tab: null, // ignore tabs
-      fields: [
+      rows: [
         {
           label: i18n.t('Profile Name'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
-                ...{
-                  [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasSelfServices, selfServiceExists))
                 }
               }
             }
@@ -128,12 +117,11 @@ export const pfConfigurationSelfServiceViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Description'),
-          fields: [
+          cols: [
             {
-              key: 'description',
+              namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'description')
             }
           ]
         },
@@ -141,12 +129,11 @@ export const pfConfigurationSelfServiceViewFields = (context = {}) => {
         {
           label: i18n.t('Allowed roles'),
           text: i18n.t('The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.'),
-          fields: [
+          cols: [
             {
-              key: 'roles_allowed_to_unregister',
+              namespace: 'roles_allowed_to_unregister',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'roles_allowed_to_unregister'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'roles_allowed_to_unregister', i18n.t('Allowed roles'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'roles_allowed_to_unregister')
             }
           ]
         },
@@ -154,46 +141,65 @@ export const pfConfigurationSelfServiceViewFields = (context = {}) => {
         {
           label: i18n.t('Role to assign'),
           text: i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.'),
-          fields: [
+          cols: [
             {
-              key: 'device_registration_role',
+              namespace: 'device_registration_role',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_role'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_role', i18n.t('Role to assign'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_role')
             }
           ]
         },
         {
           label: i18n.t('Access duration to assign'),
           text: i18n.t(`The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.`),
-          fields: [
+          cols: [
             {
-              key: 'device_registration_access_duration.interval',
+              namespace: 'device_registration_access_duration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.interval', i18n.t('Interval'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.interval')
             },
             {
-              key: 'device_registration_access_duration.unit',
+              namespace: 'device_registration_access_duration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.unit', i18n.t('Unit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.unit')
             }
           ]
         },
         {
           label: i18n.t('Allowed OS'),
           text: i18n.t('List of OS which will be allowed to be register via the self service portal.'),
-          fields: [
+          cols: [
             {
-              key: 'device_registration_allowed_devices',
+              namespace: 'device_registration_allowed_devices',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_allowed_devices'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_allowed_devices', 'OS')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_allowed_devices')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...{
+        [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasSelfServices, selfServiceExists))
+      }
+    },
+    description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
+    roles_allowed_to_unregister: pfConfigurationValidatorsFromMeta(meta, 'roles_allowed_to_unregister', i18n.t('Allowed roles')),
+    device_registration_role: pfConfigurationValidatorsFromMeta(meta, 'device_registration_role', i18n.t('Role to assign')),
+    device_registration_access_duration: {
+      interval: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.interval', i18n.t('Interval')),
+      unit: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.unit', i18n.t('Unit'))
+    },
+    device_registration_allowed_devices: pfConfigurationValidatorsFromMeta(meta, 'device_registration_allowed_devices', 'OS')
+  }
 }
