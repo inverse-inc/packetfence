@@ -30,6 +30,7 @@ has_field 'domain' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'wmi',
   );
 
 has_block definition =>

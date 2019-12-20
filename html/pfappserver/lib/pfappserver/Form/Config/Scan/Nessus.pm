@@ -37,6 +37,7 @@ has_field 'port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'nessus',
   );
 
 has_block definition =>

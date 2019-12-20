@@ -24,6 +24,7 @@ use File::Find qw(find);
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'rapid7',
   );
 
 has_field 'host' =>
