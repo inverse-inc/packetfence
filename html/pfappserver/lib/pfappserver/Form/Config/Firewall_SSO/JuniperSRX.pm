@@ -55,6 +55,7 @@ has_block definition =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'JuniperSRX',
   );
 
 =over

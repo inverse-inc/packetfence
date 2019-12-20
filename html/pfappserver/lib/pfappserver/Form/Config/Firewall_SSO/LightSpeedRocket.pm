@@ -13,6 +13,13 @@ Form definition to create or update a LightSpeedRocket Web Filtering Gateway.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Firewall_SSO::FortiGate';
 
+has_field 'type' =>
+  (
+   type => 'Hidden',
+   default => 'LightSpeedRocket',
+  );
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2019 Inverse inc.

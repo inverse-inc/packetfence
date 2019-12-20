@@ -30,6 +30,7 @@ has_field '+password' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'FamilyZone',
   );
 
 has_field 'deviceid' =>

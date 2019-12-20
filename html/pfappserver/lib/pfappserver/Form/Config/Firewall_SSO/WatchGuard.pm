@@ -25,6 +25,7 @@ has_field '+port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'WatchGuard',
   );
 
 has_block definition =>

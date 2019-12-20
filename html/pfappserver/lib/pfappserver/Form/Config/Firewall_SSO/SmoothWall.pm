@@ -13,6 +13,12 @@ Form definition to create or update a SmoothWall firewall.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Firewall_SSO::FortiGate';
 
+has_field 'type' =>
+  (
+   type => 'Hidden',
+   default => 'SmoothWall',
+  );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2019 Inverse inc.

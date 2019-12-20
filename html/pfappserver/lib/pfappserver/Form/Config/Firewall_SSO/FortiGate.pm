@@ -25,6 +25,7 @@ has_field '+port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'FortiGate',
   );
 
 has_block definition =>

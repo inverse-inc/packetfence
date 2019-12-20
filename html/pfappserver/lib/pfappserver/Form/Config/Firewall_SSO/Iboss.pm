@@ -39,6 +39,7 @@ has_field 'nac_name' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'Iboss',
   );
 
 has_block definition =>

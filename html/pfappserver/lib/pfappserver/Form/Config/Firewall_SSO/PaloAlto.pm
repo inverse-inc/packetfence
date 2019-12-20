@@ -45,6 +45,7 @@ has_field '+port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'PaloAlto',
   );
 
 has_field 'vsys' =>
