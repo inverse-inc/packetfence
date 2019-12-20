@@ -59,6 +59,8 @@ variables:
   dependencies:
     - build_maintenance_centos_7
     - build_maintenance_debian_stretch
+  tags:
+    - shell
 
 .maintenance_deploy_job:
   stage: upload
