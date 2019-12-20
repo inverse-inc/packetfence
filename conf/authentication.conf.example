@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [local]
 description=Local Users
 type=SQL

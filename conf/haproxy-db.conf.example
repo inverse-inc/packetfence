@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 global
   external-check
   user haproxy

@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # -*- text -*-
 ##
 ##  eap.conf -- Configuration for EAP types (PEAP, TTLS, etc.)

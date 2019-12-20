@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [default_policy]
 description=Default portal policy
 type=Root

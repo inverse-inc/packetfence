@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 ### pfdhcplistener logger ###
 log4perl.rootLogger = INFO, PFDHCPLISTENER
 

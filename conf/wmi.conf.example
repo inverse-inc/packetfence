@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Detect installed software and trigger a security event
 [Software_Installed]
 namespace=ROOT\cimv2

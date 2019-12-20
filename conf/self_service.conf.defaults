@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [default]
 description=default
 device_registration_allowed_devices=

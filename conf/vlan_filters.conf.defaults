@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # defaults PacketFence's rules for PacketFence
 
 # This rules are predefined in PacketFence and disconnect device that coming from a secure connection to an open one.
