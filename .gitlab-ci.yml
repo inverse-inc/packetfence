@@ -1,0 +1,127 @@
+---
+################################################################################
+# COMMON PARAMETERS
+################################################################################
+before_script:
+  - unset http_proxy ; unset https_proxy
+  - env | grep ^CI_
+
+################################################################################
+# STAGES
+################################################################################
+stages:
+  - build_maintenance
+  - sign
+  - upload
+
+################################################################################
+# VARIABLES
+################################################################################
+variables:
+  PFBUILD_CENTOS_7_IMG: inverseinc/pfbuild-centos-7
+  PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-stretch
+  CILIBDIR: ci/lib
+  MAINTDIR: $CILIBDIR/maintenance
+  UPLOAD_DIR: $CILIBDIR/upload
+  PUBLIC_REPO_URL: http://packetfence.org/downloads/PacketFence
+
+################################################################################
+# TEMPLATES
+################################################################################
+
+########################################
+# TRIGGERS
+########################################
+# triggers for maintenance jobs
+.job_maintenance_triggers:
+  # run job on maintenance branches (push, schedules and web)
+  only:
+    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
+
+########################################    
+# JOBS
+########################################
+.maintenance_build_job:
+  stage: build_maintenance
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  tags:
+    - docker
+
+.maintenance_sign_job:
+  stage: sign
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  dependencies:
+    - build_maintenance_centos_7
+    - build_maintenance_debian_stretch
+
+.maintenance_deploy_job:
+  stage: upload
+  dependencies:
+    - sign_maintenance
+  variables:
+    DEPLOY_USER: reposync
+    DEPLOY_HOST: web.inverse.ca
+    MAINT_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
+  script:
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh maintenance
+  tags:
+    - shell
+    
+.maintenance_build_script:
+  script:
+    - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh build_old
+
+.maintenance_sign_script:
+  script:
+    - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
+
+
+################################################################################
+# STAGES
+################################################################################
+
+########################################
+# BUILD_MAINTENANCE JOBS
+########################################
+# CI_COMMIT_REF_SLUG contains maintenance-X-Y
+build_maintenance_centos_7:
+  image: ${PFBUILD_CENTOS_7_IMG}:go1.9.3
+  extends:
+    - .maintenance_build_job
+    - .maintenance_build_script
+    - .job_maintenance_triggers
+
+build_maintenance_debian_stretch:
+  image: ${PFBUILD_DEB_STRETCH_IMG}:go1.9.3
+  extends:
+    - .maintenance_build_job
+    - .maintenance_build_script
+    - .job_maintenance_triggers
+
+########################################
+# SIGN JOBS
+########################################
+sign_maintenance:
+  # GPG_USER_ID see GitLab variable
+  extends:
+    - .maintenance_sign_job
+    - .maintenance_sign_script
+    - .job_maintenance_triggers
+
+########################################
+# UPLOAD JOBS
+########################################
+# we deploy artifacts for all distributions in one shot
+deploy_maintenance:
+  extends:
+    - .maintenance_deploy_job
+    - .job_maintenance_triggers
+  environment:
+    name: maintenance
+    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
