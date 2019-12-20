@@ -62,6 +62,12 @@
       when: site_register_iptables_rule is changed
       tags: vagrant
 
+    # will install Golang version detected in Golang binaries
+    - name: configure golang environment
+      script: ../dev-helpers/setup-go-env.sh
+      args:
+        creates: /usr/local/go/bin/go
+
 - hosts: dev
   name: install additionnal stuff for dev machines
   become: True
