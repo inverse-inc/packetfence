@@ -6,22 +6,17 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
-export const pfConfigurationServiceViewFields = (context = {}) => {
-  const {
-    options: {
-      meta = {}
-    }
-  } = context
+export const view = (form = {}, meta = {}) => {
   return [
     {
       tab: null,
-      fields: [
+      rows: [
         {
           label: 'api-frontend',
           text: i18n.t('Should api-frontend be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'api-frontend',
+              namespace: 'api-frontend',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -32,9 +27,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'fingerbank-collector',
           text: i18n.t('Should the fingerbank-collector be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'fingerbank-collector',
+              namespace: 'fingerbank-collector',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -45,9 +40,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'haproxy-db',
           text: i18n.t(`Should haproxy-db be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'haproxy-db',
+              namespace: 'haproxy-db',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -58,9 +53,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'haproxy-portal',
           text: i18n.t(`Should haproxy-portal be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'haproxy-portal',
+              namespace: 'haproxy-portal',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -71,9 +66,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.aaa',
           text: i18n.t(`Should httpd.aaa be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_aaa',
+              namespace: 'httpd_aaa',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -84,9 +79,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.admin',
           text: i18n.t(`Should httpd.admin be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_admin',
+              namespace: 'httpd_admin',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -97,9 +92,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.collector',
           text: i18n.t(`Should httpd.collector be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_collector',
+              namespace: 'httpd_collector',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -110,9 +105,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.dispatcher',
           text: i18n.t(`Should httpd.dispatcher be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_dispatcher',
+              namespace: 'httpd_dispatcher',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -123,9 +118,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.parking',
           text: i18n.t(`Should httpd.parking be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_parking',
+              namespace: 'httpd_parking',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -136,9 +131,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.portal',
           text: i18n.t(`Should httpd.portal be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_portal',
+              namespace: 'httpd_portal',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -149,9 +144,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.proxy',
           text: i18n.t(`Should httpd.proxy be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_proxy',
+              namespace: 'httpd_proxy',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -162,9 +157,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'httpd.webservices',
           text: i18n.t(`Should httpd.webservices be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'httpd_webservices',
+              namespace: 'httpd_webservices',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -175,9 +170,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'iptables',
           text: i18n.t(`Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'iptables',
+              namespace: 'iptables',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -188,9 +183,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'keepalived',
           text: i18n.t(`Should keepalived be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'keepalived',
+              namespace: 'keepalived',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -201,9 +196,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'netdata',
           text: i18n.t('Should netdata be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'netdata',
+              namespace: 'netdata',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -214,9 +209,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfbandwidthd',
           text: i18n.t('Should pfbandwidthd be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'pfbandwidthd',
+              namespace: 'pfbandwidthd',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -227,9 +222,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfdhcp',
           text: i18n.t('Should pfdhcp be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'pfdhcp',
+              namespace: 'pfdhcp',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -240,9 +235,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfdhcplistener',
           text: i18n.t(`Should pfdhcplistener be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'pfdhcplistener',
+              namespace: 'pfdhcplistener',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -253,21 +248,20 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: i18n.t('pfdhcplistener Packet Size'),
           text: i18n.t(`Set the max size of DHCP packetsDo not change unless you know what you are doing`),
-          fields: [
+          cols: [
             {
-              key: 'pfdhcplistener_packet_size',
+              namespace: 'pfdhcplistener_packet_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pfdhcplistener_packet_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pfdhcplistener_packet_size', i18n.t('Size'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pfdhcplistener_packet_size')
             }
           ]
         },
         {
           label: 'pfdns',
           text: i18n.t('Should pfdns be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'pfdns',
+              namespace: 'pfdns',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -278,9 +272,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pffilter',
           text: i18n.t('Should pffilter be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'pffilter',
+              namespace: 'pffilter',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -291,9 +285,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfipset',
           text: i18n.t('Should pfipset be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'pfipset',
+              namespace: 'pfipset',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -304,9 +298,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfmon',
           text: i18n.t(`Should pfmon be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'pfmon',
+              namespace: 'pfmon',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -317,9 +311,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfperl-api',
           text: i18n.t(`Should pfperl-api be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'pfperl-api',
+              namespace: 'pfperl-api',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -330,9 +324,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfqueue',
           text: i18n.t(`Should pfqueue be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'pfqueue',
+              namespace: 'pfqueue',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -343,9 +337,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfsso',
           text: i18n.t('Should pfsso be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'pfsso',
+              namespace: 'pfsso',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -356,9 +350,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'pfstats',
           text: i18n.t('Should pfstats be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'pfstats',
+              namespace: 'pfstats',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -369,9 +363,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'radiusd',
           text: i18n.t('Should radiusd be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'radiusd',
+              namespace: 'radiusd',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -382,9 +376,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'radsniff',
           text: i18n.t('Should radsniff be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'radsniff',
+              namespace: 'radsniff',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -395,9 +389,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'redis_cache',
           text: i18n.t(`Should Redis for caching be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'redis_cache',
+              namespace: 'redis_cache',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -408,9 +402,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'redis_ntlm_cache',
           text: i18n.t(`Should the Redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache.`),
-          fields: [
+          cols: [
             {
-              key: 'redis_ntlm_cache',
+              namespace: 'redis_ntlm_cache',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -421,9 +415,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'redis_queue',
           text: i18n.t(`Should Redis be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'redis_queue',
+              namespace: 'redis_queue',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -434,9 +428,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: i18n.t('routes'),
           text: i18n.t('Should routes be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'routes',
+              namespace: 'routes',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -447,9 +441,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'snmptrapd',
           text: i18n.t(`Should snmptrapd be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'snmptrapd',
+              namespace: 'snmptrapd',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -460,9 +454,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'tc',
           text: i18n.t('Should traffic shaping be managed by PacketFence?'),
-          fields: [
+          cols: [
             {
-              key: 'tc',
+              namespace: 'tc',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -473,9 +467,9 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         {
           label: 'winbindd',
           text: i18n.t(`Should winbindd be started? Keep enabled unless you know what you're doing.`),
-          fields: [
+          cols: [
             {
-              key: 'winbindd',
+              namespace: 'winbindd',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -486,4 +480,10 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  return {
+    pfdhcplistener_packet_size: pfConfigurationValidatorsFromMeta(meta, 'pfdhcplistener_packet_size', i18n.t('Size'))
+  }
 }
