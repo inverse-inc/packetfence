@@ -164,6 +164,7 @@ sub _deauthenticateMacWithHTTP {
     my $password = $self->{_wsPwd};
 
     my $site = 'default';
+    my $found = $FALSE;
 
     my $args = {
         mac => $mac,
@@ -212,10 +213,26 @@ sub _deauthenticateMacWithHTTP {
 
     $args->{ap_mac} = $self->{_id};
     foreach my $entry (@{$json_data->{'data'}}) {
-        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
+        $response = $ua->get("$base_url/api/s/$entry->{'name'}/stat/sta/$mac");
+        if ($response->is_success) {
+            $found = $TRUE;
+            $site = $entry->{'name'};
+            $logger->info("Found site: $entry->{'desc'}");
+            last;
+        }
+    }
+
+    if ($found) {
+        $response = $ua->post("$base_url/api/s/$site/cmd/stamgr", Content => encode_json($args));
         if ($response->is_success) {
             $logger->info("Deauth on site: $entry->{'desc'}");
-            last;
+        }
+    } else {
+        foreach my $entry (@{$json_data->{'data'}}) {
+            $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
+            if ($response->is_success) {
+                $logger->info("Deauth on site: $entry->{'desc'}");
+            }
         }
     }
 
