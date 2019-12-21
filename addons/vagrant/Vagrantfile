@@ -64,7 +64,7 @@ Vagrant.configure("2") do |pfservers|
   end
 
   # loop on **all** host(s) in pfservers group in inventory to create VM(s)
-  inventory['all']['children']['pfservers']['children'].each do |groups, hosts|
+  inventory['all']['children']['pfservers']['children']['stable_and_nightly']['children'].each do |groups, hosts|
     hosts['hosts'].each do |server, details|
       # don't start automatically virtual machines
       pfservers.vm.define server, autostart: false do |srv|

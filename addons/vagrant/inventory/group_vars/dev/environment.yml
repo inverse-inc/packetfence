@@ -11,3 +11,6 @@ environment__group_variables:
   # completely unsecure but it's only for short-lived virtual machines
   - name: 'MYSQL_PWD'
     value: "{{ packetfence_install__database_root_pass }}"
+
+  - name: 'GOPATH'
+    value: '$HOME/go'

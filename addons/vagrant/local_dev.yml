@@ -1,0 +1,16 @@
+---
+- hosts: dev
+  name: install additionnal stuff for dev machines
+  become: True
+  tags: build
+  collections:
+    - inverse_inc.packetfence
+
+  roles:
+    - role: geerlingguy.nodejs
+      vars:
+        nodejs_version: "10.x"
+      tags: nodejs
+      
+    - role: packetfence_dev
+      tags: dev
