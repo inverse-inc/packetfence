@@ -43,19 +43,21 @@ setup() {
     vagrant box update ${VAGRANT_BOX}
     vagrant up ${VAGRANT_BOX} --destroy-on-error
 
-    # keep machine on disk for further analysis
-    vagrant halt ${VAGRANT_BOX}
+    vagrant halt ${VM_NAME}
 }
 
 teardown() {
     delete_dir_if_exists ${VAGRANT_DIR}/roles
     delete_dir_if_exists ${VAGRANT_DIR}/collections
 
-    
-    # destroy all VM 
-    # using "|| true" as a workaround to unusual behavior
-    # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
-    ( cd $VAGRANT_DIR ; vagrant destroy -f || true )
+    if [ -z "${VM_NAME}" ]; then
+        # destroy all VM
+        # using "|| true" as a workaround to unusual behavior
+        # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
+        ( cd $VAGRANT_DIR ; vagrant destroy -f || true )
+    else
+        ( cd $VAGRANT_DIR ; vagrant destroy -f ${VM_NAME} )
+    fi
 
     delete_dir_if_exists ${VAGRANT_DIR}/.vagrant
 }

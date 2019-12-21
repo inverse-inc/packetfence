@@ -19,6 +19,8 @@ CI_COMMIT_TAG=vX.Y.Z
 .PHONY: all
 all: install-pfcen7dev-dev install-pfdeb9dev-dev install-pfcen7dev-release install-pfdeb9dev-release
 
+
+### Targets used in pipeline
 .PHONY: install-dev
 install-dev:
 	VAGRANT_BOX=$(VAGRANT_BOX) \
@@ -30,6 +32,13 @@ install-release:
 	VAGRANT_BOX=$(VAGRANT_BOX) \
 	./manage-vagrant-vm.sh setup
 
+.PHONY: clean
+clean:
+	VM_NAME=$(VM_NAME) \
+	./manage-vagrant-vm.sh teardown
+
+### Targets used for local tests
+# install
 .PHONY: install-pfcen7dev-dev
 install-pfcen7dev-dev:
 	make VAGRANT_BOX=pfcen7dev install-dev
@@ -46,6 +55,12 @@ install-pfcen7dev-release:
 install-pfdeb9dev-release:
 	make VAGRANT_BOX=pfdeb9dev install-release
 
-.PHONY: clean
-clean:
-	./manage-vagrant-vm.sh teardown
+# clean
+.PHONY: clean-pfcen7dev
+clean-pfcen7dev:
+	make VM_NAME=pfcen7dev clean
+
+.PHONY: clean-pfdeb9dev
+clean-pfdeb9dev:
+	make VM_NAME=pfdeb9dev clean
+
