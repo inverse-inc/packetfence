@@ -29,6 +29,7 @@ variables:
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
   MAINTDIR: $CILIBDIR/maintenance
+  INSTDIR: $CILIBDIR/install
   UPLOAD_DIR: $CILIBDIR/upload
   RPM_DIR: rpm
   DEB_DIR: debian
@@ -225,18 +226,10 @@ variables:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
 .install_script:
-  variables:
-    ANSIBLE_SKIP_TAGS: 'build'
-    # set VAGRANT_ANSIBLE_VERBOSE to true if you want debug
   script:
-    # temp: https://github.com/hashicorp/vagrant/issues/10958
-    - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
-    - cd ${VAGRANT_DIR}
-    - vagrant box update ${VAGRANT_BOX}
-    - vagrant up ${VAGRANT_BOX} --provider=libvirt --destroy-on-error
+    - make -C ${INSTDIR} install
   after_script:
-    - cd ${VAGRANT_DIR} ; vagrant destroy -f ${VAGRANT_BOX}
-    - rm -rf .vagrant/ roles/ collections/
+    - make -C ${INSTDIR} teardown
     
 
 ################################################################################
@@ -406,7 +399,7 @@ pages:
 ########################################
 install_pkg_dev_and_release_centos_7:
   variables:
-    VAGRANT_BOX: pfcen7dev
+    VM_NAME: pfcen7dev
   extends:
     - .install_job
     - .install_script
@@ -415,7 +408,8 @@ install_pkg_dev_and_release_centos_7:
 
 install_pkg_dev_and_release_debian_stretch:
   variables:
-    VAGRANT_BOX: pfdeb9dev
+    VM_NAME: pfdeb9dev
+    PERL_UNIT_TESTS: no
   extends:
     - .install_job
     - .install_script

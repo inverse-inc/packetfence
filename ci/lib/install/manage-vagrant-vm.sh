@@ -9,6 +9,7 @@ ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-yaml}
 VAGRANT_FORCE_COLOR=${VAGRANT_FORCE_COLOR:-true}
 VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
 VAGRANT_DIR=${VAGRANT_DIR:-../../../addons/vagrant}
+CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
 
 # set to yes when testing new features on collections
 LOCAL_COLLECTIONS=${LOCAL_COLLECTIONS:-no}
@@ -24,7 +25,8 @@ delete_dir_if_exists() {
 }
 
 setup() {
-    declare -p ANSIBLE_SKIP_TAGS VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_BOX
+    declare -p ANSIBLE_SKIP_TAGS VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VM_NAME
+    declare -p CI_COMMIT_TAG
     declare -p LOCAL_COLLECTIONS
     
     # export because ansible is run through vagrant and this variable will
@@ -40,8 +42,8 @@ setup() {
     cd ${VAGRANT_DIR}
 
     # always try to upgrade box before start
-    vagrant box update ${VAGRANT_BOX}
-    vagrant up ${VAGRANT_BOX} --destroy-on-error
+    vagrant box update ${VM_NAME}
+    vagrant up ${VM_NAME} --destroy-on-error
 
     vagrant halt ${VM_NAME}
 }
