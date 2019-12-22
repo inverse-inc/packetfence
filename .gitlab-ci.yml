@@ -15,7 +15,7 @@ stages:
   - build_maintenance
   - sign
   - publish
-  - install
+  - test
   - upload
   - post_upload
 
@@ -29,7 +29,7 @@ variables:
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
   MAINTDIR: $CILIBDIR/maintenance
-  INSTDIR: $CILIBDIR/install
+  INSTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
   RPM_DIR: rpm
   DEB_DIR: debian
@@ -132,8 +132,8 @@ variables:
   tags:
     - shell
 
-.install_job:
-  stage: install
+.test_job:
+  stage: test
   dependencies:
     - pages
   tags:
@@ -225,9 +225,9 @@ variables:
   script:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
-.install_script:
+.test_script:
   script:
-    - make -C ${INSTDIR} install
+    - make -C ${INSTDIR} test
   after_script:
     - make -C ${INSTDIR} teardown
     
@@ -395,24 +395,24 @@ pages:
     - .job_dev_and_release_triggers
 
 ########################################
-# INSTALL JOBS
+# TEST JOBS
 ########################################
-install_pkg_dev_and_release_centos_7:
+test_pkg_dev_and_release_centos_7:
   variables:
     VM_NAME: pfcen7dev
   extends:
-    - .install_job
-    - .install_script
+    - .test_job
+    - .test_script
     - .job_dev_and_release_triggers
   when: manual
 
-install_pkg_dev_and_release_debian_stretch:
+test_pkg_dev_and_release_debian_stretch:
   variables:
     VM_NAME: pfdeb9dev
     PERL_UNIT_TESTS: no
   extends:
-    - .install_job
-    - .install_script
+    - .test_job
+    - .test_script
     - .job_dev_and_release_triggers
   when: manual
     

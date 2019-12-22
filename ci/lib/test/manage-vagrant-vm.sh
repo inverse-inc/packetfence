@@ -1,7 +1,7 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-# Script to run 'install' stage of pipeline
+# Script to run 'test' stage of pipeline
 
 ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-true}
 ANSIBLE_SKIP_TAGS=${ANSIBLE_SKIP_TAGS:-}
