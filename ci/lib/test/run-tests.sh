@@ -9,6 +9,7 @@ GOLANG_UNIT_TESTS=${GOLANG_UNIT_TESTS:-yes}
 
 # display environment
 env | grep 'PF_'
+declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS
 
 # Copy 't' dir from sources to /usr/local/pf/t
 # /usr/local/pf is hardcoded everywhere in 't'

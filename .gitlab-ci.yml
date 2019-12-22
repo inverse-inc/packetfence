@@ -227,9 +227,9 @@ variables:
 
 .test_script:
   script:
-    - make -C ${INSTDIR} test
+    - make -e -C ${INSTDIR} test
   after_script:
-    - make -C ${INSTDIR} teardown
+    - make -e -C ${INSTDIR} teardown
     
 
 ################################################################################

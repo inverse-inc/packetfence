@@ -4,6 +4,8 @@ include ../../../config.mk
 # Specific variables
 #==============================================================================
 SHELL=/bin/bash
+PERL_UNIT_TESTS=yes
+GOLANG_UNIT_TESTS=yes
 
 #==============================================================================
 # Targets
@@ -21,6 +23,8 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 test:
 	CI_COMMIT_TAG=$(CI_COMMIT_TAG) \
 	VM_NAME=$(VM_NAME) \
+	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
+	GOLANG_UNIT_TESTS=$(GOLANG_UNIT_TESTS) \
 	./manage-vagrant-vm.sh setup
 
 .PHONY: clean
@@ -36,7 +40,9 @@ test-pfcen7dev-dev:
 
 .PHONY: test-pfdeb9dev-dev
 test-pfdeb9dev-dev:
-	make VM_NAME=pfdeb9dev test
+	make VM_NAME=pfdeb9dev \
+	PERL_UNIT_TESTS=no \
+	test
 
 .PHONY: test-pfcen7dev-release
 test-pfcen7dev-release:
@@ -44,6 +50,9 @@ test-pfcen7dev-release:
 
 .PHONY: test-pfdeb9dev-release
 test-pfdeb9dev-release:
-	make VM_NAME=pfdeb9dev CI_COMMIT_TAG=vX.Y.Z test
+	make CI_COMMIT_TAG=vX.Y.Z \
+	VM_NAME=pfdeb9dev \
+	PERL_UNIT_TESTS=no \
+	test
 
 
