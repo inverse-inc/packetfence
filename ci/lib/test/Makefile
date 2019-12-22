@@ -20,7 +20,7 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 
 ### Targets used in pipeline
 .PHONY: test
-test:
+test: clean
 	CI_COMMIT_TAG=$(CI_COMMIT_TAG) \
 	VM_NAME=$(VM_NAME) \
 	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
