@@ -64,7 +64,7 @@ Vagrant.configure("2") do |pfservers|
   end
 
   # loop on **all** host(s) in pfservers group in inventory to create VM(s)
-  inventory['all']['children']['pfservers']['children']['stable_and_nightly']['children'].each do |groups, hosts|
+  inventory['all']['children']['pfservers']['children'].each do |groups, hosts|
     hosts['hosts'].each do |server, details|
       # don't start automatically virtual machines
       pfservers.vm.define server, autostart: false do |srv|
@@ -109,7 +109,7 @@ Vagrant.configure("2") do |pfservers|
       # provisioner for dev machines
       #srv.vm.provision "setup-dev-env", type: "shell", path: "../dev-helpers/setup-dev-env.sh"
       srv.vm.provision "run-tests", type: "shell" do |config|
-        config.path = "../../ci/lib/install/run-tests.sh"
+        config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
           PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'] || "yes",
           GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'] || "yes"
