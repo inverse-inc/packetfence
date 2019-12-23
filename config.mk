@@ -5,8 +5,7 @@
 #
 # Packer
 #
-DOCKER_TAG = latest
-DOCKER_EXTRA_TAG = extra-tag
+DOCKER_TAGS = latest
 REGISTRY = docker.io
 REGISTRY_USER = inverseinc
 ANSIBLE_CENTOS_GROUP = devel_centos

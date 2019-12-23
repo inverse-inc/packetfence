@@ -13,10 +13,6 @@ ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
 # workaround for https://github.com/hashicorp/packer/issues/7904
 PARALLEL = false
 
-# by default, we make only *one* docker tag and skip
-# post-processors to add extra tag
-PACKER_EXTRA_ARG = '-except=set-extra-tag,push-extra-tag'
-
 #==============================================================================
 # Targets
 #==============================================================================
@@ -31,8 +27,7 @@ all: pfbuild
 .PHONY: pfbuild
 pfbuild:
 	packer validate $@.json
-	DOCKER_TAG=$(DOCKER_TAG) \
-	DOCKER_EXTRA_TAG=$(DOCKER_EXTRA_TAG) \
+	DOCKER_TAGS=$(DOCKER_TAGS) \
 	GOVERSION=$(GOVERSION) \
 	REGISTRY=$(REGISTRY) \
 	REGISTRY_USER=$(REGISTRY_USER) \
@@ -41,7 +36,6 @@ pfbuild:
 	ANSIBLE_RUBYGEMS_GROUP=$(ANSIBLE_RUBYGEMS_GROUP) \
 	packer build \
 	-only=$(ACTIVE_BUILDS) \
-	$(PACKER_EXTRA_ARG) \
 	-parallel=$(PARALLEL) $@.json
 
 .PHONY: variables
