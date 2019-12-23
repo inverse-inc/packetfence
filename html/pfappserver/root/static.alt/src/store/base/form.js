@@ -95,13 +95,13 @@ export default {
       }
       return feedback.join(separator).trim()
     },
-    $vModel: (state, getters) => {
+    $vModel: (state) => {
       /**
       * Proxy - helper to avoid exception when accessing an undefined property.
       * Allows a component template to reference a state - or a part of a state - that does not yet exist.
       */
       return new Proxy(state.$form, {
-        has: (target, namespace) => true, // always satisfy
+        has: () => true, // always satisfy
         get: (target, namespace) => {
           while (namespace) { // handle namespace
             let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
@@ -180,7 +180,7 @@ export default {
     clearFormValidations: ({ commit }) => {
       commit('SET_FORM_VALIDATIONS_SUCCESS', {})
     },
-    setFormValidations: ({ state, commit, dispatch }, validations) => {
+    setFormValidations: ({ state, commit }, validations) => {
       commit('SET_FORM_VALIDATIONS_REQUEST')
       return new Promise((resolve, reject) => {
         Promise.resolve(validations).then(validations => {
