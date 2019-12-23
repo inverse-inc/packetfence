@@ -272,6 +272,10 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/monit/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/monit/monitoring-scripts/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/monit/monitoring-scripts/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/packages/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/dev-helpers/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/hostapd/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/eapol_test/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/cluster/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
