@@ -19,16 +19,14 @@ import {
   not,
   conditional,
   hasSyslogParsers,
-  syslogParserExists,
-  limitSiblingFields
+  syslogParserExists
 } from '@/globals/pfValidators'
-
-const {
+import {
   maxLength,
   required
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
-export const pfConfigurationSyslogParsersListColumns = [
+export const columns = [
   {
     key: 'status',
     label: i18n.t('Status'),
@@ -56,7 +54,7 @@ export const pfConfigurationSyslogParsersListColumns = [
   }
 ]
 
-export const pfConfigurationSyslogParsersListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Detector'),
@@ -69,10 +67,10 @@ export const pfConfigurationSyslogParsersListFields = [
   }
 ]
 
-export const pfConfigurationSyslogParsersListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationSyslogParsersListColumns,
-    fields: pfConfigurationSyslogParsersListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'syslogParser', params: { id: item.id } }
     },
@@ -107,17 +105,12 @@ export const pfConfigurationSyslogParsersListConfig = () => {
   }
 }
 
-export const pfConfigurationSyslogParserRegexRuleActions = {
+export const regexRuleActions = {
   add_person: {
     value: 'add_person',
     text: i18n.t('Create new user account'),
     types: [fieldType.SUBSTRING],
-    defaultApiParameters: 'pid, $pid',
-    validators: {
-      api_parameters: {
-        [i18n.t('API Parameters required.')]: required
-      }
-    }
+    defaultApiParameters: 'pid, $pid'
   },
   close_security_event: {
     value: 'close_security_event',
@@ -297,39 +290,29 @@ export const pfConfigurationSyslogParserRegexRuleActions = {
   }
 }
 
-export const pfConfigurationSyslogParserViewFields = (context) => {
+export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
     isClone = false,
     invalidForm = false,
     syslogParserType = null,
-    form = {},
     dryRunTest = () => {},
-    dryRunResponseHtml = null, // html from dry run
-    options: {
-      meta = {}
-    }
-  } = context
+    dryRunResponseHtml = null // html from dry run
+  } = meta
   return [
     {
       tab: null, // ignore tabs
-      fields: [
+      rows: [
         {
           label: i18n.t('Detector'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id', 'Detector'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
-                ...{
-                  [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogParsers, syslogParserExists))
                 }
               }
             }
@@ -337,9 +320,9 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
         },
         {
           label: i18n.t('Enabled'),
-          fields: [
+          cols: [
             {
-              key: 'status',
+              namespace: 'status',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -349,39 +332,36 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
         },
         {
           label: i18n.t('Alert pipe'),
-          fields: [
+          cols: [
             {
-              key: 'path',
+              namespace: 'path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'path', i18n.t('Path'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'path')
             }
           ]
         },
         {
           if: syslogParserType !== 'regex', // all but 'regex'
           label: i18n.t('Rate limit'),
-          fields: [
+          cols: [
             {
-              key: 'rate_limit.interval',
+              namespace: 'rate_limit.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.interval', i18n.t('Interval'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.interval')
             },
             {
-              key: 'rate_limit.unit',
+              namespace: 'rate_limit.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.unit', i18n.t('Unit'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.unit')
             }
           ]
         },
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
           label: 'Rules',
-          fields: [
+          cols: [
             {
-              key: 'rules',
+              namespace: 'rules',
               component: pfFormFields,
               attrs: {
                 buttonLabel: i18n.t('Add Rule - New ( )'),
@@ -395,45 +375,30 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
                         typeLabel: i18n.t('Select action type'),
                         valueLabel: i18n.t('Select action value'),
                         fields: [
-                          pfConfigurationSyslogParserRegexRuleActions.deregister_node_ip,
-                          pfConfigurationSyslogParserRegexRuleActions.role_detail,
-                          pfConfigurationSyslogParserRegexRuleActions.modify_person,
-                          pfConfigurationSyslogParserRegexRuleActions.register_node_ip,
-                          pfConfigurationSyslogParserRegexRuleActions.add_person,
-                          pfConfigurationSyslogParserRegexRuleActions.update_ip6log,
-                          pfConfigurationSyslogParserRegexRuleActions.unreg_node_for_pid,
-                          pfConfigurationSyslogParserRegexRuleActions.trigger_scan,
-                          pfConfigurationSyslogParserRegexRuleActions.reevaluate_access,
-                          pfConfigurationSyslogParserRegexRuleActions.update_ip4log,
-                          pfConfigurationSyslogParserRegexRuleActions.update_role_configuration,
-                          pfConfigurationSyslogParserRegexRuleActions.trigger_security_event,
-                          pfConfigurationSyslogParserRegexRuleActions.release_all_security_events,
-                          pfConfigurationSyslogParserRegexRuleActions.modify_node,
-                          pfConfigurationSyslogParserRegexRuleActions.close_security_event,
-                          pfConfigurationSyslogParserRegexRuleActions.register_node,
-                          pfConfigurationSyslogParserRegexRuleActions.dynamic_register_node
+                          regexRuleActions.deregister_node_ip,
+                          regexRuleActions.role_detail,
+                          regexRuleActions.modify_person,
+                          regexRuleActions.register_node_ip,
+                          regexRuleActions.add_person,
+                          regexRuleActions.update_ip6log,
+                          regexRuleActions.unreg_node_for_pid,
+                          regexRuleActions.trigger_scan,
+                          regexRuleActions.reevaluate_access,
+                          regexRuleActions.update_ip4log,
+                          regexRuleActions.update_role_configuration,
+                          regexRuleActions.trigger_security_event,
+                          regexRuleActions.release_all_security_events,
+                          regexRuleActions.modify_node,
+                          regexRuleActions.close_security_event,
+                          regexRuleActions.register_node,
+                          regexRuleActions.dynamic_register_node
                         ]
                       },
-                      invalidFeedback: [
-                        { [i18n.t('Action(s) contain one or more errors.')]: true }
-                      ]
-                    }
-                  },
-                  validators: {
-                    name: {
-                      [i18n.t('Name required.')]: required,
-                      [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                      [i18n.t('Duplicate name.')]: limitSiblingFields('name', 0)
-                    },
-                    regex: {
-                      [i18n.t('Regex required.')]: required,
-                      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                      invalidFeedback: i18n.t('Action(s) contain one or more errors.')
                     }
                   }
                 },
-                invalidFeedback: [
-                  { [i18n.t('Rule(s) contain one or more errors.')]: true }
-                ]
+                invalidFeedback: i18n.t('Rule(s) contain one or more errors.')
               }
             }
           ]
@@ -446,24 +411,23 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
           label: i18n.t('Sample Log Lines'),
-          fields: [
+          cols: [
             {
-              key: 'lines',
+              namespace: 'lines',
               component: pfFormTextarea,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'lines'),
                 ...{
                   rows: 3
                 }
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'lines', i18n.t('Lines'))
+              }
             }
           ]
         },
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
           label: null,
-          fields: [
+          cols: [
             {
               component: pfFormHtml,
               attrs: {
@@ -475,18 +439,18 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
           label: null,
-          fields: [
+          cols: [
             {
               component: pfButton,
               attrs: {
                 variant: 'outline-warning',
                 label: i18n.t('Test Dry Run'),
                 class: 'col-sm-2',
-                disabled: !(form.lines && !invalidForm),
-                listeners: {
-                  click: (event) => {
-                    dryRunTest(event)
-                  }
+                disabled: !(form.lines && !invalidForm)
+              },
+              listeners: {
+                click: (event) => {
+                  dryRunTest(event)
                 }
               }
             }
@@ -497,12 +461,44 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
   ]
 }
 
-export const pfConfigurationSyslogParserViewDefaults = (context = {}) => {
+export const validators = (form = {}, meta = {}) => {
   const {
-    syslogParserType = null
-  } = context
-  switch (syslogParserType) {
-    default:
-      return {}
+    rules = []
+  } = form
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...{
+        [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogParsers, syslogParserExists))
+      }
+    },
+    path: pfConfigurationValidatorsFromMeta(meta, 'path', i18n.t('Path')),
+    'rate_limit.interval': pfConfigurationValidatorsFromMeta(meta, 'rate_limit.interval', i18n.t('Interval')),
+    'rate_limit.unit': pfConfigurationValidatorsFromMeta(meta, 'rate_limit.unit', i18n.t('Unit')),
+    rules: {
+      $each: {
+        name: {
+          [i18n.t('Name required.')]: required,
+          [i18n.t('Maximum 255 characters.')]: maxLength(255),
+          [i18n.t('Duplicate name.')]: conditional((name) => rules && !(rules.filter(r => r && r.name === name).length > 1))
+        },
+        regex: {
+          [i18n.t('Regex required.')]: required,
+          [i18n.t('Maximum 255 characters.')]: maxLength(255)
+        },
+        actions: {
+          $each: {
+            api_parameters: {
+              [i18n.t('API Parameters required.')]: required
+            }
+          }
+        }
+      }
+    },
+    lines: pfConfigurationValidatorsFromMeta(meta, 'lines', i18n.t('Lines'))
   }
 }

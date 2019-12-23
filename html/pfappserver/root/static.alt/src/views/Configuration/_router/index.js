@@ -1189,20 +1189,29 @@ const route = {
       path: 'pfdetect',
       name: 'syslogParsers',
       component: SyslogParsersList,
-      props: (route) => ({ storeName: '$_syslog_parsers', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'pfdetect/new/:syslogParserType',
       name: 'newSyslogParser',
       component: SyslogParserView,
-      props: (route) => ({ storeName: '$_syslog_parsers', isNew: true, syslogParserType: route.params.syslogParserType })
+      props: (route) => ({ formStoreName: 'formSyslogParsers', isNew: true, syslogParserType: route.params.syslogParserType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogParsers) { // Register store module only once
+          store.registerModule('formSyslogParsers', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'pfdetect/:id',
       name: 'syslogParser',
       component: SyslogParserView,
-      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSyslogParsers', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogParsers) { // Register store module only once
+          store.registerModule('formSyslogParsers', FormStore)
+        }
         store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })
@@ -1212,8 +1221,11 @@ const route = {
       path: 'pfdetect/:id/clone',
       name: 'cloneSyslogParser',
       component: SyslogParserView,
-      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSyslogParsers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogParsers) { // Register store module only once
+          store.registerModule('formSyslogParsers', FormStore)
+        }
         store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })

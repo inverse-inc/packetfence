@@ -7,18 +7,15 @@
     </b-col>
     <b-col cols="5" align-self="start">
 
-      <pf-form-chosen
-        v-model="localApiMethod"
-        v-on="forwardListeners"
-        ref="localApiMethod"
+      <pf-form-chosen ref="api_method"
+        class="mr-1"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.api_method`"
         label="text"
         track-by="value"
         :placeholder="apiMethodLabel"
         :options="fields"
-        :vuelidate="apiMethodVuelidateModel"
-        :invalid-feedback="apiMethodInvalidFeedback"
         :disabled="disabled"
-        class="mr-1"
         collapse-object
       ></pf-form-chosen>
 
@@ -26,11 +23,9 @@
     <b-col cols="5" align-self="start" class="pl-1">
 
       <!-- Type: SUBSTRING -->
-      <pf-form-input v-if="isComponentType([componentType.SUBSTRING])"
-        v-model="localApiParameters"
-        ref="localApiParameters"
-        :vuelidate="apiParametersVuelidateModel"
-        :invalid-feedback="apiParametersInvalidFeedback"
+      <pf-form-input ref="api_parameters" v-if="isComponentType([componentType.SUBSTRING])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.api_parameters`"
         :disabled="disabled"
       ></pf-form-input>
 
@@ -45,12 +40,12 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
+import pfMixinForm from '@/components/pfMixinForm'
 import {
   pfComponentType as componentType,
   pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
-import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'pf-field-api-method-parameters',
@@ -58,6 +53,9 @@ export default {
     pfFormChosen,
     pfFormInput
   },
+  mixins: [
+    pfMixinForm
+  ],
   props: {
     value: {
       type: Object,
@@ -73,10 +71,6 @@ export default {
       type: Array,
       default: () => { return [] }
     },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
-    },
     disabled: {
       type: Boolean,
       default: false
@@ -91,54 +85,17 @@ export default {
   computed: {
     inputValue: {
       get () {
-        if (!this.value || Object.keys(this.value).length === 0) {
-          // set default placeholder
-          this.$emit('input', JSON.parse(JSON.stringify(this.default))) // keep dereferenced
-          return this.default
-        }
-        return this.value
+        return { ...this.default, ...this.formStoreValue } // use FormStore
       },
       set (newValue) {
-        this.$emit('input', newValue)
+        this.formStoreValue = newValue // use FormStore
       }
     },
-    localApiMethod: {
-      get () {
-        let apiMethod = (this.inputValue && 'api_method' in this.inputValue) ? this.inputValue.api_method : this.default.api_method
-        // check to see if `api_method` exists in our available fields
-        if (apiMethod && !this.fields.find(field => field.value === apiMethod)) {
-          // discard
-          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action API Method "{api_method}" is not valid, ignoring.', { api_method: apiMethod }) })
-          this.$set(this.inputValue, 'api_method', this.default.api_method) // clear `api_method`
-          this.$set(this.inputValue, 'api_parameters', this.default.api_parameters) // clear `api_parameters`
-          return null
-        }
-        return apiMethod
-      },
-      set (newApiMethod) {
-        this.$set(this.inputValue, 'api_method', newApiMethod || this.default.api_method)
-        const field = this.fields.find(field => field.value === newApiMethod)
-        if (field) {
-          // selected
-          this.$set(this.inputValue, 'api_parameters', field.defaultApiParameters || this.default.api_parameters) // set `api_parameters`
-        } else {
-          // null
-          this.$set(this.inputValue, 'api_parameters', this.default.api_parameters) // clear `api_parameters`
-        }
-        this.emitValidations()
-        this.$nextTick(() => { // wait until DOM updates with new api_method
-          this.focusApiParameters()
-        })
-      }
+    localApiMethod () {
+      return this.inputValue.api_method
     },
-    localApiParameters: {
-      get () {
-        return (this.inputValue && 'api_parameters' in this.inputValue) ? this.inputValue.api_parameters : this.default.api_parameters
-      },
-      set (newApiParameters) {
-        this.$set(this.inputValue, 'api_parameters', newApiParameters || this.default.api_parameters)
-        this.emitValidations()
-      }
+    localApiParameters () {
+        return this.inputValue.api_parameters
     },
     field () {
       if (this.localApiMethod) return this.fields.find(field => field.value === this.localApiMethod)
@@ -166,18 +123,6 @@ export default {
       if ('moments' in this.field) return this.field.moments
       return []
     },
-    apiMethodVuelidateModel () {
-      return this.getVuelidateModel('api_method')
-    },
-    apiMethodInvalidFeedback () {
-      return this.getInvalidFeedback('api_method')
-    },
-    apiParametersVuelidateModel () {
-      return this.getVuelidateModel('api_parameters')
-    },
-    apiParametersInvalidFeedback () {
-      return this.getInvalidFeedback('api_parameters')
-    },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
@@ -195,33 +140,6 @@ export default {
       }
       return false
     },
-    getVuelidateModel (key = null) {
-      const { vuelidate: { [key]: model } } = this
-      return model || {}
-    },
-    getInvalidFeedback (key = null) {
-      let feedback = []
-      const vuelidate = this.getVuelidateModel(key)
-      if (vuelidate !== {} && key in vuelidate) {
-        Object.entries(vuelidate[key].$params).forEach(([k, v]) => {
-          if (vuelidate[key][k] === false) feedback.push(k.trim())
-        })
-      }
-      return feedback.join('<br/>')
-    },
-    buildLocalValidations () {
-      const { field } = this
-      if (field) {
-        const { validators } = field
-        if (validators) {
-          return validators
-        }
-      }
-      return { api_method: { [this.$i18n.t('API Method required.')]: required } }
-    },
-    emitValidations () {
-      this.$emit('validations', this.buildLocalValidations())
-    },
     focus () {
       if (this.localApiMethod) {
         this.focusApiParameters()
@@ -229,22 +147,26 @@ export default {
         this.focusApiMethod()
       }
     },
-    focusIndex (index = 0) {
-      const refs = Object.values(this.$refs)
-      if (index in refs) {
-        const { $refs: { input: { $el } } } = refs[index]
-        if ($el && 'focus' in $el) $el.focus()
-      }
-    },
     focusApiMethod () {
-      this.focusIndex(0)
+      const { $refs: { api_method: { focus = () => {} } = {} } = {} } = this
+      focus()
     },
     focusApiParameters () {
-      this.focusIndex(1)
+      const { $refs: { api_parameters: { focus = () => {} } = {} } = {} } = this
+      focus()
     }
   },
-  created () {
-    this.emitValidations()
+  watch: {
+    localApiMethod: {
+      handler: function (a, b) {
+        if (!this.drag) { // don't focus when being dragged
+          this.$set(this.formStoreValue, 'api_parameters', null) // clear parameters
+          this.$nextTick(() => {
+            this.focusApiParameters()
+          })
+        }
+      }
+    }
   }
 }
 </script>
