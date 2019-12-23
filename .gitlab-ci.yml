@@ -409,7 +409,7 @@ test_pkg_dev_and_release_centos_7:
 test_pkg_dev_and_release_debian_stretch:
   variables:
     VM_NAME: pfdeb9dev
-    PERL_UNIT_TESTS: no
+    PERL_UNIT_TESTS: 'no'
   extends:
     - .test_job
     - .test_script
