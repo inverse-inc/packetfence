@@ -75,7 +75,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_connection_profilesisLoading']
+      return this.$store.getters['$_connection_profiles/isLoading']
     }
   },
   methods: {
