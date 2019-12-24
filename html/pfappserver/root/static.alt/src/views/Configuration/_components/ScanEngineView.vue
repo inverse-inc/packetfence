@@ -110,12 +110,11 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
+      const { isNew, isClone, isDeletable, scanType } = this
       if (this.id) {
         // existing
         this.$store.dispatch('$_scans/optionsById', this.id).then(options => {
           const { meta = {} } = options
-          const { isNew, isClone, isDeletable } = this
           this.$store.dispatch('$_scans/getScanEngine', this.id).then(form => {
             this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType: form.type, isNew, isClone, isDeletable } })
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
@@ -127,12 +126,11 @@ export default {
         // new
         this.$store.dispatch('$_scans/optionsByScanType', this.scanType).then(options => {
           const { meta = {} } = options
-          const { isNew, isClone, isDeletable, scanType } = this
           this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType, isNew, isClone, isDeletable } })
-          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
-          this.form.type = this.scanType
+          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), type: scanType }) // set defaults
         })
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'scanEngines' })
