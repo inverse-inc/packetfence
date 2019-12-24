@@ -134,10 +134,10 @@ export default {
         this.$store.dispatch('$_syslog_parsers/optionsById', this.id).then(options => {
           const { meta = {} } = options
           this.$store.dispatch('$_syslog_parsers/getSyslogParser', this.id).then(form => {
-            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, dryRunTest, dryRunResponseHtml, syslogParserType: form.type } })
-            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
             this.syslogParserType = form.type
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, dryRunTest, dryRunResponseHtml, syslogParserType } })
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         })
       } else {
