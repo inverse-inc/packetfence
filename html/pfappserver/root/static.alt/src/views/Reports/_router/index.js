@@ -38,7 +38,7 @@ const route = {
       component: DynamicReportChart,
       props: (route) => ({ storeName: '$_reports', id: route.params.id, query: route.query.query }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_reports/getReport', to.params.id).then(object => {
+        store.dispatch('$_reports/getReport', to.params.id).then(() => {
           next()
         })
       },

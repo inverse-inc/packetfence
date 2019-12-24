@@ -61,10 +61,10 @@ export default class FileStore {
         commit('SET_NEW_LINE', newLine)
         commit('RESET_OFFSETS')
       },
-      readAsText: ({ commit, state }) => {
+      readAsText: ({ commit }) => {
         commit('SET_READ_AS_TEXT')
       },
-      readAsStream: ({ commit, state, dispatch }) => {
+      readAsStream: ({ commit, dispatch }) => {
         commit('SET_READ_AS_STREAM', dispatch)
       },
       readLine: ({ state, dispatch }, lineIndex) => {

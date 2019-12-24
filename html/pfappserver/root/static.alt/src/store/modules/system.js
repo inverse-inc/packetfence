@@ -7,8 +7,8 @@ import store from '@/store'
 import apiCall from '@/utils/api'
 
 const api = {
-  getSummary: (id) => {
-    return apiCall.getQuiet(`system_summary`).then(response => {
+  getSummary: () => {
+    return apiCall.getQuiet('system_summary').then(response => {
       return response.data
     })
   }

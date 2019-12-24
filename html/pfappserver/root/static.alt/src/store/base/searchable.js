@@ -101,7 +101,7 @@ export default class SearchableStore {
         localStorage.setItem(_this.storage_visible_columns_key, JSON.stringify(columns))
         commit('VISIBLE_COLUMNS_UPDATED', columns)
       },
-      search: ({ state, getters, commit, dispatch }, page) => {
+      search: ({ state, commit }, page) => {
         let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
         let body = {
           ...{
@@ -159,7 +159,7 @@ export default class SearchableStore {
           return err
         })
       },
-      updateItem: ({ state, commit }, params) => {
+      updateItem: ({ commit }, params) => {
         commit('ITEM_UPDATED', params)
       }
     }

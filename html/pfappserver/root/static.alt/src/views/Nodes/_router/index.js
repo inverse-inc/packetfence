@@ -59,7 +59,7 @@ const route = {
       component: NodeView,
       props: (route) => ({ storeName: '$_nodes', mac: route.params.mac }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_nodes/getNode', to.params.mac).then(node => {
+        store.dispatch('$_nodes/getNode', to.params.mac).then(() => {
           next()
         })
       },

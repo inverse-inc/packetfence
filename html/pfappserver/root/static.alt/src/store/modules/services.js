@@ -161,7 +161,7 @@ const actions = {
   },
   stopService: ({ state, commit }, id) => {
     commit('SERVICE_STOPPING', id)
-    return api.stopService(id).then(response => {
+    return api.stopService(id).then(() => {
       commit('SERVICE_STOPPED', { id })
       return state.cache[id]
     }).catch((err) => {
@@ -255,7 +255,7 @@ const mutations = {
       state.message = response.data.message
     }
   },
-  $RESET: (state) => {
+  $RESET: () => {
     state = initialState()
   }
 }

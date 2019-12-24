@@ -40,7 +40,7 @@ const getters = {
   },
   getEta: (state, getters) => {
     let maxEta = (new Date()).getTime()
-    state.cache.forEach((request, rIndex) => { // calculate maximum time from requests in queue
+    state.cache.forEach((request) => { // calculate maximum time from requests in queue
       const { time = 0, num = 0 } = getters.getBenchmark(request)
       if (time && num) {
         maxEta = Math.max(maxEta, ((new Date()).getTime() + (time / num)))

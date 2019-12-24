@@ -209,7 +209,7 @@ const mutations = {
     state.documentEvent = event // cache the last event
     state.keyDown = true
   },
-  KEY_UP: (state, event) => {
+  KEY_UP: (state) => {
     state.documentEvent = { // reset the last event on keyup
       keyCode: null,
       altKey: false,

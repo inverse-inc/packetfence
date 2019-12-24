@@ -129,7 +129,7 @@ export default {
       this.selectValues = []
       this.selectAll = false
       this.lastIndex = null
-      this.selectValues.forEach((item, index, items) => {
+      this.selectValues.forEach((item, index) => {
         this.setRowVariant(index, '')
         this.setRowMessage(index, '')
       })
@@ -164,7 +164,7 @@ export default {
       this.selectAll = (this.tableValues.length === a.length && a.length > 0)
       if (JSON.stringify(a) !== JSON.stringify(b)) {
         const selectValues = this.selectValues
-        this.tableValues.forEach((item, index, items) => {
+        this.tableValues.forEach((item, index) => {
           this.setRowMessage(index, '')
           if (selectValues.includes(item)) {
             this.setRowVariant(index, 'info')

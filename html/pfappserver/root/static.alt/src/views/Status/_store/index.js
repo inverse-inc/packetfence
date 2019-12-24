@@ -130,7 +130,7 @@ const actions = {
   disableService: ({ state, commit }, id) => {
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_DISABLING', index)
-    return api.disableService(id).then(response => {
+    return api.disableService(id).then(() => {
       commit('SERVICE_DISABLED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -145,7 +145,7 @@ const actions = {
   enableService: ({ state, commit }, id) => {
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_ENABLING', index)
-    return api.enableService(id).then(response => {
+    return api.enableService(id).then(() => {
       commit('SERVICE_ENABLED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -161,7 +161,7 @@ const actions = {
     if (id in blacklistedServices) return
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_RESTARTING', index)
-    return api.restartService(id).then(response => {
+    return api.restartService(id).then(() => {
       commit('SERVICE_RESTARTED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -215,7 +215,7 @@ const actions = {
     if (id in blacklistedServices) return
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_STARTING', index)
-    return api.startService(id).then(response => {
+    return api.startService(id).then(() => {
       commit('SERVICE_STARTED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {

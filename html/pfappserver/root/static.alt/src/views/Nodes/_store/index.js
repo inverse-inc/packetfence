@@ -399,7 +399,7 @@ const mutations = {
     state.nodeStatus = 'success'
     Vue.set(state.nodes, mac, null)
   },
-  NODE_SUCCESS: (state, response) => {
+  NODE_SUCCESS: (state) => {
     state.nodeStatus = 'success'
   },
   NODE_ERROR: (state, response) => {

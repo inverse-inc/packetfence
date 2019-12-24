@@ -50,7 +50,7 @@ const actions = {
     localStorage.setItem(STORAGE_VISIBLE_COLUMNS_KEY, JSON.stringify(columns))
     commit('VISIBLE_COLUMNS_UPDATED', columns)
   },
-  search: ({ state, getters, commit, dispatch }, page) => {
+  search: ({ state, commit }, page) => {
     let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
     let body = {
       cursor: state.searchPageSize * (page - 1),

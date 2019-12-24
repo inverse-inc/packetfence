@@ -5,7 +5,7 @@ import Vue from 'vue'
 import apiCall from '@/utils/api'
 
 const api = {
-  getStats: (id) => {
+  getStats: () => {
     return apiCall.getQuiet(`queues/stats`).then(response => {
       return response.data.items
     })
@@ -51,7 +51,7 @@ const actions = {
       })
     })
   },
-  pollTaskStatus: ({ commit, state, dispatch }, id) => {
+  pollTaskStatus: ({ dispatch }, id) => {
     return api.pollTaskStatus(id).then(data => { // 'poll' returns immediately, or timeout after 15s
       if ('status' in data && data.status === 202) { // 202: in progress
         return dispatch('pollTaskStatus', id) // recurse
@@ -83,7 +83,7 @@ const mutations = {
       state.message = message
     }
   },
-  $RESET: (state) => {
+  $RESET: () => {
     state = initialState()
   }
 }

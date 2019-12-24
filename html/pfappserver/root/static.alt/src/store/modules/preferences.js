@@ -105,7 +105,7 @@ const actions = {
       return items
     })
   },
-  get: ({ commit }, id) => {
+  get: ({ commit }) => {
     commit('PREFERENCE_REQUEST')
     return null
     /*
@@ -156,7 +156,7 @@ const mutations = {
       state.message = message
     }
   },
-  $RESET: (state) => {
+  $RESET: () => {
     state = initialState()
   }
 }
