@@ -318,7 +318,7 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
     type: 'isFilenameWithExtension',
     extensions: extensions
   }, function (value) {
-    const re = RegExp('^[a-zA-Z0-9_]*\\.(' + extensions.join('|') + ')$')
+    const re = RegExp('^[a-zA-Z0-9_\\-\\.]*\\.(' + extensions.join('|') + ')$')
     return re.test(value)
   })
 }
