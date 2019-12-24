@@ -33,9 +33,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationSyslogForwardersListConfig as config
-} from '@/globals/configuration/pfConfigurationSyslogForwarders'
+import { config } from '../_config/syslogForwarder'
 
 export default {
   name: 'syslog-forwarders-list',
@@ -44,16 +42,9 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/syslogForwarder
     }
   },
   methods: {
@@ -61,7 +52,7 @@ export default {
       this.$router.push({ name: 'cloneSyslogForwarder', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSyslogForwarder`, item.id).then(response => {
+      this.$store.dispatch('$_syslog_forwarders/deleteSyslogForwarder', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

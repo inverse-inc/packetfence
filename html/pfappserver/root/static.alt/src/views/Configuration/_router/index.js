@@ -1235,20 +1235,29 @@ const route = {
       path: 'syslog',
       name: 'syslogForwarders',
       component: SyslogForwardersList,
-      props: (route) => ({ storeName: '$_syslog_forwarders', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'syslog/new/:syslogForwarderType',
       name: 'newSyslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true, syslogForwarderType: route.params.syslogForwarderType })
+      props: (route) => ({ formStoreName: 'formSyslogForwarders', isNew: true, syslogForwarderType: route.params.syslogForwarderType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogForwarders) { // Register store module only once
+          store.registerModule('formSyslogForwarders', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'syslog/:id',
       name: 'syslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSyslogForwarders', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogForwarders) { // Register store module only once
+          store.registerModule('formSyslogForwarders', FormStore)
+        }
         store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
           next()
         })
@@ -1258,8 +1267,11 @@ const route = {
       path: 'syslog/:id/clone',
       name: 'cloneSyslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSyslogForwarders', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogForwarders) { // Register store module only once
+          store.registerModule('formSyslogForwarders', FormStore)
+        }
         store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
           next()
         })

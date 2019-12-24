@@ -14,10 +14,9 @@ import {
   hasSyslogForwarders,
   syslogForwarderExists
 } from '@/globals/pfValidators'
+import { required } from 'vuelidate/lib/validators'
 
-const { required } = require('vuelidate/lib/validators')
-
-export const pfConfigurationSyslogForwardersListColumns = [
+export const columns = [
   {
     key: 'id',
     label: i18n.t('Syslog Name'),
@@ -38,7 +37,7 @@ export const pfConfigurationSyslogForwardersListColumns = [
   }
 ]
 
-export const pfConfigurationSyslogForwardersListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Syslog Name'),
@@ -51,10 +50,10 @@ export const pfConfigurationSyslogForwardersListFields = [
   }
 ]
 
-export const pfConfigurationSyslogForwardersListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationSyslogForwardersListColumns,
-    fields: pfConfigurationSyslogForwardersListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'syslogForwarder', params: { id: item.id } }
     },
@@ -95,35 +94,25 @@ export const pfConfigurationSyslogForwardersListConfig = () => {
   }
 }
 
-export const pfConfigurationSyslogForwarderViewFields = (context) => {
+export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
-    form = {},
-    options: {
-      meta = {}
-    }
-  } = context
+    isClone = false
+  } = meta
   return [
     {
       tab: null, // ignore tabs
-      fields: [
+      rows: [
         {
           label: i18n.t('Syslog Name'),
-          fields: [
+          cols: [
             {
-              key: 'id',
+              namespace: 'id',
               component: pfFormInput,
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
-                ...{
-                  [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogForwarders, syslogForwarderExists))
                 }
               }
             }
@@ -132,44 +121,41 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
         {
           if: ['server'].includes(form.type),
           label: i18n.t('Protocol'),
-          fields: [
+          cols: [
             {
-              key: 'proto',
+              namespace: 'proto',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'proto'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'proto', i18n.t('Protocol'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'proto')
             }
           ]
         },
         {
           if: ['server'].includes(form.type),
           label: i18n.t('Host'),
-          fields: [
+          cols: [
             {
-              key: 'host',
+              namespace: 'host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'host')
             }
           ]
         },
         {
           if: ['server'].includes(form.type),
           label: i18n.t('Port'),
-          fields: [
+          cols: [
             {
-              key: 'port',
+              namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
             }
           ]
         },
         {
           label: i18n.t('All logs'),
-          fields: [
+          cols: [
             {
-              key: 'all_logs',
+              namespace: 'all_logs',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -180,16 +166,34 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
         {
           if: form.all_logs === 'disabled',
           label: i18n.t('Logs'),
-          fields: [
+          cols: [
             {
-              key: 'logs',
+              namespace: 'logs',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'logs'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'logs', i18n.t('Logs'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'logs')
             }
           ]
         }
       ]
     }
   ]
+}
+
+export const validators = (form, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...{
+        [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogForwarders, syslogForwarderExists))
+      }
+    },
+    proto: pfConfigurationValidatorsFromMeta(meta, 'proto', i18n.t('Protocol')),
+    host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')),
+    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
+    logs: pfConfigurationValidatorsFromMeta(meta, 'logs', i18n.t('Logs'))
+  }
 }

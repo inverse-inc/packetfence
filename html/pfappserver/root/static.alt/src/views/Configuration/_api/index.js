@@ -1198,7 +1198,7 @@ export default {
     })
   },
   syslogForwardersOptions: syslogForwarderType => {
-    return apiCall.options(['config', 'syslog_forwarders', { params: { type: syslogForwarderType } }]).then(response => {
+    return apiCall.options(['config', 'syslog_forwarders'], { params: { type: syslogForwarderType } }).then(response => {
       return response.data
     })
   },
