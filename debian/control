@@ -1,7 +1,7 @@
 Source: packetfence
 Section: net
 Priority: optional
-Maintainer: Durand fabrice <fdurand@inverse.ca>
+Maintainer: Inverse inc. <support@inverse.ca>
 Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, dpkg-distribution, dh-systemd, libfile-fcntllock-perl, git, libipset-dev, pkg-config, nodejs (>= 12.0), jq,
  ruby, rubygems,
  quilt
