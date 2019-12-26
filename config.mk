@@ -5,7 +5,8 @@
 #
 # Packer
 #
-DOCKER_TAGS = latest
+# to manage several tags, use DOCKER_TAGS = "tag1,tag2"
+DOCKER_TAGS = "latest"
 REGISTRY = docker.io
 REGISTRY_USER = inverseinc
 ANSIBLE_CENTOS_GROUP = devel_centos

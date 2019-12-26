@@ -147,7 +147,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-centos-7"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
-                "tag": ["{{user `docker_tags`}}"]
+                "tag": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
@@ -165,7 +165,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-centos-8"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-8",
-                "tag": ["{{ user `docker_tags`}}"]
+                "tag": "{{ user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
@@ -183,7 +183,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-stretch"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
-                "tag": ["{{user `docker_tags`}}"]
+                "tag": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
@@ -201,7 +201,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-buster"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
-                "tag": ["{{user `docker_tags`}}"]
+                "tag": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
