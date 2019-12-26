@@ -421,20 +421,29 @@ const route = {
       path: 'switches',
       name: 'switches',
       component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switches', storeName: '$_switches', query: route.query.query })
+      props: (route) => ({ tab: 'switches', query: route.query.query })
     },
     {
       path: 'switches/new/:switchGroup',
       name: 'newSwitch',
       component: SwitchView,
-      props: (route) => ({ storeName: '$_switches', isNew: true, switchGroup: route.params.switchGroup })
+      props: (route) => ({ formStoreName: 'formSwitch', isNew: true, switchGroup: route.params.switchGroup }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitch) { // Register store module only once
+          store.registerModule('formSwitch', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'switch/:id',
       name: 'switch',
       component: SwitchView,
-      props: (route) => ({ storeName: '$_switches', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSwitch', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitch) { // Register store module only once
+          store.registerModule('formSwitch', FormStore)
+        }
         store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
           next()
         })
@@ -444,8 +453,11 @@ const route = {
       path: 'switch/:id/clone',
       name: 'cloneSwitch',
       component: SwitchView,
-      props: (route) => ({ storeName: '$_switches', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSwitch', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitch) { // Register store module only once
+          store.registerModule('formSwitch', FormStore)
+        }
         store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
           next()
         })
@@ -455,20 +467,29 @@ const route = {
       path: 'switch_groups',
       name: 'switch_groups',
       component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switch_groups', storeName: '$_switch_groups', query: route.query.query })
+      props: (route) => ({ tab: 'switch_groups', query: route.query.query })
     },
     {
       path: 'switch_groups/new',
       name: 'newSwitchGroup',
       component: SwitchGroupView,
-      props: () => ({ storeName: '$_switch_groups', isNew: true })
+      props: () => ({ formStoreName: 'formSwitchGroup', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitchGroup) { // Register store module only once
+          store.registerModule('formSwitchGroup', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'switch_group/:id',
       name: 'switch_group',
       component: SwitchGroupView,
-      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSwitchGroup', id: route.params.id }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitchGroup) { // Register store module only once
+          store.registerModule('formSwitchGroup', FormStore)
+        }
         store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
@@ -478,8 +499,11 @@ const route = {
       path: 'switch_group/:id/clone',
       name: 'cloneSwitchGroup',
       component: SwitchGroupView,
-      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSwitchGroup', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitchGroup) { // Register store module only once
+          store.registerModule('formSwitchGroup', FormStore)
+        }
         store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
@@ -489,7 +513,7 @@ const route = {
       path: 'connection_profiles',
       name: 'connection_profiles',
       component: ConnectionProfilesList,
-      props: (route) => ({ storeName: '$_connection_profiles', tab: 'connection_profiles', query: route.query.query })
+      props: (route) => ({ tab: 'connection_profiles', query: route.query.query })
     },
     {
       path: 'connection_profiles/new',
@@ -1346,7 +1370,7 @@ const route = {
       path: 'filters',
       name: 'filters',
       component: FilterEngineTabs,
-      props: (route) => ({ storeName: '$_filters', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'billing_tiers',
@@ -1613,7 +1637,7 @@ const route = {
       path: 'interfaces',
       name: 'interfaces',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'interfaces', storeName: '$_interfaces', query: route.query.query })
+      props: (route) => ({ tab: 'interfaces', query: route.query.query })
     },
     {
       path: 'interface/:id',
@@ -1675,7 +1699,13 @@ const route = {
       path: 'interfaces/routed_networks/new',
       name: 'newRoutedNetwork',
       component: RoutedNetworkView,
-      props: () => ({ storeName: '$_routed_networks', isNew: true })
+      props: () => ({ formStoreName: 'formRoutedNetwork', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRoutedNetwork) { // Register store module only once
+          store.registerModule('formRoutedNetwork', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'interfaces/routed_network/:id',
