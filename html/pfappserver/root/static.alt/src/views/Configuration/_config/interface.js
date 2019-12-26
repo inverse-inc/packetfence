@@ -16,7 +16,7 @@ import {
 import {
   required,
   ipAddress
-} from '@/globals/pfValidators'
+} from 'vuelidate/lib/validators'
 
 export const typesList = [
   { value: 'none', text: i18n.t('None') },

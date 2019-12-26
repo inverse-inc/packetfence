@@ -18,7 +18,7 @@ import {
 import {
   required,
   ipAddress
-} from '@/globals/pfValidators'
+} from 'vuelidate/lib/validators'
 
 export const htmlNote = `<div class="alert alert-warning">
   <strong>${i18n.t('Note')}</strong>

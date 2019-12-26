@@ -19,7 +19,7 @@ import {
 import {
   required,
   ipAddress
-} from '@/globals/pfValidators'
+} from 'vuelidate/lib/validators'
 
 export const routedNetworkList = [
   { value: 'dns-enforcement', text: i18n.t('DNS Enforcement') },

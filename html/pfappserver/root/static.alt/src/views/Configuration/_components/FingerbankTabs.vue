@@ -77,11 +77,6 @@ export default {
     parentId: {
       type: String,
       default: null
-    },
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
     }
   },
   computed: {
@@ -100,7 +95,7 @@ export default {
       ].indexOf(this.tab)
     },
     isUpdateDatabaseLoading () {
-      return this.$store.getters[`${this.storeName}/isUpdateDatabaseLoading`]
+      return this.$store.getters['$_fingerbank/isUpdateDatabaseLoading']
     }
   },
   methods: {
@@ -108,7 +103,7 @@ export default {
       this.$router.push(`/configuration/fingerbank/${path}`)
     },
     updateDatabase () {
-      this.$store.dispatch(`${this.storeName}/updateDatabase`)
+      this.$store.dispatch('$_fingerbank/updateDatabase')
     }
   },
   beforeMount () {
