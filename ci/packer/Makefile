@@ -8,7 +8,7 @@ include ../../config.mk
 #==============================================================================
 # Packer command line variables
 #==============================================================================
-ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
+ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-centos-8,pfbuild-stretch,pfbuild-buster'
 
 # workaround for https://github.com/hashicorp/packer/issues/7904
 PARALLEL = false
