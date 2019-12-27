@@ -88,12 +88,12 @@ TODO: this list is incomplete
 # CAPABILITIES
 # access technology supported
 use pf::SwitchSupports qw(
-     RoleBasedEnforcement
-     WirelessDot1x
-     WirelessMacAuth
-     ExternalPortal
-     WiredMacAuth
-     WiredDot1x
+    RoleBasedEnforcement
+    WirelessDot1x
+    WirelessMacAuth
+    ExternalPortal
+    WiredMacAuth
+    WiredDot1x
  );
 
 # inline capabilities
