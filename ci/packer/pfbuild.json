@@ -9,6 +9,7 @@
         "files_dir": "files",
         "tmp_dir": "/tmp",
         "yum_cache_dir": "/var/cache/yum",
+        "dnf_cache_dir": "/var/cache/dnf",
         "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
         "ansible_centos_group": "{{env `ANSIBLE_CENTOS_GROUP`}}",
         "ansible_debian_group": "{{env `ANSIBLE_DEBIAN_GROUP`}}",
@@ -130,9 +131,15 @@
                        "yum clean all",
                        "rm -rf {{user `yum_cache_dir`}}/*"
                       ],
-            "only": ["{{user `builder_prefix`}}-centos-7",
-                     "{{user `builder_prefix`}}-centos-8"
-                    ]
+            "only": ["{{user `builder_prefix`}}-centos-7"]
+        },
+        {
+            "type": "shell",
+            "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
+                       "dnf clean all",
+                       "rm -rf {{user `dnf_cache_dir`}}/*"
+                      ],
+            "only": ["{{user `builder_prefix`}}-centos-8"]
         },
         {
             "type": "shell",
