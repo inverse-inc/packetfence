@@ -94,7 +94,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WiredMacAuth
     WiredDot1x
- );
+);
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
