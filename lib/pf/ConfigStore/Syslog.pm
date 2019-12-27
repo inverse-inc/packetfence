@@ -38,6 +38,8 @@ sub cleanupAfterRead {
     if (defined $logs && $logs eq 'ALL') {
         $data->{logs} = $pf::constants::syslog::ALL_LOGS;
         $data->{all_logs} = 'enabled';
+    } else {
+        $data->{all_logs} = 'disabled';
     }
     $self->expand_list($data, $self->_fields_expanded);
 }
