@@ -35,6 +35,12 @@ has_field 'id' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default_method => sub {
+    my ($field) = @_;
+    my $type = ref($field->form);
+    $type =~ s/^pfappserver::Form::Config::PortalModule:://;
+    return $type;
+   },
    messages => { required => 'There was no type specified' },
   );
 
