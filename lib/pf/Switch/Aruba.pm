@@ -66,6 +66,8 @@ use pf::config qw(
     $MAC
     $SSID
     $WEBAUTH_WIRELESS
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
 );
 use pf::Switch::constants;
 use pf::util;
@@ -85,14 +87,12 @@ TODO: this list is incomplete
 
 # CAPABILITIES
 # access technology supported
-use pf::SwitchSupports qw(
-    RoleBasedEnforcement
-    WirelessDot1x
-    WirelessMacAuth
-    ExternalPortal
-    WiredMacAuth
-    WiredDot1x
-);
+sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -148,6 +148,20 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("(".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("(".$self->{'_id'}.") deauthenticate using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac);
+}
+
+
+sub WiredDeauthenticateMacDefault {
+    my ( $self, $ifindex, $mac ) = @_;
     my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
@@ -429,6 +443,41 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS=> 'WiredDeauthenticateMacDefault',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS=> 'WiredDeauthenticateMacDefault',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+
+
 =item radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
@@ -482,6 +531,7 @@ sub radiusDisconnect {
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
+        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
@@ -619,7 +669,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
