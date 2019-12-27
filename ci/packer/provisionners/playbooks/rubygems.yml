@@ -1,6 +1,7 @@
 - hosts: ['devel_rubygems', 'stable_rubygems']
   name: install ruby gems
   become: True
+  gather_facts: False
 
   vars:
     local_bin_dir: /usr/local/bin
