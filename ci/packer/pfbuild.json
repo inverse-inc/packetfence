@@ -85,6 +85,11 @@
                     ]
         },
         {
+            "type": "shell",
+            "script": "{{user `prov_dir`}}/shell/install-nodejs-el8.sh",
+            "only": ["{{user `builder_prefix`}}-centos-8"]
+        },
+        {
             "type": "file",
             "source": "{{user `pf_root`}}/rpm",
             "destination": "{{user `tmp_dir`}}",
