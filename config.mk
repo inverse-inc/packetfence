@@ -9,7 +9,7 @@
 DOCKER_TAGS = "latest"
 REGISTRY = docker.io
 REGISTRY_USER = inverseinc
-ANSIBLE_FORCE_COLOR = "true"
+ANSIBLE_FORCE_COLOR = 1
 ANSIBLE_CENTOS_GROUP = devel_centos
 ANSIBLE_DEBIAN_GROUP = devel_debian
 ANSIBLE_RUBYGEMS_GROUP = devel_rubygems

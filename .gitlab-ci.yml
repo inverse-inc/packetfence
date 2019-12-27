@@ -35,7 +35,7 @@ variables:
   DEB_DIR: debian
   PUBLIC_REPO_URL: http://packetfence.org/downloads/PacketFence
   # env variables
-  ANSIBLE_FORCE_COLOR: "true"
+  ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
   VAGRANT_FORCE_COLOR: "true"
 
