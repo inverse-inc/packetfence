@@ -256,9 +256,9 @@ pfbuild_manual:
 
 pfbuild_test:
   extends: .pfbuild_job
+  variables:
+    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
   script:
-    # remove 'feature/' prefix from branch name
-    - export DOCKER_TAGS=${CI_COMMIT_REF_NAME#feature/}
     - make -e -C ${PACKERDIR} pfbuild
   only:
     - /^feature/packer-.*$/
