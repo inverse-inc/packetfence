@@ -1,3 +1,4 @@
+---
 - hosts: ['devel_rubygems', 'stable_rubygems']
   name: install ruby gems
   become: True
@@ -8,8 +9,23 @@
 
   tasks:
     # workaround for https://github.com/ansible/ansible/issues/25142
-    - name: Install asciidoctor gems
+    - name: Install gems
       command: "gem install {{ item['name'] }} --no-user-install -n {{ local_bin_dir }}"
       args:
         creates: "{{ local_bin_dir }}/{{ item['name'] }}"
-      loop: '{{ asciidoctor_gems }}'
+      loop: '{{ gems }}'
+
+    - name: Install gems in prerelease state
+      command:
+      args:
+        argv:
+          - 'gem'
+          - 'install'
+          - "{{ item['name'] }}"
+          - '--no-user-install'
+          - '--no-document'
+          - '-n'
+          - '{{ local_bin_dir }}'
+          - "{{ item['extra_options'] }}"
+        creates: "{{ local_bin_dir }}/{{ item['name'] }}"
+      loop: '{{ gems_pre }}'
