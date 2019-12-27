@@ -1851,7 +1851,13 @@ const route = {
       path: 'certificate/:id',
       name: 'certificate',
       component: CertificatesView,
-      props: (route) => ({ storeName: '$_certificates', id: route.params.id })
+      props: (route) => ({ formStoreName: 'formCertificate', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formCertificate) { // Register store module only once
+          store.registerModule('formCertificate', FormStore)
+        }
+        next()
+      }
     },
     /**
      * System Configuration
