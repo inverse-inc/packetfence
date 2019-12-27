@@ -350,7 +350,7 @@ Insert the pf::dal object
 =cut
 
 sub insert {
-    my ($self) = @_;
+    my ($self, @args) = @_;
     if ($self->__from_table) {
         my $table = $self->table;
         $self->logger->error("Trying to insert duplicate row into $table");
@@ -365,6 +365,7 @@ sub insert {
         -into => $self->table,
         -values   => $insert_data,
         -no_auto_tenant_id => $self->{-no_auto_tenant_id},
+        @args,
     );
     return $status if is_error($status);
 
@@ -753,9 +754,13 @@ Wrap new and insert
 =cut
 
 sub create {
-    my ($self, @args) = @_;
-    my $obj = $self->new(@args);
-    return $obj->insert;
+    my ($self, $args) = @_;
+    my $obj = $self->new($args);
+    my %insert_args = (
+        -ignore => delete $args->{-ignore},
+    );
+
+    return $obj->insert(%insert_args);
 }
 
 =head2 find_from_tables
@@ -1098,10 +1103,16 @@ Wrap call to pf::SQL::Abstract->insert and db_execute
 =cut
 
 sub do_insert {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $sqla          = $proto->get_sql_abstract;
-    @args = $proto->update_params_for_insert(@args);
-    my ($stmt, @bind) = $sqla->insert(@args);
+    my $ignore        = delete $args{'-ignore'};
+    %args = $proto->update_params_for_insert(%args);
+    my ($stmt, @bind) = $sqla->insert(%args);
+    if ($ignore) {
+        my $s = $sqla->_sqlcase('insert ignore into');
+        $stmt =~ s/insert into/$s/ie;
+    }
+
     return $proto->db_execute($stmt, @bind);
 }
 
