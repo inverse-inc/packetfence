@@ -1,7 +1,7 @@
 ---
 gitlab_buildpkg_tools__rpm_keys:
   - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
-  - '/etc/pki/rpm-gpg/NODESOURCE-GPG-SIGNING-KEY-EL'
+  - 'https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL'
 
 gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence-devel
