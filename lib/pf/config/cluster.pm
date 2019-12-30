@@ -68,7 +68,7 @@ our $master_multi_zone = sub {
             }
         }
     }
-    return $FALSE;
+    return 'DEFAULT';
 }->();
 
 =head2 cluster_ini_config
