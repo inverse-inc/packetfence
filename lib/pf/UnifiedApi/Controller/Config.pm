@@ -395,7 +395,7 @@ sub validate_item {
     my ($self, $item) = @_;
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
-        $self->render_error(422, "Unable to validate invalid no valid formater");
+        $self->render_error(422, $form // "Unable to validate invalid formater");
         return undef;
     }
 
