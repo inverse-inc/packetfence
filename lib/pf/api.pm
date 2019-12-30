@@ -231,12 +231,7 @@ sub update_ip4log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     $postdata{'oldip'}  = pf::ip4log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
     $postdata{'oldmac'} = pf::ip4log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
 
-    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
-        $logger->info(
-            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing ip4log entry"
-        );
-        pf::ip4log::close($postdata{'ip'});
-    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
+    if ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
             "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing ip4log entry"
         );
