@@ -108,7 +108,7 @@ export default {
             if (remainder.length > 0) { // has remaining
               if (!(first in target)) Vue.set(target, first, {})
             } else { // last iteration
-              if (target === null) target = {}
+              if ([null, undefined].includes(target)) target = {}
               if (!(first in target)) Vue.set(target, first, undefined)
             }
             target = target[first]
