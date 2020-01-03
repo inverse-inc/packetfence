@@ -156,6 +156,7 @@ use Test::More tests => 6;    # last test to print
 use Test::NoWarnings;
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::constants::realm;
 
 my $source = getAuthenticationSource('LDAP0');
 
@@ -165,7 +166,7 @@ $source->cache->clear;
 
 isa_ok($source,'pf::Authentication::Source::LDAPSource');
 
-my $params = { username => 'bob'};
+my $params = { username => 'bob', context => $pf::constants::realm::ADMIN_CONTEXT};
 
 is(0,SHM::getCount(),"No search was done");
 
