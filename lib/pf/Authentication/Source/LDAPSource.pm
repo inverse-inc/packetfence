@@ -290,9 +290,19 @@ rule_cache_key
 
 sub rule_cache_key {
     my ($self, $rule, $params, $extra) = @_;
-    my %temp = %{$params // {}};
-    delete @temp{qw(current_date current_time current_time_period radius_request)};
-    return [$self->{id}, $rule->{id}, \%temp ];
+    my %allowed_conditions = map { $_->{attributes} => 1  } @{$self->{conditions} // []};
+    my @key_values = (
+        $self->{id},
+        $rule->{id},
+        $rule->{cache_key},
+        (
+            map {
+                my $v = $_->{value};
+                ($v => $params->{$v})
+            } grep { $_->{type} ne $Conditions::LDAP_ATTRIBUTE && exists $allowed_conditions{$_->{value}} } @{$self->common_attributes() // []}
+        )
+    );
+    return \@key_values;
 }
 
 =head2 match_in_subclass
@@ -614,7 +624,7 @@ Create the filter to search for the dn
 
 sub _makefilter {
     my ($self,$username) = @_;
-    if (@{$self->{'searchattributes'}}) {
+    if (@{$self->{'searchattributes'} // []}) {
         my $search = join ("", map { "($_=$username)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
         return "(|$search)";
     } else {
