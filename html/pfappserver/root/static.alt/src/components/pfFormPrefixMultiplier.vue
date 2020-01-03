@@ -155,7 +155,7 @@ export default {
     },
     humanValue: {
       get () {
-        if (this.inputValue > 0) {
+        if (+this.inputValue !== 0) {
           // unselect all
           this.unSelectPrefix()
           // sort prefixes descending using multiplier, to iterate in order
@@ -163,7 +163,7 @@ export default {
           // find LCD for value
           for (let i = 0; i < prefixes.length; i++) {
             let quotient = this.inputValue / prefixes[i].multiplier
-            if (quotient >= 1 && quotient === Math.round(quotient)) {
+            if (Math.abs(quotient) >= 1 && quotient === Math.round(quotient)) {
               const index = this.prefixes.findIndex((p) => { return p.multiplier === prefixes[i].multiplier })
               // eslint-disable-next-line vue/no-side-effects-in-computed-properties
               this.prefixes[index].selected = true
@@ -182,13 +182,17 @@ export default {
         return this.inputValue
       },
       set (newValue) {
-        const selectedIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
-        let multiplier = 1
-        if (selectedIndex >= 0) {
-          // scale up
-          multiplier = this.prefixes[selectedIndex].multiplier
+        if (+newValue === 0) {
+          this.inputValue = null
+        } else {
+          let multiplier = 1
+          const selectedIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
+          if (selectedIndex >= 0) {
+            // scale up
+            multiplier = this.prefixes[selectedIndex].multiplier
+          }
+          this.inputValue = +newValue * multiplier
         }
-        this.inputValue = newValue * multiplier
       }
     }
   },
@@ -197,9 +201,11 @@ export default {
       this.$refs.input.focus()
     },
     changeMultiplier (event, newIndex) {
-      const curIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
-      const factor = this.prefixes[newIndex].multiplier / this.prefixes[curIndex].multiplier
-      this.inputValue *= factor
+      if (+this.inputValue !== 0) {
+        const curIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
+        const factor = this.prefixes[newIndex].multiplier / this.prefixes[curIndex].multiplier
+        this.inputValue *= factor
+      }
     },
     inRange (index) {
       return this.prefixes[index].multiplier <= this.max
