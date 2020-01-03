@@ -85,7 +85,7 @@ sub build_child {
 
             my $current_rule = pf::Authentication::Rule->new( { match => $Rules::ANY, id => $id } );
             my %current_rule_config = ();
-
+            my $cache_key = '';
             foreach my $parameter ( nsort keys( %$rule_config ) ) {
                 my $config_value = $rule_config->{$parameter};
                 if ( $parameter =~ m/condition(\d+)/ ) {
@@ -100,6 +100,7 @@ sub build_child {
                         )
                     );
 
+                    $cache_key .= $config_value;
                     $current_rule_config{'conditions'}{$parameter} = $config_value;
                 }
                 elsif ( $parameter =~ m/action(\d+)/ ) {
@@ -132,6 +133,8 @@ sub build_child {
                 }
             }
 
+            $current_rule->cache_key($cache_key);
+            $current_rule_config{cache_key} = $cache_key;
             $current_source->add_rule($current_rule);
             $current_source_config->{'rules'}->{$rule_id} = \%current_rule_config;
         }
