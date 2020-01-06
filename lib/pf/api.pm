@@ -1499,6 +1499,7 @@ sub handle_accounting_metadata : Public {
     }
     if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
         if (pf::Connection::ProfileFactory->instantiate($mac)->unregOnAcctStop()) {
+            pf::log::get_logger->info("Unregistering $mac on Accounting-Stop");
             $client->notify("deregister_node", mac => $mac);
         }
     }
