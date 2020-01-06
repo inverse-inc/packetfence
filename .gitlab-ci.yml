@@ -29,11 +29,10 @@ variables:
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
   MAINTDIR: $CILIBDIR/maintenance
-  INSTDIR: $CILIBDIR/test
+  TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
   RPM_DIR: rpm
   DEB_DIR: debian
-  VAGRANT_DIR: addons/vagrant
   PUBLIC_REPO_URL: http://packetfence.org/downloads/PacketFence
   # env variables
   ANSIBLE_FORCE_COLOR: "true"
@@ -227,9 +226,9 @@ variables:
 
 .test_script:
   script:
-    - make -e -C ${INSTDIR} test
+    - make -e -C ${TESTDIR} test
   after_script:
-    - make -e -C ${INSTDIR} teardown
+    - make -e -C ${TESTDIR} clean
     
 
 ################################################################################
