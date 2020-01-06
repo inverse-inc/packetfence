@@ -299,7 +299,7 @@
         </b-tab>
 
       </b-tabs>
-      <b-card-footer @mouseenter="/*$v.nodeContent.$touch()*/" v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
+      <b-card-footer v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
         <pf-button-save class="mr-1" v-if="ifTab(['Edit'])" :disabled="disableSave" :isLoading="isLoading"/>
         <pf-button-delete class="mr-3" v-if="ifTab(['Edit'])" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()"/>
         <template v-if="ifTab(['Edit', 'Location'])">

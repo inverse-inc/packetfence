@@ -226,7 +226,7 @@
         </b-form-row>
       </b-container>
 
-      <b-card-footer @mouseenter="$v.$touch()">
+      <b-card-footer>
         <b-button variant="primary" :disabled="invalidForm" @click="create()">
           <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
         </b-button>
