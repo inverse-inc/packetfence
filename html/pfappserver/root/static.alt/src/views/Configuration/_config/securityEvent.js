@@ -1,3 +1,4 @@
+import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormInput from '@/components/pfFormInput'
@@ -540,6 +541,78 @@ export const triggerIntervals = {
   W: i18n.t('Week'),
   M: i18n.t('Month'),
   Y: i18n.t('Year')
+}
+
+const decomposeTriggers = (triggers) => {
+  return (triggers || []).map(trigger => {
+    let decomposed = { endpoint: { conditions: [] }, profiling: { conditions: [] }, usage: {}, event: {} }
+    for (const type in trigger) {
+      const { [type]: value } = trigger
+      if (value && value.length) {
+        if (type in triggerFields) {
+          let { [type]: { category } = {} } = triggerFields
+          let condition = { typeValue: { type, value } }
+          if ('conditions' in decomposed[category]) {
+            decomposed[category].conditions.push({ type, value }) // 'endpoint' or 'profiling'
+          } else {
+            decomposed[category] = { typeValue: { type, value } } // 'usage' or 'event'
+          }
+          if (category === triggerCategories.USAGE) {
+            // Decompose data usage
+            const { groups } = value.match(/(?<direction>TOT|IN|OUT)(?<limit>[0-9]+)(?<multiplier>[KMG]?)B(?<interval>[DWMY])/)
+            if (groups) {
+              decomposed[category].direction = groups.direction
+              decomposed[category].limit = groups.limit * Math.pow(1024, 'KMG'.indexOf(groups.multiplier) + 1)
+              decomposed[category].interval = groups.interval
+            }
+          }
+        } else {
+          throw new Error(`Uncategorized field type: ${type}`)
+        }
+      }
+    }
+    return decomposed
+  })
+}
+
+const recomposeTriggers = (triggers) => {
+  return (triggers || []).map(trigger => {
+    let recomposed = Object.keys(triggerFields).reduce((a, v) => {
+      return { ...a, ...{ [v]: null } }
+    }, {})
+    for (var category in trigger) {
+      if ([triggerCategories.ENDPOINT, triggerCategories.PROFILING].includes(category)) { // 'endpoint' or 'profiling'
+        const { [category]: { conditions = [] } = {} } = trigger
+        for (const condition of conditions) {
+          const { type, value } = condition || {}
+          if (type && value) {
+            const { value: nestedValue } = value || {}
+            if (nestedValue) {
+              recomposed[type] = nestedValue
+            } else {
+              recomposed[type] = value
+            }
+          }
+        }
+      }
+      if ([triggerCategories.USAGE, triggerCategories.EVENT].includes(category)) { // 'usage' or 'event'
+        if (category === triggerCategories.USAGE) { // normalize 'usage'
+          const { [category]: { direction, limit, interval } = {} } = trigger
+          trigger[triggerCategories.USAGE]['typeValue'] = {
+            type: 'accounting',
+            value: (direction && limit && interval)
+              ? `${direction}${bytes.toHuman(limit, 0, true).replace(/ /, '').toUpperCase()}B${interval}`
+              : null
+          }
+        }
+        const { [category]: { typeValue: { type, value } = {} } = {} } = trigger
+        if (type && value) {
+          recomposed[type] = value
+        }
+      }
+    }
+    return recomposed
+  })
 }
 
 export const triggerEndpointView = (form = {}, meta = {}) => {
