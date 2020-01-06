@@ -154,6 +154,11 @@ export default {
       default: 'value'
     }
   },
+  errorCaptured (err, vm, info) { // capture exceptions from vue-multiselect component
+    // eslint-disable-next-line
+    console.error(err)
+    return false // prevent error from propagating
+  },
   data () {
     return {
       isFocus: false
