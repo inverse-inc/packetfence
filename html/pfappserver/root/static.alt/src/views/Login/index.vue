@@ -2,7 +2,7 @@
     <b-row class="justify-content-md-center mt-3">
         <b-col md="8" lg="6" xl="4">
           <transition name="fade" mode="out-in">
-            <pf-form-login @login="login()"></pf-form-login>
+            <pf-form-login @login="login()" v-show="!loginSuccessful"></pf-form-login>
         </b-col>
     </b-row>
 </template>
@@ -15,8 +15,14 @@ export default {
   components: {
     pfFormLogin
   },
+  data () {
+    return {
+      loginSuccessful: false
+    }
+  },
   methods: {
     login () {
+      this.loginSuccessful = true
       // Don't redirect to /login nor /logout
       if (this.$route.params.previousPath &&
         this.$route.params.previousPath !== '/login' &&
