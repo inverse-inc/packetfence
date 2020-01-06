@@ -156,7 +156,7 @@ const mutations = {
       state.message = message
     }
   },
-  $RESET: () => {
+  $RESET: (state) => {
     state = initialState()
   }
 }

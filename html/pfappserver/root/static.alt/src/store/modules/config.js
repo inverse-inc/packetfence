@@ -1721,7 +1721,7 @@ const mutations = {
     state.wrixLocations = wrixLocations
     state.wrixLocationsStatus = types.SUCCESS
   },
-  $RESET: () => {
+  $RESET: (state) => {
     state = initialState()
   }
 }
