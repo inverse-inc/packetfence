@@ -39,7 +39,7 @@
                     v-bind="col.attrs"
                     v-on="kebabCaseListeners(col.listeners)"
                     :form-store-name="formStoreName"
-                    :form-namespace="col.namespace"
+                    :form-namespace="`${(formNamespace) ? `${formNamespace}.` : ''}${col.namespace}`"
                     :key="col.namespace"
                     :is="col.component || defaultComponent"
                     :is-loading="isLoading"
@@ -81,6 +81,10 @@ export default {
     formStoreName: {
       type: String,
       required: true
+    },
+    formNamespace: {
+      type: String,
+      default: null
     },
     view: {
       type: Object,

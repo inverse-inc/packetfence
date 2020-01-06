@@ -55,9 +55,7 @@ import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationSecurityEventListConfig as config
-} from '@/globals/configuration/pfConfigurationSecurityEvents'
+import { config } from '../_config/securityEvent'
 
 export default {
   name: 'security-events-list',
@@ -68,13 +66,6 @@ export default {
     pfEmptyTable,
     pfFormRangeToggle
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
       config: config(this),
@@ -83,7 +74,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_security_events/isLoading']
     }
   },
   methods: {
@@ -91,7 +82,7 @@ export default {
       this.$router.push({ name: 'cloneSecurityEvent', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSecurityEvent`, item.id).then(response => {
+      this.$store.dispatch('$_security_events/deleteSecurityEvent', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -99,7 +90,7 @@ export default {
     toggle (item, event) {
       switch (event) {
         case 'Y':
-          this.$store.dispatch(`${this.storeName}/enableSecurityEvent`, { quiet: true, ...item }).then(response => {
+          this.$store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item }).then(response => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} enabled.', { desc: this.$strong(item.desc) }) })
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err
@@ -109,7 +100,7 @@ export default {
           })
           break
         case 'N':
-          this.$store.dispatch(`${this.storeName}/disableSecurityEvent`, { quiet: true, ...item }).then(response => {
+          this.$store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item }).then(response => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} disabled.', { desc: this.$strong(item.desc) }) })
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err

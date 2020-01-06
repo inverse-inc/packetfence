@@ -98,9 +98,15 @@ export default {
     pfMixinForm
   ],
   props: {
+    default: {
+      type: Object,
+      default: () => {
+        return { attribute: null, operator: null, value: null }
+      }
+    },
     value: {
       type: Object,
-      default: () => { return this.default }
+      default: () => { return { attribute: null, operator: null, value: null } }
     },
     attributeLabel: {
       type: String
@@ -126,7 +132,6 @@ export default {
   },
   data () {
     return {
-      default: { attribute: null, operator: null, value: null }, // default value
       componentType // @/globals/pfField
     }
   },

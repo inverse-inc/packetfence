@@ -105,9 +105,15 @@ export default {
     pfMixinForm
   ],
   props: {
+    default: {
+      type: Object,
+      default: () => {
+        return { id: null, description: null, match: 'all', actions: [], conditions: [] }
+      }
+    },
     value: {
       type: Object,
-      default: () => { return this.default }
+      default: () => { return { id: null, description: null, match: 'all', actions: [], conditions: [] } }
     },
     matchLabel: {
       type: String
@@ -123,12 +129,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false
-    },
-    default: {
-      type: Object,
-      default: () => {
-        return { id: null, description: null, match: 'all', actions: [], conditions: [] }
-      }
     }
   },
   data () {

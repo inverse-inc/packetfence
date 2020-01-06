@@ -31,7 +31,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
             values: [{
               op: 'or',
               values: ((query.constructor === Array) ? query : [query]).map(value => {
-                return { field: valueName, op: 'equals', value: `${value.trim()}` }
+                return { field: valueName, op: 'equals', value: `${(value).toString().trim()}` }
               })
             }]
           },
@@ -52,7 +52,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
       return apiCall.post(
         url,
         {
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: `${query.trim()}` }] }] },
+          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: `${(query).toString().trim()}` }] }] },
           fields: [fieldName, valueName],
           sort: [fieldName],
           cursor: 0,

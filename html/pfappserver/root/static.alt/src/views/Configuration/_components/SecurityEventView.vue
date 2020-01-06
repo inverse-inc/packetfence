@@ -1,13 +1,11 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :is-loading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :is-new="isNew"
     :is-clone="isClone"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -22,8 +20,9 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Security Event?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
@@ -38,22 +37,19 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationSecurityEventViewFields as fields
-} from '@/globals/configuration/pfConfigurationSecurityEvents'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/securityEvent'
 
 export default {
   name: 'security-event-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -71,30 +67,24 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/securityEvent
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_security_events/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     roles () {
       return this.$store.getters['config/rolesList']
@@ -105,49 +95,41 @@ export default {
   },
   methods: {
     init () {
-      let promise
-      if (this.id) {
-        // existing
-        promise = this.$store.dispatch(`${this.storeName}/getSecurityEvent`, this.id).then(form => {
+      if (this.id) { // existing
+        this.$store.dispatch('$_security_events/getSecurityEvent', this.id).then(form => {
           if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-          this.form = form
-          return form
+          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
         })
-      } else {
-        promise = Promise.resolve()
+        this.$store.dispatch('$_security_events/options').then(options => {
+          const { meta = {} } = options
+          const { isNew, isClone } = this
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
+        })
+      } else { // new
+        this.$store.dispatch('$_security_events/options').then(options => {
+          const { meta = {} } = options
+          const { isNew, isClone } = this
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
+        })
       }
-      promise.then(form => {
-        this.$store.dispatch(`${this.storeName}/options`).then(options => {
-          // store options
-          this.options = options
-          if (form) {
-            this.form = form
-          } else {
-            // new
-            this.form = defaults(options.meta) // set defaults
-          }
-          // make sure actions is an array
-          if (!this.form.actions) {
-            this.form.actions = []
-          }
-        })
-      })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.back()
     },
     create () {
-      this.$store.dispatch(`${this.storeName}/createSecurityEvent`, this.form).then(response => {
+      this.$store.dispatch('$_security_events/createSecurityEvent', this.form).then(response => {
         this.close()
       })
     },
     save () {
-      this.$store.dispatch(`${this.storeName}/updateSecurityEvent`, this.form).then(response => {
+      this.$store.dispatch('$_security_events/updateSecurityEvent', this.form).then(response => {
         this.close()
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteSecurityEvent`, this.id).then(response => {
+      this.$store.dispatch('$_security_events/deleteSecurityEvent', this.id).then(response => {
         this.close()
       })
     }

@@ -105,10 +105,10 @@ export default {
         get: (target, namespace) => {
           while (namespace) { // handle namespace
             let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
+            if ([null, undefined].includes(target)) target = {}
             if (remainder.length > 0) { // has remaining
               if (!(first in target)) Vue.set(target, first, {})
             } else { // last iteration
-              if ([null, undefined].includes(target)) target = {}
               if (!(first in target)) Vue.set(target, first, undefined)
             }
             target = target[first]

@@ -32,9 +32,15 @@ export default {
     pfMixinForm
   ],
   props: {
+    default: {
+      type: Object,
+      default: () => {
+        return null
+      }
+    },
     value: {
       type: Object,
-      default: () => { return this.default }
+      default: () => { return null }
     },
     field: {
       type: Object,
@@ -43,11 +49,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false
-    }
-  },
-  data () {
-    return {
-      default: null // default value
     }
   },
   computed: {

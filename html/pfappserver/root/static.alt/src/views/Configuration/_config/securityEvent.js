@@ -1,29 +1,35 @@
 import i18n from '@/utils/locale'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormSecurityEventTrigger from '@/components/pfFormSecurityEventTrigger'
 import pfFormSecurityEventTriggerHeader from '@/components/pfFormSecurityEventTriggerHeader'
 import pfFormSecurityEventActions from '@/components/pfFormSecurityEventActions'
+import pfFormSelect from '@/components/pfFormSelect'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
   conditional,
   hasSecurityEvents,
-  securityEventExists
+  securityEventExists,
+  isMacAddress
 } from '@/globals/pfValidators'
+import {
+  required,
+  minValue,
+  maxLength
+} from 'vuelidate/lib/validators'
 
-const {
-  required
-} = require('vuelidate/lib/validators')
-
-export const pfConfigurationSecurityEventsListColumns = [
+export const columns = [
   {
     key: 'enabled',
     label: i18n.t('Status'),
@@ -61,7 +67,7 @@ export const pfConfigurationSecurityEventsListColumns = [
   }
 ]
 
-export const pfConfigurationSecurityEventsListFields = [
+export const fields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -74,202 +80,10 @@ export const pfConfigurationSecurityEventsListFields = [
   }
 ]
 
-export const pfConfigurationSecurityEventViewFields = (context = {}) => {
-  const {
-    isNew = false,
-    isClone = false,
-    id = '',
-    form = {},
-    options: {
-      meta = {}
-    }
-  } = context
-  return [
-    {
-      tab: null, // ignore tabs
-      fields: [
-        {
-          label: i18n.t('Enable security event'),
-          fields: [
-            {
-              key: 'enabled',
-              component: pfFormRangeToggle,
-              attrs: {
-                disabled: id === 'defaults',
-                values: { checked: 'Y', unchecked: 'N' },
-                colors: { checked: 'var(--success)', unchecked: 'var(--danger)' }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Identifier'),
-          fields: [
-            {
-              key: 'id',
-              component: pfFormInput,
-              attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
-                ...{
-                  disabled: (!isNew && !isClone)
-                }
-              },
-              validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
-                ...{
-                  [i18n.t('Security event exists.')]: not(and(required, conditional(isNew || isClone), hasSecurityEvents, securityEventExists))
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Description'),
-          fields: [
-            {
-              key: 'desc',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'desc'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'desc', i18n.t('Description'))
-            }
-          ]
-        },
-        {
-          label: i18n.t('Priority'),
-          text: i18n.t('When multiple violations are opened for an endpoint, the one with the lowest priority takes precedence.'),
-          fields: [
-            {
-              key: 'priority',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'priority'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'priority', i18n.t('Priority'))
-            }
-          ]
-        },
-        {
-          label: i18n.t('Ignored Roles'),
-          text: i18n.t(`Which roles shouldn't be impacted by this security event.`),
-          fields: [
-            {
-              key: 'whitelisted_roles',
-              component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'whitelisted_roles'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'whitelisted_roles', i18n.t('Roles'))
-            }
-          ]
-        },
-        {
-          label: i18n.t('Event Triggers'),
-          if: (form.triggers && form.triggers.length),
-          fields: [
-            {
-              component: pfFormSecurityEventTriggerHeader
-            }
-          ]
-        },
-        {
-          label: ' ',
-          fields: [
-            {
-              key: 'triggers',
-              component: pfFormFields,
-              attrs: {
-                buttonLabel: i18n.t('Add Trigger'),
-                sortable: true,
-                field: {
-                  component: pfFormSecurityEventTrigger,
-                  attrs: { meta }
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Event Actions'),
-          fields: [
-            {
-              key: '', // use the model itself
-              component: pfFormSecurityEventActions,
-              attrs: { meta }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Dynamic Window'),
-          text: i18n.t('Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).'),
-          fields: [
-            {
-              key: 'window_dynamic',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: '1', unchecked: '0' }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Grace'),
-          text: i18n.t('Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.'),
-          fields: [
-            {
-              key: 'grace.interval',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'grace.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'grace.interval', i18n.t('Interval'))
-            },
-            {
-              key: 'grace.unit',
-              component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'grace.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'grace.unit', i18n.t('Unit'))
-            }
-          ]
-        },
-        {
-          label: i18n.t('Window'),
-          text: i18n.t('Amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead.'),
-          fields: [
-            {
-              key: 'window.interval',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'window.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'window.interval', i18n.t('Interval'))
-            },
-            {
-              key: 'window.unit',
-              component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'window.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
-            }
-          ]
-        },
-        {
-          label: i18n.t('Delay By'),
-          text: i18n.t('Delay before triggering the security event.'),
-          fields: [
-            {
-              key: 'delay_by.interval',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'delay_by.interval', i18n.t('Interval'))
-            },
-            {
-              key: 'delay_by.unit',
-              component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'delay_by.unit', i18n.t('Unit'))
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-export const pfConfigurationSecurityEventListConfig = () => {
+export const config = () => {
   return {
-    columns: pfConfigurationSecurityEventsListColumns,
-    fields: pfConfigurationSecurityEventsListFields,
+    columns,
+    fields,
     rowClickRoute (item) {
       return { name: 'security_event', params: { id: item.id } }
     },
@@ -305,3 +119,687 @@ export const pfConfigurationSecurityEventListConfig = () => {
     }
   }
 }
+
+export const view = (form = {}, meta = {}) => {
+  const {
+    id = null
+  } = form
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  return [
+    {
+      tab: null, // ignore tabs
+      rows: [
+        {
+          label: i18n.t('Enable security event'),
+          cols: [
+            {
+              namespace: 'enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                disabled: id === 'defaults',
+                values: { checked: 'Y', unchecked: 'N' },
+                colors: { checked: 'var(--success)', unchecked: 'var(--danger)' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Identifier'),
+          cols: [
+            {
+              namespace: 'id',
+              component: pfFormInput,
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Description'),
+          cols: [
+            {
+              namespace: 'desc',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'desc')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Priority'),
+          text: i18n.t('When multiple violations are opened for an endpoint, the one with the lowest priority takes precedence.'),
+          cols: [
+            {
+              namespace: 'priority',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'priority')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Ignored Roles'),
+          text: i18n.t(`Which roles shouldn't be impacted by this security event.`),
+          cols: [
+            {
+              namespace: 'whitelisted_roles',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'whitelisted_roles')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Event Triggers'),
+          if: (form.triggers && form.triggers.length),
+          cols: [
+            {
+              component: pfFormSecurityEventTriggerHeader
+            }
+          ]
+        },
+        {
+          label: ' ',
+          cols: [
+            {
+              namespace: 'triggers',
+              component: pfFormFields,
+              attrs: {
+                buttonLabel: i18n.t('Add Trigger'),
+                sortable: true,
+                field: {
+                  component: pfFormSecurityEventTrigger,
+                  attrs: { meta }
+                },
+                invalidFeedback: i18n.t('Trigger(s) contain one or more errors.')
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Event Actions'),
+          cols: [
+            {
+              namespace: '', // use the model itself
+              component: pfFormSecurityEventActions,
+              attrs: { meta }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Dynamic Window'),
+          text: i18n.t('Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).'),
+          cols: [
+            {
+              namespace: 'window_dynamic',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Grace'),
+          text: i18n.t('Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.'),
+          cols: [
+            {
+              namespace: 'grace.interval',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'grace.interval')
+            },
+            {
+              namespace: 'grace.unit',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'grace.unit')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Window'),
+          text: i18n.t('Amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead.'),
+          cols: [
+            {
+              namespace: 'window.interval',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'window.interval')
+            },
+            {
+              namespace: 'window.unit',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'window.unit')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Delay By'),
+          text: i18n.t('Delay before triggering the security event.'),
+          cols: [
+            {
+              namespace: 'delay_by.interval',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.interval')
+            },
+            {
+              namespace: 'delay_by.unit',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.unit')
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
+  const {
+    triggers = []
+  } = form
+  return {
+    id: {
+      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...{
+        [i18n.t('Security event exists.')]: not(and(required, conditional(isNew || isClone), hasSecurityEvents, securityEventExists))
+      }
+    },
+    desc: pfConfigurationValidatorsFromMeta(meta, 'desc', i18n.t('Description')),
+    priority: pfConfigurationValidatorsFromMeta(meta, 'priority', i18n.t('Priority')),
+    whitelisted_roles: pfConfigurationValidatorsFromMeta(meta, 'whitelisted_roles', i18n.t('Roles')),
+    grace: {
+      interval: pfConfigurationValidatorsFromMeta(meta, 'grace.interval', i18n.t('Interval')),
+      unit: pfConfigurationValidatorsFromMeta(meta, 'grace.unit', i18n.t('Unit'))
+    },
+    window: {
+      interval: pfConfigurationValidatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
+      unit: pfConfigurationValidatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
+    },
+    delay_by: {
+      interval: pfConfigurationValidatorsFromMeta(meta, 'delay_by.interval', i18n.t('Interval')),
+      unit: pfConfigurationValidatorsFromMeta(meta, 'delay_by.unit', i18n.t('Unit'))
+    },
+    triggers: {
+      ...(triggers || []).map((trigger) => {
+        const {
+          endpoint: { conditions: endpointConditions } = {},
+          profiling: { conditions: profilingConditions } = {},
+          event: {
+            typeValue: {
+              type: eventType,
+              value: eventValue
+            } = {}
+          } = {}
+        } = trigger || {}
+        return {
+          endpoint: {
+            conditions: {
+              ...(endpointConditions || []).map(condition => {
+                const { type, value } = condition || {}
+                return {
+                  type: {
+                    [i18n.t('Type required.')]: required,
+                    [i18n.t('Duplicate type.')]: conditional(type => endpointConditions.filter(condition => condition && condition.type === type).length <= 1)
+                  },
+                  value: {
+                    ...{
+                      [i18n.t('Value required.')]: required
+                    },
+                    ...((type && 'validators' in triggerFields[type])
+                      ? triggerFields[type].validators
+                      : {}
+                    )
+                  }
+                }
+              })
+            }
+          },
+          profiling: {
+            conditions: {
+              ...(profilingConditions || []).map(condition => {
+                const { type, value } = condition || {}
+                return {
+                  type: {
+                    [i18n.t('Type required.')]: required,
+                    [i18n.t('Duplicate type.')]: conditional(type => profilingConditions.filter(condition => condition && condition.type === type).length <= 1)
+                  },
+                  value: {
+                    ...{
+                      [i18n.t('Value required.')]: required
+                    },
+                    ...((type && 'validators' in triggerFields[type])
+                      ? triggerFields[type].validators
+                      : {}
+                    )
+                  }
+                }
+              })
+            }
+          },
+          usage: {
+            limit: {
+              [i18n.t('Limit must be greater than 0.')]: minValue(0)
+            }
+          },
+          event: {
+            typeValue: {
+              type: {/* noop */},
+              value: {
+                ...{
+                  [i18n.t('Value required.')]: conditional(() => { // only require 'value' if 'type' is set
+                    const { event: { typeValue: { type, value } = {} } = {} } = trigger || {}
+                    return ([undefined, null].includes(type) || !([undefined, null, ''].includes(value)))
+                  })
+                },
+                ...((eventType && 'validators' in triggerFields[eventType])
+                  ? triggerFields[eventType].validators
+                  : {}
+                )
+              }
+            }
+          }
+        }
+      })
+    }
+  }
+}
+
+export const triggerCategories = {
+  ENDPOINT: 'endpoint',
+  PROFILING: 'profiling',
+  USAGE: 'usage',
+  EVENT: 'event'
+}
+
+export const triggerCategoryTitles = {
+  [triggerCategories.ENDPOINT]: i18n.t('Endpoint'),
+  [triggerCategories.PROFILING]: i18n.t('Device Profiling'),
+  [triggerCategories.USAGE]: i18n.t('Usage'),
+  [triggerCategories.EVENT]: i18n.t('Event')
+}
+
+export const triggerFields = {
+  accounting: {
+    text: i18n.t('Accounting'),
+    category: triggerCategories.USAGE
+  },
+  custom: {
+    text: i18n.t('Custom'),
+    category: triggerCategories.EVENT,
+    validators: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    }
+  },
+  detect: {
+    text: i18n.t('Detect'),
+    category: triggerCategories.EVENT,
+    validators: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    }
+  },
+  device: {
+    text: i18n.t('Device'),
+    category: triggerCategories.PROFILING
+  },
+  dhcp_fingerprint: {
+    text: i18n.t('DHCP Fingerprint'),
+    category: triggerCategories.PROFILING
+  },
+  dhcp_vendor: {
+    text: i18n.t('DHCP Vendor'),
+    category: triggerCategories.PROFILING
+  },
+  dhcp6_fingerprint: {
+    text: i18n.t('DHCPv6 Fingerprint'),
+    category: triggerCategories.PROFILING
+  },
+  dhcp6_enterprise: {
+    text: i18n.t('DHCPv6 Enterprise'),
+    category: triggerCategories.PROFILING
+  },
+  internal: {
+    text: i18n.t('Internal'),
+    category: triggerCategories.EVENT
+  },
+  mac: {
+    text: i18n.t('MAC Address'),
+    category: triggerCategories.ENDPOINT,
+    validators: {
+      [i18n.t('Invalid MAC address.')]: isMacAddress
+    }
+  },
+  mac_vendor: {
+    text: i18n.t('MAC Vendor'),
+    category: triggerCategories.PROFILING
+  },
+  nessus: {
+    text: 'Nessus',
+    category: triggerCategories.EVENT
+  },
+  nessus6: {
+    text: 'Nessus v6',
+    category: triggerCategories.EVENT
+  },
+  nexpose_event_contains: {
+    text: i18n.t('Nexpose event contains ..'),
+    category: triggerCategories.EVENT
+  },
+  nexpose_event_starts_with: {
+    text: i18n.t('Nexpose event starts with ..'),
+    category: triggerCategories.EVENT
+  },
+  openvas: {
+    text: 'OpenVAS',
+    category: triggerCategories.EVENT
+  },
+  provisioner: {
+    text: i18n.t('Provisioner'),
+    category: triggerCategories.EVENT
+  },
+  role: {
+    text: i18n.t('Role'),
+    category: triggerCategories.ENDPOINT
+  },
+  suricata_event: {
+    text: i18n.t('Suricata Event'),
+    category: triggerCategories.EVENT
+  },
+  suricata_md5: {
+    text: 'Suricata MD5',
+    category: triggerCategories.EVENT
+  },
+  switch: {
+    text: i18n.t('Switch'),
+    category: triggerCategories.ENDPOINT
+  },
+  switch_group: {
+    text: i18n.t('Switch Group'),
+    category: triggerCategories.ENDPOINT
+  },
+  useragent: {
+    text: i18n.t('User Agent'),
+    category: triggerCategories.PROFILING
+  }
+}
+
+export const triggerDirections = {
+  TOT: i18n.t('Total'),
+  IN: i18n.t('Inbound'),
+  OUT: i18n.t('Outbound')
+}
+
+export const triggerIntervals = {
+  D: i18n.t('Day'),
+  W: i18n.t('Week'),
+  M: i18n.t('Month'),
+  Y: i18n.t('Year')
+}
+
+export const triggerEndpointView = (form = {}, meta = {}) => {
+  return [
+    {
+      tab: null, // ignore tabs
+      rows: [
+        {
+          cols: [
+            {
+              component: pfFormFields,
+              namespace: 'conditions',
+              attrs: {
+                buttonLabel: i18n.t('Add Condition'),
+                sortable: false,
+                field: {
+                  component: pfFieldTypeValue,
+                  attrs: {
+                    typeLabel: i18n.t('Select type'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      {
+                        ...pfConfigurationAttributesFromMeta(meta, 'triggers.role'),
+                        ...{
+                          value: 'role',
+                          text: triggerFields.role.text,
+                          types: [fieldType.OPTIONS]
+                        }
+                      },
+                      {
+                        value: 'mac',
+                        text: triggerFields.mac.text,
+                        types: [fieldType.SUBSTRING]
+                      },
+                      {
+                        ...pfConfigurationAttributesFromMeta(meta, 'triggers.switch'),
+                        ...{
+                          value: 'switch',
+                          text: triggerFields.switch.text,
+                          types: [fieldType.OPTIONS]
+                        }
+                      },
+                      {
+                        ...pfConfigurationAttributesFromMeta(meta, 'triggers.switch_group'),
+                        ...{
+                          value: 'switch_group',
+                          text: triggerFields.switch_group.text,
+                          types: [fieldType.OPTIONS]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+export const triggerProfilingView = (form = {}, meta = {}) => {
+  return [
+    {
+      tab: null, // ignore tabs
+      rows: [
+        {
+          cols: [
+            {
+              component: pfFormFields,
+              namespace: 'conditions',
+              attrs: {
+                buttonLabel: i18n.t('Add Condition'),
+                sortable: false,
+                field: {
+                  component: pfFieldTypeValue,
+                  attrs: {
+                    typeLabel: i18n.t('Select type'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      {
+                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.device'),
+                        value: 'device',
+                        text: triggerFields.device.text,
+                        types: [fieldType.OPTIONS]
+                      },
+                      {
+                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp_fingerprint'),
+                        value: 'dhcp_fingerprint',
+                        text: triggerFields.dhcp_fingerprint.text,
+                        types: [fieldType.OPTIONS]
+                      },
+                      {
+                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp_vendor'),
+                        value: 'dhcp_vendor',
+                        text: triggerFields.dhcp_vendor.text,
+                        types: [fieldType.OPTIONS]
+                      },
+                      {
+                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp6_fingerprint'),
+                        value: 'dhcp6_fingerprint',
+                        text: triggerFields.dhcp6_fingerprint.text,
+                        types: [fieldType.OPTIONS]
+                      },
+                      {
+                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp6_enterprise'),
+                        value: 'dhcp6_enterprise',
+                        text: triggerFields.dhcp6_enterprise.text,
+                        types: [fieldType.OPTIONS]
+                      },
+                      {
+                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.mac_vendor'),
+                        value: 'mac_vendor',
+                        text: triggerFields.mac_vendor.text,
+                        types: [fieldType.OPTIONS]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+export const triggerUsageView = (form = {}, meta = {}) => {
+    return [
+    {
+      tab: null, // ignore tabs
+      rows: [
+        {
+          cols: [
+            {
+              namespace: 'direction',
+              component: pfFormSelect,
+              attrs: {
+                columnLabel: i18n.t('Direction'),
+                class: 'w-100 mb-1',
+                placeholder: i18n.t('Select direction'),
+                options: Object.keys(triggerDirections).map(key => ({ value: key, text: triggerDirections[key] }))
+              }
+            },
+            {
+              namespace: 'limit',
+              component: pfFormPrefixMultiplier,
+              attrs: {
+                columnLabel: i18n.t('Limit'),
+                class: 'w-100 mb-1'
+              }
+            },
+            {
+              namespace: 'interval',
+              component: pfFormSelect,
+              attrs: {
+                columnLabel: i18n.t('Interval'),
+                class: 'w-100 mb-1',
+                placeholder: i18n.t('Select interval'),
+                options: Object.keys(triggerIntervals).map(key => ({ value: key, text: triggerIntervals[key] }))
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+export const triggerEventView = (form = {}, meta = {}) => {
+  return [
+    {
+      tab: null, // ignore tabs
+      rows: [
+        {
+          cols: [
+            {
+              component: pfFieldTypeValue,
+              namespace: 'typeValue',
+              attrs: {
+                typeLabel: i18n.t('Select trigger type'),
+                valueLabel: i18n.t('Select trigger value'),
+                fields: [
+                  {
+                    value: 'custom',
+                    text: triggerFields.custom.text,
+                    types: [fieldType.SUBSTRING]
+                  },
+                  {
+                    value: 'detect',
+                    text: triggerFields.detect.text,
+                    types: [fieldType.SUBSTRING]
+                  },
+                  {
+                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.internal'),
+                    ...{
+                      value: 'internal',
+                      text: triggerFields.internal.text,
+                      types: [fieldType.OPTIONS]
+                    }
+                  },
+                  {
+                    value: 'nessus',
+                    text: triggerFields.nessus.text,
+                    types: [fieldType.SUBSTRING]
+                  },
+                  {
+                    value: 'nessus6',
+                    text: triggerFields.nessus6.text,
+                    types: [fieldType.SUBSTRING]
+                  },
+                  {
+                    value: 'nexpose_event_contains',
+                    text: triggerFields.nexpose_event_contains.text,
+                    types: [fieldType.SUBSTRING]
+                  },
+                  {
+                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.nexpose_event_starts_with'),
+                    ...{
+                      value: 'nexpose_event_starts_with',
+                      text: triggerFields.nexpose_event_starts_with.text,
+                      types: [fieldType.OPTIONS]
+                    }
+                  },
+                  {
+                    value: 'openvas',
+                    text: triggerFields.openvas.text,
+                    types: [fieldType.SUBSTRING]
+                  },
+                  {
+                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.provisioner'),
+                    ...{
+                      value: 'provisioner',
+                      text: triggerFields.provisioner.text,
+                      types: [fieldType.OPTIONS]
+                    }
+                  },
+                  {
+                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.suricata_event'),
+                    ...{
+                      value: 'suricata_event',
+                      text: triggerFields.suricata_event.text,
+                      types: [fieldType.OPTIONS]
+                    }
+                  },
+                  {
+                    value: 'suricata_md5',
+                    text: triggerFields.suricata_md5.text,
+                    types: [fieldType.SUBSTRING]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+
