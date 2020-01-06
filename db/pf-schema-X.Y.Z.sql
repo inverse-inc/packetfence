@@ -1529,6 +1529,20 @@ CREATE TABLE `pki_revoked_certs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
+-- Table structure for table `bandwidth_accounting`
+--
+
+CREATE TABLE bandwidth_accounting (
+    tenant_id INT,
+    mac char(17) NOT NULL,
+    time_bucket DATETIME NOT NULL,
+    in_bytes BIGINT UNSIGNED NOT NULL,
+    out_bytes BIGINT UNSIGNED NOT NULL,
+    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    PRIMARY KEY (tenant_id, mac, time_bucket)
+);
+
+--
 -- Updating to current version
 --
 

@@ -221,6 +221,17 @@ CREATE TABLE IF NOT EXISTS dhcppool (
   KEY released (released)
 ) ENGINE=INNODB;
 
+\! echo "Adding new table bandwidth_accounting";
+CREATE TABLE IF NOT EXISTS bandwidth_accounting (
+    tenant_id INT,
+    mac char(17) NOT NULL,
+    time_bucket DATETIME NOT NULL,
+    in_bytes BIGINT UNSIGNED NOT NULL,
+    out_bytes BIGINT UNSIGNED NOT NULL,
+    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    PRIMARY KEY (tenant_id, mac, time_bucket)
+);
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
