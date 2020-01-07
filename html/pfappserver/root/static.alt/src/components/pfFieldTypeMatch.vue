@@ -32,8 +32,8 @@
         :close-on-select="isComponentType([componentType.SELECTONE])"
         :placeholder="matchPlaceholder"
         :disabled="disabled"
-        :taggable="isComponentType([componentType.REALM, componentType.SSID])"
-        :tag-placeholder="$t('Click to add new option')"
+        :taggable="field.taggable"
+        :tag-placeholder="field.tagPlaceholder || $t('Click to add new option')"
         label="name"
         track-by="value"
         collapse-object
