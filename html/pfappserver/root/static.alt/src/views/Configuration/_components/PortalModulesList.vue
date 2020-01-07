@@ -19,7 +19,7 @@
         <div class="position-relative">
           <div class="steps-row">
             <template v-for="step in stepsCount(rootModule.id)">
-            <icon class="card-bg" name="caret-right" :key="step"><!-- force proper spacing --></icon>
+            <icon class="card-bg" name="caret-right" :key="step" v-show="!minimize"><!-- force proper spacing --></icon>
             <div class="step-col" :key="step">
               <div class="step">
                 <div class="float-right py-1 pr-2 text-secondary small"><span v-show="!minimize" v-t="'step'"></span> {{ step }}</div>
@@ -59,7 +59,7 @@
         <template v-slot:tabs-end>
           <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport">
             <template v-for="group in moduleTypes">
-              <b-dropdown-header class="text-secondary" v-t="group.name" :key="group.name"></b-dropdown-header>
+              <b-dropdown-header class="text-secondary px-2" v-t="group.name" :key="group.name"></b-dropdown-header>
               <b-dropdown-item v-for="moduleType in group.types" :key="moduleType.name" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
                 <icon :style="{ color: moduleType.color }" class="mb-1" name="circle" scale=".5"></icon> {{ moduleType.name }}
               </b-dropdown-item>

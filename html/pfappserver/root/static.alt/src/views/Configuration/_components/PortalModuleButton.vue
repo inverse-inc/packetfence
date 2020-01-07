@@ -77,7 +77,7 @@ export default {
         time: 1000 // 1 second
       })
     },
-    remove (event) {
+    remove () {
       this.$emit('remove', this.module.id)
       this.hideButtons()
     }
@@ -157,7 +157,8 @@ export default {
   }
 }
 
-.disconnected .portal-module {
+.disconnected .portal-module,
+.minimize .disconnected .portal-module {
   flex-basis: 100%;
   border-width: $portal-module-border-width 0 0 0;
   margin-bottom: $portal-module-border-width;
@@ -175,10 +176,12 @@ export default {
   }
   .front {
     flex-direction: row;
-    margin: map-get($spacers, 1);
+    justify-content: center;
   }
   h6 {
     flex-shrink: 0;
+    width: auto !important;
+    padding: 0 map-get($spacers, 1);
     margin: 0;
     .fa-icon {
       margin: 0 map-get($spacers, 1) 0 0 !important;
@@ -188,7 +191,7 @@ export default {
     display: none;
   }
   .portal-module-label {
-    flex-grow: 1;
+    width: auto !important;
     font-size: $figure-caption-font-size * .8;
     line-height: 1em;
     text-align: left;
