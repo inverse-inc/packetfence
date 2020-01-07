@@ -1,12 +1,14 @@
 <template>
   <pf-config-view
-    :form-store-name="formStoreName"
-    :is-loading="isLoading"
+    :isLoading="isLoading"
     :disabled="isLoading"
-    :is-deletable="isDeletable"
-    :is-new="isNew"
-    :is-clone="isClone"
-    :view="view"
+    :isDeletable="isDeletable"
+    :form="getForm"
+    :model="form"
+    :vuelidate="$v.form"
+    :isNew="isNew"
+    :isClone="isClone"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -14,12 +16,11 @@
   >
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="d-inline mb-0">
-        <span v-if="!isNew && !isClone" v-html="$t('Scan Engine {id}', { id: $strong(id) })"></span>
-        <span v-else-if="isClone" v-html="$t('Clone Scan Engine {id}', { id: $strong(id) })"></span>
-        <span v-else>{{ $t('New Scan Engine') }}</span>
+      <h4 class="mb-0">
+        <span v-if="!isNew && !isClone" v-html="$t('Switch {id}', { id: $strong(id) })"></span>
+        <span v-else-if="isClone" v-html="$t('Clone Switch {id}', { id: $strong(id) })"></span>
+        <span v-else v-html="$t('New {switchGroup} Switch', { switchGroup: $strong(switchGroup) })"></span>
       </h4>
-      <b-badge class="ml-2" variant="secondary" v-t="scanType"></b-badge>
     </template>
     <template v-slot:footer>
       <b-card-footer>
@@ -31,7 +32,7 @@
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Scan Engine?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Switch?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -42,22 +43,25 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  defaultsFromMeta as defaults
-} from '../_config/'
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
 import {
-  view,
-  validators
-} from '../_config/scanEngine'
+  pfConfigurationSwitchViewFields as fields
+} from '@/globals/configuration/pfConfigurationSwitches'
+const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'scan-engine-view',
+  name: 'switch-view',
+  mixins: [
+    validationMixin
+  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    formStoreName: { // from router
+    storeName: { // from router
       type: String,
       default: null,
       required: true
@@ -74,26 +78,36 @@ export default {
       type: String,
       default: null
     },
-    scanType: { // from router
+    switchGroup: { // from router
       type: String,
       default: null
     }
   },
+  data () {
+    return {
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {},
+      roles: []
+    }
+  },
+  validations () {
+    return {
+      form: this.formValidations
+    }
+  },
   computed: {
-    meta () {
-      return this.$store.getters[`${this.formStoreName}/$meta`]
-    },
-    form () {
-      return this.$store.getters[`${this.formStoreName}/$form`]
-    },
-    view () {
-      return view(this.meta) // ../_config/scanEngine
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
-    isLoading () {
-      return this.$store.getters['$_scans/isLoading']
+    getForm () {
+      return {
+        labelCols: 3,
+        fields: fields(this)
+      }
     },
     isDeletable () {
       if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
@@ -110,54 +124,54 @@ export default {
   },
   methods: {
     init () {
-      const { isNew, isClone, isDeletable, scanType } = this
+      this.$store.dispatch('$_roles/all').then(data => {
+        this.roles = data
+      })
       if (this.id) {
         // existing
-        this.$store.dispatch('$_scans/optionsById', this.id).then(options => {
-          const { meta = {} } = options
-          this.$store.dispatch('$_scans/getScanEngine', this.id).then(form => {
-            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType: form.type, isNew, isClone, isDeletable } })
-            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-            this.scanType = form.type
+        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
+          this.options = options
+          this.$store.dispatch(`${this.storeName}/getSwitch`, this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            this.form = form
+            this.switchGroup = form.group
           })
         })
       } else {
         // new
-        this.$store.dispatch('$_scans/optionsByScanType', this.scanType).then(options => {
-          const { meta = {} } = options
-          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType, isNew, isClone, isDeletable } })
-          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), type: scanType }) // set defaults
+        this.$store.dispatch(`${this.storeName}/optionsBySwitchGroup`, this.switchGroup).then(options => {
+          this.options = options
+          this.form = defaults(options.meta) // set defaults
+          this.form.group = this.switchGroup
         })
       }
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
-      this.$router.push({ name: 'scanEngines' })
+      this.$router.push({ name: 'switches' })
     },
     clone () {
-      this.$router.push({ name: 'cloneScanEngine' })
+      this.$router.push({ name: 'cloneSwitch' })
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_scans/createScanEngine', this.form).then(() => {
+      this.$store.dispatch(`${this.storeName}/createSwitch`, this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'scanEngine', params: { id: this.form.id } })
+          this.$router.push({ name: 'switch', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_scans/updateScanEngine', this.form).then(() => {
+      this.$store.dispatch(`${this.storeName}/updateSwitch`, this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_scans/deleteScanEngine', this.id).then(() => {
+      this.$store.dispatch(`${this.storeName}/deleteSwitch`, this.id).then(response => {
         this.close()
       })
     }
@@ -166,8 +180,13 @@ export default {
     this.init()
   },
   watch: {
+    id: {
+      handler: function (a, b) {
+        this.init()
+      }
+    },
     isClone: {
-      handler: function () {
+      handler: function (a, b) {
         this.init()
       }
     },

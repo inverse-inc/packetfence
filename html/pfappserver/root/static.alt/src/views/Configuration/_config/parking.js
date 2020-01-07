@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -18,7 +18,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'lease_length',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'lease_length')
+              attrs: attributesFromMeta(meta, 'lease_length')
             }
           ]
         },
@@ -29,7 +29,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'threshold',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'threshold')
+              attrs: attributesFromMeta(meta, 'threshold')
             }
           ]
         },
@@ -66,7 +66,7 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    lease_length: pfConfigurationValidatorsFromMeta(meta, 'lease_length', i18n.t('Length')),
-    threshold: pfConfigurationValidatorsFromMeta(meta, 'threshold', i18n.t('Threshold'))
+    lease_length: validatorsFromMeta(meta, 'lease_length', i18n.t('Length')),
+    threshold: validatorsFromMeta(meta, 'threshold', i18n.t('Threshold'))
   }
 }

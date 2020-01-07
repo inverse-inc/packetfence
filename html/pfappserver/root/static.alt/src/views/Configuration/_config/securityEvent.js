@@ -11,9 +11,9 @@ import pfFormSecurityEventTriggerHeader from '@/components/pfFormSecurityEventTr
 import pfFormSecurityEventActions from '@/components/pfFormSecurityEventActions'
 import pfFormSelect from '@/components/pfFormSelect'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
@@ -154,7 +154,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -168,7 +168,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'desc',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'desc')
+              attrs: attributesFromMeta(meta, 'desc')
             }
           ]
         },
@@ -179,7 +179,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'priority',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'priority')
+              attrs: attributesFromMeta(meta, 'priority')
             }
           ]
         },
@@ -190,7 +190,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'whitelisted_roles',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'whitelisted_roles')
+              attrs: attributesFromMeta(meta, 'whitelisted_roles')
             }
           ]
         },
@@ -251,12 +251,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'grace.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'grace.interval')
+              attrs: attributesFromMeta(meta, 'grace.interval')
             },
             {
               namespace: 'grace.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'grace.unit')
+              attrs: attributesFromMeta(meta, 'grace.unit')
             }
           ]
         },
@@ -267,12 +267,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'window.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'window.interval')
+              attrs: attributesFromMeta(meta, 'window.interval')
             },
             {
               namespace: 'window.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'window.unit')
+              attrs: attributesFromMeta(meta, 'window.unit')
             }
           ]
         },
@@ -283,12 +283,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'delay_by.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.interval')
+              attrs: attributesFromMeta(meta, 'delay_by.interval')
             },
             {
               namespace: 'delay_by.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.unit')
+              attrs: attributesFromMeta(meta, 'delay_by.unit')
             }
           ]
         }
@@ -307,25 +307,25 @@ export const validators = (form = {}, meta = {}) => {
   } = form
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'ID'),
       ...{
         [i18n.t('Security event exists.')]: not(and(required, conditional(isNew || isClone), hasSecurityEvents, securityEventExists))
       }
     },
-    desc: pfConfigurationValidatorsFromMeta(meta, 'desc', i18n.t('Description')),
-    priority: pfConfigurationValidatorsFromMeta(meta, 'priority', i18n.t('Priority')),
-    whitelisted_roles: pfConfigurationValidatorsFromMeta(meta, 'whitelisted_roles', i18n.t('Roles')),
+    desc: validatorsFromMeta(meta, 'desc', i18n.t('Description')),
+    priority: validatorsFromMeta(meta, 'priority', i18n.t('Priority')),
+    whitelisted_roles: validatorsFromMeta(meta, 'whitelisted_roles', i18n.t('Roles')),
     grace: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'grace.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'grace.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'grace.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'grace.unit', i18n.t('Unit'))
     },
     window: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
     },
     delay_by: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'delay_by.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'delay_by.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'delay_by.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'delay_by.unit', i18n.t('Unit'))
     },
     triggers: {
       ...(triggers || []).map((trigger) => {
@@ -633,7 +633,7 @@ export const triggerEndpointView = (form = {}, meta = {}) => {
                     valueLabel: i18n.t('Select value'),
                     fields: [
                       {
-                        ...pfConfigurationAttributesFromMeta(meta, 'triggers.role'),
+                        ...attributesFromMeta(meta, 'triggers.role'),
                         ...{
                           value: 'role',
                           text: triggerFields.role.text,
@@ -646,7 +646,7 @@ export const triggerEndpointView = (form = {}, meta = {}) => {
                         types: [fieldType.SUBSTRING]
                       },
                       {
-                        ...pfConfigurationAttributesFromMeta(meta, 'triggers.switch'),
+                        ...attributesFromMeta(meta, 'triggers.switch'),
                         ...{
                           value: 'switch',
                           text: triggerFields.switch.text,
@@ -654,7 +654,7 @@ export const triggerEndpointView = (form = {}, meta = {}) => {
                         }
                       },
                       {
-                        ...pfConfigurationAttributesFromMeta(meta, 'triggers.switch_group'),
+                        ...attributesFromMeta(meta, 'triggers.switch_group'),
                         ...{
                           value: 'switch_group',
                           text: triggerFields.switch_group.text,
@@ -693,37 +693,37 @@ export const triggerProfilingView = (form = {}, meta = {}) => {
                     valueLabel: i18n.t('Select value'),
                     fields: [
                       {
-                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.device'),
+                        attrs: attributesFromMeta(meta, 'triggers.device'),
                         value: 'device',
                         text: triggerFields.device.text,
                         types: [fieldType.OPTIONS]
                       },
                       {
-                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp_fingerprint'),
+                        attrs: attributesFromMeta(meta, 'triggers.dhcp_fingerprint'),
                         value: 'dhcp_fingerprint',
                         text: triggerFields.dhcp_fingerprint.text,
                         types: [fieldType.OPTIONS]
                       },
                       {
-                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp_vendor'),
+                        attrs: attributesFromMeta(meta, 'triggers.dhcp_vendor'),
                         value: 'dhcp_vendor',
                         text: triggerFields.dhcp_vendor.text,
                         types: [fieldType.OPTIONS]
                       },
                       {
-                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp6_fingerprint'),
+                        attrs: attributesFromMeta(meta, 'triggers.dhcp6_fingerprint'),
                         value: 'dhcp6_fingerprint',
                         text: triggerFields.dhcp6_fingerprint.text,
                         types: [fieldType.OPTIONS]
                       },
                       {
-                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.dhcp6_enterprise'),
+                        attrs: attributesFromMeta(meta, 'triggers.dhcp6_enterprise'),
                         value: 'dhcp6_enterprise',
                         text: triggerFields.dhcp6_enterprise.text,
                         types: [fieldType.OPTIONS]
                       },
                       {
-                        attrs: pfConfigurationAttributesFromMeta(meta, 'triggers.mac_vendor'),
+                        attrs: attributesFromMeta(meta, 'triggers.mac_vendor'),
                         value: 'mac_vendor',
                         text: triggerFields.mac_vendor.text,
                         types: [fieldType.OPTIONS]
@@ -807,7 +807,7 @@ export const triggerEventView = (form = {}, meta = {}) => {
                     types: [fieldType.SUBSTRING]
                   },
                   {
-                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.internal'),
+                    ...attributesFromMeta(meta, 'triggers.internal'),
                     ...{
                       value: 'internal',
                       text: triggerFields.internal.text,
@@ -830,7 +830,7 @@ export const triggerEventView = (form = {}, meta = {}) => {
                     types: [fieldType.SUBSTRING]
                   },
                   {
-                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.nexpose_event_starts_with'),
+                    ...attributesFromMeta(meta, 'triggers.nexpose_event_starts_with'),
                     ...{
                       value: 'nexpose_event_starts_with',
                       text: triggerFields.nexpose_event_starts_with.text,
@@ -843,7 +843,7 @@ export const triggerEventView = (form = {}, meta = {}) => {
                     types: [fieldType.SUBSTRING]
                   },
                   {
-                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.provisioner'),
+                    ...attributesFromMeta(meta, 'triggers.provisioner'),
                     ...{
                       value: 'provisioner',
                       text: triggerFields.provisioner.text,
@@ -851,7 +851,7 @@ export const triggerEventView = (form = {}, meta = {}) => {
                     }
                   },
                   {
-                    ...pfConfigurationAttributesFromMeta(meta, 'triggers.suricata_event'),
+                    ...attributesFromMeta(meta, 'triggers.suricata_event'),
                     ...{
                       value: 'suricata_event',
                       text: triggerFields.suricata_event.text,

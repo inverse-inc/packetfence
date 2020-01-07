@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from '../'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -18,7 +18,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'upstream.api_key',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.api_key')
+              attrs: attributesFromMeta(meta, 'upstream.api_key')
             }
           ]
         },
@@ -29,7 +29,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'upstream.host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.host')
+              attrs: attributesFromMeta(meta, 'upstream.host')
             }
           ]
         },
@@ -40,7 +40,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'upstream.port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.port')
+              attrs: attributesFromMeta(meta, 'upstream.port')
             }
           ]
         },
@@ -64,7 +64,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'upstream.db_path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.db_path')
+              attrs: attributesFromMeta(meta, 'upstream.db_path')
             }
           ]
         },
@@ -75,7 +75,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'upstream.sqlite_db_retention',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.sqlite_db_retention')
+              attrs: attributesFromMeta(meta, 'upstream.sqlite_db_retention')
             }
           ]
         },
@@ -86,7 +86,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'collector.host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.host')
+              attrs: attributesFromMeta(meta, 'collector.host')
             }
           ]
         },
@@ -97,7 +97,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'collector.port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.port')
+              attrs: attributesFromMeta(meta, 'collector.port')
             }
           ]
         },
@@ -121,7 +121,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'collector.inactive_endpoints_expiration',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.inactive_endpoints_expiration')
+              attrs: attributesFromMeta(meta, 'collector.inactive_endpoints_expiration')
             }
           ]
         },
@@ -145,7 +145,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'collector.query_cache_time',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.query_cache_time')
+              attrs: attributesFromMeta(meta, 'collector.query_cache_time')
             }
           ]
         },
@@ -156,7 +156,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'collector.db_persistence_interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.db_persistence_interval')
+              attrs: attributesFromMeta(meta, 'collector.db_persistence_interval')
             }
           ]
         },
@@ -167,7 +167,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'collector.cluster_resync_interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.cluster_resync_interval')
+              attrs: attributesFromMeta(meta, 'collector.cluster_resync_interval')
             }
           ]
         },
@@ -204,7 +204,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'proxy.host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'proxy.host')
+              attrs: attributesFromMeta(meta, 'proxy.host')
             }
           ]
         },
@@ -215,7 +215,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'proxy.port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'proxy.port')
+              attrs: attributesFromMeta(meta, 'proxy.port')
             }
           ]
         },
@@ -240,23 +240,23 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   return {
     upstream: {
-      api_key: pfConfigurationValidatorsFromMeta(meta, 'upstream.api_key', i18n.t('Key')),
-      host: pfConfigurationValidatorsFromMeta(meta, 'upstream.host', i18n.t('Host')),
-      port: pfConfigurationValidatorsFromMeta(meta, 'upstream.port', i18n.t('Port')),
-      db_path: pfConfigurationValidatorsFromMeta(meta, 'upstream.db_path', i18n.t('Path')),
-      sqlite_db_retention: pfConfigurationValidatorsFromMeta(meta, 'upstream.sqlite_db_retention', i18n.t('Amount'))
+      api_key: validatorsFromMeta(meta, 'upstream.api_key', i18n.t('Key')),
+      host: validatorsFromMeta(meta, 'upstream.host', i18n.t('Host')),
+      port: validatorsFromMeta(meta, 'upstream.port', i18n.t('Port')),
+      db_path: validatorsFromMeta(meta, 'upstream.db_path', i18n.t('Path')),
+      sqlite_db_retention: validatorsFromMeta(meta, 'upstream.sqlite_db_retention', i18n.t('Amount'))
     },
     collector: {
-      host: pfConfigurationValidatorsFromMeta(meta, 'collector.host', i18n.t('Host')),
-      port: pfConfigurationValidatorsFromMeta(meta, 'collector.port', i18n.t('Port')),
-      inactive_endpoints_expiration: pfConfigurationValidatorsFromMeta(meta, 'collector.inactive_endpoints_expiration', i18n.t('Hours')),
-      query_cache_time: pfConfigurationValidatorsFromMeta(meta, 'collector.query_cache_time', i18n.t('Time')),
-      db_persistence_interval: pfConfigurationValidatorsFromMeta(meta, 'collector.db_persistence_interval', i18n.t('Interval')),
-      cluster_resync_interval: pfConfigurationValidatorsFromMeta(meta, 'collector.cluster_resync_interval', i18n.t('Interval'))
+      host: validatorsFromMeta(meta, 'collector.host', i18n.t('Host')),
+      port: validatorsFromMeta(meta, 'collector.port', i18n.t('Port')),
+      inactive_endpoints_expiration: validatorsFromMeta(meta, 'collector.inactive_endpoints_expiration', i18n.t('Hours')),
+      query_cache_time: validatorsFromMeta(meta, 'collector.query_cache_time', i18n.t('Time')),
+      db_persistence_interval: validatorsFromMeta(meta, 'collector.db_persistence_interval', i18n.t('Interval')),
+      cluster_resync_interval: validatorsFromMeta(meta, 'collector.cluster_resync_interval', i18n.t('Interval'))
     },
     proxy: {
-      host: pfConfigurationValidatorsFromMeta(meta, 'proxy.host', i18n.t('Host')),
-      port: pfConfigurationValidatorsFromMeta(meta, 'proxy.port', i18n.t('Port'))
+      host: validatorsFromMeta(meta, 'proxy.host', i18n.t('Host')),
+      port: validatorsFromMeta(meta, 'proxy.port', i18n.t('Port'))
     }
   }
 }

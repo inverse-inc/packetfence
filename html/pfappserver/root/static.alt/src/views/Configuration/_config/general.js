@@ -3,9 +3,9 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -19,7 +19,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'domain',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'domain')
+              attrs: attributesFromMeta(meta, 'domain')
             }
           ]
         },
@@ -30,7 +30,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'hostname',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'hostname')
+              attrs: attributesFromMeta(meta, 'hostname')
             }
           ]
         },
@@ -42,7 +42,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'dhcpservers',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'dhcpservers'),
+                ...attributesFromMeta(meta, 'dhcpservers'),
                 ...{
                   rows: 3
                 }
@@ -58,7 +58,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'timezone',
               component: pfFormChosen,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'timezone'),
+                ...attributesFromMeta(meta, 'timezone'),
                 ...{
                   optionsLimit: 500
                 }
@@ -73,9 +73,9 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    domain: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain')),
-    hostname: pfConfigurationValidatorsFromMeta(meta, 'hostname', i18n.t('Hostname')),
-    dhcpservers: pfConfigurationValidatorsFromMeta(meta, 'dhcpservers', i18n.t('Servers')),
-    timezone: pfConfigurationValidatorsFromMeta(meta, 'timezone', i18n.t('Timezone'))
+    domain: validatorsFromMeta(meta, 'domain', i18n.t('Domain')),
+    hostname: validatorsFromMeta(meta, 'hostname', i18n.t('Hostname')),
+    dhcpservers: validatorsFromMeta(meta, 'dhcpservers', i18n.t('Servers')),
+    timezone: validatorsFromMeta(meta, 'timezone', i18n.t('Timezone'))
   }
 }

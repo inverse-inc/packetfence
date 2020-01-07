@@ -4,9 +4,9 @@ import pfFieldAccessDuration from '@/components/pfFieldAccessDuration'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   conditional
 } from '@/globals/pfValidators'
@@ -47,7 +47,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'default_access_duration',
               component: pfFormChosen,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'default_access_duration'),
+                ...attributesFromMeta(meta, 'default_access_duration'),
                 ...{
                   options: ('access_duration_choices' in form && form.access_duration_choices) // could be undefined or null
                     ? form.access_duration_choices.map(_duration => {
@@ -96,6 +96,6 @@ export const validators = (form = {}, meta = {}) => {
         }
       }
     },
-    default_access_duration: pfConfigurationValidatorsFromMeta(meta, 'default_access_duration', i18n.t('Default'))
+    default_access_duration: validatorsFromMeta(meta, 'default_access_duration', i18n.t('Default'))
   }
 }

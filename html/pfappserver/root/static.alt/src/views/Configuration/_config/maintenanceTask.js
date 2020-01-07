@@ -4,9 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -103,7 +103,7 @@ export const viewFields = {
           namespace: 'id',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'id'),
+            ...attributesFromMeta(meta, 'id'),
             ...{
               disabled: true
             }
@@ -120,7 +120,7 @@ export const viewFields = {
         {
           namespace: 'batch',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'batch')
+          attrs: attributesFromMeta(meta, 'batch')
         }
       ]
     }
@@ -134,7 +134,7 @@ export const viewFields = {
           namespace: 'certificates',
           component: pfFormTextarea,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'certificates'),
+            ...attributesFromMeta(meta, 'certificates'),
             ...{
               rows: 5
             }
@@ -151,12 +151,12 @@ export const viewFields = {
         {
           namespace: 'delay.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'delay.interval')
+          attrs: attributesFromMeta(meta, 'delay.interval')
         },
         {
           namespace: 'delay.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'delay.unit')
+          attrs: attributesFromMeta(meta, 'delay.unit')
         }
       ]
     }
@@ -169,12 +169,12 @@ export const viewFields = {
         {
           namespace: 'delete_window.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'delete_window.interval')
+          attrs: attributesFromMeta(meta, 'delete_window.interval')
         },
         {
           namespace: 'delete_window.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'delete_window.unit')
+          attrs: attributesFromMeta(meta, 'delete_window.unit')
         }
       ]
     }
@@ -201,12 +201,12 @@ export const viewFields = {
         {
           namespace: 'interval.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'interval.interval')
+          attrs: attributesFromMeta(meta, 'interval.interval')
         },
         {
           namespace: 'interval.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'interval.unit')
+          attrs: attributesFromMeta(meta, 'interval.unit')
         }
       ]
     }
@@ -249,7 +249,7 @@ export const viewFields = {
         {
           namespace: 'rotate_batch',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_batch')
+          attrs: attributesFromMeta(meta, 'rotate_batch')
         }
       ]
     }
@@ -262,12 +262,12 @@ export const viewFields = {
         {
           namespace: 'rotate_timeout.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_timeout.interval')
+          attrs: attributesFromMeta(meta, 'rotate_timeout.interval')
         },
         {
           namespace: 'rotate_timeout.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_timeout.unit')
+          attrs: attributesFromMeta(meta, 'rotate_timeout.unit')
         }
       ]
     }
@@ -280,12 +280,12 @@ export const viewFields = {
         {
           namespace: 'rotate_window.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_window.interval')
+          attrs: attributesFromMeta(meta, 'rotate_window.interval')
         },
         {
           namespace: 'rotate_window.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_window.unit')
+          attrs: attributesFromMeta(meta, 'rotate_window.unit')
         }
       ]
     }
@@ -313,12 +313,12 @@ export const viewFields = {
         {
           namespace: 'timeout.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'timeout.interval')
+          attrs: attributesFromMeta(meta, 'timeout.interval')
         },
         {
           namespace: 'timeout.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'timeout.unit')
+          attrs: attributesFromMeta(meta, 'timeout.unit')
         }
       ]
     }
@@ -331,12 +331,12 @@ export const viewFields = {
         {
           namespace: 'unreg_window.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'unreg_window.interval')
+          attrs: attributesFromMeta(meta, 'unreg_window.interval')
         },
         {
           namespace: 'unreg_window.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'unreg_window.unit')
+          attrs: attributesFromMeta(meta, 'unreg_window.unit')
         }
       ]
     }
@@ -349,12 +349,12 @@ export const viewFields = {
         {
           namespace: 'window.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'window.interval')
+          attrs: attributesFromMeta(meta, 'window.interval')
         },
         {
           namespace: 'window.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'window.unit')
+          attrs: attributesFromMeta(meta, 'window.unit')
         }
       ]
     }
@@ -700,7 +700,7 @@ export const validatorFields = {
     } = meta
     return {
       id: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+        ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
         ...{
           [i18n.t('Maintenance Task exists.')]: not(and(required, conditional(isNew), hasMaintenanceTasks, maintenanceTaskExists))
         }
@@ -708,24 +708,24 @@ export const validatorFields = {
     }
   },
   batch: (form = {}, meta = {}) => {
-    return { batch: pfConfigurationValidatorsFromMeta(meta, 'batch', i18n.t('Batch')) }
+    return { batch: validatorsFromMeta(meta, 'batch', i18n.t('Batch')) }
   },
   certificates: (form = {}, meta = {}) => {
-    return { certificates: pfConfigurationValidatorsFromMeta(meta, 'certificates', i18n.t('Certificates')) }
+    return { certificates: validatorsFromMeta(meta, 'certificates', i18n.t('Certificates')) }
   },
   delay: (form = {}, meta = {}) => {
     return {
       delay: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'delay.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'delay.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'delay.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'delay.unit', i18n.t('Unit'))
       }
     }
   },
   delete_window: (form = {}, meta = {}) => {
     return {
       delete_window: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'delete_window.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'delete_window.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'delete_window.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'delete_window.unit', i18n.t('Unit'))
       }
     }
   },
@@ -733,29 +733,29 @@ export const validatorFields = {
   interval: (form = {}, meta = {}) => {
     return {
       interval: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'interval.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'interval.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'interval.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'interval.unit', i18n.t('Unit'))
       }
     }
   },
   process_switchranges: (form = {}, meta = {}) => {},
   rotate: (form = {}, meta = {}, logName = 'ip4log') => {},
   rotate_batch: (form = {}, meta = {}) => {
-    return { rotate_batch: pfConfigurationValidatorsFromMeta(meta, 'rotate_batch', i18n.t('Batch')) }
+    return { rotate_batch: validatorsFromMeta(meta, 'rotate_batch', i18n.t('Batch')) }
   },
   rotate_timeout: (form = {}, meta = {}) => {
     return {
       rotate_timeout: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'rotate_timeout.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'rotate_timeout.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'rotate_timeout.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'rotate_timeout.unit', i18n.t('Unit'))
       }
     }
   },
   rotate_window: (form = {}, meta = {}, logName = 'ip4log') => {
     return {
       rotate_window: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'rotate_window.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'rotate_window.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'rotate_window.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'rotate_window.unit', i18n.t('Unit'))
       }
     }
   },
@@ -763,24 +763,24 @@ export const validatorFields = {
   timeout: (form = {}, meta = {}) => {
     return {
       timeout: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'timeout.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'timeout.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'timeout.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'timeout.unit', i18n.t('Unit'))
       }
     }
   },
   unreg_window: (form = {}, meta = {}) => {
     return {
       unreg_window: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'unreg_window.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'unreg_window.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'unreg_window.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'unreg_window.unit', i18n.t('Unit'))
       }
     }
   },
   window: (form = {}, meta = {}) => {
     return {
       window: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
       }
     }
   }

@@ -15,9 +15,9 @@ import {
 } from '@/globals/pfActions'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   and,
   not,
@@ -166,7 +166,7 @@ export const viewFields = {
           namespace: 'id',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'id'),
+            ...attributesFromMeta(meta, 'id'),
             ...{
               disabled: (!isNew && !isClone)
             }
@@ -209,7 +209,7 @@ export const viewFields = {
           namespace: 'admin_role',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'admin_role'),
+            ...attributesFromMeta(meta, 'admin_role'),
             ...{
               multiple: true
             }
@@ -226,7 +226,7 @@ export const viewFields = {
         {
           namespace: 'aup_template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'aup_template')
+          attrs: attributesFromMeta(meta, 'aup_template')
         }
       ]
     }
@@ -240,7 +240,7 @@ export const viewFields = {
           namespace: 'custom_fields',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'custom_fields'),
+            ...attributesFromMeta(meta, 'custom_fields'),
             ...{
               multiple: true
             }
@@ -257,7 +257,7 @@ export const viewFields = {
         {
           namespace: 'description',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'description')
+          attrs: attributesFromMeta(meta, 'description')
         }
       ]
     }
@@ -271,7 +271,7 @@ export const viewFields = {
           namespace: 'fields_to_save',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'fields_to_save'),
+            ...attributesFromMeta(meta, 'fields_to_save'),
             ...{
               multiple: true
             }
@@ -288,7 +288,7 @@ export const viewFields = {
         {
           namespace: 'forced_sponsor',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'forced_sponsor')
+          attrs: attributesFromMeta(meta, 'forced_sponsor')
         }
       ]
     }
@@ -301,7 +301,7 @@ export const viewFields = {
         {
           namespace: 'landing_template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'landing_template')
+          attrs: attributesFromMeta(meta, 'landing_template')
         }
       ]
     }
@@ -315,7 +315,7 @@ export const viewFields = {
           namespace: 'list_role',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'list_role'),
+            ...attributesFromMeta(meta, 'list_role'),
             ...{
               multiple: true
             }
@@ -332,7 +332,7 @@ export const viewFields = {
         {
           namespace: 'message',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'message')
+          attrs: attributesFromMeta(meta, 'message')
         }
       ]
     }
@@ -356,7 +356,7 @@ export const viewFields = {
                 field: {
                   component: pfFormChosen,
                   attrs: {
-                    ...pfConfigurationAttributesFromMeta(modules, 'item'),
+                    ...attributesFromMeta(modules, 'item'),
                     ...{
                       placeholder: i18n.t('Click to select a module'),
                       groupLabel: 'group',
@@ -389,7 +389,7 @@ export const viewFields = {
                 field: {
                   component: pfFormChosen,
                   attrs: {
-                    ...pfConfigurationAttributesFromMeta(meta, 'multi_source_ids'),
+                    ...attributesFromMeta(meta, 'multi_source_ids'),
                     ...{
                       placeholder: i18n.t('Click to select a source'),
                       multiple: false,
@@ -413,7 +413,7 @@ export const viewFields = {
         {
           namespace: 'multi_source_auth_classes',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_auth_classes')
+          attrs: attributesFromMeta(meta, 'multi_source_auth_classes')
         }
       ]
     }
@@ -426,7 +426,7 @@ export const viewFields = {
         {
           namespace: 'multi_source_object_classes',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_object_classes')
+          attrs: attributesFromMeta(meta, 'multi_source_object_classes')
         }
       ]
     }
@@ -439,7 +439,7 @@ export const viewFields = {
         {
           namespace: 'multi_source_types',
           component: pfFormTextarea,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_types')
+          attrs: attributesFromMeta(meta, 'multi_source_types')
         }
       ]
     }
@@ -452,7 +452,7 @@ export const viewFields = {
         {
           namespace: 'pid_field',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'pid_field')
+          attrs: attributesFromMeta(meta, 'pid_field')
         }
       ]
     }
@@ -465,7 +465,7 @@ export const viewFields = {
           namespace: 'show_first_module_on_default',
           component: pfFormRangeToggle,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'show_first_module_on_default'),
+            ...attributesFromMeta(meta, 'show_first_module_on_default'),
             ...{
               values: { checked: 'enabled', unchecked: 'disabled' }
             }
@@ -482,7 +482,7 @@ export const viewFields = {
         {
           namespace: 'signup_template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'signup_template')
+          attrs: attributesFromMeta(meta, 'signup_template')
         }
       ]
     }
@@ -496,7 +496,7 @@ export const viewFields = {
           namespace: 'skipable',
           component: pfFormRangeToggle,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'skipable'),
+            ...attributesFromMeta(meta, 'skipable'),
             ...{
               values: { checked: 1, unchecked: 0 }
             }
@@ -514,7 +514,7 @@ export const viewFields = {
           namespace: 'source_id',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'source_id'),
+            ...attributesFromMeta(meta, 'source_id'),
             ...{
               placeholder: i18n.t('Click to select a source')
             }
@@ -531,7 +531,7 @@ export const viewFields = {
         {
           namespace: 'ssl_mobileconfig_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_mobileconfig_path')
+          attrs: attributesFromMeta(meta, 'ssl_mobileconfig_path')
         }
       ]
     }
@@ -544,7 +544,7 @@ export const viewFields = {
         {
           namespace: 'ssl_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_path')
+          attrs: attributesFromMeta(meta, 'ssl_path')
         }
       ]
     }
@@ -558,7 +558,7 @@ export const viewFields = {
           namespace: 'stone_roles',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'stone_roles'),
+            ...attributesFromMeta(meta, 'stone_roles'),
             ...{
               multiple: true
             }
@@ -575,7 +575,7 @@ export const viewFields = {
         {
           namespace: 'survey_id',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'survey_id')
+          attrs: attributesFromMeta(meta, 'survey_id')
         }
       ]
     }
@@ -587,7 +587,7 @@ export const viewFields = {
         {
           namespace: 'template',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'template')
+          attrs: attributesFromMeta(meta, 'template')
         }
       ]
     }
@@ -600,7 +600,7 @@ export const viewFields = {
         {
           namespace: 'url',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'url')
+          attrs: attributesFromMeta(meta, 'url')
         }
       ]
     }
@@ -613,7 +613,7 @@ export const viewFields = {
         {
           namespace: 'username',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'username')
+          attrs: attributesFromMeta(meta, 'username')
         }
       ]
     }
@@ -1004,7 +1004,7 @@ export const validatorFields = {
     } = meta
     return {
       id: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+        ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
         ...{
           [i18n.t('Portal module exists.')]: not(and(required, conditional(isNew || isClone), hasPortalModules, portalModuleExists))
         }
@@ -1020,31 +1020,31 @@ export const validatorFields = {
     }
   },
   admin_role: (form = {}, meta = {}) => {
-    return { admin_role: pfConfigurationValidatorsFromMeta(meta, 'admin_role', i18n.t('Role')) }
+    return { admin_role: validatorsFromMeta(meta, 'admin_role', i18n.t('Role')) }
   },
   aup_template: (form = {}, meta = {}) => {
-    return { aup_template: pfConfigurationValidatorsFromMeta(meta, 'aup_template', i18n.t('Template')) }
+    return { aup_template: validatorsFromMeta(meta, 'aup_template', i18n.t('Template')) }
   },
   custom_fields: (form = {}, meta = {}) => {
-    return { custom_fields: pfConfigurationValidatorsFromMeta(meta, 'custom_fields', i18n.t('Fields')) }
+    return { custom_fields: validatorsFromMeta(meta, 'custom_fields', i18n.t('Fields')) }
   },
   description: (form = {}, meta = {}) => {
-    return { description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')) }
+    return { description: validatorsFromMeta(meta, 'description', i18n.t('Description')) }
   },
   fields_to_save: (form = {}, meta = {}) => {
-    return { fields_to_save: pfConfigurationValidatorsFromMeta(meta, 'fields_to_save', i18n.t('Fields')) }
+    return { fields_to_save: validatorsFromMeta(meta, 'fields_to_save', i18n.t('Fields')) }
   },
   forced_sponsor: (form = {}, meta = {}) => {
-    return { forced_sponsor: pfConfigurationValidatorsFromMeta(meta, 'forced_sponsor', i18n.t('Email')) }
+    return { forced_sponsor: validatorsFromMeta(meta, 'forced_sponsor', i18n.t('Email')) }
   },
   landing_template: (form = {}, meta = {}) => {
-    return { landing_template: pfConfigurationValidatorsFromMeta(meta, 'landing_template', i18n.t('Template')) }
+    return { landing_template: validatorsFromMeta(meta, 'landing_template', i18n.t('Template')) }
   },
   list_role: (form = {}, meta = {}) => {
-    return { list_role: pfConfigurationValidatorsFromMeta(meta, 'list_role', i18n.t('Role')) }
+    return { list_role: validatorsFromMeta(meta, 'list_role', i18n.t('Role')) }
   },
   message: (form = {}, meta = {}) => {
-    return { message: pfConfigurationValidatorsFromMeta(meta, 'message', i18n.t('Message')) }
+    return { message: validatorsFromMeta(meta, 'message', i18n.t('Message')) }
   },
   modules: (form = {}, meta = {}) => {
     const {
@@ -1053,7 +1053,7 @@ export const validatorFields = {
     return {
       modules: {
         $each: {
-          ...pfConfigurationValidatorsFromMeta(meta, 'modules', i18n.t('Module')),
+          ...validatorsFromMeta(meta, 'modules', i18n.t('Module')),
           ...{
             [i18n.t('Module required.')]: required,
             [i18n.t('Duplicate module.')]: conditional((value) => !(modules.filter(v => v === value).length > 1))
@@ -1069,7 +1069,7 @@ export const validatorFields = {
     return {
       multi_source_ids: {
         $each: {
-          ...pfConfigurationValidatorsFromMeta(meta, 'multi_source_ids', i18n.t('Source')),
+          ...validatorsFromMeta(meta, 'multi_source_ids', i18n.t('Source')),
           ...{
             [i18n.t('Source required.')]: required,
             [i18n.t('Duplicate source.')]: conditional((value) => !(multi_source_ids.filter(v => v === value).length > 1))
@@ -1079,43 +1079,43 @@ export const validatorFields = {
     }
   },
   multi_source_auth_classes: (form = {}, meta = {}) => {
-    return { multi_source_auth_classes: pfConfigurationValidatorsFromMeta(meta, 'multi_source_auth_classes', i18n.t('Classes')) }
+    return { multi_source_auth_classes: validatorsFromMeta(meta, 'multi_source_auth_classes', i18n.t('Classes')) }
   },
   multi_source_object_classes: (form = {}, meta = {}) => {
-    return { multi_source_object_classes: pfConfigurationValidatorsFromMeta(meta, 'multi_source_object_classes', i18n.t('Classes')) }
+    return { multi_source_object_classes: validatorsFromMeta(meta, 'multi_source_object_classes', i18n.t('Classes')) }
   },
   multi_source_types: (form = {}, meta = {}) => {
-    return { multi_source_types: pfConfigurationValidatorsFromMeta(meta, 'multi_source_types', i18n.t('Types')) }
+    return { multi_source_types: validatorsFromMeta(meta, 'multi_source_types', i18n.t('Types')) }
   },
   pid_field: (form = {}, meta = {}) => {
-    return { pid_field: pfConfigurationValidatorsFromMeta(meta, 'pid_field', 'PID') }
+    return { pid_field: validatorsFromMeta(meta, 'pid_field', 'PID') }
   },
   show_first_module_on_default: (form = {}, meta = {}) => {},
   signup_template: (form = {}, meta = {}) => {
-    return { signup_template: pfConfigurationValidatorsFromMeta(meta, 'signup_template', 'Template') }
+    return { signup_template: validatorsFromMeta(meta, 'signup_template', 'Template') }
   },
   skipable: (form = {}, meta = {}) => {},
   source_id: (form = {}, meta = {}) => {},
   ssl_mobileconfig_path: (form = {}, meta = {}) => {
-    return { ssl_mobileconfig_path: pfConfigurationValidatorsFromMeta(meta, 'ssl_mobileconfig_path', 'SSL iOS profile URL') }
+    return { ssl_mobileconfig_path: validatorsFromMeta(meta, 'ssl_mobileconfig_path', 'SSL iOS profile URL') }
   },
   ssl_path: (form = {}, meta = {}) => {
-    return { ssl_path: pfConfigurationValidatorsFromMeta(meta, 'ssl_path', 'SSL Certificate URL') }
+    return { ssl_path: validatorsFromMeta(meta, 'ssl_path', 'SSL Certificate URL') }
   },
   stone_roles: (form = {}, meta = {}) => {
-    return { stone_roles: pfConfigurationValidatorsFromMeta(meta, 'stone_roles', i18n.t('Role')) }
+    return { stone_roles: validatorsFromMeta(meta, 'stone_roles', i18n.t('Role')) }
   },
   survey_id: (form = {}, meta = {}) => {
-    return { survey_id: pfConfigurationValidatorsFromMeta(meta, 'survey_id', i18n.t('Survey')) }
+    return { survey_id: validatorsFromMeta(meta, 'survey_id', i18n.t('Survey')) }
   },
   template: (form = {}, meta = {}) => {
-    return { template: pfConfigurationValidatorsFromMeta(meta, 'template', 'Template') }
+    return { template: validatorsFromMeta(meta, 'template', 'Template') }
   },
   url: (form = {}, meta = {}) => {
-    return { url: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL') }
+    return { url: validatorsFromMeta(meta, 'url', 'URL') }
   },
   username: (form = {}, meta = {}) => {
-    return { username: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username') }
+    return { username: validatorsFromMeta(meta, 'username', 'Username') }
   },
   with_aup: (form = {}, meta = {}) => {}
 }

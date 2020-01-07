@@ -4,9 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -131,7 +131,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -149,7 +149,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'domain',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'domain')
+              attrs: attributesFromMeta(meta, 'domain')
             }
           ]
         },
@@ -163,7 +163,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'options',
               component: pfFormTextarea,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'options')
+              attrs: attributesFromMeta(meta, 'options')
             }
           ]
         },
@@ -174,7 +174,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'radius_auth',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth')
+              attrs: attributesFromMeta(meta, 'radius_auth')
             }
           ]
         },
@@ -185,7 +185,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'radius_auth_proxy_type',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth_proxy_type')
+              attrs: attributesFromMeta(meta, 'radius_auth_proxy_type')
             }
           ]
         },
@@ -209,7 +209,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'radius_acct_chosen',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_chosen')
+              attrs: attributesFromMeta(meta, 'radius_acct_chosen')
             }
           ]
         },
@@ -220,7 +220,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'radius_acct_proxy_type',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_proxy_type')
+              attrs: attributesFromMeta(meta, 'radius_acct_proxy_type')
             }
           ]
         },
@@ -234,7 +234,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eduroam_options',
               component: pfFormTextarea,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_options')
+              attrs: attributesFromMeta(meta, 'eduroam_options')
             }
           ]
         },
@@ -245,7 +245,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eduroam_radius_auth',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_radius_auth')
+              attrs: attributesFromMeta(meta, 'eduroam_radius_auth')
             }
           ]
         },
@@ -256,7 +256,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eduroam_radius_auth_proxy_type',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_radius_auth_proxy_type')
+              attrs: attributesFromMeta(meta, 'eduroam_radius_auth_proxy_type')
             }
           ]
         },
@@ -280,7 +280,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eduroam_radius_acct_chosen',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_radius_acct_chosen')
+              attrs: attributesFromMeta(meta, 'eduroam_radius_acct_chosen')
             }
           ]
         },
@@ -291,7 +291,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eduroam_radius_acct_proxy_type',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_radius_acct_proxy_type')
+              attrs: attributesFromMeta(meta, 'eduroam_radius_acct_proxy_type')
             }
           ]
         },
@@ -357,7 +357,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ldap_source',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ldap_source')
+              attrs: attributesFromMeta(meta, 'ldap_source')
             }
           ]
         }
@@ -373,22 +373,22 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'ID'),
       ...{
         [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
       }
     },
-    domain: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain')),
-    options: pfConfigurationValidatorsFromMeta(meta, 'options', i18n.t('Options')),
-    radius_auth: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', i18n.t('Servers')),
-    radius_auth_proxy_type: pfConfigurationValidatorsFromMeta(meta, 'radius_auth_proxy_type', i18n.t('Type')),
-    radius_acct_chosen: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_chosen', i18n.t('Servers')),
-    radius_acct_proxy_type: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_proxy_type', i18n.t('Type')),
-    eduroam_options: pfConfigurationValidatorsFromMeta(meta, 'eduroam_options', 'Realm options'),
-    eduroam_radius_auth: pfConfigurationValidatorsFromMeta(meta, 'eduroam_radius_auth', 'RADIUS AUTH'),
-    eduroam_radius_auth_proxy_type: pfConfigurationValidatorsFromMeta(meta, 'eduroam_radius_auth_proxy_type', 'Type'),
-    eduroam_radius_acct_chosen: pfConfigurationValidatorsFromMeta(meta, 'eduroam_radius_acct_chosen', 'RADIUS ACCT'),
-    eduroam_radius_acct_proxy_type: pfConfigurationValidatorsFromMeta(meta, 'eduroam_radius_acct_proxy_type', 'Type'),
-    ldap_source: pfConfigurationValidatorsFromMeta(meta, 'ldap_source', i18n.t('Source'))
+    domain: validatorsFromMeta(meta, 'domain', i18n.t('Domain')),
+    options: validatorsFromMeta(meta, 'options', i18n.t('Options')),
+    radius_auth: validatorsFromMeta(meta, 'radius_auth', i18n.t('Servers')),
+    radius_auth_proxy_type: validatorsFromMeta(meta, 'radius_auth_proxy_type', i18n.t('Type')),
+    radius_acct_chosen: validatorsFromMeta(meta, 'radius_acct_chosen', i18n.t('Servers')),
+    radius_acct_proxy_type: validatorsFromMeta(meta, 'radius_acct_proxy_type', i18n.t('Type')),
+    eduroam_options: validatorsFromMeta(meta, 'eduroam_options', 'Realm options'),
+    eduroam_radius_auth: validatorsFromMeta(meta, 'eduroam_radius_auth', 'RADIUS AUTH'),
+    eduroam_radius_auth_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_auth_proxy_type', 'Type'),
+    eduroam_radius_acct_chosen: validatorsFromMeta(meta, 'eduroam_radius_acct_chosen', 'RADIUS ACCT'),
+    eduroam_radius_acct_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_acct_proxy_type', 'Type'),
+    ldap_source: validatorsFromMeta(meta, 'ldap_source', i18n.t('Source'))
   }
 }

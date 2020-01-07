@@ -3,9 +3,9 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -19,12 +19,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'bounce_duration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'bounce_duration.interval')
+              attrs: attributesFromMeta(meta, 'bounce_duration.interval')
             },
             {
               namespace: 'bounce_duration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'bounce_duration.unit')
+              attrs: attributesFromMeta(meta, 'bounce_duration.unit')
             }
           ]
         },
@@ -48,7 +48,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'trap_limit_threshold',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'trap_limit_threshold')
+              attrs: attributesFromMeta(meta, 'trap_limit_threshold')
             }
           ]
         },
@@ -59,7 +59,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'trap_limit_action',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'trap_limit_action')
+              attrs: attributesFromMeta(meta, 'trap_limit_action')
             }
           ]
         }
@@ -71,10 +71,10 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   return {
     bounce_duration: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'bounce_duration.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'bounce_duration.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'bounce_duration.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'bounce_duration.unit', i18n.t('Unit'))
     },
-    trap_limit_threshold: pfConfigurationValidatorsFromMeta(meta, 'trap_limit_threshold', i18n.t('Limit')),
-    trap_limit_action: pfConfigurationValidatorsFromMeta(meta, 'trap_limit_action', i18n.t('Action'))
+    trap_limit_threshold: validatorsFromMeta(meta, 'trap_limit_threshold', i18n.t('Limit')),
+    trap_limit_action: validatorsFromMeta(meta, 'trap_limit_action', i18n.t('Action'))
   }
 }

@@ -7,9 +7,9 @@ import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
@@ -203,7 +203,7 @@ export const viewFields = {
           namespace: 'id',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'id'),
+            ...attributesFromMeta(meta, 'id'),
             ...{
               disabled: (!isNew && !isClone)
             }
@@ -259,7 +259,7 @@ export const viewFields = {
         {
           namespace: 'cliEnablePwd',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'cliEnablePwd')
+          attrs: attributesFromMeta(meta, 'cliEnablePwd')
         }
       ]
     }
@@ -271,7 +271,7 @@ export const viewFields = {
         {
           namespace: 'cliPwd',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'cliPwd')
+          attrs: attributesFromMeta(meta, 'cliPwd')
         }
       ]
     }
@@ -283,7 +283,7 @@ export const viewFields = {
         {
           namespace: 'cliTransport',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'cliTransport')
+          attrs: attributesFromMeta(meta, 'cliTransport')
         }
       ]
     }
@@ -295,7 +295,7 @@ export const viewFields = {
         {
           namespace: 'cliUser',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'cliUser')
+          attrs: attributesFromMeta(meta, 'cliUser')
         }
       ]
     }
@@ -312,7 +312,7 @@ export const viewFields = {
         {
           namespace: 'coaPort',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'coaPort')
+          attrs: attributesFromMeta(meta, 'coaPort')
         }
       ]
     }
@@ -329,7 +329,7 @@ export const viewFields = {
         {
           namespace: 'controllerIp',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'controllerIp')
+          attrs: attributesFromMeta(meta, 'controllerIp')
         }
       ]
     }
@@ -341,7 +341,7 @@ export const viewFields = {
         {
           namespace: 'deauthMethod',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'deauthMethod')
+          attrs: attributesFromMeta(meta, 'deauthMethod')
         }
       ]
     }
@@ -353,7 +353,7 @@ export const viewFields = {
         {
           namespace: 'description',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'description')
+          attrs: attributesFromMeta(meta, 'description')
         }
       ]
     }
@@ -370,7 +370,7 @@ export const viewFields = {
         {
           namespace: 'disconnectPort',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'disconnectPort')
+          attrs: attributesFromMeta(meta, 'disconnectPort')
         }
       ]
     }
@@ -404,7 +404,7 @@ export const viewFields = {
         {
           namespace: 'group',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'group')
+          attrs: attributesFromMeta(meta, 'group')
         }
       ]
     }
@@ -447,7 +447,7 @@ export const viewFields = {
         {
           namespace: 'macSearchesMaxNb',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'macSearchesMaxNb')
+          attrs: attributesFromMeta(meta, 'macSearchesMaxNb')
         }
       ]
     }
@@ -460,7 +460,7 @@ export const viewFields = {
         {
           namespace: 'macSearchesSleepInterval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'macSearchesSleepInterval')
+          attrs: attributesFromMeta(meta, 'macSearchesSleepInterval')
         }
       ]
     }
@@ -488,7 +488,7 @@ export const viewFields = {
             namespace: `${role.id}AccessList`,
             component: pfFormTextarea,
             attrs: {
-              ...pfConfigurationAttributesFromMeta(meta, `${role.id}AccessList`),
+              ...attributesFromMeta(meta, `${role.id}AccessList`),
               ...{
                 rows: 3
               }
@@ -520,7 +520,7 @@ export const viewFields = {
           {
             namespace: `${role.id}Role`,
             component: pfFormInput,
-            attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Role`)
+            attrs: attributesFromMeta(meta, `${role.id}Role`)
           }
         ]
       }
@@ -548,7 +548,7 @@ export const viewFields = {
           {
             namespace: `${role.id}Url`,
             component: pfFormInput,
-            attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Url`)
+            attrs: attributesFromMeta(meta, `${role.id}Url`)
           }
         ]
       }
@@ -576,7 +576,7 @@ export const viewFields = {
           {
             namespace: `${role.id}Vlan`,
             component: pfFormInput,
-            attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Vlan`)
+            attrs: attributesFromMeta(meta, `${role.id}Vlan`)
           }
         ]
       }
@@ -589,7 +589,7 @@ export const viewFields = {
         {
           namespace: 'mode',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'mode')
+          attrs: attributesFromMeta(meta, 'mode')
         }
       ]
     }
@@ -601,7 +601,7 @@ export const viewFields = {
         {
           namespace: 'radiusSecret',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'radiusSecret')
+          attrs: attributesFromMeta(meta, 'radiusSecret')
         }
       ]
     }
@@ -635,7 +635,7 @@ export const viewFields = {
         {
           namespace: 'SNMPAuthPasswordRead',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPAuthPasswordRead')
+          attrs: attributesFromMeta(meta, 'SNMPAuthPasswordRead')
         }
       ]
     }
@@ -647,7 +647,7 @@ export const viewFields = {
         {
           namespace: 'SNMPAuthPasswordTrap',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPAuthPasswordTrap')
+          attrs: attributesFromMeta(meta, 'SNMPAuthPasswordTrap')
         }
       ]
     }
@@ -659,7 +659,7 @@ export const viewFields = {
         {
           namespace: 'SNMPAuthPasswordWrite',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPAuthPasswordWrite')
+          attrs: attributesFromMeta(meta, 'SNMPAuthPasswordWrite')
         }
       ]
     }
@@ -671,7 +671,7 @@ export const viewFields = {
         {
           namespace: 'SNMPAuthProtocolRead',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPAuthProtocolRead')
+          attrs: attributesFromMeta(meta, 'SNMPAuthProtocolRead')
         }
       ]
     }
@@ -683,7 +683,7 @@ export const viewFields = {
         {
           namespace: 'SNMPAuthProtocolTrap',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPAuthProtocolTrap')
+          attrs: attributesFromMeta(meta, 'SNMPAuthProtocolTrap')
         }
       ]
     }
@@ -695,7 +695,7 @@ export const viewFields = {
         {
           namespace: 'SNMPAuthProtocolWrite',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPAuthProtocolWrite')
+          attrs: attributesFromMeta(meta, 'SNMPAuthProtocolWrite')
         }
       ]
     }
@@ -707,7 +707,7 @@ export const viewFields = {
         {
           namespace: 'SNMPCommunityRead',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPCommunityRead')
+          attrs: attributesFromMeta(meta, 'SNMPCommunityRead')
         }
       ]
     }
@@ -719,7 +719,7 @@ export const viewFields = {
         {
           namespace: 'SNMPCommunityTrap',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPCommunityTrap')
+          attrs: attributesFromMeta(meta, 'SNMPCommunityTrap')
         }
       ]
     }
@@ -731,7 +731,7 @@ export const viewFields = {
         {
           namespace: 'SNMPCommunityWrite',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPCommunityWrite')
+          attrs: attributesFromMeta(meta, 'SNMPCommunityWrite')
         }
       ]
     }
@@ -743,7 +743,7 @@ export const viewFields = {
         {
           namespace: 'SNMPCommunityWrite',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPCommunityWrite')
+          attrs: attributesFromMeta(meta, 'SNMPCommunityWrite')
         }
       ]
     }
@@ -755,7 +755,7 @@ export const viewFields = {
         {
           namespace: 'SNMPPrivPasswordRead',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPPrivPasswordRead')
+          attrs: attributesFromMeta(meta, 'SNMPPrivPasswordRead')
         }
       ]
     }
@@ -767,7 +767,7 @@ export const viewFields = {
         {
           namespace: 'SNMPPrivPasswordTrap',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPPrivPasswordTrap')
+          attrs: attributesFromMeta(meta, 'SNMPPrivPasswordTrap')
         }
       ]
     }
@@ -779,7 +779,7 @@ export const viewFields = {
         {
           namespace: 'SNMPPrivPasswordWrite',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPPrivPasswordWrite')
+          attrs: attributesFromMeta(meta, 'SNMPPrivPasswordWrite')
         }
       ]
     }
@@ -791,7 +791,7 @@ export const viewFields = {
         {
           namespace: 'SNMPPrivProtocolRead',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPPrivProtocolRead')
+          attrs: attributesFromMeta(meta, 'SNMPPrivProtocolRead')
         }
       ]
     }
@@ -803,7 +803,7 @@ export const viewFields = {
         {
           namespace: 'SNMPPrivProtocolTrap',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPPrivProtocolTrap')
+          attrs: attributesFromMeta(meta, 'SNMPPrivProtocolTrap')
         }
       ]
     }
@@ -815,7 +815,7 @@ export const viewFields = {
         {
           namespace: 'SNMPPrivProtocolWrite',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPPrivProtocolWrite')
+          attrs: attributesFromMeta(meta, 'SNMPPrivProtocolWrite')
         }
       ]
     }
@@ -827,7 +827,7 @@ export const viewFields = {
         {
           namespace: 'SNMPUserNameWrite',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPUserNameWrite')
+          attrs: attributesFromMeta(meta, 'SNMPUserNameWrite')
         }
       ]
     }
@@ -839,7 +839,7 @@ export const viewFields = {
         {
           namespace: 'SNMPUserNameRead',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPUserNameRead')
+          attrs: attributesFromMeta(meta, 'SNMPUserNameRead')
         }
       ]
     }
@@ -851,7 +851,7 @@ export const viewFields = {
         {
           namespace: 'SNMPUserNameTrap',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPUserNameTrap')
+          attrs: attributesFromMeta(meta, 'SNMPUserNameTrap')
         }
       ]
     }
@@ -863,7 +863,7 @@ export const viewFields = {
         {
           namespace: 'SNMPVersion',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPVersion')
+          attrs: attributesFromMeta(meta, 'SNMPVersion')
         }
       ]
     }
@@ -875,7 +875,7 @@ export const viewFields = {
         {
           namespace: 'SNMPVersionTrap',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPVersionTrap')
+          attrs: attributesFromMeta(meta, 'SNMPVersionTrap')
         }
       ]
     }
@@ -888,7 +888,7 @@ export const viewFields = {
           namespace: 'type',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'type'),
+            ...attributesFromMeta(meta, 'type'),
             ...{
               groupLabel: 'group',
               groupValues: 'options'
@@ -914,7 +914,7 @@ export const viewFields = {
         {
           namespace: 'uplink',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'uplink')
+          attrs: attributesFromMeta(meta, 'uplink')
         }
       ]
     }
@@ -1098,7 +1098,7 @@ export const viewFields = {
         {
           namespace: 'wsPwd',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'wsPwd')
+          attrs: attributesFromMeta(meta, 'wsPwd')
         }
       ]
     }
@@ -1110,7 +1110,7 @@ export const viewFields = {
         {
           namespace: 'wsTransport',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'wsTransport')
+          attrs: attributesFromMeta(meta, 'wsTransport')
         }
       ]
     }
@@ -1122,7 +1122,7 @@ export const viewFields = {
         {
           namespace: 'wsUser',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'wsUser')
+          attrs: attributesFromMeta(meta, 'wsUser')
         }
       ]
     }
@@ -1280,19 +1280,19 @@ export const validators = (form = {}, meta = {}) => {
           ...validators,
           ...{
             ...((advancedMode || (supports(form, meta, ['RadiusDynamicVlanAssignment']) && (VlanMap === 'Y' || (!VlanMap && placeholder(meta, 'VlanMap') === 'Y'))))
-              ? { [`${role.id}Vlan`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}Vlan`, 'VLAN') }
+              ? { [`${role.id}Vlan`]: validatorsFromMeta(meta, `${role.id}Vlan`, 'VLAN') }
               : {}
             ),
             ...((advancedMode || (supports(form, meta, ['RoleBasedEnforcement']) && (RoleMap === 'Y' || (!RoleMap && placeholder(meta, 'RoleMap') === 'Y'))))
-              ? { [`${role.id}Role`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}Role`, i18n.t('Role')) }
+              ? { [`${role.id}Role`]: validatorsFromMeta(meta, `${role.id}Role`, i18n.t('Role')) }
               : {}
             ),
             ...((advancedMode || (supports(form, meta, ['AccessListBasedEnforcement']) && (AccessListMap === 'Y' || (!AccessListMap && placeholder(meta, 'AccessListMap') === 'Y'))))
-              ? { [`${role.id}AccessList`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}AccessList`, i18n.t('List')) }
+              ? { [`${role.id}AccessList`]: validatorsFromMeta(meta, `${role.id}AccessList`, i18n.t('List')) }
               : {}
             ),
             ...((advancedMode || (supports(form, meta, ['ExternalPortal']) && (UrlMap === 'Y' || (!UrlMap && placeholder(meta, 'UrlMap') === 'Y'))))
-              ? { [`${role.id}Url`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}Url`, 'URL') }
+              ? { [`${role.id}Url`]: validatorsFromMeta(meta, `${role.id}Url`, 'URL') }
               : {}
             )
           }
@@ -1303,7 +1303,7 @@ export const validators = (form = {}, meta = {}) => {
       ...(((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x'])) && ((uplinkDynamic && uplinkDynamic !== 'dynamic') || (!uplinkDynamic && placeholder(meta, 'uplink_dynamic') !== 'dynamic')))
         ? {
           uplink: {
-            ...pfConfigurationValidatorsFromMeta(meta, 'uplink', i18n.t('Uplinks')),
+            ...validatorsFromMeta(meta, 'uplink', i18n.t('Uplinks')),
             ...{
               [i18n.t('Uplinks required.')]: required
             }
@@ -1313,38 +1313,38 @@ export const validators = (form = {}, meta = {}) => {
       ),
       ...((advancedMode || supports(form, meta, ['WirelessMacAuth', 'WirelessDot1x']))
         ? {
-          controllerIp: pfConfigurationValidatorsFromMeta(meta, 'controllerIp', 'IP')
+          controllerIp: validatorsFromMeta(meta, 'controllerIp', 'IP')
         }
         : {}
       ),
       ...((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']))
         ? {
-          disconnectPort: pfConfigurationValidatorsFromMeta(meta, 'disconnectPort', i18n.t('Port'))
+          disconnectPort: validatorsFromMeta(meta, 'disconnectPort', i18n.t('Port'))
         }
         : {}
       ),
       ...((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']))
         ? {
-          coaPort: pfConfigurationValidatorsFromMeta(meta, 'coaPort', i18n.t('Port'))
+          coaPort: validatorsFromMeta(meta, 'coaPort', i18n.t('Port'))
         }
         : {}
       ),
       ...((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x', 'VPN']))
         ? {
-          radiusSecret: pfConfigurationValidatorsFromMeta(meta, 'radiusSecret', i18n.t('Secret'))
+          radiusSecret: validatorsFromMeta(meta, 'radiusSecret', i18n.t('Secret'))
         }
         : {}
       )
     },
     ...{
       id: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+        ...validatorsFromMeta(meta, 'id', 'ID'),
         ...{
           [i18n.t('Switch exists.')]: not(and(required, conditional(isNew || isClone), hasSwitches, switchExists))
         }
       },
       description: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
+        ...validatorsFromMeta(meta, 'description', i18n.t('Description')),
         ...{
           [i18n.t('Description required.')]: or(required, conditional(id === 'default'))
         }
@@ -1383,40 +1383,40 @@ export const validators = (form = {}, meta = {}) => {
           }
         })
       },
-      type: pfConfigurationValidatorsFromMeta(meta, 'type', i18n.t('Type')),
-      mode: pfConfigurationValidatorsFromMeta(meta, 'mode', i18n.t('Mode')),
-      group: pfConfigurationValidatorsFromMeta(meta, 'group', i18n.t('Group')),
-      deauthMethod: pfConfigurationValidatorsFromMeta(meta, 'deauthMethod', i18n.t('Method')),
-      SNMPVersion: pfConfigurationValidatorsFromMeta(meta, 'SNMPVersion', i18n.t('Version')),
-      SNMPCommunityRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPCommunityRead'),
-      SNMPCommunityWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPCommunityWrite'),
-      SNMPEngineID: pfConfigurationValidatorsFromMeta(meta, 'SNMPEngineID'),
-      SNMPUserNameRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPUserNameRead'),
-      SNMPAuthProtocolRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthProtocolRead'),
-      SNMPAuthPasswordRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthPasswordRead'),
-      SNMPPrivProtocolRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivProtocolRead'),
-      SNMPPrivPasswordRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivPasswordRead'),
-      SNMPUserNameWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPUserNameWrite'),
-      SNMPAuthProtocolWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthProtocolWrite'),
-      SNMPAuthPasswordWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthPasswordWrite'),
-      SNMPPrivProtocolWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivProtocolWrite'),
-      SNMPPrivPasswordWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivPasswordWrite'),
-      SNMPVersionTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPVersionTrap'),
-      SNMPCommunityTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPCommunityTrap'),
-      SNMPUserNameTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPUserNameTrap'),
-      SNMPAuthProtocolTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthProtocolTrap'),
-      SNMPAuthPasswordTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthPasswordTrap'),
-      SNMPPrivProtocolTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivProtocolTrap'),
-      SNMPPrivPasswordTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivPasswordTrap'),
-      macSearchesMaxNb: pfConfigurationValidatorsFromMeta(meta, 'macSearchesMaxNb', i18n.t('Max')),
-      macSearchesSleepInterval: pfConfigurationValidatorsFromMeta(meta, 'macSearchesSleepInterval', i18n.t('Interval')),
-      cliTransport: pfConfigurationValidatorsFromMeta(meta, 'cliTransport', i18n.t('Transport')),
-      cliUser: pfConfigurationValidatorsFromMeta(meta, 'cliUser', i18n.t('Username')),
-      cliPwd: pfConfigurationValidatorsFromMeta(meta, 'cliPwd', i18n.t('Password')),
-      cliEnablePwd: pfConfigurationValidatorsFromMeta(meta, 'cliEnablePwd', i18n.t('Password')),
-      wsTransport: pfConfigurationValidatorsFromMeta(meta, 'wsTransport', i18n.t('Transport')),
-      wsUser: pfConfigurationValidatorsFromMeta(meta, 'wsUser', i18n.t('Username')),
-      wsPwd: pfConfigurationValidatorsFromMeta(meta, 'wsPwd', i18n.t('Password'))
+      type: validatorsFromMeta(meta, 'type', i18n.t('Type')),
+      mode: validatorsFromMeta(meta, 'mode', i18n.t('Mode')),
+      group: validatorsFromMeta(meta, 'group', i18n.t('Group')),
+      deauthMethod: validatorsFromMeta(meta, 'deauthMethod', i18n.t('Method')),
+      SNMPVersion: validatorsFromMeta(meta, 'SNMPVersion', i18n.t('Version')),
+      SNMPCommunityRead: validatorsFromMeta(meta, 'SNMPCommunityRead'),
+      SNMPCommunityWrite: validatorsFromMeta(meta, 'SNMPCommunityWrite'),
+      SNMPEngineID: validatorsFromMeta(meta, 'SNMPEngineID'),
+      SNMPUserNameRead: validatorsFromMeta(meta, 'SNMPUserNameRead'),
+      SNMPAuthProtocolRead: validatorsFromMeta(meta, 'SNMPAuthProtocolRead'),
+      SNMPAuthPasswordRead: validatorsFromMeta(meta, 'SNMPAuthPasswordRead'),
+      SNMPPrivProtocolRead: validatorsFromMeta(meta, 'SNMPPrivProtocolRead'),
+      SNMPPrivPasswordRead: validatorsFromMeta(meta, 'SNMPPrivPasswordRead'),
+      SNMPUserNameWrite: validatorsFromMeta(meta, 'SNMPUserNameWrite'),
+      SNMPAuthProtocolWrite: validatorsFromMeta(meta, 'SNMPAuthProtocolWrite'),
+      SNMPAuthPasswordWrite: validatorsFromMeta(meta, 'SNMPAuthPasswordWrite'),
+      SNMPPrivProtocolWrite: validatorsFromMeta(meta, 'SNMPPrivProtocolWrite'),
+      SNMPPrivPasswordWrite: validatorsFromMeta(meta, 'SNMPPrivPasswordWrite'),
+      SNMPVersionTrap: validatorsFromMeta(meta, 'SNMPVersionTrap'),
+      SNMPCommunityTrap: validatorsFromMeta(meta, 'SNMPCommunityTrap'),
+      SNMPUserNameTrap: validatorsFromMeta(meta, 'SNMPUserNameTrap'),
+      SNMPAuthProtocolTrap: validatorsFromMeta(meta, 'SNMPAuthProtocolTrap'),
+      SNMPAuthPasswordTrap: validatorsFromMeta(meta, 'SNMPAuthPasswordTrap'),
+      SNMPPrivProtocolTrap: validatorsFromMeta(meta, 'SNMPPrivProtocolTrap'),
+      SNMPPrivPasswordTrap: validatorsFromMeta(meta, 'SNMPPrivPasswordTrap'),
+      macSearchesMaxNb: validatorsFromMeta(meta, 'macSearchesMaxNb', i18n.t('Max')),
+      macSearchesSleepInterval: validatorsFromMeta(meta, 'macSearchesSleepInterval', i18n.t('Interval')),
+      cliTransport: validatorsFromMeta(meta, 'cliTransport', i18n.t('Transport')),
+      cliUser: validatorsFromMeta(meta, 'cliUser', i18n.t('Username')),
+      cliPwd: validatorsFromMeta(meta, 'cliPwd', i18n.t('Password')),
+      cliEnablePwd: validatorsFromMeta(meta, 'cliEnablePwd', i18n.t('Password')),
+      wsTransport: validatorsFromMeta(meta, 'wsTransport', i18n.t('Transport')),
+      wsUser: validatorsFromMeta(meta, 'wsUser', i18n.t('Username')),
+      wsPwd: validatorsFromMeta(meta, 'wsPwd', i18n.t('Password'))
     }
   }
 }

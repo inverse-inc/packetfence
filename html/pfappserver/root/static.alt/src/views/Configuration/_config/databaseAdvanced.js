@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -18,7 +18,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'key_buffer_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'key_buffer_size')
+              attrs: attributesFromMeta(meta, 'key_buffer_size')
             }
           ]
         },
@@ -29,7 +29,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'innodb_buffer_pool_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_buffer_pool_size')
+              attrs: attributesFromMeta(meta, 'innodb_buffer_pool_size')
             }
           ]
         },
@@ -40,7 +40,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'innodb_additional_mem_pool_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_additional_mem_pool_size')
+              attrs: attributesFromMeta(meta, 'innodb_additional_mem_pool_size')
             }
           ]
         },
@@ -51,7 +51,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'query_cache_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'query_cache_size')
+              attrs: attributesFromMeta(meta, 'query_cache_size')
             }
           ]
         },
@@ -62,7 +62,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'thread_concurrency',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'thread_concurrency')
+              attrs: attributesFromMeta(meta, 'thread_concurrency')
             }
           ]
         },
@@ -73,7 +73,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'max_connections',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'max_connections')
+              attrs: attributesFromMeta(meta, 'max_connections')
             }
           ]
         },
@@ -84,7 +84,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'table_cache',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'table_cache')
+              attrs: attributesFromMeta(meta, 'table_cache')
             }
           ]
         },
@@ -95,7 +95,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'thread_cache_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'thread_cache_size')
+              attrs: attributesFromMeta(meta, 'thread_cache_size')
             }
           ]
         },
@@ -106,7 +106,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'max_allowed_packet',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'max_allowed_packet')
+              attrs: attributesFromMeta(meta, 'max_allowed_packet')
             }
           ]
         },
@@ -117,7 +117,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'performance_schema',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'performance_schema')
+              attrs: attributesFromMeta(meta, 'performance_schema')
             }
           ]
         },
@@ -128,7 +128,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'max_connect_errors',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'max_connect_errors')
+              attrs: attributesFromMeta(meta, 'max_connect_errors')
             }
           ]
         },
@@ -139,7 +139,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'masterslave',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'masterslave')
+              attrs: attributesFromMeta(meta, 'masterslave')
             }
           ]
         },
@@ -150,7 +150,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'other_members',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'other_members')
+              attrs: attributesFromMeta(meta, 'other_members')
             }
           ]
         }
@@ -161,18 +161,18 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    key_buffer_size: pfConfigurationValidatorsFromMeta(meta, 'key_buffer_size', i18n.t('Size')),
-    innodb_buffer_pool_size: pfConfigurationValidatorsFromMeta(meta, 'innodb_buffer_pool_size', i18n.t('Size')),
-    innodb_additional_mem_pool_size: pfConfigurationValidatorsFromMeta(meta, 'innodb_additional_mem_pool_size', i18n.t('Size')),
-    query_cache_size: pfConfigurationValidatorsFromMeta(meta, 'query_cache_size', i18n.t('Size')),
-    thread_concurrency: pfConfigurationValidatorsFromMeta(meta, 'thread_concurrency', i18n.t('Concurrency')),
-    max_connections: pfConfigurationValidatorsFromMeta(meta, 'max_connections', i18n.t('Connections')),
-    table_cache: pfConfigurationValidatorsFromMeta(meta, 'table_cache', i18n.t('Cache')),
-    thread_cache_size: pfConfigurationValidatorsFromMeta(meta, 'thread_cache_size', i18n.t('Size')),
-    max_allowed_packet: pfConfigurationValidatorsFromMeta(meta, 'max_allowed_packet', i18n.t('Packets')),
-    performance_schema: pfConfigurationValidatorsFromMeta(meta, 'performance_schema', i18n.t('Schema')),
-    max_connect_errors: pfConfigurationValidatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors')),
-    masterslave: pfConfigurationValidatorsFromMeta(meta, 'masterslave', i18n.t('Mode')),
-    other_members: pfConfigurationValidatorsFromMeta(meta, 'other_members', 'Other MySQL Servers')
+    key_buffer_size: validatorsFromMeta(meta, 'key_buffer_size', i18n.t('Size')),
+    innodb_buffer_pool_size: validatorsFromMeta(meta, 'innodb_buffer_pool_size', i18n.t('Size')),
+    innodb_additional_mem_pool_size: validatorsFromMeta(meta, 'innodb_additional_mem_pool_size', i18n.t('Size')),
+    query_cache_size: validatorsFromMeta(meta, 'query_cache_size', i18n.t('Size')),
+    thread_concurrency: validatorsFromMeta(meta, 'thread_concurrency', i18n.t('Concurrency')),
+    max_connections: validatorsFromMeta(meta, 'max_connections', i18n.t('Connections')),
+    table_cache: validatorsFromMeta(meta, 'table_cache', i18n.t('Cache')),
+    thread_cache_size: validatorsFromMeta(meta, 'thread_cache_size', i18n.t('Size')),
+    max_allowed_packet: validatorsFromMeta(meta, 'max_allowed_packet', i18n.t('Packets')),
+    performance_schema: validatorsFromMeta(meta, 'performance_schema', i18n.t('Schema')),
+    max_connect_errors: validatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors')),
+    masterslave: validatorsFromMeta(meta, 'masterslave', i18n.t('Mode')),
+    other_members: validatorsFromMeta(meta, 'other_members', 'Other MySQL Servers')
   }
 }

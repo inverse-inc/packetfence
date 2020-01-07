@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -252,7 +252,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'pfdhcplistener_packet_size',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pfdhcplistener_packet_size')
+              attrs: attributesFromMeta(meta, 'pfdhcplistener_packet_size')
             }
           ]
         },
@@ -484,6 +484,6 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    pfdhcplistener_packet_size: pfConfigurationValidatorsFromMeta(meta, 'pfdhcplistener_packet_size', i18n.t('Size'))
+    pfdhcplistener_packet_size: validatorsFromMeta(meta, 'pfdhcplistener_packet_size', i18n.t('Size'))
   }
 }

@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from '../'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and

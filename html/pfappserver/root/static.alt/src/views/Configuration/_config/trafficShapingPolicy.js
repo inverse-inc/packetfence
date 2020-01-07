@@ -1,9 +1,9 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -91,13 +91,13 @@ export const view = (form, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: true
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+                ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasTrafficShapingPolicies, trafficShapingPolicyExists))
                 }
@@ -112,8 +112,8 @@ export const view = (form, meta = {}) => {
             {
               namespace: 'upload',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'upload'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'upload', i18n.t('Upload'))
+              attrs: attributesFromMeta(meta, 'upload'),
+              validators: validatorsFromMeta(meta, 'upload', i18n.t('Upload'))
             }
           ]
         },
@@ -124,8 +124,8 @@ export const view = (form, meta = {}) => {
             {
               namespace: 'download',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'download'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'download', i18n.t('Download'))
+              attrs: attributesFromMeta(meta, 'download'),
+              validators: validatorsFromMeta(meta, 'download', i18n.t('Download'))
             }
           ]
         }
@@ -141,12 +141,12 @@ export const validators = (form, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
       ...{
         [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasTrafficShapingPolicies, trafficShapingPolicyExists))
       }
     },
-    upload: pfConfigurationValidatorsFromMeta(meta, 'upload', i18n.t('Upload')),
-    download: pfConfigurationValidatorsFromMeta(meta, 'download', i18n.t('Download'))
+    upload: validatorsFromMeta(meta, 'upload', i18n.t('Upload')),
+    download: validatorsFromMeta(meta, 'download', i18n.t('Download'))
   }
 }

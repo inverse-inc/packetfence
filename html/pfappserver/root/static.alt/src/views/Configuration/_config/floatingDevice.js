@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -128,7 +128,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -142,7 +142,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ip',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ip')
+              attrs: attributesFromMeta(meta, 'ip')
             }
           ]
         },
@@ -153,7 +153,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'pvid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pvid')
+              attrs: attributesFromMeta(meta, 'pvid')
             }
           ]
         },
@@ -178,7 +178,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'taggedVlan',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'taggedVlan')
+              attrs: attributesFromMeta(meta, 'taggedVlan')
             }
           ]
         }
@@ -194,13 +194,13 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'MAC'),
+      ...validatorsFromMeta(meta, 'id', 'MAC'),
       ...{
         [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), hasFloatingDevices, floatingDeviceExists))
       }
     },
-    ip: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP'),
-    pvid: pfConfigurationValidatorsFromMeta(meta, 'pvid', 'VLAN'),
-    taggedVlan: pfConfigurationValidatorsFromMeta(meta, 'taggedVlan', 'VLAN')
+    ip: validatorsFromMeta(meta, 'ip', 'IP'),
+    pvid: validatorsFromMeta(meta, 'pvid', 'VLAN'),
+    taggedVlan: validatorsFromMeta(meta, 'taggedVlan', 'VLAN')
   }
 }

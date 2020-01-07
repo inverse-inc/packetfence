@@ -3,9 +3,9 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -116,7 +116,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -130,7 +130,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'name',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'name')
+              attrs: attributesFromMeta(meta, 'name')
             }
           ]
         },
@@ -140,7 +140,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'name')
+              attrs: attributesFromMeta(meta, 'name')
             }
           ]
         },
@@ -152,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'price',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'price'),
+                ...attributesFromMeta(meta, 'price'),
                 ...{
                   type: 'number',
                   step: '0.01'
@@ -168,7 +168,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'role',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'role')
+              attrs: attributesFromMeta(meta, 'role')
             }
           ]
         },
@@ -179,12 +179,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'access_duration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.interval')
+              attrs: attributesFromMeta(meta, 'access_duration.interval')
             },
             {
               namespace: 'access_duration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.unit')
+              attrs: attributesFromMeta(meta, 'access_duration.unit')
             }
           ]
         },
@@ -213,15 +213,15 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
       ...{
         [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), hasBillingTiers, billingTierExists))
       }
     },
-    name: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Name')),
-    description: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Description')),
+    name: validatorsFromMeta(meta, 'name', i18n.t('Name')),
+    description: validatorsFromMeta(meta, 'name', i18n.t('Description')),
     price: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'price', i18n.t('Price')),
+      ...validatorsFromMeta(meta, 'price', i18n.t('Price')),
       ...{
         [i18n.t('Invalid price.')]: conditional((value) => {
           if (!value) return true
@@ -229,16 +229,16 @@ export const validators = (form = {}, meta = {}) => {
         })
       }
     },
-    role: pfConfigurationValidatorsFromMeta(meta, 'role', i18n.t('Role')),
+    role: validatorsFromMeta(meta, 'role', i18n.t('Role')),
     access_duration: {
       interval: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'access_duration.interval', i18n.t('Interval')),
+        ...validatorsFromMeta(meta, 'access_duration.interval', i18n.t('Interval')),
         ...{
           [i18n.t('Interval required.')]: required
         }
       },
       unit: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'access_duration.unit', i18n.t('Unit')),
+        ...validatorsFromMeta(meta, 'access_duration.unit', i18n.t('Unit')),
         ...{
           [i18n.t('Unit required.')]: required
         }

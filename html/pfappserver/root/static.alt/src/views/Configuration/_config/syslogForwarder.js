@@ -3,9 +3,9 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -110,7 +110,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -125,7 +125,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'proto',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'proto')
+              attrs: attributesFromMeta(meta, 'proto')
             }
           ]
         },
@@ -136,7 +136,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'host')
+              attrs: attributesFromMeta(meta, 'host')
             }
           ]
         },
@@ -147,7 +147,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
+              attrs: attributesFromMeta(meta, 'port')
             }
           ]
         },
@@ -170,7 +170,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'logs',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'logs')
+              attrs: attributesFromMeta(meta, 'logs')
             }
           ]
         }
@@ -186,14 +186,14 @@ export const validators = (form, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'ID'),
       ...{
         [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogForwarders, syslogForwarderExists))
       }
     },
-    proto: pfConfigurationValidatorsFromMeta(meta, 'proto', i18n.t('Protocol')),
-    host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')),
-    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
-    logs: pfConfigurationValidatorsFromMeta(meta, 'logs', i18n.t('Logs'))
+    proto: validatorsFromMeta(meta, 'proto', i18n.t('Protocol')),
+    host: validatorsFromMeta(meta, 'host', i18n.t('Host')),
+    port: validatorsFromMeta(meta, 'port', i18n.t('Port')),
+    logs: validatorsFromMeta(meta, 'logs', i18n.t('Logs'))
   }
 }

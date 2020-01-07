@@ -4,9 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -20,7 +20,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eap_authentication_types',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eap_authentication_types')
+              attrs: attributesFromMeta(meta, 'eap_authentication_types')
             }
           ]
         },
@@ -31,7 +31,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eap_fast_opaque_key',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eap_fast_opaque_key')
+              attrs: attributesFromMeta(meta, 'eap_fast_opaque_key')
             }
           ]
         },
@@ -42,7 +42,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eap_fast_authority_identity',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'eap_fast_authority_identity')
+              attrs: attributesFromMeta(meta, 'eap_fast_authority_identity')
             }
           ]
         },
@@ -158,7 +158,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'radius_attributes',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'radius_attributes'),
+                ...attributesFromMeta(meta, 'radius_attributes'),
                 ...{
                   placeholderHtml: true,
                   labelHtml: i18n.t('Built-in RADIUS Attributes'),
@@ -189,7 +189,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'username_attributes',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'username_attributes'),
+                ...attributesFromMeta(meta, 'username_attributes'),
                 ...{
                   rows: 5
                 }
@@ -236,7 +236,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ocsp_url',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ocsp_url')
+              attrs: attributesFromMeta(meta, 'ocsp_url')
             }
           ]
         },
@@ -261,7 +261,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ocsp_timeout',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'ocsp_timeout'),
+                ...attributesFromMeta(meta, 'ocsp_timeout'),
                 ...{
                   type: 'number',
                   step: 1
@@ -290,12 +290,12 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    eap_authentication_types: pfConfigurationValidatorsFromMeta(meta, 'eap_authentication_types', i18n.t('Types')),
-    eap_fast_opaque_key: pfConfigurationValidatorsFromMeta(meta, 'eap_fast_opaque_key', i18n.t('Key')),
-    eap_fast_authority_identity: pfConfigurationValidatorsFromMeta(meta, 'eap_fast_authority_identity', i18n.t('Identity')),
-    radius_attributes: pfConfigurationValidatorsFromMeta(meta, 'radius_attributes', i18n.t('Attributes')),
-    username_attributes: pfConfigurationValidatorsFromMeta(meta, 'username_attributes', i18n.t('Attributes')),
-    ocsp_url: pfConfigurationValidatorsFromMeta(meta, 'ocsp_url', i18n.t('URL')),
-    ocsp_timeout: pfConfigurationValidatorsFromMeta(meta, 'ocsp_timeout', i18n.t('Timeout'))
+    eap_authentication_types: validatorsFromMeta(meta, 'eap_authentication_types', i18n.t('Types')),
+    eap_fast_opaque_key: validatorsFromMeta(meta, 'eap_fast_opaque_key', i18n.t('Key')),
+    eap_fast_authority_identity: validatorsFromMeta(meta, 'eap_fast_authority_identity', i18n.t('Identity')),
+    radius_attributes: validatorsFromMeta(meta, 'radius_attributes', i18n.t('Attributes')),
+    username_attributes: validatorsFromMeta(meta, 'username_attributes', i18n.t('Attributes')),
+    ocsp_url: validatorsFromMeta(meta, 'ocsp_url', i18n.t('URL')),
+    ocsp_timeout: validatorsFromMeta(meta, 'ocsp_timeout', i18n.t('Timeout'))
   }
 }

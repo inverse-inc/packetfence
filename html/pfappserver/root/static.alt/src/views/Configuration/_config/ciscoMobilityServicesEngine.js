@@ -3,9 +3,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -30,7 +30,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'url',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'url')
+              attrs: attributesFromMeta(meta, 'url')
             }
           ]
         },
@@ -41,7 +41,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'user',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'user')
+              attrs: attributesFromMeta(meta, 'user')
             }
           ]
         },
@@ -52,7 +52,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'pass',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pass')
+              attrs: attributesFromMeta(meta, 'pass')
             }
           ]
         }
@@ -63,8 +63,8 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    url: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL'),
-    user: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Username')),
-    pass: pfConfigurationValidatorsFromMeta(meta, 'pass', i18n.t('Password'))
+    url: validatorsFromMeta(meta, 'url', 'URL'),
+    user: validatorsFromMeta(meta, 'user', i18n.t('Username')),
+    pass: validatorsFromMeta(meta, 'pass', i18n.t('Password'))
   }
 }

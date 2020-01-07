@@ -5,9 +5,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   requiredIf
 } from 'vuelidate/lib/validators'
@@ -24,7 +24,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'language',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'language')
+              attrs: attributesFromMeta(meta, 'language')
             }
           ]
         },
@@ -35,12 +35,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'api_inactivity_timeout.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'api_inactivity_timeout.interval')
+              attrs: attributesFromMeta(meta, 'api_inactivity_timeout.interval')
             },
             {
               namespace: 'api_inactivity_timeout.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'api_inactivity_timeout.unit')
+              attrs: attributesFromMeta(meta, 'api_inactivity_timeout.unit')
             }
           ]
         },
@@ -51,12 +51,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'api_max_expiration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'api_max_expiration.interval')
+              attrs: attributesFromMeta(meta, 'api_max_expiration.interval')
             },
             {
               namespace: 'api_max_expiration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'api_max_expiration.unit')
+              attrs: attributesFromMeta(meta, 'api_max_expiration.unit')
             }
           ]
         },
@@ -145,7 +145,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'hash_passwords',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'hash_passwords')
+              attrs: attributesFromMeta(meta, 'hash_passwords')
             }
           ]
         },
@@ -156,7 +156,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'hashing_cost',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'hashing_cost')
+              attrs: attributesFromMeta(meta, 'hashing_cost')
             }
           ]
         },
@@ -168,7 +168,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ldap_attributes',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'ldap_attributes'),
+                ...attributesFromMeta(meta, 'ldap_attributes'),
                 ...{
                   placeholderHtml: true,
                   labelHtml: i18n.t('Built-in LDAP Attributes'),
@@ -186,7 +186,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'pffilter_processes',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'pffilter_processes'),
+                ...attributesFromMeta(meta, 'pffilter_processes'),
                 ...{
                   type: 'number',
                   step: 1
@@ -203,7 +203,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'pfperl_api_processes',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'pfperl_api_processes'),
+                ...attributesFromMeta(meta, 'pfperl_api_processes'),
                 ...{
                   type: 'number',
                   step: 1
@@ -220,7 +220,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'pfperl_api_timeout',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'pfperl_api_timeout'),
+                ...attributesFromMeta(meta, 'pfperl_api_timeout'),
                 ...{
                   type: 'number',
                   step: 1
@@ -262,7 +262,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'timing_stats_level',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'timing_stats_level')
+              attrs: attributesFromMeta(meta, 'timing_stats_level')
             }
           ]
         },
@@ -273,7 +273,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'source_to_send_sms_when_creating_users',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'source_to_send_sms_when_creating_users')
+              attrs: attributesFromMeta(meta, 'source_to_send_sms_when_creating_users')
             }
           ]
         },
@@ -314,16 +314,16 @@ export const validators = (form = {}, meta = {}) => {
     api_max_expiration = { unit: null, interval: null }
   } = form
   return {
-    language: pfConfigurationValidatorsFromMeta(meta, 'language', i18n.t('Language')),
+    language: validatorsFromMeta(meta, 'language', i18n.t('Language')),
     api_inactivity_timeout: {
       interval: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.interval', i18n.t('Interval')),
+        ...validatorsFromMeta(meta, 'api_inactivity_timeout.interval', i18n.t('Interval')),
         ...{
           [i18n.t('Interval required.')]: requiredIf(() => api_inactivity_timeout.unit !== null)
         }
       },
       unit: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.unit', i18n.t('Unit')),
+        ...validatorsFromMeta(meta, 'api_inactivity_timeout.unit', i18n.t('Unit')),
         ...{
           [i18n.t('Unit required.')]: requiredIf(() => api_inactivity_timeout.interval !== null)
         }
@@ -331,25 +331,25 @@ export const validators = (form = {}, meta = {}) => {
     },
     api_max_expiration: {
       interval: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.interval', i18n.t('Interval')),
+        ...validatorsFromMeta(meta, 'api_max_expiration.interval', i18n.t('Interval')),
         ...{
           [i18n.t('Interval required.')]: requiredIf(() => api_max_expiration.unit !== null)
         }
       },
       unit: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.unit', i18n.t('Unit')),
+        ...validatorsFromMeta(meta, 'api_max_expiration.unit', i18n.t('Unit')),
         ...{
           [i18n.t('Unit required.')]: requiredIf(() => api_max_expiration.interval !== null)
         }
       }
     },
-    hash_passwords: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', i18n.t('Method')),
-    hashing_cost: pfConfigurationValidatorsFromMeta(meta, 'hashing_cost', i18n.t('Cost')),
-    ldap_attributes: pfConfigurationValidatorsFromMeta(meta, 'ldap_attributes', i18n.t('Attributes')),
-    pffilter_processes: pfConfigurationValidatorsFromMeta(meta, 'pffilter_processes', i18n.t('Processes')),
-    pfperl_api_processes: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_processes', i18n.t('Processes')),
-    pfperl_api_timeout: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_timeout', i18n.t('Timeout')),
-    timing_stats_level: pfConfigurationValidatorsFromMeta(meta, 'timing_stats_level', i18n.t('Level')),
-    source_to_send_sms_when_creating_users: pfConfigurationValidatorsFromMeta(meta, 'source_to_send_sms_when_creating_users', i18n.t('Source'))
+    hash_passwords: validatorsFromMeta(meta, 'hash_passwords', i18n.t('Method')),
+    hashing_cost: validatorsFromMeta(meta, 'hashing_cost', i18n.t('Cost')),
+    ldap_attributes: validatorsFromMeta(meta, 'ldap_attributes', i18n.t('Attributes')),
+    pffilter_processes: validatorsFromMeta(meta, 'pffilter_processes', i18n.t('Processes')),
+    pfperl_api_processes: validatorsFromMeta(meta, 'pfperl_api_processes', i18n.t('Processes')),
+    pfperl_api_timeout: validatorsFromMeta(meta, 'pfperl_api_timeout', i18n.t('Timeout')),
+    timing_stats_level: validatorsFromMeta(meta, 'timing_stats_level', i18n.t('Level')),
+    source_to_send_sms_when_creating_users: validatorsFromMeta(meta, 'source_to_send_sms_when_creating_users', i18n.t('Source'))
   }
 }

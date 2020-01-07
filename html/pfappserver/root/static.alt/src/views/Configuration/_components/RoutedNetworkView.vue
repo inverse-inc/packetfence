@@ -46,8 +46,8 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
   view,
   validators

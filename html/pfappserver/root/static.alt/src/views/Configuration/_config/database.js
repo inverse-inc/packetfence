@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -18,7 +18,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'host')
+              attrs: attributesFromMeta(meta, 'host')
             }
           ]
         },
@@ -29,7 +29,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
+              attrs: attributesFromMeta(meta, 'port')
             }
           ]
         },
@@ -40,7 +40,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'db',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'db')
+              attrs: attributesFromMeta(meta, 'db')
             }
           ]
         },
@@ -51,7 +51,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'user',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'user')
+              attrs: attributesFromMeta(meta, 'user')
             }
           ]
         },
@@ -62,7 +62,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'pass',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pass')
+              attrs: attributesFromMeta(meta, 'pass')
             }
           ]
         }
@@ -73,10 +73,10 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')),
-    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
-    db: pfConfigurationValidatorsFromMeta(meta, 'db', i18n.t('Database')),
-    user: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('User')),
-    pass: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Password'))
+    host: validatorsFromMeta(meta, 'host', i18n.t('Host')),
+    port: validatorsFromMeta(meta, 'port', i18n.t('Port')),
+    db: validatorsFromMeta(meta, 'db', i18n.t('Database')),
+    user: validatorsFromMeta(meta, 'user', i18n.t('User')),
+    pass: validatorsFromMeta(meta, 'user', i18n.t('Password'))
   }
 }

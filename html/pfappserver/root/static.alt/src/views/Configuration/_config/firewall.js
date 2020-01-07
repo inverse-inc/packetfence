@@ -4,9 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'username')
+              attrs: attributesFromMeta(meta, 'username')
             }
           ]
         },
@@ -148,7 +148,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'password')
+              attrs: attributesFromMeta(meta, 'password')
             }
           ]
         },
@@ -159,7 +159,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'password')
+              attrs: attributesFromMeta(meta, 'password')
             }
           ]
         },
@@ -171,7 +171,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
+              attrs: attributesFromMeta(meta, 'port')
             }
           ]
         },
@@ -183,7 +183,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'vsys',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'vsys')
+              attrs: attributesFromMeta(meta, 'vsys')
             }
           ]
         },
@@ -195,7 +195,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'deviceid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'deviceid')
+              attrs: attributesFromMeta(meta, 'deviceid')
             }
           ]
         },
@@ -206,7 +206,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'transport',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'transport')
+              attrs: attributesFromMeta(meta, 'transport')
             }
           ]
         },
@@ -218,7 +218,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
+              attrs: attributesFromMeta(meta, 'port')
             }
           ]
         },
@@ -230,7 +230,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'password',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'password')
+              attrs: attributesFromMeta(meta, 'password')
             }
           ]
         },
@@ -242,7 +242,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'nac_name',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'nac_name')
+              attrs: attributesFromMeta(meta, 'nac_name')
             }
           ]
         },
@@ -253,7 +253,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'categories',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'categories')
+              attrs: attributesFromMeta(meta, 'categories')
             }
           ]
         },
@@ -264,7 +264,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'networks',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'networks')
+              attrs: attributesFromMeta(meta, 'networks')
             }
           ]
         },
@@ -288,7 +288,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'cache_timeout',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'cache_timeout')
+              attrs: attributesFromMeta(meta, 'cache_timeout')
             }
           ]
         },
@@ -299,7 +299,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'username_format',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'username_format')
+              attrs: attributesFromMeta(meta, 'username_format')
             }
           ]
         },
@@ -310,7 +310,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'default_realm',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'default_realm')
+              attrs: attributesFromMeta(meta, 'default_realm')
             }
           ]
         }
@@ -326,22 +326,22 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'ID'),
       ...{
         [i18n.t('Firewall exists.')]: not(and(required, conditional(isNew || isClone), hasFirewalls, firewallExists))
       }
     },
-    username: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username')),
-    password: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password')),
-    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
-    vsys: pfConfigurationValidatorsFromMeta(meta, 'vsys', i18n.t('Number')),
-    deviceid: pfConfigurationValidatorsFromMeta(meta, 'deviceid', i18n.t('DeviceID')),
-    transport: pfConfigurationValidatorsFromMeta(meta, 'transport', i18n.t('Transport')),
-    nac_name: pfConfigurationValidatorsFromMeta(meta, 'nac_name', i18n.t('Name')),
-    categories: pfConfigurationValidatorsFromMeta(meta, 'categories', i18n.t('Roles')),
-    networks: pfConfigurationValidatorsFromMeta(meta, 'networks', i18n.t('Networks')),
-    cache_timeout: pfConfigurationValidatorsFromMeta(meta, 'cache_timeout', i18n.t('Timeout')),
-    username_format: pfConfigurationValidatorsFromMeta(meta, 'username_format', i18n.t('Format')),
-    default_realm: pfConfigurationValidatorsFromMeta(meta, 'default_realm', i18n.t('Realm'))
+    username: validatorsFromMeta(meta, 'username', i18n.t('Username')),
+    password: validatorsFromMeta(meta, 'password', i18n.t('Password')),
+    port: validatorsFromMeta(meta, 'port', i18n.t('Port')),
+    vsys: validatorsFromMeta(meta, 'vsys', i18n.t('Number')),
+    deviceid: validatorsFromMeta(meta, 'deviceid', i18n.t('DeviceID')),
+    transport: validatorsFromMeta(meta, 'transport', i18n.t('Transport')),
+    nac_name: validatorsFromMeta(meta, 'nac_name', i18n.t('Name')),
+    categories: validatorsFromMeta(meta, 'categories', i18n.t('Roles')),
+    networks: validatorsFromMeta(meta, 'networks', i18n.t('Networks')),
+    cache_timeout: validatorsFromMeta(meta, 'cache_timeout', i18n.t('Timeout')),
+    username_format: validatorsFromMeta(meta, 'username_format', i18n.t('Format')),
+    default_realm: validatorsFromMeta(meta, 'default_realm', i18n.t('Realm'))
   }
 }

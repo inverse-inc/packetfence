@@ -4,9 +4,9 @@ import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   and,
   not,
@@ -93,7 +93,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew)
                 }
@@ -124,7 +124,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'dhcp_start',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'dhcp_start'),
+                ...attributesFromMeta(meta, 'dhcp_start'),
                 ...{
                   disabled: (fake_mac_enabled === '1')
                 }
@@ -139,7 +139,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'dhcp_end',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'dhcp_start'),
+                ...attributesFromMeta(meta, 'dhcp_start'),
                 ...{
                   disabled: (fake_mac_enabled === '1')
                 }
@@ -154,7 +154,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'dhcp_default_lease_time',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'dhcp_default_lease_time'),
+                ...attributesFromMeta(meta, 'dhcp_default_lease_time'),
                 ...{
                   disabled: (fake_mac_enabled === '1')
                 }
@@ -169,7 +169,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'dhcp_max_lease_time',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'dhcp_max_lease_time'),
+                ...attributesFromMeta(meta, 'dhcp_max_lease_time'),
                 ...{
                   disabled: (fake_mac_enabled === '1')
                 }
@@ -185,7 +185,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ip_reserved',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'ip_reserved'),
+                ...attributesFromMeta(meta, 'ip_reserved'),
                 ...{
                   disabled: (fake_mac_enabled === '1'),
                   rows: 5
@@ -202,7 +202,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ip_assigned',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'ip_assigned'),
+                ...attributesFromMeta(meta, 'ip_assigned'),
                 ...{
                   disabled: (fake_mac_enabled === '1'),
                   rows: 5
@@ -219,7 +219,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'portal_fqdn',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'portal_fqdn'),
+                ...attributesFromMeta(meta, 'portal_fqdn'),
                 ...{
                   disabled: (fake_mac_enabled === '1')
                 }
@@ -248,31 +248,31 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'ID'),
       ...{
         [i18n.t('Network exists.')]: not(and(required, conditional(isNew), hasLayer2Networks, layer2NetworkExists)),
         [i18n.t('Invalid IP Address.')]: ipAddress
       }
     },
-    algorithm: pfConfigurationValidatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm')),
+    algorithm: validatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm')),
     dhcp_start: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
+      ...validatorsFromMeta(meta, 'dhcp_start', 'IP'),
       ...{
         [i18n.t('Invalid IP Address.')]: ipAddress
       }
     },
     dhcp_end: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_end', 'IP'),
+      ...validatorsFromMeta(meta, 'dhcp_end', 'IP'),
       ...{
         [i18n.t('Invalid IP Address.')]: ipAddress
       }
     },
-    dhcp_default_lease_time: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time')),
-    dhcp_max_lease_time: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time')),
-    ip_reserved: pfConfigurationValidatorsFromMeta(meta, 'ip_reserved', i18n.t('Addresses')),
-    ip_assigned: pfConfigurationValidatorsFromMeta(meta, 'ip_assigned', i18n.t('Addresses')),
+    dhcp_default_lease_time: validatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time')),
+    dhcp_max_lease_time: validatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time')),
+    ip_reserved: validatorsFromMeta(meta, 'ip_reserved', i18n.t('Addresses')),
+    ip_assigned: validatorsFromMeta(meta, 'ip_assigned', i18n.t('Addresses')),
     portal_fqdn: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'portal_fqdn', 'FQDN'),
+      ...validatorsFromMeta(meta, 'portal_fqdn', 'FQDN'),
       ...{
         [i18n.t('Invalid FQDN.')]: isFQDN
       }

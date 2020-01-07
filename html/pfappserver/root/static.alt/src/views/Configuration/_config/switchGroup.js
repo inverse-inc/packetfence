@@ -1,9 +1,9 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   and,
   not,
@@ -88,7 +88,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -256,19 +256,19 @@ export const validators = (form = {}, meta = {}) => {
           ...validators,
           ...{
             ...((advancedMode || (supports(form, meta, ['RadiusDynamicVlanAssignment']) && (VlanMap === 'Y' || (!VlanMap && placeholder(meta, 'VlanMap') === 'Y'))))
-              ? { [`${role.id}Vlan`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}Vlan`, 'VLAN') }
+              ? { [`${role.id}Vlan`]: validatorsFromMeta(meta, `${role.id}Vlan`, 'VLAN') }
               : {}
             ),
             ...((advancedMode || (supports(form, meta, ['RoleBasedEnforcement']) && (RoleMap === 'Y' || (!RoleMap && placeholder(meta, 'RoleMap') === 'Y'))))
-              ? { [`${role.id}Role`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}Role`, i18n.t('Role')) }
+              ? { [`${role.id}Role`]: validatorsFromMeta(meta, `${role.id}Role`, i18n.t('Role')) }
               : {}
             ),
             ...((advancedMode || (supports(form, meta, ['AccessListBasedEnforcement']) && (AccessListMap === 'Y' || (!AccessListMap && placeholder(meta, 'AccessListMap') === 'Y'))))
-              ? { [`${role.id}AccessList`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}AccessList`, i18n.t('List')) }
+              ? { [`${role.id}AccessList`]: validatorsFromMeta(meta, `${role.id}AccessList`, i18n.t('List')) }
               : {}
             ),
             ...((advancedMode || (supports(form, meta, ['ExternalPortal']) && (UrlMap === 'Y' || (!UrlMap && placeholder(meta, 'UrlMap') === 'Y'))))
-              ? { [`${role.id}Url`]: pfConfigurationValidatorsFromMeta(meta, `${role.id}Url`, 'URL') }
+              ? { [`${role.id}Url`]: validatorsFromMeta(meta, `${role.id}Url`, 'URL') }
               : {}
             )
           }
@@ -279,7 +279,7 @@ export const validators = (form = {}, meta = {}) => {
       ...(((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x'])) && ((uplinkDynamic && uplinkDynamic !== 'dynamic') || (!uplinkDynamic && placeholder(meta, 'uplink_dynamic') !== 'dynamic')))
         ? {
           uplink: {
-            ...pfConfigurationValidatorsFromMeta(meta, 'uplink', i18n.t('Uplinks')),
+            ...validatorsFromMeta(meta, 'uplink', i18n.t('Uplinks')),
             ...{
               [i18n.t('Uplinks required.')]: required
             }
@@ -289,39 +289,39 @@ export const validators = (form = {}, meta = {}) => {
       ),
       ...((advancedMode || supports(form, meta, ['WirelessMacAuth', 'WirelessDot1x']))
         ? {
-          controllerIp: pfConfigurationValidatorsFromMeta(meta, 'controllerIp', 'IP')
+          controllerIp: validatorsFromMeta(meta, 'controllerIp', 'IP')
         }
         : {}
       ),
       ...((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']))
         ? {
-          disconnectPort: pfConfigurationValidatorsFromMeta(meta, 'disconnectPort', i18n.t('Port'))
+          disconnectPort: validatorsFromMeta(meta, 'disconnectPort', i18n.t('Port'))
         }
         : {}
       ),
       ...((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']))
         ? {
-          coaPort: pfConfigurationValidatorsFromMeta(meta, 'coaPort', i18n.t('Port'))
+          coaPort: validatorsFromMeta(meta, 'coaPort', i18n.t('Port'))
         }
         : {}
       ),
       ...((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x', 'VPN']))
         ? {
-          radiusSecret: pfConfigurationValidatorsFromMeta(meta, 'radiusSecret', i18n.t('Secret'))
+          radiusSecret: validatorsFromMeta(meta, 'radiusSecret', i18n.t('Secret'))
         }
         : {}
       )
     },
     ...{
       id: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+        ...validatorsFromMeta(meta, 'id', 'ID'),
         ...{
           [i18n.t('Switch Group exists.')]: not(and(required, conditional(isNew || isClone), hasSwitchGroups, switchGroupExists))
         }
       },
       description:
       {
-        ...pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
+        ...validatorsFromMeta(meta, 'description', i18n.t('Description')),
         ...{
           [i18n.t('Description required.')]: or(required, conditional(id === 'default'))
         }
@@ -360,40 +360,40 @@ export const validators = (form = {}, meta = {}) => {
           }
         })
       },
-      type: pfConfigurationValidatorsFromMeta(meta, 'type', i18n.t('Type')),
-      mode: pfConfigurationValidatorsFromMeta(meta, 'mode', i18n.t('Mode')),
-      group: pfConfigurationValidatorsFromMeta(meta, 'group', i18n.t('Group')),
-      deauthMethod: pfConfigurationValidatorsFromMeta(meta, 'deauthMethod', i18n.t('Method')),
-      SNMPVersion: pfConfigurationValidatorsFromMeta(meta, 'SNMPVersion', i18n.t('Version')),
-      SNMPCommunityRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPCommunityRead'),
-      SNMPCommunityWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPCommunityWrite'),
-      SNMPEngineID: pfConfigurationValidatorsFromMeta(meta, 'SNMPEngineID'),
-      SNMPUserNameRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPUserNameRead'),
-      SNMPAuthProtocolRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthProtocolRead'),
-      SNMPAuthPasswordRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthPasswordRead'),
-      SNMPPrivProtocolRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivProtocolRead'),
-      SNMPPrivPasswordRead: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivPasswordRead'),
-      SNMPUserNameWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPUserNameWrite'),
-      SNMPAuthProtocolWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthProtocolWrite'),
-      SNMPAuthPasswordWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthPasswordWrite'),
-      SNMPPrivProtocolWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivProtocolWrite'),
-      SNMPPrivPasswordWrite: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivPasswordWrite'),
-      SNMPVersionTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPVersionTrap'),
-      SNMPCommunityTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPCommunityTrap'),
-      SNMPUserNameTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPUserNameTrap'),
-      SNMPAuthProtocolTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthProtocolTrap'),
-      SNMPAuthPasswordTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPAuthPasswordTrap'),
-      SNMPPrivProtocolTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivProtocolTrap'),
-      SNMPPrivPasswordTrap: pfConfigurationValidatorsFromMeta(meta, 'SNMPPrivPasswordTrap'),
-      macSearchesMaxNb: pfConfigurationValidatorsFromMeta(meta, 'macSearchesMaxNb', i18n.t('Max')),
-      macSearchesSleepInterval: pfConfigurationValidatorsFromMeta(meta, 'macSearchesSleepInterval', i18n.t('Interval')),
-      cliTransport: pfConfigurationValidatorsFromMeta(meta, 'cliTransport', i18n.t('Transport')),
-      cliUser: pfConfigurationValidatorsFromMeta(meta, 'cliUser', i18n.t('Username')),
-      cliPwd: pfConfigurationValidatorsFromMeta(meta, 'cliPwd', i18n.t('Password')),
-      cliEnablePwd: pfConfigurationValidatorsFromMeta(meta, 'cliEnablePwd', i18n.t('Password')),
-      wsTransport: pfConfigurationValidatorsFromMeta(meta, 'wsTransport', i18n.t('Transport')),
-      wsUser: pfConfigurationValidatorsFromMeta(meta, 'wsUser', i18n.t('Username')),
-      wsPwd: pfConfigurationValidatorsFromMeta(meta, 'wsPwd', i18n.t('Password'))
+      type: validatorsFromMeta(meta, 'type', i18n.t('Type')),
+      mode: validatorsFromMeta(meta, 'mode', i18n.t('Mode')),
+      group: validatorsFromMeta(meta, 'group', i18n.t('Group')),
+      deauthMethod: validatorsFromMeta(meta, 'deauthMethod', i18n.t('Method')),
+      SNMPVersion: validatorsFromMeta(meta, 'SNMPVersion', i18n.t('Version')),
+      SNMPCommunityRead: validatorsFromMeta(meta, 'SNMPCommunityRead'),
+      SNMPCommunityWrite: validatorsFromMeta(meta, 'SNMPCommunityWrite'),
+      SNMPEngineID: validatorsFromMeta(meta, 'SNMPEngineID'),
+      SNMPUserNameRead: validatorsFromMeta(meta, 'SNMPUserNameRead'),
+      SNMPAuthProtocolRead: validatorsFromMeta(meta, 'SNMPAuthProtocolRead'),
+      SNMPAuthPasswordRead: validatorsFromMeta(meta, 'SNMPAuthPasswordRead'),
+      SNMPPrivProtocolRead: validatorsFromMeta(meta, 'SNMPPrivProtocolRead'),
+      SNMPPrivPasswordRead: validatorsFromMeta(meta, 'SNMPPrivPasswordRead'),
+      SNMPUserNameWrite: validatorsFromMeta(meta, 'SNMPUserNameWrite'),
+      SNMPAuthProtocolWrite: validatorsFromMeta(meta, 'SNMPAuthProtocolWrite'),
+      SNMPAuthPasswordWrite: validatorsFromMeta(meta, 'SNMPAuthPasswordWrite'),
+      SNMPPrivProtocolWrite: validatorsFromMeta(meta, 'SNMPPrivProtocolWrite'),
+      SNMPPrivPasswordWrite: validatorsFromMeta(meta, 'SNMPPrivPasswordWrite'),
+      SNMPVersionTrap: validatorsFromMeta(meta, 'SNMPVersionTrap'),
+      SNMPCommunityTrap: validatorsFromMeta(meta, 'SNMPCommunityTrap'),
+      SNMPUserNameTrap: validatorsFromMeta(meta, 'SNMPUserNameTrap'),
+      SNMPAuthProtocolTrap: validatorsFromMeta(meta, 'SNMPAuthProtocolTrap'),
+      SNMPAuthPasswordTrap: validatorsFromMeta(meta, 'SNMPAuthPasswordTrap'),
+      SNMPPrivProtocolTrap: validatorsFromMeta(meta, 'SNMPPrivProtocolTrap'),
+      SNMPPrivPasswordTrap: validatorsFromMeta(meta, 'SNMPPrivPasswordTrap'),
+      macSearchesMaxNb: validatorsFromMeta(meta, 'macSearchesMaxNb', i18n.t('Max')),
+      macSearchesSleepInterval: validatorsFromMeta(meta, 'macSearchesSleepInterval', i18n.t('Interval')),
+      cliTransport: validatorsFromMeta(meta, 'cliTransport', i18n.t('Transport')),
+      cliUser: validatorsFromMeta(meta, 'cliUser', i18n.t('Username')),
+      cliPwd: validatorsFromMeta(meta, 'cliPwd', i18n.t('Password')),
+      cliEnablePwd: validatorsFromMeta(meta, 'cliEnablePwd', i18n.t('Password')),
+      wsTransport: validatorsFromMeta(meta, 'wsTransport', i18n.t('Transport')),
+      wsUser: validatorsFromMeta(meta, 'wsUser', i18n.t('Username')),
+      wsPwd: validatorsFromMeta(meta, 'wsPwd', i18n.t('Password'))
     }
   }
 }

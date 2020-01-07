@@ -5,9 +5,9 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -452,7 +452,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -466,7 +466,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'description')
+              attrs: attributesFromMeta(meta, 'description')
             }
           ]
         },
@@ -520,7 +520,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'allowed_access_levels',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_levels')
+              attrs: attributesFromMeta(meta, 'allowed_access_levels')
             }
           ]
         },
@@ -531,7 +531,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'allowed_roles',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_roles')
+              attrs: attributesFromMeta(meta, 'allowed_roles')
             }
           ]
         },
@@ -542,7 +542,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'allowed_access_durations',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_durations')
+              attrs: attributesFromMeta(meta, 'allowed_access_durations')
             }
           ]
         },
@@ -554,7 +554,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'allowed_unreg_date',
               component: pfFormDatetime,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'allowed_unreg_date'),
+                ...attributesFromMeta(meta, 'allowed_unreg_date'),
                 ...{
                   config: {
                     datetimeFormat: 'YYYY-MM-DD'
@@ -571,7 +571,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'allowed_actions',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_actions')
+              attrs: attributesFromMeta(meta, 'allowed_actions')
             }
           ]
         }
@@ -587,7 +587,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'allowed_node_roles',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_node_roles')
+              attrs: attributesFromMeta(meta, 'allowed_node_roles')
             }
           ]
         }
@@ -606,23 +606,23 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
       ...{
         [i18n.t('Admin Role exists.')]: not(and(required, conditional(isNew || isClone), hasAdminRoles, adminRoleExists))
       }
     },
-    description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
+    description: validatorsFromMeta(meta, 'description', i18n.t('Description')),
     actions: {
       $each: {
         [i18n.t('Action required.')]: required,
         [i18n.t('Duplicate action.')]: conditional((value) => !(actions.filter(v => v === value).length > 1))
       }
     },
-    allowed_access_levels: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_levels', i18n.t('Access Levels')),
-    allowed_roles: pfConfigurationValidatorsFromMeta(meta, 'allowed_roles', i18n.t('Roles')),
-    allowed_access_durations: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_durations', i18n.t('Durations')),
-    allowed_unreg_date: pfConfigurationValidatorsFromMeta(meta, 'allowed_unreg_date', i18n.t('Datetime')),
-    allowed_actions: pfConfigurationValidatorsFromMeta(meta, 'allowed_actions', i18n.t('Actions')),
-    allowed_node_roles: pfConfigurationValidatorsFromMeta(meta, 'allowed_node_roles', i18n.t('Roles'))
+    allowed_access_levels: validatorsFromMeta(meta, 'allowed_access_levels', i18n.t('Access Levels')),
+    allowed_roles: validatorsFromMeta(meta, 'allowed_roles', i18n.t('Roles')),
+    allowed_access_durations: validatorsFromMeta(meta, 'allowed_access_durations', i18n.t('Durations')),
+    allowed_unreg_date: validatorsFromMeta(meta, 'allowed_unreg_date', i18n.t('Datetime')),
+    allowed_actions: validatorsFromMeta(meta, 'allowed_actions', i18n.t('Actions')),
+    allowed_node_roles: validatorsFromMeta(meta, 'allowed_node_roles', i18n.t('Roles'))
   }
 }

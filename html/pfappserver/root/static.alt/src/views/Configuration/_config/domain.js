@@ -5,9 +5,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -123,7 +123,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'workgroup',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'workgroup')
+              attrs: attributesFromMeta(meta, 'workgroup')
             }
           ]
         },
@@ -148,7 +148,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'dns_name',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_name')
+              attrs: attributesFromMeta(meta, 'dns_name')
             }
           ]
         },
@@ -159,7 +159,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'server_name',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'server_name')
+              attrs: attributesFromMeta(meta, 'server_name')
             }
           ]
         },
@@ -170,7 +170,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'sticky_dc',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'sticky_dc')
+              attrs: attributesFromMeta(meta, 'sticky_dc')
             }
           ]
         },
@@ -181,7 +181,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ad_server',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ad_server')
+              attrs: attributesFromMeta(meta, 'ad_server')
             }
           ]
         },
@@ -192,7 +192,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'dns_servers',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_servers')
+              attrs: attributesFromMeta(meta, 'dns_servers')
             }
           ]
         },
@@ -203,7 +203,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ou',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ou')
+              attrs: attributesFromMeta(meta, 'ou')
             }
           ]
         },
@@ -272,7 +272,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ntlm_cache_source',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_source')
+              attrs: attributesFromMeta(meta, 'ntlm_cache_source')
             }
           ]
         },
@@ -284,7 +284,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ntlm_cache_filter',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_filter'),
+                ...attributesFromMeta(meta, 'ntlm_cache_filter'),
                 ...{
                   rows: 3
                 }
@@ -299,7 +299,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ntlm_cache_expiry',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_expiry')
+              attrs: attributesFromMeta(meta, 'ntlm_cache_expiry')
             }
           ]
         },
@@ -354,20 +354,20 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'ID'),
       ...{
         [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
       }
     },
-    workgroup: pfConfigurationValidatorsFromMeta(meta, 'workgroup', i18n.t('Workgroup')),
-    dns_name: pfConfigurationValidatorsFromMeta(meta, 'dns_name', i18n.t('DNS name')),
-    server_name: pfConfigurationValidatorsFromMeta(meta, 'server_name', i18n.t('Server name')),
-    sticky_dc: pfConfigurationValidatorsFromMeta(meta, 'sticky_dc', i18n.t('Sticky DC')),
-    ad_server: pfConfigurationValidatorsFromMeta(meta, 'ad_server', i18n.t('Server')),
-    dns_servers: pfConfigurationValidatorsFromMeta(meta, 'dns_servers', i18n.t('Servers')),
-    ou: pfConfigurationValidatorsFromMeta(meta, 'ou', 'OU'),
-    ntlm_cache_source: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_source', i18n.t('Source')),
-    ntlm_cache_filter: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_filter', i18n.t('Filter')),
-    ntlm_cache_expiry: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_expiry', i18n.t('Expiration'))
+    workgroup: validatorsFromMeta(meta, 'workgroup', i18n.t('Workgroup')),
+    dns_name: validatorsFromMeta(meta, 'dns_name', i18n.t('DNS name')),
+    server_name: validatorsFromMeta(meta, 'server_name', i18n.t('Server name')),
+    sticky_dc: validatorsFromMeta(meta, 'sticky_dc', i18n.t('Sticky DC')),
+    ad_server: validatorsFromMeta(meta, 'ad_server', i18n.t('Server')),
+    dns_servers: validatorsFromMeta(meta, 'dns_servers', i18n.t('Servers')),
+    ou: validatorsFromMeta(meta, 'ou', 'OU'),
+    ntlm_cache_source: validatorsFromMeta(meta, 'ntlm_cache_source', i18n.t('Source')),
+    ntlm_cache_filter: validatorsFromMeta(meta, 'ntlm_cache_filter', i18n.t('Filter')),
+    ntlm_cache_expiry: validatorsFromMeta(meta, 'ntlm_cache_expiry', i18n.t('Expiration'))
   }
 }

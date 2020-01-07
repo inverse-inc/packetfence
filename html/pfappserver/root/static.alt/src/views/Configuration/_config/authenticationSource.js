@@ -13,10 +13,10 @@ import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  authenticationSourceRulesConditionFieldsFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   pfActions,
   pfActionValidators
@@ -158,7 +158,7 @@ export const viewFields = {
           namespace: 'id',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'id'),
+            ...attributesFromMeta(meta, 'id'),
             ...{
               disabled: (!isNew && !isClone)
             }
@@ -175,7 +175,7 @@ export const viewFields = {
         {
           namespace: 'scope',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'scope')
+          attrs: attributesFromMeta(meta, 'scope')
         }
       ]
     }
@@ -187,7 +187,7 @@ export const viewFields = {
         {
           namespace: 'access_token_param',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_param')
+          attrs: attributesFromMeta(meta, 'access_token_param')
         }
       ]
     }
@@ -199,7 +199,7 @@ export const viewFields = {
         {
           namespace: 'access_token_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_path')
+          attrs: attributesFromMeta(meta, 'access_token_path')
         }
       ]
     }
@@ -212,7 +212,7 @@ export const viewFields = {
         {
           namespace: 'account_sid',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'account_sid')
+          attrs: attributesFromMeta(meta, 'account_sid')
         }
       ]
     }
@@ -225,7 +225,7 @@ export const viewFields = {
         {
           namespace: 'activation_domain',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'activation_domain')
+          attrs: attributesFromMeta(meta, 'activation_domain')
         }
       ]
     }
@@ -266,7 +266,7 @@ export const viewFields = {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),
                     valueLabel: i18n.t('Select value'),
-                    fields: pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta(meta, 'administration_rules.conditions.attribute')
+                    fields: authenticationSourceRulesConditionFieldsFromMeta(meta, 'administration_rules.conditions.attribute')
                   }
                 },
                 invalidFeedback: i18n.t('Administration rule contains one or more errors.')
@@ -286,7 +286,7 @@ export const viewFields = {
           namespace: 'allowed_domains',
           component: pfFormTextarea,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'allowed_domains'),
+            ...attributesFromMeta(meta, 'allowed_domains'),
             ...{
               rows: 3
             }
@@ -317,7 +317,7 @@ export const viewFields = {
         {
           namespace: 'api_key',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'api_key')
+          attrs: attributesFromMeta(meta, 'api_key')
         }
       ]
     }
@@ -329,7 +329,7 @@ export const viewFields = {
         {
           namespace: 'api_login_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'api_login_id')
+          attrs: attributesFromMeta(meta, 'api_login_id')
         }
       ]
     }
@@ -341,7 +341,7 @@ export const viewFields = {
         {
           namespace: 'username',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'username')
+          attrs: attributesFromMeta(meta, 'username')
         }
       ]
     }
@@ -353,7 +353,7 @@ export const viewFields = {
         {
           namespace: 'password',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'password')
+          attrs: attributesFromMeta(meta, 'password')
         }
       ]
     }
@@ -366,7 +366,7 @@ export const viewFields = {
         {
           namespace: 'auth_listening_port',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'auth_listening_port')
+          attrs: attributesFromMeta(meta, 'auth_listening_port')
         }
       ]
     }
@@ -379,7 +379,7 @@ export const viewFields = {
         {
           namespace: 'auth_token',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'auth_token')
+          attrs: attributesFromMeta(meta, 'auth_token')
         }
       ]
     }
@@ -391,7 +391,7 @@ export const viewFields = {
         {
           namespace: 'authenticate_realm',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'authenticate_realm')
+          attrs: attributesFromMeta(meta, 'authenticate_realm')
         }
       ]
     }
@@ -431,7 +431,7 @@ export const viewFields = {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),
                     valueLabel: i18n.t('Select value'),
-                    fields: pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta(meta, 'authentication_rules.conditions.attribute')
+                    fields: authenticationSourceRulesConditionFieldsFromMeta(meta, 'authentication_rules.conditions.attribute')
                   }
                 },
                 invalidFeedback: i18n.t('Authentication rule contains one or more errors.')
@@ -450,7 +450,7 @@ export const viewFields = {
         {
           namespace: 'authentication_url',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'authentication_url')
+          attrs: attributesFromMeta(meta, 'authentication_url')
         }
       ]
     }
@@ -463,7 +463,7 @@ export const viewFields = {
         {
           namespace: 'authorization_source_id',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_source_id')
+          attrs: attributesFromMeta(meta, 'authorization_source_id')
         }
       ]
     }
@@ -475,7 +475,7 @@ export const viewFields = {
         {
           namespace: 'authorize_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'authorize_path')
+          attrs: attributesFromMeta(meta, 'authorize_path')
         }
       ]
     }
@@ -488,7 +488,7 @@ export const viewFields = {
         {
           namespace: 'authorization_url',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_url')
+          attrs: attributesFromMeta(meta, 'authorization_url')
         }
       ]
     }
@@ -502,7 +502,7 @@ export const viewFields = {
           namespace: 'banned_domains',
           component: pfFormTextarea,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'banned_domains'),
+            ...attributesFromMeta(meta, 'banned_domains'),
             ...{
               rows: 3
             }
@@ -518,7 +518,7 @@ export const viewFields = {
         {
           namespace: 'base_url',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'base_url')
+          attrs: attributesFromMeta(meta, 'base_url')
         }
       ]
     }
@@ -530,7 +530,7 @@ export const viewFields = {
         {
           namespace: 'basedn',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'basedn')
+          attrs: attributesFromMeta(meta, 'basedn')
         }
       ]
     }
@@ -543,7 +543,7 @@ export const viewFields = {
         {
           namespace: 'binddn',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'binddn')
+          attrs: attributesFromMeta(meta, 'binddn')
         }
       ]
     }
@@ -571,7 +571,7 @@ export const viewFields = {
         {
           namespace: 'cert_file',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'cert_file')
+          attrs: attributesFromMeta(meta, 'cert_file')
         }
       ]
     }
@@ -583,7 +583,7 @@ export const viewFields = {
         {
           namespace: 'cert_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'cert_id')
+          attrs: attributesFromMeta(meta, 'cert_id')
         }
       ]
     }
@@ -595,7 +595,7 @@ export const viewFields = {
         {
           namespace: 'client_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'client_id')
+          attrs: attributesFromMeta(meta, 'client_id')
         }
       ]
     }
@@ -607,7 +607,7 @@ export const viewFields = {
         {
           namespace: 'client_secret',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'client_secret')
+          attrs: attributesFromMeta(meta, 'client_secret')
         }
       ]
     }
@@ -620,7 +620,7 @@ export const viewFields = {
         {
           namespace: 'connection_timeout',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'connection_timeout')
+          attrs: attributesFromMeta(meta, 'connection_timeout')
         }
       ]
     }
@@ -647,7 +647,7 @@ export const viewFields = {
         {
           namespace: 'currency',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'currency')
+          attrs: attributesFromMeta(meta, 'currency')
         }
       ]
     }
@@ -659,7 +659,7 @@ export const viewFields = {
         {
           namespace: 'description',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'description')
+          attrs: attributesFromMeta(meta, 'description')
         }
       ]
     }
@@ -671,7 +671,7 @@ export const viewFields = {
         {
           namespace: 'direct_base_url',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'direct_base_url')
+          attrs: attributesFromMeta(meta, 'direct_base_url')
         }
       ]
     }
@@ -684,7 +684,7 @@ export const viewFields = {
         {
           namespace: 'domains',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'domains')
+          attrs: attributesFromMeta(meta, 'domains')
         }
       ]
     }
@@ -697,13 +697,13 @@ export const viewFields = {
         {
           namespace: 'email_activation_timeout.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.interval')
+          attrs: attributesFromMeta(meta, 'email_activation_timeout.interval')
         },
         {
           namespace: 'email_activation_timeout.unit',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.unit'),
+            ...attributesFromMeta(meta, 'email_activation_timeout.unit'),
             ...{
               allowEmpty: false
             }
@@ -720,7 +720,7 @@ export const viewFields = {
         {
           namespace: 'email_address',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'email_address')
+          attrs: attributesFromMeta(meta, 'email_address')
         }
       ]
     }
@@ -733,7 +733,7 @@ export const viewFields = {
         {
           namespace: 'email_attribute',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'email_attribute')
+          attrs: attributesFromMeta(meta, 'email_attribute')
         }
       ]
     }
@@ -759,7 +759,7 @@ export const viewFields = {
         {
           namespace: 'group_header',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'group_header')
+          attrs: attributesFromMeta(meta, 'group_header')
         }
       ]
     }
@@ -772,7 +772,7 @@ export const viewFields = {
         {
           namespace: 'hash_passwords',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'hash_passwords')
+          attrs: attributesFromMeta(meta, 'hash_passwords')
         }
       ]
     }
@@ -784,7 +784,7 @@ export const viewFields = {
         {
           namespace: 'host',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'host')
+          attrs: attributesFromMeta(meta, 'host')
         }
       ]
     }
@@ -816,7 +816,7 @@ export const viewFields = {
           namespace: 'host',
           component: pfFormInputMultiple,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'host'),
+            ...attributesFromMeta(meta, 'host'),
             ...{
               class: 'col-sm-4',
               placeholder: i18n.t('Enter a new host'),
@@ -832,7 +832,7 @@ export const viewFields = {
           namespace: 'port',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'port'),
+            ...attributesFromMeta(meta, 'port'),
             ...{
               class: 'mx-1 col-sm-2'
             }
@@ -842,7 +842,7 @@ export const viewFields = {
           namespace: 'encryption',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'encryption'),
+            ...attributesFromMeta(meta, 'encryption'),
             ...{
               class: 'col-sm-2'
             }
@@ -867,7 +867,7 @@ export const viewFields = {
         {
           namespace: 'identity_token',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'identity_token')
+          attrs: attributesFromMeta(meta, 'identity_token')
         }
       ]
     }
@@ -880,7 +880,7 @@ export const viewFields = {
         {
           namespace: 'idp_ca_cert_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_ca_cert_path')
+          attrs: attributesFromMeta(meta, 'idp_ca_cert_path')
         }
       ]
     }
@@ -892,7 +892,7 @@ export const viewFields = {
         {
           namespace: 'idp_cert_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_cert_path')
+          attrs: attributesFromMeta(meta, 'idp_cert_path')
         }
       ]
     }
@@ -904,7 +904,7 @@ export const viewFields = {
         {
           namespace: 'idp_entity_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_entity_id')
+          attrs: attributesFromMeta(meta, 'idp_entity_id')
         }
       ]
     }
@@ -916,7 +916,7 @@ export const viewFields = {
         {
           namespace: 'idp_metadata_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_metadata_path')
+          attrs: attributesFromMeta(meta, 'idp_metadata_path')
         }
       ]
     }
@@ -929,7 +929,7 @@ export const viewFields = {
         {
           namespace: 'key_file',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'key_file')
+          attrs: attributesFromMeta(meta, 'key_file')
         }
       ]
     }
@@ -942,7 +942,7 @@ export const viewFields = {
         {
           namespace: 'lang',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'lang')
+          attrs: attributesFromMeta(meta, 'lang')
         }
       ]
     }
@@ -955,7 +955,7 @@ export const viewFields = {
         {
           namespace: 'local_account_logins',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'local_account_logins')
+          attrs: attributesFromMeta(meta, 'local_account_logins')
         }
       ]
     }
@@ -968,7 +968,7 @@ export const viewFields = {
         {
           namespace: 'local_realm',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'local_realm')
+          attrs: attributesFromMeta(meta, 'local_realm')
         }
       ]
     }
@@ -980,7 +980,7 @@ export const viewFields = {
         {
           namespace: 'merchant_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'merchant_id')
+          attrs: attributesFromMeta(meta, 'merchant_id')
         }
       ]
     }
@@ -993,7 +993,7 @@ export const viewFields = {
           namespace: 'message',
           component: pfFormTextarea,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'message'),
+            ...attributesFromMeta(meta, 'message'),
             ...{
               rows: 5
             }
@@ -1026,7 +1026,7 @@ export const viewFields = {
           namespace: 'options',
           component: pfFormTextarea,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'options'),
+            ...attributesFromMeta(meta, 'options'),
             ...{
               rows: 3
             }
@@ -1043,7 +1043,7 @@ export const viewFields = {
           namespace: 'password',
           component: pfFormPassword,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'password'),
+            ...attributesFromMeta(meta, 'password'),
             ...{
               test: () => {
                 return store.dispatch('$_sources/testAuthenticationSource', form).then(response => {
@@ -1066,7 +1066,7 @@ export const viewFields = {
         {
           namespace: 'password_email_update',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'password_email_update')
+          attrs: attributesFromMeta(meta, 'password_email_update')
         }
       ]
     }
@@ -1079,7 +1079,7 @@ export const viewFields = {
         {
           namespace: 'password_length',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'password_length')
+          attrs: attributesFromMeta(meta, 'password_length')
         }
       ]
     }
@@ -1092,7 +1092,7 @@ export const viewFields = {
         {
           namespace: 'password_rotation',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation')
+          attrs: attributesFromMeta(meta, 'password_rotation')
         }
       ]
     }
@@ -1104,7 +1104,7 @@ export const viewFields = {
         {
           namespace: 'path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'path')
+          attrs: attributesFromMeta(meta, 'path')
         }
       ]
     }
@@ -1116,7 +1116,7 @@ export const viewFields = {
         {
           namespace: 'payment_type',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'payment_type')
+          attrs: attributesFromMeta(meta, 'payment_type')
         }
       ]
     }
@@ -1129,7 +1129,7 @@ export const viewFields = {
         {
           namespace: 'paypal_cert_file',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'paypal_cert_file')
+          attrs: attributesFromMeta(meta, 'paypal_cert_file')
         }
       ]
     }
@@ -1142,7 +1142,7 @@ export const viewFields = {
         {
           namespace: 'pin_code_length',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'pin_code_length')
+          attrs: attributesFromMeta(meta, 'pin_code_length')
         }
       ]
     }
@@ -1155,7 +1155,7 @@ export const viewFields = {
         {
           namespace: 'port',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'port')
+          attrs: attributesFromMeta(meta, 'port')
         }
       ]
     }
@@ -1167,7 +1167,7 @@ export const viewFields = {
         {
           namespace: 'protected_resource_url',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'protected_resource_url')
+          attrs: attributesFromMeta(meta, 'protected_resource_url')
         }
       ]
     }
@@ -1180,7 +1180,7 @@ export const viewFields = {
           namespace: 'protocol',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'protocol'),
+            ...attributesFromMeta(meta, 'protocol'),
             ...{
               class: 'col-sm-2'
             }
@@ -1190,7 +1190,7 @@ export const viewFields = {
           namespace: 'host',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'host'),
+            ...attributesFromMeta(meta, 'host'),
             ...{
               class: 'mx-1 col-sm-4'
             }
@@ -1204,7 +1204,7 @@ export const viewFields = {
           namespace: 'port',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'port'),
+            ...attributesFromMeta(meta, 'port'),
             ...{
               class: 'mx-1 col-sm-2'
             }
@@ -1222,7 +1222,7 @@ export const viewFields = {
           namespace: 'proxy_addresses',
           component: pfFormTextarea,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'proxy_addresses'),
+            ...attributesFromMeta(meta, 'proxy_addresses'),
             ...{
               rows: 5
             }
@@ -1238,7 +1238,7 @@ export const viewFields = {
         {
           namespace: 'public_client_key',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'public_client_key')
+          attrs: attributesFromMeta(meta, 'public_client_key')
         }
       ]
     }
@@ -1250,7 +1250,7 @@ export const viewFields = {
         {
           namespace: 'publishable_key',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'publishable_key')
+          attrs: attributesFromMeta(meta, 'publishable_key')
         }
       ]
     }
@@ -1263,7 +1263,7 @@ export const viewFields = {
         {
           namespace: 'radius_secret',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'radius_secret')
+          attrs: attributesFromMeta(meta, 'radius_secret')
         }
       ]
     }
@@ -1276,7 +1276,7 @@ export const viewFields = {
         {
           namespace: 'read_timeout',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'read_timeout')
+          attrs: attributesFromMeta(meta, 'read_timeout')
         }
       ]
     }
@@ -1289,7 +1289,7 @@ export const viewFields = {
         {
           namespace: 'realms',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'realms')
+          attrs: attributesFromMeta(meta, 'realms')
         }
       ]
     }
@@ -1302,7 +1302,7 @@ export const viewFields = {
         {
           namespace: 'redirect_url',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'redirect_url')
+          attrs: attributesFromMeta(meta, 'redirect_url')
         }
       ]
     }
@@ -1315,7 +1315,7 @@ export const viewFields = {
         {
           namespace: 'reject_realm',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'reject_realm')
+          attrs: attributesFromMeta(meta, 'reject_realm')
         }
       ]
     }
@@ -1327,7 +1327,7 @@ export const viewFields = {
         {
           namespace: 'scope',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'scope')
+          attrs: attributesFromMeta(meta, 'scope')
         }
       ]
     }
@@ -1340,7 +1340,7 @@ export const viewFields = {
         {
           namespace: 'searchattributes',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'searchattributes')
+          attrs: attributesFromMeta(meta, 'searchattributes')
         }
       ]
     }
@@ -1352,7 +1352,7 @@ export const viewFields = {
         {
           namespace: 'secret',
           component: pfFormPassword,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'secret')
+          attrs: attributesFromMeta(meta, 'secret')
         }
       ]
     }
@@ -1364,7 +1364,7 @@ export const viewFields = {
         {
           namespace: 'secret_key',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'secret_key')
+          attrs: attributesFromMeta(meta, 'secret_key')
         }
       ]
     }
@@ -1391,7 +1391,7 @@ export const viewFields = {
         {
           namespace: 'server1_address',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'server1_address')
+          attrs: attributesFromMeta(meta, 'server1_address')
         }
       ]
     }
@@ -1403,7 +1403,7 @@ export const viewFields = {
         {
           namespace: 'server1_port',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'server1_port')
+          attrs: attributesFromMeta(meta, 'server1_port')
         }
       ]
     }
@@ -1416,7 +1416,7 @@ export const viewFields = {
         {
           namespace: 'server2_address',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'server2_address')
+          attrs: attributesFromMeta(meta, 'server2_address')
         }
       ]
     }
@@ -1428,7 +1428,7 @@ export const viewFields = {
         {
           namespace: 'server2_port',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'server2_port')
+          attrs: attributesFromMeta(meta, 'server2_port')
         }
       ]
     }
@@ -1440,7 +1440,7 @@ export const viewFields = {
         {
           namespace: 'service_fqdn',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'service_fqdn')
+          attrs: attributesFromMeta(meta, 'service_fqdn')
         }
       ]
     }
@@ -1453,7 +1453,7 @@ export const viewFields = {
         {
           namespace: 'shared_secret',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret')
+          attrs: attributesFromMeta(meta, 'shared_secret')
         }
       ]
     }
@@ -1466,7 +1466,7 @@ export const viewFields = {
         {
           namespace: 'shared_secret_direct',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret_direct')
+          attrs: attributesFromMeta(meta, 'shared_secret_direct')
         }
       ]
     }
@@ -1493,7 +1493,7 @@ export const viewFields = {
         {
           namespace: 'site',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'site')
+          attrs: attributesFromMeta(meta, 'site')
         }
       ]
     }
@@ -1506,13 +1506,13 @@ export const viewFields = {
         {
           namespace: 'sms_activation_timeout.interval',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.interval')
+          attrs: attributesFromMeta(meta, 'sms_activation_timeout.interval')
         },
         {
           namespace: 'sms_activation_timeout.unit',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.unit'),
+            ...attributesFromMeta(meta, 'sms_activation_timeout.unit'),
             ...{
               allowEmpty: false
             }
@@ -1529,7 +1529,7 @@ export const viewFields = {
         {
           namespace: 'sms_carriers',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_carriers')
+          attrs: attributesFromMeta(meta, 'sms_carriers')
         }
       ]
     }
@@ -1542,7 +1542,7 @@ export const viewFields = {
         {
           namespace: 'sources',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sources')
+          attrs: attributesFromMeta(meta, 'sources')
         }
       ]
     }
@@ -1554,7 +1554,7 @@ export const viewFields = {
         {
           namespace: 'sp_cert_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_cert_path')
+          attrs: attributesFromMeta(meta, 'sp_cert_path')
         }
       ]
     }
@@ -1566,7 +1566,7 @@ export const viewFields = {
         {
           namespace: 'sp_entity_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_entity_id')
+          attrs: attributesFromMeta(meta, 'sp_entity_id')
         }
       ]
     }
@@ -1578,7 +1578,7 @@ export const viewFields = {
         {
           namespace: 'sp_key_path',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_key_path')
+          attrs: attributesFromMeta(meta, 'sp_key_path')
         }
       ]
     }
@@ -1591,7 +1591,7 @@ export const viewFields = {
         {
           namespace: 'sponsorship_bcc',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sponsorship_bcc')
+          attrs: attributesFromMeta(meta, 'sponsorship_bcc')
         }
       ]
     }
@@ -1603,7 +1603,7 @@ export const viewFields = {
         {
           namespace: 'style',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'style')
+          attrs: attributesFromMeta(meta, 'style')
         }
       ]
     }
@@ -1616,7 +1616,7 @@ export const viewFields = {
         {
           namespace: 'terminal_group_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'terminal_group_id')
+          attrs: attributesFromMeta(meta, 'terminal_group_id')
         }
       ]
     }
@@ -1629,7 +1629,7 @@ export const viewFields = {
         {
           namespace: 'terminal_id',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'terminal_id')
+          attrs: attributesFromMeta(meta, 'terminal_id')
         }
       ]
     }
@@ -1655,7 +1655,7 @@ export const viewFields = {
         {
           namespace: 'timeout',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'timeout')
+          attrs: attributesFromMeta(meta, 'timeout')
         }
       ]
     }
@@ -1667,7 +1667,7 @@ export const viewFields = {
         {
           namespace: 'transaction_key',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'transaction_key')
+          attrs: attributesFromMeta(meta, 'transaction_key')
         }
       ]
     }
@@ -1680,7 +1680,7 @@ export const viewFields = {
         {
           namespace: 'twilio_phone_number',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'twilio_phone_number')
+          attrs: attributesFromMeta(meta, 'twilio_phone_number')
         }
       ]
     }
@@ -1692,7 +1692,7 @@ export const viewFields = {
         {
           namespace: 'user_header',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'user_header')
+          attrs: attributesFromMeta(meta, 'user_header')
         }
       ]
     }
@@ -1704,7 +1704,7 @@ export const viewFields = {
         {
           namespace: 'username_attribute',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'username_attribute')
+          attrs: attributesFromMeta(meta, 'username_attribute')
         }
       ]
     }
@@ -1717,7 +1717,7 @@ export const viewFields = {
         {
           namespace: 'usernameattribute',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'usernameattribute')
+          attrs: attributesFromMeta(meta, 'usernameattribute')
         }
       ]
     }
@@ -1745,7 +1745,7 @@ export const viewFields = {
         {
           namespace: 'write_timeout',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'write_timeout')
+          attrs: attributesFromMeta(meta, 'write_timeout')
         }
       ]
     }
@@ -2432,7 +2432,7 @@ export const validatorFields = {
     const { isNew, isClone } = meta
     return {
       id: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+        ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
         ...{
           [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), hasSources, sourceExists))
         }
@@ -2440,19 +2440,19 @@ export const validatorFields = {
     }
   },
   access_scope: (form = {}, meta = {}) => {
-    return { scope: pfConfigurationValidatorsFromMeta(meta, 'scope', i18n.t('Scope')) }
+    return { scope: validatorsFromMeta(meta, 'scope', i18n.t('Scope')) }
   },
   access_token_param: (form = {}, meta = {}) => {
-    return { access_token_param: pfConfigurationValidatorsFromMeta(meta, 'access_token_param', i18n.t('Parameter')) }
+    return { access_token_param: validatorsFromMeta(meta, 'access_token_param', i18n.t('Parameter')) }
   },
   access_token_path: (form = {}, meta = {}) => {
-    return { access_token_path: pfConfigurationValidatorsFromMeta(meta.access_token_path, 'access_token_path', i18n.t('Path')) }
+    return { access_token_path: validatorsFromMeta(meta.access_token_path, 'access_token_path', i18n.t('Path')) }
   },
   account_sid: (form = {}, meta = {}) => {
-    return { account_sid: pfConfigurationValidatorsFromMeta(meta, 'account_sid', 'SID') }
+    return { account_sid: validatorsFromMeta(meta, 'account_sid', 'SID') }
   },
   activation_domain: (form = {}, meta = {}) => {
-    return { activation_domain: pfConfigurationValidatorsFromMeta(meta, 'activation_domain', i18n.t('Host')) }
+    return { activation_domain: validatorsFromMeta(meta, 'activation_domain', i18n.t('Host')) }
   },
   administration_rules: (form = {}, meta = {}) => {
     const {
@@ -2503,28 +2503,28 @@ export const validatorFields = {
     }
   },
   allowed_domains: (form = {}, meta = {}) => {
-    return { allowed_domains: pfConfigurationValidatorsFromMeta(meta, 'allowed_domains', i18n.t('Domains')) }
+    return { allowed_domains: validatorsFromMeta(meta, 'allowed_domains', i18n.t('Domains')) }
   },
   api_key: (form = {}, meta = {}) => {
-    return { api_key: pfConfigurationValidatorsFromMeta(meta, 'api_key', i18n.t('Key')) }
+    return { api_key: validatorsFromMeta(meta, 'api_key', i18n.t('Key')) }
   },
   api_login_id: (form = {}, meta = {}) => {
-    return { api_login_id: pfConfigurationValidatorsFromMeta(meta, 'api_login_id', 'ID') }
+    return { api_login_id: validatorsFromMeta(meta, 'api_login_id', 'ID') }
   },
   api_username: (form = {}, meta = {}) => {
-    return { username: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username')) }
+    return { username: validatorsFromMeta(meta, 'username', i18n.t('Username')) }
   },
   api_password: (form = {}, meta = {}) => {
-    return { password: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password')) }
+    return { password: validatorsFromMeta(meta, 'password', i18n.t('Password')) }
   },
   auth_listening_port: (form = {}, meta = {}) => {
-    return { auth_listening_port: pfConfigurationValidatorsFromMeta(meta, 'auth_listening_port', i18n.t('Port')) }
+    return { auth_listening_port: validatorsFromMeta(meta, 'auth_listening_port', i18n.t('Port')) }
   },
   auth_token: (form = {}, meta = {}) => {
-    return { auth_token: pfConfigurationValidatorsFromMeta(meta, 'auth_token', i18n.t('Token')) }
+    return { auth_token: validatorsFromMeta(meta, 'auth_token', i18n.t('Token')) }
   },
   authenticate_realm: (form = {}, meta = {}) => {
-    return { authenticate_realm: pfConfigurationValidatorsFromMeta(meta, 'authenticate_realm', i18n.t('Realm')) }
+    return { authenticate_realm: validatorsFromMeta(meta, 'authenticate_realm', i18n.t('Realm')) }
   },
   authentication_rules: (form = {}, meta = {}) => {
     const {
@@ -2575,274 +2575,274 @@ export const validatorFields = {
     }
   },
   authentication_url: (form = {}, meta = {}) => {
-    return { authentication_url: pfConfigurationValidatorsFromMeta(meta, 'authentication_url', 'URL') }
+    return { authentication_url: validatorsFromMeta(meta, 'authentication_url', 'URL') }
   },
   authorization_source_id: (form = {}, meta = {}) => {
-    return { authorization_source_id: pfConfigurationValidatorsFromMeta(meta, 'authorization_source_id', i18n.t('Source')) }
+    return { authorization_source_id: validatorsFromMeta(meta, 'authorization_source_id', i18n.t('Source')) }
   },
   authorize_path: (form = {}, meta = {}) => {
-    return { authorize_path: pfConfigurationValidatorsFromMeta(meta, 'authorize_path', i18n.t('Path')) }
+    return { authorize_path: validatorsFromMeta(meta, 'authorize_path', i18n.t('Path')) }
   },
   authorization_url: (form = {}, meta = {}) => {
-    return { authorization_url: pfConfigurationValidatorsFromMeta(meta, 'authorization_url', 'URL') }
+    return { authorization_url: validatorsFromMeta(meta, 'authorization_url', 'URL') }
   },
   banned_domains: (form = {}, meta = {}) => {
-    return { banned_domains: pfConfigurationValidatorsFromMeta(meta, 'banned_domains', i18n.t('Domains')) }
+    return { banned_domains: validatorsFromMeta(meta, 'banned_domains', i18n.t('Domains')) }
   },
   base_url: (form = {}, meta = {}) => {
-    return { base_url: pfConfigurationValidatorsFromMeta(meta, 'base_url', 'URL') }
+    return { base_url: validatorsFromMeta(meta, 'base_url', 'URL') }
   },
   basedn: (form = {}, meta = {}) => {
-    return { basedn: pfConfigurationValidatorsFromMeta(meta, 'basedn', i18n.t('Base DN')) }
+    return { basedn: validatorsFromMeta(meta, 'basedn', i18n.t('Base DN')) }
   },
   binddn: (form = {}, meta = {}) => {
-    return { bindnd: pfConfigurationValidatorsFromMeta(meta, 'bindnd', i18n.t('Bind DN')) }
+    return { bindnd: validatorsFromMeta(meta, 'bindnd', i18n.t('Bind DN')) }
   },
   cert_file: (form = {}, meta = {}) => {
-    return { cert_file: pfConfigurationValidatorsFromMeta(meta, 'cert_file', i18n.t('File')) }
+    return { cert_file: validatorsFromMeta(meta, 'cert_file', i18n.t('File')) }
   },
   cert_id: (form = {}, meta = {}) => {
-    return { cert_id: pfConfigurationValidatorsFromMeta(meta, 'cert_id', 'ID') }
+    return { cert_id: validatorsFromMeta(meta, 'cert_id', 'ID') }
   },
   client_id: (form = {}, meta = {}) => {
-    return { client_id: pfConfigurationValidatorsFromMeta(meta, 'client_id', 'ID') }
+    return { client_id: validatorsFromMeta(meta, 'client_id', 'ID') }
   },
   client_secret: (form = {}, meta = {}) => {
-    return { client_secret: pfConfigurationValidatorsFromMeta(meta, 'client_secret', i18n.t('Secret')) }
+    return { client_secret: validatorsFromMeta(meta, 'client_secret', i18n.t('Secret')) }
   },
   connection_timeout: (form = {}, meta = {}) => {
-    return { connection_timeout: pfConfigurationValidatorsFromMeta(meta, 'connection_timeout', i18n.t('Timeout')) }
+    return { connection_timeout: validatorsFromMeta(meta, 'connection_timeout', i18n.t('Timeout')) }
   },
   currency: (form = {}, meta = {}) => {
-    return { currency: pfConfigurationValidatorsFromMeta(meta, 'currency', i18n.t('Currency')) }
+    return { currency: validatorsFromMeta(meta, 'currency', i18n.t('Currency')) }
   },
   description: (form = {}, meta = {}) => {
-    return { description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')) }
+    return { description: validatorsFromMeta(meta, 'description', i18n.t('Description')) }
   },
   direct_base_url: (form = {}, meta = {}) => {
-    return { direct_base_url: pfConfigurationValidatorsFromMeta(meta, 'direct_base_url', 'URL') }
+    return { direct_base_url: validatorsFromMeta(meta, 'direct_base_url', 'URL') }
   },
   domains: (form = {}, meta = {}) => {
-    return { domains: pfConfigurationValidatorsFromMeta(meta, 'domains', i18n.t('Domains')) }
+    return { domains: validatorsFromMeta(meta, 'domains', i18n.t('Domains')) }
   },
   email_activation_timeout: (form = {}, meta = {}) => {
     return {
       email_activation_timeout: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'email_activation_timeout.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'email_activation_timeout.unit', i18n.t('Unit'))
       }
     }
   },
   email_address: (form = {}, meta = {}) => {
-    return { email_address: pfConfigurationValidatorsFromMeta(meta, 'email_address', i18n.t('Email')) }
+    return { email_address: validatorsFromMeta(meta, 'email_address', i18n.t('Email')) }
   },
   email_attribute: (form = {}, meta = {}) => {
-    return { email_attribute: pfConfigurationValidatorsFromMeta(meta, 'email_attribute', i18n.t('Attribute')) }
+    return { email_attribute: validatorsFromMeta(meta, 'email_attribute', i18n.t('Attribute')) }
   },
   group_header: (form = {}, meta = {}) => {
-    return { group_header: pfConfigurationValidatorsFromMeta(meta, 'group_header', i18n.t('Header')) }
+    return { group_header: validatorsFromMeta(meta, 'group_header', i18n.t('Header')) }
   },
   hash_passwords: (form = {}, meta = {}) => {
-    return { hash_passwords: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', i18n.t('Hash')) }
+    return { hash_passwords: validatorsFromMeta(meta, 'hash_passwords', i18n.t('Hash')) }
   },
   host: (form = {}, meta = {}) => {
-    return { host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')) }
+    return { host: validatorsFromMeta(meta, 'host', i18n.t('Host')) }
   },
   host_port_encryption: (form = {}, meta = {}) => {
     return {
-      host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')),
-      port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
-      encryption: pfConfigurationValidatorsFromMeta(meta, 'encryption', i18n.t('Encryption'))
+      host: validatorsFromMeta(meta, 'host', i18n.t('Host')),
+      port: validatorsFromMeta(meta, 'port', i18n.t('Port')),
+      encryption: validatorsFromMeta(meta, 'encryption', i18n.t('Encryption'))
     }
   },
   identity_token: (form = {}, meta = {}) => {
-    return { identity_token: pfConfigurationValidatorsFromMeta(meta, 'identity_token', i18n.t('Token')) }
+    return { identity_token: validatorsFromMeta(meta, 'identity_token', i18n.t('Token')) }
   },
   idp_ca_cert_path: (form = {}, meta = {}) => {
-    return { idp_ca_cert_path: pfConfigurationValidatorsFromMeta(meta, 'idp_ca_cert_path', i18n.t('Path')) }
+    return { idp_ca_cert_path: validatorsFromMeta(meta, 'idp_ca_cert_path', i18n.t('Path')) }
   },
   idp_cert_path: (form = {}, meta = {}) => {
-    return { idp_cert_path: pfConfigurationValidatorsFromMeta(meta, 'idp_cert_path', i18n.t('Path')) }
+    return { idp_cert_path: validatorsFromMeta(meta, 'idp_cert_path', i18n.t('Path')) }
   },
   idp_entity_id: (form = {}, meta = {}) => {
-    return { idp_entity_id: pfConfigurationValidatorsFromMeta(meta, 'idp_entity_id', 'ID') }
+    return { idp_entity_id: validatorsFromMeta(meta, 'idp_entity_id', 'ID') }
   },
   idp_metadata_path: (form = {}, meta = {}) => {
-    return { idp_metadata_path: pfConfigurationValidatorsFromMeta(meta, 'idp_metadata_path', i18n.t('Path')) }
+    return { idp_metadata_path: validatorsFromMeta(meta, 'idp_metadata_path', i18n.t('Path')) }
   },
   key_file: (form = {}, meta = {}) => {
-    return { key_file: pfConfigurationValidatorsFromMeta(meta, 'key_file', i18n.t('File')) }
+    return { key_file: validatorsFromMeta(meta, 'key_file', i18n.t('File')) }
   },
   lang: (form = {}, meta = {}) => {
-    return { lang: pfConfigurationValidatorsFromMeta(meta, 'lang', i18n.t('Language')) }
+    return { lang: validatorsFromMeta(meta, 'lang', i18n.t('Language')) }
   },
   local_account_logins: (form = {}, meta = {}) => {
-    return { local_account_logins: pfConfigurationValidatorsFromMeta(meta, 'local_account_logins', i18n.t('Logins')) }
+    return { local_account_logins: validatorsFromMeta(meta, 'local_account_logins', i18n.t('Logins')) }
   },
   local_realm: (form = {}, meta = {}) => {
-    return { local_realm: pfConfigurationValidatorsFromMeta(meta, 'local_realm', i18n.t('Realms')) }
+    return { local_realm: validatorsFromMeta(meta, 'local_realm', i18n.t('Realms')) }
   },
   merchant_id: (form = {}, meta = {}) => {
-    return { merchant_id: pfConfigurationValidatorsFromMeta(meta, 'merchant_id', 'ID') }
+    return { merchant_id: validatorsFromMeta(meta, 'merchant_id', 'ID') }
   },
   message: (form = {}, meta = {}) => {
-    return { message: pfConfigurationValidatorsFromMeta(meta, 'message', i18n.t('Message')) }
+    return { message: validatorsFromMeta(meta, 'message', i18n.t('Message')) }
   },
   options: (form = {}, meta = {}) => {
-    return { options: pfConfigurationValidatorsFromMeta(meta, 'options', i18n.t('Options')) }
+    return { options: validatorsFromMeta(meta, 'options', i18n.t('Options')) }
   },
   password: (form = {}, meta = {}) => {
-    return { password: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password')) }
+    return { password: validatorsFromMeta(meta, 'password', i18n.t('Password')) }
   },
   password_email_update: (form = {}, meta = {}) => {
-    return { password_email_update: pfConfigurationValidatorsFromMeta(meta, 'password_email_update', i18n.t('Email')) }
+    return { password_email_update: validatorsFromMeta(meta, 'password_email_update', i18n.t('Email')) }
   },
   password_length: (form = {}, meta = {}) => {
-    return { password_length: pfConfigurationValidatorsFromMeta(meta, 'password_length', i18n.t('Length')) }
+    return { password_length: validatorsFromMeta(meta, 'password_length', i18n.t('Length')) }
   },
   password_rotation: (form = {}, meta = {}) => {
-    return { password_rotation: pfConfigurationValidatorsFromMeta(meta, 'password_rotation', i18n.t('Duration')) }
+    return { password_rotation: validatorsFromMeta(meta, 'password_rotation', i18n.t('Duration')) }
   },
   path: (form = {}, meta = {}) => {
-    return { path: pfConfigurationValidatorsFromMeta(meta, 'path', i18n.t('Path')) }
+    return { path: validatorsFromMeta(meta, 'path', i18n.t('Path')) }
   },
   payment_type: (form = {}, meta = {}) => {
-    return { payment_type: pfConfigurationValidatorsFromMeta(meta, 'payment_type', i18n.t('Type')) }
+    return { payment_type: validatorsFromMeta(meta, 'payment_type', i18n.t('Type')) }
   },
   paypal_cert_file: (form = {}, meta = {}) => {
-    return { paypal_cert_file: pfConfigurationValidatorsFromMeta(meta, 'paypal_cert_file', i18n.t('File')) }
+    return { paypal_cert_file: validatorsFromMeta(meta, 'paypal_cert_file', i18n.t('File')) }
   },
   pin_code_length: (form = {}, meta = {}) => {
-    return { pin_code_length: pfConfigurationValidatorsFromMeta(meta, 'pin_code_length', i18n.t('Length')) }
+    return { pin_code_length: validatorsFromMeta(meta, 'pin_code_length', i18n.t('Length')) }
   },
   port: (form = {}, meta = {}) => {
-    return { port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')) }
+    return { port: validatorsFromMeta(meta, 'port', i18n.t('Port')) }
   },
   protected_resource_url: (form = {}, meta = {}) => {
-    return { protected_resource_url: pfConfigurationValidatorsFromMeta(meta, 'protected_resource_url', 'URL') }
+    return { protected_resource_url: validatorsFromMeta(meta, 'protected_resource_url', 'URL') }
   },
   protocol_host_port: (form = {}, meta = {}) => {
     return {
-      protocol: pfConfigurationValidatorsFromMeta(meta, 'protocol', i18n.t('Protocol')),
-      host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')),
-      port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
+      protocol: validatorsFromMeta(meta, 'protocol', i18n.t('Protocol')),
+      host: validatorsFromMeta(meta, 'host', i18n.t('Host')),
+      port: validatorsFromMeta(meta, 'port', i18n.t('Port'))
     }
   },
   proxy_addresses: (form = {}, meta = {}) => {
-    return { proxy_addresses: pfConfigurationValidatorsFromMeta(meta, 'proxy_addresses', i18n.t('Addresses')) }
+    return { proxy_addresses: validatorsFromMeta(meta, 'proxy_addresses', i18n.t('Addresses')) }
   },
   public_client_key: (form = {}, meta = {}) => {
-    return { public_client_key: pfConfigurationValidatorsFromMeta(meta, 'public_client_key', i18n.t('Key')) }
+    return { public_client_key: validatorsFromMeta(meta, 'public_client_key', i18n.t('Key')) }
   },
   publishable_key: (form = {}, meta = {}) => {
-    return { publishable_key: pfConfigurationValidatorsFromMeta(meta, 'publishable_key', i18n.t('Key')) }
+    return { publishable_key: validatorsFromMeta(meta, 'publishable_key', i18n.t('Key')) }
   },
   radius_secret: (form = {}, meta = {}) => {
-    return { radius_secret: pfConfigurationValidatorsFromMeta(meta, 'radius_secret', i18n.t('Secret')) }
+    return { radius_secret: validatorsFromMeta(meta, 'radius_secret', i18n.t('Secret')) }
   },
   read_timeout: (form = {}, meta = {}) => {
-    return { read_timeout: pfConfigurationValidatorsFromMeta(meta, 'read_timeout', i18n.t('Timeout')) }
+    return { read_timeout: validatorsFromMeta(meta, 'read_timeout', i18n.t('Timeout')) }
   },
   realms: (form = {}, meta = {}) => {
-    return { realms: pfConfigurationValidatorsFromMeta(meta, 'realms', i18n.t('Realms')) }
+    return { realms: validatorsFromMeta(meta, 'realms', i18n.t('Realms')) }
   },
   redirect_url: (form = {}, meta = {}) => {
-    return { redirect_url: pfConfigurationValidatorsFromMeta(meta, 'redirect_url', 'URL') }
+    return { redirect_url: validatorsFromMeta(meta, 'redirect_url', 'URL') }
   },
   reject_realm: (form = {}, meta = {}) => {
-    return { reject_realm: pfConfigurationValidatorsFromMeta(meta, 'reject_realm', i18n.t('Realms')) }
+    return { reject_realm: validatorsFromMeta(meta, 'reject_realm', i18n.t('Realms')) }
   },
   scope: (form = {}, meta = {}) => {
-    return { scope: pfConfigurationValidatorsFromMeta(meta, 'scope', i18n.t('Scope')) }
+    return { scope: validatorsFromMeta(meta, 'scope', i18n.t('Scope')) }
   },
   searchattributes: (form = {}, meta = {}) => {
-    return { searchattributes: pfConfigurationValidatorsFromMeta(meta, 'searchattributes', i18n.t('Attribute')) }
+    return { searchattributes: validatorsFromMeta(meta, 'searchattributes', i18n.t('Attribute')) }
   },
   secret: (form = {}, meta = {}) => {
-    return { secret: pfConfigurationValidatorsFromMeta(meta, 'secret', i18n.t('Secret')) }
+    return { secret: validatorsFromMeta(meta, 'secret', i18n.t('Secret')) }
   },
   secret_key: (form = {}, meta = {}) => {
-    return { secret_key: pfConfigurationValidatorsFromMeta(meta, 'secret_key', i18n.t('Key')) }
+    return { secret_key: validatorsFromMeta(meta, 'secret_key', i18n.t('Key')) }
   },
   server1_address: (form = {}, meta = {}) => {
-    return { server1_address: pfConfigurationValidatorsFromMeta(meta, 'server1_address', i18n.t('Address')) }
+    return { server1_address: validatorsFromMeta(meta, 'server1_address', i18n.t('Address')) }
   },
   server1_port: (form = {}, meta = {}) => {
-    return { server1_port: pfConfigurationValidatorsFromMeta(meta, 'server1_port', i18n.t('Port')) }
+    return { server1_port: validatorsFromMeta(meta, 'server1_port', i18n.t('Port')) }
   },
   server2_address: (form = {}, meta = {}) => {
-    return { server2_address: pfConfigurationValidatorsFromMeta(meta, 'server2_address', i18n.t('Address')) }
+    return { server2_address: validatorsFromMeta(meta, 'server2_address', i18n.t('Address')) }
   },
   server2_port: (form = {}, meta = {}) => {
-    return { server2_port: pfConfigurationValidatorsFromMeta(meta, 'server2_port', i18n.t('Port')) }
+    return { server2_port: validatorsFromMeta(meta, 'server2_port', i18n.t('Port')) }
   },
   service_fqdn: (form = {}, meta = {}) => {
-    return { service_fqdn: pfConfigurationValidatorsFromMeta(meta, 'service_fqdn', 'FQDN') }
+    return { service_fqdn: validatorsFromMeta(meta, 'service_fqdn', 'FQDN') }
   },
   shared_secret: (form = {}, meta = {}) => {
-    return { shared_secret: pfConfigurationValidatorsFromMeta(meta, 'shared_secret', i18n.t('Secret')) }
+    return { shared_secret: validatorsFromMeta(meta, 'shared_secret', i18n.t('Secret')) }
   },
   shared_secret_direct: (form = {}, meta = {}) => {
-    return { shared_secret_direct: pfConfigurationValidatorsFromMeta(meta, 'shared_secret_direct', i18n.t('Secret')) }
+    return { shared_secret_direct: validatorsFromMeta(meta, 'shared_secret_direct', i18n.t('Secret')) }
   },
   site: (form = {}, meta = {}) => {
-    return { site: pfConfigurationValidatorsFromMeta(meta, 'site', 'URL') }
+    return { site: validatorsFromMeta(meta, 'site', 'URL') }
   },
   sms_activation_timeout: (form = {}, meta = {}) => {
     return {
       sms_activation_timeout: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'sms_activation_timeout.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'sms_activation_timeout.unit', i18n.t('Unit'))
       }
     }
   },
   sms_carriers: (form = {}, meta = {}) => {
-    return { sms_carriers: pfConfigurationValidatorsFromMeta(meta, 'sms_carriers', i18n.t('Carriers')) }
+    return { sms_carriers: validatorsFromMeta(meta, 'sms_carriers', i18n.t('Carriers')) }
   },
   sources: (form = {}, meta = {}) => {
-    return { sources: pfConfigurationValidatorsFromMeta(meta, 'sources', i18n.t('Sources')) }
+    return { sources: validatorsFromMeta(meta, 'sources', i18n.t('Sources')) }
   },
   sp_cert_path: (form = {}, meta = {}) => {
-    return { sp_cert_path: pfConfigurationValidatorsFromMeta(meta, 'sp_cert_path', i18n.t('Path')) }
+    return { sp_cert_path: validatorsFromMeta(meta, 'sp_cert_path', i18n.t('Path')) }
   },
   sp_entity_id: (form = {}, meta = {}) => {
-    return { sp_entity_id: pfConfigurationValidatorsFromMeta(meta, 'sp_entity_id', 'ID') }
+    return { sp_entity_id: validatorsFromMeta(meta, 'sp_entity_id', 'ID') }
   },
   sp_key_path: (form = {}, meta = {}) => {
-    return { sp_key_path: pfConfigurationValidatorsFromMeta(meta, 'sp_key_path', i18n.t('Path')) }
+    return { sp_key_path: validatorsFromMeta(meta, 'sp_key_path', i18n.t('Path')) }
   },
   sponsorship_bcc: (form = {}, meta = {}) => {
-    return { sponsorship_bcc: pfConfigurationValidatorsFromMeta(meta, 'sponsorship_bcc', 'BCC') }
+    return { sponsorship_bcc: validatorsFromMeta(meta, 'sponsorship_bcc', 'BCC') }
   },
   style: (form = {}, meta = {}) => {
-    return { style: pfConfigurationValidatorsFromMeta(meta, 'style', i18n.t('Style')) }
+    return { style: validatorsFromMeta(meta, 'style', i18n.t('Style')) }
   },
   terminal_group_id: (form = {}, meta = {}) => {
-    return { terminal_group_id: pfConfigurationValidatorsFromMeta(meta, 'terminal_group_id', 'ID') }
+    return { terminal_group_id: validatorsFromMeta(meta, 'terminal_group_id', 'ID') }
   },
   terminal_id: (form = {}, meta = {}) => {
-    return { terminal_id: pfConfigurationValidatorsFromMeta(meta, 'terminal_id', 'ID') }
+    return { terminal_id: validatorsFromMeta(meta, 'terminal_id', 'ID') }
   },
   timeout: (form = {}, meta = {}) => {
-    return { timeout: pfConfigurationValidatorsFromMeta(meta, 'timeout', i18n.t('Timeout')) }
+    return { timeout: validatorsFromMeta(meta, 'timeout', i18n.t('Timeout')) }
   },
   transaction_key: (form = {}, meta = {}) => {
-    return { transaction_key: pfConfigurationValidatorsFromMeta(meta, 'transaction_key', i18n.t('Key')) }
+    return { transaction_key: validatorsFromMeta(meta, 'transaction_key', i18n.t('Key')) }
   },
   twilio_phone_number: (form = {}, meta = {}) => {
-    return { twilio_phone_number: pfConfigurationValidatorsFromMeta(meta, 'twilio_phone_number', i18n.t('Phone')) }
+    return { twilio_phone_number: validatorsFromMeta(meta, 'twilio_phone_number', i18n.t('Phone')) }
   },
   user_header: (form = {}, meta = {}) => {
-    return { user_header: pfConfigurationValidatorsFromMeta(meta, 'user_header', i18n.t('Header')) }
+    return { user_header: validatorsFromMeta(meta, 'user_header', i18n.t('Header')) }
   },
   username_attribute: (form = {}, meta = {}) => {
-    return { username_attribute: pfConfigurationValidatorsFromMeta(meta, 'username_attribute', i18n.t('Attribute')) }
+    return { username_attribute: validatorsFromMeta(meta, 'username_attribute', i18n.t('Attribute')) }
   },
   usernameattribute: (form = {}, meta = {}) => {
-    return { usernameattribute: pfConfigurationValidatorsFromMeta(meta, 'usernameattribute', i18n.t('Attribute')) }
+    return { usernameattribute: validatorsFromMeta(meta, 'usernameattribute', i18n.t('Attribute')) }
   },
   write_timeout: (form = {}, meta = {}) => {
-    return { write_timeout: pfConfigurationValidatorsFromMeta(meta, 'write_timeout', i18n.t('Timeout')) }
+    return { write_timeout: validatorsFromMeta(meta, 'write_timeout', i18n.t('Timeout')) }
   }
 }
 

@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -107,7 +107,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -121,7 +121,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'description')
+              attrs: attributesFromMeta(meta, 'description')
             }
           ]
         },
@@ -133,7 +133,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'roles_allowed_to_unregister',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'roles_allowed_to_unregister')
+              attrs: attributesFromMeta(meta, 'roles_allowed_to_unregister')
             }
           ]
         },
@@ -145,7 +145,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'device_registration_role',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_role')
+              attrs: attributesFromMeta(meta, 'device_registration_role')
             }
           ]
         },
@@ -156,12 +156,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'device_registration_access_duration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.interval')
+              attrs: attributesFromMeta(meta, 'device_registration_access_duration.interval')
             },
             {
               namespace: 'device_registration_access_duration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.unit')
+              attrs: attributesFromMeta(meta, 'device_registration_access_duration.unit')
             }
           ]
         },
@@ -172,7 +172,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'device_registration_allowed_devices',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_allowed_devices')
+              attrs: attributesFromMeta(meta, 'device_registration_allowed_devices')
             }
           ]
         }
@@ -188,18 +188,18 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
       ...{
         [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasSelfServices, selfServiceExists))
       }
     },
-    description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
-    roles_allowed_to_unregister: pfConfigurationValidatorsFromMeta(meta, 'roles_allowed_to_unregister', i18n.t('Allowed roles')),
-    device_registration_role: pfConfigurationValidatorsFromMeta(meta, 'device_registration_role', i18n.t('Role to assign')),
+    description: validatorsFromMeta(meta, 'description', i18n.t('Description')),
+    roles_allowed_to_unregister: validatorsFromMeta(meta, 'roles_allowed_to_unregister', i18n.t('Allowed roles')),
+    device_registration_role: validatorsFromMeta(meta, 'device_registration_role', i18n.t('Role to assign')),
     device_registration_access_duration: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'device_registration_access_duration.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'device_registration_access_duration.unit', i18n.t('Unit'))
     },
-    device_registration_allowed_devices: pfConfigurationValidatorsFromMeta(meta, 'device_registration_allowed_devices', 'OS')
+    device_registration_allowed_devices: validatorsFromMeta(meta, 'device_registration_allowed_devices', 'OS')
   }
 }

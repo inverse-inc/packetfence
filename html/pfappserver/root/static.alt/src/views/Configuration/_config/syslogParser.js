@@ -9,9 +9,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
@@ -310,7 +310,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id', 'Detector'),
+                ...attributesFromMeta(meta, 'id', 'Detector'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -336,7 +336,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'path')
+              attrs: attributesFromMeta(meta, 'path')
             }
           ]
         },
@@ -347,12 +347,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'rate_limit.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.interval')
+              attrs: attributesFromMeta(meta, 'rate_limit.interval')
             },
             {
               namespace: 'rate_limit.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.unit')
+              attrs: attributesFromMeta(meta, 'rate_limit.unit')
             }
           ]
         },
@@ -416,7 +416,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'lines',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'lines'),
+                ...attributesFromMeta(meta, 'lines'),
                 ...{
                   rows: 3
                 }
@@ -471,14 +471,14 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'ID'),
       ...{
         [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogParsers, syslogParserExists))
       }
     },
-    path: pfConfigurationValidatorsFromMeta(meta, 'path', i18n.t('Path')),
-    'rate_limit.interval': pfConfigurationValidatorsFromMeta(meta, 'rate_limit.interval', i18n.t('Interval')),
-    'rate_limit.unit': pfConfigurationValidatorsFromMeta(meta, 'rate_limit.unit', i18n.t('Unit')),
+    path: validatorsFromMeta(meta, 'path', i18n.t('Path')),
+    'rate_limit.interval': validatorsFromMeta(meta, 'rate_limit.interval', i18n.t('Interval')),
+    'rate_limit.unit': validatorsFromMeta(meta, 'rate_limit.unit', i18n.t('Unit')),
     rules: {
       $each: {
         name: {
@@ -499,6 +499,6 @@ export const validators = (form = {}, meta = {}) => {
         }
       }
     },
-    lines: pfConfigurationValidatorsFromMeta(meta, 'lines', i18n.t('Lines'))
+    lines: validatorsFromMeta(meta, 'lines', i18n.t('Lines'))
   }
 }

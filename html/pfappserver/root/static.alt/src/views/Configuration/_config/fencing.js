@@ -3,9 +3,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -19,7 +19,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'wait_for_redirect',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'wait_for_redirect')
+              attrs: attributesFromMeta(meta, 'wait_for_redirect')
             }
           ]
         },
@@ -31,7 +31,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'whitelist',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'whitelist'),
+                ...attributesFromMeta(meta, 'whitelist'),
                 ...{
                   rows: 3
                 }
@@ -47,7 +47,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'range',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'range'),
+                ...attributesFromMeta(meta, 'range'),
                 ...{
                   rows: 3
                 }
@@ -76,7 +76,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'passthroughs',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'passthroughs'),
+                ...attributesFromMeta(meta, 'passthroughs'),
                 ...{
                   rows: 3
                 }
@@ -92,7 +92,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'proxy_passthroughs',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'proxy_passthroughs'),
+                ...attributesFromMeta(meta, 'proxy_passthroughs'),
                 ...{
                   placeholderHtml: true,
                   labelHtml: i18n.t('Built-in Proxy Passthroughs'),
@@ -123,7 +123,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'isolation_passthroughs',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'isolation_passthroughs'),
+                ...attributesFromMeta(meta, 'isolation_passthroughs'),
                 ...{
                   rows: 3
                 }
@@ -152,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'interception_proxy_port',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'interception_proxy_port'),
+                ...attributesFromMeta(meta, 'interception_proxy_port'),
                 ...{
                   rows: 3
                 }
@@ -167,12 +167,12 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    wait_for_redirect: pfConfigurationValidatorsFromMeta(meta, 'wait_for_redirect', i18n.t('Wait')),
-    whitelist: pfConfigurationValidatorsFromMeta(meta, 'whitelist', i18n.t('Whitelist')),
-    range: pfConfigurationValidatorsFromMeta(meta, 'range', i18n.t('Range')),
-    passthroughs: pfConfigurationValidatorsFromMeta(meta, 'passthroughs', i18n.t('Domains')),
-    proxy_passthroughs: pfConfigurationValidatorsFromMeta(meta, 'proxy_passthroughs', i18n.t('Domains')),
-    isolation_passthroughs: pfConfigurationValidatorsFromMeta(meta, 'isolation_passthroughs', i18n.t('Domains')),
-    interception_proxy_port: pfConfigurationValidatorsFromMeta(meta, 'interception_proxy_port', i18n.t('Ports'))
+    wait_for_redirect: validatorsFromMeta(meta, 'wait_for_redirect', i18n.t('Wait')),
+    whitelist: validatorsFromMeta(meta, 'whitelist', i18n.t('Whitelist')),
+    range: validatorsFromMeta(meta, 'range', i18n.t('Range')),
+    passthroughs: validatorsFromMeta(meta, 'passthroughs', i18n.t('Domains')),
+    proxy_passthroughs: validatorsFromMeta(meta, 'proxy_passthroughs', i18n.t('Domains')),
+    isolation_passthroughs: validatorsFromMeta(meta, 'isolation_passthroughs', i18n.t('Domains')),
+    interception_proxy_port: validatorsFromMeta(meta, 'interception_proxy_port', i18n.t('Ports'))
   }
 }

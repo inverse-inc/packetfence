@@ -6,9 +6,9 @@ import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   isPort,
   emailsCsv
@@ -30,7 +30,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'emailaddr',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'emailaddr'),
+                ...attributesFromMeta(meta, 'emailaddr'),
                 ...{
                   rows: 3
                 }
@@ -45,7 +45,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'fromaddr',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'fromaddr')
+              attrs: attributesFromMeta(meta, 'fromaddr')
             }
           ]
         },
@@ -56,7 +56,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'smtpserver',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtpserver')
+              attrs: attributesFromMeta(meta, 'smtpserver')
             }
           ]
         },
@@ -67,7 +67,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'subjectprefix',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'subjectprefix')
+              attrs: attributesFromMeta(meta, 'subjectprefix')
             }
           ]
         },
@@ -78,7 +78,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'smtp_encryption',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_encryption')
+              attrs: attributesFromMeta(meta, 'smtp_encryption')
             }
           ]
         },
@@ -89,7 +89,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'smtp_port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_port')
+              attrs: attributesFromMeta(meta, 'smtp_port')
             }
           ]
         },
@@ -100,7 +100,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'smtp_username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_username')
+              attrs: attributesFromMeta(meta, 'smtp_username')
             }
           ]
         },
@@ -111,7 +111,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'smtp_password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_password')
+              attrs: attributesFromMeta(meta, 'smtp_password')
             }
           ]
         },
@@ -136,7 +136,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'smtp_timeout',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'smtp_timeout'),
+                ...attributesFromMeta(meta, 'smtp_timeout'),
                 ...{
                   type: 'number',
                   step: 1
@@ -172,29 +172,29 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   return {
     emailaddr: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses')),
+      ...validatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses')),
       ...{
         [i18n.t('Invalid email address.')]: emailsCsv
       }
     },
     fromaddr: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'fromaddr', i18n.t('Email')),
+      ...validatorsFromMeta(meta, 'fromaddr', i18n.t('Email')),
       ...{
         [i18n.t('Invalid email address.')]: email
       }
     },
-    smtpserver: pfConfigurationValidatorsFromMeta(meta, 'smtpserver', i18n.t('Server')),
-    subjectprefix: pfConfigurationValidatorsFromMeta(meta, 'subjectprefix', i18n.t('Prefix')),
-    smtp_encryption: pfConfigurationValidatorsFromMeta(meta, 'smtp_encryption', i18n.t('Encryption')),
+    smtpserver: validatorsFromMeta(meta, 'smtpserver', i18n.t('Server')),
+    subjectprefix: validatorsFromMeta(meta, 'subjectprefix', i18n.t('Prefix')),
+    smtp_encryption: validatorsFromMeta(meta, 'smtp_encryption', i18n.t('Encryption')),
     smtp_port: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', i18n.t('Port')),
+      ...validatorsFromMeta(meta, 'smtp_port', i18n.t('Port')),
       ...{
         [i18n.t('Invalid port.')]: isPort
       }
     },
-    smtp_username: pfConfigurationValidatorsFromMeta(meta, 'smtp_username', i18n.t('Username')),
-    smtp_password: pfConfigurationValidatorsFromMeta(meta, 'smtp_password', i18n.t('Password')),
-    smtp_timeout: pfConfigurationValidatorsFromMeta(meta, 'smtp_timeout', i18n.t('Timeout')),
+    smtp_username: validatorsFromMeta(meta, 'smtp_username', i18n.t('Username')),
+    smtp_password: validatorsFromMeta(meta, 'smtp_password', i18n.t('Password')),
+    smtp_timeout: validatorsFromMeta(meta, 'smtp_timeout', i18n.t('Timeout')),
     test_emailaddr: {
       [i18n.t('Invalid email address.')]: emailsCsv
     }

@@ -3,9 +3,9 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -32,12 +32,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'dhcp_rate_limiting.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'dhcp_rate_limiting.interval')
+              attrs: attributesFromMeta(meta, 'dhcp_rate_limiting.interval')
             },
             {
               namespace: 'dhcp_rate_limiting.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'dhcp_rate_limiting.unit')
+              attrs: attributesFromMeta(meta, 'dhcp_rate_limiting.unit')
             }
           ]
         },
@@ -61,7 +61,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'rogueinterval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'rogueinterval')
+              attrs: attributesFromMeta(meta, 'rogueinterval')
             }
           ]
         },
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'interfaceSNAT',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'interfaceSNAT')
+              attrs: attributesFromMeta(meta, 'interfaceSNAT')
             }
           ]
         }
@@ -149,10 +149,10 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   return {
     dhcp_rate_limiting: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'dhcp_rate_limiting.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'dhcp_rate_limiting.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'dhcp_rate_limiting.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'dhcp_rate_limiting.unit', i18n.t('Unit'))
     },
-    rogueinterval: pfConfigurationValidatorsFromMeta(meta, 'rogueinterval', i18n.t('Interval')),
-    interfaceSNAT: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interface'))
+    rogueinterval: validatorsFromMeta(meta, 'rogueinterval', i18n.t('Interval')),
+    interfaceSNAT: validatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interface'))
   }
 }

@@ -4,9 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -121,7 +121,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'url',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'url')
+              attrs: attributesFromMeta(meta, 'url')
             }
           ]
         },
@@ -149,7 +149,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'proto',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'proto')
+              attrs: attributesFromMeta(meta, 'proto')
             }
           ]
         },
@@ -161,7 +161,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'host',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'host')
+              attrs: attributesFromMeta(meta, 'host')
             }
           ]
         },
@@ -173,7 +173,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
+              attrs: attributesFromMeta(meta, 'port')
             }
           ]
         },
@@ -185,7 +185,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'username')
+              attrs: attributesFromMeta(meta, 'username')
             }
           ]
         },
@@ -197,7 +197,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'username')
+              attrs: attributesFromMeta(meta, 'username')
             }
           ]
         },
@@ -209,7 +209,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'password')
+              attrs: attributesFromMeta(meta, 'password')
             }
           ]
         },
@@ -221,7 +221,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'profile',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'profile')
+              attrs: attributesFromMeta(meta, 'profile')
             }
           ]
         },
@@ -233,7 +233,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'country',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'country')
+              attrs: attributesFromMeta(meta, 'country')
             }
           ]
         },
@@ -245,7 +245,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'state',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'state')
+              attrs: attributesFromMeta(meta, 'state')
             }
           ]
         },
@@ -257,7 +257,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'locality',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'locality')
+              attrs: attributesFromMeta(meta, 'locality')
             }
           ]
         },
@@ -269,7 +269,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'organization',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'organization')
+              attrs: attributesFromMeta(meta, 'organization')
             }
           ]
         },
@@ -281,7 +281,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'organizational_unit',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'organizational_unit')
+              attrs: attributesFromMeta(meta, 'organizational_unit')
             }
           ]
         },
@@ -293,7 +293,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'cn_attribute',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'cn_attribute')
+              attrs: attributesFromMeta(meta, 'cn_attribute')
             }
           ]
         },
@@ -305,7 +305,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'cn_format',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'cn_format')
+              attrs: attributesFromMeta(meta, 'cn_format')
             }
           ]
         },
@@ -331,7 +331,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'client_cert_path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'client_cert_path')
+              attrs: attributesFromMeta(meta, 'client_cert_path')
             }
           ]
         },
@@ -343,7 +343,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'client_key_path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'client_key_path')
+              attrs: attributesFromMeta(meta, 'client_key_path')
             }
           ]
         },
@@ -355,7 +355,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ca_cert_path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ca_cert_path')
+              attrs: attributesFromMeta(meta, 'ca_cert_path')
             }
           ]
         },
@@ -367,7 +367,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'server_cert_path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'server_cert_path')
+              attrs: attributesFromMeta(meta, 'server_cert_path')
             }
           ]
         }
@@ -383,28 +383,28 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
       ...{
         [i18n.t('PKI Provider exists.')]: not(and(required, conditional(isNew || isClone), hasPkiProviders, pkiProviderExists))
       }
     },
-    url: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL'),
-    proto: pfConfigurationValidatorsFromMeta(meta, 'proto', i18n.t('Protocol')),
-    host: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host')),
-    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
-    username: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username')),
-    password: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password')),
-    profile: pfConfigurationValidatorsFromMeta(meta, 'profile', i18n.t('Profile')),
-    country: pfConfigurationValidatorsFromMeta(meta, 'country', i18n.t('Country')),
-    state: pfConfigurationValidatorsFromMeta(meta, 'state', i18n.t('State')),
-    locality: pfConfigurationValidatorsFromMeta(meta, 'locality', i18n.t('Locality')),
-    organization: pfConfigurationValidatorsFromMeta(meta, 'organization', i18n.t('Organization')),
-    organizational_unit: pfConfigurationValidatorsFromMeta(meta, 'organizational_unit', i18n.t('Unit')),
-    cn_attribute: pfConfigurationValidatorsFromMeta(meta, 'cn_attribute', i18n.t('Attribute')),
-    cn_format: pfConfigurationValidatorsFromMeta(meta, 'cn_format', i18n.t('Format')),
-    client_cert_path: pfConfigurationValidatorsFromMeta(meta, 'client_cert_path', i18n.t('Path')),
-    client_key_path: pfConfigurationValidatorsFromMeta(meta, 'client_key_path', i18n.t('Path')),
-    ca_cert_path: pfConfigurationValidatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path')),
-    server_cert_path: pfConfigurationValidatorsFromMeta(meta, 'server_cert_path', i18n.t('Path'))
+    url: validatorsFromMeta(meta, 'url', 'URL'),
+    proto: validatorsFromMeta(meta, 'proto', i18n.t('Protocol')),
+    host: validatorsFromMeta(meta, 'host', i18n.t('Host')),
+    port: validatorsFromMeta(meta, 'port', i18n.t('Port')),
+    username: validatorsFromMeta(meta, 'username', i18n.t('Username')),
+    password: validatorsFromMeta(meta, 'password', i18n.t('Password')),
+    profile: validatorsFromMeta(meta, 'profile', i18n.t('Profile')),
+    country: validatorsFromMeta(meta, 'country', i18n.t('Country')),
+    state: validatorsFromMeta(meta, 'state', i18n.t('State')),
+    locality: validatorsFromMeta(meta, 'locality', i18n.t('Locality')),
+    organization: validatorsFromMeta(meta, 'organization', i18n.t('Organization')),
+    organizational_unit: validatorsFromMeta(meta, 'organizational_unit', i18n.t('Unit')),
+    cn_attribute: validatorsFromMeta(meta, 'cn_attribute', i18n.t('Attribute')),
+    cn_format: validatorsFromMeta(meta, 'cn_format', i18n.t('Format')),
+    client_cert_path: validatorsFromMeta(meta, 'client_cert_path', i18n.t('Path')),
+    client_key_path: validatorsFromMeta(meta, 'client_key_path', i18n.t('Path')),
+    ca_cert_path: validatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path')),
+    server_cert_path: validatorsFromMeta(meta, 'server_cert_path', i18n.t('Path'))
   }
 }

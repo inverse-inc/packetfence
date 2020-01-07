@@ -2,9 +2,9 @@ import i18n from '@/utils/locale'
 import api from '@/views/Configuration/_api'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from '../'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   isFingerprint

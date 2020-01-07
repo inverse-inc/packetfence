@@ -4,9 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -20,7 +20,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'password')
+              attrs: attributesFromMeta(meta, 'password')
             }
           ]
         },
@@ -31,7 +31,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'virtual_router_id',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'virtual_router_id')
+              attrs: attributesFromMeta(meta, 'virtual_router_id')
             }
           ]
         },
@@ -94,12 +94,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'conflict_resolution_threshold.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'conflict_resolution_threshold.interval')
+              attrs: attributesFromMeta(meta, 'conflict_resolution_threshold.interval')
             },
             {
               namespace: 'conflict_resolution_threshold.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'conflict_resolution_threshold.unit')
+              attrs: attributesFromMeta(meta, 'conflict_resolution_threshold.unit')
             }
           ]
         },
@@ -123,7 +123,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'galera_replication_username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'galera_replication_username')
+              attrs: attributesFromMeta(meta, 'galera_replication_username')
             }
           ]
         },
@@ -134,7 +134,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'galera_replication_password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'galera_replication_password')
+              attrs: attributesFromMeta(meta, 'galera_replication_password')
             }
           ]
         }
@@ -145,13 +145,13 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    password: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password')),
-    virtual_router_id: pfConfigurationValidatorsFromMeta(meta, 'virtual_router_id', 'ID'),
+    password: validatorsFromMeta(meta, 'password', i18n.t('Password')),
+    virtual_router_id: validatorsFromMeta(meta, 'virtual_router_id', 'ID'),
     conflict_resolution_threshold: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'conflict_resolution_threshold.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'conflict_resolution_threshold.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'conflict_resolution_threshold.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'conflict_resolution_threshold.unit', i18n.t('Unit'))
     },
-    galera_replication_username: pfConfigurationValidatorsFromMeta(meta, 'galera_replication_username', i18n.t('Username')),
-    galera_replication_password: pfConfigurationValidatorsFromMeta(meta, 'galera_replication_password', i18n.t('Password'))
+    galera_replication_username: validatorsFromMeta(meta, 'galera_replication_username', i18n.t('Username')),
+    galera_replication_password: validatorsFromMeta(meta, 'galera_replication_password', i18n.t('Password'))
   }
 }

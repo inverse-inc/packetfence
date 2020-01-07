@@ -3,9 +3,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -113,7 +113,7 @@ export const view = (form, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -141,7 +141,7 @@ export const view = (form, meta = {}) => {
             {
               namespace: 'namespace',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'namespace')
+              attrs: attributesFromMeta(meta, 'namespace')
             }
           ]
         },
@@ -152,7 +152,7 @@ export const view = (form, meta = {}) => {
               namespace: 'request',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'request'),
+                ...attributesFromMeta(meta, 'request'),
                 ...{
                   rows: 3
                 }
@@ -168,7 +168,7 @@ export const view = (form, meta = {}) => {
               namespace: 'action',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'action'),
+                ...attributesFromMeta(meta, 'action'),
                 ...{
                   rows: 5
                 }
@@ -188,13 +188,13 @@ export const validators = (form, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Rule')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Rule')),
       ...{
         [i18n.t('WMI Rule exists.')]: not(and(required, conditional(isNew || isClone), hasWmiRules, wmiRuleExists))
       },
     },
-    namespace: pfConfigurationValidatorsFromMeta(meta, 'namespace', i18n.t('Namespace')),
-    request: pfConfigurationValidatorsFromMeta(meta, 'request', i18n.t('Request')),
-    action: pfConfigurationValidatorsFromMeta(meta, 'action', i18n.t('Action'))
+    namespace: validatorsFromMeta(meta, 'namespace', i18n.t('Namespace')),
+    request: validatorsFromMeta(meta, 'request', i18n.t('Request')),
+    action: validatorsFromMeta(meta, 'action', i18n.t('Action'))
   }
 }

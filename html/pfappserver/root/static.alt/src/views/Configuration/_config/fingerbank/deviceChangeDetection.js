@@ -3,9 +3,9 @@ import pfFormHtml from '@/components/pfFormHtml'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from '../'
 
 export const view = (form = {}, meta = {}) => {
   return [
@@ -46,7 +46,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'device_class_whitelist',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'device_class_whitelist'),
+                ...attributesFromMeta(meta, 'device_class_whitelist'),
                 ...{
                   rows: 5
                 }
@@ -62,7 +62,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'triggers',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'triggers'),
+                ...attributesFromMeta(meta, 'triggers'),
                 ...{
                   rows: 5
                 }
@@ -121,7 +121,7 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
-    device_class_whitelist: pfConfigurationValidatorsFromMeta(meta, 'device_class_whitelist', i18n.t('Whitelist')),
-    triggers: pfConfigurationValidatorsFromMeta(meta, 'triggers', i18n.t('Triggers'))
+    device_class_whitelist: validatorsFromMeta(meta, 'device_class_whitelist', i18n.t('Whitelist')),
+    triggers: validatorsFromMeta(meta, 'triggers', i18n.t('Triggers'))
   }
 }

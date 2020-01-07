@@ -3,9 +3,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   integer,
   minValue
@@ -36,7 +36,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'layer3_accounting_session_timeout',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_session_timeout')
+              attrs: attributesFromMeta(meta, 'layer3_accounting_session_timeout')
             }
           ]
         },
@@ -47,7 +47,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'layer3_accounting_sync_interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_sync_interval')
+              attrs: attributesFromMeta(meta, 'layer3_accounting_sync_interval')
             }
           ]
         },
@@ -58,7 +58,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ports_redirect',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ports_redirect')
+              attrs: attributesFromMeta(meta, 'ports_redirect')
             }
           ]
         },
@@ -83,7 +83,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'interfaceSNAT',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'interfaceSNAT'),
+                ...attributesFromMeta(meta, 'interfaceSNAT'),
                 ...{
                   rows: 3
                 }
@@ -99,20 +99,20 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   return {
     layer3_accounting_session_timeout: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_session_timeout', i18n.t('Timeout')),
+      ...validatorsFromMeta(meta, 'layer3_accounting_session_timeout', i18n.t('Timeout')),
       ...{
         [i18n.t('Must be numeric')]: integer,
         [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
       }
     },
     layer3_accounting_sync_interval: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_sync_interval', i18n.t('Interval')),
+      ...validatorsFromMeta(meta, 'layer3_accounting_sync_interval', i18n.t('Interval')),
       ...{
         [i18n.t('Must be numeric')]: integer,
         [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
       }
     },
-    ports_redirect: pfConfigurationValidatorsFromMeta(meta, 'ports_redirect', i18n.t('Ports')),
-    interfaceSNAT: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interfaces'))
+    ports_redirect: validatorsFromMeta(meta, 'ports_redirect', i18n.t('Ports')),
+    interfaceSNAT: validatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interfaces'))
   }
 }

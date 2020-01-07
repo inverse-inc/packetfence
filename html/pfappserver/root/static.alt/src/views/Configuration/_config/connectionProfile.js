@@ -10,9 +10,9 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfTree from '@/components/pfTree'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import { pfLocalesList as localesList } from '@/globals/pfLocales'
@@ -249,7 +249,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -263,7 +263,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'description')
+              attrs: attributesFromMeta(meta, 'description')
             }
           ]
         },
@@ -287,7 +287,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'root_module',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'root_module')
+              attrs: attributesFromMeta(meta, 'root_module')
             }
           ]
         },
@@ -389,7 +389,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'default_psk_key',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'default_psk_key')
+              attrs: attributesFromMeta(meta, 'default_psk_key')
             }
           ]
         },
@@ -413,7 +413,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'vlan_pool_technique',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'vlan_pool_technique')
+              attrs: attributesFromMeta(meta, 'vlan_pool_technique')
             }
           ]
         },
@@ -424,7 +424,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'filter_match_style',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'filter_match_style')
+              attrs: attributesFromMeta(meta, 'filter_match_style')
             }
           ]
         },
@@ -477,7 +477,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'advanced_filter',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'advanced_filter'),
+                ...attributesFromMeta(meta, 'advanced_filter'),
                 ...{
                   rows: 3
                 }
@@ -501,7 +501,7 @@ export const view = (form = {}, meta = {}) => {
                     field: {
                       component: pfFormChosen,
                       attrs: {
-                        ...pfConfigurationAttributesFromMeta(meta, 'sources'),
+                        ...attributesFromMeta(meta, 'sources'),
                         ...{ multiple: false, closeOnSelect: true }
                       }
                     }
@@ -528,7 +528,7 @@ export const view = (form = {}, meta = {}) => {
                     field: {
                       component: pfFormChosen,
                       attrs: {
-                        ...pfConfigurationAttributesFromMeta(meta, 'billing_tiers'),
+                        ...attributesFromMeta(meta, 'billing_tiers'),
                         ...{ multiple: false, closeOnSelect: true }
                       }
                     }
@@ -555,7 +555,7 @@ export const view = (form = {}, meta = {}) => {
                     field: {
                       component: pfFormChosen,
                       attrs: {
-                        ...pfConfigurationAttributesFromMeta(meta, 'provisioners'),
+                        ...attributesFromMeta(meta, 'provisioners'),
                         ...{ multiple: false, closeOnSelect: true }
                       }
                     }
@@ -582,7 +582,7 @@ export const view = (form = {}, meta = {}) => {
                     field: {
                       component: pfFormChosen,
                       attrs: {
-                        ...pfConfigurationAttributesFromMeta(meta, 'scans'),
+                        ...attributesFromMeta(meta, 'scans'),
                         ...{ multiple: false, closeOnSelect: true }
                       }
                     }
@@ -599,7 +599,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'self_service',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'self_service')
+              attrs: attributesFromMeta(meta, 'self_service')
             }
           ]
         }
@@ -614,7 +614,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'logo',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'logo')
+              attrs: attributesFromMeta(meta, 'logo')
             }
           ]
         },
@@ -625,7 +625,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'redirecturl',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'redirecturl')
+              attrs: attributesFromMeta(meta, 'redirecturl')
             }
           ]
         },
@@ -649,12 +649,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'block_interval.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.interval')
+              attrs: attributesFromMeta(meta, 'block_interval.interval')
             },
             {
               namespace: 'block_interval.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.unit')
+              attrs: attributesFromMeta(meta, 'block_interval.unit')
             }
           ]
         },
@@ -665,7 +665,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'sms_pin_retry_limit',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_pin_retry_limit')
+              attrs: attributesFromMeta(meta, 'sms_pin_retry_limit')
             }
           ]
         },
@@ -676,7 +676,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'sms_request_limit',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_request_limit')
+              attrs: attributesFromMeta(meta, 'sms_request_limit')
             }
           ]
         },
@@ -687,7 +687,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'login_attempt_limit',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'login_attempt_limit')
+              attrs: attributesFromMeta(meta, 'login_attempt_limit')
             }
           ]
         },
@@ -881,7 +881,7 @@ export const validators = (form = {}, meta = {}) => {
             })
           },
           advanced_filter: {
-            ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
+            ...validatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
             ...{
               [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter)))
             }
@@ -890,18 +890,18 @@ export const validators = (form = {}, meta = {}) => {
     ),
     ...{
       id: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+        ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
         ...{
           [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
         }
       },
-      description: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
-      root_module: pfConfigurationValidatorsFromMeta(meta, 'root_module', i18n.t('Module')),
-      default_psk_key: pfConfigurationValidatorsFromMeta(meta, 'default_psk_key', i18n.t('Key')),
-      vlan_pool_technique: pfConfigurationValidatorsFromMeta(meta, 'vlan_pool_technique', i18n.t('Algorithm')),
-      filter_match_style: pfConfigurationValidatorsFromMeta(meta, 'filter_match_style', i18n.t('Filters')),
+      description: validatorsFromMeta(meta, 'description', i18n.t('Description')),
+      root_module: validatorsFromMeta(meta, 'root_module', i18n.t('Module')),
+      default_psk_key: validatorsFromMeta(meta, 'default_psk_key', i18n.t('Key')),
+      vlan_pool_technique: validatorsFromMeta(meta, 'vlan_pool_technique', i18n.t('Algorithm')),
+      filter_match_style: validatorsFromMeta(meta, 'filter_match_style', i18n.t('Filters')),
       sources: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'sources', i18n.t('Sources')),
+        ...validatorsFromMeta(meta, 'sources', i18n.t('Sources')),
         ...{
           $each : {
             [i18n.t('Source required.')]: required,
@@ -910,7 +910,7 @@ export const validators = (form = {}, meta = {}) => {
         }
       },
       billing_tiers: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'billing_tiers', i18n.t('Billing tier')),
+        ...validatorsFromMeta(meta, 'billing_tiers', i18n.t('Billing tier')),
         ...{
           $each: {
             [i18n.t('Billing tier required.')]: required,
@@ -919,7 +919,7 @@ export const validators = (form = {}, meta = {}) => {
         }
       },
       provisioners: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'provisioners', i18n.t('Provisioner')),
+        ...validatorsFromMeta(meta, 'provisioners', i18n.t('Provisioner')),
         ...{
           $each: {
             [i18n.t('Provisioner required.')]: required,
@@ -928,7 +928,7 @@ export const validators = (form = {}, meta = {}) => {
         }
       },
       scans: {
-        ...pfConfigurationValidatorsFromMeta(meta, 'scans', i18n.t('Scans')),
+        ...validatorsFromMeta(meta, 'scans', i18n.t('Scans')),
         ...{
           $each: {
             [i18n.t('Scan required.')]: required,
@@ -936,16 +936,16 @@ export const validators = (form = {}, meta = {}) => {
           }
         }
       },
-      self_service: pfConfigurationValidatorsFromMeta(meta, 'self_service', i18n.t('Registration')),
-      logo: pfConfigurationValidatorsFromMeta(meta, 'logo', i18n.t('Logo')),
-      redirecturl: pfConfigurationValidatorsFromMeta(meta, 'redirecturl', i18n.t('Redirect')),
+      self_service: validatorsFromMeta(meta, 'self_service', i18n.t('Registration')),
+      logo: validatorsFromMeta(meta, 'logo', i18n.t('Logo')),
+      redirecturl: validatorsFromMeta(meta, 'redirecturl', i18n.t('Redirect')),
       block_interval: {
-        interval: pfConfigurationValidatorsFromMeta(meta, 'block_interval.interval', i18n.t('Interval')),
-        unit: pfConfigurationValidatorsFromMeta(meta, 'block_interval.unit', i18n.t('Unit'))
+        interval: validatorsFromMeta(meta, 'block_interval.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'block_interval.unit', i18n.t('Unit'))
       },
-      sms_pin_retry_limit: pfConfigurationValidatorsFromMeta(meta, 'sms_pin_retry_limit', i18n.t('Limit')),
-      sms_request_limit: pfConfigurationValidatorsFromMeta(meta, 'sms_request_limit', i18n.t('Limit')),
-      login_attempt_limit: pfConfigurationValidatorsFromMeta(meta, 'login_attempt_limit', i18n.t('Limit')),
+      sms_pin_retry_limit: validatorsFromMeta(meta, 'sms_pin_retry_limit', i18n.t('Limit')),
+      sms_request_limit: validatorsFromMeta(meta, 'sms_request_limit', i18n.t('Limit')),
+      login_attempt_limit: validatorsFromMeta(meta, 'login_attempt_limit', i18n.t('Limit')),
       locale: {
         [i18n.t('Locale required.')]: required,
         $each: {

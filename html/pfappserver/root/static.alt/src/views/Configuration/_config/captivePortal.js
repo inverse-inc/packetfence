@@ -4,9 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import {
   ipAddress
 } from 'vuelidate/lib/validators'
@@ -36,7 +36,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'network_detection_ip',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_ip')
+              attrs: attributesFromMeta(meta, 'network_detection_ip')
             }
           ]
         },
@@ -47,12 +47,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'network_detection_initial_delay.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_initial_delay.interval')
+              attrs: attributesFromMeta(meta, 'network_detection_initial_delay.interval')
             },
             {
               namespace: 'network_detection_initial_delay.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_initial_delay.unit')
+              attrs: attributesFromMeta(meta, 'network_detection_initial_delay.unit')
             }
           ]
         },
@@ -63,12 +63,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'network_detection_retry_delay.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_retry_delay.interval')
+              attrs: attributesFromMeta(meta, 'network_detection_retry_delay.interval')
             },
             {
               namespace: 'network_detection_retry_delay.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_retry_delay.unit')
+              attrs: attributesFromMeta(meta, 'network_detection_retry_delay.unit')
             }
           ]
         },
@@ -79,12 +79,12 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'network_redirect_delay.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'network_redirect_delay.interval')
+              attrs: attributesFromMeta(meta, 'network_redirect_delay.interval')
             },
             {
               namespace: 'network_redirect_delay.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'network_redirect_delay.unit')
+              attrs: attributesFromMeta(meta, 'network_redirect_delay.unit')
             }
           ]
         },
@@ -95,7 +95,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'image_path',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'image_path')
+              attrs: attributesFromMeta(meta, 'image_path')
             }
           ]
         },
@@ -106,7 +106,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'request_timeout',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'request_timeout')
+              attrs: attributesFromMeta(meta, 'request_timeout')
             }
           ]
         },
@@ -118,7 +118,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'loadbalancers_ip',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'loadbalancers_ip'),
+                ...attributesFromMeta(meta, 'loadbalancers_ip'),
                 ...{
                   rows: 3
                 }
@@ -173,7 +173,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'detection_mecanism_urls',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'detection_mecanism_urls'),
+                ...attributesFromMeta(meta, 'detection_mecanism_urls'),
                 ...{
                   placeholderHtml: true,
                   labelHtml: i18n.t('Built-in Captive Portal detection mechanism URLs'),
@@ -216,7 +216,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'rate_limiting_threshold',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limiting_threshold')
+              attrs: attributesFromMeta(meta, 'rate_limiting_threshold')
             }
           ]
         },
@@ -228,7 +228,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'other_domain_names',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'other_domain_names'),
+                ...attributesFromMeta(meta, 'other_domain_names'),
                 ...{
                   rows: 5
                 }
@@ -244,28 +244,28 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   return {
     network_detection_ip: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'network_detection_ip', 'IP'),
+      ...validatorsFromMeta(meta, 'network_detection_ip', 'IP'),
       ...{
         [i18n.t('Invalid IP.')]: ipAddress
       }
     },
     network_detection_initial_delay: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'network_detection_initial_delay.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'network_detection_initial_delay.unit', i18n.t('Unit'))
     },
     network_detection_retry_delay: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'network_detection_retry_delay.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'network_detection_retry_delay.unit', i18n.t('Unit'))
     },
     network_redirect_delay: {
-      interval: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.interval', i18n.t('Interval')),
-      unit: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.unit', i18n.t('Unit'))
+      interval: validatorsFromMeta(meta, 'network_redirect_delay.interval', i18n.t('Interval')),
+      unit: validatorsFromMeta(meta, 'network_redirect_delay.unit', i18n.t('Unit'))
     },
-    image_path: pfConfigurationValidatorsFromMeta(meta, 'image_path', i18n.t('Path')),
-    request_timeout: pfConfigurationValidatorsFromMeta(meta, 'request_timeout', i18n.t('Timeout')),
-    loadbalancers_ip: pfConfigurationValidatorsFromMeta(meta, 'loadbalancers_ip', 'IP'),
-    detection_mecanism_urls: pfConfigurationValidatorsFromMeta(meta, 'detection_mecanism_urls', 'URL'),
-    rate_limiting_threshold: pfConfigurationValidatorsFromMeta(meta, 'rate_limiting_threshold', i18n.t('Threshold')),
-    other_domain_names: pfConfigurationValidatorsFromMeta(meta, 'other_domain_names', i18n.t('Domains'))
+    image_path: validatorsFromMeta(meta, 'image_path', i18n.t('Path')),
+    request_timeout: validatorsFromMeta(meta, 'request_timeout', i18n.t('Timeout')),
+    loadbalancers_ip: validatorsFromMeta(meta, 'loadbalancers_ip', 'IP'),
+    detection_mecanism_urls: validatorsFromMeta(meta, 'detection_mecanism_urls', 'URL'),
+    rate_limiting_threshold: validatorsFromMeta(meta, 'rate_limiting_threshold', i18n.t('Threshold')),
+    other_domain_names: validatorsFromMeta(meta, 'other_domain_names', i18n.t('Domains'))
   }
 }

@@ -6,9 +6,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -136,7 +136,7 @@ export const view = (meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -151,7 +151,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'ip',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'ip')
+              attrs: attributesFromMeta(meta, 'ip')
             }
           ]
         },
@@ -161,7 +161,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'username',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'username')
+              attrs: attributesFromMeta(meta, 'username')
             }
           ]
         },
@@ -172,7 +172,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'domain',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'domain')
+              attrs: attributesFromMeta(meta, 'domain')
             }
           ]
         },
@@ -182,7 +182,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'password',
               component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'password')
+              attrs: attributesFromMeta(meta, 'password')
             }
           ]
         },
@@ -194,7 +194,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'port',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'port')
+              attrs: attributesFromMeta(meta, 'port')
             }
           ]
         },
@@ -206,7 +206,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'nessus_clientpolicy',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'nessus_clientpolicy')
+              attrs: attributesFromMeta(meta, 'nessus_clientpolicy')
             }
           ]
         },
@@ -218,7 +218,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'scannername',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'scannername')
+              attrs: attributesFromMeta(meta, 'scannername')
             }
           ]
         },
@@ -230,7 +230,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'openvas_alertid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_alertid')
+              attrs: attributesFromMeta(meta, 'openvas_alertid')
             }
           ]
         },
@@ -242,7 +242,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'openvas_configid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_configid')
+              attrs: attributesFromMeta(meta, 'openvas_configid')
             }
           ]
         },
@@ -254,7 +254,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'openvas_reportformatid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_reportformatid')
+              attrs: attributesFromMeta(meta, 'openvas_reportformatid')
             }
           ]
         },
@@ -280,7 +280,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'engine_id',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'engine_id')
+              attrs: attributesFromMeta(meta, 'engine_id')
             }
           ]
         },
@@ -292,7 +292,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'template_id',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'template_id')
+              attrs: attributesFromMeta(meta, 'template_id')
             }
           ]
         },
@@ -304,7 +304,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'site_id',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'site_id')
+              attrs: attributesFromMeta(meta, 'site_id')
             }
           ]
         },
@@ -315,7 +315,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'categories',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'categories')
+              attrs: attributesFromMeta(meta, 'categories')
             }
           ]
         },
@@ -327,7 +327,7 @@ export const view = (meta = {}) => {
             {
               namespace: 'oses',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'oses')
+              attrs: attributesFromMeta(meta, 'oses')
             }
           ]
         },
@@ -338,12 +338,12 @@ export const view = (meta = {}) => {
             {
               namespace: 'duration.interval',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.interval')
+              attrs: attributesFromMeta(meta, 'duration.interval')
             },
             {
               namespace: 'duration.unit',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.unit')
+              attrs: attributesFromMeta(meta, 'duration.unit')
             }
           ]
         },
@@ -404,7 +404,7 @@ export const view = (meta = {}) => {
                     field: {
                       component: pfFormChosen,
                       attrs: {
-                        ...pfConfigurationAttributesFromMeta(meta, 'wmi_rules'),
+                        ...attributesFromMeta(meta, 'wmi_rules'),
                         ...{
                           collapseObject: true,
                           placeholder: i18n.t('Click to select a rule'),
@@ -436,28 +436,28 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
       ...{
         [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasScans, scanExists))
       }
     },
-    ip: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP'),
-    username: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username')),
-    domain: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain')),
-    password: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password')),
-    port: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port')),
-    nessus_clientpolicy: pfConfigurationValidatorsFromMeta(meta, 'nessus_clientpolicy', i18n.t('Policy')),
-    scannername: pfConfigurationValidatorsFromMeta(meta, 'scannername', i18n.t('Name')),
-    openvas_alertid: pfConfigurationValidatorsFromMeta(meta, 'openvas_alertid', 'ID'),
-    openvas_configid: pfConfigurationValidatorsFromMeta(meta, 'openvas_configid', 'ID'),
-    openvas_reportformatid: pfConfigurationValidatorsFromMeta(meta, 'openvas_reportformatid', 'ID'),
-    engine_id: pfConfigurationValidatorsFromMeta(meta, 'engine_id', i18n.t('Engine')),
-    template_id: pfConfigurationValidatorsFromMeta(meta, 'template_id', i18n.t('Template')),
-    site_id: pfConfigurationValidatorsFromMeta(meta, 'site_id', i18n.t('Site')),
-    categories: pfConfigurationValidatorsFromMeta(meta, 'categories', i18n.t('Categories')),
-    oses: pfConfigurationValidatorsFromMeta(meta, 'oses', 'OS'),
-    'duration.interval': pfConfigurationValidatorsFromMeta(meta, 'duration.interval', i18n.t('Interval')),
-    'duration.unit': pfConfigurationValidatorsFromMeta(meta, 'duration.unit', i18n.t('Unit')),
+    ip: validatorsFromMeta(meta, 'ip', 'IP'),
+    username: validatorsFromMeta(meta, 'username', i18n.t('Username')),
+    domain: validatorsFromMeta(meta, 'domain', i18n.t('Domain')),
+    password: validatorsFromMeta(meta, 'password', i18n.t('Password')),
+    port: validatorsFromMeta(meta, 'port', i18n.t('Port')),
+    nessus_clientpolicy: validatorsFromMeta(meta, 'nessus_clientpolicy', i18n.t('Policy')),
+    scannername: validatorsFromMeta(meta, 'scannername', i18n.t('Name')),
+    openvas_alertid: validatorsFromMeta(meta, 'openvas_alertid', 'ID'),
+    openvas_configid: validatorsFromMeta(meta, 'openvas_configid', 'ID'),
+    openvas_reportformatid: validatorsFromMeta(meta, 'openvas_reportformatid', 'ID'),
+    engine_id: validatorsFromMeta(meta, 'engine_id', i18n.t('Engine')),
+    template_id: validatorsFromMeta(meta, 'template_id', i18n.t('Template')),
+    site_id: validatorsFromMeta(meta, 'site_id', i18n.t('Site')),
+    categories: validatorsFromMeta(meta, 'categories', i18n.t('Categories')),
+    oses: validatorsFromMeta(meta, 'oses', 'OS'),
+    'duration.interval': validatorsFromMeta(meta, 'duration.interval', i18n.t('Interval')),
+    'duration.unit': validatorsFromMeta(meta, 'duration.unit', i18n.t('Unit')),
     wmi_rules: {
       $each: {
         [i18n.t('Duplicate Rule.')]: conditional((value) => {

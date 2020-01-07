@@ -1,9 +1,9 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationAttributesFromMeta,
-  pfConfigurationValidatorsFromMeta
-} from '@/globals/configuration/pfConfiguration'
+  attributesFromMeta,
+  validatorsFromMeta
+} from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -112,7 +112,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...attributesFromMeta(meta, 'id'),
                 ...{
                   disabled: (!isNew && !isClone)
                 }
@@ -126,7 +126,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'notes',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'notes')
+              attrs: attributesFromMeta(meta, 'notes')
             }
           ]
         },
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'max_nodes_per_pid',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'max_nodes_per_pid')
+              attrs: attributesFromMeta(meta, 'max_nodes_per_pid')
             }
           ]
         }
@@ -153,12 +153,12 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     id: {
-      ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
+      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
       ...{
         [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRoles, roleExists))
       }
     },
-    notes: pfConfigurationValidatorsFromMeta(meta, 'notes', i18n.t('Description')),
-    max_nodes_per_pid: pfConfigurationValidatorsFromMeta(meta, 'max_nodes_per_pid', i18n.t('Max'))
+    notes: validatorsFromMeta(meta, 'notes', i18n.t('Description')),
+    max_nodes_per_pid: validatorsFromMeta(meta, 'max_nodes_per_pid', i18n.t('Max'))
   }
 }
