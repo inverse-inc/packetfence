@@ -27,7 +27,7 @@ use pf::ip4log;
 use pf::constants qw($TRUE $default_pid);
 use pf::dal::security_event;
 use pf::error qw(is_error is_success);
-use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
+use pf::locationlog qw(locationlog_view_open_mac);
 use pf::UnifiedApi::Search::Builder::Nodes;
 use pf::UnifiedApi::Search::Builder::NodesNetworkGraph;
 use pf::security_event;

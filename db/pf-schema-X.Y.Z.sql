@@ -357,6 +357,34 @@ CREATE TABLE ip6log_archive (
 
 
 CREATE TABLE `locationlog` (
+  `tenant_id` int NOT NULL DEFAULT 1,
+  `mac` varchar(17) default NULL,
+  `switch` varchar(17) NOT NULL default '',
+  `port` varchar(20) NOT NULL default '',
+  `vlan` varchar(50) default NULL,
+  `role` varchar(255) default NULL,
+  `connection_type` varchar(50) NOT NULL default '',
+  `connection_sub_type` varchar(50) default NULL,
+  `dot1x_username` varchar(255) NOT NULL default '',
+  `ssid` varchar(32) NOT NULL default '',
+  `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
+  `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
+  `switch_ip` varchar(17) DEFAULT NULL,
+  `switch_mac` varchar(17) DEFAULT NULL,
+  `stripped_user_name` varchar (255) DEFAULT NULL,
+  `realm`  varchar (255) DEFAULT NULL,
+  `session_id` VARCHAR(255) DEFAULT NULL,
+  `ifDesc` VARCHAR(255) DEFAULT NULL,
+  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
+  PRIMARY KEY (`tenant_id`, `mac`),
+  KEY `locationlog_end_time` ( `end_time`),
+  KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
+  KEY `locationlog_ssid` (`ssid`),
+  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
+  CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `locationlog_history` (
   `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) default NULL,
@@ -377,37 +405,47 @@ CREATE TABLE `locationlog` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  KEY `locationlog_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_view_mac` (`tenant_id`, `mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `locationlog_archive` (
-  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int NOT NULL DEFAULT 1,
-  `mac` varchar(17) default NULL,
-  `switch` varchar(17) NOT NULL default '',
-  `port` varchar(20) NOT NULL default '',
-  `vlan` varchar(50) default NULL,
-  `role` varchar(255) default NULL,
-  `connection_type` varchar(50) NOT NULL default '',
-  `connection_sub_type` varchar(50) default NULL,
-  `dot1x_username` varchar(255) NOT NULL default '',
-  `ssid` varchar(32) NOT NULL default '',
-  `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `switch_ip` varchar(17) DEFAULT NULL,
-  `switch_mac` varchar(17) DEFAULT NULL,
-  `stripped_user_name` varchar (255) DEFAULT NULL,
-  `realm`  varchar (255) DEFAULT NULL,
-  `session_id` VARCHAR(255) DEFAULT NULL,
-  `ifDesc` VARCHAR(255) DEFAULT NULL,
-  KEY `locationlog_archive_view_mac` (`mac`, `end_time`),
-  KEY `locationlog_end_time` ( `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
-) ENGINE=InnoDB;
+DELIMITER /
+CREATE OR REPLACE TRIGGER locationlog_insert_in_history_after_insert AFTER UPDATE on locationlog
+FOR EACH ROW
+BEGIN
+    IF OLD.session_id = NEW.session_id THEN
+        INSERT INTO locationlog_history
+        SET
+            tenant_id = OLD.tenant_id,
+            mac = OLD.mac,
+            switch = OLD.switch,
+            port = OLD.port,
+            vlan = OLD.vlan,
+            role = OLD.role,
+            connection_type = OLD.connection_type,
+            connection_sub_type = OLD.connection_sub_type,
+            dot1x_username = OLD.dot1x_username,
+            ssid = OLD.ssid,
+            start_time = OLD.start_time,
+            end_time = CASE
+            WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
+            WHEN OLD.end_time > NOW() THEN NOW()
+            ELSE OLD.end_time
+            END,
+            switch_ip = OLD.switch_ip,
+            switch_mac = OLD.switch_mac,
+            stripped_user_name = OLD.stripped_user_name,
+            realm = OLD.realm,
+            session_id = OLD.session_id,
+            ifDesc = OLD.ifDesc,
+            voip = OLD.voip
+        ;
+  END IF;
+END /
+DELIMITER ;
 
 CREATE TABLE `userlog` (
   `tenant_id` int NOT NULL DEFAULT 1,

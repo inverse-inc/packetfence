@@ -79,6 +79,7 @@ our @EXPORT_OK = qw(
   %connection_type_explained_to_str
   %connection_group
   %connection_group_to_str
+  @connection_wired_types
 );
 
 use Readonly;
@@ -224,6 +225,7 @@ Readonly our %connection_type_explained => (
 );
 
 Readonly our %connection_type_explained_to_str => map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;
+Readonly our @connection_wired_types => grep { ( $connection_type{$_} & $WIRED) == $WIRED   } keys %connection_type;
 
 =head1 AUTHOR
 

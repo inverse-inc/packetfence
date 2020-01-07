@@ -189,37 +189,35 @@ sub report_db_prepare {
         SELECT connection_type, count(*) as connections,
             ROUND(COUNT(*)/
                 (SELECT COUNT(*) FROM locationlog
-                    INNER JOIN node ON node.mac=locationlog.mac
-                    WHERE locationlog.end_time = 0
+                    INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
-        WHERE locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
         GROUP BY connection_type
     ]);
 
     $report_statements->{'report_connectiontype_active_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type,count(*) as connections,
             ROUND(COUNT(*)/
-                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
+                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
                     INNER JOIN ip4log ON node.mac=ip4log.mac
-                    WHERE ip4log.end_time = 0 OR ip4log.end_time > now() AND locationlog.end_time = 0
+                    WHERE ip4log.end_time = 0 OR ip4log.end_time > now() 
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
-        WHERE ip4log.end_time = 0 OR ip4log.end_time > now() AND locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id INNER JOIN ip4log ON node.mac=ip4log.mac
+        WHERE ip4log.end_time = 0 OR ip4log.end_time > now()
         GROUP BY connection_type
     ]);
 
     $report_statements->{'report_connectiontypereg_all_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type, count(*) as connections,
             ROUND( COUNT(*) /
-                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
-                    WHERE node.status = "reg" AND locationlog.end_time = 0
+                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
+                    WHERE node.status = "reg"
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
-        WHERE node.status = "reg" AND locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
+        WHERE node.status = "reg"
         GROUP BY connection_type
     ]);
 
@@ -227,13 +225,12 @@ sub report_db_prepare {
         SELECT connection_type, count(*) as connections,
             ROUND( COUNT(*) /
                 (SELECT COUNT(*) FROM locationlog
-                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
+                    INNER JOIN node ON node.mac=locationlog.mac and node.tenant_id = locationlog.tenant_id INNER JOIN ip4log ON node.mac=ip4log.mac
                     WHERE node.status = "reg" AND (ip4log.end_time =0 OR ip4log.end_time > now())
-                        AND locationlog.end_time = 0
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
-        WHERE node.status = "reg" AND (ip4log.end_time = 0 OR ip4log.end_time > now()) AND locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id  INNER JOIN ip4log ON node.mac=ip4log.mac
+        WHERE node.status = "reg" AND (ip4log.end_time = 0 OR ip4log.end_time > now()) 
         GROUP BY connection_type
     ]);
 
@@ -241,12 +238,12 @@ sub report_db_prepare {
        SELECT ssid, COUNT(DISTINCT locationlog.mac) AS nodes, ROUND(COUNT(DISTINCT locationlog.mac)/
            (SELECT COUNT(DISTINCT locationlog.mac)
                 FROM locationlog
-                    INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time = 0
+                    INNER JOIN node ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
                     INNER JOIN ip4log ON node.mac = ip4log.mac
                 WHERE ssid != "" AND ip4log.start_time BETWEEN ? AND ?
            )*100,1) AS percent
        FROM locationlog
-           INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time = 0
+           INNER JOIN node ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
            INNER JOIN ip4log ON node.mac = ip4log.mac
        WHERE ssid != "" AND ip4log.end_time BETWEEN ? AND ?
        GROUP BY ssid
@@ -257,11 +254,11 @@ sub report_db_prepare {
         SELECT ssid,count(*) as nodes, ROUND(COUNT(*)/
             (SELECT COUNT(*)
                 FROM locationlog
-                    INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
+                    INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
                 WHERE ssid != "")
             *100,1) as percent
         FROM locationlog
-           INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
+           INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
         WHERE ssid != ""
         GROUP BY ssid
         ORDER BY nodes
@@ -271,12 +268,12 @@ sub report_db_prepare {
        SELECT ssid,count(*) as nodes, ROUND(COUNT(*)/
            (SELECT COUNT(*)
                 FROM locationlog
-                    INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
+                    INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
                     INNER JOIN ip4log ON node.mac=ip4log.mac
                 WHERE ssid != "" AND (ip4log.end_time=0 OR ip4log.end_time > now())
            )*100,1) as percent
        FROM locationlog
-           INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
+           INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
            INNER JOIN ip4log ON node.mac=ip4log.mac
        WHERE ssid != "" AND (ip4log.end_time=0 OR ip4log.end_time > now())
        GROUP BY ssid

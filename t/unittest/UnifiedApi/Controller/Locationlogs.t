@@ -52,7 +52,7 @@ my %values = (
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 76;
+use Test::More tests => 75;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -73,7 +73,6 @@ $t->get_ok('/api/v1/locationlogs' => json => { })
   ->json_is('/items/0/session_id','test session_id')
   ->json_is('/items/0/ifDesc','test ifDesc')
   ->json_is('/items/0/start_time','0000-00-00 00:00:01')
-  ->json_is('/items/0/end_time','0000-00-00 00:00:02')  
 #  ->json_has('/')
   ->status_is(200);
 
@@ -238,7 +237,7 @@ $t->post_ok(
   ->status_is(200)
 ;
 
-is_deeply($t->tx->res->json->{items}[0], { mac => '01:02:03:04:05:01'});
+is_deeply($t->tx->res->json->{items}[0], { mac => '01:02:03:04:05:01'}, "fields [mac]");
 
 $t->post_ok(
     '/api/v1/locationlogs/search' => json => { }

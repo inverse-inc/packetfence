@@ -245,7 +245,7 @@ sub make_columns {
         push @{$s->{found_fields}}, @$cols;
         @$cols = map { $self->format_column($s, $_) } @$cols
     } else {
-        $cols = [@{$s->{dal}->table_field_names}];
+        $cols = $self->default_columns($s);
     }
 
     if ($s->{with_total_count}) {
@@ -253,6 +253,11 @@ sub make_columns {
     }
 
     return 200, $cols;
+}
+
+sub default_columns {
+    my ($self, $s) = @_;
+    return [@{$s->{dal}->table_field_names}];
 }
 
 =head2 check_for_duplicated_fields

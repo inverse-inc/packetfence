@@ -359,17 +359,15 @@ setup_api_v1_locationlogs_routes
 
 sub setup_api_v1_locationlogs_routes {
     my ($self, $root) = @_;
-    my ($collection_route, $resource_route) =
-      $self->setup_api_v1_std_crud_routes(
-        $root,
-        "Locationlogs",
-        "/locationlogs",
-        "/locationlog/#locationlog_id",
-    );
+    my $controller = "Locationlogs";
+    my $name = $self->make_name_from_controller($root, $controller);
+    my $collection_route = $root->any("/locationlogs")->to(controller => $controller)->name($name);
 
+    $collection_route->register_sub_action({ action => 'list', path => '', method => 'GET' });
+    $collection_route->register_sub_action({ action => 'search', method => 'POST' });
     $collection_route->register_sub_action({ action => 'ssids', method => 'GET' });
 
-    return ($collection_route, $resource_route);
+    return ($collection_route, undef);
 }
 
 =head2 setup_api_v1_dhcp_option82s_routes
@@ -536,14 +534,6 @@ sub setup_api_v1_users_routes {
         "Users::Nodes",
         "/nodes",
         "/node/#node_id",
-    );
-
-    $self->setup_api_v1_std_crud_routes(
-        $sub_resource_route,
-        "Users::Nodes::Locationlogs",
-        "/locationlogs",
-        "/locationlog/#locationlog_id",
-        "api.v1.Users.resource.Nodes.Locationlogs"
     );
 
     my $password_route = $resource_route->any("/password")->to(controller => "Users::Password")->name("api.v1.Users.resource.Password");
@@ -738,6 +728,15 @@ sub setup_api_v1_std_crud_readonly_routes {
     return ($collection_route, $resource_route);
 }
 
+sub make_name_from_controller {
+    my ($self, $root, $controller) = @_;
+    my $name = $controller;
+    my $root_name = $root->name;
+    $name =~ s/::/./g;
+    $name = "${root_name}.${name}";
+    return $name;
+}
+
 =head2 setup_api_v1_std_crud_routes
 
 setup_api_v1_std_crud_routes
@@ -748,9 +747,7 @@ sub setup_api_v1_std_crud_routes {
     my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
     my $root_name = $root->name;
     if (!defined $name) {
-        $name = $controller;
-        $name =~ s/::/./;
-        $name = "${root_name}.${name}";
+        $name = $self->make_name_from_controller($root, $controller);
     }
 
     my $collection_route = $root->any($collection_path)->to(controller=> $controller)->name($name);
@@ -798,11 +795,9 @@ setup_api_v1_std_config_routes
 sub setup_api_v1_std_config_routes {
     my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
     if (!defined $name) {
-        my $root_name = $root->name;
-        $name = $controller;
-        $name =~ s/::/./;
-        $name = "${root_name}.${name}";
+        $name = $self->make_name_from_controller($root, $controller);
     }
+
     my $collection_route = $root->any($collection_path)->to(controller => $controller)->name($name);
     $self->setup_api_v1_std_config_collection_routes($collection_route, $name, $controller);
     my $resource_route = $root->under($resource_path)->to(controller => $controller, action => "resource")->name("${name}.resource");

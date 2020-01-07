@@ -947,6 +947,7 @@ Wrap select pf::SQL::Abstract->select
 
 sub select {
     my ($proto, @args) = @_;
+    @args = $proto->update_params_for_select(@args);
     my $sqla = $proto->get_sql_abstract;
     return $sqla->select(@args);
 }
@@ -959,7 +960,6 @@ Wrap call to select and db_execute
 
 sub do_select {
     my ($proto, @args) = @_;
-    @args = $proto->update_params_for_select(@args);
     my ($sql, @bind) = $proto->select(@args);
     return $proto->db_execute($sql, @bind);
 }

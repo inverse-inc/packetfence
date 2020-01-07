@@ -15,14 +15,13 @@ pf::UnifiedApi::Controller::Locationlogs
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
-use pf::dal::locationlog;
-use pf::SQL::Abstract;
-use pf::UnifiedApi::Search;
+use pf::UnifiedApi::Search::Builder::Locationlogs;
 use pf::error qw(is_error);
 
 has dal => 'pf::dal::locationlog';
 has url_param_name => 'locationlog_id';
-has primary_key => 'id';
+has primary_key => 'mac';
+has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Locationlogs';
 
 sub ssids {
     my ($self) = @_;

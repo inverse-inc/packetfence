@@ -179,23 +179,6 @@ sub default_query {
                 },
                 'ip4log',
                 "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}", 'locationlog',
-                {
-                    operator  => '=>',
-                    condition => {
-                        'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                        'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-                        'locationlog2.end_time' => $ZERO_DATE,
-                        -or => [
-                            '%1$s.start_time' => { '<' => { -ident => '%2$s.start_time' } },
-                            '%1$s.start_time' => undef,
-                            -and => [
-                                '%1$s.start_time' => { '=' => { -ident => '%2$s.start_time' } },
-                                '%1$s.id' => { '<' => { -ident => '%2$s.id' } },
-                            ],
-                        ],
-                    },
-                },
-                'locationlog|locationlog2',
                 '=>{node.mac=r1.callingstationid,node.tenant_id=r1.tenant_id}', 'radacct|r1',
                 {
                     operator  => '=>',
@@ -413,7 +396,6 @@ sub make_top_level_conditions {
     my ($self, $params) = @_;
     my @conditions = (
         'r2.radacctid' => undef,
-        'locationlog2.id' => undef,
         'node.tenant_id' => pf::dal::get_tenant(),
     );
     if ($params->{online_date} ) {

@@ -99,6 +99,7 @@ use pf::constants::config qw(
   %connection_type_explained_to_str
   %connection_group
   %connection_group_to_str
+  @connection_wired_types
 );
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
@@ -199,7 +200,7 @@ BEGIN {
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained %connection_type_explained_to_str
-        %connection_group %connection_group_to_str
+        %connection_group %connection_group_to_str @connection_wired_types
         $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_INSTAGRAM $SELFREG_MODE_LINKEDIN $SELFREG_MODE_PRINTEREST $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE

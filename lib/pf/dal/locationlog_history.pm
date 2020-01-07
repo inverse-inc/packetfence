@@ -1,27 +1,23 @@
-package pf::UnifiedApi::Controller::Users::Nodes::Locationlogs;
+package pf::dal::locationlog_history;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Users::Nodes::Locationlogs -
+pf::dal::locationlog_history - pf::dal module to override for the table locationlog_history
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Users::Nodes::Locationlogs
+pf::dal::locationlog_history
+
+pf::dal implementation for the table locationlog_history
 
 =cut
 
 use strict;
 use warnings;
-use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
-use pf::dal::locationlog;
 
-has 'dal' => 'pf::dal::locationlog';
-has 'url_param_name' => 'locationlog_id';
-has 'primary_key' => 'id';
-has 'parent_primary_key_map' => sub { {node_id => 'mac'} };
-has 'url_parent_ids' =>  sub { [qw(user_id node_id)] };
+use base qw(pf::dal::_locationlog_history);
 
 =head1 AUTHOR
 
@@ -51,4 +47,3 @@ USA.
 =cut
 
 1;
-

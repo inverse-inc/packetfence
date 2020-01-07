@@ -325,7 +325,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             {
                 'ip4log.ip' => { "=" => "1.1.1.1"},
-                'locationlog2.id' => undef,
                 'r2.radacctid' => undef,
             },
         ],
