@@ -33,17 +33,19 @@
           :values="{ checked: 'Y', unchecked: 'N' }"
           :icons="{ checked: 'lock', unchecked: 'lock' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :right-labels="{ checked: 'ON', unchecked: 'OFF' }"
           disabled
-        >{{ (item.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
+        />
         <pf-form-range-toggle v-else
           v-model="item.enabled"
           :values="{ checked: 'Y', unchecked: 'N' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :right-labels="{ checked: 'ON', unchecked: 'OFF' }"
           :disabled="isLoading"
           @input="toggle(item, $event)"
           @click.stop.prevent
-        >{{ (item.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
+        />
       </template>
     </pf-config-list>
   </b-card>
@@ -82,7 +84,7 @@ export default {
       this.$router.push({ name: 'cloneSecurityEvent', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_security_events/deleteSecurityEvent', item.id).then(response => {
+      this.$store.dispatch('$_security_events/deleteSecurityEvent', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -90,7 +92,7 @@ export default {
     toggle (item, event) {
       switch (event) {
         case 'Y':
-          this.$store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item }).then(response => {
+          this.$store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} enabled.', { desc: this.$strong(item.desc) }) })
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err
@@ -100,7 +102,7 @@ export default {
           })
           break
         case 'N':
-          this.$store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item }).then(response => {
+          this.$store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} disabled.', { desc: this.$strong(item.desc) }) })
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err
