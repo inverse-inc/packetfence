@@ -55,8 +55,9 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- Table structure for table `locationlog_history`
 --
 
-CREATE TABLE IF NOT EXISTS `locationlog_history` (
-  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+RENAME TABLE locationlog TO locationlog_history;
+
+CREATE TABLE `locationlog` (
   `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
@@ -76,63 +77,28 @@ CREATE TABLE IF NOT EXISTS `locationlog_history` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  KEY `locationlog_view_mac` (`tenant_id`, `mac`, `end_time`),
+  PRIMARY KEY (`tenant_id`, `mac`),
   KEY `locationlog_end_time` ( `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
+  KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
-  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`)
+  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
+  CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
-INSERT INTO locationlog_history (
+INSERT IGNORE INTO locationlog (
  `tenant_id`, `mac`, `switch`, `port`, `vlan`, `role`, `connection_type`, 
  `connection_sub_type`, `dot1x_username`, `ssid`, `start_time`, `end_time`, `switch_ip`, 
  `switch_mac`, `stripped_user_name`, `realm`, `session_id`, `ifDesc`, `voip`)  
     SELECT `tenant_id`, `mac`, `switch`, `port`, `vlan`, `role`, `connection_type`, 
     `connection_sub_type`, `dot1x_username`, `ssid`, `start_time`, `end_time`, `switch_ip`,
     `switch_mac`, `stripped_user_name`, `realm`, `session_id`, `ifDesc`, `voip` 
-    FROM locationlog WHERE end_time != '0000-00-00 00:00:00';
+    FROM locationlog_history WHERE end_time = '0000-00-00 00:00:00' ORDER BY start_time DESC;
 
-DELETE FROM locationlog 
-    WHERE
-    id IN (
-        SELECT * FROM (
-            SELECT
-                `locationlog2`.id 
-            FROM
-                locationlog as locationlog1 
-            LEFT OUTER JOIN
-                `locationlog` AS `locationlog2`         
-                    ON (
-                        (
-                            (
-                                `locationlog1`.`start_time` < `locationlog2`.`start_time`                     
-                                OR `locationlog1`.`start_time` IS NULL                     
-                                OR (
-                                    `locationlog1`.`start_time` = `locationlog2`.`start_time`                         
-                                    AND `locationlog1`.`id` < `locationlog2`.`id`                     
-                                )                 
-                            )                 
-                            AND `locationlog1`.`mac` = `locationlog2`.`mac`                 
-                            AND `locationlog1`.`tenant_id` = `locationlog2`.`tenant_id`             
-                        )         
-                    ) 
-            WHERE
-                (
-                    (
-                        `locationlog2`.`id` IS NOT NULL         
-                    )     
-                ) 
-        ) as x
-    );
+DELETE FROM locationlog_history WHERE end_time = '0000-00-00 00:00:00';
 
-ALTER TABLE `locationlog`
-    DROP PRIMARY KEY,
-    DROP COLUMN id,
+ALTER TABLE `locationlog_history`
     DROP INDEX locationlog_view_mac,
-    DROP INDEX locationlog_view_switchport,
-    ADD  PRIMARY KEY (`tenant_id`, `mac`),
-    ADD  KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
-    ADD CONSTRAINT `locationlog_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`);
+    ADD KEY `locationlog_view_mac` (`tenant_id`, `mac`, `end_time`);
 
 DELIMITER /
 CREATE OR REPLACE TRIGGER locationlog_insert_in_history_after_insert AFTER UPDATE on locationlog
