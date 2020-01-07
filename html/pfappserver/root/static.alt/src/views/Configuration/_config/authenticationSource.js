@@ -17,7 +17,10 @@ import {
   pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-import { pfActions } from '@/globals/pfActions'
+import {
+  pfActions,
+  pfActionValidators
+} from '@/globals/pfActions'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   alphaNum,
@@ -118,6 +121,31 @@ export const config = () => {
       }
     }
   }
+}
+
+const administrationRuleActions = (form = {}, meta = {}) => {
+  const { sourceType = null } = meta
+  return [
+    ...[
+      pfActions.set_access_level,
+      pfActions.mark_as_sponsor,
+      pfActions.set_tenant_id
+    ],
+    ...((['AD', 'LDAP'].includes(sourceType))
+      ? [pfActions.set_access_durations]
+      : []
+    )
+  ]
+}
+
+const authenticationRuleActions = (form = {}, meta = {}) => {
+  return [
+    pfActions.set_role_by_name,
+    pfActions.set_access_duration,
+    pfActions.set_unreg_date,
+    pfActions.set_time_balance,
+    pfActions.set_bandwidth_balance
+  ]
 }
 
 export const viewFields = {
@@ -229,17 +257,7 @@ export const viewFields = {
                   attrs: {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
-                    fields: [
-                      ...[
-                        pfActions.set_access_level,
-                        pfActions.mark_as_sponsor,
-                        pfActions.set_tenant_id
-                      ],
-                      ...((['AD', 'LDAP'].includes(sourceType))
-                        ? [pfActions.set_access_durations]
-                        : []
-                      )
-                    ]
+                    fields: administrationRuleActions(form, meta)
                   }
                 },
                 conditions: {
@@ -404,13 +422,7 @@ export const viewFields = {
                   attrs: {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
-                    fields: [
-                      pfActions.set_role_by_name,
-                      pfActions.set_access_duration,
-                      pfActions.set_unreg_date,
-                      pfActions.set_time_balance,
-                      pfActions.set_bandwidth_balance
-                    ]
+                    fields: authenticationRuleActions(form, meta)
                   }
                 },
                 conditions: {
@@ -2480,33 +2492,10 @@ export const validatorFields = {
               })
             },
             actions: {
+              ...pfActionValidators(administrationRuleActions(form, meta), actions),
               ...{
                 [i18n.t('Action required')]: required
-              },
-              ...(actions || []).map((action) => {
-                return {
-                  type: {
-                    [i18n.t('Action required')]: required,
-                    /* prevent duplicates */
-                    [i18n.t('Duplicate action.')]: conditional((type) => actions.filter(action => action && action.type === type).length <= 1),
-                    /* 'set_access_duration' requires 'set_role' */
-                    [i18n.t('Action requires "Set Role".')]: conditional((value) => value !== 'set_access_duration' || actions.filter(action => action && action.type === 'set_role').length > 0),
-                    /* 'set_access_duration' restricts 'set_unreg_date' */
-                    [i18n.t('Action conflicts with "Unregistration date".')]: conditional((value) => value !== 'set_access_duration' || actions.filter(action => action && action.type === 'set_unreg_date').length === 0),
-                    /* `set_access_durations' requires 'mark_as_sponsor' */
-                    [i18n.t('Action requires "Mark as sponsor".')]: conditional((value) => value !== 'set_access_durations' || actions.filter(action => action && action.type === 'mark_as_sponsor').length > 0),
-                    /* 'set_role' requires either 'set_access_duration' or 'set_unreg_date' */
-                    [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional((value) => value !== 'set_role' || actions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0),
-                    /* 'set_unreg_date' requires 'set_role' */
-                    [i18n.t('Action requires "Set Role".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_role').length > 0),
-                    /* 'set_unreg_date' restricts 'set_access_duration' */
-                    [i18n.t('Action conflicts with "Access duration".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_access_duration').length === 0)
-                  },
-                  value: {
-                    [i18n.t('Value required')]: required
-                  }
-                }
-              })
+              }
             }
           }
         })
@@ -2575,33 +2564,10 @@ export const validatorFields = {
               })
             },
             actions: {
+              ...pfActionValidators(authenticationRuleActions(form, meta), actions),
               ...{
                 [i18n.t('Action required')]: required
-              },
-              ...(actions || []).map((action) => {
-                return {
-                  type: {
-                    [i18n.t('Action required')]: required,
-                    /* prevent duplicates */
-                    [i18n.t('Duplicate action.')]: conditional((type) => actions.filter(action => action && action.type === type).length <= 1),
-                    /* 'set_access_duration' requires 'set_role' */
-                    [i18n.t('Action requires "Set Role".')]: conditional((value) => value !== 'set_access_duration' || actions.filter(action => action && action.type === 'set_role').length > 0),
-                    /* 'set_access_duration' restricts 'set_unreg_date' */
-                    [i18n.t('Action conflicts with "Unregistration date".')]: conditional((value) => value !== 'set_access_duration' || actions.filter(action => action && action.type === 'set_unreg_date').length === 0),
-                    /* `set_access_durations' requires 'mark_as_sponsor' */
-                    [i18n.t('Action requires "Mark as sponsor".')]: conditional((value) => value !== 'set_access_durations' || actions.filter(action => action && action.type === 'mark_as_sponsor').length > 0),
-                    /* 'set_role' requires either 'set_access_duration' or 'set_unreg_date' */
-                    [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional((value) => value !== 'set_role' || actions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0),
-                    /* 'set_unreg_date' requires 'set_role' */
-                    [i18n.t('Action requires "Set Role".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_role').length > 0),
-                    /* 'set_unreg_date' restricts 'set_access_duration' */
-                    [i18n.t('Action conflicts with "Access duration".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_access_duration').length === 0)
-                  },
-                  value: {
-                    [i18n.t('Value required')]: required
-                  }
-                }
-              })
+              }
             }
           }
         })

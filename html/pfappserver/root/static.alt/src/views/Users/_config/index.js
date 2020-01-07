@@ -2,7 +2,10 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
-import { pfActions } from '@/globals/pfActions'
+import {
+  pfActions,
+  pfActionValidators
+} from '@/globals/pfActions'
 import {
   pfDatabaseSchema,
   buildValidatorsFromColumnSchemas,
@@ -28,7 +31,7 @@ import {
 
 import { format } from 'date-fns'
 
-export const actions = [
+export const userActions = [
   pfActions.set_access_duration_by_acl_user,
   pfActions.set_access_level_by_acl_user,
   pfActions.mark_as_sponsor,
@@ -37,36 +40,6 @@ export const actions = [
   pfActions.set_tenant_id,
   pfActions.set_unreg_date_by_acl_user
 ]
-
-export const actionValidators = (form = {}) => {
-  const {
-    actions = []
-  } = form
-  return {
-    $each: {
-      type: {
-        [i18n.t('Action required')]: required,
-        /* prevent duplicates */
-        [i18n.t('Duplicate action.')]: conditional((type) => actions.filter(action => action && action.type === type).length <= 1),
-        /* 'set_access_duration' requires 'set_role' */
-        [i18n.t('Action requires "Set Role".')]: conditional((value) => value !== 'set_access_duration' || actions.filter(action => action && action.type === 'set_role').length > 0),
-        /* 'set_access_duration' restricts 'set_unreg_date' */
-        [i18n.t('Action conflicts with "Unregistration date".')]: conditional((value) => value !== 'set_access_duration' || actions.filter(action => action && action.type === 'set_unreg_date').length === 0),
-        /* `set_access_durations' requires 'mark_as_sponsor' */
-        [i18n.t('Action requires "Mark as sponsor".')]: conditional((value) => value !== 'set_access_durations' || actions.filter(action => action && action.type === 'mark_as_sponsor').length > 0),
-        /* 'set_role' requires either 'set_access_duration' or 'set_unreg_date' */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional((value) => value !== 'set_role' || actions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0),
-        /* 'set_unreg_date' requires 'set_role' */
-        [i18n.t('Action requires "Set Role".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_role').length > 0),
-        /* 'set_unreg_date' restricts 'set_access_duration' */
-        [i18n.t('Action conflicts with "Access duration".')]: conditional((value) => value !== 'set_unreg_date' || actions.filter(action => action && action.type === 'set_access_duration').length === 0)
-      },
-      value: {
-        [i18n.t('Value required')]: required
-      }
-    }
-  }
-}
 
 export const passwordOptions = {
   pwlength: 8,
@@ -140,6 +113,7 @@ export const createValidators = (form = {}) => {
       quantity = 0
     } = {},
     common: {
+      actions = [],
       valid_from,
       expiration
     } = {}
@@ -190,13 +164,14 @@ export const createValidators = (form = {}) => {
         [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
         [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
       },
-      actions: actionValidators(form.common)
+      actions: pfActionValidators(userActions, actions)
     }
   }
 }
 
 export const updateValidators = (form = {}) => {
   const {
+    actions = [],
     expiration,
     valid_from
   } = form
@@ -220,7 +195,7 @@ export const updateValidators = (form = {}) => {
       psk: {
         [i18n.t('Minimum 8 characters.')]: minLength(8)
       },
-      actions: (hasPassword) ? actionValidators(form) : {}
+      actions: (hasPassword) ? pfActionValidators(userActions, actions) : {}
     }
   )
 }
@@ -233,6 +208,7 @@ export const importForm = {
 
 export const importValidators = (form = {}) => {
   const {
+    actions = [],
     expiration,
     valid_from
   } = form
@@ -247,7 +223,7 @@ export const importValidators = (form = {}) => {
       [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
       [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
     },
-    actions: actionValidators(form)
+    actions: pfActionValidators(userActions, actions)
   }
 }
 

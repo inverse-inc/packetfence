@@ -258,7 +258,7 @@ import {
 } from '@/globals/pfField'
 import {
   createForm, createValidators,
-  actions,
+  userActions,
   passwordOptions
 } from '../_config/'
 
@@ -290,7 +290,7 @@ export default {
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
-          fields: actions // ../_config/
+          fields: userActions // ../_config/
         }
       },
       passwordOptions, // ../_config/

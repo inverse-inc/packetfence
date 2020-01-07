@@ -236,7 +236,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  actions,
+  userActions,
   nodeFields,
   securityEventFields,
   updateValidators
@@ -283,7 +283,7 @@ export default {
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
-          fields: actions // ../_config/
+          fields: userActions // ../_config/
         }
       },
       genders: pfFieldTypeValues[pfFieldType.GENDER](),

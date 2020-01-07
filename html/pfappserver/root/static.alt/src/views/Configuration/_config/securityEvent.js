@@ -334,8 +334,7 @@ export const validators = (form = {}, meta = {}) => {
           profiling: { conditions: profilingConditions } = {},
           event: {
             typeValue: {
-              type: eventType,
-              value: eventValue
+              type: eventType
             } = {}
           } = {}
         } = trigger || {}
@@ -343,7 +342,7 @@ export const validators = (form = {}, meta = {}) => {
           endpoint: {
             conditions: {
               ...(endpointConditions || []).map(condition => {
-                const { type, value } = condition || {}
+                const { type } = condition || {}
                 return {
                   type: {
                     [i18n.t('Type required.')]: required,
@@ -365,7 +364,7 @@ export const validators = (form = {}, meta = {}) => {
           profiling: {
             conditions: {
               ...(profilingConditions || []).map(condition => {
-                const { type, value } = condition || {}
+                const { type } = condition || {}
                 return {
                   type: {
                     [i18n.t('Type required.')]: required,
@@ -543,7 +542,7 @@ export const triggerIntervals = {
   Y: i18n.t('Year')
 }
 
-const decomposeTriggers = (triggers) => {
+export const decomposeTriggers = (triggers) => {
   return (triggers || []).map(trigger => {
     let decomposed = { endpoint: { conditions: [] }, profiling: { conditions: [] }, usage: {}, event: {} }
     for (const type in trigger) {
@@ -551,7 +550,6 @@ const decomposeTriggers = (triggers) => {
       if (value && value.length) {
         if (type in triggerFields) {
           let { [type]: { category } = {} } = triggerFields
-          let condition = { typeValue: { type, value } }
           if ('conditions' in decomposed[category]) {
             decomposed[category].conditions.push({ type, value }) // 'endpoint' or 'profiling'
           } else {
@@ -575,7 +573,7 @@ const decomposeTriggers = (triggers) => {
   })
 }
 
-const recomposeTriggers = (triggers) => {
+export const recomposeTriggers = (triggers) => {
   return (triggers || []).map(trigger => {
     let recomposed = Object.keys(triggerFields).reduce((a, v) => {
       return { ...a, ...{ [v]: null } }
@@ -743,7 +741,7 @@ export const triggerProfilingView = (form = {}, meta = {}) => {
 }
 
 export const triggerUsageView = (form = {}, meta = {}) => {
-    return [
+  return [
     {
       tab: null, // ignore tabs
       rows: [
@@ -874,5 +872,3 @@ export const triggerEventView = (form = {}, meta = {}) => {
     }
   ]
 }
-
-

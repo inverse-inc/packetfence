@@ -2,21 +2,20 @@ import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   isDateFormat,
-  requireAllSiblingFields,
-  requireAnySiblingFields,
-  restrictAllSiblingFields,
-  limitSiblingFields,
   isValidUnregDateByAclUser
 } from '@/globals/pfValidators'
 import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
-const {
+import {
+  conditional
+} from '@/globals/pfValidators'
+import {
   maxValue,
   minValue,
   numeric,
   required,
   url
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
 export const pfActionsFromMeta = (meta = {}, key = null) => {
   let fields = []
@@ -47,15 +46,90 @@ export const pfActionsFromMeta = (meta = {}, key = null) => {
   return fields
 }
 
+export const pfActionValidators = (pfActions = [], formActions = []) => {
+  return {
+    ...(formActions || []).map((action) => {
+      const { type, value } = action || {}
+      return {
+        type: {
+          ...((type)
+            ? {
+              // prevent duplicates
+              [i18n.t('Duplicate action.')]: conditional((type) => formActions.filter(action => action && action.type === type).length <= 1)
+            }
+            : {
+              // `type` is required
+              [i18n.t('Action required')]: required
+            }
+          ),
+          ...((type === 'no_action')
+            ? {
+              // prevent extras w/ 'no_action'
+              [i18n.t('No other action must be defined.')]: conditional(() => formActions.filter(action => action && action.type !== 'no_action').length === 0)
+            }
+            : {/* noop */}
+          ),
+          ...((type === 'set_access_duration')
+            ? {
+                // 'set_access_duration' requires 'set_role'
+                [i18n.t('Action requires "Set Role".')]: conditional(() => formActions.filter(action => action && action.type === 'set_role').length > 0),
+                // 'set_access_duration' restricts 'set_unreg_date'
+                [i18n.t('Action conflicts with "Unregistration date".')]: conditional(() => formActions.filter(action => action && action.type === 'set_unreg_date').length === 0)
+              }
+            : {/* noop */}
+          ),
+          ...((type === 'set_access_durations')
+            ? {
+              // `set_access_durations' requires 'mark_as_sponsor'
+              [i18n.t('Action requires "Mark as sponsor".')]: conditional(() => formActions.filter(action => action && action.type === 'mark_as_sponsor').length > 0)
+            }
+            : {/* noop */}
+          ),
+          ...((type === 'set_role')
+            ? {
+              // 'set_role' requires either 'set_access_duration' or 'set_unreg_date'
+              [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0)
+            }
+            : {/* noop */}
+          ),
+          ...((type === 'set_unreg_date')
+            ? {
+                // 'set_unreg_date' requires 'set_role'
+                [i18n.t('Action requires "Set Role".')]: conditional(() => formActions.filter(action => action && action.type === 'set_role').length > 0),
+                // 'set_unreg_date' restricts 'set_access_duration'
+                [i18n.t('Action conflicts with "Access duration".')]: conditional(() => formActions.filter(action => action && action.type === 'set_access_duration').length === 0)
+            }
+            : {/* noop */}
+          )
+        },
+        value: {
+          ...((value)
+            ? (() => {
+              let pfAction = pfActions.filter((pfAction) => pfAction.value === type)[0]
+              return ('validators' in pfAction)
+                ? pfAction.validators // dynamic `value` validators
+                : {}
+            })()
+            : {
+              // `value` required
+              [i18n.t('Value required')]: required
+            }
+          )
+        }
+      }
+    })
+  }
+}
+
 export const pfActions = {
   bandwidth_balance_from_source: {
     value: 'bandwidth_balance_from_source',
     text: i18n.t('Set the bandwidth balance from the auth source'),
     types: [fieldType.NONE]
   },
-  default_actions: {
-    value: 'default_actions',
-    text: i18n.t('Execute module default actions'),
+  default_formActions: {
+    value: 'default_formActions',
+    text: i18n.t('Execute module default formActions'),
     types: [fieldType.NONE]
   },
   destination_url: {
@@ -63,10 +137,7 @@ export const pfActions = {
     text: i18n.t('Destination URL'),
     types: [fieldType.URL],
     validators: {
-      value: {
-        [i18n.t('Value required.')]: required,
-        [i18n.t('Value must be a URL.')]: url
-      }
+      [i18n.t('Value must be a URL.')]: url
     }
   },
   on_failure: {
@@ -82,39 +153,17 @@ export const pfActions = {
   set_access_duration: {
     value: 'set_access_duration',
     text: i18n.t('Access duration'),
-    types: [fieldType.DURATION],
-    validators: {
-      type: {
-        /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_unreg_date" */
-        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date')
-      }
-    }
+    types: [fieldType.DURATION]
   },
   set_access_duration_by_acl_user: {
     value: 'set_access_duration',
     text: i18n.t('Access duration'),
-    types: [fieldType.DURATION_BY_ACL_USER],
-    validators: {
-      type: {
-        /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_unreg_date" */
-        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date')
-      }
-    }
+    types: [fieldType.DURATION_BY_ACL_USER]
   },
   set_access_durations: {
     value: 'set_access_durations',
     text: i18n.t('Sponsor access durations'),
-    types: [fieldType.DURATIONS],
-    validators: {
-      type: {
-        /* Require "mark_as_sponsor" */
-        [i18n.t('Action requires "Mark as sponsor".')]: requireAllSiblingFields('type', 'mark_as_sponsor')
-      }
-    }
+    types: [fieldType.DURATIONS]
   },
   set_access_level: {
     value: 'set_access_level',
@@ -131,11 +180,8 @@ export const pfActions = {
     text: i18n.t('Bandwidth balance'),
     types: [fieldType.PREFIXMULTIPLIER],
     validators: {
-      value: {
-        [i18n.t('Value required.')]: required,
-        [i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
-        [i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
-      }
+      [i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
+      [i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
     }
   },
   mark_as_sponsor: {
@@ -146,14 +192,8 @@ export const pfActions = {
   },
   no_action: {
     value: 'no_action',
-    text: i18n.t(`Don't do any action`),
-    types: [fieldType.NONE],
-    validators: {
-      type: {
-        /* Don't allow any other action */
-        [i18n.t('No other option must be defined.')]: limitSiblingFields([], 0)
-      }
-    }
+    text: i18n.t('Do not perform an action'),
+    types: [fieldType.NONE]
   },
   role_from_source: {
     value: 'role_from_source',
@@ -163,45 +203,24 @@ export const pfActions = {
   set_role: {
     value: 'set_role',
     text: i18n.t('Role'),
-    types: [fieldType.ROLE],
-    validators: {
-      type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date')
-      }
-    }
+    types: [fieldType.ROLE]
   },
   set_role_by_name: {
     value: 'set_role',
     text: i18n.t('Role'),
-    types: [fieldType.ROLE_BY_NAME],
-    validators: {
-      type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date')
-      }
-    }
+    types: [fieldType.ROLE_BY_NAME]
   },
   set_role_by_acl_user: {
     value: 'set_role',
     text: i18n.t('Role'),
-    types: [fieldType.ROLE_BY_ACL_USER],
-    validators: {
-      type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date')
-      }
-    }
+    types: [fieldType.ROLE_BY_ACL_USER]
   },
   set_tenant_id: {
     value: 'set_tenant_id',
     text: i18n.t('Tenant ID'),
     types: [fieldType.TENANT],
     validators: {
-      value: {
-        [i18n.t('Value required.')]: required,
-        [i18n.t('Value must be numeric.')]: numeric
-      }
+      [i18n.t('Value must be numeric.')]: numeric
     }
   },
   set_time_balance: {
@@ -219,15 +238,7 @@ export const pfActions = {
      */
     types: [fieldType.SUBSTRING],
     validators: {
-      type: {
-        /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_access_duration" */
-        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFields('type', 'set_access_duration')
-      },
-      value: {
-        [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD')
-      }
+      [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD')
     }
   },
   set_unreg_date_by_acl_user: {
@@ -240,17 +251,9 @@ export const pfActions = {
      */
     types: [fieldType.SUBSTRING],
     validators: {
-      type: {
-        /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_access_duration" */
-        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFields('type', 'set_access_duration')
-      },
-      value: {
-        [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD'),
-        /* Limit maximum date w/ current user ACL */
-        [i18n.t('Date exceeds maximum allowed by current user.')]: isValidUnregDateByAclUser('YYYY-MM-DD')
-      }
+      [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD'),
+      /* Limit maximum date w/ current user ACL */
+      [i18n.t('Date exceeds maximum allowed by current user.')]: isValidUnregDateByAclUser('YYYY-MM-DD')
     }
   },
   time_balance_from_source: {

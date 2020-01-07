@@ -144,7 +144,7 @@ import UsersPreviewModal from './UsersPreviewModal'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import password from '@/utils/password'
 import {
-  actions,
+  userActions,
   passwordOptions,
   importFields,
   importForm, importValidators
@@ -181,7 +181,7 @@ export default {
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
-          fields: actions // ../_config/
+          fields: userActions // ../_config/
         }
       },
       isLoading: false,

@@ -9,7 +9,10 @@ import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import { pfActionsFromMeta } from '@/globals/pfActions'
+import {
+  pfActionsFromMeta,
+  pfActionValidators
+} from '@/globals/pfActions'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   pfConfigurationAttributesFromMeta,
@@ -1013,17 +1016,7 @@ export const validatorFields = {
       actions = []
     } = form
     return {
-      actions: {
-        $each: {
-          type: {
-            [i18n.t('Action required.')]: required,
-            [i18n.t('Duplicate action.')]: conditional((value) => !(actions.filter(action => action && action.type === value).length > 1))
-          },
-          value: {
-            [i18n.t('Value required.')]: required
-          }
-        }
-      }
+      actions: pfActionValidators(pfActionsFromMeta(meta, 'actions.type'), actions)
     }
   },
   admin_role: (form = {}, meta = {}) => {

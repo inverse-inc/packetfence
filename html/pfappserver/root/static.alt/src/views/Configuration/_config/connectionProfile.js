@@ -24,8 +24,7 @@ import {
   hasConnectionProfiles,
   connectionProfileExists,
   isMacAddress,
-  isPort,
-  limitSiblingFields
+  isPort
 } from '@/globals/pfValidators'
 import {
   required,
