@@ -3,6 +3,10 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import {
+  decomposeTriggers,
+  recomposeTriggers
+} from '../_config/securityEvent'
 
 const types = {
   LOADING: 'loading',
@@ -59,6 +63,9 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.securityEvent(id).then(item => {
+      if ('triggers' in item) { // decompose security event triggers
+        item.triggers = decomposeTriggers(item.triggers)
+      }
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -68,6 +75,9 @@ const actions = {
   },
   createSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
+    if ('triggers' in data) { // recompose security event triggers
+      data.triggers = recomposeTriggers(data.triggers)
+    }
     return api.createSecurityEvent(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
@@ -78,6 +88,9 @@ const actions = {
   },
   updateSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
+    if ('triggers' in data) { // recompose security event triggers
+      data.triggers = recomposeTriggers(data.triggers)
+    }
     return api.updateSecurityEvent(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response

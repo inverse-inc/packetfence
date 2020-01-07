@@ -41,7 +41,7 @@ const actions = {
         commit('SAVED_SEARCH_SUCCESS')
         return state.cache[namespace]
       }
-    } else if (Object.keys(state.cache).length == 0) {
+    } else if (Object.keys(state.cache).length === 0) {
       // Load all saved searches from preferences
       const namespacePrefix = `${PREFERENCES_IDENTIFIER_PREFIX}${IDENTIFIER_PREFIX}`
       return store.dispatch('preferences/all').then(items => {

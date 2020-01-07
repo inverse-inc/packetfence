@@ -37,10 +37,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
-
-import {
-  pfConfigurationFingerbankCombinationsListConfig as config
-} from '@/globals/configuration/pfConfigurationFingerbank'
+import { config } from '../_config/fingerbank/combination'
 
 export default {
   name: 'fingerbank-combinations-list',
@@ -49,13 +46,6 @@ export default {
     pfConfigList,
     pfEmptyTable,
     pfFingerbankScore
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -68,14 +58,14 @@ export default {
       this.$router.push({ name: 'cloneFingerbankCombination', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteCombination`, item.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteCombination', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
     }
   },
   created () {
-    this.$store.dispatch(`${this.storeName}/combinations`).then(data => {
+    this.$store.dispatch('$_fingerbank/combinations').then(data => {
       this.data = data
     })
   }

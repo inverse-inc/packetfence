@@ -21,7 +21,7 @@ export class pfEnum extends pfDatabaseSchemaType {}
 export class pfEmail extends pfDatabaseSchemaType {}
 export class pfMac extends pfDatabaseSchemaType {}
 
-export const buildValidationFromTableSchemas = (...tableSchemas) => {
+export const buildValidatorsFromTableSchemas = (...tableSchemas) => {
   let validation = {}
   for (var tableSchema of tableSchemas) {
     for (let [columnKey, columnSchema] of Object.entries(tableSchema)) {
@@ -31,7 +31,7 @@ export const buildValidationFromTableSchemas = (...tableSchemas) => {
         //   Create vuelidate struct from one or more tableSchema(s).
         //   Columns are not unique since more than one tableSchema can utilize the same key(s).
         //   We will overwrite each key (if more than one exists) instead of merging (overloading).
-        validation[columnKey] = buildValidationFromColumnSchemas(columnSchema)
+        validation[columnKey] = buildValidatorsFromColumnSchemas(columnSchema)
       } else {
         // Manual definition:
         //   Create vuelidate struct from one or more direct definitions.
@@ -44,7 +44,7 @@ export const buildValidationFromTableSchemas = (...tableSchemas) => {
   return validation
 }
 
-export const buildValidationFromColumnSchemas = (...columnSchemas) => {
+export const buildValidatorsFromColumnSchemas = (...columnSchemas) => {
   let validation = {}
   for (let columnSchema of columnSchemas) {
     // eslint-disable-next-line

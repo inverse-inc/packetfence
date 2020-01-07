@@ -208,11 +208,6 @@ export default {
     pfFormUpload
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     id: { // from router
       type: String,
       default: 'http'
@@ -284,10 +279,10 @@ export default {
       return ['http', 'radius'].indexOf(this.id)
     },
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_certificates/isLoading']
     },
     isTestingLetsEncrypt () {
-      return this.$store.getters[`${this.storeName}/isTesting`]
+      return this.$store.getters['$_certificates/isTesting']
     },
     csrModalTitle () {
       if (this.sortedCerts.length > this.tabIndex) {
@@ -304,7 +299,7 @@ export default {
       return value === 'enabled'
     },
     edit (id) {
-      this.$store.dispatch(`${this.storeName}/getCertificate`, id).then(certificate => {
+      this.$store.dispatch('$_certificates/getCertificate', id).then(certificate => {
         const c = { ...{ common_name: '', check_chain: 'enabled', lets_encrypt: false }, ...certificate }
         this.$set(this.certs, id, c)
         this.$set(this.editMode, id, true)
@@ -319,7 +314,7 @@ export default {
       }
     },
     testLetsEncrypt (id) {
-      this.$store.dispatch(`${this.storeName}/testLetsEncrypt`, this.certs[id].common_name).then(msg => {
+      this.$store.dispatch('$_certificates/testLetsEncrypt', this.certs[id].common_name).then(msg => {
         this.letsEncryptMsg = msg
         this.letsEncryptState = 'success'
       }).catch(err => {
@@ -336,15 +331,15 @@ export default {
     save (id) {
       let creationPromise
       if (this.certs[id].lets_encrypt) {
-        creationPromise = this.$store.dispatch(`${this.storeName}/createLetsEncryptCertificate`, this.certs[id])
+        creationPromise = this.$store.dispatch('$_certificates/createLetsEncryptCertificate', this.certs[id])
       } else {
         if (this.findIntermediateCAs) {
           delete this.certs[id].intermediate_cas
         }
-        creationPromise = this.$store.dispatch(`${this.storeName}/createCertificate`, this.certs[id])
+        creationPromise = this.$store.dispatch('$_certificates/createCertificate', this.certs[id])
       }
       creationPromise.then(() => {
-        this.$store.dispatch(`${this.storeName}/getCertificateInfo`, id).then(info => {
+        this.$store.dispatch('$_certificates/getCertificateInfo', id).then(info => {
           this.$set(this.info, id, info)
           this.editMode[id] = false // go back to certificate info
           this.isModified[id] = true
@@ -369,7 +364,7 @@ export default {
         }
       } else {
         this.csrForm.id = this.sortedCerts[this.tabIndex]
-        this.$store.dispatch(`${this.storeName}/generateCertificateSigningRequest`, this.csrForm).then(csr => {
+        this.$store.dispatch('$_certificates/generateCertificateSigningRequest', this.csrForm).then(csr => {
           this.csr = csr
           this.$nextTick(() => this.$refs.csr.$el.select())
         })
@@ -380,7 +375,7 @@ export default {
   mounted () {
     Promise.all(
       this.initCerts.map(id => {
-        return this.$store.dispatch(`${this.storeName}/getCertificateInfo`, id).then(info => {
+        return this.$store.dispatch('$_certificates/getCertificateInfo', id).then(info => {
           this.$set(this.certs, id, { check_chain: 'enabled', lets_encrypt: false, common_name: '', certificate: '', private_key: '' })
           this.$set(this.info, id, info)
         })

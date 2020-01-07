@@ -37,9 +37,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationWmiRuleListConfig as config
-} from '@/globals/configuration/pfConfigurationWmiRules'
+import { config } from '../_config/wmiRule'
 
 export default {
   name: 'wmi-rules-list',
@@ -49,16 +47,9 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/wmiRule
     }
   },
   methods: {
@@ -66,7 +57,7 @@ export default {
       this.$router.push({ name: 'cloneWmiRule', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteWmiRule`, item.id).then(response => {
+      this.$store.dispatch('$_wmi_rules/deleteWmiRule', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

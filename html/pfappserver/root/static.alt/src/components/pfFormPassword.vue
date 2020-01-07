@@ -1,8 +1,8 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="isValid()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
     class="pf-form-password" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group class="pf-form-password-input-group">
       <b-form-input
@@ -10,15 +10,12 @@
         v-bind="$attrs"
         ref="input"
         :type="type"
-        :state="isValid()"
+        :state="inputState"
         :disabled="disabled"
-        @input.native="validate()"
         @keyup.native="resetTest($event)"
-        @change.native="onChange($event)"
         @focus.native="focus = true"
         @blur.native="focus = false"
-      >
-      </b-form-input>
+      />
       <b-input-group-append>
         <b-button v-if="disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
         <b-button v-else-if="generate"
@@ -32,13 +29,20 @@
           </b-button>
         </b-button-group>
         <b-button-group v-if="!disabled" rel="prefixButtonGroup">
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || isValid() === false" tabindex="-1">
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.inputValue || !inputState" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
             <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
           </b-button>
-          <b-button class="input-group-text" @click="toggleVisibility()" @mouseover="startVisibility()" @mousemove="startVisibility()" @mouseout="stopVisibility()" :disabled="!this.value && this.type === 'password'" :pressed="showPassword" tabindex="-1"><icon name="eye"></icon></b-button>
+          <b-button-group
+            @click="toggleVisibility()"
+            @mouseover="startVisibility()"
+            @mousemove="startVisibility()"
+            @mouseout="stopVisibility()"
+          >
+            <b-button class="input-group-text" :disabled="!this.inputValue" :pressed="showPassword" tabindex="-1"><icon name="eye"></icon></b-button>
+          </b-button-group>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
@@ -80,14 +84,14 @@
 </template>
 
 <script>
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 import password from '@/utils/password'
 import uuidv4 from 'uuid/v4'
 
 export default {
   name: 'pf-form-password',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   props: {
     value: {
@@ -103,10 +107,6 @@ export default {
     text: {
       type: String,
       default: null
-    },
-    type: {
-      type: String,
-      default: 'password'
     },
     test: {
       type: Function,
@@ -150,11 +150,22 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return this.value
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
+    },
+    type () {
+      return (this.showPassword) ? 'text' : 'password'
     },
     mouseDown () {
       return this.$store.getters['events/mouseDown']
@@ -162,17 +173,12 @@ export default {
   },
   methods: {
     startVisibility () {
-      this.type = 'text'
+      this.showPassword = true
     },
     stopVisibility () {
-      this.type = (this.showPassword) ? 'text' : 'password'
+      this.showPassword = false
     },
     toggleVisibility () {
-      if (this.showPassword) {
-        this.type = 'password' // hide password
-      } else {
-        this.type = 'text' // show password
-      }
       this.showPassword = !this.showPassword
     },
     runTest () {
@@ -200,7 +206,6 @@ export default {
     resetTest (event) {
       this.testResult = null
       this.testMessage = null
-      this.onChange(event)
     },
     generatePassword () {
       this.inputValue = password.generate(this.options)

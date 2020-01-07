@@ -34,9 +34,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationAdminRoleListConfig as config
-} from '@/globals/configuration/pfConfigurationAdminRoles'
+import { config } from '../_config/adminRole'
 
 export default {
   name: 'admin-roles-list',
@@ -46,16 +44,9 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/adminRole
     }
   },
   methods: {
@@ -63,7 +54,7 @@ export default {
       this.$router.push({ name: 'cloneAdminRole', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteAdminRole`, item.id).then(response => {
+      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

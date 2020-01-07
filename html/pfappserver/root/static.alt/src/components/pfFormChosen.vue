@@ -1,15 +1,14 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
-    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
-      <multiselect
-        v-model="inputValue"
+      <multiselect ref="multiselect"
+        v-model="multiselectValue"
         v-bind="$attrs"
         v-on="forwardListeners"
-        ref="input"
         :allow-empty="allowEmpty"
         :clear-on-select="clearOnSelect"
         :disabled="disabled"
@@ -24,11 +23,8 @@
         :preserve-search="preserveSearch"
         :searchable="searchable"
         :show-labels="false"
-        :state="isValid()"
+        :state="inputState"
         :track-by="trackBy"
-        @change.native="onChange($event)"
-        @input.native="validate()"
-        @keyup.native.stop.prevent="onChange($event)"
         @search-change="onSearchChange($event)"
         @open="onFocus"
         @close="onBlur"
@@ -60,12 +56,12 @@
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import { createDebouncer } from 'promised-debounce'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-chosen',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     Multiselect
@@ -158,15 +154,35 @@ export default {
       default: 'value'
     }
   },
+  errorCaptured (err, vm, info) { // capture exceptions from vue-multiselect component
+    // eslint-disable-next-line
+    console.error(err)
+    return false // prevent error from propagating
+  },
   data () {
     return {
-      focus: false
+      isFocus: false
     }
   },
   computed: {
     inputValue: {
       get () {
-        const currentValue = this.value || ((this.multiple) ? [] : null)
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
+      },
+      set (newValue) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
+      }
+    },
+    multiselectValue: {
+      get () {
         if (this.collapseObject) {
           const options = (!this.groupValues)
             ? (this.options ? this.options : [])
@@ -175,20 +191,28 @@ export default {
               return options
             }, [])
           if (options.length === 0) { // no options
-            return (this.multiple)
-              ? [...new Set(currentValue.map(value => {
+            if (this.multiple) {
+              const currentValue = (Array.isArray(this.inputValue)) ? this.inputValue : []
+              return [...new Set(currentValue.map(value => {
                 return { [this.trackBy]: value, [this.label]: value }
               }))]
-              : { [this.trackBy]: currentValue, [this.label]: currentValue }
+            } else {
+              const currentValue = (this.inputValue) ? this.inputValue : null
+              return { [this.trackBy]: currentValue, [this.label]: currentValue }
+            }
           } else { // is options
-            return (this.multiple)
-              ? [...new Set(currentValue.map(value => {
+            if (this.multiple) {
+              const currentValue = (Array.isArray(this.inputValue)) ? this.inputValue : []
+              return [...new Set(currentValue.map(value => {
                 return options.find(option => option[this.trackBy] === value) || { [this.trackBy]: value, [this.label]: value }
               }))]
-              : options.find(option => option[this.trackBy] === currentValue) || { [this.trackBy]: currentValue, [this.label]: currentValue }
+            } else {
+              const currentValue = (this.inputValue) ? this.inputValue : null
+              return options.find(option => option[this.trackBy] === currentValue) || { [this.trackBy]: currentValue, [this.label]: currentValue }
+            }
           }
         }
-        return currentValue
+        return this.inputValue
       },
       set (newValue) {
         if (this.collapseObject) {
@@ -196,7 +220,7 @@ export default {
             ? [...new Set(newValue.map(value => value[this.trackBy]))]
             : (newValue && newValue[this.trackBy])
         }
-        this.$emit('input', newValue)
+        this.inputValue = newValue
       }
     },
     forwardListeners () {
@@ -205,12 +229,16 @@ export default {
     }
   },
   methods: {
+    focus () {
+      const { $refs: { multiselect: { $el } = {} } = {} } = this
+      $el.focus()
+    },
     onFocus (event) {
-      this.focus = true
+      this.isFocus = true
       this.onSearchChange(this.inputValue)
     },
     onBlur (event) {
-      this.focus = false
+      this.isFocus = false
       this.onSearchChange(this.inputValue)
     },
     onSearchChange (query) {
@@ -236,9 +264,9 @@ export default {
     }
   },
   watch: {
-    value: {
+    inputValue: {
       handler (a, b) {
-        this.onSearchChange(a) // prime the searchable cache with our current `value`
+        this.onSearchChange(a) // prime the searchable cache with our current `inputValue`
       },
       immediate: true
     }

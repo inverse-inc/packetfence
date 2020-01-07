@@ -21,10 +21,11 @@
         :values="{ checked: 'enabled', unchecked: 'disabled' }"
         :icons="{ checked: 'check', unchecked: 'times' }"
         :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+        :rightLabels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
         :disabled="isLoading"
         @input="toggleStatus(item, $event)"
         @click.stop.prevent
-      >{{ (item.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+      />
     </template>
     <template v-slot:cell(interval)="{ interval }">
       <template v-if="interval"><!-- TODO: Temporary workaround for issue #4902 -->
@@ -40,9 +41,7 @@ import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationMaintenanceTasksListConfig as config
-} from '@/globals/configuration/pfConfigurationMaintenanceTasks'
+import { config } from '../_config/maintenanceTask'
 
 export default {
   name: 'maintenance-tasks-list',
@@ -53,13 +52,6 @@ export default {
     pfEmptyTable,
     pfFormRangeToggle
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
       config: config(this)
@@ -67,17 +59,17 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_maintenance_tasks/isLoading']
     }
   },
   methods: {
     toggleStatus (item, newStatus) {
       switch (newStatus) {
         case 'enabled':
-          this.$store.dispatch(`${this.storeName}/enableMaintenanceTask`, item)
+          this.$store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item)
           break
         case 'disabled':
-          this.$store.dispatch(`${this.storeName}/disableMaintenanceTask`, item)
+          this.$store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item)
           break
       }
     }

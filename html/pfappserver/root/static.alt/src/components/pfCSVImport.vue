@@ -154,17 +154,16 @@
                   :disabled="isDisabled"
                   :multiple="isComponentType([componentType.SELECTMANY], staticMap)"
                   :options="getStaticMappingOptions(staticMap)"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
                   @input="staticMap.value = $event"
                   collapse-object
+                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
                 ></pf-form-chosen>
 
                 <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
                 ></pf-form-input>
 
                 <pf-form-datetime v-else-if="isComponentType([componentType.DATE], staticMap)"
@@ -172,8 +171,7 @@
                   :ref="staticMap.key"
                   :config="{format: 'YYYY-MM-DD'}"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
                 ></pf-form-datetime>
 
                 <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME], staticMap)"
@@ -181,16 +179,14 @@
                   :ref="staticMap.key"
                   :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
                 ></pf-form-datetime>
 
                 <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLIER], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
                 ></pf-form-prefix-multiplier>
 
                 <pf-form-toggle  v-else-if="isComponentType([componentType.TOGGLE], staticMap)"
@@ -198,15 +194,14 @@
                   :ref="staticMap.key"
                   :disabled="isDisabled"
                   :values="{checked: 'yes', unchecked: 'no'}"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
                 >{{ (staticMap.value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
 
                 <pf-form-input v-else
                   v-model="staticMap.value"
                   :ref="staticMap.key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
-                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
                 ></pf-form-input>
 
               </b-col>
@@ -704,18 +699,28 @@ export default {
         const index = this.fields.findIndex(field => field.value === key)
         if (index >= 0) {
           const field = this.fields[index]
-          for (const type of this.fields[index].types) {
+          for (const type of field.types) {
             if (type in fieldTypeValues) {
-             options.push(...fieldTypeValues[type](this))
+              options.push(...fieldTypeValues[type](this))
             }
           }
         }
       }
       return options
     },
-    getStaticMappingVuelidateValue (index) {
-      const { $v: { staticMapping: { [index]: { value = { $invalid: false } } = {} } = {} } = {} } = this
-      return value
+    getStaticMappingState (index) {
+      const { $v: { staticMapping: { [index]: { value: { $invalid = false } = {} } = {} } = {} } = {} } = this
+      return ($invalid) ? false : null
+    },
+    getStaticMappingInvalidFeedback (index, separator = ' ') {
+      const { $v: { staticMapping: { [index]: { value: $v } = {} } = {} } = {} } = this
+      let feedback = []
+      if ('$params' in $v) {
+        for (let validation of Object.keys($v.$params)) {
+          if (!$v[validation]) feedback.push(validation)
+        }
+      }
+      return feedback.join(separator).trim()
     },
     getImportMappingVuelidateFeedback () {
       let feedback = []

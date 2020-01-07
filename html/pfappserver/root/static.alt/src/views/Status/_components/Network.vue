@@ -570,7 +570,6 @@ export default {
         if (!liveMode) this.isLoading = false
         this.liveModeIntervalMs = Math.max(this.liveModeIntervalMs, performance.now() - start) // adjust polling interval
       })
-
     },
     onReset () {
       this.advancedCondition = this.defaultCondition

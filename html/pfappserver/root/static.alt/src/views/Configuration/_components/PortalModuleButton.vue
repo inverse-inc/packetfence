@@ -21,7 +21,7 @@
 
 <script>
 import { createDebouncer } from 'promised-debounce'
-import { pfConfigurationPortalModuleTypeName as moduleTypeName } from '@/globals/configuration/pfConfigurationPortalModules'
+import { moduleTypeName } from '@/views/Configuration/_config/portalModule'
 
 export default {
   name: 'portal-module-button',

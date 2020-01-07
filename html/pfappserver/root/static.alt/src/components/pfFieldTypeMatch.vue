@@ -1,5 +1,5 @@
 <template>
-  <b-form-row class="pf-field-type-match mx-0 mb-1 px-0" align-v="center"
+  <b-form-row class="pf-field-type-match mx-0 mb-1 px-0" align-v="center" no-gutters
     v-on="forwardListeners"
   >
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
@@ -7,76 +7,70 @@
     </b-col>
     <b-col cols="4" align-self="start">
 
-      <pf-form-chosen
-        v-model="localType"
+      <pf-form-chosen ref="type"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.type`"
         v-on="forwardListeners"
-        ref="localType"
         label="text"
         track-by="value"
         :placeholder="typeLabel"
         :options="fields"
-        :vuelidate="typeVuelidateModel"
-        :invalid-feedback="typeInvalidFeedback"
         :disabled="disabled"
         class="mr-1"
         collapse-object
-      ></pf-form-chosen>
+      />
 
     </b-col>
     <b-col cols="6" align-self="start" class="pl-1">
 
-      <pf-form-chosen v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
-        v-model="localMatch"
-        ref="localMatch"
+      <pf-form-chosen ref="match" v-if="isComponentType([componentType.SELECTONE, componentType.SELECTMANY])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.match`"
+        v-on="matchListeners"
+        v-bind="matchAttrs"
+        :multiple="isComponentType([componentType.SELECTMANY])"
+        :close-on-select="isComponentType([componentType.SELECTONE])"
+        :placeholder="matchPlaceholder"
+        :disabled="disabled"
+        :taggable="field.taggable"
+        :tag-placeholder="field.tagPlaceholder || $t('Click to add new option')"
         label="name"
         track-by="value"
-        :multiple="isComponentType([componentType.SELECTMANY])"
-        :disabled="disabled"
-        :options="options"
-        :placeholder="matchLabel"
-        :taggable="isComponentType([componentType.REALM, componentType.SSID])"
-        :tag-placeholder="$t('Click to add new option')"
-        :vuelidate="matchVuelidateModel"
-        :invalid-feedback="matchInvalidFeedback"
         collapse-object
         @tag="addUserTaggedOption"
-      ></pf-form-chosen>
+      />
 
-      <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME])"
-        v-model="localMatch"
-        ref="localMatch"
+      <pf-form-datetime ref="match" v-else-if="isComponentType([componentType.DATETIME])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.match`"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
-        :moments="moments"
-        :vuelidate="matchVuelidateModel"
-        :invalid-feedback="matchInvalidFeedback"
         :disabled="disabled"
-      ></pf-form-datetime>
+        :moments="matchMoments"
+        :placeholder="matchPlaceholder"
+      />
 
-      <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
-        v-model="localMatch"
-        ref="localMatch"
-        :vuelidate="matchVuelidateModel"
-        :invalid-feedback="matchInvalidFeedback"
+      <pf-form-prefix-multiplier ref="match" v-else-if="isComponentType([componentType.PREFIXMULTIPLER])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.match`"
         :disabled="disabled"
-      ></pf-form-prefix-multiplier>
+        :placeholder="matchPlaceholder"
+      />
 
-      <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING])"
-        v-model="localMatch"
-        ref="localMatch"
-        :vuelidate="matchVuelidateModel"
-        :invalid-feedback="matchInvalidFeedback"
+      <pf-form-input ref="match" v-else-if="isComponentType([componentType.SUBSTRING])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.match`"
         :disabled="disabled"
-      ></pf-form-input>
+        :placeholder="matchPlaceholder"
+      />
 
-      <pf-form-input v-else-if="isComponentType([componentType.INTEGER])"
-        v-model="localMatch"
-        ref="localMatch"
+      <pf-form-input ref="match" v-else-if="isComponentType([componentType.INTEGER])"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}.match`"
+        :disabled="disabled"
+        :placeholder="matchPlaceholder"
         type="number"
         step="1"
-        :vuelidate="matchVuelidateModel"
-        :invalid-feedback="matchInvalidFeedback"
-        :disabled="disabled"
-      ></pf-form-input>
+      />
 
     </b-col>
     <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
@@ -91,12 +85,12 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfMixinForm from '@/components/pfMixinForm'
 import {
   pfComponentType as componentType,
   pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
-import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'pf-field-type-match',
@@ -106,6 +100,9 @@ export default {
     pfFormInput,
     pfFormPrefixMultiplier
   },
+  mixins: [
+    pfMixinForm
+  ],
   props: {
     value: {
       type: Object,
@@ -121,11 +118,11 @@ export default {
       type: Array,
       default: () => { return [] }
     },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
-    },
     disabled: {
+      type: Boolean,
+      default: false
+    },
+    drag: {
       type: Boolean,
       default: false
     }
@@ -140,48 +137,17 @@ export default {
   computed: {
     inputValue: {
       get () {
-        if (!this.value || Object.keys(this.value).length === 0) {
-          // set default placeholder
-          this.$emit('input', JSON.parse(JSON.stringify(this.default))) // keep dereferenced
-          return this.default
-        }
-        return this.value
+        return { ...this.default, ...this.formStoreValue } // use FormStore
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        this.formStoreValue = newValue // use FormStore
       }
     },
-    localType: {
-      get () {
-        let type = (this.inputValue && 'type' in this.inputValue) ? this.inputValue.type : this.default.type
-        // check to see if `type` exists in our available fields
-        if (type && !this.fields.find(field => field.value === type)) {
-          // discard
-          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action type "{type}" is not valid, ignoring.', { type: type }) })
-          this.$set(this.inputValue, 'type', this.default.type) // clear `type`
-          this.$set(this.inputValue, 'match', this.default.match) // clear `value`
-          return null
-        }
-        return type
-      },
-      set (newType) {
-        this.$set(this.inputValue, 'type', newType || this.default.type)
-        this.$set(this.inputValue, 'match', this.default.match) // clear `value`
-        this.$set(this, 'userTaggedOption', null) // clear `userTaggedOption`
-        this.emitValidations()
-        this.$nextTick(() => { // wait until DOM updates with new type
-          this.focusMatch()
-        })
-      }
+    localType () {
+      return this.inputValue.type
     },
-    localMatch: {
-      get () {
-        return (this.inputValue && 'match' in this.inputValue) ? this.inputValue.match : this.default.match
-      },
-      set (newValue) {
-        this.$set(this.inputValue, 'match', newValue || this.default.match)
-        this.emitValidations()
-      }
+    localMatch () {
+      return this.inputValue.match
     },
     field () {
       if (this.localType) return this.fields.find(field => field.value === this.localType)
@@ -206,21 +172,21 @@ export default {
       }
       return options
     },
-    moments () {
-      if ('moments' in this.field) return this.field.moments
-      return []
+    matchAttrs () {
+      const { field: { attrs } = {}, options } = this
+      return attrs || { options }
     },
-    typeVuelidateModel () {
-      return this.getVuelidateModel('type')
+    matchListeners () {
+      const { field: { listeners } = {} } = this
+      return listeners || {}
     },
-    typeInvalidFeedback () {
-      return this.getInvalidFeedback('type')
+    matchMoments () {
+      const { field: { moments } = {} } = this
+      return moments || []
     },
-    matchVuelidateModel () {
-      return this.getVuelidateModel('match')
-    },
-    matchInvalidFeedback () {
-      return this.getInvalidFeedback('match')
+    matchPlaceholder () {
+      const { field: { placeholder } = {} } = this
+      return placeholder || null
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
@@ -229,43 +195,12 @@ export default {
   },
   methods: {
     isComponentType (componentTypes) {
-      if (this.localType) {
-        const index = this.fields.findIndex(field => field.value === this.localType)
-        if (index >= 0) {
-          const field = this.fields[index]
-          for (let t = 0; t < componentTypes.length; t++) {
-            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
-          }
+      if (this.field) {
+        for (let t = 0; t < componentTypes.length; t++) {
+          if (this.field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
         }
       }
       return false
-    },
-    getVuelidateModel (key = null) {
-      const { vuelidate: { [key]: model } } = this
-      return model || {}
-    },
-    getInvalidFeedback (key = null) {
-      let feedback = []
-      const vuelidate = this.getVuelidateModel(key)
-      if (vuelidate !== {} && key in vuelidate) {
-        Object.entries(vuelidate[key].$params).forEach(([k, v]) => {
-          if (vuelidate[key][k] === false) feedback.push(k.trim())
-        })
-      }
-      return feedback.join('<br/>')
-    },
-    buildLocalValidations () {
-      const { field } = this
-      if (field) {
-        const { validators } = field
-        if (validators) {
-          return validators
-        }
-      }
-      return { type: { [this.$i18n.t('Type required.')]: required } }
-    },
-    emitValidations () {
-      this.$emit('validations', this.buildLocalValidations())
     },
     focus () {
       if (this.localType) {
@@ -274,26 +209,35 @@ export default {
         this.focusType()
       }
     },
-    focusIndex (index = 0) {
-      const refs = Object.values(this.$refs)
-      if (index in refs) {
-        const { $refs: { input: { $el } } } = refs[index]
-        if ($el && 'focus' in $el) $el.focus()
-      }
-    },
     focusType () {
-      this.focusIndex(0)
+      const { $refs: { type: { focus = () => {} } = {} } = {} } = this
+      focus()
     },
     focusMatch () {
-      this.focusIndex(1)
+      const { $refs: { match: { focus = () => {} } = {} } = {} } = this
+      focus()
     },
     addUserTaggedOption (userTaggedOption) {
       this.userTaggedOption = { name: userTaggedOption, value: userTaggedOption }
       this.$set(this.inputValue, 'match', userTaggedOption)
     }
   },
-  created () {
-    this.emitValidations()
+  watch: {
+    localType: {
+      handler: function (a, b) {
+        if (!this.drag) { // don't focus when being dragged
+          const field = this.field
+          if (field && 'staticValue' in field) {
+            this.$set(this.formStoreValue, 'match', field.staticValue) // set static value
+          } else {
+            this.$set(this.formStoreValue, 'match', null) // clear value
+            this.$nextTick(() => {
+              this.focus()
+            })
+          }
+        }
+      }
+    }
   }
 }
 </script>

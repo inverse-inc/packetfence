@@ -1,4 +1,5 @@
 import store from '@/store'
+import FormStore from '@/store/base/form'
 import NodesView from '../'
 import NodesStore from '../_store'
 import UsersStore from '../../Users/_store'
@@ -40,7 +41,13 @@ const route = {
     {
       path: 'create',
       component: NodesCreate,
-      props: { storeName: '$_nodes' },
+      props: { formStoreName: 'formNodesCreate' },
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formNodesCreate) { // Register store module only once
+          store.registerModule('formNodesCreate', FormStore)
+        }
+        next()
+      },
       meta: {
         can: 'create nodes'
       }
@@ -48,7 +55,6 @@ const route = {
     {
       path: 'import',
       component: NodesImport,
-      props: { storeName: '$_nodes' },
       meta: {
         can: 'create nodes'
       }
@@ -57,8 +63,11 @@ const route = {
       path: '/node/:mac',
       name: 'node',
       component: NodeView,
-      props: (route) => ({ storeName: '$_nodes', mac: route.params.mac }),
+      props: (route) => ({ formStoreName: 'formNodeView', mac: route.params.mac }),
       beforeEnter: (to, from, next) => {
+        if (!store.state.formNodeView) { // Register store module only once
+          store.registerModule('formNodeView', FormStore)
+        }
         store.dispatch('$_nodes/getNode', to.params.mac).then(() => {
           next()
         })

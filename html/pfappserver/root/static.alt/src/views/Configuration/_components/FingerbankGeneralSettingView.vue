@@ -1,11 +1,9 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    @validations="formValidations = $event"
+    :view="view"
     @save="save"
   >
     <template v-slot:header>
@@ -32,8 +30,8 @@
       </template>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading" class="mr-1">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -48,23 +46,19 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonService from '@/components/pfButtonService'
 import {
-  pfConfigurationFingerbankGeneralSettingsViewFields as fields
-} from '@/globals/configuration/pfConfigurationFingerbank'
-
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/fingerbank/'
 
 export default {
   name: 'fingerbank-general-setting-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonService
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -72,29 +66,27 @@ export default {
   },
   data () {
     return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {},
       accountInfo: null
     }
   },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isGeneralSettingsLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/fingerbank/
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isGeneralSettingsWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_fingerbank/isGeneralSettingsLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     urlSSO () {
       if (this.accountInfo) {
@@ -110,18 +102,19 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/getAccountInfo`).then(info => {
+      this.$store.dispatch('$_fingerbank/getAccountInfo').then(info => {
         this.accountInfo = info
       })
-      this.$store.dispatch(`${this.storeName}/optionsGeneralSettings`).then(options => {
-        this.options = options
-        this.$store.dispatch(`${this.storeName}/getGeneralSettings`).then(form => {
-          this.form = form
-        })
+      this.$store.dispatch('$_fingerbank/optionsGeneralSettings').then(options => {
+        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
       })
+      this.$store.dispatch('$_fingerbank/getGeneralSettings').then(form => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+      })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     save () {
-      this.$store.dispatch(`${this.storeName}/setGeneralSettings`, this.form)
+      this.$store.dispatch('$_fingerbank/setGeneralSettings', this.form)
     }
   },
   created () {

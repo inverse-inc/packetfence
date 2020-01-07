@@ -33,9 +33,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationFloatingDeviceListConfig as config
-} from '@/globals/configuration/pfConfigurationFloatingDevices'
+import { config } from '../_config/floatingDevice'
 
 export default {
   name: 'floating-devices-list',
@@ -44,13 +42,6 @@ export default {
     pfButtonHelp,
     pfConfigList,
     pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -62,7 +53,7 @@ export default {
       this.$router.push({ name: 'cloneFloatingDevice', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteFloatingDevice`, item.id).then(response => {
+      this.$store.dispatch('$_floatingdevices/deleteFloatingDevice', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

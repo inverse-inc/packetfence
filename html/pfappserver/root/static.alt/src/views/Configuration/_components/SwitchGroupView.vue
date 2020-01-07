@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
     :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -28,8 +26,8 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
@@ -49,18 +47,15 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
-  pfConfigurationSwitchGroupViewFields as fields
-} from '@/globals/configuration/pfConfigurationSwitchGroups'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/switchGroup'
 
 export default {
   name: 'switch-group-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
@@ -68,7 +63,7 @@ export default {
     pfFormToggle
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -88,11 +83,7 @@ export default {
   },
   data () {
     return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {},
-      roles: [], // all roles,
-      advancedMode: false
+      roles: [] // all roles
     }
   },
   validations () {
@@ -101,20 +92,27 @@ export default {
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/switch
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_switch_groups/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
@@ -124,25 +122,35 @@ export default {
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
+    },
+    advancedMode: { // mutating this property will re-evaluate view() and validators()
+      get () {
+        const { meta: { advancedMode = false } = {} } = this
+        return advancedMode
+      },
+      set (newValue) {
+        this.$set(this.meta, 'advancedMode', newValue)
+      }
     }
   },
   methods: {
     init () {
+      this.$store.dispatch('$_switch_groups/options', this.id).then(options => {
+        const { meta = {} } = options
+        const { isNew, isClone, roles } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, roles } })
+        if (this.id) { // existing
+          this.$store.dispatch('$_switch_groups/getSwitchGroup', this.id).then(form => {
+            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+          })
+        } else { // new
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
+        }
+      })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
       this.$store.dispatch('$_roles/all').then(data => {
         this.roles = data
-      })
-      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        this.options = options
-        if (this.id) {
-          // existing
-          this.$store.dispatch(`${this.storeName}/getSwitchGroup`, this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
-          })
-        } else {
-          // new
-          this.form = defaults(options.meta) // set defaults
-        }
       })
     },
     close () {
@@ -153,7 +161,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createSwitchGroup`, this.form).then(response => {
+      this.$store.dispatch('$_switch_groups/createSwitchGroup', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -163,14 +171,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateSwitchGroup`, this.form).then(response => {
+      this.$store.dispatch('$_switch_groups/updateSwitchGroup', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteSwitchGroup`, this.id).then(response => {
+      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', this.id).then(response => {
         this.close()
       })
     }

@@ -3,24 +3,24 @@
 */
 import Vue from 'vue'
 import api from '../_api'
-import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
+import { pfActions } from '@/globals/pfActions'
 
 const inflateActions = (data) => {
   data.actions = []
   if (data.access_duration) {
-    data.actions.push({ type: pfConfigurationActions.set_access_duration.value, value: data.access_duration })
+    data.actions.push({ type: pfActions.set_access_duration.value, value: data.access_duration })
   }
   if (data.access_level) {
-    data.actions.push({ type: pfConfigurationActions.set_access_level.value, value: data.access_level })
+    data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level })
   }
   if (data.can_sponsor && parseInt(data.can_sponsor)) {
-    data.actions.push({ type: pfConfigurationActions.mark_as_sponsor.value, value: data.can_sponsor })
+    data.actions.push({ type: pfActions.mark_as_sponsor.value, value: data.can_sponsor })
   }
   if (data.category) {
-    data.actions.push({ type: pfConfigurationActions.set_role.value, value: data.category })
+    data.actions.push({ type: pfActions.set_role.value, value: data.category })
   }
   if (data.unregdate !== '0000-00-00 00:00:00') {
-    data.actions.push({ type: pfConfigurationActions.set_unreg_date.value, value: data.unregdate })
+    data.actions.push({ type: pfActions.set_unreg_date.value, value: data.unregdate })
   }
 }
 
@@ -36,19 +36,19 @@ const deflateActions = (data) => {
 
     actions.forEach(action => {
       switch (action.type) {
-        case pfConfigurationActions.set_access_duration.value:
+        case pfActions.set_access_duration.value:
           data.access_duration = action.value
           break
-        case pfConfigurationActions.set_access_level.value:
+        case pfActions.set_access_level.value:
           data.access_level = action.value
           break
-        case pfConfigurationActions.mark_as_sponsor.value:
+        case pfActions.mark_as_sponsor.value:
           data.sponsor = 1
           break
-        case pfConfigurationActions.set_role.value:
+        case pfActions.set_role.value:
           data.category = action.value
           break
-        case pfConfigurationActions.set_unreg_date.value:
+        case pfActions.set_unreg_date.value:
           data.unregdate = action.value
           break
         default:
@@ -108,11 +108,14 @@ const actions = {
       commit('USER_DESTROYED', pid)
     }
     commit('USER_REQUEST')
-    dispatch('getUser', pid).then(() => {
-      commit('USER_SUCCESS')
-    }).catch(err => {
-      commit('USER_ERROR', err.response)
-      return err
+    return new Promise((resolve, reject) => {
+      dispatch('getUser', pid).then(() => {
+        commit('USER_SUCCESS')
+        resolve(state.users[pid])
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
     })
   },
   getUser: ({ commit, state }, pid) => {
@@ -131,7 +134,7 @@ const actions = {
       api.securityEvents(pid).then(datas => {
         commit('USER_UPDATED', { pid, prop: 'security_events', data: datas })
       })
-      return JSON.parse(JSON.stringify(state.users[pid]))
+      return state.users[pid]
     }).catch(err => {
       commit('USER_ERROR', err.response)
       return err

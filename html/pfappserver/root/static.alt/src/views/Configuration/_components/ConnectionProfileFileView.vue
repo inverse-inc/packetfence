@@ -48,7 +48,7 @@
           <ace-editor v-model="content" theme="cobalt" lang="html" :height="editorHeight" @init="initEditor"></ace-editor>
         </div>
       </div>
-      <b-card-footer @mouseenter="isNew && $v.newFilename.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
@@ -82,7 +82,7 @@ export default {
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -118,7 +118,7 @@ export default {
       required,
       isFilenameWithExtension: isFilenameWithExtension(['html', 'mjml']),
       isUnique (value) {
-        return this.$store.dispatch(`${this.storeName}/getFile`, {
+        return this.$store.dispatch('$_connection_profiles/getFile', {
           id: this.id,
           filename: [this.filename, this.newFilename].join('/'),
           quiet: true
@@ -133,7 +133,7 @@ export default {
       return p
     },
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoadingFiles`]
+      return this.$store.getters['$_connection_profiles/isLoadingFiles']
     },
     validFilename () {
       return this.$v.newFilename.$dirty ? !this.$v.newFilename.$invalid : null
@@ -165,7 +165,7 @@ export default {
       this.$router.push({ name: 'connectionProfileFiles', params: { id: this.id } })
     },
     init () {
-      return this.$store.dispatch(`${this.storeName}/getFile`, { id: this.id, filename: this.filename }).then(data => {
+      return this.$store.dispatch('$_connection_profiles/getFile', { id: this.id, filename: this.filename }).then(data => {
         this.content = data.content
         this.deletable = !data.meta.not_deletable
         this.revertible = !data.meta.not_revertible
@@ -206,7 +206,7 @@ export default {
         content: this.content
       }
       if (this.isNew) params.filename += '/' + this.newFilename
-      this.$store.dispatch(`${this.storeName}/${action}File`, params).then(response => {
+      this.$store.dispatch(`$_connection_profiles/${action}File`, params).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -222,7 +222,7 @@ export default {
       })
     },
     remove ($event, close) {
-      this.$store.dispatch(`${this.storeName}/deleteFile`, { id: this.id, filename: this.filename }).then(response => {
+      this.$store.dispatch('$_connection_profiles/deleteFile', { id: this.id, filename: this.filename }).then(response => {
         if (close) {
           this.close()
         } else {

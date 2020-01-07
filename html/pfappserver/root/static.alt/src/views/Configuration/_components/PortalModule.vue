@@ -9,7 +9,7 @@
         <draggable v-model="children" :options="{ group: { name: path, pull: path, put: ['portal-module', path] } }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
           @start="dragging = true" @end="dragging = false">
           <portal-module v-for="(mid, i) in children" :key="mid"
-            :id="mid" :parents="childParents" :modules="modules" :storeName="storeName" :level="level + 1" :index="i" :last="i + 1 === children.length" />
+            :id="mid" :parents="childParents" :modules="modules" :level="level + 1" :index="i" :last="i + 1 === children.length" />
         </draggable>
       </b-col>
     </b-row>
@@ -17,7 +17,7 @@
     <draggable class="row row-nowrap portal-module-row align-items-center" :class="{ first: index === 0 && !last, last: last }" v-if="!isRoot && children && isChained" v-model="children" :options="{ group: { name: path, pull: path, put: ['portal-module', path] } }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
       @start="dragging = true" @end="dragging = false">
       <div v-for="(mid, i) in children" :key="mid" :class="{ 'col portal-module-col': (i > 0), dragging: dragging }">
-        <portal-module :id="mid" :parents="childParents" :modules="modules" :storeName="storeName" :level="level + i + 1" :first-in-chain="i === 0" :index="0" last />
+        <portal-module :id="mid" :parents="childParents" :modules="modules" :level="level + i + 1" :first-in-chain="i === 0" :index="0" last />
       </div>
     </draggable>
   </div>
@@ -34,11 +34,6 @@ export default {
     PortalModuleButton
   },
   props: {
-    storeName: {
-      type: String,
-      default: null,
-      required: true
-    },
     id: {
       type: String,
       default: null,

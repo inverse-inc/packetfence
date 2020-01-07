@@ -15,15 +15,14 @@
             </b-button-close>
             {{ file.name }}
           </template>
-          <pf-csv-import
-            :ref="'import-' + index"
+          <pf-csv-import :ref="'import-' + index"
             :file="file"
-            :fields="fields"
-            :store-name="storeName"
+            :fields="importFields"
             :default-static-mapping="defaultStaticMapping"
             :events-listen="tabIndex === index"
             :is-loading="isLoading"
             :import-promise="importPromise"
+            store-name="$_nodes"
             hover
             striped
           ></pf-csv-import>
@@ -54,20 +53,7 @@
 <script>
 import pfCSVImport from '@/components/pfCSVImport'
 import pfFormUpload from '@/components/pfFormUpload'
-import {
-  pfDatabaseSchema as schema,
-  buildValidationFromColumnSchemas
-} from '@/globals/pfDatabaseSchema'
-import { pfFieldType as fieldType } from '@/globals/pfField'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import {
-  required
-} from 'vuelidate/lib/validators'
-import {
-  categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
-  categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
-  userExists // validate user pid exists
-} from '@/globals/pfValidators'
+import { importFields } from '../_config/'
 
 export default {
   name: 'nodes-import',
@@ -75,123 +61,12 @@ export default {
     'pf-csv-import': pfCSVImport,
     pfFormUpload
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
       files: [],
       tabIndex: 0,
       defaultStaticMapping: [{ 'key': 'status', 'value': 'reg' }],
-      fields: [
-        {
-          value: 'mac',
-          text: this.$i18n.t('MAC Address'),
-          types: [fieldType.SUBSTRING],
-          required: true,
-          validators: buildValidationFromColumnSchemas(schema.node.mac, { required })
-        },
-        {
-          value: 'status',
-          text: this.$i18n.t('Status'),
-          types: [fieldType.NODE_STATUS],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.status)
-        },
-        {
-          value: 'autoreg',
-          text: this.$i18n.t('Auto Registration'),
-          types: [fieldType.YESNO],
-          required: false,
-          formatter: formatter.yesNoFromString,
-          validators: buildValidationFromColumnSchemas(schema.node.autoreg)
-        },
-        {
-          value: 'bandwidth_balance',
-          text: this.$i18n.t('Bandwidth Balance'),
-          types: [fieldType.PREFIXMULTIPLIER],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.bandwidth_balance)
-        },
-        {
-          value: 'bypass_role_id',
-          text: this.$i18n.t('Bypass Role'),
-          types: [fieldType.ROLE],
-          required: false,
-          formatter: formatter.categoryIdFromIntOrString,
-          validators: buildValidationFromColumnSchemas({
-            [this.$i18n.t('Role does not exist.')]: categoryIdNumberExists,
-            [this.$i18n.t('Role does not exist')]: categoryIdStringExists
-          })
-        },
-        {
-          value: 'bypass_vlan',
-          text: this.$i18n.t('Bypass VLAN'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.bypass_vlan)
-        },
-        {
-          value: 'computername',
-          text: this.$i18n.t('Computer Name'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.computername)
-        },
-        {
-          value: 'regdate',
-          text: this.$i18n.t('Datetime Registered'),
-          types: [fieldType.DATETIME],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.regdate)
-        },
-        {
-          value: 'unregdate',
-          text: this.$i18n.t('Datetime Unregistered'),
-          types: [fieldType.DATETIME],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.unregdate)
-        },
-        {
-          value: 'notes',
-          text: this.$i18n.t('Notes'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.notes)
-        },
-        {
-          value: 'pid',
-          text: this.$i18n.t('Owner'),
-          types: [fieldType.SUBSTRING],
-          required: false,
-          validators: buildValidationFromColumnSchemas(schema.node.pid, {
-            [this.$i18n.t('User does not exist.')]: userExists
-          })
-        },
-        {
-          value: 'category_id',
-          text: this.$i18n.t('Role'),
-          types: [fieldType.ROLE_BY_ACL_NODE],
-          required: false,
-          formatter: formatter.categoryIdFromIntOrString,
-          validators: buildValidationFromColumnSchemas({
-            [this.$i18n.t('Role does not exist.')]: categoryIdNumberExists,
-            [this.$i18n.t('Role does not exist.')]: categoryIdStringExists
-          })
-        },
-        {
-          value: 'voip',
-          text: this.$i18n.t('VoIP'),
-          types: [fieldType.YESNO],
-          required: false,
-          formatter: formatter.yesNoFromString,
-          validators: buildValidationFromColumnSchemas(schema.node.voip)
-        }
-      ],
+      importFields, // ../_config/
       isLoading: false
     }
   },
@@ -205,7 +80,7 @@ export default {
     },
     importPromise (payload, dryRun) {
       return new Promise((resolve, reject) => {
-        this.$store.dispatch(`${this.storeName}/bulkImport`, payload).then(result => {
+        this.$store.dispatch('$_nodes/bulkImport', payload).then(result => {
           // do something with the result, then Promise.resolve to continue processing
           resolve(result)
         }).catch(err => {

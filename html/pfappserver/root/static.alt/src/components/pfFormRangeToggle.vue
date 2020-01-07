@@ -1,8 +1,10 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
     class="pf-form-range-toggle" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
-    <b-input type="text" ref="vacuum" readonly :value="null" :disabled="disabled"
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+    </template>
+    <b-input type="text" ref="vacuum" :value="null" :disabled="disabled" readonly
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
       @blur.native="focus = false"
@@ -11,6 +13,7 @@
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
+        <span class="mr-2" v-if="leftLabel">{{ leftLabel }}</span>
         <input-range
           v-model="inputValue"
           v-on="forwardListeners"
@@ -18,19 +21,20 @@
           max="1"
           step="1"
           :color="color"
-          :label="label"
+          :label="innerLabel"
           :listenInput="false"
           :tooltip="Object.keys(tooltips).length > 0"
           :tooltipFunction="tooltip"
           :width="width"
           :disabled="disabled"
-          class="d-inline-block mr-2"
+          class="d-inline-block"
           tabIndex="-1"
           @click="click"
         >
           <icon v-if="icon" :name="icon"></icon>
         </input-range>
-        <slot/>
+        <span class="ml-2" v-if="rightLabel">{{ rightLabel }}</span>
+        <slot class="ml-2"/>
       </label>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -39,12 +43,12 @@
 
 <script>
 import InputRange from '@/components/InputRange'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-range-toggle',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     InputRange
@@ -91,7 +95,21 @@ export default {
         return (value.checked && value.unchecked)
       }
     },
-    labels: {
+    innerLabels: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.checked && value.unchecked)
+      }
+    },
+    leftLabels: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.checked && value.unchecked)
+      }
+    },
+    rightLabels: {
       type: Object,
       default: () => { return {} },
       validator (value) {
@@ -118,20 +136,32 @@ export default {
   computed: {
     inputValue: {
       get () {
-        switch (this.value) {
+        let value
+        if (this.formStoreName) {
+          value = this.formStoreValue // use FormStore
+        } else {
+          value = this.value // use native (v-model)
+        }
+        switch (value) {
           case this.values.checked:
             return 1
           default:
             return 0
         }
       },
-      set (newValue) {
+      set (newValue = null) {
+        let value
         switch (parseInt(newValue)) {
           case 1:
-            this.$emit('input', this.values.checked)
+            value = this.values.checked
             break
           default:
-            this.$emit('input', this.values.unchecked)
+            value = this.values.unchecked
+        }
+        if (this.formStoreName) {
+          this.formStoreValue = value // use FormStore
+        } else {
+          this.$emit('input', value) // use native (v-model)
         }
       }
     },
@@ -147,9 +177,17 @@ export default {
       if (this.icons === null) return null
       return (this.inputValue === 1) ? this.icons.checked : this.icons.unchecked
     },
-    label () {
-      if (this.labels === null) return null
-      return (this.inputValue === 1) ? this.labels.checked : this.labels.unchecked
+    innerLabel () {
+      if (this.innerLabels === null) return null
+      return (this.inputValue === 1) ? this.innerLabels.checked : this.innerLabels.unchecked
+    },
+    leftLabel () {
+      if (this.leftLabels === null) return null
+      return (this.inputValue === 1) ? this.leftLabels.checked : this.leftLabels.unchecked
+    },
+    rightLabel () {
+      if (this.rightLabels === null) return null
+      return (this.inputValue === 1) ? this.rightLabels.checked : this.rightLabels.unchecked
     }
   },
   methods: {
@@ -181,13 +219,13 @@ export default {
           this.$set(this, 'inputValue', 1) // set index 1
           return
       }
-      if (this.values.checked.charAt(0).toLowerCase() !== this.values.unchecked.charAt(0).toLowerCase()) {
+      if (this.values.checked.toString().charAt(0).toLowerCase() !== this.values.unchecked.toString().charAt(0).toLowerCase()) {
         // allow first character from value(s)
         switch (String.fromCharCode(event.keyCode).toLowerCase()) {
-          case this.values.unchecked.charAt(0).toLowerCase():
+          case this.values.unchecked.toString().charAt(0).toLowerCase():
             this.$set(this, 'inputValue', 0) // set index 0
             break
-          case this.values.checked.charAt(0).toLowerCase():
+          case this.values.checked.toString().charAt(0).toLowerCase():
             this.$set(this, 'inputValue', 1) // set index 1
             break
         }
@@ -199,12 +237,17 @@ export default {
 
 <style lang="scss">
 @keyframes animateCursor {
-  0%, 100% { background-color: rgba(0, 0, 0, 1); }
-  10%, 90% { background-color: rgba(0, 0, 0, 0.8); }
-  20%, 80% { background-color: rgba(0, 0, 0, 0.6); }
-  30%, 70% { background-color: rgba(0, 0, 0, 0.4); }
-  40%, 60% { background-color: rgba(0, 0, 0, 0.2); }
-  50% { background-color: rgba(0, 0, 0, 0); }
+  0%, 100% { background-color: rgba(255, 255, 255, 1); }
+  5%, 95% { background-color: rgba(255, 255, 255, 0.9); }
+  10%, 90% { background-color: rgba(255, 255, 255, 0.8); }
+  15%, 85% { background-color: rgba(255, 255, 255, 0.7); }
+  20%, 80% { background-color: rgba(255, 255, 255, 0.6); }
+  25%, 75% { background-color: rgba(255, 255, 255, 0.5); }
+  30%, 70% { background-color: rgba(255, 255, 255, 0.4); }
+  35%, 65% { background-color: rgba(255, 255, 255, 0.3); }
+  40%, 60% { background-color: rgba(255, 255, 255, 0.2); }
+  45%, 55% { background-color: rgba(255, 255, 255, 0.1); }
+  50% { background-color: rgba(255, 255, 255, 0); }
 }
 
 .pf-form-range-toggle {

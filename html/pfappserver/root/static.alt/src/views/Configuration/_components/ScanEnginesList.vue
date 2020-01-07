@@ -39,9 +39,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationScanEngineListConfig as config
-} from '@/globals/configuration/pfConfigurationScans'
+import { config } from '../_config/scanEngine'
 
 export default {
   name: 'scan-engines-list',
@@ -51,16 +49,9 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/scanEngine
     }
   },
   methods: {
@@ -68,7 +59,7 @@ export default {
       this.$router.push({ name: 'cloneScanEngine', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteScanEngine`, item.id).then(response => {
+      this.$store.dispatch('$_scans/deleteScanEngine', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

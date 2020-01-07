@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
     :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -24,8 +22,8 @@
       <b-badge class="ml-2" variant="secondary" v-t="'local'"></b-badge>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
@@ -44,22 +42,19 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationFingerbankUserAgentViewFields as fields
-} from '@/globals/configuration/pfConfigurationFingerbank'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/fingerbank/userAgent'
 
 export default {
   name: 'fingerbank-user-agent-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -77,32 +72,28 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {} // will be overloaded with data from the pfConfigView
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isUserAgentsLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/fingerbank/device
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isUserAgentsWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_fingerbank/isUserAgentsLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
@@ -116,13 +107,18 @@ export default {
   },
   methods: {
     init () {
+      const { isNew, isClone } = this
+      this.$store.dispatch(`${this.formStoreName}/setMeta`, { isNew, isClone })
       if (this.id) {
         // existing
-        this.$store.dispatch(`${this.storeName}/getUserAgent`, this.id).then(form => {
+        this.$store.dispatch('$_fingerbank/getUserAgent', this.id).then(form => {
           if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-          this.form = form
+          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
         })
+      } else {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, {})
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'fingerbankUserAgents' })
@@ -132,7 +128,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createUserAgent`, this.form).then(response => {
+      this.$store.dispatch('$_fingerbank/createUserAgent', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -142,14 +138,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateUserAgent`, this.form).then(response => {
+      this.$store.dispatch('$_fingerbank/updateUserAgent', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteUserAgent`, this.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteUserAgent', this.id).then(response => {
         this.close()
       })
     }

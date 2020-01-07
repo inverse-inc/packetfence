@@ -34,10 +34,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
-
-import {
-  pfConfigurationFingerbankUserAgentsListConfig as config
-} from '@/globals/configuration/pfConfigurationFingerbank'
+import { config } from '../_config/fingerbank/userAgent'
 
 export default {
   name: 'fingerbank-user-agents-list',
@@ -46,13 +43,6 @@ export default {
     pfConfigList,
     pfEmptyTable,
     pfFingerbankScore
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -65,14 +55,14 @@ export default {
       this.$router.push({ name: 'cloneFingerbankUserAgent', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteUserAgent`, item.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteUserAgent', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
     }
   },
   created () {
-    this.$store.dispatch(`${this.storeName}/userAgents`).then(data => {
+    this.$store.dispatch('$_fingerbank/userAgents').then(data => {
       this.data = data
     })
   }

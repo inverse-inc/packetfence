@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :form-store-name="formStoreName"
+    :is-loading="isLoading"
     :disabled="isLoading"
-    :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    :isNew="isNew"
-    :isClone="isClone"
-    @validations="setValidations($event)"
+    :is-deletable="isDeletable"
+    :is-new="isNew"
+    :is-clone="isClone"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -24,7 +22,7 @@
       <b-badge class="ml-2" variant="secondary" v-t="syslogParserType"></b-badge>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -44,25 +42,22 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
-  pfConfigurationSyslogParserViewFields as fields
-} from '@/globals/configuration/pfConfigurationSyslogParsers'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/syslogParser'
 
 export default {
   name: 'syslog-parser-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -86,29 +81,24 @@ export default {
   },
   data () {
     return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView,
-      dryRunResponseHtml: '', // will be overloaded with data from dryRun
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
+      dryRunResponseHtml: '' // will be overloaded with data from dryRun
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/trafficShapingPolicy
     },
     invalidForm () {
-      return this.$v.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_syslog_parsers/isLoading']
     },
     isDeletable () {
       if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
@@ -138,34 +128,37 @@ export default {
   },
   methods: {
     init () {
+      const { isNew, isClone, isDeletable, syslogParserType, dryRunTest, dryRunResponseHtml } = this
       if (this.id) {
         // existing
-        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = options
-          this.$store.dispatch(`${this.storeName}/getSyslogParser`, this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
+        this.$store.dispatch('$_syslog_parsers/optionsById', this.id).then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch('$_syslog_parsers/getSyslogParser', this.id).then(form => {
             this.syslogParserType = form.type
+            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, dryRunTest, dryRunResponseHtml, syslogParserType } })
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         })
       } else {
         // new
-        this.$store.dispatch(`${this.storeName}/optionsBySyslogParserType`, this.syslogParserType).then(options => {
-          this.options = options
-          this.form = defaults(options.meta) // set defaults
-          this.form.type = this.syslogParserType
+        this.$store.dispatch('$_syslog_parsers/optionsBySyslogParserType', syslogParserType).then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, dryRunTest, dryRunResponseHtml, syslogParserType } })
+          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), type: syslogParserType }) // set defaults
         })
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
-    close (event) {
+    close () {
       this.$router.push({ name: 'syslogParsers' })
     },
     clone () {
       this.$router.push({ name: 'cloneSyslogParser' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createSyslogParser`, this.form).then(response => {
+      this.$store.dispatch('$_syslog_parsers/createSyslogParser', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -173,37 +166,34 @@ export default {
         }
       })
     },
-    save (event) {
+    save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateSyslogParser`, this.form).then(response => {
+      this.$store.dispatch('$_syslog_parsers/updateSyslogParser', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (event) {
-      this.$store.dispatch(`${this.storeName}/deleteSyslogParser`, this.id).then(response => {
+    remove () {
+      this.$store.dispatch('$_syslog_parsers/deleteSyslogParser', this.id).then(() => {
         this.close()
       })
     },
-    setValidations (validations) {
-      this.$set(this, 'formValidations', validations)
-    },
-    dryRunTest (event) {
+    dryRunTest () {
       this.dryRunResponseHtml = null
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
       if ('lines' in form) {
         form.lines = form.lines.split('\n') // split lines by \n
       }
-      this.$store.dispatch(`${this.storeName}/dryRunSyslogParser`, form).then(response => {
+      this.$store.dispatch('$_syslog_parsers/dryRunSyslogParser', form).then(response => {
         let html = []
         html.push(`<h5>${this.$i18n.t('Results')}</h5>`)
         html.push('<pre>')
-        response.items.forEach((item, lIndex) => {
-          html.push(`<code>${this.$i18n.t('Line')} ${lIndex + 1}\t- <strong>${item.line}</strong></code><br/>`)
+        response.items.forEach((item, index) => {
+          html.push(`<code>${this.$i18n.t('Line')} ${index + 1}\t- <strong>${item.line}</strong></code><br/>`)
           if (item.matches.length > 0) {
-            item.matches.forEach((match, mIndex) => {
-              match.actions.forEach((action, aIndex) => {
+            item.matches.forEach((match) => {
+              match.actions.forEach((action) => {
                 html.push(`\t- ${match.rule.name}: ${action.api_method}(${action.api_parameters.map(param => '\'' + param + '\'').join(', ')})<br/>`)
               })
             })
@@ -231,12 +221,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

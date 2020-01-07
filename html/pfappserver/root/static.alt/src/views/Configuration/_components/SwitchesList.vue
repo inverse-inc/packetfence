@@ -26,9 +26,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationSwitchesListConfig as config
-} from '@/globals/configuration/pfConfigurationSwitches'
+import { config } from '../_config/switch'
 
 export default {
   name: 'switches-list',
@@ -36,13 +34,6 @@ export default {
     pfButtonDelete,
     pfConfigList,
     pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -52,15 +43,15 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_switch_groups/all').then(data => {
-        this.switchGroups = data
+      this.$store.dispatch('$_switch_groups/all').then(switchGroups => {
+        this.switchGroups = switchGroups
       })
     },
     clone (item) {
       this.$router.push({ name: 'cloneSwitch', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSwitch`, item.id).then(response => {
+      this.$store.dispatch('$_switches/deleteSwitch', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

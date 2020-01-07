@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
     :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -23,8 +21,8 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew && !actionKey">{{ $t('Create & Join') }}</template>
           <template v-else-if="isNew && actionKey">{{ $t('Create') }}</template>
           <template v-else-if="isClone && !actionKey">{{ $t('Clone & Join') }}</template>
@@ -45,25 +43,22 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
-  pfConfigurationDomainViewFields as fields
-} from '@/globals/configuration/pfConfigurationDomains'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/domain'
 
 export default {
   name: 'domain-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -81,33 +76,28 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/database
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_domains/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
@@ -121,19 +111,20 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        this.options = options
-        if (this.id) {
-          // existing
-          this.$store.dispatch(`${this.storeName}/getDomain`, this.id).then(form => {
+      this.$store.dispatch('$_domains/options', this.id).then(options => {
+        const { meta = {} } = options
+        const { isNew, isClone } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
+        if (this.id) { // existing
+          this.$store.dispatch('$_domains/getDomain', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
-        } else {
-          // new
-          this.form = defaults(options.meta) // set defaults
+        } else { // new
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
         }
       })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'domains' })
@@ -143,7 +134,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createDomain`, this.form).then(response => {
+      this.$store.dispatch('$_domains/createDomain', this.form).then(response => {
         if (!actionKey) {
           this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         } else {
@@ -153,14 +144,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateDomain`, this.form).then(response => {
+      this.$store.dispatch('$_domains/updateDomain', this.form).then(response => {
         if ((this.isNew && !actionKey) || (this.isClone && !actionKey) || (!this.isNew && !this.isClone && actionKey)) {
           this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         }
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteDomain`, this.id).then(response => {
+      this.$store.dispatch('$_domains/deleteDomain', this.id).then(response => {
         this.close()
       })
     }

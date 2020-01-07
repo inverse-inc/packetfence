@@ -1,13 +1,11 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -22,8 +20,8 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading" class="mr-1">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
@@ -48,18 +46,15 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
-  pfConfigurationRoutedNetworkViewFields as fields
-} from '@/globals/configuration/pfConfigurationRoutedNetworks'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/routedNetwork'
 
 export default {
   name: 'routed-network-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
@@ -67,7 +62,7 @@ export default {
     pfButtonService
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -85,30 +80,24 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/routedNetwork
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_routed_networks/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -119,18 +108,21 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        this.options = options
+      this.$store.dispatch('$_routed_networks/options', this.id).then(options => {
+        const { meta = {} } = options
+        const { isNew, isClone } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
         if (this.id) {
           // existing
-          this.$store.dispatch(`${this.storeName}/getRoutedNetwork`, this.id).then(form => {
-            this.form = form
+          this.$store.dispatch('$_routed_networks/getRoutedNetwork', this.id).then(form => {
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         } else {
           // new
-          this.form = defaults(options.meta) // set defaults
+          this.form = defaults(meta) // set defaults
         }
       })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'interfaces' })
@@ -140,7 +132,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createRoutedNetwork`, this.form).then(response => {
+      this.$store.dispatch('$_routed_networks/createRoutedNetwork', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -150,14 +142,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateRoutedNetwork`, this.form).then(response => {
+      this.$store.dispatch('$_routed_networks/updateRoutedNetwork', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteRoutedNetwork`, this.id).then(response => {
+      this.$store.dispatch('$_routed_networks/deleteRoutedNetwork', this.id).then(response => {
         this.close()
       })
     }

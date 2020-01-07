@@ -1,11 +1,9 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    @validations="formValidations = $event"
+    :view="view"
     @save="save"
   >
     <template v-slot:header>
@@ -14,8 +12,8 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -28,64 +26,55 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationFingerbankDeviceChangeDetectionViewFields as fields
-} from '@/globals/configuration/pfConfigurationFingerbank'
-
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/fingerbank/deviceChangeDetection'
 
 export default {
   name: 'fingerbank-device-change-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/fingerbank/deviceChangeDetection
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_bases/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     }
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/optionsFingerbankDeviceChange`).then(options => {
-        this.options = options
-        this.$store.dispatch(`${this.storeName}/getFingerbankDeviceChange`).then(form => {
-          this.form = form
-        })
+      this.$store.dispatch('$_bases/optionsFingerbankDeviceChange').then(options => {
+        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
       })
+      this.$store.dispatch('$_bases/getFingerbankDeviceChange').then(form => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+      })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     save () {
-      this.$store.dispatch(`${this.storeName}/updateFingerbankDeviceChange`, this.form)
+      this.$store.dispatch('$_bases/updateFingerbankDeviceChange', this.form)
     }
   },
   created () {

@@ -29,9 +29,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationWrixLocationsListConfig as config
-} from '@/globals/configuration/pfConfigurationWrixLocations'
+import { config } from '../_config/wrixLocation'
 
 export default {
   name: 'wrix-locations-list',
@@ -40,16 +38,9 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/wrixLocation
     }
   },
   methods: {
@@ -57,7 +48,7 @@ export default {
       this.$router.push({ name: 'cloneWrixLocation', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteWrixLocation`, item.id).then(response => {
+      this.$store.dispatch('$_wrix_locations/deleteWrixLocation', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

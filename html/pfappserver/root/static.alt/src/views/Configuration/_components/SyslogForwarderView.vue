@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :form-store-name="formStoreName"
+    :is-loading="isLoading"
     :disabled="isLoading"
-    :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    :isNew="isNew"
-    :isClone="isClone"
-    @validations="setValidations($event)"
+    :is-deletable="isDeletable"
+    :is-new="isNew"
+    :is-clone="isClone"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -24,7 +22,7 @@
       <b-badge class="ml-2" variant="secondary" v-t="syslogForwarderType"></b-badge>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -44,25 +42,22 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
-  pfConfigurationSyslogForwarderViewFields as fields
-} from '@/globals/configuration/pfConfigurationSyslogForwarders'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/syslogForwarder'
 
 export default {
   name: 'syslog-forwarder-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -84,30 +79,21 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/trafficShapingPolicy
+    },
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_syslog_forwarders/isLoading']
     },
     invalidForm () {
-      return this.$v.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
-    },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
     isDeletable () {
       if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
@@ -124,34 +110,37 @@ export default {
   },
   methods: {
     init () {
+      const { isNew, isClone, isDeletable, syslogForwarderType } = this
       if (this.id) {
         // existing
-        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = options
-          this.$store.dispatch(`${this.storeName}/getSyslogForwarder`, this.id).then(form => {
+        this.$store.dispatch('$_syslog_forwarders/optionsById', this.id).then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch('$_syslog_forwarders/getSyslogForwarder', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
             this.syslogForwarderType = form.type
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, syslogForwarderType } })
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         })
       } else {
         // new
-        this.$store.dispatch(`${this.storeName}/optionsBySyslogForwarderType`, this.syslogForwarderType).then(options => {
-          this.options = options
-          this.form = defaults(options.meta) // set defaults
-          this.form.type = this.syslogForwarderType
+        this.$store.dispatch('$_syslog_forwarders/optionsBySyslogForwarderType', syslogForwarderType).then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, syslogForwarderType } })
+          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), type: syslogForwarderType }) // set defaults
         })
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
-    close (event) {
+    close () {
       this.$router.push({ name: 'syslogForwarders' })
     },
     clone () {
       this.$router.push({ name: 'cloneSyslogForwarder' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createSyslogForwarder`, this.form).then(response => {
+      this.$store.dispatch('$_syslog_forwarders/createSyslogForwarder', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -159,21 +148,18 @@ export default {
         }
       })
     },
-    save (event) {
+    save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateSyslogForwarder`, this.form).then(response => {
+      this.$store.dispatch('$_syslog_forwarders/updateSyslogForwarder', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (event) {
-      this.$store.dispatch(`${this.storeName}/deleteSyslogForwarder`, this.id).then(response => {
+    remove () {
+      this.$store.dispatch('$_syslog_forwarders/deleteSyslogForwarder', this.id).then(() => {
         this.close()
       })
-    },
-    setValidations (validations) {
-      this.$set(this, 'formValidations', validations)
     }
   },
   created () {
@@ -181,12 +167,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

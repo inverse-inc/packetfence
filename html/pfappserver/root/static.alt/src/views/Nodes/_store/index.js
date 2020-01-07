@@ -1,8 +1,11 @@
+/* eslint-disable camelcase */
 /**
 * "$_nodes" store module
 */
 import Vue from 'vue'
 import api from '../_api'
+import store from '@/store'
+import i18n from '@/utils/locale'
 
 // Default values
 const state = {
@@ -152,12 +155,22 @@ const actions = {
     if (state.nodes[mac]) {
       commit('NODE_DESTROYED', mac)
     }
-    return dispatch('getNode', mac)
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      dispatch('getNode', mac).then(() => {
+        commit('NODE_SUCCESS')
+        resolve(state.nodes[mac])
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
   },
   createNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
-    if (data.unreg_date && data.unreg_time) {
-      data.unregdate = `${data.unreg_date} ${data.unreg_time}`
+    const { unreg_date, unreg_time } = data
+    if (unreg_date && unreg_time) {
+      data.unregdate = `${unreg_date} ${unreg_time}`
     }
     return new Promise((resolve, reject) => {
       api.createNode(data).then(response => {
@@ -225,14 +238,17 @@ const actions = {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.reevaluateAccessNode(data).then(response => {
-        if (response.status === 'success') {
+        if (response.status === 200) {
           commit('NODE_SUCCESS')
+          store.dispatch('notification/info', { message: i18n.t('Node access reevaluation initialized') })
         } else {
           commit('NODE_ERROR')
+          store.dispatch('notification/danger', { message: i18n.t('Node access reevaluation failed') })
         }
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
+        store.dispatch('notification/danger', { message: i18n.t('Node access reevaluation failed') })
         reject(err)
       })
     })
@@ -241,14 +257,17 @@ const actions = {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.refreshFingerbankNode(data).then(response => {
-        if (response.status === 'success') {
+        if (response.status === 200) {
           commit('NODE_SUCCESS')
+          store.dispatch('notification/info', { message: i18n.t('Node device profiling initialized') })
         } else {
           commit('NODE_ERROR')
+          store.dispatch('notification/danger', { message: i18n.t('Node device profiling failed') })
         }
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
+        store.dispatch('notification/danger', { message: i18n.t('Node device profiling failed') })
         reject(err)
       })
     })
@@ -257,14 +276,17 @@ const actions = {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.restartSwitchportNode(data).then(response => {
-        if (response.status === 'success') {
+        if (response.status === 200) {
           commit('NODE_SUCCESS')
+          store.dispatch('notification/info', { message: i18n.t('Node switchport restarted') })
         } else {
           commit('NODE_ERROR')
+          store.dispatch('notification/danger', { message: i18n.t('Node switchport restart failed') })
         }
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
+        store.dispatch('notification/danger', { message: i18n.t('Node switchport restart failed') })
         reject(err)
       })
     })

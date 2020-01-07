@@ -5,28 +5,29 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('Network Settings')" @click="changeTab('network')">
-        <network-view :storeName="storeName" />
+        <network-view form-store-name="formNetwork" />
       </b-tab>
       <b-tab :title="$t('Interfaces')" @click="changeTab('interfaces')">
-        <interfaces-list :storeName="storeName" />
+        <interfaces-list />
       </b-tab>
       <b-tab :title="$t('Inline')" @click="changeTab('inline')">
-        <inline-view :storeName="storeName" />
+        <inline-view form-store-name="formInline" />
       </b-tab>
       <b-tab :title="$t('Inline Traffic Shaping')" @click="changeTab('traffic_shapings')">
-        <traffic-shapings-list :storeName="storeName" />
+        <traffic-shapings-list />
       </b-tab>
       <b-tab :title="$t('Fencing')" @click="changeTab('fencing')">
-        <fencing-view :storeName="storeName" />
+        <fencing-view form-store-name="formFencing" />
       </b-tab>
       <b-tab :title="$t('Device Parking')" @click="changeTab('parking')">
-        <parking-view :storeName="storeName" />
+        <parking-view form-store-name="formParking" />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
+import FormStore from '@/store/base/form'
 import NetworkView from './NetworkView'
 import InterfacesList from './InterfacesList'
 import InlineView from './InlineView'
@@ -61,6 +62,20 @@ export default {
   methods: {
     changeTab (name) {
       this.$router.push({ name })
+    }
+  },
+  beforeMount () {
+    if (!this.$store.state.formNetwork) { // Register store module only once
+      this.$store.registerModule('formNetwork', FormStore)
+    }
+    if (!this.$store.state.formInline) { // Register store module only once
+      this.$store.registerModule('formInline', FormStore)
+    }
+    if (!this.$store.state.formFencing) { // Register store module only once
+      this.$store.registerModule('formFencing', FormStore)
+    }
+    if (!this.$store.state.formParking) { // Register store module only once
+      this.$store.registerModule('formParking', FormStore)
     }
   }
 }

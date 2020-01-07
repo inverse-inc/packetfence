@@ -10,7 +10,7 @@ const locales = {
 }
 
 export const pfFormatters = {
-   noAdminRolePermission: (value) => {
+  noAdminRolePermission: (value) => {
     if (!value) return null
     return value
   },

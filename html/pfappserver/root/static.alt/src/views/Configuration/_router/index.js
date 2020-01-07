@@ -1,4 +1,5 @@
 import store from '@/store'
+import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
 import AdminRolesStore from '../_store/adminRoles'
 import AuthenticationSourcesStore from '../_store/sources'
@@ -236,21 +237,30 @@ const route = {
       path: 'roles',
       name: 'roles',
       component: RolesList,
-      props: (route) => ({ storeName: '$_roles', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'roles/new',
       name: 'newRole',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles', isNew: true })
+      props: () => ({ formStoreName: 'formRole', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRole) { // Register store module only once
+          store.registerModule('formRole', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'role/:id',
       name: 'role',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRole', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_roles/getRole', to.params.id).then(object => {
+        if (!store.state.formRole) { // Register store module only once
+          store.registerModule('formRole', FormStore)
+        }
+        store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
       }
@@ -259,9 +269,12 @@ const route = {
       path: 'role/:id/clone',
       name: 'cloneRole',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRole', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_roles/getRole', to.params.id).then(object => {
+        if (!store.state.formRole) { // Register store module only once
+          store.registerModule('formRole', FormStore)
+        }
+        store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
       }
@@ -270,21 +283,30 @@ const route = {
       path: 'domains',
       name: 'domains',
       component: DomainsTabs,
-      props: (route) => ({ tab: 'domains', storeName: '$_domains', autoJoinDomain: route.params.autoJoinDomain, query: route.query.query })
+      props: (route) => ({ tab: 'domains', autoJoinDomain: route.params.autoJoinDomain, query: route.query.query })
     },
     {
       path: 'domains/new',
       name: 'newDomain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains', isNew: true })
+      props: () => ({ formStoreName: 'formDomain', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formDomain) { // Register store module only once
+          store.registerModule('formDomain', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'domain/:id',
       name: 'domain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formDomain', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_domains/getDomain', to.params.id).then(object => {
+        if (!store.state.formDomain) { // Register store module only once
+          store.registerModule('formDomain', FormStore)
+        }
+        store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })
       }
@@ -293,9 +315,12 @@ const route = {
       path: 'domain/:id/clone',
       name: 'cloneDomain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formDomain', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_domains/getDomain', to.params.id).then(object => {
+        if (!store.state.formDomain) { // Register store module only once
+          store.registerModule('formDomain', FormStore)
+        }
+        store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })
       }
@@ -304,21 +329,30 @@ const route = {
       path: 'realms',
       name: 'realms',
       component: DomainsTabs,
-      props: (route) => ({ tab: 'realms', storeName: '$_realms', query: route.query.query })
+      props: (route) => ({ tab: 'realms', query: route.query.query })
     },
     {
       path: 'realms/new',
       name: 'newRealm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms', isNew: true })
+      props: () => ({ formStoreName: 'formRealm', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRealm) { // Register store module only once
+          store.registerModule('formRealm', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'realm/:id',
       name: 'realm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_realms/getRealm', to.params.id).then(object => {
+        if (!store.state.formRealm) { // Register store module only once
+          store.registerModule('formRealm', FormStore)
+        }
+        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
           next()
         })
       }
@@ -327,9 +361,12 @@ const route = {
       path: 'realm/:id/clone',
       name: 'cloneRealm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_realms/getRealm', to.params.id).then(object => {
+        if (!store.state.formRealm) { // Register store module only once
+          store.registerModule('formRealm', FormStore)
+        }
+        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
           next()
         })
       }
@@ -338,21 +375,30 @@ const route = {
       path: 'sources',
       name: 'sources',
       component: AuthenticationSourcesList,
-      props: (route) => ({ storeName: '$_sources', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'sources/new/:sourceType',
       name: 'newAuthenticationSource',
       component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', isNew: true, sourceType: route.params.sourceType })
+      props: (route) => ({ formStoreName: 'formAuthenticationSource', isNew: true, sourceType: route.params.sourceType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formAuthenticationSource) { // Register store module only once
+          store.registerModule('formAuthenticationSource', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'source/:id',
       name: 'source',
       component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formAuthenticationSource', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+        if (!store.state.formAuthenticationSource) { // Register store module only once
+          store.registerModule('formAuthenticationSource', FormStore)
+        }
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
           next()
         })
       }
@@ -361,9 +407,12 @@ const route = {
       path: 'source/:id/clone',
       name: 'cloneAuthenticationSource',
       component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formAuthenticationSource', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+        if (!store.state.formAuthenticationSource) { // Register store module only once
+          store.registerModule('formAuthenticationSource', FormStore)
+        }
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
           next()
         })
       }
@@ -372,21 +421,30 @@ const route = {
       path: 'switches',
       name: 'switches',
       component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switches', storeName: '$_switches', query: route.query.query })
+      props: (route) => ({ tab: 'switches', query: route.query.query })
     },
     {
       path: 'switches/new/:switchGroup',
       name: 'newSwitch',
       component: SwitchView,
-      props: (route) => ({ storeName: '$_switches', isNew: true, switchGroup: route.params.switchGroup })
+      props: (route) => ({ formStoreName: 'formSwitch', isNew: true, switchGroup: route.params.switchGroup }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitch) { // Register store module only once
+          store.registerModule('formSwitch', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'switch/:id',
       name: 'switch',
       component: SwitchView,
-      props: (route) => ({ storeName: '$_switches', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSwitch', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+        if (!store.state.formSwitch) { // Register store module only once
+          store.registerModule('formSwitch', FormStore)
+        }
+        store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
           next()
         })
       }
@@ -395,9 +453,12 @@ const route = {
       path: 'switch/:id/clone',
       name: 'cloneSwitch',
       component: SwitchView,
-      props: (route) => ({ storeName: '$_switches', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSwitch', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+        if (!store.state.formSwitch) { // Register store module only once
+          store.registerModule('formSwitch', FormStore)
+        }
+        store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
           next()
         })
       }
@@ -406,21 +467,30 @@ const route = {
       path: 'switch_groups',
       name: 'switch_groups',
       component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switch_groups', storeName: '$_switch_groups', query: route.query.query })
+      props: (route) => ({ tab: 'switch_groups', query: route.query.query })
     },
     {
       path: 'switch_groups/new',
       name: 'newSwitchGroup',
       component: SwitchGroupView,
-      props: (route) => ({ storeName: '$_switch_groups', isNew: true })
+      props: () => ({ formStoreName: 'formSwitchGroup', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitchGroup) { // Register store module only once
+          store.registerModule('formSwitchGroup', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'switch_group/:id',
       name: 'switch_group',
       component: SwitchGroupView,
-      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSwitchGroup', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+        if (!store.state.formSwitchGroup) { // Register store module only once
+          store.registerModule('formSwitchGroup', FormStore)
+        }
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
       }
@@ -429,9 +499,12 @@ const route = {
       path: 'switch_group/:id/clone',
       name: 'cloneSwitchGroup',
       component: SwitchGroupView,
-      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSwitchGroup', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+        if (!store.state.formSwitchGroup) { // Register store module only once
+          store.registerModule('formSwitchGroup', FormStore)
+        }
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
       }
@@ -440,21 +513,30 @@ const route = {
       path: 'connection_profiles',
       name: 'connection_profiles',
       component: ConnectionProfilesList,
-      props: (route) => ({ storeName: '$_connection_profiles', tab: 'connection_profiles', query: route.query.query })
+      props: (route) => ({ tab: 'connection_profiles', query: route.query.query })
     },
     {
       path: 'connection_profiles/new',
       name: 'newConnectionProfile',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', isNew: true })
+      props: () => ({ formStoreName: 'formConnectionProfile', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'connection_profile/:id',
       name: 'connection_profile',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
       }
@@ -463,9 +545,12 @@ const route = {
       path: 'connection_profile/:id/clone',
       name: 'cloneConnectionProfile',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
       }
@@ -474,9 +559,12 @@ const route = {
       path: 'connection_profile/:id/files',
       name: 'connectionProfileFiles',
       component: ConnectionProfileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, tabIndex: 2 }),
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, tabIndex: 2 }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
           next()
         })
       }
@@ -485,13 +573,25 @@ const route = {
       path: 'connection_profile/:id/files/:path/new',
       name: 'newConnectionProfileFile',
       component: ConnectionProfileFileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, filename: route.params.path, isNew: true })
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, filename: route.params.path, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'connection_profile/:id/files/:filename',
       name: 'connectionProfileFile',
       component: ConnectionProfileFileView,
-      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, filename: route.params.filename })
+      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, filename: route.params.filename }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formConnectionProfile) { // Register store module only once
+          store.registerModule('formConnectionProfile', FormStore)
+        }
+        next()
+      }
     },
     /**
      * Compliance
@@ -508,33 +608,42 @@ const route = {
       path: 'fingerbank/general_settings',
       name: 'fingerbankGeneralSettings',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'general_settings', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'general_settings', query: route.query.query })
     },
     {
       path: 'fingerbank/device_change_detection',
       name: 'fingerbankDeviceChangeDetection',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'device_change_detection', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
     },
     {
       path: 'fingerbank/combinations',
       name: 'fingerbankCombinations',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'combinations', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'combinations', query: route.query.query })
     },
     {
       path: 'fingerbank/local/combinations/new',
       name: 'newFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+      props: () => ({ formStoreName: 'formFingerbankCombination', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankCombination) { // Register store module only once
+          store.registerModule('formFingerbankCombination', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/local/combination/:id',
       name: 'fingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankCombination', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
+        if (!store.state.formFingerbankCombination) { // Register store module only once
+          store.registerModule('formFingerbankCombination', FormStore)
+        }
+        store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
           next()
         })
       }
@@ -543,9 +652,12 @@ const route = {
       path: 'fingerbank/local/combination/:id/clone',
       name: 'cloneFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankCombination', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
+        if (!store.state.formFingerbankCombination) { // Register store module only once
+          store.registerModule('formFingerbankCombination', FormStore)
+        }
+        store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
           next()
         })
       }
@@ -554,27 +666,36 @@ const route = {
       path: 'fingerbank/devices',
       name: 'fingerbankDevices',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'devices', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'devices', query: route.query.query })
     },
     {
       path: 'fingerbank/devices/:parentId',
       name: 'fingerbankDevicesByParentId',
       component: FingerbankTabs,
-      props: (route) => ({ parentId: route.params.parentId, tab: 'devices', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ parentId: route.params.parentId, tab: 'devices', query: route.query.query })
     },
     {
       path: 'fingerbank/:scope/devices/new',
       name: 'newFingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ formStoreName: 'formFingerbankDevice', scope: route.params.scope, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankDevice) { // Register store module only once
+          store.registerModule('formFingerbankDevice', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/:scope/device/:id',
       name: 'fingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDevice', scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
+        if (!store.state.formFingerbankDevice) { // Register store module only once
+          store.registerModule('formFingerbankDevice', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -583,9 +704,12 @@ const route = {
       path: 'fingerbank/:scope/device/:id/clone',
       name: 'cloneFingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDevice', scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
+        if (!store.state.formFingerbankDevice) { // Register store module only once
+          store.registerModule('formFingerbankDevice', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -594,21 +718,30 @@ const route = {
       path: 'fingerbank/dhcp_fingerprints',
       name: 'fingerbankDhcpFingerprints',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
     },
     {
       path: 'fingerbank/:scope/dhcp_fingerprints/new',
       name: 'newFingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpFingerprint', scope: route.params.scope, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankDhcpFingerprint) { // Register store module only once
+          store.registerModule('formFingerbankDhcpFingerprint', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/:scope/dhcp_fingerprint/:id',
       name: 'fingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpFingerprint', scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpFingerprint) { // Register store module only once
+          store.registerModule('formFingerbankDhcpFingerprint', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -617,9 +750,12 @@ const route = {
       path: 'fingerbank/:scope/dhcp_fingerprint/:id/clone',
       name: 'cloneFingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpFingerprint', scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpFingerprint) { // Register store module only once
+          store.registerModule('formFingerbankDhcpFingerprint', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -628,21 +764,30 @@ const route = {
       path: 'fingerbank/dhcp_vendors',
       name: 'fingerbankDhcpVendors',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
     },
     {
       path: 'fingerbank/:scope/dhcp_vendors/new',
       name: 'newFingerbankDhcpVendor',
       component: FingerbankDhcpVendorView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpVendor', scope: route.params.scope, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankDhcpVendor) { // Register store module only once
+          store.registerModule('formFingerbankDhcpVendor', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/:scope/dhcp_vendor/:id',
       name: 'fingerbankDhcpVendor',
       component: FingerbankDhcpVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpVendor', scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpVendor) { // Register store module only once
+          store.registerModule('formFingerbankDhcpVendor', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -651,9 +796,12 @@ const route = {
       path: 'fingerbank/:scope/dhcp_vendor/:id/clone',
       name: 'cloneFingerbankDhcpVendor',
       component: FingerbankDhcpVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpVendor', scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpVendor) { // Register store module only once
+          store.registerModule('formFingerbankDhcpVendor', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -662,21 +810,30 @@ const route = {
       path: 'fingerbank/dhcpv6_fingerprints',
       name: 'fingerbankDhcpv6Fingerprints',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
     },
     {
       path: 'fingerbank/:scope/dhcpv6_fingerprints/new',
       name: 'newFingerbankDhcpv6Fingerprint',
       component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Fingerprint', scope: route.params.scope, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankDhcpv6Fingerprint) { // Register store module only once
+          store.registerModule('formFingerbankDhcpv6Fingerprint', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/:scope/dhcpv6_fingerprint/:id',
       name: 'fingerbankDhcpv6Fingerprint',
       component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Fingerprint', scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpv6Fingerprint) { // Register store module only once
+          store.registerModule('formFingerbankDhcpv6Fingerprint', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -685,9 +842,12 @@ const route = {
       path: 'fingerbank/:scope/dhcpv6_fingerprint/:id/clone',
       name: 'cloneFingerbankDhcpv6Fingerprint',
       component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Fingerprint', scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpv6Fingerprint) { // Register store module only once
+          store.registerModule('formFingerbankDhcpv6Fingerprint', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
           next()
         })
       }
@@ -696,21 +856,30 @@ const route = {
       path: 'fingerbank/dhcpv6_enterprises',
       name: 'fingerbankDhcpv6Enterprises',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
     },
     {
       path: 'fingerbank/:scope/dhcpv6_enterprises/new',
       name: 'newFingerbankDhcpv6Enterprise',
       component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Enterprise', scope: route.params.scope, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankDhcpv6Enterprise) { // Register store module only once
+          store.registerModule('formFingerbankDhcpv6Enterprise', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/:scope/dhcpv6_enterprise/:id',
       name: 'fingerbankDhcpv6Enterprise',
       component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Enterprise', scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpv6Enterprise) { // Register store module only once
+          store.registerModule('formFingerbankDhcpv6Enterprise', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
           next()
         })
       }
@@ -719,9 +888,12 @@ const route = {
       path: 'fingerbank/:scope/dhcpv6_enterprise/:id/clone',
       name: 'cloneFingerbankDhcpv6Enterprise',
       component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Enterprise', scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(object => {
+        if (!store.state.formFingerbankDhcpv6Enterprise) { // Register store module only once
+          store.registerModule('formFingerbankDhcpv6Enterprise', FormStore)
+        }
+        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
           next()
         })
       }
@@ -730,21 +902,30 @@ const route = {
       path: 'fingerbank/mac_vendors',
       name: 'fingerbankMacVendors',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'mac_vendors', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
     },
     {
       path: 'fingerbank/:scope/mac_vendors/new',
       name: 'newFingerbankMacVendor',
       component: FingerbankMacVendorView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ formStoreName: 'formFingerbankMacVendor', scope: route.params.scope, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankMacVendor) { // Register store module only once
+          store.registerModule('formFingerbankMacVendor', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/:scope/mac_vendor/:id',
       name: 'fingerbankMacVendor',
       component: FingerbankMacVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankMacVendor', scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(object => {
+        if (!store.state.formFingerbankMacVendor) { // Register store module only once
+          store.registerModule('formFingerbankMacVendor', FormStore)
+        }
+        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -753,9 +934,12 @@ const route = {
       path: 'fingerbank/:scope/mac_vendor/:id/clone',
       name: 'cloneFingerbankMacVendor',
       component: FingerbankMacVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankMacVendor', scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(object => {
+        if (!store.state.formFingerbankMacVendor) { // Register store module only once
+          store.registerModule('formFingerbankMacVendor', FormStore)
+        }
+        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
           next()
         })
       }
@@ -764,21 +948,30 @@ const route = {
       path: 'fingerbank/user_agents',
       name: 'fingerbankUserAgents',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'user_agents', query: route.query.query, storeName: '$_fingerbank' })
+      props: (route) => ({ tab: 'user_agents', query: route.query.query })
     },
     {
       path: 'fingerbank/local/user_agents/new',
       name: 'newFingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+      props: () => ({ formStoreName: 'formFingerbankUserAgent', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFingerbankUserAgent) { // Register store module only once
+          store.registerModule('formFingerbankUserAgent', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'fingerbank/local/user_agent/:id',
       name: 'fingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankUserAgent', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
+        if (!store.state.formFingerbankUserAgent) { // Register store module only once
+          store.registerModule('formFingerbankUserAgent', FormStore)
+        }
+        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
           next()
         })
       }
@@ -787,9 +980,12 @@ const route = {
       path: 'fingerbank/local/user_agent/:id/clone',
       name: 'cloneFingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ formStoreName: 'formFingerbankUserAgent', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
+        if (!store.state.formFingerbankUserAgent) { // Register store module only once
+          store.registerModule('formFingerbankUserAgent', FormStore)
+        }
+        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
           next()
         })
       }
@@ -802,21 +998,30 @@ const route = {
       path: 'scans/scan_engines',
       name: 'scanEngines',
       component: ScansTabs,
-      props: (route) => ({ tab: 'scan_engines', storeName: '$_scans', query: route.query.query })
+      props: (route) => ({ tab: 'scan_engines', query: route.query.query })
     },
     {
       path: 'scans/scan_engines/new/:scanType',
       name: 'newScanEngine',
       component: ScanEngineView,
-      props: (route) => ({ storeName: '$_scans', isNew: true, scanType: route.params.scanType })
+      props: (route) => ({ formStoreName: 'formScanEngine', isNew: true, scanType: route.params.scanType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formScanEngine) { // Register store module only once
+          store.registerModule('formScanEngine', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'scans/scan_engine/:id',
       name: 'scanEngine',
       component: ScanEngineView,
-      props: (route) => ({ storeName: '$_scans', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formScanEngine', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+        if (!store.state.formScanEngine) { // Register store module only once
+          store.registerModule('formScanEngine', FormStore)
+        }
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
           next()
         })
       }
@@ -825,9 +1030,12 @@ const route = {
       path: 'scans/scan_engine/:id/clone',
       name: 'cloneScanEngine',
       component: ScanEngineView,
-      props: (route) => ({ storeName: '$_scans', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formScanEngine', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+        if (!store.state.formScanEngine) { // Register store module only once
+          store.registerModule('formScanEngine', FormStore)
+        }
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
           next()
         })
       }
@@ -836,21 +1044,30 @@ const route = {
       path: 'scans/wmi_rules',
       name: 'wmiRules',
       component: ScansTabs,
-      props: (route) => ({ storeName: '$_scans', tab: 'wmi_rules', query: route.query.query })
+      props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
     {
       path: 'scans/wmi_rules/new',
       name: 'newWmiRule',
       component: WmiRuleView,
-      props: (route) => ({ storeName: '$_wmi_rules', isNew: true })
+      props: () => ({ formStoreName: 'formWmiRule', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formWmiRule) { // Register store module only once
+          store.registerModule('formWmiRule', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'scans/wmi_rule/:id',
       name: 'wmiRule',
       component: WmiRuleView,
-      props: (route) => ({ storeName: '$_wmi_rules', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formWmiRule', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
+        if (!store.state.formWmiRule) { // Register store module only once
+          store.registerModule('formWmiRule', FormStore)
+        }
+        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
           next()
         })
       }
@@ -859,9 +1076,12 @@ const route = {
       path: 'scans/wmi_rule/:id/clone',
       name: 'cloneWmiRule',
       component: WmiRuleView,
-      props: (route) => ({ storeName: '$_wmi_rules', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formWmiRule', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
+        if (!store.state.formWmiRule) { // Register store module only once
+          store.registerModule('formWmiRule', FormStore)
+        }
+        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
           next()
         })
       }
@@ -870,21 +1090,30 @@ const route = {
       path: 'security_events',
       name: 'security_events',
       component: SecurityEventsList,
-      props: (route) => ({ storeName: '$_security_events', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'security_events/new',
       name: 'newSecurityEvent',
       component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', isNew: true })
+      props: () => ({ formStoreName: 'formSecurityEvent', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSecurityEvent) { // Register store module only once
+          store.registerModule('formSecurityEvent', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'security_event/:id',
       name: 'security_event',
       component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSecurityEvent', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+        if (!store.state.formSecurityEvent) { // Register store module only once
+          store.registerModule('formSecurityEvent', FormStore)
+        }
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
       }
@@ -893,9 +1122,12 @@ const route = {
       path: 'security_event/:id/clone',
       name: 'cloneSecurityEvent',
       component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSecurityEvent', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+        if (!store.state.formSecurityEvent) { // Register store module only once
+          store.registerModule('formSecurityEvent', FormStore)
+        }
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
       }
@@ -911,21 +1143,30 @@ const route = {
       path: 'firewalls',
       name: 'firewalls',
       component: FirewallsList,
-      props: (route) => ({ storeName: '$_firewalls', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'firewalls/new/:firewallType',
       name: 'newFirewall',
       component: FirewallView,
-      props: (route) => ({ storeName: '$_firewalls', isNew: true, firewallType: route.params.firewallType })
+      props: (route) => ({ formStoreName: 'formFirewall', isNew: true, firewallType: route.params.firewallType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFirewall) { // Register store module only once
+          store.registerModule('formFirewall', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'firewall/:id',
       name: 'firewall',
       component: FirewallView,
-      props: (route) => ({ storeName: '$_firewalls', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formFirewall', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+        if (!store.state.formFirewall) { // Register store module only once
+          store.registerModule('formFirewall', FormStore)
+        }
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
           next()
         })
       }
@@ -934,9 +1175,12 @@ const route = {
       path: 'firewall/:id/clone',
       name: 'cloneFirewall',
       component: FirewallView,
-      props: (route) => ({ storeName: '$_firewalls', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formFirewall', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+        if (!store.state.formFirewall) { // Register store module only once
+          store.registerModule('formFirewall', FormStore)
+        }
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
           next()
         })
       }
@@ -945,33 +1189,54 @@ const route = {
       path: 'mse',
       name: 'mse',
       component: CiscoMobilityServicesEngineView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formCiscoMobilityServicesEngine', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formCiscoMobilityServicesEngine) { // Register store module only once
+          store.registerModule('formCiscoMobilityServicesEngine', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'webservices',
       name: 'webservices',
       component: WebServicesView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formWebServices', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formWebServices) { // Register store module only once
+          store.registerModule('formWebServices', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'pfdetect',
       name: 'syslogParsers',
       component: SyslogParsersList,
-      props: (route) => ({ storeName: '$_syslog_parsers', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'pfdetect/new/:syslogParserType',
       name: 'newSyslogParser',
       component: SyslogParserView,
-      props: (route) => ({ storeName: '$_syslog_parsers', isNew: true, syslogParserType: route.params.syslogParserType })
+      props: (route) => ({ formStoreName: 'formSyslogParsers', isNew: true, syslogParserType: route.params.syslogParserType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogParsers) { // Register store module only once
+          store.registerModule('formSyslogParsers', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'pfdetect/:id',
       name: 'syslogParser',
       component: SyslogParserView,
-      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSyslogParsers', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+        if (!store.state.formSyslogParsers) { // Register store module only once
+          store.registerModule('formSyslogParsers', FormStore)
+        }
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })
       }
@@ -980,9 +1245,12 @@ const route = {
       path: 'pfdetect/:id/clone',
       name: 'cloneSyslogParser',
       component: SyslogParserView,
-      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSyslogParsers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+        if (!store.state.formSyslogParsers) { // Register store module only once
+          store.registerModule('formSyslogParsers', FormStore)
+        }
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })
       }
@@ -991,21 +1259,30 @@ const route = {
       path: 'syslog',
       name: 'syslogForwarders',
       component: SyslogForwardersList,
-      props: (route) => ({ storeName: '$_syslog_forwarders', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'syslog/new/:syslogForwarderType',
       name: 'newSyslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true, syslogForwarderType: route.params.syslogForwarderType })
+      props: (route) => ({ formStoreName: 'formSyslogForwarders', isNew: true, syslogForwarderType: route.params.syslogForwarderType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSyslogForwarders) { // Register store module only once
+          store.registerModule('formSyslogForwarders', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'syslog/:id',
       name: 'syslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSyslogForwarders', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+        if (!store.state.formSyslogForwarders) { // Register store module only once
+          store.registerModule('formSyslogForwarders', FormStore)
+        }
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
           next()
         })
       }
@@ -1014,9 +1291,12 @@ const route = {
       path: 'syslog/:id/clone',
       name: 'cloneSyslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSyslogForwarders', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+        if (!store.state.formSyslogForwarders) { // Register store module only once
+          store.registerModule('formSyslogForwarders', FormStore)
+        }
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
           next()
         })
       }
@@ -1025,21 +1305,30 @@ const route = {
       path: 'wrix',
       name: 'wrixLocations',
       component: WrixLocationsList,
-      props: (route) => ({ storeName: '$_wrix_locations', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'wrix/new',
       name: 'newWrixLocation',
       component: WrixLocationView,
-      props: (route) => ({ storeName: '$_wrix_locations', isNew: true })
+      props: () => ({ formStoreName: 'formWrixLocation', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formWrixLocation) { // Register store module only once
+          store.registerModule('formWrixLocation', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'wrix/:id',
       name: 'wrixLocation',
       component: WrixLocationView,
-      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formWrixLocation', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
+        if (!store.state.formWrixLocation) { // Register store module only once
+          store.registerModule('formWrixLocation', FormStore)
+        }
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(() => {
           next()
         })
       }
@@ -1048,9 +1337,12 @@ const route = {
       path: 'wrix/:id/clone',
       name: 'cloneWrixLocation',
       component: WrixLocationView,
-      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formWrixLocation', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
+        if (!store.state.formWrixLocation) { // Register store module only once
+          store.registerModule('formWrixLocation', FormStore)
+        }
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(() => {
           next()
         })
       }
@@ -1066,33 +1358,48 @@ const route = {
       path: 'captive_portal',
       name: 'captive_portal',
       component: CaptivePortalView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formCaptivePortal', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formCaptivePortal) { // Register store module only once
+          store.registerModule('formCaptivePortal', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'filters',
       name: 'filters',
       component: FilterEngineTabs,
-      props: (route) => ({ storeName: '$_filters', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'billing_tiers',
       name: 'billing_tiers',
       component: BillingTiersList,
-      props: (route) => ({ storeName: '$_billing_tiers', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'billing_tiers/new',
       name: 'newBillingTier',
       component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
+      props: () => ({ formStoreName: 'formBillingTier', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formBillingTier) { // Register store module only once
+          store.registerModule('formBillingTier', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'billing_tier/:id',
       name: 'billing_tier',
       component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formBillingTier', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+        if (!store.state.formBillingTier) { // Register store module only once
+          store.registerModule('formBillingTier', FormStore)
+        }
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(() => {
           next()
         })
       }
@@ -1101,9 +1408,12 @@ const route = {
       path: 'billing_tier/:id/clone',
       name: 'cloneBillingTier',
       component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formBillingTier', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+        if (!store.state.formBillingTier) { // Register store module only once
+          store.registerModule('formBillingTier', FormStore)
+        }
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(() => {
           next()
         })
       }
@@ -1112,21 +1422,30 @@ const route = {
       path: 'pki_providers',
       name: 'pki_providers',
       component: PkiProvidersList,
-      props: (route) => ({ storeName: '$_pki_providers', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'pki_providers/new/:providerType',
       name: 'newPkiProvider',
       component: PkiProviderView,
-      props: (route) => ({ storeName: '$_pki_providers', isNew: true, providerType: route.params.providerType })
+      props: (route) => ({ formStoreName: 'formPkiProvider', isNew: true, providerType: route.params.providerType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProvider) { // Register store module only once
+          store.registerModule('formPkiProvider', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'pki_provider/:id',
       name: 'pki_provider',
       component: PkiProviderView,
-      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formPkiProvider', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+        if (!store.state.formPkiProvider) { // Register store module only once
+          store.registerModule('formPkiProvider', FormStore)
+        }
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })
       }
@@ -1135,9 +1454,12 @@ const route = {
       path: 'pki_provider/:id/clone',
       name: 'clonePkiProvider',
       component: PkiProviderView,
-      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formPkiProvider', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+        if (!store.state.formPkiProvider) { // Register store module only once
+          store.registerModule('formPkiProvider', FormStore)
+        }
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })
       }
@@ -1146,21 +1468,30 @@ const route = {
       path: 'provisionings',
       name: 'provisionings',
       component: ProvisioningsList,
-      props: (route) => ({ storeName: '$_provisionings', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'provisionings/new/:provisioningType',
       name: 'newProvisioning',
       component: ProvisioningView,
-      props: (route) => ({ storeName: '$_provisionings', isNew: true, provisioningType: route.params.provisioningType })
+      props: (route) => ({ formStoreName: 'formProvisioning', isNew: true, provisioningType: route.params.provisioningType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formProvisioning) { // Register store module only once
+          store.registerModule('formProvisioning', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'provisioning/:id',
       name: 'provisioning',
       component: ProvisioningView,
-      props: (route) => ({ storeName: '$_provisionings', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formProvisioning', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
+        if (!store.state.formProvisioning) { // Register store module only once
+          store.registerModule('formProvisioning', FormStore)
+        }
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })
       }
@@ -1169,9 +1500,12 @@ const route = {
       path: 'provisioning/:id/clone',
       name: 'cloneProvisioning',
       component: ProvisioningView,
-      props: (route) => ({ storeName: '$_provisionings', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formProvisioning', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
+        if (!store.state.formProvisioning) { // Register store module only once
+          store.registerModule('formProvisioning', FormStore)
+        }
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })
       }
@@ -1180,21 +1514,30 @@ const route = {
       path: 'portal_modules',
       name: 'portal_modules',
       component: PortalModulesList,
-      props: (route) => ({ storeName: '$_portalmodules', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'portal_modules/new/:moduleType',
       name: 'newPortalModule',
       component: PortalModuleView,
-      props: (route) => ({ storeName: '$_portalmodules', isNew: true, moduleType: route.params.moduleType })
+      props: (route) => ({ formStoreName: 'formPortalModule', isNew: true, moduleType: route.params.moduleType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPortalModule) { // Register store module only once
+          store.registerModule('formPortalModule', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'portal_module/:id',
       name: 'portal_module',
       component: PortalModuleView,
-      props: (route) => ({ storeName: '$_portalmodules', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formPortalModule', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
+        if (!store.state.formPortalModule) { // Register store module only once
+          store.registerModule('formPortalModule', FormStore)
+        }
+        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
           next()
         })
       }
@@ -1203,9 +1546,12 @@ const route = {
       path: 'portal_module/:id/clone',
       name: 'clonePortalModule',
       component: PortalModuleView,
-      props: (route) => ({ storeName: '$_portalmodules', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formPortalModule', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
+        if (!store.state.formPortalModule) { // Register store module only once
+          store.registerModule('formPortalModule', FormStore)
+        }
+        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
           next()
         })
       }
@@ -1214,27 +1560,42 @@ const route = {
       path: 'access_duration',
       name: 'access_duration',
       component: AccessDurationView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formAccessDuration', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formAccessDuration) { // Register store module only once
+          store.registerModule('formAccessDuration', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'self_services',
       name: 'self_services',
       component: SelfServicesList,
-      props: (route) => ({ storeName: '$_self_services', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'self_services/new',
       name: 'newSelfService',
       component: SelfServiceView,
-      props: (route) => ({ storeName: '$_self_services', isNew: true })
+      props: () => ({ formStoreName: 'formSelfService', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSelfService) { // Register store module only once
+          store.registerModule('formSelfService', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'self_service/:id',
       name: 'self_service',
       component: SelfServiceView,
-      props: (route) => ({ storeName: '$_self_services', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formSelfService', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_self_services/getSelfService', to.params.id).then(object => {
+        if (!store.state.formSelfService) { // Register store module only once
+          store.registerModule('formSelfService', FormStore)
+        }
+        store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })
       }
@@ -1243,9 +1604,12 @@ const route = {
       path: 'self_service/:id/clone',
       name: 'cloneSelfService',
       component: SelfServiceView,
-      props: (route) => ({ storeName: '$_self_services', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formSelfService', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_self_services/getSelfService', to.params.id).then(object => {
+        if (!store.state.formSelfService) { // Register store module only once
+          store.registerModule('formSelfService', FormStore)
+        }
+        store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })
       }
@@ -1273,15 +1637,18 @@ const route = {
       path: 'interfaces',
       name: 'interfaces',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'interfaces', storeName: '$_interfaces', query: route.query.query })
+      props: (route) => ({ tab: 'interfaces', query: route.query.query })
     },
     {
       path: 'interface/:id',
       name: 'interface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_interfaces', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+        if (!store.state.formInterface) { // Register store module only once
+          store.registerModule('formInterface', FormStore)
+        }
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
       }
@@ -1290,9 +1657,12 @@ const route = {
       path: 'interface/:id/clone',
       name: 'cloneInterface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+        if (!store.state.formInterface) { // Register store module only once
+          store.registerModule('formInterface', FormStore)
+        }
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
       }
@@ -1301,9 +1671,12 @@ const route = {
       path: 'interface/:id/new',
       name: 'newInterface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isNew: true }),
+      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id, isNew: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+        if (!store.state.formInterface) { // Register store module only once
+          store.registerModule('formInterface', FormStore)
+        }
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
       }
@@ -1312,9 +1685,12 @@ const route = {
       path: 'interfaces/layer2_network/:id',
       name: 'layer2_network',
       component: Layer2NetworkView,
-      props: (route) => ({ storeName: '$_layer2_networks', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formLayer2Network', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_layer2_networks/getLayer2Network', to.params.id).then(object => {
+        if (!store.state.formLayer2Network) { // Register store module only once
+          store.registerModule('formLayer2Network', FormStore)
+        }
+        store.dispatch('$_layer2_networks/getLayer2Network', to.params.id).then(() => {
           next()
         })
       }
@@ -1323,15 +1699,24 @@ const route = {
       path: 'interfaces/routed_networks/new',
       name: 'newRoutedNetwork',
       component: RoutedNetworkView,
-      props: (route) => ({ storeName: '$_routed_networks', isNew: true })
+      props: () => ({ formStoreName: 'formRoutedNetwork', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRoutedNetwork) { // Register store module only once
+          store.registerModule('formRoutedNetwork', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'interfaces/routed_network/:id',
       name: 'routed_network',
       component: RoutedNetworkView,
-      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRoutedNetwork', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
+        if (!store.state.formRoutedNetwork) { // Register store module only once
+          store.registerModule('formRoutedNetwork', FormStore)
+        }
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })
       }
@@ -1340,9 +1725,12 @@ const route = {
       path: 'interfaces/routed_network/:id/clone',
       name: 'cloneRoutedNetwork',
       component: RoutedNetworkView,
-      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRoutedNetwork', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
+        if (!store.state.formRoutedNetwork) { // Register store module only once
+          store.registerModule('formRoutedNetwork', FormStore)
+        }
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })
       }
@@ -1357,21 +1745,30 @@ const route = {
       path: 'traffic_shapings',
       name: 'traffic_shapings',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'traffic_shapings', storeName: '$_traffic_shaping_policies', query: route.query.query })
+      props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
     },
     {
       path: 'traffic_shaping/new/:role',
       name: 'newTrafficShaping',
       component: TrafficShapingView,
-      props: (route) => ({ storeName: '$_traffic_shaping_policies', isNew: true, role: route.params.role })
+      props: (route) => ({ formStoreName: 'formTrafficShapingPolicy', isNew: true, role: route.params.role }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formTrafficShapingPolicy) { // Register store module only once
+          store.registerModule('formTrafficShapingPolicy', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'traffic_shaping/:id',
       name: 'traffic_shaping',
       component: TrafficShapingView,
-      props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formTrafficShapingPolicy', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(object => {
+        if (!store.state.formTrafficShapingPolicy) { // Register store module only once
+          store.registerModule('formTrafficShapingPolicy', FormStore)
+        }
+        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(() => {
           next()
         })
       }
@@ -1392,21 +1789,30 @@ const route = {
       path: 'floating_devices',
       name: 'floating_devices',
       component: FloatingDevicesList,
-      props: (route) => ({ storeName: '$_floatingdevices', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'floating_devices/new',
       name: 'newFloatingDevice',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
+      props: () => ({ formStoreName: 'formFloatingDevice', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFloatingDevice) { // Register store module only once
+          store.registerModule('formFloatingDevice', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'floating_device/:id',
       name: 'floating_device',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formFloatingDevice', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+        if (!store.state.formFloatingDevice) { // Register store module only once
+          store.registerModule('formFloatingDevice', FormStore)
+        }
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -1415,9 +1821,12 @@ const route = {
       path: 'floating_device/:id/clone',
       name: 'cloneFloatingDevice',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formFloatingDevice', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+        if (!store.state.formFloatingDevice) { // Register store module only once
+          store.registerModule('formFloatingDevice', FormStore)
+        }
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
           next()
         })
       }
@@ -1426,7 +1835,13 @@ const route = {
       path: 'snmp_traps',
       name: 'snmp_traps',
       component: SnmpTrapView,
-      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+      props: (route) => ({ formStoreName: 'formSnmpTrap', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSnmpTrap) { // Register store module only once
+          store.registerModule('formSnmpTrap', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'certificates',
@@ -1436,7 +1851,7 @@ const route = {
       path: 'certificate/:id',
       name: 'certificate',
       component: CertificatesView,
-      props: (route) => ({ storeName: '$_certificates', id: route.params.id })
+      props: (route) => ({ id: route.params.id })
     },
     /**
      * System Configuration
@@ -1467,15 +1882,18 @@ const route = {
       path: 'maintenance_tasks',
       name: 'maintenance_tasks',
       component: MainTabs,
-      props: (route) => ({ tab: 'maintenance_tasks', storeName: '$_maintenance_tasks', query: route.query.query })
+      props: (route) => ({ tab: 'maintenance_tasks', query: route.query.query })
     },
     {
       path: 'maintenance_task/:id',
       name: 'maintenance_task',
       component: MaintenanceTaskView,
-      props: (route) => ({ storeName: '$_maintenance_tasks', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formMaintenanceTask', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(object => {
+        if (!store.state.formMaintenanceTask) { // Register store module only once
+          store.registerModule('formMaintenanceTask', FormStore)
+        }
+        store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(() => {
           next()
         })
       }
@@ -1502,39 +1920,66 @@ const route = {
       path: 'active_active',
       name: 'active_active',
       component: ActiveActiveView,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ formStoreName: 'formActiveActive', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formActiveActive) { // Register store module only once
+          store.registerModule('formActiveActive', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'radius',
       name: 'radius',
       component: RadiusView,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ formStoreName: 'formRadius', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadius) { // Register store module only once
+          store.registerModule('formRadius', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'dns',
       name: 'dns',
       component: DnsView,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ formStoreName: 'formDns', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formDns) { // Register store module only once
+          store.registerModule('formDns', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'admin_roles',
       name: 'admin_roles',
       component: AdminRolesList,
-      props: (route) => ({ storeName: '$_admin_roles', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'admin_roles/new',
       name: 'newAdminRole',
       component: AdminRoleView,
-      props: (route) => ({ storeName: '$_admin_roles', isNew: true })
+      props: () => ({ formStoreName: 'formAdminRole', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formAdminRole) { // Register store module only once
+          store.registerModule('formAdminRole', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'admin_role/:id',
       name: 'admin_role',
       component: AdminRoleView,
-      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formAdminRole', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+        if (!store.state.formAdminRole) { // Register store module only once
+          store.registerModule('formAdminRole', FormStore)
+        }
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(() => {
           next()
         })
       }
@@ -1543,9 +1988,12 @@ const route = {
       path: 'admin_role/:id/clone',
       name: 'cloneAdminRole',
       component: AdminRoleView,
-      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formAdminRole', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+        if (!store.state.formAdminRole) { // Register store module only once
+          store.registerModule('formAdminRole', FormStore)
+        }
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(() => {
           next()
         })
       }

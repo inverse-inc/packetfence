@@ -33,9 +33,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationBillingTiersListConfig as config
-} from '@/globals/configuration/pfConfigurationBillingTiers'
+import { config } from '../_config/billingTier'
 
 export default {
   name: 'billing-tiers-list',
@@ -45,16 +43,9 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/billingTier
     }
   },
   methods: {
@@ -62,7 +53,7 @@ export default {
       this.$router.push({ name: 'cloneBillingTier', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteBillingTier`, item.id).then(response => {
+      this.$store.dispatch('$_billing_tiers/deleteBillingTier', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

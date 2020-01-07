@@ -38,10 +38,11 @@
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
           :disabled="isLoading"
           @input="toggleStatus(item, $event)"
           @click.stop.prevent
-        >{{ (item.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        />
       </template>
     </pf-config-list>
   </b-card>
@@ -53,9 +54,7 @@ import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationSyslogParsersListConfig as config
-} from '@/globals/configuration/pfConfigurationSyslogParsers'
+import { config } from '../_config/syslogParser'
 
 export default {
   name: 'syslog-parsers-list',
@@ -66,16 +65,14 @@ export default {
     pfEmptyTable,
     pfFormRangeToggle
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/syslogParser
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_syslog_parsers/isLoading']
     }
   },
   methods: {
@@ -83,7 +80,7 @@ export default {
       this.$router.push({ name: 'cloneSyslogParser', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSyslogParser`, item.id).then(response => {
+      this.$store.dispatch('$_syslog_parsers/deleteSyslogParser', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -91,12 +88,12 @@ export default {
     toggleStatus (item, newStatus) {
       switch (newStatus) {
         case 'enabled':
-          this.$store.dispatch(`${this.storeName}/enableSyslogParser`, item).then(response => {
+          this.$store.dispatch('$_syslog_parsers/enableSyslogParser', item).then(response => {
             this.$refs.pfConfigList.submitSearch() // redo search
           })
           break
         case 'disabled':
-          this.$store.dispatch(`${this.storeName}/disableSyslogParser`, item).then(response => {
+          this.$store.dispatch('$_syslog_parsers/disableSyslogParser', item).then(response => {
             this.$refs.pfConfigList.submitSearch() // redo search
           })
           break

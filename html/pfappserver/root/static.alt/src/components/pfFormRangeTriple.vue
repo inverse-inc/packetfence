@@ -1,8 +1,10 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
     class="pf-form-range-triple" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
-    <b-input type="text" ref="vacuum" readonly :value="null" :disabled="disabled"
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+    </template>
+    <b-input type="text" ref="vacuum" :value="null" :disabled="disabled" readonly
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
       @blur.native="focus = false"
@@ -11,6 +13,7 @@
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-triple-label">
+        <span class="mr-2" v-if="leftLabel">{{ leftLabel }}</span>
         <input-range
           :value="inputValue"
           @input="inputValue = $event"
@@ -19,18 +22,19 @@
           max="2"
           step="1"
           :color="color"
-          :label="label"
+          :label="innerLabel"
           :tooltip="Object.keys(tooltips).length > 0"
           :tooltipFunction="tooltip"
           :width="width"
           :disabled="disabled"
-          class="mr-2"
+          class="d-inline-block"
           tabIndex="-1"
           @click="click"
         >
           <icon v-if="icon" :name="icon"></icon>
         </input-range>
-        <slot/>
+        <span class="ml-2" v-if="rightLabel">{{ rightLabel }}</span>
+        <slot class="ml-2"/>
       </label>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -39,12 +43,12 @@
 
 <script>
 import InputRange from '@/components/InputRange'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-range-triple',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     InputRange
@@ -91,7 +95,21 @@ export default {
         return (value.left || value.middle || value.right)
       }
     },
-    labels: {
+    innerLabels: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.left || value.middle || value.right)
+      }
+    },
+    leftLabels: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.left || value.middle || value.right)
+      }
+    },
+    rightLabels: {
       type: Object,
       default: () => { return {} },
       validator (value) {
@@ -118,7 +136,13 @@ export default {
   computed: {
     inputValue: {
       get () {
-        switch (this.value) {
+        let value
+        if (this.formStoreName) {
+          value = this.formStoreValue // use FormStore
+        } else {
+          value = this.value // use native (v-model)
+        }
+        switch (value) {
           case this.values.left:
             return 0
           case this.values.middle:
@@ -127,17 +151,23 @@ export default {
             return 2
         }
       },
-      set (newValue) {
-        switch (newValue) {
+      set (newValue = null) {
+        let value
+        switch (~~newValue) {
           case 0:
-            this.$emit('input', this.values.left)
+            value = this.values.left
             break
           case 1:
-            this.$emit('input', this.values.middle)
+            value = this.values.middle
             break
           case 2:
-            this.$emit('input', this.values.right)
+            value = this.values.right
             break
+        }
+        if (this.formStoreName) {
+          this.formStoreValue = value // use FormStore
+        } else {
+          this.$emit('input', value) // use native (v-model)
         }
       }
     },
@@ -167,15 +197,37 @@ export default {
           return ('right' in this.icons) ? this.icons.right : null
       }
     },
-    label () {
-      if (this.labels === null) return null
+    innerLabel () {
+      if (this.innerLabels === null) return null
       switch (this.inputValue) {
         case 0:
-          return ('left' in this.labels) ? this.labels.left : null
+          return ('left' in this.innerLabels) ? this.innerLabels.left : null
         case 1:
-          return ('middle' in this.labels) ? this.labels.middle : null
+          return ('middle' in this.innerLabels) ? this.innerLabels.middle : null
         case 2:
-          return ('right' in this.labels) ? this.labels.right : null
+          return ('right' in this.innerLabels) ? this.innerLabels.right : null
+      }
+    },
+    leftLabel () {
+      if (this.leftLabels === null) return null
+      switch (this.inputValue) {
+        case 0:
+          return ('left' in this.leftLabels) ? this.leftLabels.left : null
+        case 1:
+          return ('middle' in this.leftLabels) ? this.leftLabels.middle : null
+        case 2:
+          return ('right' in this.leftLabels) ? this.leftLabels.right : null
+      }
+    },
+    rightLabel () {
+      if (this.rightLabels === null) return null
+      switch (this.inputValue) {
+        case 0:
+          return ('left' in this.rightLabels) ? this.rightLabels.left : null
+        case 1:
+          return ('middle' in this.rightLabels) ? this.rightLabels.middle : null
+        case 2:
+          return ('right' in this.rightLabels) ? this.rightLabels.right : null
       }
     }
   },
@@ -221,13 +273,13 @@ export default {
       }
       const keyCode = String.fromCharCode(event.keyCode).toLowerCase()
       switch (true) {
-        case 'left' in this.values && this.values.left && keyCode === this.values.left.charAt(0).toLowerCase():
+        case 'left' in this.values && this.values.left && keyCode === this.values.left.toString().charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 0) // set index 0
           break
-        case 'middle' in this.values && this.values.middle && keyCode === this.values.middle.charAt(0).toLowerCase():
+        case 'middle' in this.values && this.values.middle && keyCode === this.values.middle.toString().charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 1) // set index 1
           break
-        case 'right' in this.values && this.values.right && keyCode === this.values.right.charAt(0).toLowerCase():
+        case 'right' in this.values && this.values.right && keyCode === this.values.right.toString().charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 2) // set index 2
           break
       }
@@ -238,12 +290,17 @@ export default {
 
 <style lang="scss">
 @keyframes animateCursor {
-  0%, 100% { background-color: rgba(0, 0, 0, 1); }
-  10%, 90% { background-color: rgba(0, 0, 0, 0.8); }
-  20%, 80% { background-color: rgba(0, 0, 0, 0.6); }
-  30%, 70% { background-color: rgba(0, 0, 0, 0.4); }
-  40%, 60% { background-color: rgba(0, 0, 0, 0.2); }
-  50% { background-color: rgba(0, 0, 0, 0); }
+  0%, 100% { background-color: rgba(255, 255, 255, 1); }
+  5%, 95% { background-color: rgba(255, 255, 255, 0.9); }
+  10%, 90% { background-color: rgba(255, 255, 255, 0.8); }
+  15%, 85% { background-color: rgba(255, 255, 255, 0.7); }
+  20%, 80% { background-color: rgba(255, 255, 255, 0.6); }
+  25%, 75% { background-color: rgba(255, 255, 255, 0.5); }
+  30%, 70% { background-color: rgba(255, 255, 255, 0.4); }
+  35%, 65% { background-color: rgba(255, 255, 255, 0.3); }
+  40%, 60% { background-color: rgba(255, 255, 255, 0.2); }
+  45%, 55% { background-color: rgba(255, 255, 255, 0.1); }
+  50% { background-color: rgba(255, 255, 255, 0); }
 }
 
 .pf-form-range-triple {

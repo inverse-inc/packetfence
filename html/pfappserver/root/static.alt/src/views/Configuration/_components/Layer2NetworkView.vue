@@ -1,11 +1,9 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    @validations="formValidations = $event"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -18,8 +16,8 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading" class="mr-1">
           <template v-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
@@ -36,25 +34,22 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonService from '@/components/pfButtonService'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
-  pfConfigurationLayer2NetworkViewFields as fields
-} from '@/globals/configuration/pfConfigurationLayer2Networks'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/layer2Network'
 
 export default {
   name: 'layer2-network-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonService
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -68,30 +63,24 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/layer2Network
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_layer2_networks/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -102,25 +91,26 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        this.options = options
-        if (this.id) {
-          // existing
-          this.$store.dispatch(`${this.storeName}/getLayer2Network`, this.id).then(form => {
-            this.form = form
+      this.$store.dispatch('$_layer2_networks/options', this.id).then(options => {
+        const { meta = {} } = options
+        const { isNew } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew } })
+        if (this.id) { // existing
+          this.$store.dispatch('$_layer2_networks/getLayer2Network', this.id).then(form => {
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
-        } else {
-          // new
-          this.form = defaults(options.meta) // set defaults
+        } else { // new
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
         }
       })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'interfaces' })
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateLayer2Network`, this.form).then(response => {
+      this.$store.dispatch('$_layer2_networks/updateLayer2Network', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }

@@ -16,10 +16,10 @@
  *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  -->
  <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
-    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
+    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus}">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group class="pf-form-datetime-input-group">
       <b-input-group-prepend v-if="prependText">
@@ -27,17 +27,15 @@
           {{ prependText }}
         </div>
       </b-input-group-prepend>
-      <flat-pickr :key="locale"
-        v-model="inputValue"
+      <flat-pickr ref="input"
+        v-model="flatpickrValue"
         v-bind="$attrs"
-        ref="input"
-        :config="combinedConfig"
-        :state="isValid()"
-        @input.native="validate()"
-        @keyup.native="onChange($event)"
-        @change.native="onChange($event)"
-        @focus.native="focus = true"
-        @blur.native="focus = false"
+        :key="locale"
+        :config="flatpickrConfig"
+        :state="inputState"
+        @on-change="onChangeDatetime"
+        @focus.native="isFocus = true"
+        @blur.native="isFocus = false"
       ></flat-pickr>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
@@ -52,7 +50,7 @@
 </template>
 
 <script>
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
 import 'flatpickr/dist/themes/material_blue.css'
@@ -61,7 +59,7 @@ import { French } from 'flatpickr/dist/l10n/fr.js'
 import {
   parse,
   format,
-  isValid as dateFnsIsValid, // avoid overlap on pfMixinValidation::isValid()
+  isValid,
   addYears,
   addQuarters,
   addMonths,
@@ -79,7 +77,7 @@ const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 
 export default {
   name: 'pf-form-datetime',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     flatPickr
@@ -119,32 +117,55 @@ export default {
   },
   data () {
     return {
-      defaultConfig: {
+      defaults: {
         allowInput: true,
         datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
         time_24hr: true
       },
       initialValue: undefined,
-      focus: false
+      isFocus: false
     }
   },
   computed: {
     inputValue: {
       get () {
-        return this.value === '0000-00-00 00:00:00' ? null : this.value
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
       },
-      set (newValue) {
-        const datetimeFormat = this.combinedConfig.datetimeFormat
-        const value = (newValue === null) ? datetimeFormat.replace(/[a-z]/gi, '0') : newValue
-        this.$emit('input', value)
+      set (newValue = null) {
+        const datetimeFormat = this.convertFormat(this.options.datetimeFormat)
+        const datetimeEmpty = datetimeFormat.replace(/[a-z]/gi, '0')
+        const formattedValue = ([null, datetimeEmpty].includes(newValue)) ? datetimeEmpty : newValue
+        if (this.formStoreName) {
+          this.formStoreValue = formattedValue // use FormStore
+        } else {
+          this.$emit('input', formattedValue) // use native (v-model)
+        }
       }
     },
-    combinedConfig () {
-      const minMaxConfig = {
+    flatpickrValue: {
+      get () {
+        if (this.inputValue === this.options.datetimeFormat.replace(/[a-z]/gi, '0')) {
+          // proxy fix: flatpickr smashes '0000-00-00 00:00:00'
+          return null
+        }
+        return this.inputValue
+      },
+      set (newValue) {
+        // flatpickr mangles partial (invalid) datetime strings, thus disallowing user input
+        //  don't do anything here, instead use the `on-change` event => `onChangeDatetime` method
+        // this.inputValue = newValue
+      }
+    },
+    flatpickrConfig () {
+      let extraConfig = {
         minDate: (this.min === '0000-00-00 00:00:00') ? new Date(-8640000000000000) : this.min,
         maxDate: (this.max === '0000-00-00 00:00:00') ? new Date(8640000000000000) : this.max
       }
-      let config = { ...this.defaultConfig, ...minMaxConfig, ...this.config }
+      let config = { ...this.options, ...extraConfig }
       if ('datetimeFormat' in config) {
         config.datetimeFormat = this.convertFormat(config.datetimeFormat)
         if (/[HhGiSsK]+/.test(config.datetimeFormat)) {
@@ -153,6 +174,11 @@ export default {
         } else {
           config.enableTime = false
           config.enableSeconds = false
+        }
+        if (/[YyFMmndJjlD]+/.test(config.datetimeFormat)) {
+          config.noCalendar = false
+        } else {
+          config.noCalendar = true
         }
       }
       switch (this.locale) {
@@ -164,13 +190,28 @@ export default {
           config.locale = english
           break
       }
+      config.dateFormat = config.datetimeFormat // rename datetimeFormat to dateFormat (flatpickr)
+      delete config.datetimeFormat
       return config
     },
     locale () {
       return this.$i18n.locale
+    },
+    options () {
+      return { ...this.defaults, ...this.config }
     }
   },
   methods: {
+    onChangeDatetime (newDatetime) {
+      const formattedDatetime = format(newDatetime, this.options.datetimeFormat)
+      if (this.inputValue !== formattedDatetime) {
+        this.inputValue = formattedDatetime
+      }
+    },
+    focus () {
+      let picker = this.$refs.input.$el
+      picker.focus()
+    },
     convertFormat (format = 'YYYY-MM-DD HH:ii:ss') {
       // converts 'datefns' format to 'flatpickr' format
       //  https://flatpickr.js.org/formatting/
@@ -245,8 +286,8 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL/CMD]+[CLICK] for cumulative change
-      const datetimeFormat = this.config.datetimeFormat || this.defaultConfig.datetimeFormat
-      const base = (event.actionKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
+      const datetimeFormat = this.config.datetimeFormat || this.defaults.datetimeFormat
+      const base = (event.ctrlKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
           case 'years':
@@ -282,7 +323,7 @@ export default {
       }
     },
     formatIsTimeOnly () {
-      let datetimeFormat = this.combinedConfig.datetimeFormat
+      let datetimeFormat = this.flatpickrConfig.datetimeFormat
       if ('input' in this.$refs && 'dp' in this.$refs.input) {
         return !(/[MQDdEeWwYgX]+/.test(datetimeFormat))
       }
@@ -291,7 +332,7 @@ export default {
   },
   created () {
     // dereference inputValue and assign initialValue
-    const datetimeFormat = this.combinedConfig.datetimeFormat
+    const datetimeFormat = this.options.datetimeFormat
     if (this.inputValue instanceof Date) {
       // instanceof Date, convert to String
       this.inputValue = format(this.inputValue, datetimeFormat)
@@ -302,10 +343,10 @@ export default {
     }
     // normalize (floor) min/max
     if (this.min) {
-      this.min = parse(format((this.min instanceof Date && dateFnsIsValid(this.min) ? this.min : parse(this.min)), datetimeFormat))
+      this.min = parse(format((this.min instanceof Date && isValid(this.min) ? this.min : parse(this.min)), datetimeFormat))
     }
     if (this.max) {
-      this.max = parse(format((this.max instanceof Date && dateFnsIsValid(this.max) ? this.max : parse(this.max)), datetimeFormat))
+      this.max = parse(format((this.max instanceof Date && isValid(this.max) ? this.max : parse(this.max)), datetimeFormat))
     }
   }
 }

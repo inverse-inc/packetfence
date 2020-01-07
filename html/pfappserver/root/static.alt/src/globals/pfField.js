@@ -6,12 +6,14 @@ export const pfComponentType = {
   NONE:                                'none',
   DATE:                                'date',
   DATETIME:                            'datetime',
+  HIDDEN:                              'hidden',
   INTEGER:                             'integer',
   PREFIXMULTIPLIER:                    'prefixmultiplier',
   SELECTONE:                           'selectone',
   SELECTMANY:                          'selectmany',
   SUBSTRING:                           'substring',
-  TOGGLE:                              'toggle'
+  TOGGLE:                              'toggle',
+  TIME:                                'time'
 }
 
 export const pfFieldType = {
@@ -19,12 +21,15 @@ export const pfFieldType = {
   NONE:                                'none',
   INTEGER:                             'integer',
   SUBSTRING:                           'substring',
+  CONNECTION:                          'connection',
   CONNECTION_TYPE:                     'connection_type',
   CONNECTION_SUB_TYPE:                 'connection_sub_type',
   DATE:                                'date',
   DATETIME:                            'datetime',
   GENDER:                              'gender',
+  HIDDEN:                              'hidden',
   NODE_STATUS:                         'node_status',
+  LDAPATTRIBUTE:                       'ldapattribute',
   PREFIXMULTIPLIER:                    'prefixmultiplier',
   SELECTMANY:                          'selectmany',
   TIME_BALANCE:                        'time_balance',
@@ -48,7 +53,9 @@ export const pfFieldType = {
   SSID:                                'ssid',
   SWITCHE:                             'switche',
   SWITCH_GROUP:                        'switch_group',
-  TENANT:                              'tenant'
+  TENANT:                              'tenant',
+  TIME:                                'time',
+  TIME_PERIOD:                         'time_period'
 }
 
 export const pfFieldTypeComponent = {
@@ -56,6 +63,7 @@ export const pfFieldTypeComponent = {
   [pfFieldType.NONE]:                  pfComponentType.NONE,
   [pfFieldType.DATE]:                  pfComponentType.DATE,
   [pfFieldType.DATETIME]:              pfComponentType.DATETIME,
+  [pfFieldType.HIDDEN]:                pfComponentType.HIDDEN,
   [pfFieldType.INTEGER]:               pfComponentType.INTEGER,
   [pfFieldType.PREFIXMULTIPLIER]:      pfComponentType.PREFIXMULTIPLIER,
   [pfFieldType.SELECTONE]:             pfComponentType.SELECTONE,
@@ -66,6 +74,7 @@ export const pfFieldTypeComponent = {
   /* additional component types */
   [pfFieldType.ADMINROLE]:             pfComponentType.SELECTONE,
   [pfFieldType.ADMINROLE_BY_ACL_USER]: pfComponentType.SELECTONE,
+  [pfFieldType.CONNECTION]:            pfComponentType.SELECTONE,
   [pfFieldType.CONNECTION_TYPE]:       pfComponentType.SELECTONE,
   [pfFieldType.CONNECTION_SUB_TYPE]:   pfComponentType.SELECTONE,
   [pfFieldType.DURATION]:              pfComponentType.SELECTONE,
@@ -85,9 +94,41 @@ export const pfFieldTypeComponent = {
   [pfFieldType.SWITCHE]:               pfComponentType.SELECTONE,
   [pfFieldType.SWITCH_GROUP]:          pfComponentType.SELECTONE,
   [pfFieldType.TENANT]:                pfComponentType.SELECTONE,
+  [pfFieldType.TIME]:                  pfComponentType.TIME,
   [pfFieldType.TIME_BALANCE]:          pfComponentType.SELECTONE,
+  [pfFieldType.TIME_PERIOD]:           pfComponentType.SUBSTRING,
   [pfFieldType.URL]:                   pfComponentType.SUBSTRING,
   [pfFieldType.YESNO]:                 pfComponentType.TOGGLE
+}
+
+export const pfFieldTypeOperators = {
+  [pfFieldType.CONNECTION]: [
+    { text: 'is', value: 'is' },
+    { text: 'is not', value: 'is not' }
+  ],
+  [pfFieldType.LDAPATTRIBUTE]: [
+    { text: 'starts', value: 'starts' },
+    { text: 'equals', value: 'equals' },
+    { text: 'not_equals', value: 'not_equals' },
+    { text: 'contains', value: 'contains' },
+    { text: 'ends', value: 'ends' },
+    { text: 'matches regexp', value: 'matches regexp' },
+    { text: 'is member of', value: 'is member of' }
+  ],
+  [pfFieldType.SUBSTRING]: [
+    { text: 'starts', value: 'starts' },
+    { text: 'equals', value: 'equals' },
+    { text: 'contains', value: 'contains' },
+    { text: 'ends', value: 'ends' },
+    { text: 'matches regexp', value: 'matches regexp' }
+  ],
+  [pfFieldType.TIME]: [
+    { text: 'is before', value: 'is before' },
+    { text: 'is after', value: 'is after' }
+  ],
+  [pfFieldType.TIME_PERIOD]: [
+    { text: 'in_time_period', value: 'in_time_period' }
+  ]
 }
 
 export const pfFieldTypeValues = {
@@ -99,78 +140,31 @@ export const pfFieldTypeValues = {
     store.dispatch('session/getAllowedUserAccessLevels')
     return store.getters['session/allowedUserAccessLevelsList']
   },
-  [pfFieldType.DURATION]: () => {
-    store.dispatch('config/getBaseGuestsAdminRegistration')
-    return store.getters['config/accessDurationsList']
-  },
-  [pfFieldType.DURATION_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserAccessDurations')
-    return store.getters['session/allowedUserAccessDurationsList']
-  },
-  [pfFieldType.DURATIONS]: () => {
-    store.dispatch('config/getBaseGuestsAdminRegistration')
-    return store.getters['config/accessDurationsList']
-  },
-  [pfFieldType.OPTIONS]: ({ field }) => {
-    let options = []
-    if (field === undefined) {
-      throw new Error('Missing `field` in pfFieldTypeValues[pfFieldType.OPTIONS]')
-    }
-    if (field.options) {
-      options = field.options.map(o => {
-        // pfFieldType uses the 'name' attribute as the label.
-        const { text } = o
-        if (text) {
-          o.name = text
-        }
-        return o
-      })
-    }
-    return options
-  },
-  [pfFieldType.REALM]: () => {
-    store.dispatch('config/getRealms')
-    return store.getters['config/realmsList']
-  },
-  [pfFieldType.ROLE]: () => {
-    store.dispatch('config/getRoles')
-    return store.getters['config/rolesList']
-  },
-  [pfFieldType.ROLE_BY_NAME]: () => {
-    store.dispatch('config/getRoles')
-    return pfFieldTypeValues[pfFieldType.ROLE]().map(role => { return { value: role.name, name: role.name } })
-  },
-  [pfFieldType.ROLE_BY_ACL_NODE]: () => {
-    store.dispatch('session/getAllowedNodeRoles')
-    return store.getters['session/allowedNodeRolesList']
-  },
-  [pfFieldType.ROLE_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserRoles')
-    return store.getters['session/allowedUserRolesList']
-  },
-  [pfFieldType.ROOT_PORTAL_MODULE]: () => {
-    store.dispatch('config/getPortalModules')
-    return store.getters['config/rootPortalModulesList']
-  },
-  [pfFieldType.SOURCE]: () => {
-    store.dispatch('config/getSources')
-    return store.getters['config/sourcesList']
-  },
-  [pfFieldType.SSID]: () => {
-    store.dispatch('config/getSsids')
-    return store.getters['config/ssidsList']
-  },
-  [pfFieldType.SWITCHE]: () => {
-    store.dispatch('config/getSwitches')
-    return store.getters['config/switchesList']
-  },
-  [pfFieldType.SWITCH_GROUP]: () => {
-    store.dispatch('config/getSwitchGroups')
-    return store.getters['config/switchGroupsList']
-  },
-  [pfFieldType.TENANT]: () => {
-    store.dispatch('config/getTenants')
-    return store.getters['config/tenantsList']
+  [pfFieldType.CONNECTION]: () => {
+    return [
+      {
+        group: i18n.t('Types'),
+        items: [
+          { value: 'Ethernet-EAP', text: 'Ethernet-EAP' },
+          { value: 'Ethernet-NoEAP', text: 'Ethernet-NoEAP' },
+          { value: 'Ethernet-Web-Auth', text: 'Ethernet-Web-Auth' },
+          { value: 'Inline', text: 'Inline' },
+          { value: 'SNMP-Traps', text: 'SNMP-Traps' },
+          { value: 'Wireless-802.11-EAP', text: 'Wireless-802.11-EAP' },
+          { value: 'Wireless-802.11-NoEAP', text: 'Wireless-802.11-NoEAP' },
+          { value: 'Wireless-Web-Auth', text: 'Wireless-Web-Auth' }
+        ]
+      },
+      {
+        group: i18n.t('Groups'),
+        items: [
+          { value: 'EAP', text: 'EAP' },
+          { value: 'Ethernet', text: 'Ethernet' },
+          { value: 'Web-Auth', text: 'Web-Auth' },
+          { value: 'Wireless', text: 'Wireless' }
+        ]
+      }
+    ]
   },
   [pfFieldType.CONNECTION_TYPE]: () => {
     return [
@@ -260,6 +254,79 @@ export const pfFieldTypeValues = {
       { name: i18n.t('Unregistered'), value: 'unreg' },
       { name: i18n.t('Pending'), value: 'pending' }
     ]
+  },
+  [pfFieldType.DURATION]: () => {
+    store.dispatch('config/getBaseGuestsAdminRegistration')
+    return store.getters['config/accessDurationsList']
+  },
+  [pfFieldType.DURATION_BY_ACL_USER]: () => {
+    store.dispatch('session/getAllowedUserAccessDurations')
+    return store.getters['session/allowedUserAccessDurationsList']
+  },
+  [pfFieldType.DURATIONS]: () => {
+    store.dispatch('config/getBaseGuestsAdminRegistration')
+    return store.getters['config/accessDurationsList']
+  },
+  [pfFieldType.OPTIONS]: ({ field }) => {
+    let options = []
+    if (field === undefined) {
+      throw new Error('Missing `field` in pfFieldTypeValues[pfFieldType.OPTIONS]')
+    }
+    if (field.options) {
+      options = field.options.map(o => {
+        // pfFieldType uses the 'name' attribute as the label.
+        const { text } = o
+        if (text) {
+          o.name = text
+        }
+        return o
+      })
+    }
+    return options
+  },
+  [pfFieldType.REALM]: () => {
+    store.dispatch('config/getRealms')
+    return store.getters['config/realmsList']
+  },
+  [pfFieldType.ROLE]: () => {
+    store.dispatch('config/getRoles')
+    return store.getters['config/rolesList']
+  },
+  [pfFieldType.ROLE_BY_NAME]: () => {
+    store.dispatch('config/getRoles')
+    return pfFieldTypeValues[pfFieldType.ROLE]().map(role => { return { value: role.name, name: role.name } })
+  },
+  [pfFieldType.ROLE_BY_ACL_NODE]: () => {
+    store.dispatch('session/getAllowedNodeRoles')
+    return store.getters['session/allowedNodeRolesList']
+  },
+  [pfFieldType.ROLE_BY_ACL_USER]: () => {
+    store.dispatch('session/getAllowedUserRoles')
+    return store.getters['session/allowedUserRolesList']
+  },
+  [pfFieldType.ROOT_PORTAL_MODULE]: () => {
+    store.dispatch('config/getPortalModules')
+    return store.getters['config/rootPortalModulesList']
+  },
+  [pfFieldType.SOURCE]: () => {
+    store.dispatch('config/getSources')
+    return store.getters['config/sourcesList']
+  },
+  [pfFieldType.SSID]: () => {
+    store.dispatch('config/getSsids')
+    return store.getters['config/ssidsList']
+  },
+  [pfFieldType.SWITCHE]: () => {
+    store.dispatch('config/getSwitches')
+    return store.getters['config/switchesList']
+  },
+  [pfFieldType.SWITCH_GROUP]: () => {
+    store.dispatch('config/getSwitchGroups')
+    return store.getters['config/switchGroupsList']
+  },
+  [pfFieldType.TENANT]: () => {
+    store.dispatch('config/getTenants')
+    return store.getters['config/tenantsList']
   },
   [pfFieldType.TIME_BALANCE]: () => {
     return [

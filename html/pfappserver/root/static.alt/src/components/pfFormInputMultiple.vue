@@ -1,28 +1,24 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
-    class="pf-form-chosen pf-form-input-multiple" :class="{ 'mb-0': !columnLabel, 'is-focus': hasFocus, 'is-empty': !value, 'is-disabled': disabled }">
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
+    class="pf-form-chosen pf-form-input-multiple" :class="{ 'mb-0': !columnLabel, 'is-focus': hasFocus, 'is-empty': !inputValue, 'is-disabled': disabled }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
-      <multiselect
-        v-model="inputValue"
+      <multiselect ref="multiselect"
+        v-model="multiselectValue"
         v-bind="$attrs"
         v-on="forwardListeners"
-        ref="input"
         track-by="value"
         label="text"
         :disabled="disabled"
-        :state="isValid()"
+        :state="inputState"
         :multiple="true"
-        :options="options"
+        :options="multiselectValue"
         :taggable="true"
-        :placeholder="proxyPlaceholder"
-        :tag-placeholder="proxyTagPlaceholder"
+        :placeholder="multiselectPlaceholder"
+        :tag-placeholder="multiselectTagPlaceholder"
         @tag="addTag"
-        @change.native="onChange($event)"
-        @input.native="validate()"
-        @keyup.native.stop.prevent="onChange($event)"
         @open="onFocus"
         @close="onBlur"
       ></multiselect>
@@ -37,12 +33,12 @@
 <script>
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-input-multiple',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     Multiselect
@@ -91,33 +87,45 @@ export default {
   computed: {
     inputValue: {
       get () {
-        let inputValue = ((this.value)
-          ? this.value
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
+      },
+      set (newValue) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
+      }
+    },
+    multiselectValue: {
+      get () {
+        let inputValue = (this.inputValue)
+          ? this.inputValue
             .split(this.separator.trim())
             .filter(value => value)
             .map(value => { return { text: value.trim(), value: value.trim() } })
           : []
-        )
         return inputValue
       },
       set (newValue) {
-        this.$emit('input', newValue.map(value => value.value).filter(value => value).join(this.separator) || null)
+        this.inputValue = newValue.map(value => value.value).filter(value => value).join(this.separator) || null
       }
     },
-    options () {
-      return this.inputValue
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
-    },
-    proxyPlaceholder () {
+    multiselectPlaceholder () {
       return (this.hasFocus)
         ? this.placeholder || this.$i18n.t('Enter a new value')
         : '' // hide placeholder when not in focus
     },
-    proxyTagPlaceholder () {
+    multiselectTagPlaceholder () {
       return this.tagPlaceholder || this.$i18n.t('Click to add value')
+    },
+    forwardListeners () {
+      const { input, ...listeners } = this.$listeners
+      return listeners
     }
   },
   methods: {
@@ -128,10 +136,12 @@ export default {
       this.hasFocus = false
     },
     focus () {
-      this.$refs.input.focus()
+      const { $refs: { multiselect: { $el } = {} } = {} } = this
+      $el.focus()
     },
     addTag (newTag) {
-      this.$set(this, 'inputValue', [ ...this.inputValue, ...[{ text: newTag, value: newTag }] ])
+      this.$set(this, 'multiselectValue', [ ...this.multiselectValue, ...[{ text: newTag, value: newTag }] ])
+      this.focus()
     }
   }
 }

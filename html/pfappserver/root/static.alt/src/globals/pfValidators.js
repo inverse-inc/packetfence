@@ -12,53 +12,11 @@
 **/
 import store from '@/store'
 import { parse, format, isValid, compareAsc } from 'date-fns'
+import { createDebouncer } from 'promised-debounce'
+
+const debounceTime = 300 // 300ms
 
 const _common = require('vuelidate/lib/validators/common')
-
-/**
- *
- * Misc local helpers
- *
-**/
-
-// Get the unique id of a given $v.
-const idOfV = ($v) => {
-  if ($v.constructor === String) return undefined
-  const { '__ob__': { dep: { id } } } = $v
-  return id || undefined
-}
-
-/**
- *  Get the parent $v of a given id.
- *
- *  For use with "Field" functions.
- *  Searches for a member from a given |id|,
- *   starts with the base $v, and traverses the entire $v model tree recursively,
- *   returns the members' parent.
-**/
-const parentVofId = ($v, id) => {
-  const params = Object.keys($v.$params)
-  for (let i = 0; i < params.length; i++) {
-    const param = params[i]
-    if (typeof $v[param] === 'object' && typeof $v[param].$model === 'object') {
-      if ($v[param].$model && '__ob__' in $v[param].$model) {
-        if (idOfV($v[param].$model) === id) return $v
-      }
-      // recurse
-      let $parent = parentVofId($v[param], id)
-      if ($parent) return $parent
-    }
-  }
-  return undefined
-}
-
-// Get the id, parent and params from a given $v member
-const idParentParamsFromV = (vBase, vMember) => {
-  const id = idOfV(vMember)
-  const parent = (id) ? parentVofId(vBase, id) : undefined
-  const params = (id) ? Object.entries(parent.$params) : undefined
-  return { id: id, parent: parent, params: params }
-}
 
 /**
  * Default replacements - Fix Promises
@@ -68,8 +26,8 @@ const idParentParamsFromV = (vBase, vMember) => {
 export const and = (...validators) => {
   return _common.withParams({ type: 'and' }, function (...args) {
     return (
-      validators.length > 0 &&
-      Promise.all(validators.map(fn => fn.apply(this, args))).then(values => {
+      validators.filter(v => v).length > 0 &&
+      Promise.all(validators.filter(v => v).map(fn => fn.apply(this, args))).then(values => {
         return values.reduce((valid, value) => {
           return valid && value
         }, true)
@@ -80,10 +38,10 @@ export const and = (...validators) => {
 
 // Default vuelidate |or| replacement, handles Promises
 export const or = (...validators) => {
-  return _common.withParams({ type: 'and' }, function (...args) {
+  return _common.withParams({ type: 'or' }, function (...args) {
     return (
-      validators.length > 0 &&
-      Promise.all(validators.map(fn => fn.apply(this, args))).then(values => {
+      validators.filter(v => v).length > 0 &&
+      Promise.all(validators.filter(v => v).map(fn => fn.apply(this, args))).then(values => {
         return values.reduce((valid, value) => {
           return valid || value
         }, false)
@@ -114,14 +72,13 @@ export const alphaNum = () => {
  * Custom functions
  *
 **/
-
 export const conditional = (conditional) => {
   return (0, _common.withParams)({
     type: 'conditional',
     conditional: conditional
   }, function (value, vm) {
     return (conditional && conditional.constructor === Function)
-      ? (typeof value === 'undefined')
+      ? (value === undefined)
         ? conditional(undefined, vm)
         : conditional(JSON.parse(JSON.stringify(value)), vm) // dereference value
       : conditional
@@ -531,148 +488,303 @@ export const hasWRIXLocations = () => {
   })
 }
 
+let adminRolesExistsDebouncer
 export const adminRoleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getAdminRoles').then((response) => {
-    return (response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!adminRolesExistsDebouncer) {
+    adminRolesExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    adminRolesExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getAdminRoles').then((response) => {
+          resolve(response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let billingTierExistsDebouncer
 export const billingTierExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getBillingTiers').then((response) => {
-    return (response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!billingTierExistsDebouncer) {
+    billingTierExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    billingTierExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getBillingTiers').then((response) => {
+          resolve(response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let categoryIdNumberExistsDebouncer
 export const categoryIdNumberExists = (value) => {
   if (!value || !/^\d+$/.test(value)) return true
-  return store.dispatch('config/getRoles').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(role => role.category_id === value).length > 0)
-  }).catch(() => {
-    return true
+  if (!categoryIdNumberExistsDebouncer) {
+    categoryIdNumberExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    categoryIdNumberExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getRoles').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(role => role.category_id === value).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let categoryIdStringExistsDebouncer
 export const categoryIdStringExists = (value) => {
   if (!value || /^\d+$/.test(value)) return true
-  return store.dispatch('config/getRoles').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!categoryIdStringExistsDebouncer) {
+    categoryIdStringExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    categoryIdStringExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getRoles').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let connectionProfileExistsDebouncer
 export const connectionProfileExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getConnectionProfiles').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!connectionProfileExistsDebouncer) {
+    connectionProfileExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    connectionProfileExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getConnectionProfiles').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let selfServiceExistsDebouncer
 export const selfServiceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSelfServices').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!selfServiceExistsDebouncer) {
+    selfServiceExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    selfServiceExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getSelfServices').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let domainExistsDebouncer
 export const domainExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getDomains').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!domainExistsDebouncer) {
+    domainExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    domainExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getDomains').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let firewallExistsDebouncer
 export const firewallExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getFirewalls').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!firewallExistsDebouncer) {
+    firewallExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    firewallExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getFirewalls').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let floatingDeviceExistsDebouncer
 export const floatingDeviceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getFloatingDevices').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!floatingDeviceExistsDebouncer) {
+    floatingDeviceExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    floatingDeviceExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getFloatingDevices').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let interfaceExistsDebouncer
 export const interfaceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getInterfaces').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!interfaceExistsDebouncer) {
+    interfaceExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    interfaceExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getInterfaces').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let interfaceVlanExistsDebouncer
 export const interfaceVlanExists = (id) => {
   return (0, _common.withParams)({
     type: 'interfaceVlanExists',
     id: id
   }, function (value) {
     if (!(0, _common.req)(value)) return true
-    return store.dispatch('config/getInterfaces').then((response) => {
-      if (response.length === 0) return true
-      return (response.filter(iface => iface.master === id && iface.vlan === value).length > 0)
-    }).catch(() => {
-      return true
+    if (!interfaceVlanExistsDebouncer) {
+      interfaceVlanExistsDebouncer = createDebouncer()
+    }
+    return new Promise((resolve) => {
+      interfaceVlanExistsDebouncer({
+        handler: () => {
+          store.dispatch('config/getInterfaces').then((response) => {
+            if (response.length === 0) resolve(true)
+            else resolve(response.filter(iface => iface.master === id && iface.vlan === value).length > 0)
+          }).catch(() => {
+            resolve(true)
+          })
+        },
+        time: debounceTime
+      })
     })
   })
 }
 
+let fingerbankCombinationExistsDebouncer
 export const fingerbankCombinationExists = (value) => {
   if (!value) return true
-  return store.dispatch('fingerbank/getCombination', value).then(() => {
-    return true
-  }).catch(() => {
-    return false
+  if (!fingerbankCombinationExistsDebouncer) {
+    fingerbankCombinationExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    fingerbankCombinationExistsDebouncer({
+      handler: () => {
+        store.dispatch('fingerbank/getCombination', value).then(() => {
+          resolve(true)
+        }).catch(() => {
+          resolve(false)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let layer2NetworkExistsDebouncer
 export const layer2NetworkExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getLayer2Networks').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!layer2NetworkExistsDebouncer) {
+    layer2NetworkExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    layer2NetworkExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getLayer2Networks').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let maintenanceTaskExistsDebouncer
 export const maintenanceTaskExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getMaintenanceTasks').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!maintenanceTaskExistsDebouncer) {
+    maintenanceTaskExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    maintenanceTaskExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getMaintenanceTasks').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let nodeExistsDebouncer
 export const nodeExists = (value) => {
   if (!value) return true
   // standardize MAC address
@@ -681,337 +793,395 @@ export const nodeExists = (value) => {
     return a
   })
   if (value.length !== 17) return true
-  return store.dispatch('$_nodes/exists', value).then(() => {
-    return false
-  }).catch(() => {
-    return true
+  if (!nodeExistsDebouncer) {
+    nodeExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    nodeExistsDebouncer({
+      handler: () => {
+        store.dispatch('$_nodes/exists', value).then(() => {
+          resolve(false)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let pkiProviderExistsDebouncer
 export const pkiProviderExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getPkiProviders').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!pkiProviderExistsDebouncer) {
+    pkiProviderExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    pkiProviderExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getPkiProviders').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let portalModuleExistsDebouncer
 export const portalModuleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getPortalModules').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!portalModuleExistsDebouncer) {
+    portalModuleExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    portalModuleExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getPortalModules').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let provisioningExistsDebouncer
 export const provisioningExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getProvisionings').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!provisioningExistsDebouncer) {
+    provisioningExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    provisioningExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getProvisionings').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let realmExistsDebouncer
 export const realmExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getRealms').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!realmExistsDebouncer) {
+    realmExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    realmExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getRealms').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let roleExistsDebouncer
 export const roleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getRoles').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!roleExistsDebouncer) {
+    roleExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    roleExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getRoles').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let routedNetworkExistsDebouncer
 export const routedNetworkExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getRoutedNetworks').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!routedNetworkExistsDebouncer) {
+    routedNetworkExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    routedNetworkExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getRoutedNetworks').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let scanExistsDebouncer
 export const scanExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getScans').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!scanExistsDebouncer) {
+    scanExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    scanExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getScans').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let securityEventExistsDebouncer
 export const securityEventExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSecurityEvents').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!securityEventExistsDebouncer) {
+    securityEventExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    securityEventExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getSecurityEvents').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let sourceExistsDebouncer
 export const sourceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSources').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!sourceExistsDebouncer) {
+    sourceExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    sourceExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getSources').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let switchExistsDebouncer
 export const switchExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSwitches').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!switchExistsDebouncer) {
+    switchExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    switchExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getSwitches').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let switchGroupExistsDebouncer
 export const switchGroupExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSwitchGroups').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!switchGroupExistsDebouncer) {
+    switchGroupExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    switchGroupExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getSwitchGroups').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let syslogForwarderExistsDebouncer
 export const syslogForwarderExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSyslogForwarders').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!syslogForwarderExistsDebouncer) {
+    syslogForwarderExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    syslogForwarderExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getSyslogForwarders').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let syslogParserExistsDebouncer
 export const syslogParserExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSyslogParsers').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!syslogParserExistsDebouncer) {
+    syslogParserExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    syslogParserExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getSyslogParsers').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let trafficShapingPolicyExistsDebouncer
 export const trafficShapingPolicyExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!trafficShapingPolicyExistsDebouncer) {
+    trafficShapingPolicyExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    trafficShapingPolicyExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getTrafficShapingPolicies').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let userExistsDebouncer
 export const userExists = (value) => {
   if (!value) return true
-  return store.dispatch('$_users/exists', value).then(() => {
-    return true
-  }).catch(() => {
-    return false
+  if (!userExistsDebouncer) {
+    userExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    userExistsDebouncer({
+      handler: () => {
+        store.dispatch('$_users/exists', value).then(() => {
+          resolve(true)
+        }).catch(() => {
+          resolve(false)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let userNotExistsDebouncer
 export const userNotExists = (value) => {
   if (!value) return true
-  return store.dispatch('$_users/exists', value).then(() => {
-    return false
-  }).catch(() => {
-    return true
+  if (!userNotExistsDebouncer) {
+    userNotExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    userNotExistsDebouncer({
+      handler: () => {
+        store.dispatch('$_users/exists', value).then(() => {
+          resolve(false)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let wmiRuleExistsDebouncer
 export const wmiRuleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getWmiRules').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
+  if (!wmiRuleExistsDebouncer) {
+    wmiRuleExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    wmiRuleExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getWmiRules').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
+        })
+      },
+      time: debounceTime
+    })
   })
 }
 
+let WRIXLocationExistsDebouncer
 export const WRIXLocationExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getWrixLocations').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-/**
- * Field functions
- *
- * For use with pfFormField component.
- * Used to validate |key| fields with immediate siblings.
- * All functions ignore self.
-**/
-
-// Limit the count of sibling field |keys|
-export const limitSiblingFields = (keys, limit = 0) => {
-  return (0, _common.withParams)({
-    type: 'limitSiblingFields',
-    keys: keys,
-    limit: limit
-  }, function (value, field) {
-    if (!value) return true
-    const _keys = (keys.constructor === Array) ? keys : [keys] // force Array
-    let count = 0
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through all keys, continue on 1st mismatch
-        if (_keys.find(key => {
-          return parent[param].$model[key] !== field[key]
-        })) {
-          continue // GTFO
-        }
-        if (++count > limit) return false
-      }
-    }
-    return true
-  })
-}
-
-// Require all of sibling field |key|s
-export const requireAllSiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'requireAllSiblingFields',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through _fieldTypes and substitute
-        _fieldTypes = _fieldTypes.map(fieldType => {
-          // substitute the fieldType with |true| if it exists
-          return (parent[param].$model[key] === fieldType) ? true : fieldType
+  if (!WRIXLocationExistsDebouncer) {
+    WRIXLocationExistsDebouncer = createDebouncer()
+  }
+  return new Promise((resolve) => {
+    WRIXLocationExistsDebouncer({
+      handler: () => {
+        store.dispatch('config/getWrixLocations').then((response) => {
+          if (response.length === 0) resolve(true)
+          else resolve(response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0)
+        }).catch(() => {
+          resolve(true)
         })
-      }
-    }
-    // return |true| if all members of the the array are |true|,
-    // anything else return false
-    return _fieldTypes.reduce((bool, fieldType) => { return bool && (fieldType === true) }, true)
-  })
-}
-
-// Require any of sibling field |key|s
-export const requireAnySiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'requireAnySiblingFields',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // return |true| if any fieldType exists
-        if (_fieldTypes.includes(parent[param].$model[key])) return true
-      }
-    }
-    // otherwise return false
-    return false
-  })
-}
-
-// Restrict all of sibling field |key|s
-export const restrictAllSiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'restrictAllSiblingFields',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through _fieldTypes and substitute
-        _fieldTypes = _fieldTypes.map(fieldType => {
-          // substitute the fieldType with |true| if it exists
-          return (parent[param].$model[key] === fieldType) ? true : fieldType
-        })
-      }
-    }
-    // return |false| if all members of the the array are |true|,
-    // anything else return true
-    return !_fieldTypes.reduce((bool, fieldType) => { return bool && (fieldType === true) }, true)
-  })
-}
-
-// Restrict any of sibling field |key|s
-export const restrictAnySiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'restrictAnySiblingFieldTypes',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // return |false| if any fieldType exists
-        if (_fieldTypes.includes(parent[param].$model[key])) return false
-      }
-    }
-    // otherwise return true
-    return true
+      },
+      time: debounceTime
+    })
   })
 }

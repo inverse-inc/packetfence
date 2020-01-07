@@ -30,9 +30,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationTrafficShapingPoliciesListConfig as config
-} from '@/globals/configuration/pfConfigurationTrafficShapingPolicies'
+import { config } from '../_config/trafficShapingPolicy'
 
 export default {
   name: 'traffic-shappings-list',
@@ -41,16 +39,9 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this),
+      config: config(this), // ../_config/trafficShapingPolicy
       roles: []
     }
   },
@@ -65,7 +56,7 @@ export default {
       })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteTrafficShapingPolicy`, item.id).then(response => {
+      this.$store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', item.id).then(response => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
         this.init()

@@ -1,11 +1,9 @@
 <template>
   <pf-config-view
+    :form-store-name="formStoreName"
     :isLoading="isLoading"
     :disabled="isLoading"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    @validations="formValidations = $event"
+    :view="view"
     @save="save"
   >
     <template v-slot:header>
@@ -14,7 +12,7 @@
       </h4>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
@@ -28,24 +26,25 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationActiveActiveViewFields as fields
-} from '@/globals/configuration/pfConfigurationActiveActive'
-
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/activeActive'
 
 export default {
   name: 'active-active-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave
   },
+  props: {
+    formStoreName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
       options: {}
     }
   },
@@ -55,25 +54,29 @@ export default {
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters['$_bases/isLoading']
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/activeActive
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_bases/isWaiting']
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_bases/isLoading']
     }
   },
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsActiveActive').then(options => {
-        this.options = options
+        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
         this.$store.dispatch('$_bases/getActiveActive').then(form => {
-          this.form = form
+          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+          this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
         })
       })
     },

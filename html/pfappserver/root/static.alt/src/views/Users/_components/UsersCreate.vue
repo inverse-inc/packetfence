@@ -6,152 +6,123 @@
       </b-card-header>
       <b-tabs v-model="modeIndex" card>
         <b-tab title="Single">
-          <b-form @submit.prevent="create()" @change="$v.$touch()">
+          <b-form @submit.prevent="create()">
             <b-form-row align-v="center">
               <b-col sm="12">
-                <pf-form-toggle v-model="single.pid_overwrite" :column-label="$t('Username (PID) overwrite')"
-                  :values="{checked: 1, unchecked: 0}" :text="$t('Overwrite the username (PID) if it already exists.')"
-                  >{{ (single.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
+                <pf-form-range-toggle :column-label="$t('Username (PID) overwrite')"
+                  :form-store-name="formStoreName" form-namespace="single.pid_overwrite"
+                  :values="{checked: 1, unchecked: 0}"
+                  :rightLabels="{checked: $t('Yes'), unchecked: $t('No')}"
+                  :text="$t('Overwrite the username (PID) if it already exists.')"
+                />
                 <pf-form-input :column-label="$t('Username (PID)')"
-                  v-model.trim="single.pid"
-                  :vuelidate="$v.single.pid"
-                  :text="$t('The username to use for login to the captive portal.')"/>
-                <pf-form-password :column-label="$t('Password')" generate
-                  v-model="single.password"
-                  :vuelidate="$v.single.password"/>
+                  :form-store-name="formStoreName" form-namespace="single.pid"
+                  :text="$t('The username to use for login to the captive portal.')"
+                />
+                <pf-form-password :column-label="$t('Password')"
+                  :form-store-name="formStoreName" form-namespace="single.password"
+                  generate
+                />
                 <pf-form-input :column-label="$t('Login remaining')"
-                  v-model="single.login_remaining"
-                  :vuelidate="$v.single.login_remaining"
+                  :form-store-name="formStoreName" form-namespace="single.login_remaining"
                   type="number"
-                  :text="$t('Leave empty to allow unlimited logins.')"/>
+                  :text="$t('Leave empty to allow unlimited logins.')"
+                />
                 <pf-form-input :column-label="$t('Email')"
-                  v-model.trim="single.email"
-                  :vuelidate="$v.single.email"
+                  :form-store-name="formStoreName" form-namespace="single.email"
+                  type="email"
                 />
                 <pf-form-input :column-label="$t('Sponsor')"
-                  v-model.trim="single.sponsor"
-                  :vuelidate="$v.single.sponsor"
+                  :form-store-name="formStoreName" form-namespace="single.sponsor"
                   :text="$t('If no sponsor is defined the current user will be used.')"
                 />
                 <pf-form-input :column-label="$t('Language')"
-                  v-model.trim="single.lang"
-                  :vuelidate="$v.single.lang"
+                  :form-store-name="formStoreName" form-namespace="single.lang"
                 />
                 <pf-form-chosen :column-label="$t('Gender')"
-                  v-model="single.gender"
-                  label="text"
-                  track-by="value"
+                  :form-store-name="formStoreName" form-namespace="single.gender"
                   :placeholder="$t('Choose gender')"
-                  :options="[{text:$t('Male'), value:'m'}, {text:$t('Female'), value:'f'}, {text:$t('Other'), value:'o'}]"
-                ></pf-form-chosen>
-                <pf-form-input :column-label="$t('Title')"
-                  v-model="single.title"
-                  :vuelidate="$v.single.title"
+                  :options="genders"
+                  label="name" track-by="value"
                 />
-                <pf-form-input :column-label="$t('Firstname')"
-                  v-model="single.firstname"
-                  :vuelidate="$v.single.firstname"
+                <pf-form-input :column-label="$t('Title')"
+                  :form-store-name="formStoreName" form-namespace="single.title"
+                />
+                <pf-form-input :column-label="$t('Firstna me')"
+                  :form-store-name="formStoreName" form-namespace="single.firstname"
                 />
                 <pf-form-input :column-label="$t('Lastname')"
-                  v-model="single.lastname"
-                  :vuelidate="$v.single.lastname"
+                  :form-store-name="formStoreName" form-namespace="single.lastname"
                 />
                 <pf-form-input :column-label="$t('Nickname')"
-                  v-model="single.nickname"
-                  :vuelidate="$v.single.nickname"
+                  :form-store-name="formStoreName" form-namespace="single.nickname"
                 />
                 <pf-form-input :column-label="$t('Company')"
-                  v-model="single.company"
-                  :vuelidate="$v.single.company"
+                  :form-store-name="formStoreName" form-namespace="single.company"
                 />
                 <pf-form-input :column-label="$t('Telephone number')"
-                  v-model="single.telephone"
-                  :filter="globals.regExp.stringPhone"
-                  :vuelidate="$v.single.telephone"
+                  :form-store-name="formStoreName" form-namespace="single.telephone"
                 />
                 <pf-form-input :column-label="$t('Cellphone number')"
-                  v-model="single.cell_phone"
-                  :filter="globals.regExp.stringPhone"
-                  :vuelidate="$v.single.cell_phone"
+                  :form-store-name="formStoreName" form-namespace="single.cell_phone"
                 />
                 <pf-form-input :column-label="$t('Workphone number')"
-                  v-model="single.work_phone"
-                  :filter="globals.regExp.stringPhone"
-                  :vuelidate="$v.single.work_phone"
+                  :form-store-name="formStoreName" form-namespace="single.work_phone"
                 />
                 <pf-form-input :column-label="$t('Apartment number')"
-                  v-model="single.apartment_number"
-                  :filter="globals.regExp.stringPhone"
-                  :vuelidate="$v.single.apartment_number"
+                  :form-store-name="formStoreName" form-namespace="single.apartment_number"
                 />
                 <pf-form-input :column-label="$t('Building Number')"
-                  v-model="single.building_number"
-                  :filter="globals.regExp.stringPhone"
-                  :vuelidate="$v.single.building_number"
+                  :form-store-name="formStoreName" form-namespace="single.building_number"
                 />
                 <pf-form-input :column-label="$t('Room Number')"
-                  v-model="single.room_number"
-                  :filter="globals.regExp.stringPhone"
-                  :vuelidate="$v.single.room_number"
+                  :form-store-name="formStoreName" form-namespace="single.room_number"
                 />
-                <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
-                  v-model="single.address"
-                  :vuelidate="$v.single.address"
+                <pf-form-textarea :column-label="$t('Address')"
+                  :form-store-name="formStoreName" form-namespace="single.address"
+                  rows="4" max-rows="6"
                 />
                 <pf-form-datetime :column-label="$t('Anniversary')"
-                  v-model="single.anniversary"
-                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                  :vuelidate="$v.single.anniversary"
+                  :form-store-name="formStoreName" form-namespace="single.anniversary"
+                  :config="{datetimeFormat: schema.person.anniversary.format}"
                 />
                 <pf-form-datetime :column-label="$t('Birthday')"
-                  v-model="single.birthday"
-                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                  :vuelidate="$v.single.birthday"
+                  :form-store-name="formStoreName" form-namespace="single.birthday"
+                  :config="{datetimeFormat: schema.person.birthday.format}"
                 />
                 <pf-form-input :column-label="$t('Psk')"
-                  v-model="single.psk"
-                  :vuelidate="$v.single.psk"
+                  :form-store-name="formStoreName" form-namespace="single.psk"
                 />
                 <pf-form-textarea :column-label="$t('Notes')"
-                  v-model="single.notes"
-                  :vuelidate="$v.single.notes"
+                  :form-store-name="formStoreName" form-namespace="single.notes"
                   rows="3" max-rows="3"
                 />
                 <pf-form-input :column-label="$t('Custom Field 1')"
-                  v-model="single.custom_field_1"
-                  :vuelidate="$v.single.custom_field_1"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_1"
                 />
                 <pf-form-input :column-label="$t('Custom Field 2')"
-                  v-model="single.custom_field_2"
-                  :vuelidate="$v.single.custom_field_2"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_2"
                 />
                 <pf-form-input :column-label="$t('Custom Field 3')"
-                  v-model="single.custom_field_3"
-                  :vuelidate="$v.single.custom_field_3"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_3"
                 />
                 <pf-form-input :column-label="$t('Custom Field 4')"
-                  v-model="single.custom_field_4"
-                  :vuelidate="$v.single.custom_field_4"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_4"
                 />
                 <pf-form-input :column-label="$t('Custom Field 5')"
-                  v-model="single.custom_field_5"
-                  :vuelidate="$v.single.custom_field_5"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_5"
                 />
                 <pf-form-input :column-label="$t('Custom Field 6')"
-                  v-model="single.custom_field_6"
-                  :vuelidate="$v.single.custom_field_6"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_6"
                 />
                 <pf-form-input :column-label="$t('Custom Field 7')"
-                  v-model="single.custom_field_7"
-                  :vuelidate="$v.single.custom_field_7"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_7"
                 />
                 <pf-form-input :column-label="$t('Custom Field 8')"
-                  v-model="single.custom_field_8"
-                  :vuelidate="$v.single.custom_field_8"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_8"
                 />
                 <pf-form-input :column-label="$t('Custom Field 9')"
-                  v-model="single.custom_field_9"
-                  :vuelidate="$v.single.custom_field_9"
+                  :form-store-name="formStoreName" form-namespace="single.custom_field_9"
                 />
               </b-col>
             </b-form-row>
@@ -164,57 +135,54 @@
           <b-form @submit.prevent="create()">
             <b-form-row align-v="center">
               <b-col sm="12">
-                <pf-form-toggle v-model="multiple.pid_overwrite" :column-label="$t('Username (PID) overwrite')"
-                  :values="{checked: 1, unchecked: 0}" :text="$t('Overwrite the username (PID) if it already exists.')"
-                  >{{ (multiple.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
+                <pf-form-range-toggle :column-label="$t('Username (PID) overwrite')"
+                  :form-store-name="formStoreName" form-namespace="multiple.pid_overwrite"
+                  :values="{checked: 1, unchecked: 0}"
+                  :rightLabels="{checked: $t('Overwrite'), unchecked: $t('Ignore')}"
+                  :text="$t('Overwrite the username (PID) if it already exists.')"
+                />
                 <pf-form-input :column-label="$t('Username Prefix')"
-                  v-model="multiple.prefix"
-                  :vuelidate="$v.multiple.prefix"
+                  :form-store-name="formStoreName" form-namespace="multiple.prefix"
                 />
                 <pf-form-input :column-label="$t('Quantity')"
-                  v-model="multiple.quantity"
-                  :vuelidate="$v.multiple.quantity"
+                  :form-store-name="formStoreName" form-namespace="multiple.quantity"
                   type="number"
                 />
                 <pf-form-row :column-label="$t('Password')" align-v="start">
                   <b-row>
                     <b-col lg="9">
                       <b-row>
-                        <b-col><b-form-input v-model="passwordGenerator.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
-                        <b-col>{{ $t('{count} characters', { count: passwordGenerator.pwlength }) }}</b-col>
+                        <b-col><b-form-input v-model="passwordOptions.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
+                        <b-col>{{ $t('{count} characters', { count: passwordOptions.pwlength }) }}</b-col>
                       </b-row>
                       <b-row>
-                        <b-col><b-form-checkbox v-model="passwordGenerator.upper">ABC</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordGenerator.lower">abc</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordGenerator.digits">123</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordGenerator.special">!@#</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordGenerator.brackets">({&lt;</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordGenerator.high">äæ±</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordGenerator.ambiguous">0Oo</b-form-checkbox></b-col>
+                        <b-col><b-form-checkbox v-model="passwordOptions.upper">ABC</b-form-checkbox></b-col>
+                        <b-col><b-form-checkbox v-model="passwordOptions.lower">abc</b-form-checkbox></b-col>
+                        <b-col><b-form-checkbox v-model="passwordOptions.digits">123</b-form-checkbox></b-col>
+                        <b-col><b-form-checkbox v-model="passwordOptions.special">!@#</b-form-checkbox></b-col>
+                        <b-col><b-form-checkbox v-model="passwordOptions.brackets">({&lt;</b-form-checkbox></b-col>
+                        <b-col><b-form-checkbox v-model="passwordOptions.high">äæ±</b-form-checkbox></b-col>
+                        <b-col><b-form-checkbox v-model="passwordOptions.ambiguous">0Oo</b-form-checkbox></b-col>
                       </b-row>
                     </b-col>
                   </b-row>
                 </pf-form-row>
                 <pf-form-input :column-label="$t('Login remaining')"
-                  v-model="multiple.login_remaining"
-                  :vuelidate="$v.multiple.login_remaining"
+                  :form-store-name="formStoreName" form-namespace="multiple.login_remaining"
                   type="number"
-                  :text="$t('Leave empty to allow unlimited logins.')"/>
+                  :text="$t('Leave empty to allow unlimited logins.')"
+                />
                 <pf-form-input :column-label="$t('Firstname')"
-                  v-model="multiple.firstname"
-                  :vuelidate="$v.multiple.firstname"
+                  :form-store-name="formStoreName" form-namespace="multiple.firstname"
                 />
                 <pf-form-input :column-label="$t('Lastname')"
-                  v-model="multiple.lastname"
-                  :vuelidate="$v.multiple.lastname"
+                  :form-store-name="formStoreName" form-namespace="multiple.lastname"
                 />
                 <pf-form-input :column-label="$t('Company')"
-                  v-model="multiple.company"
-                  :vuelidate="$v.multiple.company"
+                  :form-store-name="formStoreName" form-namespace="multiple.company"
                 />
                 <pf-form-textarea :column-label="$t('Notes')"
-                  v-model="multiple.notes"
-                  :vuelidate="$v.multiple.notes"
+                  :form-store-name="formStoreName" form-namespace="multiple.notes"
                   rows="3" max-rows="3"
                 />
               </b-col>
@@ -230,42 +198,33 @@
             <b-form-group label-cols="3" :label="$t('Registration Window')">
               <b-row>
                 <b-col>
-                  <pf-form-datetime v-model="localUser.valid_from"
-                    :min="new Date()"
-                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                    :vuelidate="$v.localUser.valid_from"
+                  <pf-form-datetime
+                    :form-store-name="formStoreName" form-namespace="common.valid_from"
+                    :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                   />
                 </b-col>
                 <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
                 <b-col>
-                  <pf-form-datetime v-model="localUser.expiration"
-                    :min="new Date()"
-                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                    :vuelidate="$v.localUser.expiration"
+                  <pf-form-datetime
+                    :form-store-name="formStoreName" form-namespace="common.expiration"
+                    :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                   />
                 </b-col>
               </b-row>
             </b-form-group>
-
-            <pf-form-fields
-              v-model="localUser.actions"
-              :column-label="$t('Actions')"
+            <pf-form-fields :column-label="$t('Actions')"
+              :form-store-name="formStoreName" form-namespace="common.actions"
               :button-label="$t('Add Action')"
               :field="actionField"
-              :vuelidate="$v.localUser.actions"
-              :invalid-feedback="[
-                { [$t('One or more errors exist.')]: $v.localUser.actions.$invalid }
-              ]"
-              @validations="actionsValidations = $event"
+              :invalid-feedback="$t('Action(s) contain one or more errors.')"
               sortable
             ></pf-form-fields>
-
           </b-col>
           <b-col sm="4"></b-col>
         </b-form-row>
       </b-container>
 
-      <b-card-footer @mouseenter="$v.$touch()">
+      <b-card-footer>
         <b-button variant="primary" :disabled="invalidForm" @click="create()">
           <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
         </b-button>
@@ -273,46 +232,33 @@
 
     </b-card>
 
-    <users-preview-modal v-model="showUsersPreviewModal" :store-name="storeName"/>
+    <users-preview-modal v-model="showUsersPreviewModal" store-name="$_users"/>
 
   </div>
 </template>
 
 <script>
-import { format } from 'date-fns'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import password from '@/utils/password'
 import UsersPreviewModal from './UsersPreviewModal'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import {
-  required,
-  minLength,
-  minValue,
-  maxLength,
-  numeric
-} from 'vuelidate/lib/validators'
+  pfFieldType,
+  pfFieldTypeValues
+} from '@/globals/pfField'
 import {
-  and,
-  not,
-  conditional,
-  compareDate,
-  userExists
-} from '@/globals/pfValidators'
-import {
-  pfDatabaseSchema as schema,
-  buildValidationFromTableSchemas
-} from '@/globals/pfDatabaseSchema'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
-
-const { validationMixin } = require('vuelidate')
+  createForm, createValidators,
+  userActions,
+  passwordOptions
+} from '../_config/'
 
 export default {
   name: 'users-create',
@@ -322,177 +268,71 @@ export default {
     pfFormFields,
     pfFormInput,
     pfFormPassword,
+    pfFormRangeToggle,
     pfFormRow,
     pfFormTextarea,
-    pfFormToggle,
     UsersPreviewModal
   },
-  mixins: [
-    validationMixin
-  ],
-  data () {
-    return {
-      globals: {
-        regExp: regExp,
-        schema: schema
-      },
-      modeIndex: 0,
-      single: {
-        pid_overwrite: 0,
-        pid: '',
-        email: '',
-        sponsor: this.$store.state['session'].username, // TODO - #4395, remove when backend implements default sponsor
-        password: '',
-        login_remaining: null,
-        gender: '',
-        title: '',
-        firstname: '',
-        lastname: '',
-        nickname: '',
-        company: '',
-        telephone: '',
-        cell_phone: '',
-        work_phone: '',
-        address: '',
-        apartment_number: '',
-        building_number: '',
-        room_number: '',
-        anniversary: '',
-        birthday: '',
-        psk: '',
-        notes: '',
-        custom_field_1: '',
-        custom_field_2: '',
-        custom_field_3: '',
-        custom_field_4: '',
-        custom_field_5: '',
-        custom_field_6: '',
-        custom_field_7: '',
-        custom_field_8: '',
-        custom_field_9: ''
-      },
-      multiple: {
-        pid_overwrite: 0,
-        prefix: '',
-        quantity: '',
-        login_remaining: null,
-        firstname: '',
-        lastname: '',
-        company: '',
-        notes: ''
-      },
-      localUser: {
-        valid_from: format(new Date(), 'YYYY-MM-DD'),
-        expiration: null,
-        actions: [{ 'type': 'set_access_level', 'value': null }]
-      },
-      showUsersPreviewModal: false,
-      passwordGenerator: {
-        pwlength: 8,
-        upper: true,
-        lower: true,
-        digits: true,
-        special: false,
-        brackets: false,
-        high: false,
-        ambiguous: false
-      },
-      actionField: {
-        component: pfFieldTypeValue,
-        attrs: {
-          typeLabel: this.$i18n.t('Select action type'),
-          valueLabel: this.$i18n.t('Select action value'),
-          fields: [
-            pfConfigurationActions.set_access_duration_by_acl_user,
-            pfConfigurationActions.set_access_level_by_acl_user,
-            pfConfigurationActions.mark_as_sponsor,
-            pfConfigurationActions.set_role_by_acl_user,
-            pfConfigurationActions.set_access_durations,
-            pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unreg_date_by_acl_user
-          ]
-        }
-      },
-      actionsValidations: {}
-    }
-  },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
     }
   },
-  validations () {
-    // prefix maxLength depends on the char length of quantity (eg: quantity=1, maxLength=255-1, quantity=1000, maxLength=255-4)
-    let prefixMaxLength = schema.person.pid.maxLength - Math.floor(Math.log10(this.multiple.quantity || 1) + 1)
-
+  data () {
     return {
-      single: buildValidationFromTableSchemas(
-        schema.person, // use `person` table schema
-        schema.password, // use `password` table schema
-        { sponsor: schema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
-        {
-          // additional custom validations ...
-          pid: {
-            [this.$i18n.t('Username required.')]: required,
-            [this.$i18n.t('Username exists.')]: not(and(required, userExists, conditional(!this.single.pid_overwrite)))
-          },
-          email: {
-            [this.$i18n.t('Email address required.')]: required
-          },
-          password: {
-            [this.$i18n.t('Password required.')]: required,
-            [this.$i18n.t('Password must be at least 6 characters.')]: minLength(6)
-          }
+      schema, // @/globals/pfDatabaseSchema
+      actionField: {
+        component: pfFieldTypeValue,
+        attrs: {
+          typeLabel: this.$i18n.t('Select action type'),
+          valueLabel: this.$i18n.t('Select action value'),
+          fields: userActions // ../_config/
         }
-      ),
-      multiple: buildValidationFromTableSchemas(
-        schema.person, // use `person` table schema
-        schema.password, // use `password` table schema
-        { sponsor: schema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
-        {
-          // additional custom validations ...
-          prefix: {
-            [this.$i18n.t('Username prefix required.')]: required,
-            [this.$i18n.t('Maximum {maxLength} characters.', { maxLength: prefixMaxLength })]: maxLength(prefixMaxLength)
-          },
-          quantity: {
-            [this.$i18n.t('Quantity must be greater than 0.')]: and(required, numeric, minValue(1))
-          }
-        }
-      ),
-      localUser: {
-        valid_from: {
-          [this.$i18n.t('Start date required.')]: conditional(!!this.localUser.valid_from && this.localUser.valid_from !== '0000-00-00'),
-          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-          [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.localUser.valid_from), not(compareDate('<=', this.localUser.expiration, 'YYYY-MM-DD'))))
-        },
-        expiration: {
-          [this.$i18n.t('End date required.')]: conditional(!!this.localUser.expiration && this.localUser.expiration !== '0000-00-00'),
-          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-          [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.localUser.expiration), not(compareDate('>=', this.localUser.valid_from, 'YYYY-MM-DD'))))
-        },
-        actions: this.actionsValidations
-      }
+      },
+      passwordOptions, // ../_config/
+      genders: pfFieldTypeValues[pfFieldType.GENDER](),
+      modeIndex: 0,
+      showUsersPreviewModal: false
     }
   },
   computed: {
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    invalidSingleForm () {
+      const { $invalid = false } = this.$store.getters[`${this.formStoreName}/$stateNS`]('single')
+      return $invalid
+    },
+    invalidMultipleForm () {
+      const { $invalid = false } = this.$store.getters[`${this.formStoreName}/$stateNS`]('multiple')
+      return $invalid
+    },
+    invalidCommonForm () {
+      const { $invalid = false } = this.$store.getters[`${this.formStoreName}/$stateNS`]('common')
+      return $invalid
+    },
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_users/isLoading']
     },
     invalidForm () {
       if (this.modeIndex === 0) { // single
-        return this.$v.single.$invalid || this.$v.localUser.$invalid || this.isLoading
+        return this.invalidSingleForm || this.invalidCommonForm || this.isLoading
       } else { // multiple
-        return this.$v.multiple.$invalid || this.$v.localUser.$invalid || this.isLoading
+        return this.invalidMultipleForm || this.invalidCommonForm || this.isLoading
       }
     },
     createdUsers () {
-      return this.$store.state[this.storeName].createdUsers
+      return this.$store.state.$_users.createdUsers
     }
   },
   methods: {
+    init () {
+      // setup form store module
+      this.$store.dispatch(`${this.formStoreName}/setForm`, createForm)
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, createValidators)
+    },
     close () {
       this.$router.push({ name: 'users' })
     },
@@ -501,12 +341,12 @@ export default {
       switch (this.modeIndex) {
         case 0: { // single
           const data = {
-            ...this.single,
-            ...this.localUser
+            ...this.form.single,
+            ...this.form.common
           }
-          this.$store.dispatch(`${this.storeName}/createUser`, data).then(() => {
-            this.$store.dispatch(`${this.storeName}/createPassword`, Object.assign({ quiet: true }, data)).then(() => {
-              this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, [data])
+          this.$store.dispatch('$_users/createUser', data).then(() => {
+            this.$store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, data)).then(() => {
+              this.$store.commit('$_users/CREATED_USERS_REPLACED', [data])
               this.showUsersPreviewModal = true
             })
           })
@@ -516,28 +356,28 @@ export default {
           let createdUsers = []
           let promises = []
           const baseValue = {
-            ...this.multiple,
-            ...this.localUser,
+            ...this.form.multiple,
+            ...this.form.common,
             ...{ quiet: true }
           }
-          for (let i = 0; i < this.multiple.quantity; i++) {
-            const pid = this.multiple.prefix + (i + 1)
-            const pwd = password.generate(this.passwordGenerator)
+          for (let i = 0; i < this.form.multiple.quantity; i++) {
+            const pid = this.form.multiple.prefix + (i + 1)
+            const pwd = password.generate(this.passwordOptions)
             const currentData = {
               ...{ pid, password: pwd },
               ...baseValue
             }
-            promises.push(this.$store.dispatch(`${this.storeName}/exists`, pid).then(() => {
+            promises.push(this.$store.dispatch('$_users/exists', pid).then(() => {
               // user exists
-              return this.$store.dispatch(`${this.storeName}/updateUser`, currentData).then(() => {
-                return this.$store.dispatch(`${this.storeName}/updatePassword`, currentData).then(() => {
+              return this.$store.dispatch('$_users/updateUser', currentData).then(() => {
+                return this.$store.dispatch('$_users/updatePassword', currentData).then(() => {
                   createdUsers.push(currentData)
                 })
               })
             }).catch(() => {
               // user doesn't exist
-              return this.$store.dispatch(`${this.storeName}/createUser`, currentData).then(() => {
-                return this.$store.dispatch(`${this.storeName}/createPassword`, currentData).then(() => {
+              return this.$store.dispatch('$_users/createUser', currentData).then(() => {
+                return this.$store.dispatch('$_users/createPassword', currentData).then(() => {
                   createdUsers.push(currentData)
                 })
               })
@@ -550,7 +390,7 @@ export default {
               skipped: null,
               failed: null
             })
-            this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, createdUsers)
+            this.$store.commit('$_users/CREATED_USERS_REPLACED', createdUsers)
             this.showUsersPreviewModal = true
           })
           break
@@ -565,6 +405,7 @@ export default {
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getTenants')
     this.$store.dispatch('config/getBaseGuestsAdminRegistration') // for access durations
+    this.init()
   }
 }
 </script>

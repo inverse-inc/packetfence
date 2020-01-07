@@ -1,14 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :form-store-name="formStoreName"
+    :is-loading="isLoading"
     :disabled="isLoading"
-    :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    :isNew="isNew"
-    :isClone="isClone"
-    @validations="formValidations = $event"
+    :is-deletable="isDeletable"
+    :is-new="isNew"
+    :is-clone="isClone"
+    :view="view"
     @close="close"
     @create="create"
     @save="save"
@@ -24,7 +22,7 @@
       <b-badge class="ml-2" variant="secondary" v-t="scanType"></b-badge>
     </template>
     <template v-slot:footer>
-      <b-card-footer @mouseenter="$v.form.$touch()">
+      <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -44,25 +42,22 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
+  defaultsFromMeta as defaults
+} from '../_config/'
 import {
-  pfConfigurationScanEngineViewFields as fields
-} from '@/globals/configuration/pfConfigurationScans'
-const { validationMixin } = require('vuelidate')
+  view,
+  validators
+} from '../_config/scanEngine'
 
 export default {
   name: 'scan-engine-view',
-  mixins: [
-    validationMixin
-  ],
   components: {
     pfConfigView,
     pfButtonSave,
     pfButtonDelete
   },
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
@@ -84,30 +79,21 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters['$_scans/isLoading']
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.meta) // ../_config/scanEngine
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_scans/isWaiting']
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
+    isLoading () {
+      return this.$store.getters['$_scans/isLoading']
     },
     isDeletable () {
       if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
@@ -124,24 +110,27 @@ export default {
   },
   methods: {
     init () {
+      const { isNew, isClone, isDeletable, scanType } = this
       if (this.id) {
         // existing
-        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = options
-          this.$store.dispatch(`${this.storeName}/getScanEngine`, this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
+        this.$store.dispatch('$_scans/optionsById', this.id).then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch('$_scans/getScanEngine', this.id).then(form => {
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType: form.type, isNew, isClone, isDeletable } })
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
             this.scanType = form.type
+            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
           })
         })
       } else {
         // new
-        this.$store.dispatch(`${this.storeName}/optionsByScanType`, this.scanType).then(options => {
-          this.options = options
-          this.form = defaults(options.meta) // set defaults
-          this.form.type = this.scanType
+        this.$store.dispatch('$_scans/optionsByScanType', this.scanType).then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType, isNew, isClone, isDeletable } })
+          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), type: scanType }) // set defaults
         })
       }
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'scanEngines' })
@@ -151,7 +140,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_scans/createScanEngine', this.form).then(response => {
+      this.$store.dispatch('$_scans/createScanEngine', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -161,14 +150,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_scans/updateScanEngine', this.form).then(response => {
+      this.$store.dispatch('$_scans/updateScanEngine', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_scans/deleteScanEngine', this.id).then(response => {
+      this.$store.dispatch('$_scans/deleteScanEngine', this.id).then(() => {
         this.close()
       })
     }
@@ -177,13 +166,8 @@ export default {
     this.init()
   },
   watch: {
-    id: {
-      handler: function (a, b) {
-        this.init()
-      }
-    },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
