@@ -151,8 +151,7 @@ export default {
           const { meta = {} } = options
           const { isNew, isClone, isDeletable, sourceType } = this
           this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, sourceType } })
-          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
-          this.form.type = this.sourceType
+          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), ...{ type: sourceType } }) // set defaults
         })
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
