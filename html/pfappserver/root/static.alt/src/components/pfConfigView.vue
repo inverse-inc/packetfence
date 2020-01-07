@@ -54,12 +54,7 @@
           </template>
         </div>
       </template>
-      <slot name="footer">
-        <b-card-footer>
-          <pf-button-save :disabled="invalidForm" :is-loading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-          <pf-button-delete v-show="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
-        </b-card-footer>
-      </slot>
+      <slot name="footer" />
     </b-card>
   </b-form>
 </template>
