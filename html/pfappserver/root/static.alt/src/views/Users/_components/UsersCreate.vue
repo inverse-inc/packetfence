@@ -200,7 +200,6 @@
                 <b-col>
                   <pf-form-datetime
                     :form-store-name="formStoreName" form-namespace="common.valid_from"
-                    :min="new Date()"
                     :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                   />
                 </b-col>
@@ -208,7 +207,6 @@
                 <b-col>
                   <pf-form-datetime
                     :form-store-name="formStoreName" form-namespace="common.expiration"
-                    :min="new Date()"
                     :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                   />
                 </b-col>

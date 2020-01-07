@@ -33,6 +33,7 @@
         :key="locale"
         :config="flatpickrConfig"
         :state="inputState"
+        @on-change="onChangeDatetime"
         @focus.native="isFocus = true"
         @blur.native="isFocus = false"
       ></flat-pickr>
@@ -145,12 +146,18 @@ export default {
         }
       }
     },
-    flatpickrValue: { // proxy fix: flatpickr smashes '0000-00-00 00:00:00'
+    flatpickrValue: {
       get () {
-        return (this.inputValue === this.options.datetimeFormat.replace(/[a-z]/gi, '0')) ? null : this.inputValue
+        if (this.inputValue === this.options.datetimeFormat.replace(/[a-z]/gi, '0')) {
+          // proxy fix: flatpickr smashes '0000-00-00 00:00:00'
+          return null
+        }
+        return this.inputValue
       },
       set (newValue) {
-        this.inputValue = newValue
+        // flatpickr mangles partial (invalid) datetime strings, thus disallowing user input
+        //  don't do anything here, instead use the `on-change` event => `onChangeDatetime` method
+        // this.inputValue = newValue
       }
     },
     flatpickrConfig () {
@@ -184,6 +191,7 @@ export default {
           break
       }
       config.dateFormat = config.datetimeFormat // rename datetimeFormat to dateFormat (flatpickr)
+      delete config.datetimeFormat
       return config
     },
     locale () {
@@ -194,6 +202,12 @@ export default {
     }
   },
   methods: {
+    onChangeDatetime (newDatetime) {
+      const formattedDatetime = format(newDatetime, this.options.datetimeFormat)
+      if (this.inputValue !== formattedDatetime) {
+        this.inputValue = formattedDatetime
+      }
+    },
     focus () {
       let picker = this.$refs.input.$el
       picker.focus()
