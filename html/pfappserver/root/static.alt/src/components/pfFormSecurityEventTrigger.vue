@@ -55,11 +55,13 @@
           card-class="card-sm"
           border-variant="light"
         >
-          <template v-slot:header><h5 class="m-0" v-text="triggerCategoryTitles[category]"></h5></template>
+          <template v-slot:header>
+            <b-button-close size="sm" @click="closePopover(category)" v-b-tooltip.hover.left.d300 :title="$t('Close')"><icon name="times"></icon></b-button-close>
+            <h5 class="m-0" v-text="triggerCategoryTitles[category]"></h5>
+          </template>
           <template v-slot:footer>
-            <b-card-footer class="text-right">
-              <pf-button size="sm" variant="danger" class="mr-1" v-if="[triggerCategories.USAGE, triggerCategories.EVENT].includes(category)" @click="removeCategory(category)">{{ $t('Delete') }}</pf-button>
-              <pf-button-save size="sm" @click="closePopover(category)">{{ $t('Close') }}</pf-button-save>
+            <b-card-footer class="text-right" v-if="[triggerCategories.USAGE, triggerCategories.EVENT].includes(category)">
+              <pf-button size="sm" variant="danger" class="mr-1" @click="removeCategory(category)">{{ $t('Delete') }}</pf-button>
             </b-card-footer>
           </template>
         </pf-config-view>
@@ -72,9 +74,7 @@
 import apiCall from '@/utils/api'
 import bytes from '@/utils/bytes'
 import pfButton from '@/components/pfButton'
-import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
-import pfFormInput from '@/components/pfFormInput'
 import pfMixinForm from '@/components/pfMixinForm'
 import uuidv4 from 'uuid/v4'
 
@@ -97,9 +97,7 @@ export default {
   ],
   components: {
     pfButton,
-    pfButtonSave,
-    pfConfigView,
-    pfFormInput
+    pfConfigView
   },
   props: {
     value: {
