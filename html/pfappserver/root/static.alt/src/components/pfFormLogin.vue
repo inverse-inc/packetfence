@@ -12,10 +12,10 @@
                 </b-alert>
                 <template v-if="sessionTime == false">
                   <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
-                      <b-form-input id="username" type="text" autocomplete="username" v-model="username" v-focus required :readonly="modal"></b-form-input>
+                      <b-form-input id="username" type="text" autocomplete="username" v-model="username" v-focus required :readonly="modal" :disabled="isLoading"></b-form-input>
                   </b-form-group>
                   <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
-                      <b-form-input id="password" type="password" autocomplete="current-password" v-model="password" required></b-form-input>
+                      <b-form-input id="password" type="password" autocomplete="current-password" v-model="password" :disabled="isLoading" required></b-form-input>
                   </b-form-group>
                 </template>
             </component>

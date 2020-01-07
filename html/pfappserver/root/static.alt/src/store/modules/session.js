@@ -296,13 +296,13 @@ const actions = {
 
 const mutations = {
   LOGIN_REQUEST: (state) => {
-    state.status = types.LOADING
+    state.loginStatus = types.LOADING
   },
   LOGIN_SUCCESS: (state) => {
-    state.status = types.SUCCESS
+    state.loginStatus = types.SUCCESS
   },
   LOGIN_ERROR: (state, response) => {
-    state.status = types.ERROR
+    state.loginStatus = types.ERROR
     if (response && response.data) {
       state.message = response.data.message
     }
