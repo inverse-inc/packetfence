@@ -44,13 +44,11 @@
 
 <script>
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export default {
   name: 'cluster-services',
   components: {
-    pfEmptyTable,
-    pfFormRangeToggle
+    pfEmptyTable
   },
   props: {
     storeName: { // from router
