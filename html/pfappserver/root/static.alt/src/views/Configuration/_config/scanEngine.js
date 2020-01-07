@@ -123,7 +123,7 @@ export const view = (meta = {}) => {
   const {
     isNew = false,
     isClone = false,
-    scanType = null, // from router
+    scanType = null // from router
   } = meta
   return [
     {

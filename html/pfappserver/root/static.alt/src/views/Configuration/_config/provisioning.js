@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'

@@ -231,7 +231,6 @@ export const viewFields = {
     }
   },
   administration_rules: (form = {}, meta = {}) => {
-    const { sourceType = null } = meta
     return {
       label: 'Administration Rules',
       cols: [

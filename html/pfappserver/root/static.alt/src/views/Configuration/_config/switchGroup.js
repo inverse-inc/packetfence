@@ -13,11 +13,14 @@ import {
   switchGroupExists
 } from '@/globals/pfValidators'
 import {
-  required
+  required,
+  maxLength
 } from 'vuelidate/lib/validators'
 import {
   columns,
   fields,
+  inlineTriggers,
+  placeholder,
   supports,
   viewFields
 } from './switch'
@@ -397,4 +400,3 @@ export const validators = (form = {}, meta = {}) => {
     }
   }
 }
-

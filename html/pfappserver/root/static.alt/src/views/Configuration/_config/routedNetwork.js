@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormHtml from '@/components/pfFormHtml'
@@ -417,7 +418,7 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
+    isClone = false
   } = meta
   return {
     id: {

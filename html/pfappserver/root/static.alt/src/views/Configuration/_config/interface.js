@@ -244,8 +244,7 @@ export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
     isClone = false,
-    isVlan = false,
-    id = null
+    isVlan = false
   } = meta
   return [
     {

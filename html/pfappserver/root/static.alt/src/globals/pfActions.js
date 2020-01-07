@@ -1,13 +1,11 @@
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
-import {
-  isDateFormat,
-  isValidUnregDateByAclUser
-} from '@/globals/pfValidators'
 import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 import {
-  conditional
+  conditional,
+  isDateFormat,
+  isValidUnregDateByAclUser
 } from '@/globals/pfValidators'
 import {
   maxValue,
@@ -71,11 +69,11 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ),
           ...((type === 'set_access_duration')
             ? {
-                // 'set_access_duration' requires 'set_role'
-                [i18n.t('Action requires "Set Role".')]: conditional(() => formActions.filter(action => action && action.type === 'set_role').length > 0),
-                // 'set_access_duration' restricts 'set_unreg_date'
-                [i18n.t('Action conflicts with "Unregistration date".')]: conditional(() => formActions.filter(action => action && action.type === 'set_unreg_date').length === 0)
-              }
+              // 'set_access_duration' requires 'set_role'
+              [i18n.t('Action requires "Set Role".')]: conditional(() => formActions.filter(action => action && action.type === 'set_role').length > 0),
+              // 'set_access_duration' restricts 'set_unreg_date'
+              [i18n.t('Action conflicts with "Unregistration date".')]: conditional(() => formActions.filter(action => action && action.type === 'set_unreg_date').length === 0)
+            }
             : {/* noop */}
           ),
           ...((type === 'set_access_durations')
@@ -94,10 +92,10 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ),
           ...((type === 'set_unreg_date')
             ? {
-                // 'set_unreg_date' requires 'set_role'
-                [i18n.t('Action requires "Set Role".')]: conditional(() => formActions.filter(action => action && action.type === 'set_role').length > 0),
-                // 'set_unreg_date' restricts 'set_access_duration'
-                [i18n.t('Action conflicts with "Access duration".')]: conditional(() => formActions.filter(action => action && action.type === 'set_access_duration').length === 0)
+              // 'set_unreg_date' requires 'set_role'
+              [i18n.t('Action requires "Set Role".')]: conditional(() => formActions.filter(action => action && action.type === 'set_role').length > 0),
+              // 'set_unreg_date' restricts 'set_access_duration'
+              [i18n.t('Action conflicts with "Access duration".')]: conditional(() => formActions.filter(action => action && action.type === 'set_access_duration').length === 0)
             }
             : {/* noop */}
           )

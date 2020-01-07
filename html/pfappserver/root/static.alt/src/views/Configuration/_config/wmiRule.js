@@ -191,7 +191,7 @@ export const validators = (form, meta = {}) => {
       ...validatorsFromMeta(meta, 'id', i18n.t('Rule')),
       ...{
         [i18n.t('WMI Rule exists.')]: not(and(required, conditional(isNew || isClone), hasWmiRules, wmiRuleExists))
-      },
+      }
     },
     namespace: validatorsFromMeta(meta, 'namespace', i18n.t('Namespace')),
     request: validatorsFromMeta(meta, 'request', i18n.t('Request')),

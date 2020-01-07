@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import router from '@/router'
 import store from '@/store'
 import i18n from '@/utils/locale'
@@ -216,14 +217,7 @@ export const config = () => {
 
 export const view = (form = {}, meta = {}) => {
   const {
-    id,
-    filter,
-    advanced_filter,
-    sources = [],
-    billing_tiers = [],
-    provisioners = [],
-    scans = [],
-    locale = []
+    id
   } = form
   const {
     isNew = false,
@@ -851,42 +845,42 @@ export const validators = (form = {}, meta = {}) => {
     ...((isDefault)
       ? {} // isDefault
       : { // !isDefault
-          filter: {
-            ...{
-              [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter))),
-            },
-            ...(filter || []).map(_filter => { // index based filter validators
-              if (_filter) {
-                const { type } = _filter
-                if (type) {
-                  const { [type]: { validators: { match: matchValidators = {} } = {} } = {} } = filters
-                  if (validators) {
-                    return {
-                      match: {
-                        ...{
-                          [i18n.t('Match required.')]: required,
-                          [i18n.t('Maximum 255 characters.')]: maxLength(255)
-                        },
-                        ...matchValidators
-                      }
+        filter: {
+          ...{
+            [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter)))
+          },
+          ...(filter || []).map(_filter => { // index based filter validators
+            if (_filter) {
+              const { type } = _filter
+              if (type) {
+                const { [type]: { validators: { match: matchValidators = {} } = {} } = {} } = filters
+                if (validators) {
+                  return {
+                    match: {
+                      ...{
+                        [i18n.t('Match required.')]: required,
+                        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                      },
+                      ...matchValidators
                     }
                   }
                 }
               }
-              return {
-                type: {
-                  [i18n.t('Type required.')]: required
-                }
-              }
-            })
-          },
-          advanced_filter: {
-            ...validatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
-            ...{
-              [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter)))
             }
+            return {
+              type: {
+                [i18n.t('Type required.')]: required
+              }
+            }
+          })
+        },
+        advanced_filter: {
+          ...validatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
+          ...{
+            [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter)))
           }
         }
+      }
     ),
     ...{
       id: {
@@ -903,7 +897,7 @@ export const validators = (form = {}, meta = {}) => {
       sources: {
         ...validatorsFromMeta(meta, 'sources', i18n.t('Sources')),
         ...{
-          $each : {
+          $each: {
             [i18n.t('Source required.')]: required,
             [i18n.t('Duplicate source.')]: conditional((value) => sources.filter(v => v === value).length <= 1)
           }

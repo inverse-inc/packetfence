@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /**
  * See modules under html/pfappserver/lib/pfappserver/Form/Config/PortalModule/
  */

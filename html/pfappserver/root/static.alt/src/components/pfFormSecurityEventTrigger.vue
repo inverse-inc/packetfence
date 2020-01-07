@@ -69,7 +69,6 @@
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
 import apiCall from '@/utils/api'
 import bytes from '@/utils/bytes'
 import pfButton from '@/components/pfButton'
@@ -159,6 +158,7 @@ export default {
             const { meta: { triggers: { item: { properties: { [type]: { allowed_lookup: allowedLookup } = {} } = {} } = {} } = {} } = {} } = this
             if (allowedLookup) {
               const { field_name: fieldName, value_name: valueName, search_path: url } = allowedLookup
+              // eslint-disable-next-line
               apiCall.request({
                 url,
                 method: 'post',
@@ -187,7 +187,7 @@ export default {
       return state.$invalid && !state.$pending
     },
     usageDescription () {
-      const { usage: { direction, limit, interval } = {} }  = this.formStoreValue || {}
+      const { usage: { direction, limit, interval } = {} } = this.formStoreValue || {}
       return (direction && limit && interval)
         ? `${bytes.toHuman(limit, 0, true)}B ${triggerDirections[direction]}/${triggerIntervals[interval]}`
         : this.$i18n.t('Any data usage')

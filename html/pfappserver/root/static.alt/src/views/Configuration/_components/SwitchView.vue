@@ -42,7 +42,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'

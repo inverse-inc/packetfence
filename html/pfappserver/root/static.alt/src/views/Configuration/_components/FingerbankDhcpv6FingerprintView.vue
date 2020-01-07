@@ -45,7 +45,6 @@ import {
   validators
 } from '../_config/fingerbank/dhcpV6Fingerprint'
 
-
 export default {
   name: 'fingerbank-dhcpv6-fingerprint-view',
   components: {

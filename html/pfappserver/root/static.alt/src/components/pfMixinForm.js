@@ -3,8 +3,6 @@
 **/
 import { createDebouncer } from 'promised-debounce'
 
-const $inputDebouncer = {} // debounce input(s)
-
 export default {
   name: 'pf-mixin-form',
   props: {

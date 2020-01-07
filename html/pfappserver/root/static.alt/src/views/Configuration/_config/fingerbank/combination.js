@@ -1,10 +1,6 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import {
-  attributesFromMeta,
-  validatorsFromMeta
-} from '../'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and
@@ -310,7 +306,7 @@ export const view = (form = {}, meta = {}) => {
       ]
     }
   ]
-};
+}
 
 export const validators = (form = {}, meta = {}) => {
   return {

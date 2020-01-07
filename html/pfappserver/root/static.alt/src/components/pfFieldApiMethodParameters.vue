@@ -95,7 +95,7 @@ export default {
       return this.inputValue.api_method
     },
     localApiParameters () {
-        return this.inputValue.api_parameters
+      return this.inputValue.api_parameters
     },
     field () {
       if (this.localApiMethod) return this.fields.find(field => field.value === this.localApiMethod)

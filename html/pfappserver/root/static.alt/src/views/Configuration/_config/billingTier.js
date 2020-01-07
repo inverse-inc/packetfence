@@ -103,7 +103,7 @@ export const config = (context = {}) => {
 export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
+    isClone = false
   } = meta
   return [
     {
@@ -209,7 +209,7 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   const {
     isNew = false,
-    isClone = false,
+    isClone = false
   } = meta
   return {
     id: {
