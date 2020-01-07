@@ -945,7 +945,6 @@ export const validators = (form = {}, meta = {}) => {
       sms_request_limit: validatorsFromMeta(meta, 'sms_request_limit', i18n.t('Limit')),
       login_attempt_limit: validatorsFromMeta(meta, 'login_attempt_limit', i18n.t('Limit')),
       locale: {
-        [i18n.t('Locale required.')]: required,
         $each: {
           [i18n.t('Locale required.')]: required,
           [i18n.t('Duplicate locale.')]: conditional((value) => locale.filter(v => v === value).length <= 1)
