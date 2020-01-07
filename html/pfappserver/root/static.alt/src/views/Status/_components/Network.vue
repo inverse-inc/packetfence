@@ -691,8 +691,10 @@ export default {
     },
     condition: {
       handler: function (a, b) {
-        this.liveMode = false // disable live mode
-        this.liveModeAllowed = false // disallow live mode
+        if (JSON.stringify(a) !== JSON.stringify(b)) {
+          this.liveMode = false // disable live mode
+          this.liveModeAllowed = false // disallow live mode
+        }
         if (this.query && JSON.stringify(a) !== this.query) {
           this.$router.push({ query: null }) // clear URL query variable
         }
@@ -710,12 +712,23 @@ export default {
           }, this.liveModeIntervalMs)
         }
       }
+    },
+    liveModeIntervalMs: {
+      handler: function (a, b) {
+        if (this.liveModeInterval) {
+          clearInterval(this.liveModeInterval)
+        }
+        if (a) {
+          this.liveModeInterval = setInterval(() => {
+            this.onSubmit(true)
+          }, this.liveModeIntervalMs)
+        }
+      }
     }
   },
   mounted () {
     if (!this.query) {
       this.advancedCondition = this.defaultCondition
-      this.onSubmit()
     }
     this.setDimensions()
   },
