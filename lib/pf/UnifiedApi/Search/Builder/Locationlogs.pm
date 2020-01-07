@@ -30,13 +30,13 @@ sub make_search_args {
     $locationlog_history_search_info->{dal} = "pf::dal::locationlog_history";
     ($status,  my $lh_search_args) = $self->SUPER::make_search_args($locationlog_history_search_info);
 
-   $search_args->{'-union_all'} = [
+    $search_args->{'-union_all'} = [
        pf::dal::locationlog_history->update_params_for_select(
            -columns => $lh_search_args->{'-columns'},
            -from => 'locationlog_history',
            -where => $lh_search_args->{'-where'},
        )
-   ];
+    ];
 
     return ($status, $search_args);
 }
