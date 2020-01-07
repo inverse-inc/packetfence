@@ -18,7 +18,7 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
           </template>
-          <template v-for="server in servers" v-slot:cell(server)="{ item: { [server]: status } }">
+          <template v-for="server in servers" v-slot:[cell(server)]="{ item: { [server]: status } }">
             <div class="container-status small" v-if="status" :key="server">
               <b-row class="row-nowrap">
                   <b-col>{{ $t('Alive') }}</b-col>
@@ -96,6 +96,9 @@ export default {
     }
   },
   methods: {
+    cell (name) {
+      return `cell(${name})`
+    },
     uniqueServices: (...services) => [ ...new Set([].concat(...services)) ]
   },
   data () {
