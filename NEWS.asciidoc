@@ -16,19 +16,20 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Only have a single active locationlog entry in the locationlog.
+* Only have a single active locationlog entry in the locationlog
 
 Enhancements
 ++++++++++++
-* Don't try to do firewall sso if the service is disabled
+* Don't try to do firewall SSO if the service is disabled
+* Massively improved web admin performance
 
 Bug Fixes
 +++++++++
 * Fix `pfstats` for LDAPS and StartTLS
 * Allow to run any script from a security event without a modification of sudoers file
-* Fix machine auth failed on eduroam virtual server.
-* Fix allow external radius accounting from eduroam server (they use it to detect if a server is alive)
-* Fix eduroam load-balancing issue on local realm.
+* Fix machine auth failed on eduroam virtual server
+* Fix allow external RADIUS accounting from eduroam server (they use it to detect if a server is alive)
+* Fix eduroam load-balancing issue on local realm
 
 Version 9.2.0 released on 2019-11-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
