@@ -12,9 +12,6 @@
 **/
 import store from '@/store'
 import { parse, format, isValid, compareAsc } from 'date-fns'
-import { createDebouncer } from 'promised-debounce'
-
-const debounceTime = 300 // 300ms
 
 const _common = require('vuelidate/lib/validators/common')
 
@@ -488,299 +485,145 @@ export const hasWRIXLocations = () => {
   })
 }
 
-let adminRolesExistsDebouncer
 export const adminRoleExists = (value) => {
   if (!value) return true
-  if (!adminRolesExistsDebouncer) {
-    adminRolesExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    adminRolesExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getAdminRoles').then((response) => {
-          resolve(response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getAdminRoles').then((response) => {
+    return response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let billingTierExistsDebouncer
 export const billingTierExists = (value) => {
   if (!value) return true
-  if (!billingTierExistsDebouncer) {
-    billingTierExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    billingTierExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getBillingTiers').then((response) => {
-          resolve(response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getBillingTiers').then((response) => {
+    return response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let categoryIdNumberExistsDebouncer
 export const categoryIdNumberExists = (value) => {
   if (!value || !/^\d+$/.test(value)) return true
-  if (!categoryIdNumberExistsDebouncer) {
-    categoryIdNumberExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    categoryIdNumberExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getRoles').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(role => role.category_id === value).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(role => role.category_id === value).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let categoryIdStringExistsDebouncer
 export const categoryIdStringExists = (value) => {
   if (!value || /^\d+$/.test(value)) return true
-  if (!categoryIdStringExistsDebouncer) {
-    categoryIdStringExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    categoryIdStringExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getRoles').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let connectionProfileExistsDebouncer
 export const connectionProfileExists = (value) => {
   if (!value) return true
-  if (!connectionProfileExistsDebouncer) {
-    connectionProfileExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    connectionProfileExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getConnectionProfiles').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getConnectionProfiles').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let selfServiceExistsDebouncer
 export const selfServiceExists = (value) => {
   if (!value) return true
-  if (!selfServiceExistsDebouncer) {
-    selfServiceExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    selfServiceExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getSelfServices').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getSelfServices').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let domainExistsDebouncer
 export const domainExists = (value) => {
   if (!value) return true
-  if (!domainExistsDebouncer) {
-    domainExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    domainExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getDomains').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getDomains').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let firewallExistsDebouncer
 export const firewallExists = (value) => {
   if (!value) return true
-  if (!firewallExistsDebouncer) {
-    firewallExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    firewallExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getFirewalls').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getFirewalls').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let floatingDeviceExistsDebouncer
 export const floatingDeviceExists = (value) => {
   if (!value) return true
-  if (!floatingDeviceExistsDebouncer) {
-    floatingDeviceExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    floatingDeviceExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getFloatingDevices').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getFloatingDevices').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let interfaceExistsDebouncer
 export const interfaceExists = (value) => {
   if (!value) return true
-  if (!interfaceExistsDebouncer) {
-    interfaceExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    interfaceExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getInterfaces').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getInterfaces').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let interfaceVlanExistsDebouncer
 export const interfaceVlanExists = (id) => {
   return (0, _common.withParams)({
     type: 'interfaceVlanExists',
     id: id
   }, function (value) {
     if (!(0, _common.req)(value)) return true
-    if (!interfaceVlanExistsDebouncer) {
-      interfaceVlanExistsDebouncer = createDebouncer()
-    }
-    return new Promise((resolve) => {
-      interfaceVlanExistsDebouncer({
-        handler: () => {
-          store.dispatch('config/getInterfaces').then((response) => {
-            if (response.length === 0) resolve(true)
-            else resolve(response.filter(iface => iface.master === id && iface.vlan === value).length > 0)
-          }).catch(() => {
-            resolve(true)
-          })
-        },
-        time: debounceTime
-      })
+    return store.dispatch('config/getInterfaces').then((response) => {
+      if (response.length === 0) return true
+      else return response.filter(iface => iface.master === id && iface.vlan === value).length > 0
+    }).catch(() => {
+      return true
     })
   })
 }
 
-let fingerbankCombinationExistsDebouncer
 export const fingerbankCombinationExists = (value) => {
   if (!value) return true
-  if (!fingerbankCombinationExistsDebouncer) {
-    fingerbankCombinationExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    fingerbankCombinationExistsDebouncer({
-      handler: () => {
-        store.dispatch('fingerbank/getCombination', value).then(() => {
-          resolve(true)
-        }).catch(() => {
-          resolve(false)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('fingerbank/getCombination', value).then(() => {
+    return true
+  }).catch(() => {
+    return false
   })
 }
 
-let layer2NetworkExistsDebouncer
 export const layer2NetworkExists = (value) => {
   if (!value) return true
-  if (!layer2NetworkExistsDebouncer) {
-    layer2NetworkExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    layer2NetworkExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getLayer2Networks').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getLayer2Networks').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let maintenanceTaskExistsDebouncer
 export const maintenanceTaskExists = (value) => {
   if (!value) return true
-  if (!maintenanceTaskExistsDebouncer) {
-    maintenanceTaskExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    maintenanceTaskExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getMaintenanceTasks').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getMaintenanceTasks').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
@@ -792,369 +635,187 @@ export const nodeExists = (value) => {
     return a
   })
   if (value.length !== 17) return true
-  return new Promise((resolve) => {
-    store.dispatch('$_nodes/exists', value).then(() => {
-      resolve(false)
-    }).catch(() => {
-      resolve(true)
-    })
+  return store.dispatch('$_nodes/exists', value).then(() => {
+    return false
+  }).catch(() => {
+    return true
   })
 }
 
-let pkiProviderExistsDebouncer
 export const pkiProviderExists = (value) => {
   if (!value) return true
-  if (!pkiProviderExistsDebouncer) {
-    pkiProviderExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    pkiProviderExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getPkiProviders').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getPkiProviders').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let portalModuleExistsDebouncer
 export const portalModuleExists = (value) => {
   if (!value) return true
-  if (!portalModuleExistsDebouncer) {
-    portalModuleExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    portalModuleExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getPortalModules').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getPortalModules').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let provisioningExistsDebouncer
 export const provisioningExists = (value) => {
   if (!value) return true
-  if (!provisioningExistsDebouncer) {
-    provisioningExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    provisioningExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getProvisionings').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getProvisionings').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let realmExistsDebouncer
 export const realmExists = (value) => {
   if (!value) return true
-  if (!realmExistsDebouncer) {
-    realmExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    realmExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getRealms').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getRealms').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let roleExistsDebouncer
 export const roleExists = (value) => {
   if (!value) return true
-  if (!roleExistsDebouncer) {
-    roleExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    roleExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getRoles').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let routedNetworkExistsDebouncer
 export const routedNetworkExists = (value) => {
   if (!value) return true
-  if (!routedNetworkExistsDebouncer) {
-    routedNetworkExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    routedNetworkExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getRoutedNetworks').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getRoutedNetworks').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let scanExistsDebouncer
 export const scanExists = (value) => {
   if (!value) return true
-  if (!scanExistsDebouncer) {
-    scanExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    scanExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getScans').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getScans').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let securityEventExistsDebouncer
 export const securityEventExists = (value) => {
   if (!value) return true
-  if (!securityEventExistsDebouncer) {
-    securityEventExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    securityEventExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getSecurityEvents').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getSecurityEvents').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let sourceExistsDebouncer
 export const sourceExists = (value) => {
   if (!value) return true
-  if (!sourceExistsDebouncer) {
-    sourceExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    sourceExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getSources').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getSources').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let switchExistsDebouncer
 export const switchExists = (value) => {
   if (!value) return true
-  if (!switchExistsDebouncer) {
-    switchExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    switchExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getSwitches').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getSwitches').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let switchGroupExistsDebouncer
 export const switchGroupExists = (value) => {
   if (!value) return true
-  if (!switchGroupExistsDebouncer) {
-    switchGroupExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    switchGroupExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getSwitchGroups').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getSwitchGroups').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let syslogForwarderExistsDebouncer
 export const syslogForwarderExists = (value) => {
   if (!value) return true
-  if (!syslogForwarderExistsDebouncer) {
-    syslogForwarderExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    syslogForwarderExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getSyslogForwarders').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getSyslogForwarders').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let syslogParserExistsDebouncer
 export const syslogParserExists = (value) => {
   if (!value) return true
-  if (!syslogParserExistsDebouncer) {
-    syslogParserExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    syslogParserExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getSyslogParsers').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getSyslogParsers').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let trafficShapingPolicyExistsDebouncer
 export const trafficShapingPolicyExists = (value) => {
   if (!value) return true
-  if (!trafficShapingPolicyExistsDebouncer) {
-    trafficShapingPolicyExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    trafficShapingPolicyExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getTrafficShapingPolicies').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
 export const userExists = (value) => {
   if (!value) return true
-  return new Promise((resolve) => {
-    store.dispatch('$_users/exists', value).then(() => {
-      resolve(false)
-    }).catch(() => {
-      resolve(true)
-    })
+  return store.dispatch('$_users/exists', value).then(() => {
+    return false
+  }).catch(() => {
+    return true
   })
 }
 
 export const userNotExists = (value) => {
   if (!value) return true
-  return new Promise((resolve) => {
-    store.dispatch('$_users/exists', value).then(() => {
-      resolve(true)
-    }).catch(() => {
-      resolve(false)
-    })
+  return store.dispatch('$_users/exists', value).then(() => {
+    return true
+  }).catch(() => {
+    return false
   })
 }
 
-let wmiRuleExistsDebouncer
 export const wmiRuleExists = (value) => {
   if (!value) return true
-  if (!wmiRuleExistsDebouncer) {
-    wmiRuleExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    wmiRuleExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getWmiRules').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getWmiRules').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
 
-let WRIXLocationExistsDebouncer
 export const WRIXLocationExists = (value) => {
   if (!value) return true
-  if (!WRIXLocationExistsDebouncer) {
-    WRIXLocationExistsDebouncer = createDebouncer()
-  }
-  return new Promise((resolve) => {
-    WRIXLocationExistsDebouncer({
-      handler: () => {
-        store.dispatch('config/getWrixLocations').then((response) => {
-          if (response.length === 0) resolve(true)
-          else resolve(response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0)
-        }).catch(() => {
-          resolve(true)
-        })
-      },
-      time: debounceTime
-    })
+  return store.dispatch('config/getWrixLocations').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
   })
 }
