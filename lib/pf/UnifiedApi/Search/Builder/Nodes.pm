@@ -24,7 +24,12 @@ use pf::constants qw($ZERO_DATE);
 
 our @LOCATION_LOG_JOIN = (
     "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}",
-    'locationlog',
+    {
+        sql  => "locationlog AS locationlog FORCE INDEX FOR JOIN(locationlog_view_mac)",
+        bind => [],
+        name => "locationlog",
+        aliased_tables => { "locationlog" => "locationlog" }
+    },
     {
         operator  => '=>',
         condition => {
@@ -42,7 +47,12 @@ our @LOCATION_LOG_JOIN = (
             ],
         },
     },
-    'locationlog|locationlog2',
+    {
+        sql  => "locationlog AS locationlog2 FORCE INDEX FOR JOIN(locationlog_view_mac)",
+        bind => [],
+        name => "locationlog2",
+        aliased_tables => { "locationlog2" => "locationlog" }
+    },
 );
 
 our @IP4LOG_JOIN = (
@@ -76,7 +86,12 @@ our @IP6LOG_JOIN = (
 
 our @RADACCT_JOIN = (
     '=>{node.mac=radacct.callingstationid,node.tenant_id=radacct.tenant_id}',
-    'radacct|radacct',
+    {
+        sql  => "radacct AS radacct FORCE INDEX FOR JOIN(callingstationid)",
+        bind => [],
+        name => "radacct",
+        aliased_tables => { "radacct" => "radacct" }
+    },
     {
         operator  => '=>',
         condition => {
@@ -100,7 +115,12 @@ our @RADACCT_JOIN = (
             ],
         },
     },
-    'radacct|r2'
+    {
+        sql  => "radacct AS r2 FORCE INDEX FOR JOIN(callingstationid)",
+        bind => [],
+        name => "r2",
+        aliased_tables => { "r2" => "radacct" }
+    }
 );
 
 our %RADACCT_WHERE = (
