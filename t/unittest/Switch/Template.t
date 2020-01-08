@@ -64,7 +64,6 @@ for my $file (@FILES) {
 {
     my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
-    print STDERR "$switchdeauthMethod $deauthTechniques\n";
 }
 
 =head1 AUTHOR
