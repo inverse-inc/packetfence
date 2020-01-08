@@ -135,13 +135,13 @@ export default {
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
-    close (event) {
+    close () {
       this.$router.back()
     },
     clone () {
       this.$router.push({ name: 'clonePortalModule' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
       this.$store.dispatch('$_portalmodules/createPortalModule', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
@@ -151,7 +151,7 @@ export default {
         }
       })
     },
-    save (event) {
+    save () {
       const actionKey = this.actionKey
       this.$store.dispatch('$_portalmodules/updatePortalModule', this.form).then(response => {
         if (actionKey) { // [CTRL] key pressed
@@ -159,7 +159,7 @@ export default {
         }
       })
     },
-    remove (event) {
+    remove () {
       this.$store.dispatch('$_portalmodules/deletePortalModule', this.id).then(response => {
         this.close()
       })
