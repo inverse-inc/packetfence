@@ -28,11 +28,6 @@ export default {
     tab: {
       type: String,
       default: null
-    },
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
     }
   },
   data () {
@@ -51,7 +46,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/all`).then(filters => {
+      this.$store.dispatch('$_filters/all').then(filters => {
         this.filters = filters
       })
     },

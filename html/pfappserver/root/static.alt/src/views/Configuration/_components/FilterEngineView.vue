@@ -43,11 +43,6 @@ export default {
     id: {
       type: String,
       default: null
-    },
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
     }
   },
   data () {
@@ -65,10 +60,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_filters/isLoading']
     },
     invalidForm () {
-      return this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$store.getters['$_filters/isWaiting']
     },
     windowSize () {
       return this.$store.getters['events/windowSize']
@@ -76,12 +71,12 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/getFilter`, this.id).then(filter => {
+      this.$store.dispatch('$_filters/getFilter', this.id).then(filter => {
         this.filter = filter
       })
     },
     save () {
-      this.$store.dispatch(`${this.storeName}/updateFilter`, { id: this.id, filter: this.filter }).then(response => {
+      this.$store.dispatch('$_filters/updateFilter', { id: this.id, filter: this.filter }).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('{filterName} filter saved', { filterName: this.id.toUpperCase() }) })
       })
     },
