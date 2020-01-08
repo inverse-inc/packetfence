@@ -104,7 +104,7 @@ DELIMITER /
 CREATE OR REPLACE TRIGGER locationlog_insert_in_history_after_insert AFTER UPDATE on locationlog
 FOR EACH ROW
 BEGIN
-    IF OLD.session_id = NEW.session_id THEN
+    IF OLD.session_id <=> NEW.session_id THEN
         INSERT INTO locationlog_history
         SET
             tenant_id = OLD.tenant_id,
