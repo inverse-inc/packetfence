@@ -41,7 +41,7 @@ export default {
   },
   watch: {
     isLoading: {
-      handler (after, before) {
+      handler (after) {
         if (after) {
           this.show()
         } else {
@@ -58,8 +58,8 @@ export default {
   .fixed-top {
     background-color: $gray-700;
   }
-
   .progress {
+    z-index: $zindex-modal;
     overflow: visible !important;
   }
   .progress /deep/ .progress-bar {
