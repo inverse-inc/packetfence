@@ -16,7 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* Only have a single active locationlog entry in the locationlog.
 
 Enhancements
 ++++++++++++
