@@ -29,7 +29,7 @@
           </b-button>
         </b-button-group>
         <b-button-group v-if="!disabled" rel="prefixButtonGroup">
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.inputValue || !inputState" tabindex="-1">
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="!allowTest" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
@@ -169,6 +169,9 @@ export default {
     },
     mouseDown () {
       return this.$store.getters['events/mouseDown']
+    },
+    allowTest () {
+      return !this.isLoading && !this.isTesting && this.inputValue && this.inputState !== false
     }
   },
   methods: {
@@ -182,6 +185,7 @@ export default {
       this.showPassword = !this.showPassword
     },
     runTest () {
+console.log('runTest')
       if (this.test) {
         this.isTesting = true
         this.testResult = null
@@ -268,7 +272,7 @@ export default {
   opacity: 1;
   text-transform: none;
 }
-.btn-group[rel=prefixButtonGroup] button:hover {
+.btn-group[rel=prefixButtonGroup] button:hover:not(.disabled) {
   background-color: $input-btn-hover-bg-color;
   color: $input-btn-hover-text-color;
   border-color: $input-btn-hover-bg-color;
