@@ -497,7 +497,7 @@ export default {
       })
     },
     save () {
-      this.$store.dispatch('$_nodes/updateNode', this.form).then(response => {
+      this.$store.dispatch('$_nodes/updateNode', this.form).then(() => {
         this.close()
       })
     },
@@ -511,7 +511,7 @@ export default {
       this.$store.dispatch('$_nodes/applySecurityEventNode', { security_event_id: this.triggerSecurityEvent, mac: this.mac })
     },
     deleteNode () {
-      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
+      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(() => {
         this.close()
       })
     },
@@ -530,7 +530,7 @@ export default {
     canReevaluateAccess (node) {
       return (node && node.locations && node.locations.length > 0)
     },
-    cannotReevaluateAccessTooltip (node) {
+    cannotReevaluateAccessTooltip () {
       return this.$i18n.t('Node has no locations.')
     },
     canRestartSwitchport (node) {
@@ -539,7 +539,7 @@ export default {
         network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
       ).length > 0)
     },
-    cannotRestartSwitchportTooltip (node) {
+    cannotRestartSwitchportTooltip () {
       return this.$i18n.t('Node has no open wired connections.')
     },
     connectionSubType (type) {
@@ -628,7 +628,7 @@ export default {
           })
         }
         try {
-          node.ip4.history.forEach(function (ip4, index, ip4s) {
+          node.ip4.history.forEach(function (ip4) {
             this.addVisGroup({
               id: `${this.mac}-ipv4`,
               content: this.$i18n.t('IPv4 Addresses')
@@ -645,7 +645,7 @@ export default {
           // noop
         }
         try {
-          node.ip6.history.forEach(function (ip6, index, ip6s) {
+          node.ip6.history.forEach(function (ip6) {
             this.addVisGroup({
               id: `${this.mac}-ipv6`,
               content: this.$i18n.t('IPv6 Addresses')
@@ -662,7 +662,7 @@ export default {
           // noop
         }
         try {
-          node.locations.forEach(function (location, index, locations) {
+          node.locations.forEach(function (location) {
             this.addVisGroup({
               id: `${this.mac}-location`,
               content: this.$i18n.t('Locations')
@@ -679,7 +679,7 @@ export default {
           // noop
         }
         try {
-          node.security_events.forEach(function (securityEvent, index, securityEvents) {
+          node.security_events.forEach(function (securityEvent) {
             this.addVisGroup({
               id: `${this.mac}-security_event`,
               content: this.$i18n.t('Security Events')
@@ -696,7 +696,7 @@ export default {
           // noop
         }
         try {
-          node.dhcpoption82.forEach(function (dhcpoption82, index, dhcpoption82s) {
+          node.dhcpoption82.forEach(function (dhcpoption82) {
             this.addVisGroup({
               id: `${this.mac}-dhcpoption82`,
               content: this.$i18n.t('DHCP Option 82')
@@ -760,37 +760,37 @@ export default {
   },
   watch: {
     node: {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.ip4': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.ip6': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.locations': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.security_events': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.dhcpoption82': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true

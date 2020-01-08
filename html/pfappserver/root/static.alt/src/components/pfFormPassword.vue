@@ -188,7 +188,7 @@ export default {
       if (this.test) {
         this.isTesting = true
         this.testResult = null
-        this.test().then(response => {
+        this.test().then(() => {
           this.testResult = true
           this.testMessage = null
           this.$emit('pass')
@@ -206,7 +206,7 @@ export default {
         })
       }
     },
-    resetTest (event) {
+    resetTest () {
       this.testResult = null
       this.testMessage = null
     },
