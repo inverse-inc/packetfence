@@ -34,10 +34,11 @@
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
               :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :right-labels="{ checked: $t('up'), unchecked: $t('down') }"
               :disabled="isInterfacesLoading"
               @input="toggleRunningInterface(item.item, $event)"
               @click.stop.prevent
-            >{{ (item.item.is_running === true) ? $t('up') : $t('down') }}</pf-form-range-toggle>
+            />
           </template>
           <template v-slot:cell(id)="item">
             <span class="text-nowrap mr-2">{{ item.item.name }}</span>

@@ -25,10 +25,11 @@
               v-model="service.item.enabled"
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
+              :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
               :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)"
               @input="toggleEnabled(service.item, $event)"
               @click.stop.prevent
-            >{{ (service.item.enabled === true) ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+            />
           </template>
           <template v-slot:cell(alive)="service">
             <pf-form-range-toggle
@@ -36,9 +37,10 @@
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'lock', unchecked: 'lock' }"
               :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :right-labels="{ checked: $t('Running'), unchecked: $t('Stopped') }"
               :disabled="true"
               @click.stop.prevent
-            >{{ (service.item.alive === true) ? $t('Running') : $t('Stopped') }}</pf-form-range-toggle>
+            />
           </template>
           <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
@@ -92,10 +94,11 @@
               v-model="service.item.enabled"
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
+              :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
               :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)"
               @input="toggleEnabled(service.item, $event)"
               @click.stop.prevent
-            >{{ (service.item.enabled === true) ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+            />
           </template>
           <template v-slot:cell(alive)="service" class="text-nowrap">
             <pf-form-range-toggle
@@ -103,11 +106,12 @@
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
               :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :right-labels="{ checked: $t('Running'), unchecked: $t('Stopped') }"
               :disabled="![200, 'error'].includes(service.item.status) || !('alive' in service.item)"
               class="d-inline"
               @input="toggleRunning(service.item, $event)"
               @click.stop.prevent
-            >{{ (service.item.alive === true) ? $t('Running') : $t('Stopped') }}</pf-form-range-toggle>
+            />
           </template>
           <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
