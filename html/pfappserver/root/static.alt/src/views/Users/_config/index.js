@@ -18,7 +18,7 @@ import {
   not,
   conditional,
   compareDate,
-  userExists,
+  userNotExists,
   sourceExists
 } from '@/globals/pfValidators'
 import {
@@ -128,7 +128,7 @@ export const createValidators = (form = {}) => {
         // additional custom validations ...
         pid: {
           [i18n.t('Username required.')]: required,
-          [i18n.t('Username exists.')]: not(and(required, userExists, conditional(!pid_overwrite)))
+          [i18n.t('Username exists.')]: not(and(required, userNotExists, conditional(!pid_overwrite)))
         },
         email: {
           [i18n.t('Email address required.')]: required

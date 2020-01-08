@@ -11,7 +11,7 @@ import {
   categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
   categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
   isMacAddress,
-  userExists,
+  userNotExists,
   nodeExists
 } from '@/globals/pfValidators'
 
@@ -37,7 +37,7 @@ export const createValidators = buildValidatorsFromTableSchemas(
       [i18n.t('MAC address exists.')]: nodeExists
     },
     pid: {
-      [i18n.t('Owner does not exist.')]: userExists
+      [i18n.t('Owner does not exist.')]: userNotExists
     }
   }
 )
@@ -47,7 +47,7 @@ export const updateValidators = buildValidatorsFromTableSchemas(
   {
     pid: {
       [i18n.t('Username required.')]: required,
-      [i18n.t('Owner does not exist.')]: userExists
+      [i18n.t('Owner does not exist.')]: userNotExists
     }
   }
 )
@@ -134,7 +134,7 @@ export const importFields = [
     types: [fieldType.SUBSTRING],
     required: false,
     validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.pid, {
-      [i18n.t('User does not exist.')]: userExists
+      [i18n.t('Owner does not exist.')]: userNotExists
     })
   },
   {
