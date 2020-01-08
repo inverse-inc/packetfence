@@ -87,7 +87,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/trafficShapingPolicy
+      return view(this.form, this.meta) // ../_config/syslogForwarder
     },
     isLoading () {
       return this.$store.getters['$_syslog_forwarders/isLoading']

@@ -83,7 +83,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/fingerbank/device
+      return view(this.form, this.meta) // ../_config/fingerbank/macVendor
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]

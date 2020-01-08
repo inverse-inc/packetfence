@@ -99,7 +99,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/switch
+      return view(this.form, this.meta) // ../_config/switchGroup
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]

@@ -51,7 +51,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/accessDuration
+      return view(this.form, this.meta) // ../_config/ciscoMobilityServicesEngine
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]

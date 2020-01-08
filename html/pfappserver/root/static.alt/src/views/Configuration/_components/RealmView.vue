@@ -46,7 +46,7 @@ import {
 import {
   view,
   validators
-} from '../_config/domain'
+} from '../_config/realm'
 
 export default {
   name: 'realm-view',
@@ -82,7 +82,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/database
+      return view(this.form, this.meta) // ../_config/realm
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]

@@ -43,7 +43,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import {
   view,
   validators
-} from '../_config/fingerbank/dhcpVendor'
+} from '../_config/dhcpVendor'
 
 export default {
   name: 'fingerbank-dhcp-vendor-view',
@@ -83,7 +83,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/fingerbank/device
+      return view(this.form, this.meta) // ../_config/fingerbank/dhcpVendor
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]
