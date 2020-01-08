@@ -944,7 +944,17 @@ export const switchExists = (value) => {
     if (response.length === 0) return true
     else return response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
-    return true
+      return true
+  })
+}
+
+export const switchNotExists = (value) => {
+  if (!value) return true
+  return store.dispatch('config/getSwitches').then((response) => {
+    if (response.length === 0) return false
+    else return response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length === 0
+  }).catch(() => {
+      return true
   })
 }
 
@@ -958,11 +968,40 @@ export const switchGroupExists = (value) => {
   })
 }
 
+export const switchModeExists = (value) => {
+  if (!value) return true
+  return store.dispatch('$_switches/optionsBySwitchGroup', 'default').then((response) => {
+    const { meta: { mode: { allowed } = {} } = {} } = response
+    for (const { value: v } of allowed) {
+      if (v === value) return true
+    }
+    return false
+  }).catch(() => {
+    return true
+  })
+}
+
 export const switchTemplateExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSwitchTemplates').then(response => {
     if (response.length === 0) return true
     else return response.filter(switchTemplate => switchTemplate.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
+  })
+}
+
+export const switchTypeExists = (value) => {
+  if (!value) return true
+  return store.dispatch('$_switches/optionsBySwitchGroup', 'default').then((response) => {
+    const { meta: { type: { allowed } = {} } = {} } = response
+    for (const { options } of allowed) {
+      for (let option of options) {
+        const { value: v } = option
+        if (v === value) return true
+      }
+    }
+    return false
   }).catch(() => {
     return true
   })

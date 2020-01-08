@@ -4,11 +4,12 @@
     :config="config"
   >
     <template v-slot:buttonAdd>
-      <b-dropdown :text="$t('New Switch')" variant="outline-primary">
+      <b-dropdown :text="$t('New Switch')" variant="outline-primary" class="mr-1">
         <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
           <b-dropdown-item v-for="(switchGroup, index) in switchGroups" :key="index"
             :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
       </b-dropdown>
+      <b-button variant="outline-primary" :to="{ name: 'importSwitch' }">{{ $t('Import from CSV') }}</b-button>
     </template>
     <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No switches found') }}</pf-empty-table>

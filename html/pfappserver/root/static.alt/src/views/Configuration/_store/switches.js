@@ -104,6 +104,58 @@ const actions = {
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
+  },
+  bulkImport: ({ commit }, data) => {
+    let hasError = false
+    const {
+      ignoreInsertIfNotExists,
+      ignoreUpdateIfExists,
+      stopOnFirstError,
+      items: _items
+    } = data
+    const bulkImport = async (_items) => {
+      let items = []
+      for (let i = 0; i < _items.length; i++) {
+        const { [i]: item = {} } = _items
+        const { id } = item
+        if (stopOnFirstError && hasError) {
+          items[i] = { item, message: 'Skipped', status: 424 }
+        } else {
+          items[i] = await new Promise((resolve) => {
+            api.switcheQuiet(id).then(() => {
+              // exists
+              if (ignoreUpdateIfExists) {
+                resolve({ item, isNew: false, message: 'Skip already exists', status: 409 })
+              } else {
+                api.updateSwitch({ ...item, ...{ quiet: true } }).then(response => {
+                  resolve({ item, isNew: false, status: 200 })
+                }).catch(err => {
+                  if (stopOnFirstError) hasError = true // exit
+                  const { response: { data: { message: error } = {} } = {} } = err
+                  resolve({ item, errors: [ error ], message: 'Cannot import switch', status: 422 })
+                })
+              }
+            }).catch(() => {
+              // not exists
+              if (ignoreInsertIfNotExists) {
+                resolve({ item, isNew: true, message: 'Skip does not exists', status: 404 })
+              } else {
+                api.createSwitch({ ...item, ...{ quiet: true } }).then(response => {
+                  resolve({ item, isNew: true, status: 200 })
+                }).catch(err => {
+                  if (stopOnFirstError) hasError = true // exit
+                  const { response: { data: { message: error } = {} } = {} } = err
+                  resolve({ item, errors: [ error ], message: 'Cannot import switch', status: 422 })
+                })
+              }
+            })
+          })
+        }
+      }
+      return items
+    }
+    return bulkImport(_items).then((items) => {
+      return items
     })
   }
 }

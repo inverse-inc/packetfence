@@ -1,198 +1,105 @@
 <template>
-  <pf-config-view
-    :isLoading="isLoading"
-    :disabled="isLoading"
-    :isDeletable="isDeletable"
-    :form="getForm"
-    :model="form"
-    :vuelidate="$v.form"
-    :isNew="isNew"
-    :isClone="isClone"
-    @validations="formValidations = $event"
-    @close="close"
-    @create="create"
-    @save="save"
-    @remove="remove"
-  >
-    <template v-slot:header>
-      <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0">
-        <span v-if="!isNew && !isClone" v-html="$t('Switch {id}', { id: $strong(id) })"></span>
-        <span v-else-if="isClone" v-html="$t('Clone Switch {id}', { id: $strong(id) })"></span>
-        <span v-else v-html="$t('New {switchGroup} Switch', { switchGroup: $strong(switchGroup) })"></span>
-      </h4>
-    </template>
-    <template v-slot:footer>
-      <b-card-footer>
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-          <template v-if="isNew">{{ $t('Create') }}</template>
-          <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
-          <template v-else>{{ $t('Save') }}</template>
-        </pf-button-save>
-        <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
-        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Switch?')" @on-delete="remove()"/>
-      </b-card-footer>
-    </template>
-  </pf-config-view>
+  <b-card no-body>
+    <b-card-header>
+      <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close')"><icon name="times"></icon></b-button-close>
+      <h4 class="mb-0" v-t="'Import Switches'"></h4>
+    </b-card-header>
+    <div class="card-body p-0">
+      <b-tabs ref="tabs" v-model="tabIndex" card pills>
+        <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified"
+          :title="file.name" :title-link-class="(tabIndex === index) ? ['bg-primary', 'text-light'] : ['bg-light', 'text-primary']"
+          no-body
+        >
+          <template v-slot:title>
+            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
+              <icon name="times" class="align-top ml-1"></icon>
+            </b-button-close>
+            {{ file.name }}
+          </template>
+          <pf-csv-import :ref="'import-' + index"
+            :file="file"
+            :fields="importFields"
+            :default-static-mapping="defaultStaticMapping"
+            :events-listen="tabIndex === index"
+            :is-loading="isLoading"
+            :import-promise="importPromise"
+            store-name="$_switches"
+            hover
+            striped
+          ></pf-csv-import>
+        </b-tab>
+        <template v-slot:tabs-end>
+          <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+        </template>
+        <template v-slot:empty>
+          <div class="text-center text-muted">
+            <b-container class="my-5">
+              <b-row class="justify-content-md-center text-secondary">
+                  <b-col cols="12" md="auto">
+                    <icon v-if="isLoading" name="sync" scale="2" spin></icon>
+                    <b-media v-else>
+                      <template v-slot:aside><icon name="file" scale="2"></icon></template>
+                      <h4>{{ $t('There are no open CSV files') }}</h4>
+                    </b-media>
+                  </b-col>
+              </b-row>
+            </b-container>
+          </div>
+        </template>
+      </b-tabs>
+    </div>
+  </b-card>
 </template>
 
 <script>
-import pfConfigView from '@/components/pfConfigView'
-import pfButtonSave from '@/components/pfButtonSave'
-import pfButtonDelete from '@/components/pfButtonDelete'
-import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
-import {
-  pfConfigurationSwitchViewFields as fields
-} from '@/globals/configuration/pfConfigurationSwitches'
-const { validationMixin } = require('vuelidate')
+import pfCSVImport from '@/components/pfCSVImport'
+import pfFormUpload from '@/components/pfFormUpload'
+import { importFields } from '../_config/switch'
 
 export default {
-  name: 'switch-view',
-  mixins: [
-    validationMixin
-  ],
+  name: 'switches-import',
   components: {
-    pfConfigView,
-    pfButtonSave,
-    pfButtonDelete
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
-    isNew: { // from router
-      type: Boolean,
-      default: false
-    },
-    isClone: { // from router
-      type: Boolean,
-      default: false
-    },
-    id: { // from router
-      type: String,
-      default: null
-    },
-    switchGroup: { // from router
-      type: String,
-      default: null
-    }
+    'pf-csv-import': pfCSVImport,
+    pfFormUpload
   },
   data () {
     return {
-      form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {},
-      roles: []
-    }
-  },
-  validations () {
-    return {
-      form: this.formValidations
-    }
-  },
-  computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
-    },
-    invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
-    },
-    getForm () {
-      return {
-        labelCols: 3,
-        fields: fields(this)
-      }
-    },
-    isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
-        return false
-      }
-      return true
-    },
-    actionKey () {
-      return this.$store.getters['events/actionKey']
-    },
-    escapeKey () {
-      return this.$store.getters['events/escapeKey']
+      files: [],
+      tabIndex: 0,
+      defaultStaticMapping: [],
+      importFields, // ../_config/switch
+      isLoading: false
     }
   },
   methods: {
-    init () {
-      this.$store.dispatch('$_roles/all').then(data => {
-        this.roles = data
+    abortFile (index) {
+      this.files[index].reader.abort()
+    },
+    closeFile (index) {
+      const file = this.files[index]
+      file.close()
+    },
+    importPromise (payload, dryRun) {
+      return new Promise((resolve, reject) => {
+        this.$store.dispatch('$_switches/bulkImport', payload).then(result => {
+          // do something with the result, then Promise.resolve to continue processing
+          resolve(result)
+        }).catch(err => {
+          // do something with the error, then Promise.reject to stop processing
+          reject(err)
+        })
       })
-      if (this.id) {
-        // existing
-        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = options
-          this.$store.dispatch(`${this.storeName}/getSwitch`, this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.form = form
-            this.switchGroup = form.group
-          })
-        })
-      } else {
-        // new
-        this.$store.dispatch(`${this.storeName}/optionsBySwitchGroup`, this.switchGroup).then(options => {
-          this.options = options
-          this.form = defaults(options.meta) // set defaults
-          this.form.group = this.switchGroup
-        })
-      }
     },
     close () {
       this.$router.push({ name: 'switches' })
-    },
-    clone () {
-      this.$router.push({ name: 'cloneSwitch' })
-    },
-    create () {
-      const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/createSwitch`, this.form).then(response => {
-        if (actionKey) { // [CTRL] key pressed
-          this.close()
-        } else {
-          this.$router.push({ name: 'switch', params: { id: this.form.id } })
-        }
-      })
-    },
-    save () {
-      const actionKey = this.actionKey
-      this.$store.dispatch(`${this.storeName}/updateSwitch`, this.form).then(response => {
-        if (actionKey) { // [CTRL] key pressed
-          this.close()
-        }
-      })
-    },
-    remove () {
-      this.$store.dispatch(`${this.storeName}/deleteSwitch`, this.id).then(response => {
-        this.close()
-      })
-    }
-  },
-  created () {
-    this.init()
-  },
-  watch: {
-    id: {
-      handler: function (a, b) {
-        this.init()
-      }
-    },
-    isClone: {
-      handler: function (a, b) {
-        this.init()
-      }
-    },
-    escapeKey (pressed) {
-      if (pressed) this.close()
     }
   }
 }
 </script>
+
+<style lang="scss">
+.nav-tabs > li > a,
+.nav-pills > li > a {
+  margin-right: 0.5rem!important;
+}
+</style>
