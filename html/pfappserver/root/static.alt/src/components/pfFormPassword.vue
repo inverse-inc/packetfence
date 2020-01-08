@@ -185,7 +185,6 @@ export default {
       this.showPassword = !this.showPassword
     },
     runTest () {
-console.log('runTest')
       if (this.test) {
         this.isTesting = true
         this.testResult = null
