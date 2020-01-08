@@ -102,7 +102,6 @@ export const view = (form = {}, meta = {}) => {
         viewFields.description(form, meta),
         viewFields.type(form, meta),
         viewFields.mode(form, meta),
-        viewFields.group(form, meta),
         viewFields.deauthMethod(form, meta),
         viewFields.useCoA(form, meta),
         viewFields.cliAccess(form, meta),
