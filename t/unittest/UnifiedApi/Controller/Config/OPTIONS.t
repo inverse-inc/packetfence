@@ -357,7 +357,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                 type           => "string"
             },
             type => {
-                default        => undef,
+                default        => "regex",
                 placeholder    => undef,
                 required       => $true,
                 type           => "string"
