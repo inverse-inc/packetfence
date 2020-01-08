@@ -86,7 +86,7 @@ export default {
     })
   },
   testAuthenticationSource: data => {
-    return apiCall.post('config/sources/test', data).then(response => {
+    return apiCall.postQuiet('config/sources/test', data).then(response => {
       return response
     })
   },
