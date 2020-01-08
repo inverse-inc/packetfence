@@ -123,7 +123,7 @@ export const config = () => {
   }
 }
 
-const administrationRuleActions = (form = {}, meta = {}) => {
+const administrationRuleActions = (form, meta = {}) => {
   const { sourceType = null } = meta
   return [
     ...[
@@ -138,7 +138,7 @@ const administrationRuleActions = (form = {}, meta = {}) => {
   ]
 }
 
-const authenticationRuleActions = (form = {}, meta = {}) => {
+const authenticationRuleActions = () => {
   return [
     pfActions.set_role_by_name,
     pfActions.set_access_duration,
@@ -149,7 +149,7 @@ const authenticationRuleActions = (form = {}, meta = {}) => {
 }
 
 export const viewFields = {
-  id: (form = {}, meta = {}) => {
+  id: (form, meta = {}) => {
     const { isNew = false, isClone = false } = meta
     return {
       label: i18n.t('Name'),
@@ -167,7 +167,7 @@ export const viewFields = {
       ]
     }
   },
-  access_scope: (form = {}, meta = {}) => {
+  access_scope: (form, meta = {}) => {
     return {
       label: i18n.t('Scope'),
       text: i18n.t('The permissions the application requests.'),
@@ -180,7 +180,7 @@ export const viewFields = {
       ]
     }
   },
-  access_token_param: (form = {}, meta = {}) => {
+  access_token_param: (form, meta = {}) => {
     return {
       label: i18n.t('Access Token Parameter'),
       cols: [
@@ -192,7 +192,7 @@ export const viewFields = {
       ]
     }
   },
-  access_token_path: (form = {}, meta = {}) => {
+  access_token_path: (form, meta = {}) => {
     return {
       label: null, // multiple occurances w/ different strings, nullify for overload
       cols: [
@@ -204,7 +204,7 @@ export const viewFields = {
       ]
     }
   },
-  account_sid: (form = {}, meta = {}) => {
+  account_sid: (form, meta = {}) => {
     return {
       label: i18n.t('Account SID'),
       text: i18n.t('Twilio Account SID.'),
@@ -217,7 +217,7 @@ export const viewFields = {
       ]
     }
   },
-  activation_domain: (form = {}, meta = {}) => {
+  activation_domain: (form, meta = {}) => {
     return {
       label: i18n.t('Host in activation link'),
       text: i18n.t('Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.'),
@@ -230,7 +230,7 @@ export const viewFields = {
       ]
     }
   },
-  administration_rules: (form = {}, meta = {}) => {
+  administration_rules: (form, meta = {}) => {
     return {
       label: 'Administration Rules',
       cols: [
@@ -276,7 +276,7 @@ export const viewFields = {
       ]
     }
   },
-  allowed_domains: (form = {}, meta = {}) => {
+  allowed_domains: (form, meta = {}) => {
     return {
       label: i18n.t('Comma-separated list of Allowed Domains'),
       text: i18n.t('A comma-separated list of domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.'),
@@ -294,7 +294,7 @@ export const viewFields = {
       ]
     }
   },
-  allow_localdomain: (form = {}, meta = {}) => {
+  allow_localdomain: () => {
     return {
       label: i18n.t('Allow Local Domain'),
       text: i18n.t('Accept self-registration with email address from the local domain.'),
@@ -309,7 +309,7 @@ export const viewFields = {
       ]
     }
   },
-  api_key: (form = {}, meta = {}) => {
+  api_key: (form, meta = {}) => {
     return {
       label: i18n.t('API Key'),
       cols: [
@@ -321,7 +321,7 @@ export const viewFields = {
       ]
     }
   },
-  api_login_id: (form = {}, meta = {}) => {
+  api_login_id: (form, meta = {}) => {
     return {
       label: i18n.t('API login ID'),
       cols: [
@@ -333,7 +333,7 @@ export const viewFields = {
       ]
     }
   },
-  api_username: (form = {}, meta = {}) => {
+  api_username: (form, meta = {}) => {
     return {
       label: i18n.t('API username (basic auth)'),
       cols: [
@@ -345,7 +345,7 @@ export const viewFields = {
       ]
     }
   },
-  api_password: (form = {}, meta = {}) => {
+  api_password: (form, meta = {}) => {
     return {
       label: i18n.t('API password (basic auth)'),
       cols: [
@@ -357,7 +357,7 @@ export const viewFields = {
       ]
     }
   },
-  auth_listening_port: (form = {}, meta = {}) => {
+  auth_listening_port: (form, meta = {}) => {
     return {
       label: i18n.t('Authentication listening port'),
       text: i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port.'),
@@ -370,7 +370,7 @@ export const viewFields = {
       ]
     }
   },
-  auth_token: (form = {}, meta = {}) => {
+  auth_token: (form, meta = {}) => {
     return {
       label: i18n.t('Auth Token'),
       text: i18n.t('Twilio Auth Token.'),
@@ -383,7 +383,7 @@ export const viewFields = {
       ]
     }
   },
-  authenticate_realm: (form = {}, meta = {}) => {
+  authenticate_realm: (form, meta = {}) => {
     return {
       label: i18n.t('Realm to use to authenticate'),
       cols: [
@@ -441,7 +441,7 @@ export const viewFields = {
       ]
     }
   },
-  authentication_url: (form = {}, meta = {}) => {
+  authentication_url: (form, meta = {}) => {
     return {
       label: i18n.t('Authentication URL'),
       text: i18n.t('Note : The URL is always prefixed by a slash (/).'),
@@ -454,7 +454,7 @@ export const viewFields = {
       ]
     }
   },
-  authorization_source_id: (form = {}, meta = {}) => {
+  authorization_source_id: (form, meta = {}) => {
     return {
       label: i18n.t('Authorization source'),
       text: i18n.t('The source to use for authorization (rule matching).'),
@@ -467,7 +467,7 @@ export const viewFields = {
       ]
     }
   },
-  authorize_path: (form = {}, meta = {}) => {
+  authorize_path: (form, meta = {}) => {
     return {
       label: i18n.t('API Authorize Path'),
       cols: [
@@ -479,7 +479,7 @@ export const viewFields = {
       ]
     }
   },
-  authorization_url: (form = {}, meta = {}) => {
+  authorization_url: (form, meta = {}) => {
     return {
       label: i18n.t('Authorization URL'),
       text: i18n.t('Note : The URL is always prefixed by a slash (/).'),
@@ -492,7 +492,7 @@ export const viewFields = {
       ]
     }
   },
-  banned_domains: (form = {}, meta = {}) => {
+  banned_domains: (form, meta = {}) => {
     return {
       label: i18n.t('Comma-separated list of Banned Domains'),
       text: i18n.t('A comma-separated list of domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.'),
@@ -510,7 +510,7 @@ export const viewFields = {
       ]
     }
   },
-  base_url: (form = {}, meta = {}) => {
+  base_url: (form, meta = {}) => {
     return {
       label: i18n.t('Iframe Base URL'),
       cols: [
@@ -522,7 +522,7 @@ export const viewFields = {
       ]
     }
   },
-  basedn: (form = {}, meta = {}) => {
+  basedn: (form, meta = {}) => {
     return {
       label: i18n.t('Base DN'),
       cols: [
@@ -534,7 +534,7 @@ export const viewFields = {
       ]
     }
   },
-  binddn: (form = {}, meta = {}) => {
+  binddn: (form, meta = {}) => {
     return {
       label: i18n.t('Bind DN'),
       text: i18n.t('Leave this field empty if you want to perform an anonymous bind.'),
@@ -547,7 +547,7 @@ export const viewFields = {
       ]
     }
   },
-  cache_match: (form = {}, meta = {}) => {
+  cache_match: () => {
     return {
       label: i18n.t('Cache match'),
       text: i18n.t('Will cache results of matching a rule.'),
@@ -562,7 +562,7 @@ export const viewFields = {
       ]
     }
   },
-  cert_file: (form = {}, meta = {}) => {
+  cert_file: (form, meta = {}) => {
     return {
       label: i18n.t('Cert file'),
       text: i18n.t('The path to the certificate you submitted to Paypal.'),
@@ -575,7 +575,7 @@ export const viewFields = {
       ]
     }
   },
-  cert_id: (form = {}, meta = {}) => {
+  cert_id: (form, meta = {}) => {
     return {
       label: i18n.t('Cert ID'),
       cols: [
@@ -587,7 +587,7 @@ export const viewFields = {
       ]
     }
   },
-  client_id: (form = {}, meta = {}) => {
+  client_id: (form, meta = {}) => {
     return {
       label: i18n.t('App ID'),
       cols: [
@@ -599,7 +599,7 @@ export const viewFields = {
       ]
     }
   },
-  client_secret: (form = {}, meta = {}) => {
+  client_secret: (form, meta = {}) => {
     return {
       label: i18n.t('App Secret'),
       cols: [
@@ -611,7 +611,7 @@ export const viewFields = {
       ]
     }
   },
-  connection_timeout: (form = {}, meta = {}) => {
+  connection_timeout: (form, meta = {}) => {
     return {
       label: i18n.t('Connection timeout'),
       text: i18n.t('LDAP connection Timeout.'),
@@ -624,7 +624,7 @@ export const viewFields = {
       ]
     }
   },
-  create_local_account: (form = {}, meta = {}) => {
+  create_local_account: () => {
     return {
       label: i18n.t('Create Local Account'),
       text: i18n.t('Create a local account on the PacketFence system based on the username provided.'),
@@ -639,7 +639,7 @@ export const viewFields = {
       ]
     }
   },
-  currency: (form = {}, meta = {}) => {
+  currency: (form, meta = {}) => {
     return {
       label: i18n.t('Currency'),
       cols: [
@@ -651,7 +651,7 @@ export const viewFields = {
       ]
     }
   },
-  description: (form = {}, meta = {}) => {
+  description: (form, meta = {}) => {
     return {
       label: i18n.t('Description'),
       cols: [
@@ -663,7 +663,7 @@ export const viewFields = {
       ]
     }
   },
-  direct_base_url: (form = {}, meta = {}) => {
+  direct_base_url: (form, meta = {}) => {
     return {
       label: i18n.t('Direct Base url'),
       cols: [
@@ -675,7 +675,7 @@ export const viewFields = {
       ]
     }
   },
-  domains: (form = {}, meta = {}) => {
+  domains: (form, meta = {}) => {
     return {
       label: i18n.t('Authorized domains'),
       text: i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.'),
@@ -688,7 +688,7 @@ export const viewFields = {
       ]
     }
   },
-  email_activation_timeout: (form = {}, meta = {}) => {
+  email_activation_timeout: (form, meta = {}) => {
     return {
       label: i18n.t('Email Activation Timeout'),
       text: null, // multiple occurances w/ different strings, nullify for overload
@@ -711,7 +711,7 @@ export const viewFields = {
       ]
     }
   },
-  email_address: (form = {}, meta = {}) => {
+  email_address: (form, meta = {}) => {
     return {
       label: i18n.t('Email address'),
       text: i18n.t('The email address associated to your paypal account.'),
@@ -724,7 +724,7 @@ export const viewFields = {
       ]
     }
   },
-  email_attribute: (form = {}, meta = {}) => {
+  email_attribute: (form, meta = {}) => {
     return {
       label: i18n.t('Email Attribute'),
       text: i18n.t('LDAP attribute name that stores the email address against which the filter will match.'),
@@ -737,7 +737,7 @@ export const viewFields = {
       ]
     }
   },
-  email_required: (form = {}, meta = {}) => {
+  email_required: () => {
     return {
       label: i18n.t('Email required'),
       cols: [
@@ -751,7 +751,7 @@ export const viewFields = {
       ]
     }
   },
-  group_header: (form = {}, meta = {}) => {
+  group_header: (form, meta = {}) => {
     return {
       label: i18n.t('Group header '),
       cols: [
@@ -763,7 +763,7 @@ export const viewFields = {
       ]
     }
   },
-  hash_passwords: (form = {}, meta = {}) => {
+  hash_passwords: (form, meta = {}) => {
     return {
       label: i18n.t('Database passwords hashing method'),
       text: i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.'),
@@ -776,7 +776,7 @@ export const viewFields = {
       ]
     }
   },
-  host: (form = {}, meta = {}) => {
+  host: (form, meta = {}) => {
     return {
       label: i18n.t('Host'),
       cols: [
@@ -789,7 +789,7 @@ export const viewFields = {
     }
   },
   host_port_encryption: (form = {}, meta = {}) => {
-    const portHelper = (form = {}, meta = {}) => {
+    const portHelper = (form = {}) => {
       const { encryption, port } = form
       let helper = null
       switch (encryption) {
@@ -859,7 +859,7 @@ export const viewFields = {
       ]
     }
   },
-  identity_token: (form = {}, meta = {}) => {
+  identity_token: (form, meta = {}) => {
     return {
       label: i18n.t('Identity token'),
       cols: [
@@ -871,7 +871,7 @@ export const viewFields = {
       ]
     }
   },
-  idp_ca_cert_path: (form = {}, meta = {}) => {
+  idp_ca_cert_path: (form, meta = {}) => {
     return {
       label: i18n.t('Path to Identity Provider CA cert (x509)'),
       text: i18n.t('If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.'),
@@ -884,7 +884,7 @@ export const viewFields = {
       ]
     }
   },
-  idp_cert_path: (form = {}, meta = {}) => {
+  idp_cert_path: (form, meta = {}) => {
     return {
       label: i18n.t('Path to Identity Provider cert (x509)'),
       cols: [
@@ -896,7 +896,7 @@ export const viewFields = {
       ]
     }
   },
-  idp_entity_id: (form = {}, meta = {}) => {
+  idp_entity_id: (form, meta = {}) => {
     return {
       label: i18n.t('Identity Provider entity ID'),
       cols: [
@@ -908,7 +908,7 @@ export const viewFields = {
       ]
     }
   },
-  idp_metadata_path: (form = {}, meta = {}) => {
+  idp_metadata_path: (form, meta = {}) => {
     return {
       label: i18n.t('Path to Identity Provider metadata'),
       cols: [
@@ -920,7 +920,7 @@ export const viewFields = {
       ]
     }
   },
-  key_file: (form = {}, meta = {}) => {
+  key_file: (form, meta = {}) => {
     return {
       label: i18n.t('Key file'),
       text: i18n.t('The path to the associated key of the certificate you submitted to Paypal.'),
@@ -933,7 +933,7 @@ export const viewFields = {
       ]
     }
   },
-  lang: (form = {}, meta = {}) => {
+  lang: (form, meta = {}) => {
     return {
       label: i18n.t('Language'),
       text: i18n.t('Language for sponsor email.'),
@@ -946,7 +946,7 @@ export const viewFields = {
       ]
     }
   },
-  local_account_logins: (form = {}, meta = {}) => {
+  local_account_logins: (form, meta = {}) => {
     return {
       label: i18n.t('Amount of logins for the local account'),
       text: i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.'),
@@ -959,7 +959,7 @@ export const viewFields = {
       ]
     }
   },
-  local_realm: (form = {}, meta = {}) => {
+  local_realm: (form, meta = {}) => {
     return {
       label: i18n.t('Local Realms'),
       text: i18n.t('Realms that will be authenticate locally.'),
@@ -972,7 +972,7 @@ export const viewFields = {
       ]
     }
   },
-  merchant_id: (form = {}, meta = {}) => {
+  merchant_id: (form, meta = {}) => {
     return {
       label: i18n.t('Merchant ID'),
       cols: [
@@ -984,7 +984,7 @@ export const viewFields = {
       ]
     }
   },
-  message: (form = {}, meta = {}) => {
+  message: (form, meta = {}) => {
     return {
       label: i18n.t('SMS text message ($pin will be replaced by the PIN number)'),
       cols: [
@@ -1001,7 +1001,7 @@ export const viewFields = {
       ]
     }
   },
-  monitor: (form = {}, meta = {}) => {
+  monitor: () => {
     return {
       label: i18n.t('Monitor'),
       text: i18n.t('Do you want to monitor this source?'),
@@ -1016,7 +1016,7 @@ export const viewFields = {
       ]
     }
   },
-  options: (form = {}, meta = {}) => {
+  options: (form, meta = {}) => {
     return {
       label: i18n.t('Options'),
       text: i18n.t('Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radiusd restart.'),
@@ -1045,9 +1045,7 @@ export const viewFields = {
             ...attributesFromMeta(meta, 'password'),
             ...{
               test: () => {
-                return store.dispatch('$_sources/testAuthenticationSource', form).then(response => {
-                  return response
-                }).catch(err => {
+                return store.dispatch('$_sources/testAuthenticationSource', form).catch(err => {
                   throw err
                 })
               }
@@ -1057,7 +1055,7 @@ export const viewFields = {
       ]
     }
   },
-  password_email_update: (form = {}, meta = {}) => {
+  password_email_update: (form, meta = {}) => {
     return {
       label: i18n.t('Email'),
       text: i18n.t('Email addresses to send the new generated password.'),
@@ -1070,7 +1068,7 @@ export const viewFields = {
       ]
     }
   },
-  password_length: (form = {}, meta = {}) => {
+  password_length: (form, meta = {}) => {
     return {
       label: i18n.t('Password length '),
       text: i18n.t('The length of the password to generate.'),
@@ -1083,7 +1081,7 @@ export const viewFields = {
       ]
     }
   },
-  password_rotation: (form = {}, meta = {}) => {
+  password_rotation: (form, meta = {}) => {
     return {
       label: i18n.t('Password rotation duration'),
       text: i18n.t('Period of time after the password must be rotated.'),
@@ -1096,7 +1094,7 @@ export const viewFields = {
       ]
     }
   },
-  path: (form = {}, meta = {}) => {
+  path: (form, meta = {}) => {
     return {
       label: i18n.t('File Path'),
       cols: [
@@ -1108,7 +1106,7 @@ export const viewFields = {
       ]
     }
   },
-  payment_type: (form = {}, meta = {}) => {
+  payment_type: (form, meta = {}) => {
     return {
       label: i18n.t('Payment type'),
       cols: [
@@ -1120,7 +1118,7 @@ export const viewFields = {
       ]
     }
   },
-  paypal_cert_file: (form = {}, meta = {}) => {
+  paypal_cert_file: (form, meta = {}) => {
     return {
       label: i18n.t('Paypal cert file'),
       text: i18n.t('The path to the Paypal certificate you downloaded.'),
@@ -1133,7 +1131,7 @@ export const viewFields = {
       ]
     }
   },
-  pin_code_length: (form = {}, meta = {}) => {
+  pin_code_length: (form, meta = {}) => {
     return {
       label: i18n.t('PIN length'),
       text: i18n.t('The amount of digits of the PIN number.'),
@@ -1146,7 +1144,7 @@ export const viewFields = {
       ]
     }
   },
-  port: (form = {}, meta = {}) => {
+  port: (form, meta = {}) => {
     return {
       label: i18n.t('Port'),
       text: i18n.t('If you use this source in the realm configuration the accounting port will be this port + 1.'),
@@ -1159,7 +1157,7 @@ export const viewFields = {
       ]
     }
   },
-  protected_resource_url: (form = {}, meta = {}) => {
+  protected_resource_url: (form, meta = {}) => {
     return {
       label: null, // multiple occurances w/ different strings, nullify for overload
       cols: [
@@ -1171,7 +1169,7 @@ export const viewFields = {
       ]
     }
   },
-  protocol_host_port: (form = {}, meta = {}) => {
+  protocol_host_port: (form, meta = {}) => {
     return {
       label: i18n.t('Host'),
       cols: [
@@ -1212,7 +1210,7 @@ export const viewFields = {
       ]
     }
   },
-  proxy_addresses: (form = {}, meta = {}) => {
+  proxy_addresses: (form, meta = {}) => {
     return {
       label: i18n.t('Proxy addresses'),
       text: i18n.t('A comma seperated list of IP Address.'),
@@ -1230,7 +1228,7 @@ export const viewFields = {
       ]
     }
   },
-  public_client_key: (form = {}, meta = {}) => {
+  public_client_key: (form, meta = {}) => {
     return {
       label: i18n.t('Public Client Key'),
       cols: [
@@ -1242,7 +1240,7 @@ export const viewFields = {
       ]
     }
   },
-  publishable_key: (form = {}, meta = {}) => {
+  publishable_key: (form, meta = {}) => {
     return {
       label: i18n.t('Publishable key'),
       cols: [
@@ -1254,7 +1252,7 @@ export const viewFields = {
       ]
     }
   },
-  radius_secret: (form = {}, meta = {}) => {
+  radius_secret: (form, meta = {}) => {
     return {
       label: i18n.t('RADIUS secret'),
       text: i18n.t('Eduroam RADIUS secret.'),
@@ -1267,7 +1265,7 @@ export const viewFields = {
       ]
     }
   },
-  read_timeout: (form = {}, meta = {}) => {
+  read_timeout: (form, meta = {}) => {
     return {
       label: i18n.t('Response timeout'),
       text: i18n.t('LDAP response timeout.'),
@@ -1280,7 +1278,7 @@ export const viewFields = {
       ]
     }
   },
-  realms: (form = {}, meta = {}) => {
+  realms: (form, meta = {}) => {
     return {
       label: i18n.t('Associated Realms'),
       text: i18n.t('Realms that will be associated with this source.'),
@@ -1293,7 +1291,7 @@ export const viewFields = {
       ]
     }
   },
-  redirect_url: (form = {}, meta = {}) => {
+  redirect_url: (form, meta = {}) => {
     return {
       label: i18n.t('Portal URL'),
       text: i18n.t('The hostname must be the one of your captive portal.'),
@@ -1306,7 +1304,7 @@ export const viewFields = {
       ]
     }
   },
-  reject_realm: (form = {}, meta = {}) => {
+  reject_realm: (form, meta = {}) => {
     return {
       label: i18n.t('Reject Realms'),
       text: i18n.t('Realms that will be rejected.'),
@@ -1319,7 +1317,7 @@ export const viewFields = {
       ]
     }
   },
-  scope: (form = {}, meta = {}) => {
+  scope: (form, meta = {}) => {
     return {
       label: i18n.t('Scope'),
       cols: [
@@ -1331,7 +1329,7 @@ export const viewFields = {
       ]
     }
   },
-  searchattributes: (form = {}, meta = {}) => {
+  searchattributes: (form, meta = {}) => {
     return {
       label: i18n.t('Search Attributes'),
       text: i18n.t('Other attributes that can be used as the username (requires to restart the radiusd service to be effective).'),
@@ -1344,7 +1342,7 @@ export const viewFields = {
       ]
     }
   },
-  secret: (form = {}, meta = {}) => {
+  secret: (form, meta = {}) => {
     return {
       label: i18n.t('Secret'),
       cols: [
@@ -1356,7 +1354,7 @@ export const viewFields = {
       ]
     }
   },
-  secret_key: (form = {}, meta = {}) => {
+  secret_key: (form, meta = {}) => {
     return {
       label: i18n.t('Secret key'),
       cols: [
@@ -1368,7 +1366,7 @@ export const viewFields = {
       ]
     }
   },
-  send_email_confirmation: (form = {}, meta = {}) => {
+  send_email_confirmation: () => {
     return {
       label: i18n.t('Send billing confirmation'),
       cols: [
@@ -1382,7 +1380,7 @@ export const viewFields = {
       ]
     }
   },
-  server1_address: (form = {}, meta = {}) => {
+  server1_address: (form, meta = {}) => {
     return {
       label: i18n.t('Server 1 address'),
       text: i18n.t('Eduroam server 1 address.'),
@@ -1395,7 +1393,7 @@ export const viewFields = {
       ]
     }
   },
-  server1_port: (form = {}, meta = {}) => {
+  server1_port: (form, meta = {}) => {
     return {
       label: i18n.t('Eduroam server 1 port'),
       cols: [
@@ -1407,7 +1405,7 @@ export const viewFields = {
       ]
     }
   },
-  server2_address: (form = {}, meta = {}) => {
+  server2_address: (form, meta = {}) => {
     return {
       label: i18n.t('Server 2 address'),
       text: i18n.t('Eduroam server 1 address.'),
@@ -1420,7 +1418,7 @@ export const viewFields = {
       ]
     }
   },
-  server2_port: (form = {}, meta = {}) => {
+  server2_port: (form, meta = {}) => {
     return {
       label: i18n.t('Eduroam server 2 port'),
       cols: [
@@ -1432,7 +1430,7 @@ export const viewFields = {
       ]
     }
   },
-  service_fqdn: (form = {}, meta = {}) => {
+  service_fqdn: (form, meta = {}) => {
     return {
       label: i18n.t('Service FQDN'),
       cols: [
@@ -1444,7 +1442,7 @@ export const viewFields = {
       ]
     }
   },
-  shared_secret: (form = {}, meta = {}) => {
+  shared_secret: (form, meta = {}) => {
     return {
       label: i18n.t('Shared Secret'),
       text: i18n.t('MKEY for the iframe.'),
@@ -1457,7 +1455,7 @@ export const viewFields = {
       ]
     }
   },
-  shared_secret_direct: (form = {}, meta = {}) => {
+  shared_secret_direct: (form, meta = {}) => {
     return {
       label: i18n.t('Shared Secret Direct'),
       text: i18n.t('MKEY for Mirapay Direct.'),
@@ -1470,7 +1468,7 @@ export const viewFields = {
       ]
     }
   },
-  shuffle: (form = {}, meta = {}) => {
+  shuffle: () => {
     return {
       label: i18n.t('Shuffle'),
       text: i18n.t('Randomly choose LDAP server to query.'),
@@ -1485,7 +1483,7 @@ export const viewFields = {
       ]
     }
   },
-  site: (form = {}, meta = {}) => {
+  site: (form, meta = {}) => {
     return {
       label: null, // multiple occurances w/ different strings, nullify for overload
       cols: [
@@ -1497,7 +1495,7 @@ export const viewFields = {
       ]
     }
   },
-  sms_activation_timeout: (form = {}, meta = {}) => {
+  sms_activation_timeout: (form, meta = {}) => {
     return {
       label: i18n.t('SMS Activation Timeout '),
       text: i18n.t('This is the delay given to a guest who registered by SMS confirmation to fill the PIN code.'),
@@ -1520,7 +1518,7 @@ export const viewFields = {
       ]
     }
   },
-  sms_carriers: (form = {}, meta = {}) => {
+  sms_carriers: (form, meta = {}) => {
     return {
       label: i18n.t('SMS Carriers'),
       text: i18n.t('List of phone carriers available to the user.'),
@@ -1533,7 +1531,7 @@ export const viewFields = {
       ]
     }
   },
-  sources: (form = {}, meta = {}) => {
+  sources: (form, meta = {}) => {
     return {
       label: i18n.t('Associated Sources'),
       text: i18n.t('Sources that will be associated with this source (For the Sponsor)'),
@@ -1546,7 +1544,7 @@ export const viewFields = {
       ]
     }
   },
-  sp_cert_path: (form = {}, meta = {}) => {
+  sp_cert_path: (form, meta = {}) => {
     return {
       label: i18n.t('Path to Service Provider cert (x509)'),
       cols: [
@@ -1558,7 +1556,7 @@ export const viewFields = {
       ]
     }
   },
-  sp_entity_id: (form = {}, meta = {}) => {
+  sp_entity_id: (form, meta = {}) => {
     return {
       label: i18n.t('Service Provider entity ID'),
       cols: [
@@ -1570,7 +1568,7 @@ export const viewFields = {
       ]
     }
   },
-  sp_key_path: (form = {}, meta = {}) => {
+  sp_key_path: (form, meta = {}) => {
     return {
       label: i18n.t('Path to Service Provider key (x509)'),
       cols: [
@@ -1582,7 +1580,7 @@ export const viewFields = {
       ]
     }
   },
-  sponsorship_bcc: (form = {}, meta = {}) => {
+  sponsorship_bcc: (form, meta = {}) => {
     return {
       label: i18n.t('Sponsorship BCC'),
       text: i18n.t('Sponsors requesting access and access confirmation emails are BCC\'ed to this address. Multiple destinations can be comma-separated.'),
@@ -1595,7 +1593,7 @@ export const viewFields = {
       ]
     }
   },
-  style: (form = {}, meta = {}) => {
+  style: (form, meta = {}) => {
     return {
       label: i18n.t('Style'),
       cols: [
@@ -1607,7 +1605,7 @@ export const viewFields = {
       ]
     }
   },
-  terminal_group_id: (form = {}, meta = {}) => {
+  terminal_group_id: (form, meta = {}) => {
     return {
       label: i18n.t('Terminal Group ID'),
       text: i18n.t('Terminal Group ID for Mirapay Direct.'),
@@ -1620,7 +1618,7 @@ export const viewFields = {
       ]
     }
   },
-  terminal_id: (form = {}, meta = {}) => {
+  terminal_id: (form, meta = {}) => {
     return {
       label: i18n.t('Terminal ID'),
       text: i18n.t('Terminal ID for Mirapay Direct.'),
@@ -1633,7 +1631,7 @@ export const viewFields = {
       ]
     }
   },
-  test_mode: (form = {}, meta = {}) => {
+  test_mode: () => {
     return {
       label: i18n.t('Test mode'),
       cols: [
@@ -1647,7 +1645,7 @@ export const viewFields = {
       ]
     }
   },
-  timeout: (form = {}, meta = {}) => {
+  timeout: (form, meta = {}) => {
     return {
       label: i18n.t('Timeout'),
       cols: [
@@ -1659,7 +1657,7 @@ export const viewFields = {
       ]
     }
   },
-  transaction_key: (form = {}, meta = {}) => {
+  transaction_key: (form, meta = {}) => {
     return {
       label: i18n.t('Transaction key'),
       cols: [
@@ -1671,7 +1669,7 @@ export const viewFields = {
       ]
     }
   },
-  twilio_phone_number: (form = {}, meta = {}) => {
+  twilio_phone_number: (form, meta = {}) => {
     return {
       label: i18n.t('Phone Number (From)'),
       text: i18n.t('Twilio provided phone number which will show as the sender.'),
@@ -1684,7 +1682,7 @@ export const viewFields = {
       ]
     }
   },
-  user_header: (form = {}, meta = {}) => {
+  user_header: (form, meta = {}) => {
     return {
       label: i18n.t('User header '),
       cols: [
@@ -1696,7 +1694,7 @@ export const viewFields = {
       ]
     }
   },
-  username_attribute: (form = {}, meta = {}) => {
+  username_attribute: (form, meta = {}) => {
     return {
       label: i18n.t('Attribute of the username in the SAML response.'),
       cols: [
@@ -1708,7 +1706,7 @@ export const viewFields = {
       ]
     }
   },
-  usernameattribute: (form = {}, meta = {}) => {
+  usernameattribute: (form, meta = {}) => {
     return {
       label: i18n.t('Username Attribute'),
       text: i18n.t('Main reference attribute that contain the username.'),
@@ -1721,7 +1719,7 @@ export const viewFields = {
       ]
     }
   },
-  validate_sponsor: (form = {}, meta = {}) => {
+  validate_sponsor: () => {
     return {
       label: i18n.t('Sponsor Validation'),
       text: i18n.t('Force sponsor to authenticate when validating a guest request.'),
@@ -1736,7 +1734,7 @@ export const viewFields = {
       ]
     }
   },
-  write_timeout: (form = {}, meta = {}) => {
+  write_timeout: (form, meta = {}) => {
     return {
       label: i18n.t('Request timeout'),
       text: i18n.t('LDAP request timeout.'),
@@ -2427,7 +2425,7 @@ export const view = (form = {}, meta = {}) => {
 }
 
 export const validatorFields = {
-  id: (form = {}, meta = {}) => {
+  id: (form, meta = {}) => {
     const { isNew, isClone } = meta
     return {
       id: {
@@ -2438,19 +2436,19 @@ export const validatorFields = {
       }
     }
   },
-  access_scope: (form = {}, meta = {}) => {
+  access_scope: (form, meta = {}) => {
     return { scope: validatorsFromMeta(meta, 'scope', i18n.t('Scope')) }
   },
-  access_token_param: (form = {}, meta = {}) => {
+  access_token_param: (form, meta = {}) => {
     return { access_token_param: validatorsFromMeta(meta, 'access_token_param', i18n.t('Parameter')) }
   },
-  access_token_path: (form = {}, meta = {}) => {
+  access_token_path: (form, meta = {}) => {
     return { access_token_path: validatorsFromMeta(meta.access_token_path, 'access_token_path', i18n.t('Path')) }
   },
-  account_sid: (form = {}, meta = {}) => {
+  account_sid: (form, meta = {}) => {
     return { account_sid: validatorsFromMeta(meta, 'account_sid', 'SID') }
   },
-  activation_domain: (form = {}, meta = {}) => {
+  activation_domain: (form, meta = {}) => {
     return { activation_domain: validatorsFromMeta(meta, 'activation_domain', i18n.t('Host')) }
   },
   administration_rules: (form = {}, meta = {}) => {
@@ -2476,7 +2474,7 @@ export const validatorFields = {
               [i18n.t('Match required.')]: required
             },
             conditions: {
-              ...(conditions || []).map((condition) => {
+              ...(conditions || []).map(() => {
                 return {
                   attribute: {
                     [i18n.t('Attribute required.')]: required
@@ -2501,28 +2499,28 @@ export const validatorFields = {
       }
     }
   },
-  allowed_domains: (form = {}, meta = {}) => {
+  allowed_domains: (form, meta = {}) => {
     return { allowed_domains: validatorsFromMeta(meta, 'allowed_domains', i18n.t('Domains')) }
   },
-  api_key: (form = {}, meta = {}) => {
+  api_key: (form, meta = {}) => {
     return { api_key: validatorsFromMeta(meta, 'api_key', i18n.t('Key')) }
   },
-  api_login_id: (form = {}, meta = {}) => {
+  api_login_id: (form, meta = {}) => {
     return { api_login_id: validatorsFromMeta(meta, 'api_login_id', 'ID') }
   },
-  api_username: (form = {}, meta = {}) => {
+  api_username: (form, meta = {}) => {
     return { username: validatorsFromMeta(meta, 'username', i18n.t('Username')) }
   },
-  api_password: (form = {}, meta = {}) => {
+  api_password: (form, meta = {}) => {
     return { password: validatorsFromMeta(meta, 'password', i18n.t('Password')) }
   },
-  auth_listening_port: (form = {}, meta = {}) => {
+  auth_listening_port: (form, meta = {}) => {
     return { auth_listening_port: validatorsFromMeta(meta, 'auth_listening_port', i18n.t('Port')) }
   },
-  auth_token: (form = {}, meta = {}) => {
+  auth_token: (form, meta = {}) => {
     return { auth_token: validatorsFromMeta(meta, 'auth_token', i18n.t('Token')) }
   },
-  authenticate_realm: (form = {}, meta = {}) => {
+  authenticate_realm: (form, meta = {}) => {
     return { authenticate_realm: validatorsFromMeta(meta, 'authenticate_realm', i18n.t('Realm')) }
   },
   authentication_rules: (form = {}, meta = {}) => {
@@ -2548,7 +2546,7 @@ export const validatorFields = {
               [i18n.t('Match required.')]: required
             },
             conditions: {
-              ...(conditions || []).map((condition) => {
+              ...(conditions || []).map(() => {
                 return {
                   attribute: {
                     [i18n.t('Attribute required.')]: required
@@ -2573,58 +2571,58 @@ export const validatorFields = {
       }
     }
   },
-  authentication_url: (form = {}, meta = {}) => {
+  authentication_url: (form, meta = {}) => {
     return { authentication_url: validatorsFromMeta(meta, 'authentication_url', 'URL') }
   },
-  authorization_source_id: (form = {}, meta = {}) => {
+  authorization_source_id: (form, meta = {}) => {
     return { authorization_source_id: validatorsFromMeta(meta, 'authorization_source_id', i18n.t('Source')) }
   },
-  authorize_path: (form = {}, meta = {}) => {
+  authorize_path: (form, meta = {}) => {
     return { authorize_path: validatorsFromMeta(meta, 'authorize_path', i18n.t('Path')) }
   },
-  authorization_url: (form = {}, meta = {}) => {
+  authorization_url: (form, meta = {}) => {
     return { authorization_url: validatorsFromMeta(meta, 'authorization_url', 'URL') }
   },
-  banned_domains: (form = {}, meta = {}) => {
+  banned_domains: (form, meta = {}) => {
     return { banned_domains: validatorsFromMeta(meta, 'banned_domains', i18n.t('Domains')) }
   },
-  base_url: (form = {}, meta = {}) => {
+  base_url: (form, meta = {}) => {
     return { base_url: validatorsFromMeta(meta, 'base_url', 'URL') }
   },
-  basedn: (form = {}, meta = {}) => {
+  basedn: (form, meta = {}) => {
     return { basedn: validatorsFromMeta(meta, 'basedn', i18n.t('Base DN')) }
   },
-  binddn: (form = {}, meta = {}) => {
+  binddn: (form, meta = {}) => {
     return { bindnd: validatorsFromMeta(meta, 'bindnd', i18n.t('Bind DN')) }
   },
-  cert_file: (form = {}, meta = {}) => {
+  cert_file: (form, meta = {}) => {
     return { cert_file: validatorsFromMeta(meta, 'cert_file', i18n.t('File')) }
   },
-  cert_id: (form = {}, meta = {}) => {
+  cert_id: (form, meta = {}) => {
     return { cert_id: validatorsFromMeta(meta, 'cert_id', 'ID') }
   },
-  client_id: (form = {}, meta = {}) => {
+  client_id: (form, meta = {}) => {
     return { client_id: validatorsFromMeta(meta, 'client_id', 'ID') }
   },
-  client_secret: (form = {}, meta = {}) => {
+  client_secret: (form, meta = {}) => {
     return { client_secret: validatorsFromMeta(meta, 'client_secret', i18n.t('Secret')) }
   },
-  connection_timeout: (form = {}, meta = {}) => {
+  connection_timeout: (form, meta = {}) => {
     return { connection_timeout: validatorsFromMeta(meta, 'connection_timeout', i18n.t('Timeout')) }
   },
-  currency: (form = {}, meta = {}) => {
+  currency: (form, meta = {}) => {
     return { currency: validatorsFromMeta(meta, 'currency', i18n.t('Currency')) }
   },
-  description: (form = {}, meta = {}) => {
+  description: (form, meta = {}) => {
     return { description: validatorsFromMeta(meta, 'description', i18n.t('Description')) }
   },
-  direct_base_url: (form = {}, meta = {}) => {
+  direct_base_url: (form, meta = {}) => {
     return { direct_base_url: validatorsFromMeta(meta, 'direct_base_url', 'URL') }
   },
-  domains: (form = {}, meta = {}) => {
+  domains: (form, meta = {}) => {
     return { domains: validatorsFromMeta(meta, 'domains', i18n.t('Domains')) }
   },
-  email_activation_timeout: (form = {}, meta = {}) => {
+  email_activation_timeout: (form, meta = {}) => {
     return {
       email_activation_timeout: {
         interval: validatorsFromMeta(meta, 'email_activation_timeout.interval', i18n.t('Interval')),
@@ -2632,162 +2630,162 @@ export const validatorFields = {
       }
     }
   },
-  email_address: (form = {}, meta = {}) => {
+  email_address: (form, meta = {}) => {
     return { email_address: validatorsFromMeta(meta, 'email_address', i18n.t('Email')) }
   },
-  email_attribute: (form = {}, meta = {}) => {
+  email_attribute: (form, meta = {}) => {
     return { email_attribute: validatorsFromMeta(meta, 'email_attribute', i18n.t('Attribute')) }
   },
-  group_header: (form = {}, meta = {}) => {
+  group_header: (form, meta = {}) => {
     return { group_header: validatorsFromMeta(meta, 'group_header', i18n.t('Header')) }
   },
-  hash_passwords: (form = {}, meta = {}) => {
+  hash_passwords: (form, meta = {}) => {
     return { hash_passwords: validatorsFromMeta(meta, 'hash_passwords', i18n.t('Hash')) }
   },
-  host: (form = {}, meta = {}) => {
+  host: (form, meta = {}) => {
     return { host: validatorsFromMeta(meta, 'host', i18n.t('Host')) }
   },
-  host_port_encryption: (form = {}, meta = {}) => {
+  host_port_encryption: (form, meta = {}) => {
     return {
       host: validatorsFromMeta(meta, 'host', i18n.t('Host')),
       port: validatorsFromMeta(meta, 'port', i18n.t('Port')),
       encryption: validatorsFromMeta(meta, 'encryption', i18n.t('Encryption'))
     }
   },
-  identity_token: (form = {}, meta = {}) => {
+  identity_token: (form, meta = {}) => {
     return { identity_token: validatorsFromMeta(meta, 'identity_token', i18n.t('Token')) }
   },
-  idp_ca_cert_path: (form = {}, meta = {}) => {
+  idp_ca_cert_path: (form, meta = {}) => {
     return { idp_ca_cert_path: validatorsFromMeta(meta, 'idp_ca_cert_path', i18n.t('Path')) }
   },
-  idp_cert_path: (form = {}, meta = {}) => {
+  idp_cert_path: (form, meta = {}) => {
     return { idp_cert_path: validatorsFromMeta(meta, 'idp_cert_path', i18n.t('Path')) }
   },
-  idp_entity_id: (form = {}, meta = {}) => {
+  idp_entity_id: (form, meta = {}) => {
     return { idp_entity_id: validatorsFromMeta(meta, 'idp_entity_id', 'ID') }
   },
-  idp_metadata_path: (form = {}, meta = {}) => {
+  idp_metadata_path: (form, meta = {}) => {
     return { idp_metadata_path: validatorsFromMeta(meta, 'idp_metadata_path', i18n.t('Path')) }
   },
-  key_file: (form = {}, meta = {}) => {
+  key_file: (form, meta = {}) => {
     return { key_file: validatorsFromMeta(meta, 'key_file', i18n.t('File')) }
   },
-  lang: (form = {}, meta = {}) => {
+  lang: (form, meta = {}) => {
     return { lang: validatorsFromMeta(meta, 'lang', i18n.t('Language')) }
   },
-  local_account_logins: (form = {}, meta = {}) => {
+  local_account_logins: (form, meta = {}) => {
     return { local_account_logins: validatorsFromMeta(meta, 'local_account_logins', i18n.t('Logins')) }
   },
-  local_realm: (form = {}, meta = {}) => {
+  local_realm: (form, meta = {}) => {
     return { local_realm: validatorsFromMeta(meta, 'local_realm', i18n.t('Realms')) }
   },
-  merchant_id: (form = {}, meta = {}) => {
+  merchant_id: (form, meta = {}) => {
     return { merchant_id: validatorsFromMeta(meta, 'merchant_id', 'ID') }
   },
-  message: (form = {}, meta = {}) => {
+  message: (form, meta = {}) => {
     return { message: validatorsFromMeta(meta, 'message', i18n.t('Message')) }
   },
-  options: (form = {}, meta = {}) => {
+  options: (form, meta = {}) => {
     return { options: validatorsFromMeta(meta, 'options', i18n.t('Options')) }
   },
-  password: (form = {}, meta = {}) => {
+  password: (form, meta = {}) => {
     return { password: validatorsFromMeta(meta, 'password', i18n.t('Password')) }
   },
-  password_email_update: (form = {}, meta = {}) => {
+  password_email_update: (form, meta = {}) => {
     return { password_email_update: validatorsFromMeta(meta, 'password_email_update', i18n.t('Email')) }
   },
-  password_length: (form = {}, meta = {}) => {
+  password_length: (form, meta = {}) => {
     return { password_length: validatorsFromMeta(meta, 'password_length', i18n.t('Length')) }
   },
-  password_rotation: (form = {}, meta = {}) => {
+  password_rotation: (form, meta = {}) => {
     return { password_rotation: validatorsFromMeta(meta, 'password_rotation', i18n.t('Duration')) }
   },
-  path: (form = {}, meta = {}) => {
+  path: (form, meta = {}) => {
     return { path: validatorsFromMeta(meta, 'path', i18n.t('Path')) }
   },
-  payment_type: (form = {}, meta = {}) => {
+  payment_type: (form, meta = {}) => {
     return { payment_type: validatorsFromMeta(meta, 'payment_type', i18n.t('Type')) }
   },
-  paypal_cert_file: (form = {}, meta = {}) => {
+  paypal_cert_file: (form, meta = {}) => {
     return { paypal_cert_file: validatorsFromMeta(meta, 'paypal_cert_file', i18n.t('File')) }
   },
-  pin_code_length: (form = {}, meta = {}) => {
+  pin_code_length: (form, meta = {}) => {
     return { pin_code_length: validatorsFromMeta(meta, 'pin_code_length', i18n.t('Length')) }
   },
-  port: (form = {}, meta = {}) => {
+  port: (form, meta = {}) => {
     return { port: validatorsFromMeta(meta, 'port', i18n.t('Port')) }
   },
-  protected_resource_url: (form = {}, meta = {}) => {
+  protected_resource_url: (form, meta = {}) => {
     return { protected_resource_url: validatorsFromMeta(meta, 'protected_resource_url', 'URL') }
   },
-  protocol_host_port: (form = {}, meta = {}) => {
+  protocol_host_port: (form, meta = {}) => {
     return {
       protocol: validatorsFromMeta(meta, 'protocol', i18n.t('Protocol')),
       host: validatorsFromMeta(meta, 'host', i18n.t('Host')),
       port: validatorsFromMeta(meta, 'port', i18n.t('Port'))
     }
   },
-  proxy_addresses: (form = {}, meta = {}) => {
+  proxy_addresses: (form, meta = {}) => {
     return { proxy_addresses: validatorsFromMeta(meta, 'proxy_addresses', i18n.t('Addresses')) }
   },
-  public_client_key: (form = {}, meta = {}) => {
+  public_client_key: (form, meta = {}) => {
     return { public_client_key: validatorsFromMeta(meta, 'public_client_key', i18n.t('Key')) }
   },
-  publishable_key: (form = {}, meta = {}) => {
+  publishable_key: (form, meta = {}) => {
     return { publishable_key: validatorsFromMeta(meta, 'publishable_key', i18n.t('Key')) }
   },
-  radius_secret: (form = {}, meta = {}) => {
+  radius_secret: (form, meta = {}) => {
     return { radius_secret: validatorsFromMeta(meta, 'radius_secret', i18n.t('Secret')) }
   },
-  read_timeout: (form = {}, meta = {}) => {
+  read_timeout: (form, meta = {}) => {
     return { read_timeout: validatorsFromMeta(meta, 'read_timeout', i18n.t('Timeout')) }
   },
-  realms: (form = {}, meta = {}) => {
+  realms: (form, meta = {}) => {
     return { realms: validatorsFromMeta(meta, 'realms', i18n.t('Realms')) }
   },
-  redirect_url: (form = {}, meta = {}) => {
+  redirect_url: (form, meta = {}) => {
     return { redirect_url: validatorsFromMeta(meta, 'redirect_url', 'URL') }
   },
-  reject_realm: (form = {}, meta = {}) => {
+  reject_realm: (form, meta = {}) => {
     return { reject_realm: validatorsFromMeta(meta, 'reject_realm', i18n.t('Realms')) }
   },
-  scope: (form = {}, meta = {}) => {
+  scope: (form, meta = {}) => {
     return { scope: validatorsFromMeta(meta, 'scope', i18n.t('Scope')) }
   },
-  searchattributes: (form = {}, meta = {}) => {
+  searchattributes: (form, meta = {}) => {
     return { searchattributes: validatorsFromMeta(meta, 'searchattributes', i18n.t('Attribute')) }
   },
-  secret: (form = {}, meta = {}) => {
+  secret: (form, meta = {}) => {
     return { secret: validatorsFromMeta(meta, 'secret', i18n.t('Secret')) }
   },
-  secret_key: (form = {}, meta = {}) => {
+  secret_key: (form, meta = {}) => {
     return { secret_key: validatorsFromMeta(meta, 'secret_key', i18n.t('Key')) }
   },
-  server1_address: (form = {}, meta = {}) => {
+  server1_address: (form, meta = {}) => {
     return { server1_address: validatorsFromMeta(meta, 'server1_address', i18n.t('Address')) }
   },
-  server1_port: (form = {}, meta = {}) => {
+  server1_port: (form, meta = {}) => {
     return { server1_port: validatorsFromMeta(meta, 'server1_port', i18n.t('Port')) }
   },
-  server2_address: (form = {}, meta = {}) => {
+  server2_address: (form, meta = {}) => {
     return { server2_address: validatorsFromMeta(meta, 'server2_address', i18n.t('Address')) }
   },
-  server2_port: (form = {}, meta = {}) => {
+  server2_port: (form, meta = {}) => {
     return { server2_port: validatorsFromMeta(meta, 'server2_port', i18n.t('Port')) }
   },
-  service_fqdn: (form = {}, meta = {}) => {
+  service_fqdn: (form, meta = {}) => {
     return { service_fqdn: validatorsFromMeta(meta, 'service_fqdn', 'FQDN') }
   },
-  shared_secret: (form = {}, meta = {}) => {
+  shared_secret: (form, meta = {}) => {
     return { shared_secret: validatorsFromMeta(meta, 'shared_secret', i18n.t('Secret')) }
   },
-  shared_secret_direct: (form = {}, meta = {}) => {
+  shared_secret_direct: (form, meta = {}) => {
     return { shared_secret_direct: validatorsFromMeta(meta, 'shared_secret_direct', i18n.t('Secret')) }
   },
-  site: (form = {}, meta = {}) => {
+  site: (form, meta = {}) => {
     return { site: validatorsFromMeta(meta, 'site', 'URL') }
   },
-  sms_activation_timeout: (form = {}, meta = {}) => {
+  sms_activation_timeout: (form, meta = {}) => {
     return {
       sms_activation_timeout: {
         interval: validatorsFromMeta(meta, 'sms_activation_timeout.interval', i18n.t('Interval')),
@@ -2795,52 +2793,52 @@ export const validatorFields = {
       }
     }
   },
-  sms_carriers: (form = {}, meta = {}) => {
+  sms_carriers: (form, meta = {}) => {
     return { sms_carriers: validatorsFromMeta(meta, 'sms_carriers', i18n.t('Carriers')) }
   },
-  sources: (form = {}, meta = {}) => {
+  sources: (form, meta = {}) => {
     return { sources: validatorsFromMeta(meta, 'sources', i18n.t('Sources')) }
   },
-  sp_cert_path: (form = {}, meta = {}) => {
+  sp_cert_path: (form, meta = {}) => {
     return { sp_cert_path: validatorsFromMeta(meta, 'sp_cert_path', i18n.t('Path')) }
   },
-  sp_entity_id: (form = {}, meta = {}) => {
+  sp_entity_id: (form, meta = {}) => {
     return { sp_entity_id: validatorsFromMeta(meta, 'sp_entity_id', 'ID') }
   },
-  sp_key_path: (form = {}, meta = {}) => {
+  sp_key_path: (form, meta = {}) => {
     return { sp_key_path: validatorsFromMeta(meta, 'sp_key_path', i18n.t('Path')) }
   },
-  sponsorship_bcc: (form = {}, meta = {}) => {
+  sponsorship_bcc: (form, meta = {}) => {
     return { sponsorship_bcc: validatorsFromMeta(meta, 'sponsorship_bcc', 'BCC') }
   },
-  style: (form = {}, meta = {}) => {
+  style: (form, meta = {}) => {
     return { style: validatorsFromMeta(meta, 'style', i18n.t('Style')) }
   },
-  terminal_group_id: (form = {}, meta = {}) => {
+  terminal_group_id: (form, meta = {}) => {
     return { terminal_group_id: validatorsFromMeta(meta, 'terminal_group_id', 'ID') }
   },
-  terminal_id: (form = {}, meta = {}) => {
+  terminal_id: (form, meta = {}) => {
     return { terminal_id: validatorsFromMeta(meta, 'terminal_id', 'ID') }
   },
-  timeout: (form = {}, meta = {}) => {
+  timeout: (form, meta = {}) => {
     return { timeout: validatorsFromMeta(meta, 'timeout', i18n.t('Timeout')) }
   },
-  transaction_key: (form = {}, meta = {}) => {
+  transaction_key: (form, meta = {}) => {
     return { transaction_key: validatorsFromMeta(meta, 'transaction_key', i18n.t('Key')) }
   },
-  twilio_phone_number: (form = {}, meta = {}) => {
+  twilio_phone_number: (form, meta = {}) => {
     return { twilio_phone_number: validatorsFromMeta(meta, 'twilio_phone_number', i18n.t('Phone')) }
   },
-  user_header: (form = {}, meta = {}) => {
+  user_header: (form, meta = {}) => {
     return { user_header: validatorsFromMeta(meta, 'user_header', i18n.t('Header')) }
   },
-  username_attribute: (form = {}, meta = {}) => {
+  username_attribute: (form, meta = {}) => {
     return { username_attribute: validatorsFromMeta(meta, 'username_attribute', i18n.t('Attribute')) }
   },
-  usernameattribute: (form = {}, meta = {}) => {
+  usernameattribute: (form, meta = {}) => {
     return { usernameattribute: validatorsFromMeta(meta, 'usernameattribute', i18n.t('Attribute')) }
   },
-  write_timeout: (form = {}, meta = {}) => {
+  write_timeout: (form, meta = {}) => {
     return { write_timeout: validatorsFromMeta(meta, 'write_timeout', i18n.t('Timeout')) }
   }
 }
