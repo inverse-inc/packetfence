@@ -43,7 +43,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import {
   view,
   validators
-} from '../_config/dhcpVendor'
+} from '../_config/fingerbank/dhcpVendor'
 
 export default {
   name: 'fingerbank-dhcp-vendor-view',
