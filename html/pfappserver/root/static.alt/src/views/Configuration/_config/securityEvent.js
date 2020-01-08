@@ -522,10 +522,6 @@ export const triggerFields = {
   switch_group: {
     text: i18n.t('Switch Group'),
     category: triggerCategories.ENDPOINT
-  },
-  useragent: {
-    text: i18n.t('User Agent'),
-    category: triggerCategories.PROFILING
   }
 }
 
