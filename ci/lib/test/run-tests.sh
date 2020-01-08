@@ -4,8 +4,8 @@ set -o nounset -o pipefail -o errexit
 SRC_DIR=${SRC_DIR:-/src}
 PF_DIR=${PF_DIR:-/usr/local/pf}
 GO_DIR=${GO_DIR:-"$PF_DIR/go"}
-PERL_UNIT_TESTS=${PERL_UNIT_TESTS:-yes}
-GOLANG_UNIT_TESTS=${GOLANG_UNIT_TESTS:-yes}
+PERL_UNIT_TESTS=${PERL_UNIT_TESTS:-no}
+GOLANG_UNIT_TESTS=${GOLANG_UNIT_TESTS:-no}
 
 # display environment
 env | grep 'PF_'
