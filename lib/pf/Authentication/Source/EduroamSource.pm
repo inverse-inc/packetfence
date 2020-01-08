@@ -27,7 +27,7 @@ has 'radius_secret'         => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
 has 'local_realm'           => (isa => 'ArrayRef[Str]', is => 'rw');
 has 'reject_realm'          => (isa => 'ArrayRef[Str]', is => 'rw');
-has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
+has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
 has '+realms' => (default => sub { ["eduroam"] });
 
 =head2 available_rule_classes
