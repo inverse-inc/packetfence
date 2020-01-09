@@ -332,6 +332,7 @@ export const validators = (form = {}, meta = {}) => {
         const {
           endpoint: { conditions: endpointConditions } = {},
           profiling: { conditions: profilingConditions } = {},
+          usage: { type: usageType } = {},
           event: {
             typeValue: {
               type: eventType
@@ -384,9 +385,21 @@ export const validators = (form = {}, meta = {}) => {
             }
           },
           usage: {
-            limit: {
-              [i18n.t('Limit must be greater than 0.')]: minValue(0)
-            }
+            ...((usageType === 'bandwidth')
+              ? {
+                direction: {
+                  [i18n.t('Direction required.')]: required
+                },
+                limit: {
+                  [i18n.t('Limit required.')]: required,
+                  [i18n.t('Limit must be greater than 0.')]: minValue(0)
+                },
+                interval: {
+                  [i18n.t('Interval required.')]: required
+                }
+              }
+              : {}
+            )
           },
           event: {
             typeValue: {
@@ -552,7 +565,7 @@ export const decomposeTriggers = (triggers) => {
             decomposed[category] = { typeValue: { type, value } } // 'usage' or 'event'
           }
           if (category === triggerCategories.USAGE) {
-            if (value == 'BandwidthExpired' || value == 'TimeExpired') {
+            if (value === 'BandwidthExpired' || value === 'TimeExpired') {
               decomposed[category].type = value
             } else {
               // Try to decompose data usage
@@ -742,7 +755,7 @@ export const triggerProfilingView = (form, meta = {}) => {
 }
 
 export const triggerUsageView = (form = {}) => {
-  const { [triggerCategories.USAGE]: { type } = {} } = form
+  const { [triggerCategories.USAGE]: { type } = {} } = form || {}
   return [
     {
       tab: null, // ignore tabs
@@ -764,7 +777,7 @@ export const triggerUsageView = (form = {}) => {
               }
             },
             {
-              if: type == 'bandwidth',
+              if: type === 'bandwidth',
               namespace: 'direction',
               component: pfFormSelect,
               attrs: {

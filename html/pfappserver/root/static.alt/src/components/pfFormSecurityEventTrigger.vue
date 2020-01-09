@@ -206,10 +206,10 @@ export default {
     },
     view () {
       return {
-        [triggerCategories.ENDPOINT]: triggerEndpointView({}, this.meta),
-        [triggerCategories.PROFILING]: triggerProfilingView({}, this.meta),
-        [triggerCategories.USAGE]: triggerUsageView({}, this.meta),
-        [triggerCategories.EVENT]: triggerEventView({}, this.meta)
+        [triggerCategories.ENDPOINT]: triggerEndpointView(this.formStoreValue, this.meta),
+        [triggerCategories.PROFILING]: triggerProfilingView(this.formStoreValue, this.meta),
+        [triggerCategories.USAGE]: triggerUsageView(this.formStoreValue, this.meta),
+        [triggerCategories.EVENT]: triggerEventView(this.formStoreValue, this.meta)
       }
     },
     forwardListeners () {
