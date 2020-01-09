@@ -154,7 +154,7 @@ export default {
       default: 'value'
     }
   },
-  errorCaptured (err, vm, info) { // capture exceptions from vue-multiselect component
+  errorCaptured (err) { // capture exceptions from vue-multiselect component
     // eslint-disable-next-line
     console.error(err)
     return false // prevent error from propagating
@@ -186,7 +186,7 @@ export default {
         if (this.collapseObject) {
           const options = (!this.groupValues)
             ? (this.options ? this.options : [])
-            : this.options.reduce((options, group, index) => { // flatten group
+            : this.options.reduce((options, group) => { // flatten group
               options.push(...group[this.groupValues])
               return options
             }, [])
@@ -233,11 +233,11 @@ export default {
       const { $refs: { multiselect: { $el } = {} } = {} } = this
       $el.focus()
     },
-    onFocus (event) {
+    onFocus () {
       this.isFocus = true
       this.onSearchChange(this.inputValue)
     },
-    onBlur (event) {
+    onBlur () {
       this.isFocus = false
       this.onSearchChange(this.inputValue)
     },
@@ -265,7 +265,7 @@ export default {
   },
   watch: {
     inputValue: {
-      handler (a, b) {
+      handler (a) {
         this.onSearchChange(a) // prime the searchable cache with our current `inputValue`
       },
       immediate: true
