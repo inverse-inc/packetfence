@@ -63,9 +63,6 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.securityEvent(id).then(item => {
-      if ('triggers' in item) { // decompose security event triggers
-        item.triggers = decomposeTriggers(item.triggers)
-      }
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -143,8 +140,12 @@ const mutations = {
     state.message = ''
   },
   ITEM_REPLACED: (state, data) => {
+    let dataCopy = JSON.parse(JSON.stringify(data))
+    if ('triggers' in dataCopy) { // decompose security event triggers
+      dataCopy.triggers = decomposeTriggers(dataCopy.triggers)
+    }
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.cache, data.id, dataCopy)
   },
   ITEM_ENABLED: (state, data) => {
     state.itemStatus = types.SUCCESS
