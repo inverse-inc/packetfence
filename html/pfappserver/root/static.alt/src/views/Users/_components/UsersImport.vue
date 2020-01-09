@@ -37,7 +37,7 @@
                     <b-col>
                       <pf-form-datetime
                         :form-store-name="formStoreName" form-namespace="valid_from"
-                        :min="new Date()"
+                        :min="(new Date().setHours(0,0,0,0))"
                         :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                       />
                     </b-col>
@@ -45,7 +45,7 @@
                     <b-col>
                       <pf-form-datetime
                         :form-store-name="formStoreName" form-namespace="expiration"
-                        :min="new Date()"
+                        :min="(new Date().setHours(0,0,0,0))"
                         :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                       />
                     </b-col>

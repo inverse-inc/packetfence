@@ -28,21 +28,21 @@
         </div>
       </b-input-group-prepend>
       <flat-pickr ref="input"
+        :key="locale"
         v-model="flatpickrValue"
         v-bind="$attrs"
-        :key="locale"
         :config="flatpickrConfig"
         :state="inputState"
-        @on-change="onChangeDatetime"
-        @focus.native="isFocus = true"
-        @blur.native="isFocus = false"
+        @on-change="onChange($event)"
+        @focus.native="onFocus($event)"
+        @blur.native="onBlur($event)"
       ></flat-pickr>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL/CMD] + [CLICK]')">
           <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
         </b-button-group>
-        <b-button class="input-group-text" @click.stop="toggle($event)" tabindex="-1"><icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon></b-button>
+        <b-button class="input-group-text" @click.stop.prevent="open($event)" tabindex="-1"><icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -120,7 +120,8 @@ export default {
       defaults: {
         allowInput: true,
         datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
-        time_24hr: true
+        time_24hr: true,
+        wrap: true
       },
       initialValue: undefined,
       isFocus: false
@@ -135,14 +136,11 @@ export default {
           return this.value // use native (v-model)
         }
       },
-      set (newValue = null) {
-        const datetimeFormat = this.convertFormat(this.options.datetimeFormat)
-        const datetimeEmpty = datetimeFormat.replace(/[a-z]/gi, '0')
-        const formattedValue = ([null, datetimeEmpty].includes(newValue)) ? datetimeEmpty : newValue
+      set (newValue) {
         if (this.formStoreName) {
-          this.formStoreValue = formattedValue // use FormStore
+          this.formStoreValue = newValue // use FormStore
         } else {
-          this.$emit('input', formattedValue) // use native (v-model)
+          this.$emit('input', newValue) // use native (v-model)
         }
       }
     },
@@ -150,15 +148,18 @@ export default {
       get () {
         if (this.inputValue === this.options.datetimeFormat.replace(/[a-z]/gi, '0')) {
           // proxy fix: flatpickr smashes '0000-00-00 00:00:00'
-          return null
+          return undefined
         }
-        return this.inputValue
+        return this.inputValue || undefined
       },
       set (newValue) {
         // flatpickr mangles partial (invalid) datetime strings, thus disallowing user input
-        //  don't do anything here, instead use the `on-change` event => `onChangeDatetime` method
-        // this.inputValue = newValue
+        //  don't do anything here, instead use the `on-change` event => `onChange` method
       }
+    },
+    flatpickrElement () {
+      const { $refs: { input: { fp } = {} } = {} } = this
+      return fp
     },
     flatpickrConfig () {
       let extraConfig = {
@@ -202,15 +203,27 @@ export default {
     }
   },
   methods: {
-    onChangeDatetime (newDatetime) {
-      const formattedDatetime = format(newDatetime, this.options.datetimeFormat)
-      if (this.inputValue !== formattedDatetime) {
-        this.inputValue = formattedDatetime
+    onFocus (event) {
+      this.isFocus = true
+    },
+    onBlur (event) {
+      this.isFocus = false
+    },
+    onChange (event) {
+      const { 0: newDatetime } = event
+      const { isFocus, options: { datetimeFormat } = {} } = this
+      if (newDatetime === undefined || !isValid(parse(newDatetime, datetimeFormat))) {
+        this.inputValue = null
+        this.close()
+      } else {
+        let formattedDatetime = format(newDatetime, datetimeFormat)
+        if (this.inputValue !== formattedDatetime) {
+          this.inputValue = formattedDatetime
+        }
       }
     },
-    focus () {
-      let picker = this.$refs.input.$el
-      picker.focus()
+    open () {
+      this.flatpickrElement.open()
     },
     convertFormat (format = 'YYYY-MM-DD HH:ii:ss') {
       // converts 'datefns' format to 'flatpickr' format
@@ -239,10 +252,6 @@ export default {
         format = format.replace(from, to)
       })
       return format
-    },
-    toggle (event) {
-      let picker = this.$refs.input.$el
-      picker.focus()
     },
     reset (event) {
       this.inputValue = this.initialValue

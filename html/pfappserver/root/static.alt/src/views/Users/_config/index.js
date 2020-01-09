@@ -205,7 +205,7 @@ export const updateValidators = (form = {}) => {
 export const importForm = {
   valid_from: format(new Date(), pfDatabaseSchema.password.valid_from.datetimeFormat),
   expiration: null,
-  actions: []
+  actions: [{ type: 'set_access_level', value: null }]
 }
 
 export const importValidators = (form = {}) => {
@@ -226,7 +226,12 @@ export const importValidators = (form = {}) => {
       [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
       [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
     },
-    actions: pfActionValidators(userActions, actions)
+    actions: {
+      ...pfActionValidators(userActions, actions),
+      ...{
+        [i18n.t('Action required.')]: required
+      }
+    }
   }
 }
 
