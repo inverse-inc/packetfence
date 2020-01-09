@@ -17,3 +17,13 @@ packetfence_install__deb:
   repos: '{{ ["debian"] if release_status|bool
                         else ["debian","debian-devel"] }}'
 
+
+# config
+# need to be defined here to be available to plays
+# that not include packetfence_install role
+packetfence_install__database_root_pass: secret
+
+packetfence_install__fingerbank_setting:
+  upstream:
+    api_key: '{{ lookup("env", "FINGERBANK_API_KEY") }}'
+

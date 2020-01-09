@@ -5,4 +5,5 @@ roles:
 
 collections:
   - name: inverse_inc.packetfence
+  - name: debops.debops
 

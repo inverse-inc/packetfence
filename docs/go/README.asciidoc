@@ -132,7 +132,7 @@ Make sure that the packaging is also updated to copy those files in the [filenam
 
 ==== Running the tests
 
-Like the perl unit tests, the Golang tests rely on the presence of the test `pfconfig` process to execute properly.
+Like the <<_running_perl_unit_tests,perl unit tests>>, the Golang tests rely on the presence of the test `pfconfig` process to execute properly.
 
 In order to start the test `pfconfig` process:
 

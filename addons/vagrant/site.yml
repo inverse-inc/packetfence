@@ -28,10 +28,12 @@
   collections:
     - inverse_inc.packetfence
 
-  # search roles in collection
+  # search roles in collections
   roles:
+
     - role: packetfence_common
       tags: install
+
     - role: packetfence_install
       tags: install
 
@@ -55,18 +57,17 @@
       tags: vagrant
 
 - hosts: dev
-  name: install additionnal stuff for dev machines
+  name: configure environment for tests
   become: True
-  tags: build
   collections:
+    - debops.debops
     - inverse_inc.packetfence
 
   roles:
-    - role: geerlingguy.nodejs
-      vars:
-        nodejs_version: "10.x"
-      tags: nodejs
-      
-    - role: packetfence_dev
-      tags: dev
+    # inject environment variables here to not conflict with install
+    - role: environment
+      tags: env
+
+    - role: packetfence_go
+      tags: go
 

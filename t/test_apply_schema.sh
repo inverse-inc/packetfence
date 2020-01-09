@@ -18,7 +18,7 @@ UPGRADED_DB="${DB_PREFIX}_upgraded_$$"
 
 PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 
-HOST=127.0.0.1
+HOST=localhost
 
 MYSQL="mysql -upf_smoke_tester -ppacket -h$HOST"
 

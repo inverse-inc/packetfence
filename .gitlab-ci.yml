@@ -15,7 +15,7 @@ stages:
   - build_maintenance
   - sign
   - publish
-  - install
+  - test
   - upload
   - post_upload
 
@@ -29,10 +29,10 @@ variables:
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
   MAINTDIR: $CILIBDIR/maintenance
+  TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
   RPM_DIR: rpm
   DEB_DIR: debian
-  VAGRANT_DIR: addons/vagrant
   PUBLIC_REPO_URL: http://packetfence.org/downloads/PacketFence
   # env variables
   ANSIBLE_FORCE_COLOR: "true"
@@ -131,8 +131,8 @@ variables:
   tags:
     - shell
 
-.install_job:
-  stage: install
+.test_job:
+  stage: test
   dependencies:
     - pages
   tags:
@@ -224,19 +224,11 @@ variables:
   script:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
-.install_script:
-  variables:
-    ANSIBLE_SKIP_TAGS: 'build'
-    # set VAGRANT_ANSIBLE_VERBOSE to true if you want debug
+.test_script:
   script:
-    # temp: https://github.com/hashicorp/vagrant/issues/10958
-    - ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
-    - cd ${VAGRANT_DIR}
-    - vagrant box update ${VAGRANT_BOX}
-    - vagrant up ${VAGRANT_BOX} --provider=libvirt --destroy-on-error
+    - make -e -C ${TESTDIR} test
   after_script:
-    - cd ${VAGRANT_DIR} ; vagrant destroy -f ${VAGRANT_BOX}
-    - rm -rf .vagrant/ roles/ collections/
+    - make -e -C ${TESTDIR} clean
     
 
 ################################################################################
@@ -402,23 +394,24 @@ pages:
     - .job_dev_and_release_triggers
 
 ########################################
-# INSTALL JOBS
+# TEST JOBS
 ########################################
-install_pkg_dev_and_release_centos_7:
+test_pkg_dev_and_release_centos_7:
   variables:
-    VAGRANT_BOX: pfcen7dev
+    VM_NAME: pfcen7dev
   extends:
-    - .install_job
-    - .install_script
+    - .test_job
+    - .test_script
     - .job_dev_and_release_triggers
   when: manual
 
-install_pkg_dev_and_release_debian_stretch:
+test_pkg_dev_and_release_debian_stretch:
   variables:
-    VAGRANT_BOX: pfdeb9dev
+    VM_NAME: pfdeb9dev
+    PERL_UNIT_TESTS: 'no'
   extends:
-    - .install_job
-    - .install_script
+    - .test_job
+    - .test_script
     - .job_dev_and_release_triggers
   when: manual
     

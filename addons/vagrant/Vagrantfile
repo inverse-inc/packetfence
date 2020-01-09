@@ -108,6 +108,19 @@ Vagrant.configure("2") do |pfservers|
 
       # provisioner for dev machines
       #srv.vm.provision "setup-dev-env", type: "shell", path: "../dev-helpers/setup-dev-env.sh"
+
+      # reset communicator to make /etc/environment variables available for next scripts
+      srv.vm.provision "reset", type: "shell" do |config|
+        config.reset = true
+      end
+
+      srv.vm.provision "run-tests", type: "shell" do |config|
+        config.path = "../../ci/lib/test/run-tests.sh"
+        config.env = {
+          PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'] || "yes",
+          GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'] || "yes"
+        }
+      end
     end
   end
 end
