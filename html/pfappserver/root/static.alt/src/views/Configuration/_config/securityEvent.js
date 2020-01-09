@@ -552,12 +552,17 @@ export const decomposeTriggers = (triggers) => {
             decomposed[category] = { typeValue: { type, value } } // 'usage' or 'event'
           }
           if (category === triggerCategories.USAGE) {
-            // Decompose data usage
-            const { groups } = value.match(/(?<direction>TOT|IN|OUT)(?<limit>[0-9]+)(?<multiplier>[KMG]?)B(?<interval>[DWMY])/)
-            if (groups) {
-              decomposed[category].direction = groups.direction
-              decomposed[category].limit = groups.limit * Math.pow(1024, 'KMG'.indexOf(groups.multiplier) + 1)
-              decomposed[category].interval = groups.interval
+            if (value == 'BandwidthExpired' || value == 'TimeExpired') {
+              decomposed[category].type = value
+            } else {
+              // Try to decompose data usage
+              const { groups = null } = value.match(/(?<direction>TOT|IN|OUT)(?<limit>[0-9]+)(?<multiplier>[KMG]?)B(?<interval>[DWMY])/)
+              if (groups) {
+                decomposed[category].type = 'bandwidth'
+                decomposed[category].direction = groups.direction
+                decomposed[category].limit = groups.limit * Math.pow(1024, 'KMG'.indexOf(groups.multiplier) + 1)
+                decomposed[category].interval = groups.interval
+              }
             }
           }
         } else {
@@ -591,12 +596,12 @@ export const recomposeTriggers = (triggers) => {
       }
       if ([triggerCategories.USAGE, triggerCategories.EVENT].includes(category)) { // 'usage' or 'event'
         if (category === triggerCategories.USAGE) { // normalize 'usage'
-          const { [category]: { direction, limit, interval } = {} } = trigger
+          const { [category]: { direction, limit, interval, type } = {} } = trigger
           trigger[triggerCategories.USAGE]['typeValue'] = {
             type: 'accounting',
             value: (direction && limit && interval)
               ? `${direction}${bytes.toHuman(limit, 0, true).replace(/ /, '').toUpperCase()}B${interval}`
-              : null
+              : type
           }
         }
         const { [category]: { typeValue: { type, value } = {} } = {} } = trigger
@@ -609,7 +614,7 @@ export const recomposeTriggers = (triggers) => {
   })
 }
 
-export const triggerEndpointView = (form = {}, meta = {}) => {
+export const triggerEndpointView = (form, meta = {}) => {
   return [
     {
       tab: null, // ignore tabs
@@ -669,7 +674,7 @@ export const triggerEndpointView = (form = {}, meta = {}) => {
   ]
 }
 
-export const triggerProfilingView = (form = {}, meta = {}) => {
+export const triggerProfilingView = (form, meta = {}) => {
   return [
     {
       tab: null, // ignore tabs
@@ -736,7 +741,8 @@ export const triggerProfilingView = (form = {}, meta = {}) => {
   ]
 }
 
-export const triggerUsageView = (form = {}, meta = {}) => {
+export const triggerUsageView = (form = {}) => {
+  const { [triggerCategories.USAGE]: { type } = {} } = form
   return [
     {
       tab: null, // ignore tabs
@@ -744,6 +750,21 @@ export const triggerUsageView = (form = {}, meta = {}) => {
         {
           cols: [
             {
+              namespace: 'type',
+              component: pfFormSelect,
+              attrs: {
+                columnLabel: i18n.t('Type'),
+                placeholder: i18n.t('Select usage matching type'),
+                class: 'w-100',
+                options: [
+                  { value: 'bandwidth', text: i18n.t('Bandwidth Limit') },
+                  { value: 'BandwidthExpired', text: i18n.t('Bandwidth balance has expired') },
+                  { value: 'TimeExpired', text: i18n.t('Time balance has expired') }
+                ]
+              }
+            },
+            {
+              if: type == 'bandwidth',
               namespace: 'direction',
               component: pfFormSelect,
               attrs: {
@@ -754,6 +775,7 @@ export const triggerUsageView = (form = {}, meta = {}) => {
               }
             },
             {
+              if: type == 'bandwidth',
               namespace: 'limit',
               component: pfFormPrefixMultiplier,
               attrs: {
@@ -762,6 +784,7 @@ export const triggerUsageView = (form = {}, meta = {}) => {
               }
             },
             {
+              if: type == 'bandwidth',
               namespace: 'interval',
               component: pfFormSelect,
               attrs: {
@@ -778,7 +801,7 @@ export const triggerUsageView = (form = {}, meta = {}) => {
   ]
 }
 
-export const triggerEventView = (form = {}, meta = {}) => {
+export const triggerEventView = (form, meta = {}) => {
   return [
     {
       tab: null, // ignore tabs
