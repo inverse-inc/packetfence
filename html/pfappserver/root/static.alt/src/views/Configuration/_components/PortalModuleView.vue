@@ -136,7 +136,7 @@ export default {
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
-      this.$router.back()
+      this.$router.push({ name: 'portal_modules' })
     },
     clone () {
       this.$router.push({ name: 'clonePortalModule' })
