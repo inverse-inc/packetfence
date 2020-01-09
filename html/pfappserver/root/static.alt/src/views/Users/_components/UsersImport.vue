@@ -214,7 +214,7 @@ export default {
       return new Promise((resolve, reject) => {
         if ('items' in payload) {
           payload.items = payload.items.map(item => { // glue payload together with local slot
-            let merged = { ...item, ...this.localUser }
+            let merged = { ...item, ...this.form }
             if (!('password' in merged)) { // generate a unique password
               merged.password = password.generate(passwordOptions)
             }
