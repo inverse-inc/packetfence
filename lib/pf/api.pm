@@ -1372,6 +1372,7 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
     my $return;
+    my $calling_station_id;
 
     if (ref($remapped_radius_request{'Calling-Station-Id'}) eq 'ARRAY') {
         $calling_station_id = @{$remapped_radius_request{'Calling-Station-Id'}}[0];
