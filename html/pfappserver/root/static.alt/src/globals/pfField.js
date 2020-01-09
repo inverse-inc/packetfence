@@ -81,6 +81,7 @@ export const pfFieldTypeComponent = {
   [pfFieldType.DURATION_BY_ACL_USER]:  pfComponentType.SELECTONE,
   [pfFieldType.DURATIONS]:             pfComponentType.SELECTMANY,
   [pfFieldType.GENDER]:                pfComponentType.SELECTONE,
+  [pfFieldType.LDAPATTRIBUTE]:         pfComponentType.SUBSTRING,
   [pfFieldType.NODE_STATUS]:           pfComponentType.SELECTONE,
   [pfFieldType.OPTIONS]:               pfComponentType.SELECTONE,
   [pfFieldType.REALM]:                 pfComponentType.SELECTONE,

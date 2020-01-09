@@ -17,7 +17,7 @@
         >
           <icon v-if="visible" name="chevron-circle-down" class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"></icon>
           <icon v-else name="chevron-circle-right" class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"></icon>
-          <div>{{ inputValue.id || $t('New rule') }} <span v-if="localDescription">( {{ localDescription }} )</span></div>
+          <div>{{ ruleName }} <span v-if="ruleDescription">( {{ ruleDescription }} )</span></div>
         </b-col>
         <b-col v-if="$slots.append" sm="1" align-self="start" class="py-1 text-center col-form-label">
           <slot name="append"></slot>
@@ -141,6 +141,7 @@ export default {
     inputValue: {
       get () {
         if (this.formStoreValue === null) {
+          // eslint-disable-next-line
           this.formStoreValue = this.default // set default
         }
         return this.formStoreValue // use FormStore
@@ -155,6 +156,14 @@ export default {
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
+    },
+    ruleName () {
+      const { id } = this.inputValue || {}
+      return id || this.$i18n.t('New rule')
+    },
+    ruleDescription () {
+      const { description } = this.inputValue || {}
+      return description
     }
   },
   methods: {

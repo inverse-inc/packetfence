@@ -197,13 +197,10 @@ export default {
   },
   methods: {
     isComponentType (componentTypes) {
-      if (this.localAttribute) {
-        const index = this.fields.findIndex(field => field.value === this.localAttribute)
-        if (index >= 0) {
-          const field = this.fields[index]
-          for (let t = 0; t < componentTypes.length; t++) {
-            if (field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
-          }
+      if (this.field) {
+        for (let t = 0; t < componentTypes.length; t++) {
+          let componentType = componentTypes[t]
+          if (this.field.types.map(fieldType => fieldTypeComponent[fieldType]).includes(componentType)) return true
         }
       }
       return false
@@ -235,8 +232,9 @@ export default {
   watch: {
     localAttribute: {
       handler: function (a, b) {
-        if (!this.drag) { // don't focus when being dragged
+        if (!this.drag && a) { // don't focus when being dragged
           this.$set(this.formStoreValue, 'operator', null) // clear operator
+          this.$set(this.formStoreValue, 'value', null) // clear value
           this.$nextTick(() => {
             this.focusOperator()
           })
@@ -245,7 +243,7 @@ export default {
     },
     localOperator: {
       handler: function (a, b) {
-        if (!this.drag) { // don't focus when being dragged
+        if (!this.drag && a) { // don't focus when being dragged
           this.$set(this.formStoreValue, 'value', null) // clear value
           this.$nextTick(() => {
             this.focusValue()
