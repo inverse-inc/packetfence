@@ -615,6 +615,10 @@ sub duration {
             $year ++;
         }
         return ($days_year * 86400);
+    } elsif ($modifier eq "h") {
+        return ($num * 3600);
+    } elsif ($modifier eq "m") {
+        return ($num * 60);
     }
 }
 
