@@ -175,35 +175,35 @@ export default {
   },
   methods: {
     doEnable () {
-      this.$store.dispatch('services/enableService', this.service).then(response => {
+      this.$store.dispatch('services/enableService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> enabled.', { service: this.service }) })
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to enable service <code>{service}</code>. See the server error logs for more information.', { service: this.service }) })
       })
     },
     doDisable () {
-      this.$store.dispatch('services/disableService', this.service).then(response => {
+      this.$store.dispatch('services/disableService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> disabled.', { service: this.service }) })
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to disable service <code>{service}</code>. See the server error logs for more information.', { service: this.service }) })
       })
     },
     doRestart () {
-      this.$store.dispatch('services/restartService', this.service).then(response => {
+      this.$store.dispatch('services/restartService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> restarted.', { service: this.service }) })
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to restart service <code>{service}</code>.  See the server error logs for more information.', { service: this.service }) })
       })
     },
     doStart () {
-      this.$store.dispatch('services/startService', this.service).then(response => {
+      this.$store.dispatch('services/startService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> started.', { service: this.service }) })
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to start service <code>{service}</code>.  See the server error logs for more information.', { service: this.service }) })
       })
     },
     doStop () {
-      this.$store.dispatch('services/stopService', this.service).then(response => {
+      this.$store.dispatch('services/stopService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> killed.', { service: this.service }) })
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to kill service <code>{service}</code>.  See the server error logs for more information.s', { service: this.service }) })

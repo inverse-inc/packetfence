@@ -119,17 +119,17 @@ export default {
       this.$router.back()
     },
     create () {
-      this.$store.dispatch('$_security_events/createSecurityEvent', this.form).then(response => {
+      this.$store.dispatch('$_security_events/createSecurityEvent', this.form).then(() => {
         this.close()
       })
     },
     save () {
-      this.$store.dispatch('$_security_events/updateSecurityEvent', this.form).then(response => {
+      this.$store.dispatch('$_security_events/updateSecurityEvent', this.form).then(() => {
         this.close()
       })
     },
     remove () {
-      this.$store.dispatch('$_security_events/deleteSecurityEvent', this.id).then(response => {
+      this.$store.dispatch('$_security_events/deleteSecurityEvent', this.id).then(() => {
         this.close()
       })
     }
@@ -139,12 +139,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

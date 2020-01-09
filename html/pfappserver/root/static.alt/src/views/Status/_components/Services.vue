@@ -199,12 +199,12 @@ export default {
     toggleEnabled (service, event) {
       switch (event) {
         case false:
-          this.$store.dispatch(`${this.storeName}/disableService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/disableService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> disabled.', { service: service.name }) })
           })
           break
         case true:
-          this.$store.dispatch(`${this.storeName}/enableService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/enableService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> enabled.', { service: service.name }) })
           })
           break
@@ -213,32 +213,32 @@ export default {
     toggleRunning (service, event) {
       switch (event) {
         case false:
-          this.$store.dispatch(`${this.storeName}/stopService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/stopService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> stopped.', { service: service.name }) })
           })
           break
         case true:
-          this.$store.dispatch(`${this.storeName}/startService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/startService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> started.', { service: service.name }) })
           })
           break
       }
     },
-    stopAllServices (event) {
+    stopAllServices () {
       this.$store.dispatch('notification/info', { message: this.$i18n.t('Stopping all services.') })
-      this.$store.dispatch(`${this.storeName}/stopAllServices`).then(response => {
+      this.$store.dispatch(`${this.storeName}/stopAllServices`).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('All services stopped.') })
       })
     },
-    startAllServices (event) {
+    startAllServices () {
       this.$store.dispatch('notification/info', { message: this.$i18n.t('Starting all services.') })
-      this.$store.dispatch(`${this.storeName}/startAllServices`).then(response => {
+      this.$store.dispatch(`${this.storeName}/startAllServices`).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('All services started.') })
       })
     },
-    restartAllServices (event) {
+    restartAllServices () {
       this.$store.dispatch('notification/info', { message: this.$i18n.t('Restarting all services.') })
-      this.$store.dispatch(`${this.storeName}/restartAllServices`).then(response => {
+      this.$store.dispatch(`${this.storeName}/restartAllServices`).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('All services restarted.') })
       })
     },
