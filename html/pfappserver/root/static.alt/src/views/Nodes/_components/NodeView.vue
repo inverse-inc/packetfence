@@ -413,8 +413,8 @@ export default {
       iplogSortDesc: false,
 
       locationLogFields, // ../_config/
-      locationSortBy: 'end_time',
-      locationSortDesc: false,
+      locationSortBy: 'start_time',
+      locationSortDesc: true,
 
       securityEventFields, // ../_config/
       securityEventSortBy: 'release_date',
