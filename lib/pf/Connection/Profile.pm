@@ -680,6 +680,17 @@ sub unregOnAcctStop {
     return isenabled($self->{'_unreg_on_acct_stop'});
 }
 
+=item autoRegister
+
+is autoregister enabled
+
+=cut
+
+sub autoRegister {
+    my ($self) = @_;
+    return isenabled($self->{'_autoregister'});
+}
+
 sub TO_JSON {
     return {%{$_[0]}};
 }
