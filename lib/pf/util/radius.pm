@@ -38,6 +38,8 @@ BEGIN {
     @EXPORT_OK = qw(perform_disconnect perform_coa perform_rsso);
 }
 
+use Digest::HMAC_MD5 qw(hmac_md5);
+use pf::constants qw($TRUE);
 use Net::Radius::Packet;
 use Net::Radius::Dictionary;
 use IO::Select;
@@ -119,6 +121,12 @@ sub perform_dynauth {
     # avoids unnecessary warnings
     $radius_request->set_authenticator("");
 
+    if($connection_info->{add_message_authenticator}) {
+        # Add an empty Message-Authenticator if told to add one
+        # This is needed since the signature of the packet must include the empty authenticator attribute
+        $radius_request->set_attr("Message-Authenticator", pack("H*", "0" x 32));
+    }
+    
     # pushing attributes
     # TODO deal with attribute merging
     foreach my $attr (keys %$attributes) {
@@ -132,8 +140,21 @@ sub perform_dynauth {
         $radius_request->set_vsattr($vsa_ref->{'vendor'}, $vsa_ref->{'attribute'}, $vsa_ref->{'value'});
     }
 
+
+    my $packet_data;
+    if($connection_info->{add_message_authenticator}) {
+        $packet_data = auth_resp($radius_request->pack(), $connection_info->{'secret'});
+        $radius_request = Net::Radius::Packet->new($dictionary, $packet_data);
+        $radius_request->set_attr("Message-Authenticator", hmac_md5($packet_data, $connection_info->{'secret'}), $TRUE);
+        $packet_data = $radius_request->pack();
+    }
+    else {
+        $packet_data = auth_resp($radius_request->pack(), $connection_info->{'secret'});
+    }
+
+
     # applying shared-secret signing then send
-    $socket->send(auth_resp($radius_request->pack(), $connection_info->{'secret'}));
+    $socket->send($packet_data);
 
     # Listen for the response.
     # Using IO::Select because otherwise we can't do timeout without using alarm()
