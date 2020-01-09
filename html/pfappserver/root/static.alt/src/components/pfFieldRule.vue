@@ -140,7 +140,10 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return { ...this.default, ...this.formStoreValue } // use FormStore
+        if (this.formStoreValue === null) {
+          this.formStoreValue = this.default // set default
+        }
+        return this.formStoreValue // use FormStore
       },
       set (newValue = null) {
         this.formStoreValue = newValue // use FormStore
