@@ -9,6 +9,7 @@
       <component ref="component"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}`"
+        v-model="inputValue"
         v-bind="field.attrs"
         v-on="forwardListeners"
         :is="field.component"
@@ -54,10 +55,20 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return { ...this.default, ...this.formStoreValue } // use FormStore
+        let value
+        if (this.formStoreName) {
+          value = { ...this.default, ...this.formStoreValue } // use FormStore
+        } else {
+          value = this.value // use native (v-model)
+        }
+        return value
       },
       set (newValue = null) {
-        this.formStoreValue = newValue // use FormStore
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
     },
     forwardListeners () {

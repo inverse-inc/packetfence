@@ -52,13 +52,15 @@
                   {{ $t('Choose Certificate') }}
                 </pf-form-upload>
               </pf-form-row>
-              <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Certificate Authority')"
-                v-model.trim="certs[id].ca" v-if="'ca' in certs[id]"></pf-form-textarea>
-              <pf-form-row row-class="mt-0 mb-3">
-                <pf-form-upload class="btn-outline-secondary btn-sm" @files="certs[id].ca = $event[0].result" :multiple="false" accept="text/*" read-as-text>
-                  {{ $t('Choose Certificate Authority') }}
-                </pf-form-upload>
-              </pf-form-row>
+              <template v-if="'ca' in certs[id]">
+                <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Certificate Authority')"
+                  v-model.trim="certs[id].ca"></pf-form-textarea>
+                <pf-form-row row-class="mt-0 mb-3">
+                  <pf-form-upload class="btn-outline-secondary btn-sm" @files="certs[id].ca = $event[0].result" :multiple="false" accept="text/*" read-as-text>
+                    {{ $t('Choose Certificate Authority') }}
+                  </pf-form-upload>
+                </pf-form-row>
+              </template>
               <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Private Key')"
                 v-model.trim="$v.certs[id].private_key.$model" :vuelidate="$v.certs[id].private_key"></pf-form-textarea>
               <pf-form-row row-class="mt-0 mb-3">
@@ -83,7 +85,7 @@
                 :field="caCertificateField"
               ></pf-form-fields>
               <pf-form-row row-class="mt-0 mb-3" v-if="!findIntermediateCAs">
-                <pf-form-upload class="btn-outline-secondary btn-sm" @files="loadIntermediateCAs(certs[id], $event)" :multiple="true" accept="text/*">
+                <pf-form-upload class="btn-outline-secondary btn-sm" @files="loadIntermediateCAs(certs[id], $event)" :multiple="true" accept="text/*" read-as-text>
                   {{ $t('Choose Intermediate CA certificate(s)') }}
                 </pf-form-upload>
               </pf-form-row>
@@ -289,6 +291,7 @@ export default {
         const name = this.sortedCerts[this.tabIndex].toUpperCase()
         return this.$i18n.t('Generate Signing Request for {certificate} certificate', { certificate: name })
       }
+      return ''
     }
   },
   methods: {

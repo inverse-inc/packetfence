@@ -142,7 +142,7 @@ export default {
         this.files = []
       }
       const { target: { files } = {} } = event
-      Array.from(files).forEach((file, index, files) => {
+      Array.from(files).forEach((file) => {
         const fileIndex = this.files.findIndex(f => f.name === file.name && f.lastModified === file.lastModified)
         if (fileIndex > -1) {
           this.$emit('focus', fileIndex)
@@ -193,7 +193,7 @@ export default {
   },
   watch: {
     firstError: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (a) {
           this.showErrorModal = true
         }
@@ -201,13 +201,15 @@ export default {
       deep: true
     },
     files: {
-      handler: function (a, b) {
-        this.$emit('files', a.map(file => {
-          return { ...file, ...{ storeName: this.storeNameFromFile(file), close: () => { this.closeFile(file) } } }
-        }))
-        setTimeout(() => { // $nextTick fails
-          this.$emit('focus', a.length - 1)
-        }, 300)
+      handler: function (a) {
+        if (a.length) {
+          this.$emit('files', a.map(file => {
+            return { ...file, ...{ storeName: this.storeNameFromFile(file), close: () => { this.closeFile(file) } } }
+          }))
+          setTimeout(() => { // $nextTick fails
+            this.$emit('focus', a.length - 1)
+          }, 300)
+        }
       },
       deep: true
     }
