@@ -188,13 +188,13 @@ export default {
       const { usage: { direction, limit, interval, type } = {} } = this.formStoreValue || {}
       if (direction && limit && interval) {
         return `${bytes.toHuman(limit, 0, true)}B ${triggerDirections[direction]}/${triggerIntervals[interval]}`
-       } else if (type == 'BandwidthExpired') {
-         return this.$i18n.t('Bandwidth balance has expired')
-       } else if (type == 'TimeExpired') {
-         return this.$i18n.t('Time balance has expired')
-       } else {
-         return this.$i18n.t('Any data usage')
-       }
+      } else if (type === 'BandwidthExpired') {
+        return this.$i18n.t('Bandwidth balance has expired')
+      } else if (type === 'TimeExpired') {
+        return this.$i18n.t('Time balance has expired')
+      } else {
+        return this.$i18n.t('Any data usage')
+      }
     },
     usageInvalid () {
       const state = this.$store.getters[`${this.formStoreName}/$stateNS`](`${this.formNamespace}.usage`)

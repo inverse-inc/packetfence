@@ -289,9 +289,9 @@ export default {
       immediate: true
     },
     inputValue: {
-      handler (a)  {
+      handler (a) {
         if (this.optionsSearchFunction) {
-          (((this.multiple) ? a : [a] ) || []).map(value => {
+          (((this.multiple) ? a : [a]) || []).map(value => {
             if (!(value in this.tagCache)) {
               Promise.resolve(this.optionsSearchFunction(this, value, SEARCH_BY_ID)).then(options => {
                 this.cacheTagsFromOptions(options)

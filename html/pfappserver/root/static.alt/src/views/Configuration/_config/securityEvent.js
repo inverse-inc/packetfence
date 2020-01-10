@@ -788,7 +788,7 @@ export const triggerUsageView = (form = {}) => {
               }
             },
             {
-              if: type == 'bandwidth',
+              if: type === 'bandwidth',
               namespace: 'limit',
               component: pfFormPrefixMultiplier,
               attrs: {
@@ -797,7 +797,7 @@ export const triggerUsageView = (form = {}) => {
               }
             },
             {
-              if: type == 'bandwidth',
+              if: type === 'bandwidth',
               namespace: 'interval',
               component: pfFormSelect,
               attrs: {

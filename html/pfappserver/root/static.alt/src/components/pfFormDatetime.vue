@@ -211,7 +211,7 @@ export default {
     },
     onChange (event) {
       const { 0: newDatetime } = event
-      const { isFocus, options: { datetimeFormat } = {} } = this
+      const { options: { datetimeFormat } = {} } = this
       if (newDatetime === undefined || !isValid(parse(newDatetime, datetimeFormat))) {
         this.inputValue = null
         this.close()

@@ -25,8 +25,8 @@ export const optionsSearchFunction = (context) => {
             values: ((searchById)
               // search by identifier
               ? ((query.constructor === Array) ? query : [query]).map(value => {
-                  return { field: valueName, op: 'equals', value: `${(value).toString().trim()}` }
-                })
+                return { field: valueName, op: 'equals', value: `${(value).toString().trim()}` }
+              })
               // search by user defined string
               : [{ field: fieldName, op: 'contains', value: `${(query).toString().trim()}` }]
             )
