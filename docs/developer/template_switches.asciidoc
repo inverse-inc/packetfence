@@ -12,6 +12,12 @@ For example to create a template for the vendor "Cyberdyne" and switch "Switchin
 The file name is /usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def
 The file name must must only consist of alphanumeric characters and under scores and must begin with a letter.
 
+Once you have completed your switch template, you will need to perform the following commands so it can be used:
+
+  # /usr/local/pf/addons/dev-helpers/bin/generator-template-switches-defaults.pl
+  # /usr/local/pf/bin/pfcmd configreload hard
+  # /usr/local/pf/bin/pfcmd service pf restart
+
 The file consist of parameter names and their values.
 
 === Required Parameters
