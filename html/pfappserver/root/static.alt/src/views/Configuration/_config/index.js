@@ -15,6 +15,7 @@ const {
 export const optionsSearchFunction = (context) => {
   const { field_name: fieldName, value_name: valueName, search_path: url } = context
   return function (chosen, query, searchById = false) {
+    if (!query) return []
     return apiCall.post(
       url,
       {
@@ -84,7 +85,7 @@ export const attributesFromMeta = (meta = {}, key = null) => {
     else if (allowedLookup) {
       attrs.searchable = true
       attrs.internalSearch = false
-      attrs.preserveSearch = true
+      attrs.preserveSearch = false
       attrs.allowEmpty = (!(key in meta && 'required' in Object.keys(meta[key])))
       attrs.clearOnSelect = false
       attrs.placeholder = i18n.t('Type to search.')

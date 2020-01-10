@@ -39,18 +39,20 @@
           </span>
         </template>
         <template v-slot:noResult>
-          <b-media class="text-secondary" md="auto">
-            <template v-if="loading">
-              <template v-slot:aside><icon name="circle-notch" spin scale="2" class="mt-1 ml-2"></icon></template>
+          <template v-if="loading">
+            <b-media class="text-secondary" md="auto">
+              <template v-slot:aside><icon name="circle-notch" spin scale="1.5" class="mt-2 ml-2"></icon></template>
               <strong>{{ $t('Loading results') }}</strong>
               <b-form-text class="font-weight-light">{{ $t('Please wait...') }}</b-form-text>
-            </template>
-            <template v-else>
-              <template v-slot:aside><icon name="search" scale="2" class="mt-1 ml-2"></icon></template>
+            </b-media>
+          </template>
+          <template v-else>
+            <b-media class="text-secondary" md="auto">
+              <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
               <strong>{{ $t('No results') }}</strong>
               <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
-            </template>
-          </b-media>
+            </b-media>
+          </template>
         </template>
       </multiselect>
       <b-input-group-append v-if="readonly || disabled">
@@ -252,6 +254,7 @@ export default {
     },
     onSearchChange (query) {
       if (this.optionsSearchFunction) {
+        if (query && query.constructor === Array) return // not a user defined query
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
         }
