@@ -5,8 +5,6 @@
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
-<pre>{{ JSON.stringify(inputValueList, null, 2) }}</pre>
-
       <multiselect ref="multiselect"
         v-model="multiselectValue"
         v-bind="$attrs"
