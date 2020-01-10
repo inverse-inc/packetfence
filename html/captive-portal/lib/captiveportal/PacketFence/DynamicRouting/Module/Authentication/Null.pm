@@ -81,6 +81,7 @@ sub authenticate {
     else {
         $pid = $default_pid;
         pf::auth_log::record_auth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
+        $self->transfer_saving_fields();
     }
     $self->username($pid);
     $self->done();
