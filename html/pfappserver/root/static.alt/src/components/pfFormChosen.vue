@@ -5,6 +5,8 @@
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
+<pre>{{ JSON.stringify(inputValueList, null, 2) }}</pre>
+
       <multiselect ref="multiselect"
         v-model="multiselectValue"
         v-bind="$attrs"
@@ -33,7 +35,7 @@
           {{ tagCache[option.value] }}
         </template>
         <template v-slot:tag="{ option }">
-          <span class="multiselect__tag">
+          <span class="multiselect__tag" :class="(isFocus && optionsList.includes(option.value)) ? 'bg-primary' : 'bg-secondary'">
             <span>{{ tagCache[option.value] }}</span>
             <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="removeTag(option.value)"></i>
           </span>
@@ -237,6 +239,11 @@ export default {
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
+    },
+    optionsList () {
+      return (this.options || []).map(option => {
+        return option[this.trackBy]
+      })
     }
   },
   methods: {
