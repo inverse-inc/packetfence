@@ -338,10 +338,7 @@ export const viewFields = {
       ]
     }
   },
-  modules: (form = {}, meta = {}) => {
-    const {
-      modules
-    } = meta
+  modules: (form, meta = {}) => {
     return {
       label: i18n.t('Modules'),
       cols: [
@@ -357,11 +354,14 @@ export const viewFields = {
                 field: {
                   component: pfFormChosen,
                   attrs: {
-                    ...attributesFromMeta(modules, 'item'),
+                    ...attributesFromMeta(meta, 'modules'),
                     ...{
+                      collapseObject: true,
                       placeholder: i18n.t('Click to select a module'),
                       groupLabel: 'group',
-                      groupValues: 'options'
+                      groupValues: 'options',
+                      multiple: false,
+                      closeOnSelect: true
                     }
                   }
                 }
@@ -373,7 +373,7 @@ export const viewFields = {
       ]
     }
   },
-  multi_source_ids: (form = {}, meta = {}) => {
+  multi_source_ids: (form, meta = {}) => {
     return {
       label: i18n.t('Authentication Sources'),
       text: i18n.t('The sources to use in the module. If no sources are specified, all the sources of the connection profile will be used.'),
