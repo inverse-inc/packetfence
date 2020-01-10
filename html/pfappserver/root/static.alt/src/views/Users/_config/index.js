@@ -130,9 +130,6 @@ export const createValidators = (form = {}) => {
           [i18n.t('Username required.')]: required,
           [i18n.t('Username exists.')]: not(and(required, userNotExists, conditional(!pid_overwrite)))
         },
-        email: {
-          [i18n.t('Email address required.')]: required
-        },
         password: {
           [i18n.t('Password required.')]: required,
           [i18n.t('Password must be at least 6 characters.')]: minLength(6)

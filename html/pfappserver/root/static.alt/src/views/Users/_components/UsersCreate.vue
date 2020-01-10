@@ -48,7 +48,7 @@
                 <pf-form-input :column-label="$t('Title')"
                   :form-store-name="formStoreName" form-namespace="single.title"
                 />
-                <pf-form-input :column-label="$t('Firstna me')"
+                <pf-form-input :column-label="$t('Firstname')"
                   :form-store-name="formStoreName" form-namespace="single.firstname"
                 />
                 <pf-form-input :column-label="$t('Lastname')"
