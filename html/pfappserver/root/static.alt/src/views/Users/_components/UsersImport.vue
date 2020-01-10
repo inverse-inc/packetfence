@@ -210,7 +210,7 @@ export default {
       const file = this.files[index]
       file.close()
     },
-    importPromise (payload, dryRun) {
+    importPromise (payload, dryRun, done) {
       return new Promise((resolve, reject) => {
         if ('items' in payload) {
           payload.items = payload.items.map(item => { // glue payload together with local slot
@@ -233,7 +233,7 @@ export default {
               }
               return createdUsers
             }, this.createdUsers)
-            if (!result || result.length === 0) { // empty result when processing is completed
+            if (done) { // processing is done
               if (Object.values(this.createdUsers).length > 0) {
                 this.$store.commit('$_users/CREATED_USERS_REPLACED', Object.values(this.createdUsers))
                 this.showUsersPreviewModal = true

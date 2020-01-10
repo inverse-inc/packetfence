@@ -475,7 +475,7 @@ export default {
         newline: '', // auto-detect
         quoteChar: '"',
         escapeChar: '"',
-        header: false,
+header: true,
         trimHeaders: true,
         dynamicTyping: false,
         preview: '',
@@ -522,6 +522,7 @@ export default {
         lastLine: 0,
         promise: false,
         dryRun: false,
+        done: false,
         exit: false
       }
     }
@@ -809,7 +810,6 @@ export default {
             }
             return items
           }, [])
-
           const { config: { stopOnFirstError, ignoreUpdateIfExists, ignoreInsertIfNotExists } = {} } = this
           const payload = {
             items,
@@ -817,11 +817,12 @@ export default {
             ignoreInsertIfNotExists: ignoreInsertIfNotExists || dryRun,
             ignoreUpdateIfExists: ignoreUpdateIfExists || dryRun
           }
+          this.importProgress.done = items.length < length
 
           await new Promise(async (resolve, reject) => {
             if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Sending data')
             this.importProgress.promise = { resolve, reject } // stash promise
-            await this.importPromise(payload, dryRun).then((result) => {
+            await this.importPromise(payload, dryRun, this.importProgress.done).then((result) => {
               if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Processing response')
               if (result.constructor === Array && result.length > 0) {
                 for (const line of result) {
@@ -862,7 +863,6 @@ export default {
             }).catch((err) => {
               reject(err) // stop processing
             })
-            await this.importPromise({ items: [] }, dryRun).then(() => {}) // call Promise to guarantee minimum 1 empty payload
             this.$bvModal.show(`importProgress-${this.uuid}`) // re-open modal in case parent squashed it
           })
         })
@@ -881,6 +881,7 @@ export default {
           lastError: false,
           lastLine: ((header) ? 1 : 0),
           promise: false,
+          done: false,
           exit: false,
           dryRun
         })
@@ -892,7 +893,7 @@ export default {
               : (dryRun) ? this.$i18n.t('Dry run completed') : this.$i18n.t('Import completed')
             this.importProgress.exit = true
           })
-        } while (this.linesCount > this.importProgress.lastLine && !this.importProgress.exit)
+        } while (this.linesCount > this.importProgress.lastLine && !this.importProgress.done && !this.importProgress.exit)
         this.isImporting = false
       }
 

@@ -78,7 +78,7 @@ export default {
       const file = this.files[index]
       file.close()
     },
-    importPromise (payload, dryRun) {
+    importPromise (payload, dryRun, done) {
       return new Promise((resolve, reject) => {
         this.$store.dispatch('$_nodes/bulkImport', payload).then(result => {
           // do something with the result, then Promise.resolve to continue processing
