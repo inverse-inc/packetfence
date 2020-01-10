@@ -132,24 +132,24 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_self_services/createSelfService', this.form).then(response => {
+      this.$store.dispatch('$_self_services/createSelfService', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'selfService', params: { id: this.form.id } })
+          this.$router.push({ name: 'self_service', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_self_services/updateSelfService', this.form).then(response => {
+      this.$store.dispatch('$_self_services/updateSelfService', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_self_services/deleteSelfService', this.id).then(response => {
+      this.$store.dispatch('$_self_services/deleteSelfService', this.id).then(() => {
         this.close()
       })
     }
@@ -159,12 +159,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
