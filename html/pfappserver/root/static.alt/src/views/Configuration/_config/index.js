@@ -14,64 +14,37 @@ const {
 
 export const optionsSearchFunction = (context) => {
   const { field_name: fieldName, value_name: valueName, search_path: url } = context
-  return function (chosen, query) {
-    let currentOptions = []
-    if (chosen.value) {
-      currentOptions = (chosen.multiple) // cache current value
-        ? chosen.options.filter(option => chosen.value.includes(option[chosen.trackBy])) // multiple
-        : chosen.options.find(option => option[chosen.trackBy] === chosen.value) // single
-    }
-    if (!query) return currentOptions
-    if (!chosen.optionsSearchFunctionInitialized) { // first query - presearch current value
-      return apiCall.post(
-        url,
-        {
-          query: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: ((query.constructor === Array) ? query : [query]).map(value => {
-                return { field: valueName, op: 'equals', value: `${(value).toString().trim()}` }
-              })
-            }]
-          },
-          fields: [fieldName, valueName],
-          sort: [fieldName],
-          cursor: 0,
-          limit: 100
+  return function (chosen, query, searchById = false) {
+    return apiCall.post(
+      url,
+      {
+        query: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: ((searchById)
+              // search by identifier
+              ? ((query.constructor === Array) ? query : [query]).map(value => {
+                  return { field: valueName, op: 'equals', value: `${(value).toString().trim()}` }
+                })
+              // search by user defined string
+              : [{ field: fieldName, op: 'contains', value: `${(query).toString().trim()}` }]
+            )
+          }]
         },
-        {
-          baseURL: '' // reset
-        }
-      ).then(response => {
-        return response.data.items.map(item => {
-          return { [chosen.trackBy]: item[valueName].toString(), [chosen.label]: item[fieldName] }
-        })
+        fields: [fieldName, valueName],
+        sort: [fieldName],
+        cursor: 0,
+        limit: 100
+      },
+      {
+        baseURL: '' // reset
+      }
+    ).then(response => {
+      return response.data.items.map(item => {
+        return { [chosen.trackBy]: item[valueName].toString(), [chosen.label]: item[fieldName] }
       })
-    } else { // subsequent queries
-      return apiCall.post(
-        url,
-        {
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: `${(query).toString().trim()}` }] }] },
-          fields: [fieldName, valueName],
-          sort: [fieldName],
-          cursor: 0,
-          limit: chosen.optionsLimit - currentOptions.length
-        },
-        {
-          baseURL: '' // reset
-        }
-      ).then(response => {
-        return [
-          ...((currentOptions) ? [...currentOptions] : []), // current option first
-          ...response.data.items.map(item => {
-            return { [chosen.trackBy]: item[valueName].toString(), [chosen.label]: item[fieldName] }
-          }).filter(item => {
-            return JSON.stringify(item) !== JSON.stringify(currentOptions) // remove duplicate current option
-          })
-        ]
-      })
-    }
+    })
   }
 }
 
@@ -111,12 +84,12 @@ export const attributesFromMeta = (meta = {}, key = null) => {
     else if (allowedLookup) {
       attrs.searchable = true
       attrs.internalSearch = false
-      attrs.preserveSearch = false
+      attrs.preserveSearch = true
       attrs.allowEmpty = (!(key in meta && 'required' in Object.keys(meta[key])))
-      attrs.clearOnSelect = true
+      attrs.clearOnSelect = false
       attrs.placeholder = i18n.t('Type to search.')
       attrs.showNoOptions = false
-      attrs.optionsSearchFunction = (chosen, query) => { // wrap function
+      attrs.optionsSearchFunction = (chosen, query, searchById) => { // wrap function
         const f = optionsSearchFunction(allowedLookup)
         if (!query) {
           switch (key) {
@@ -132,12 +105,12 @@ export const attributesFromMeta = (meta = {}, key = null) => {
                     { text: 'iOS', value: '33450' },
                     { text: 'Linux OS', value: '5' }
                   ],
-                  ...f(chosen, query)
+                  ...f(chosen, query, searchById)
                 ]
               )]
           }
         }
-        return f(chosen, query)
+        return f(chosen, query, searchById)
       }
     }
   }

@@ -157,37 +157,20 @@ export const validators = (form = {}, meta = {}) => {
   }
 }
 
-export const search = (chosen, query) => {
+export const search = (chosen, query, searchById) => {
   if (!query) return []
-  if (chosen.inputValue !== null && chosen.options.length === 0) { // first query - presearch current value
-    return api.fingerbankSearchMacVendors({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
-      fields: ['id', 'mac', 'name'],
-      sort: ['name'],
-      cursor: 0,
-      limit: 100
-    }).then(response => {
-      return response.items.map(item => {
-        return { value: item.id, text: `${item.mac.toUpperCase()} - ${item.name}` }
-      })
+  return api.fingerbankSearchMacVendors({
+    query: ((searchById)
+      ? { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] }
+      : { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'contains', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] }
+    ),
+    fields: ['id', 'mac', 'name'],
+    sort: ['name'],
+    cursor: 0,
+    limit: 100
+  }).then(response => {
+    return response.items.map(item => {
+      return { value: item.id, text: `${item.mac.toUpperCase()} - ${item.name}` }
     })
-  } else { // subsequent queries
-    const currentOption = chosen.options.find(option => option.value === chosen.inputValue) // cache current value
-    return api.fingerbankSearchMacVendors({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'contains', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
-      fields: ['id', 'mac', 'name'],
-      sort: ['name'],
-      cursor: 0,
-      limit: 100
-    }).then(response => {
-      return [
-        ...((currentOption) ? [currentOption] : []), // current option first
-        ...response.items.map(item => {
-          return { value: item.id, text: `${item.mac.toUpperCase()} - ${item.name}` }
-        }).filter(item => {
-          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
-        })
-      ]
-    })
-  }
+  })
 }

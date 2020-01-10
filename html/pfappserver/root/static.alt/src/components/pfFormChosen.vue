@@ -29,6 +29,15 @@
         @open="onFocus"
         @close="onBlur"
       >
+        <template v-slot:singleLabel="{ option }">
+          {{ tagCache[option.value] }}
+        </template>
+        <template v-slot:tag="{ option }">
+          <span class="multiselect__tag">
+            <span>{{ tagCache[option.value] }}</span>
+            <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="removeTag(option.value)"></i>
+          </span>
+        </template>
         <template v-slot:noResult>
           <b-media class="text-secondary" md="auto">
             <template v-if="loading">
@@ -57,6 +66,9 @@ import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import { createDebouncer } from 'promised-debounce'
 import pfMixinForm from '@/components/pfMixinForm'
+
+const SEARCH_BY_ID = true
+const SEARCH_BY_TEXT = false
 
 export default {
   name: 'pf-form-chosen',
@@ -133,10 +145,6 @@ export default {
     optionsSearchFunction: {
       type: Function
     },
-    optionsSearchFunctionInitialized: { // true after first `optionsSearchFunction` call (for preloading)
-      type: Boolean,
-      default: false
-    },
     placeholder: {
       type: String,
       default: null
@@ -161,7 +169,8 @@ export default {
   },
   data () {
     return {
-      isFocus: false
+      isFocus: false,
+      tagCache: {}
     }
   },
   computed: {
@@ -249,24 +258,45 @@ export default {
         this.loading = true
         this.$debouncer({
           handler: () => {
-            Promise.resolve(this.optionsSearchFunction(this, query)).then(options => {
+            Promise.resolve(this.optionsSearchFunction(this, query, SEARCH_BY_TEXT)).then(options => {
               this.loading = false
               this.options = options
             }).catch(() => {
               this.loading = false
-            }).finally(() => {
-              this.optionsSearchFunctionInitialized = true
             })
           },
           time: 300
         })
       }
+    },
+    removeTag (value) {
+      this.inputValue = this.inputValue.filter(input => input !== value)
+    },
+    cacheTagsFromOptions (options) {
+      (options || []).map(option => {
+        const { [this.trackBy]: value, [this.label]: label } = option
+        if (!(value in this.tagCache)) {
+          this.$set(this.tagCache, value, label)
+        }
+      })
     }
   },
   watch: {
-    inputValue: {
+    options: {
       handler (a) {
-        this.onSearchChange(a) // prime the searchable cache with our current `inputValue`
+        this.cacheTagsFromOptions(a)
+      },
+      immediate: true
+    },
+    inputValue: {
+      handler (a)  {
+        (((this.multiple) ? a : [a] ) || []).map(value => {
+          if (!(value in this.tagCache)) {
+            Promise.resolve(this.optionsSearchFunction(this, value, SEARCH_BY_ID)).then(options => {
+              this.cacheTagsFromOptions(options)
+            })
+          }
+        })
       },
       immediate: true
     }

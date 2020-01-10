@@ -141,37 +141,20 @@ export const validators = (form = {}, meta = {}) => {
   }
 }
 
-export const search = (chosen, query) => {
+export const search = (chosen, query, searchById) => {
   if (!query) return []
-  if (chosen.inputValue !== null && chosen.options.length === 0) { // first query - presearch current value
-    return api.fingerbankSearchDhcpv6Enterprises({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
-      fields: ['id', 'value'],
-      sort: ['value'],
-      cursor: 0,
-      limit: 100
-    }).then(response => {
-      return response.items.map(item => {
-        return { value: item.id.toString(), text: item.value }
-      })
+  return api.fingerbankSearchDhcpv6Enterprises({
+    query: ((searchById)
+      ? { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] }
+      : { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] }
+    ),
+    fields: ['id', 'value'],
+    sort: ['value'],
+    cursor: 0,
+    limit: 100
+  }).then(response => {
+    return response.items.map(item => {
+      return { value: item.id.toString(), text: item.value }
     })
-  } else { // subsequent queries
-    const currentOption = chosen.options.find(option => option.value === chosen.inputValue) // cache current value
-    return api.fingerbankSearchDhcpv6Enterprises({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
-      fields: ['id', 'value'],
-      sort: ['value'],
-      cursor: 0,
-      limit: 100
-    }).then(response => {
-      return [
-        ...((currentOption) ? [currentOption] : []), // current option first
-        ...response.items.map(item => {
-          return { value: item.id.toString(), text: item.value }
-        }).filter(item => {
-          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
-        })
-      ]
-    })
-  }
+  })
 }
