@@ -34,6 +34,7 @@ use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::config::tenant;
 tie our %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+tie our %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain', tenant_id_scoped => 1;
 
 require 5.8.8;
 
@@ -71,13 +72,14 @@ sub authorize {
 
     #use Data::Dumper;
     #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
+    $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = '';
 
     if( defined($realm_config) && defined($realm_config->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
+        $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $ConfigDomain{$realm_config->{domain}}->{ntlmv2_only} ? '--allow-mschapv2' : '';
     }
 
-    $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $realm_config->{ntlmv2_only} ? '--allow-mschapv2' : '',
 
     # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)
     return $RADIUS::RLM_MODULE_UPDATED;
