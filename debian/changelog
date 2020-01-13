@@ -1,8 +1,8 @@
-packetfence (9.2.9) unstable; urgency=low
+packetfence (9.3.0) unstable; urgency=low
 
-  * Version 9.2.9
+  * Version 9.3.0
 
- -- Inverse <info@inverse.ca>  Fri, 29 Nov 2019 07:34:00 +0100
+ -- Inverse <info@inverse.ca>  Fri, 13 Jan 2020 07:34:00 +0100
 
 packetfence (9.2.0) unstable; urgency=low
 
