@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "axios": "0.19.0",
-    "bootstrap": "4.3.1",
-    "bootstrap-vue": "2.0.4",
+    "bootstrap": "4.4.1",
+    "bootstrap-vue": "2.2.0",
+    "core-js": "^3.6.3",
     "d3-force": "^2.0.1",
     "date-fns": "^1.30.1",
     "messageformat": "^2.3.0",
     "papaparse": "5.1.1",
-    "plotly.js": "1.51.3",
+    "plotly.js": "1.52.0",
     "promised-debounce": "^0.4.2",
     "typeface-b612-mono": "0.0.75",
     "uuid": "^3.3.3",
@@ -34,22 +35,30 @@
     "vue2-ace-editor": "0.0.15",
     "vue2vis": "0.0.16",
     "vuedraggable": "2.23.2",
-    "vuelidate": "0.7.4",
+    "vuelidate": "0.7.5",
     "vuex": "3.1.2"
   },
   "devDependencies": {
-    "@babel/polyfill": "^7.6.0",
-    "@vue/cli-plugin-babel": "^3.11.0",
-    "@vue/cli-plugin-eslint": "^3.11.0",
-    "@vue/cli-service": "^3.11.0",
+    "@babel/polyfill": "^7.8.0",
+    "@vue/cli-plugin-babel": "^4.1.2",
+    "@vue/cli-plugin-eslint": "^4.1.2",
+    "@vue/cli-service": "^4.1.2",
     "@vue/eslint-config-standard": "^4.0.0",
-    "node-sass": "^4.12.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^4.19.1",
+    "eslint-plugin-vue": "^5.2.3",
+    "node-sass": "^4.13.0",
     "sass-loader": "^7.3.1",
     "stylelint": "^10.1.0",
     "stylelint-config-idiomatic-css": "^1.0.6",
     "svg-arc-to-cubic-bezier": "^3.2.0",
-    "vue-cli-plugin-bootstrap-vue": "^0.4.0",
+    "vue-cli-plugin-bootstrap-vue": "0.6.0",
     "vue-cli-plugin-i18n": "^0.6.0",
     "vue-template-compiler": "2.6.11"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
   }
 }
