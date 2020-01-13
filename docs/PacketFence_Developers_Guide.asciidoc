@@ -37,7 +37,7 @@ Administration Guide::
   Covers PacketFence installation, configuration and administration.
 `NEWS`::
   Covers noteworthy features, improvements and bug fixes by release.
-`UPGRADE`::
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
 `ChangeLog`::
