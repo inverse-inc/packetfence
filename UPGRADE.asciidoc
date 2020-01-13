@@ -22,12 +22,21 @@ include::{extra_path}includes/global-attributes.asciidoc[]
 
 This guide covers procedures to upgrade PacketFence servers.
 
-include::{extra_path}includes/additional-info.asciidoc[]
+=== Other sources of information
 
-include::{extra_path}includes/commercial-support.asciidoc[]
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
+  Covers installation in a clustered environement.
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+  Covers API, captive portal customization, application code customizations and
+  instructions for supporting new equipment.
+<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
+  Covers installation and configuration of PacketFence.
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
+  Covers switches, WiFi controllers and access points configuration.
+`NEWS.asciidoc`::
+  Covers noteworthy features, improvements and bug fixes by release.
 
-include::{extra_path}includes/license.asciidoc[]
-
+These files are included in the package and release tarballs.
 
 == General Upgrade Tips
 
@@ -1056,3 +1065,10 @@ cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 == Archived upgrade notes
 
 include::{extra_path}upgrade-notes/archived_upgrade_notes.asciidoc[]
+
+include::{extra_path}includes/additional-info.asciidoc[]
+
+include::{extra_path}includes/commercial-support.asciidoc[]
+
+include::{extra_path}includes/license.asciidoc[]
+

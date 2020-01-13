@@ -20,30 +20,28 @@ endif::[]
 
 include::includes/global-attributes.asciidoc[]
 
-About this Guide
-----------------
+== About this Guide
 
 This guide will walk you through the installation and the day to day administration of the PacketFence solution.
 
 The latest version of this guide is available at https://packetfence.org/documentation/
 
-Other sources of information
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Other sources of information
 
-The following documents are included in the package and release tarballs.
-
-_Network Devices Configuration Guide_ (pdf)::
-  Covers switches, WiFi controllers and access points configuration.
-_Developer's Guide_ (pdf)::
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
+  Covers installation in a clustered environement.
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
   Covers API, captive portal customization, application code customizations and
   instructions for supporting new equipment.
-`CREDITS`::
-  This is, at least, a partial file of PacketFence contributors.
-`NEWS.asciidoc`::
-  Covers noteworthy features, improvements and bug fixes by release.
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
+  Covers switches, WiFi controllers and access points configuration.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
+`NEWS.asciidoc`::
+  Covers noteworthy features, improvements and bug fixes by release.
+
+These files are included in the package and release tarballs.
 
 Introduction
 ------------

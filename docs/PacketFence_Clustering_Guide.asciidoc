@@ -11,9 +11,26 @@ endif::[]
 
 include::includes/global-attributes.asciidoc[]
 
-About this Guide
-----------------
+== About this Guide
+
 This guide has been created to give a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalived for advanced features.
+
+=== Other sources of information
+
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+  Covers API, captive portal customization, application code customizations and
+  instructions for supporting new equipment.
+<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
+  Covers installation and configuration of PacketFence.
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
+  Covers switches, WiFi controllers and access points configuration.
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
+  Covers compatibility related changes, manual instructions and general notes
+  about upgrading.
+`NEWS.asciidoc`::
+  Covers noteworthy features, improvements and bug fixes by release.
+
+These files are included in the package and release tarballs.
 
 Assumptions
 -----------
@@ -1266,6 +1283,13 @@ After that, the algorithm looks at which version is on the most servers. In the 
 
 When pushing a version to the other servers, if the current server has the most recent version or is part of the quorum (depending on which push strategy was defined above), then it will be the one pushing the new configuration to the other servers. Otherwise, a webservice call is made to one of the servers running the selected version so that it pushes its configuration to its peers.
 
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
+
+
 Appendix
 --------
 
@@ -1615,3 +1639,4 @@ You can have an overview of all the current connections using the following Mari
 And if you would like to see only the connections with an active query:
 
   MariaDB> select * from information_schema.processlist where Command!='Sleep';
+

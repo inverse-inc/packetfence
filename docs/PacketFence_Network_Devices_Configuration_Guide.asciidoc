@@ -20,8 +20,7 @@ endif::[]
 
 include::includes/global-attributes.asciidoc[]
 
-About this Guide
-----------------
+== About this Guide
 
 This guide covers the configuration of network devices in order to integrate 
 them with PacketFence in VLAN enforcement. Switches, wireless controllers and 
@@ -30,21 +29,20 @@ terms.
 
 The latest version of this guide is available at https://packetfence.org/documentation/
 
-Other sources of information
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Other sources of information
 
-Administration Guide::
-  Covers PacketFence installation, configuration and administration. 
-Developers Guide::
-  Covers captive portal customization, VLAN management customization and 
-  instructions for supporting new hardware. 
-`NEWS`::
-  Covers noteworthy features, improvements and bug fixes by release. 
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
+  Covers installation in a clustered environement.
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+  Covers API, captive portal customization, application code customizations and
+  instructions for supporting new equipment.
+<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
+  Covers installation and configuration of PacketFence.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes 
-  about upgrading. 
-`ChangeLog`::
-  Covers all changes to the source code.
+  Covers compatibility related changes, manual instructions and general notes
+  about upgrading.
+`NEWS.asciidoc`::
+  Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
 
