@@ -281,6 +281,13 @@ export default {
       this.inputValue = this.inputValue.filter(input => input !== value)
     },
     cacheTagsFromOptions (options) {
+      if (this.groupValues) {
+        let flattened = []
+        for (let group of options) {
+          flattened = [ ...flattened, ...group[this.groupValues] ]
+        }
+        options = flattened
+      }
       (options || []).map(option => {
         const { [this.trackBy]: value, [this.label]: label } = option
         if (!(value in this.tagCache)) {
