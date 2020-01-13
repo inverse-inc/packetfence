@@ -25,7 +25,7 @@ This guide covers procedures to upgrade PacketFence servers.
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Covers installation in a clustered environement.
+  Covers installation in a clustered environment.
 <<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
   Covers API, captive portal customization, application code customizations and
   instructions for supporting new equipment.

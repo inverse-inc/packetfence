@@ -29,7 +29,7 @@ The latest version of this guide is available at https://packetfence.org/documen
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Covers installation in a clustered environement.
+  Covers installation in a clustered environment.
 <<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
   Covers API, captive portal customization, application code customizations and
   instructions for supporting new equipment.
