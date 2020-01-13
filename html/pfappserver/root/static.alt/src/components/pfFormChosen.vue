@@ -323,4 +323,5 @@ export default {
 
 <style lang="scss">
 /* See styles/_form-chosen.scss */
+
 </style>

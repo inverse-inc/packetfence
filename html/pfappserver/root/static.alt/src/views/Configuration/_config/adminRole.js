@@ -492,12 +492,7 @@ export const view = (form = {}, meta = {}) => {
                         groupValues: 'items',
                         trackBy: 'value',
                         label: 'text',
-                        options: actions.map(group => {
-                          return { ...group,
-                            ...{ items: group.items.map(item => {
-                              return { ...item, ...{ $isDisabled: (formActions && formActions.includes(item.value)) } }
-                            }) } }
-                        }),
+                        options: actions,
                         optionsLimit: 500
                       }
                     }
