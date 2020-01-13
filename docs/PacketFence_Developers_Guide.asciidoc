@@ -54,9 +54,32 @@ To do so, the preferred way is using the `perldoc` command as follows:
   perldoc lib/pfconfig/cached.pm
 
 
-== AsciiDoc documentation
+== Asciidoctor documentation
 
 === Documentation Conventions
+
+==== Shell commands in code blocks
+
+.To ease copy-paste of shell commands:
+* Remove useless characters in code blocks like `#` or `$`
+* Split long lines with `\`
+
+==== Titles
+
+We use `=` tags for section titles (headings), see
+link:https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#section-titles[AsciiDoc
+Syntax Quick Reference] for examples.
+
+==== Inter-document cross references
+
+We use
+link:https://asciidoctor.org/docs/user-manual/#inter-document-cross-references[inter-document
+cross references feature] to make links between all PacketFence guides.
+When we need to link to a specific section of a document, we use
+link:https://asciidoctor.org/docs/user-manual/#automatic-anchors[automatic
+anchors feature] to have a correct display in PDF.
+
+==== List of Asciidoctor tags used
 
 Source: link:https://redhat-documentation.github.io/asciidoc-markup-conventions/[AsciiDoc Mark-up Quick Reference for Red Hat Documentation]
 
@@ -355,12 +378,6 @@ Stop the `pfqueue` daemon.
 Start the `packetfence-iptables` service.
 
 |===
-
-==== Shell commands in code blocks
-
-.To ease copy-paste of shell commands:
-* Remove useless characters in code blocks like `#` or `$`
-* Split long lines with `\`
 
 
 === Checklist to create a new guide
