@@ -87,7 +87,7 @@ required to be done *BEFORE* the packages upgrades.
 
 ==== Clustered environment: specific procedure
 
-Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluster] section.
+Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>> section.
 
 === Stop all PacketFence services
 
