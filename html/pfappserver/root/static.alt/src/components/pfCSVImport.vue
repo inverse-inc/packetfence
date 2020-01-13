@@ -596,7 +596,7 @@ export default {
     loadPreview () {
       const parseLine = async (line) => {
         // eslint-disable-next-line no-return-await
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
           Papa.parse(line, {
             ...this.config,
             ...{
@@ -762,7 +762,7 @@ export default {
       }, {})
 
       const parseLines = async (start, length) => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           this.importProgress.status = this.$i18n.t('Reading file')
           this.readLines(start, length + 1).then(async (lines) => { // lookahead (+1 line) for pagination
             resolve(await Promise.all(
@@ -774,8 +774,8 @@ export default {
                   }
                 }
                 return false
-              }).map(async (line, index) => {
-                return new Promise((resolve, reject) => {
+              }).map(async (line) => {
+                return new Promise((resolve) => {
                   this.importProgress.status = this.$i18n.t('Parsing file')
                   Papa.parse(line, {
                     ...this.config,
@@ -796,7 +796,7 @@ export default {
 
       const importLines = async (start, length) => {
         await parseLines(start, length).then(async (lines) => {
-          const items = lines.reduce((items, { data, errors }) => {
+          const items = lines.reduce((items, { data }) => {
             if (data) {
               items.push({
                 ...data.reduce((line, value, index) => {
@@ -955,7 +955,7 @@ export default {
   },
   watch: {
     'config.delimiter': {
-      handler (a, b) {
+      handler () {
         this.loadPreview()
       }
     },
@@ -969,12 +969,12 @@ export default {
       immediate: true
     },
     'config.escapeChar': {
-      handler (a, b) {
+      handler () {
         this.loadPreview()
       }
     },
     'config.header': {
-      handler (a, b) {
+      handler () {
         this.loadPage()
       }
     },
@@ -988,36 +988,36 @@ export default {
       immediate: true
     },
     'config.quoteChar': {
-      handler (a, b) {
+      handler () {
         this.loadPreview()
       }
     },
     file: {
-      handler (a, b) {
+      handler () {
         this.setPage(1)
       },
       deep: true,
       immediate: true
     },
     lines: {
-      handler (a, b) {
+      handler () {
         this.loadPreview()
       }
     },
     perPage: {
-      handler (a, b) {
+      handler () {
         this.loadPage()
       }
     },
     previewColumnCount: {
-      handler (a, b) {
+      handler (a) {
         this.importMapping = new Array(a)
           .fill(null)
           .map((_, index) => (index in this.importMapping) ? this.importMapping[index] : null)
       }
     },
     importMapping: {
-      handler (a, b) {
+      handler () {
         this.$nextTick(() => {
           const { $v: { $anyDirty = false, $touch = () => {} } = {} } = this
           if ($anyDirty) {
@@ -1028,7 +1028,7 @@ export default {
       deep: true
     },
     staticMapping: {
-      handler (a, b) {
+      handler () {
         this.$nextTick(() => {
           const { $v: { $anyDirty = false, $touch = () => {} } = {} } = this
           if ($anyDirty) {
