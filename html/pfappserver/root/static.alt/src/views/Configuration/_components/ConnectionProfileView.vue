@@ -84,11 +84,6 @@ export default {
       default: 0
     }
   },
-  data () {
-    return {
-      files: []
-    }
-  },
   computed: {
     meta () {
       return this.$store.getters[`${this.formStoreName}/$meta`]
@@ -134,15 +129,19 @@ export default {
     },
     roles () {
       return this.$store.getters['config/rolesList']
+    },
+    files: { // mutating this property will re-evaluate view() and validators()
+      get () {
+        const { meta: { files = [] } = {} } = this
+        return files
+      },
+      set (newValue) {
+        this.$set(this.meta, 'files', newValue)
+      }
     }
   },
   methods: {
     init () {
-      if (this.id) {
-        this.$store.dispatch('$_connection_profiles/files', { id: this.id, sort: ['type', 'name'] }).then(data => {
-          this.files = data.entries
-        })
-      }
       this.$store.dispatch('$_connection_profiles/options', this.id).then(options => {
         const { meta = {} } = options
         const { isNew, isClone, files, sortFiles, createDirectory, deleteFile } = this
@@ -151,6 +150,9 @@ export default {
           this.$store.dispatch('$_connection_profiles/getConnectionProfile', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+          })
+          this.$store.dispatch('$_connection_profiles/files', { id: this.id, sort: ['type', 'name'] }).then(data => {
+            this.files = data.entries
           })
         } else { // new
           this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
@@ -204,6 +206,7 @@ export default {
       ]
       if (params.sortBy !== 'name') sort.push('name')
       this.$store.dispatch('$_connection_profiles/files', { id: this.id, sort }).then(data => {
+console.log('data.entries', data.entries)
         this.files = data.entries
       })
     },
