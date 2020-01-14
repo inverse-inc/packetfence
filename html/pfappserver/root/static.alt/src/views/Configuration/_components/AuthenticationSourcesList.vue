@@ -146,7 +146,6 @@
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
-import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfTableSortable from '@/components/pfTableSortable'
 import { config } from '../_config/authenticationSource'
@@ -156,7 +155,6 @@ export default {
   components: {
     pfButtonDelete,
     pfButtonHelp,
-    pfConfigList,
     pfEmptyTable,
     pfTableSortable
   },

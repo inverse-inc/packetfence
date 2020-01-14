@@ -40,7 +40,6 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFingerbankScore from '@/components/pfFingerbankScore'
 import { config } from '../_config/fingerbank/dhcpV6Fingerprint'
 
 export default {
@@ -48,8 +47,7 @@ export default {
   components: {
     pfButtonDelete,
     pfConfigList,
-    pfEmptyTable,
-    pfFingerbankScore
+    pfEmptyTable
   },
   props: {
     scope: {

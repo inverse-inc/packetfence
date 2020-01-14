@@ -73,7 +73,7 @@
       />
 
       <!-- highlighted link text paths -->
-      <text v-if="link.highlight" v-for="link in localLinks" :key="`${link.source.id}-${link.target.id}`" class="linkText" dy="-2">
+      <text v-for="link in highlightedLinks" :key="`${link.source.id}-${link.target.id}`" class="linkText" dy="-2">
         <textPath v-bind="linkSourceAttrs(link)">
           ↦{{ linkSourceText(link) }}
         </textPath>
@@ -412,7 +412,7 @@ export default {
           }
         })
       }
-      return this.localNodes.map(node => { // all zero's
+      return this.localNodes.map(() => { // all zero's
         return { x: 0, y: 0 }
       })
     },
@@ -521,6 +521,9 @@ export default {
         }
       })
     },
+    highlightedLinks () {
+      return this.localLinks.filter(link => { link.highlight })
+    },
     legends () {
       if (Object.keys(this.palettes).includes(this.config.palette)) {
         const palette = this.palettes[this.config.palette]
@@ -532,7 +535,7 @@ export default {
     },
     sortedNodes () {
       const getMinMaxPropertyFromSwitch = (switche) => {
-        return this.localLinks.filter(node => node.source.id === switche.id).reduce((limits, link, index) => {
+        return this.localLinks.filter(node => node.source.id === switche.id).reduce((limits, link) => {
           let { min = undefined, max = undefined } = limits
           const { target: { type } = {} } = link
           if (type !== 'node') {
@@ -631,10 +634,10 @@ export default {
     forceXY () {
       const { depth: totalDepth, num: totalNum } = this.localNodes.find(n => n.type === 'packetfence')
       return (node) => {
-        const { id, type } = node
+        const { id, type, depth, num } = node
         let shift
         switch (this.config.layout) {
-          case 'radial':
+          case 'radial': {
             /**
             * 'radial' force - rendered outside-in
             *  - node(s) on outer ring - evenly distributed
@@ -643,12 +646,11 @@ export default {
             *  - packetfence - centered
             **/
             shift = 270 // start upward (12 o-clock)
-            const { depth, num } = node
             let offset
             let angle
             let distance
             switch (type) {
-              case 'node':
+              case 'node': {
                 offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
                   let { id, source = {}, source: { targets: siblings = null } = {} } = node
                   do {
@@ -665,10 +667,10 @@ export default {
                 distance = Math.min(this.dimensions.height, this.dimensions.width) / 2
                 return getCoordFromCoordAngle(this.dimensions.width / 2, this.dimensions.height / 2, angle, distance)
                 // break
-
+              }
               case 'switch-group':
               case 'switch':
-              case 'unknown':
+              case 'unknown': {
                 offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
                   let { id, source = {}, source: { targets: siblings = null } = {} } = node
                   do {
@@ -685,16 +687,17 @@ export default {
                 distance = Math.min(this.dimensions.height, this.dimensions.width) * ((totalDepth - depth) / totalDepth) / 2
                 return getCoordFromCoordAngle(this.dimensions.width / 2, this.dimensions.height / 2, angle, distance)
                 // break
-
-              case 'packetfence':
+              }
+              case 'packetfence': {
                 const x = this.dimensions.width / 2
                 const y = this.dimensions.height / 2
                 return { x, y }
                 // break
+              }
             }
             break
-
-          case 'tree':
+          }
+          case 'tree': {
             /**
             * 'tree' force - rendered inside-out
             *  - packetfence - centered
@@ -704,16 +707,16 @@ export default {
             **/
             shift = 270 // start upward (12 o-clock)
             switch (type) {
-              case 'packetfence':
+              case 'packetfence': {
                 const x = this.dimensions.width / 2
                 const y = this.dimensions.height / 2
                 return { x, y }
                 // break
-
+              }
               case 'switch-group':
               case 'switch':
               case 'unknown':
-              case 'node':
+              case 'node': {
                 const getDistanceByDepth = (depth = 0) => {
                   let distance = Math.min(this.dimensions.width, this.dimensions.height) / 6
                   for (let n = 0; n < depth; n++) {
@@ -743,8 +746,10 @@ export default {
                 }
                 return getNodeCoordAngle(node)
                 // break
+              }
             }
             break
+          }
         }
       }
     },
@@ -941,7 +946,7 @@ export default {
         this.setCenter(x, y)
       }
     },
-    mouseOverNode (node, event = null) {
+    mouseOverNode (node) {
       this.stop() // pause animation
       this.highlightNodeById(node.id) // highlight node
       this.highlight = (node.type === 'node') ? this.color(node) : 'none'
@@ -1030,14 +1035,14 @@ export default {
           .restart()
       }
     },
-    mouseOutNode (event = null) {
+    mouseOutNode () {
       this.start() // unpause animation
       this.highlightNodeById(null) // unhighlight node
       this.highlight = false
       this.localTooltips = []
       this.highlightNodeId = false
     },
-    mouseDownNode (node, event = null) {
+    mouseDownNode (node) {
       // TODO
     },
     highlightNodeById (id) {
@@ -1170,7 +1175,7 @@ export default {
   watch: {
     /* watch `dimensions` prop and rebuild simulation forces on resize */
     dimensions: {
-      handler: function (a, b) {
+      handler: function () {
         // limit centerX, centerY within viewBox (fixes out-of-bounds after resize)
         const { dimensions: { width = 0, height = 0 }, scale } = this
         const minCenterX = width / (scale * 2)
@@ -1248,14 +1253,14 @@ export default {
     },
     /* watch `link` prop and rebuild private `localLinks` data on change */
     links: {
-      handler: function (a, b) {
+      handler: function (a) {
         this.localNodes.map((node, index) => {
           this.$set(this.localNodes[index], 'num', 0) // reset `num` counter
           this.$set(this.localNodes[index], 'depth', 0) // reset `depth` counter
           this.$set(this.localNodes[index], 'targets', []) // reset `targets`
         })
         let links = []
-        a.forEach((link, index) => {
+        a.forEach((link) => {
           const { source: sourceId = {}, target: targetId = {} } = link
           const sourceIndex = this.localNodes.findIndex(node => node.id === sourceId)
           const targetIndex = this.localNodes.findIndex(node => node.id === targetId)
@@ -1272,7 +1277,7 @@ export default {
             } while ('source' in source && (source = source.source))
           }
         })
-        this.localNodes.filter(node => node.type === 'node').map((node, index) => { // set `depth` counter
+        this.localNodes.filter(node => node.type === 'node').map((node) => { // set `depth` counter
           let source = node
           let depth = 0
           do {
@@ -1388,18 +1393,18 @@ export default {
 
   .legend {
     position: absolute;
+    background: rgba(255, 255, 255, 0.5);
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
     font-size: .9rem;
     font-weight: 400;
     line-height: 24px;
-    background: rgba(255, 255, 255, 0.5);
     &.top-right {
       top: 0px;
       right: 0px;
     }
     &.bottom-right {
-      bottom: 0px;
       right: 0px;
+      bottom: 0px;
     }
     &.bottom-left {
       bottom: 0px;
@@ -1449,9 +1454,9 @@ export default {
   .svgDrag {
     position: absolute;
     top: 0;
-    left: 0;
     right: 0;
     bottom: 0;
+    left: 0;
   }
 
   .svgDraw {

@@ -146,6 +146,7 @@ export default {
       } else if (this.$v.newFilename.isUnique === false) {
         return this.$i18n.t('File already exists.')
       }
+      return null
     },
     invalidForm () {
       return this.isNew ? this.$v.newFilename.$invalid : !this.contentModified

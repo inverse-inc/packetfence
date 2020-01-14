@@ -64,13 +64,9 @@
 
 <script>
 import VueScrollTo from 'vue-scrollto'
-import TextHighlight from 'vue-text-highlight'
 
 export default {
   name: 'pfDocumentation',
-  components: {
-    TextHighlight
-  },
   data () {
     return {
       showImageModal: false,
@@ -129,8 +125,9 @@ export default {
       head.appendChild(css)
 
       // rewrite links
+      const re = new RegExp('^/static/doc/')
       const links = [...documentFrame.getElementsByTagName('a')]
-      links.forEach((link, index) => {
+      links.forEach((link) => {
         let url = new URL(link.href)
         switch (true) {
           case url.port === '1443': // local link
@@ -141,7 +138,6 @@ export default {
           case url.hostname === '%3Cyour_captive_portal_ip%3E':
           case url.hostname === '_ip_address_of_packetfence':
           case url.hostname === here.hostname:
-            const re = new RegExp('^/static/doc/')
             if (re.test(url.pathname)) { // link to other local document
               link.classList.add('internal-link') // add class to style document links
               link.target = '_self'

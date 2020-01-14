@@ -20,7 +20,7 @@
       ></b-form-input>
       <b-input-group-append>
         <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
-          <b-button v-for="(prefix, index) in prefixes" v-if="inRange(index)" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)" tabindex="-1">{{ $t(prefix.label + units.label) }}</b-button>
+          <b-button v-for="(prefix, index) in prefixesInRange" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)" tabindex="-1">{{ $t(prefix.label + units.label) }}</b-button>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
@@ -153,6 +153,9 @@ export default {
         }
       }
     },
+    prefixesInRange () {
+      return this.prefixes.filter(prefix => prefix.multiplier <= this.max)
+    },
     humanValue: {
       get () {
         if (+this.inputValue !== 0) {
@@ -206,9 +209,6 @@ export default {
         const factor = this.prefixes[newIndex].multiplier / this.prefixes[curIndex].multiplier
         this.inputValue *= factor
       }
-    },
-    inRange (index) {
-      return this.prefixes[index].multiplier <= this.max
     },
     unSelectPrefix () {
       this.prefixes.filter((prefix) => { return prefix.selected }).forEach((prefix) => { prefix.selected = false })

@@ -77,7 +77,6 @@
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfMixinForm from '@/components/pfMixinForm'
 import {
   pfComponentType as componentType,
@@ -91,8 +90,7 @@ export default {
   components: {
     pfFormChosen,
     pfFormDatetime,
-    pfFormInput,
-    pfFormPrefixMultiplier
+    pfFormInput
   },
   mixins: [
     pfMixinForm

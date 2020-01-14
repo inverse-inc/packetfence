@@ -150,6 +150,7 @@ export default {
           case this.values.right:
             return 2
         }
+        return 0
       },
       set (newValue = null) {
         let value
@@ -176,72 +177,84 @@ export default {
       return listeners
     },
     color () {
-      if (this.colors === null) return null
-      switch (this.inputValue) {
-        case 0:
-          return ('left' in this.colors) ? this.colors.left : null
-        case 1:
-          return ('middle' in this.colors) ? this.colors.middle : null
-        case 2:
-          return ('right' in this.colors) ? this.colors.right : null
+      if (this.colors) {
+        switch (this.inputValue) {
+          case 0:
+            return ('left' in this.colors) ? this.colors.left : null
+          case 1:
+            return ('middle' in this.colors) ? this.colors.middle : null
+          case 2:
+            return ('right' in this.colors) ? this.colors.right : null
+        }
       }
+      return null
     },
     icon () {
-      if (this.icons === null) return null
-      switch (this.inputValue) {
-        case 0:
-          return ('left' in this.icons) ? this.icons.left : null
-        case 1:
-          return ('middle' in this.icons) ? this.icons.middle : null
-        case 2:
-          return ('right' in this.icons) ? this.icons.right : null
+      if (this.icons) {
+        switch (this.inputValue) {
+          case 0:
+            return ('left' in this.icons) ? this.icons.left : null
+          case 1:
+            return ('middle' in this.icons) ? this.icons.middle : null
+          case 2:
+            return ('right' in this.icons) ? this.icons.right : null
+        }
       }
+      return null
     },
     innerLabel () {
-      if (this.innerLabels === null) return null
-      switch (this.inputValue) {
-        case 0:
-          return ('left' in this.innerLabels) ? this.innerLabels.left : null
-        case 1:
-          return ('middle' in this.innerLabels) ? this.innerLabels.middle : null
-        case 2:
-          return ('right' in this.innerLabels) ? this.innerLabels.right : null
+      if (this.innerLabels === null) {
+        switch (this.inputValue) {
+          case 0:
+            return ('left' in this.innerLabels) ? this.innerLabels.left : null
+          case 1:
+            return ('middle' in this.innerLabels) ? this.innerLabels.middle : null
+          case 2:
+            return ('right' in this.innerLabels) ? this.innerLabels.right : null
+        }
       }
+      return null
     },
     leftLabel () {
-      if (this.leftLabels === null) return null
-      switch (this.inputValue) {
-        case 0:
-          return ('left' in this.leftLabels) ? this.leftLabels.left : null
-        case 1:
-          return ('middle' in this.leftLabels) ? this.leftLabels.middle : null
-        case 2:
-          return ('right' in this.leftLabels) ? this.leftLabels.right : null
+      if (this.leftLabels) {
+        switch (this.inputValue) {
+          case 0:
+            return ('left' in this.leftLabels) ? this.leftLabels.left : null
+          case 1:
+            return ('middle' in this.leftLabels) ? this.leftLabels.middle : null
+          case 2:
+            return ('right' in this.leftLabels) ? this.leftLabels.right : null
+        }
       }
+      return null
     },
     rightLabel () {
-      if (this.rightLabels === null) return null
-      switch (this.inputValue) {
-        case 0:
-          return ('left' in this.rightLabels) ? this.rightLabels.left : null
-        case 1:
-          return ('middle' in this.rightLabels) ? this.rightLabels.middle : null
-        case 2:
-          return ('right' in this.rightLabels) ? this.rightLabels.right : null
+      if (this.rightLabels) {
+        switch (this.inputValue) {
+          case 0:
+            return ('left' in this.rightLabels) ? this.rightLabels.left : null
+          case 1:
+            return ('middle' in this.rightLabels) ? this.rightLabels.middle : null
+          case 2:
+            return ('right' in this.rightLabels) ? this.rightLabels.right : null
+        }
       }
+      return null
     }
   },
   methods: {
     tooltip () {
-      if (this.tooltips === null) return null
-      switch (this.inputValue) {
-        case 0:
-          return ('left' in this.tooltips) ? this.tooltips.left : null
-        case 1:
-          return ('middle' in this.tooltips) ? this.tooltips.middle : null
-        case 2:
-          return ('right' in this.tooltips) ? this.tooltips.right : null
+      if (this.tooltips) {
+        switch (this.inputValue) {
+          case 0:
+            return ('left' in this.tooltips) ? this.tooltips.left : null
+          case 1:
+            return ('middle' in this.tooltips) ? this.tooltips.middle : null
+          case 2:
+            return ('right' in this.tooltips) ? this.tooltips.right : null
+        }
       }
+      return null
     },
     click (event) {
       this.$refs.vacuum.$el.focus() // focus vacuum

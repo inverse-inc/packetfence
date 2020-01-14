@@ -179,6 +179,7 @@ export default {
         case 'Unjoin':
           return this.getTestDomainJoinStatus(this.join.item) === false
       }
+      return false
     }
   },
   methods: {

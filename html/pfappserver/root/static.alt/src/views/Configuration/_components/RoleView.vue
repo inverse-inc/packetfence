@@ -38,7 +38,6 @@
 <script>
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
-import pfButtonDelete from '@/components/pfButtonDelete'
 import {
   defaultsFromMeta as defaults
 } from '../_config/'
@@ -51,8 +50,7 @@ export default {
   name: 'role-view',
   components: {
     pfConfigView,
-    pfButtonSave,
-    pfButtonDelete
+    pfButtonSave
   },
   props: {
     formStoreName: { // from router

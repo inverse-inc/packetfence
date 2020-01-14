@@ -8,13 +8,8 @@
 </template>
 
 <script>
-import pfFormRow from '@/components/pfFormRow'
-
 export default {
   name: 'pf-network-graph-tooltip-packetfence',
-  components: {
-    pfFormRow
-  },
   computed: {
     version () {
       return this.$store.getters['system/version']

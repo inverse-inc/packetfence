@@ -32,13 +32,9 @@
 
 <script>
 import apiCall from '@/utils/api'
-import pfFormRow from '@/components/pfFormRow'
 
 export default {
   name: 'pf-network-graph-tooltip-switch-group',
-  components: {
-    pfFormRow
-  },
   props: {
     id: {
       type: String
@@ -72,7 +68,7 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     }
@@ -82,8 +78,8 @@ export default {
 
 <style lang="scss">
 @keyframes expandheight {
-  from { max-height: 0px; overflow-y: hidden; }
-  to   { max-height: 500px; overflow-y: initial; }
+  from { overflow-y: hidden; max-height: 0px; }
+  to   { overflow-y: initial; max-height: 500px; }
 }
 
 .pf-network-graph-tooltip-switch-group {

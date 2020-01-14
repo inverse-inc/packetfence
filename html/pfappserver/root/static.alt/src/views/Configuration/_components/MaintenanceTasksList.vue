@@ -36,7 +36,6 @@
 </template>
 
 <script>
-import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
@@ -46,7 +45,6 @@ import { config } from '../_config/maintenanceTask'
 export default {
   name: 'maintenance-tasks-list',
   components: {
-    pfButtonDelete,
     pfButtonService,
     pfConfigList,
     pfEmptyTable,
