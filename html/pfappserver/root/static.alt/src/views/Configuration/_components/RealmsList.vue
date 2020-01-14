@@ -15,17 +15,17 @@
     <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No realms found') }}</pf-empty-table>
     </template>
-    <template v-slot:cell(radius_auth)="item">
-      <template v-if="item.radius_auth.length === 0">&nbsp;<!-- hide empty --></template>
-      <b-badge v-else v-for="(item, index) in item.radius_auth" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
+    <template v-slot:cell(radius_auth)="{ radius_auth }">
+      <span v-if="radius_auth.length === 0">&nbsp;<!-- hide empty --></span>
+      <b-badge v-else v-for="(item, index) in radius_auth" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
     </template>
-    <template v-slot:cell(radius_acct)="item">
-      <template v-if="item.radius_acct.length === 0">&nbsp;<!-- hide empty --></template>
-      <b-badge v-else v-for="(item, index) in item.radius_acct" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
+    <template v-slot:cell(radius_acct)="{ radius_acct }">
+      <span v-if="radius_acct.length === 0">&nbsp;<!-- hide empty --></span>
+      <b-badge v-else v-for="(item, index) in radius_acct" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
     </template>
-    <template v-slot:cell(portal_strip_username)="item">
-      <icon name="circle" :class="{ 'text-success': item.portal_strip_username === 'enabled', 'text-danger': item.portal_strip_username === 'disabled' }"
-        v-b-tooltip.hover.left.d300 :title="$t(item.portal_strip_username)"></icon>
+    <template v-slot:cell(portal_strip_username)="{ portal_strip_username }">
+      <icon name="circle" :class="{ 'text-success': portal_strip_username === 'enabled', 'text-danger': portal_strip_username === 'disabled' }"
+        v-b-tooltip.hover.left.d300 :title="$t(portal_strip_username)"></icon>
     </template>
     <template v-slot:cell(admin_strip_username)="item">
       <icon name="circle" :class="{ 'text-success': item.admin_strip_username === 'enabled', 'text-danger': item.admin_strip_username === 'disabled' }"
@@ -69,7 +69,7 @@ export default {
       this.$router.push({ name: 'cloneRealm', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_realms/deleteRealm', item.id).then(response => {
+      this.$store.dispatch('$_realms/deleteRealm', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
