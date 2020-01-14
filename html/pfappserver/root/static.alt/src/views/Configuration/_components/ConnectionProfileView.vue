@@ -206,7 +206,6 @@ export default {
       ]
       if (params.sortBy !== 'name') sort.push('name')
       this.$store.dispatch('$_connection_profiles/files', { id: this.id, sort }).then(data => {
-console.log('data.entries', data.entries)
         this.files = data.entries
       })
     },
