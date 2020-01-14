@@ -62,7 +62,7 @@
         @sort-changed="onSortingChanged"
         @row-clicked="onRowClick"
         @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting striped
+        show-empty responsive hover no-local-sorting sort-icon-left striped
       >
         <template v-slot:head(actions)>
           <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-table :items="items" :fields="fields" :class="'mb-0 table-clickable table-rowindent-' + level" :sort-by="sortBy" :sort-desc="false"
-      small fixed hover show-empty no-local-sorting
+      small fixed hover show-empty no-local-sorting sort-icon-left
       @sort-changed="onSortingChanged" @row-clicked="onRowClick">
       <template v-slot:cell(name)="row">
         <div class="text-lowercase" variant="link"

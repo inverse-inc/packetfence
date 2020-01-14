@@ -24,6 +24,7 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
         >
           <template v-slot:empty>
             <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
@@ -103,6 +104,7 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
         >
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
@@ -149,6 +151,7 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
         >
           <template v-slot:empty>
             <pf-empty-table :isLoading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>

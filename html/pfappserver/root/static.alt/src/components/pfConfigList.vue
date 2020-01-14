@@ -61,6 +61,7 @@
         show-empty
         responsive
         fixed
+        sort-icon-left
         striped
       >
         <template v-slot:empty>

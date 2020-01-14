@@ -12,6 +12,7 @@
           :sort-desc="sortDesc"
           show-empty
           responsive
+          sort-icon-left
           fixed
           class="mb-0"
         >
