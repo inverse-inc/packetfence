@@ -1,11 +1,12 @@
 [1 http]
 type = http
-cert_file = ssl/server.crt
-key_file = ssl/server.key
-bundle_file = ssl/server.pem
+cert_file = /usr/local/pf/conf/ssl/server.crt
+key_file = /usr/local/pf/conf/ssl/server.key
+bundle_file = /usr/local/pf/conf/ssl/server.pem
 
 [1 radius]
 type = radius
-cert_file = raddb/certs/server.crt
-ca_file = raddb/certs/ca.pem
-key_file = raddb/certs/server.key
+cert_file = /usr/local/pf/raddb/certs/server.crt
+ca_file = /usr/local/pf/raddb/certs/ca.pem
+key_file = /usr/local/pf/raddb/certs/server.key
+
