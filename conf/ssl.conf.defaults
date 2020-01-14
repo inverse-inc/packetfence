@@ -1,0 +1,11 @@
+[1 http]
+type = http
+cert_file = ssl/server.crt
+key_file = ssl/server.key
+bundle_file = ssl/server.pem
+
+[1 radius]
+type = radius
+cert_file = raddb/certs/server.crt
+ca_file = raddb/certs/ca.pem
+key_file = raddb/certs/server.key
