@@ -151,6 +151,7 @@ export default {
           case this.values.unchecked:
             return 0
         }
+        return 1
       },
       set (newValue = null) {
         let value
@@ -183,59 +184,69 @@ export default {
       return parseInt(this.inputValue) === 0
     },
     color () {
-      if (this.colors === null) return null
-      switch (this.inputValue) {
-        case 2:
-          return ('checked' in this.colors) ? this.colors.checked : null
-        case 1:
-          return ('default' in this.colors) ? this.colors.default : null
-        case 0:
-          return ('unchecked' in this.colors) ? this.colors.unchecked : null
+      if (this.colors) {
+        switch (this.inputValue) {
+          case 2:
+            return ('checked' in this.colors) ? this.colors.checked : null
+          case 1:
+            return ('default' in this.colors) ? this.colors.default : null
+          case 0:
+            return ('unchecked' in this.colors) ? this.colors.unchecked : null
+        }
       }
+      return null
     },
     icon () {
-      if (this.icons === null) return null
-      switch (this.inputValue) {
-        case 2:
-          return ('checked' in this.icons) ? this.icons.checked : null
-        case 1:
-          return ('default' in this.icons) ? this.icons.default : null
-        case 0:
-          return ('unchecked' in this.icons) ? this.icons.unchecked : null
+      if (this.icons) {
+        switch (this.inputValue) {
+          case 2:
+            return ('checked' in this.icons) ? this.icons.checked : null
+          case 1:
+            return ('default' in this.icons) ? this.icons.default : null
+          case 0:
+            return ('unchecked' in this.icons) ? this.icons.unchecked : null
+        }
       }
+      return null
     },
     innerLabel () {
-      if (this.innerLabels === null) return null
-      switch (this.inputValue) {
-        case 2:
-          return ('checked' in this.innerLabels) ? this.innerLabels.checked : null
-        case 1:
-          return ('default' in this.innerLabels) ? this.innerLabels.default : null
-        case 0:
-          return ('unchecked' in this.innerLabels) ? this.innerLabels.unchecked : null
+      if (this.innerLabels) {
+        switch (this.inputValue) {
+          case 2:
+            return ('checked' in this.innerLabels) ? this.innerLabels.checked : null
+          case 1:
+            return ('default' in this.innerLabels) ? this.innerLabels.default : null
+          case 0:
+            return ('unchecked' in this.innerLabels) ? this.innerLabels.unchecked : null
+        }
       }
+      return null
     },
     leftLabel () {
-      if (this.leftLabels === null) return null
-      switch (this.inputValue) {
-        case 2:
-          return ('checked' in this.leftLabels) ? this.leftLabels.checked : null
-        case 1:
-          return ('default' in this.leftLabels) ? this.leftLabels.default : null
-        case 0:
-          return ('unchecked' in this.leftLabels) ? this.leftLabels.unchecked : null
+      if (this.leftLabels) {
+        switch (this.inputValue) {
+          case 2:
+            return ('checked' in this.leftLabels) ? this.leftLabels.checked : null
+          case 1:
+            return ('default' in this.leftLabels) ? this.leftLabels.default : null
+          case 0:
+            return ('unchecked' in this.leftLabels) ? this.leftLabels.unchecked : null
+        }
       }
+      return null
     },
     rightLabel () {
-      if (this.rightLabels === null) return null
-      switch (this.inputValue) {
-        case 2:
-          return ('checked' in this.rightLabels) ? this.rightLabels.checked : null
-        case 1:
-          return ('default' in this.rightLabels) ? this.rightLabels.default : null
-        case 0:
-          return ('unchecked' in this.rightLabels) ? this.rightLabels.unchecked : null
+      if (this.rightLabels) {
+        switch (this.inputValue) {
+          case 2:
+            return ('checked' in this.rightLabels) ? this.rightLabels.checked : null
+          case 1:
+            return ('default' in this.rightLabels) ? this.rightLabels.default : null
+          case 0:
+            return ('unchecked' in this.rightLabels) ? this.rightLabels.unchecked : null
+        }
       }
+      return null
     },
     hints () {
       let hints = []
@@ -254,15 +265,17 @@ export default {
   },
   methods: {
     tooltip () {
-      if (this.tooltips === null) return null
-      switch (~~this.inputValue) {
-        case 2:
-          return ('checked' in this.tooltips) ? this.tooltips.checked : null
-        case 1:
-          return ('default' in this.tooltips) ? this.tooltips.default : null
-        case 0:
-          return ('unchecked' in this.tooltips) ? this.tooltips.unchecked : null
+      if (this.tooltips) {
+        switch (~~this.inputValue) {
+          case 2:
+            return ('checked' in this.tooltips) ? this.tooltips.checked : null
+          case 1:
+            return ('default' in this.tooltips) ? this.tooltips.default : null
+          case 0:
+            return ('unchecked' in this.tooltips) ? this.tooltips.unchecked : null
+        }
       }
+      return null
     },
     click (event) {
       this.$refs.vacuum.$el.focus() // focus vacuum

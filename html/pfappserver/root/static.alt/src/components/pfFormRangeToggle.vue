@@ -198,7 +198,7 @@ export default {
       this.$refs.vacuum.$el.focus() // focus vacuum
       this.toggle(event)
     },
-    toggle (event) {
+    toggle () {
       this.inputValue = (this.inputValue === 1) ? 0 : 1
     },
     keyUp (event) {
