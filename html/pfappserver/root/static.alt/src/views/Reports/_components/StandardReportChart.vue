@@ -27,7 +27,7 @@
 
     <div class="card-body">
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
-        @sort-changed="onSortingChanged" show-empty responsive hover striped v-model="tableValues">
+        @sort-changed="onSortingChanged" show-empty responsive hover sort-icon-left striped v-model="tableValues">
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>

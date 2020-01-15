@@ -87,7 +87,7 @@
       <b-table v-if="isLoadingReport"
         :items="[]" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged"
-        show-empty responsive hover no-local-sorting no-provider-sorting striped>
+        show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
         <template v-slot:empty>
           <pf-empty-table :isLoading="true"></pf-empty-table>
         </template>
@@ -95,7 +95,7 @@
       <b-table v-else
         :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged"
-        show-empty responsive hover no-local-sorting no-provider-sorting striped>
+        show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
         </template>

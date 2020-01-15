@@ -42,8 +42,7 @@
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
           :right-labels="{ checked: 'ON', unchecked: 'OFF' }"
-          :disabled="isLoading"
-          @input="toggle(item, $event)"
+          :lazy="{ checked: enable(item), unchecked: disable(item) }"
           @click.stop.prevent
         />
       </template>
@@ -89,28 +88,36 @@ export default {
         refreshList() // soft reload
       })
     },
-    toggle (item, event) {
-      switch (event) {
-        case 'Y':
+    enable (item) {
+      return (value) => { // 'enabled'
+        return new Promise((resolve, reject) => {
           this.$store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} enabled.', { desc: this.$strong(item.desc) }) })
+            resolve('Y')
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err
             let message = this.$i18n.t('Security event {desc} was not enabled', { desc: this.$strong(item.desc) })
             if (errMsg) message += ` (${errMsg})`
             this.$store.dispatch('notification/danger', { message })
+            reject() // reset
           })
-          break
-        case 'N':
+        })
+      }
+    },
+    disable (item) {
+      return (value) => { // 'disabled'
+        return new Promise((resolve, reject) => {
           this.$store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} disabled.', { desc: this.$strong(item.desc) }) })
+            resolve('N')
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err
             let message = this.$i18n.t('Security event {desc} was not disabled', { desc: this.$strong(item.desc) })
             if (errMsg) message += ` (${errMsg})`
             this.$store.dispatch('notification/danger', { message })
+            reject() // reset
           })
-          break
+        })
       }
     }
   },

@@ -56,7 +56,7 @@ export default class SearchableStore {
     const state = () => {
       return {
         results: [], // search results
-        cache: {}, // items details
+        cache: Vue.observable({}), // items details
         extraFields: {},
         message: '',
         itemStatus: '',
@@ -192,7 +192,7 @@ export default class SearchableStore {
       SEARCH_SUCCESS: (state, response) => {
         state.searchStatus = types.SUCCESS
         if (response) {
-          state.results = [ ...response.items.filter(item => item.not_sortable), ...response.items.filter(item => !item.not_sortable) ]
+          Vue.set(state, 'results', [ ...response.items.filter(item => item.not_sortable), ...response.items.filter(item => !item.not_sortable) ])
           let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
           if (nextPage > state.searchMaxPageNumber) {
             state.searchMaxPageNumber = nextPage

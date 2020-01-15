@@ -513,7 +513,7 @@ const route = {
       path: 'connection_profiles',
       name: 'connection_profiles',
       component: ConnectionProfilesList,
-      props: (route) => ({ tab: 'connection_profiles', query: route.query.query })
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'connection_profiles/new',

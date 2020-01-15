@@ -785,14 +785,14 @@ export const view = (form = {}, meta = {}) => {
                     key: 'size',
                     label: i18n.t('Size'),
                     formatter: formatter.fileSize,
-                    class: 'text-right',
+                    tdClass: 'text-right',
                     sortable: true
                   },
                   {
                     key: 'mtime',
                     label: i18n.t('Last modification'),
                     formatter: formatter.shortDateTime,
-                    class: 'text-right',
+                    tdClass: 'text-right',
                     sortable: true
                   },
                   {

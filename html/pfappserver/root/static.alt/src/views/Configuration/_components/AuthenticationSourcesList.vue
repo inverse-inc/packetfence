@@ -35,7 +35,7 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No internal sources defined') }}</pf-empty-table>
           </template>
-          <template v-slot:cell(buttons)="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -75,7 +75,7 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No external sources defined') }}</pf-empty-table>
           </template>
-          <template v-slot:cell(buttons)="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -102,7 +102,7 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No exclusive source defined') }}</pf-empty-table>
           </template>
-          <template v-slot:cell(buttons)="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -130,7 +130,7 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No billing sources defined') }}</pf-empty-table>
           </template>
-          <template v-slot:cell(buttons)="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -193,7 +193,7 @@ export default {
       this.$router.push({ name: 'cloneAuthenticationSource', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_sources/deleteAuthenticationSource', item.id).then(response => {
+      this.$store.dispatch('$_sources/deleteAuthenticationSource', item.id).then(() => {
         this.init()
       })
     },
@@ -216,7 +216,7 @@ export default {
         ...this.sources.filter(_item => !items.map(item => item.id).includes(_item.id)), // all but sorted items
         ...items // sorted items
       ]
-      this.$store.dispatch('$_sources/sortAuthenticationSources', items.map(item => item.id)).then(response => {
+      this.$store.dispatch('$_sources/sortAuthenticationSources', items.map(item => item.id)).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Authentication sources resorted.') })
       })
     },

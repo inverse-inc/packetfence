@@ -53,7 +53,7 @@
         @sort-changed="onSortingChanged"
         @row-clicked="onRowClick"
         @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting striped
+        show-empty responsive hover no-local-sorting sort-icon-left striped
       >
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading" :text="$t('Admin API Audit Audit Logs not found or setting is disabled in configuration. You can enable this setting in Configuration → System Configuration → Admin API Audit Configuration.')">{{ $t('No logs found') }}</pf-empty-table>

@@ -14,7 +14,7 @@
       class="pf-table-sortable-empty justify-content-md-center"
     >
       <b-col cols="12" md="auto">
-        <slot name="empty" v-bind="{ isLoading }">
+        <slot name="empty" v-bind:isLoading="isLoading">
           <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
         </slot>
       </b-col>
@@ -30,7 +30,7 @@
           {{ itemIndex + 1 }}
         </b-col>
         <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
-          <slot :name="cell(field.key)" v-bind="{ item }">{{ item[field.key] }}</slot>
+          <slot :name="cell(field.key)" v-bind="item">{{ item[field.key] }}</slot>
         </b-col>
       </b-row>
       <draggable
@@ -60,7 +60,7 @@
             </template>
           </b-col>
           <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
-            <slot :name="cell(field.key)" v-bind="{ item }">{{ item[field.key] }}</slot>
+            <slot :name="cell(field.key)" v-bind="item">{{ item[field.key] }}</slot>
           </b-col>
         </b-row>
       </draggable>

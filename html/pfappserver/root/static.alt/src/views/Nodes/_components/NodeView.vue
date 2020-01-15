@@ -213,7 +213,7 @@
             {{ $t('IPv4') }} <b-badge pill v-if="node && node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
           </template>
           <b-table v-if="node && node.ip4"
-            :items="node.ip4.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty striped>
+            :items="node.ip4.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty sort-icon-left striped>
             <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv4 addresses found') }}</pf-empty-table>
             </template>
@@ -225,7 +225,7 @@
             {{ $t('IPv6') }} <b-badge pill v-if="node && node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
           </template>
           <b-table v-if="node && node.ip6"
-            :items="node.ip6.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty striped>
+            :items="node.ip6.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty sort-icon-left striped>
             <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv6 addresses found') }}</pf-empty-table>
             </template>
@@ -237,7 +237,7 @@
             {{ $t('Location') }} <b-badge pill v-if="node && node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
           </template>
           <b-table v-if="node"
-            :items="node.locations" :fields="locationLogFields" :sort-by="locationSortBy" :sort-desc="locationSortDesc" responsive show-empty striped>
+            :items="node.locations" :fields="locationLogFields" :sort-by="locationSortBy" :sort-desc="locationSortDesc" responsive show-empty sort-icon-left striped>
               <template v-slot:cell(switch)="location">
                 <b-button variant="link" :to="{ name: 'switch', params: { id: location.item.switch_ip } }">{{ location.item.switch_ip }}</b-button> / <mac>{{ location.item.switch_mac }}</mac><br/>
                 <b-badge class="mr-1" v-if="location.item.port">{{ $t('Port') }}: {{ location.item.port }} <span v-if="location.item.ifDesc">({{ location.item.ifDesc }})</span></b-badge>
@@ -259,7 +259,7 @@
             {{ $t('Security Events') }} <b-badge pill v-if="node && node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
           </template>
           <b-table v-if="node"
-            :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty striped>
+            :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty sort-icon-left striped>
             <template v-slot:cell(description)="security_event">
               <icon v-if="!securityEventDescription(security_event.item.security_event_id)" name="circle-notch" spin></icon>
               <router-link v-else :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
@@ -291,7 +291,7 @@
             {{ $t('Option82') }} <b-badge pill v-if="node && node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
           </template>
           <b-table v-if="node && node.dhcpoption82"
-            :items="node.dhcpoption82" :fields="dhcpOption82Fields" :sortBy="dhcpOption82SortBy" :sortDesc="dhcpOption82SortDesc" responsive show-empty striped>
+            :items="node.dhcpoption82" :fields="dhcpOption82Fields" :sortBy="dhcpOption82SortBy" :sortDesc="dhcpOption82SortDesc" responsive show-empty sort-icon-left striped>
             <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No DHCP option82 logs found') }}</pf-empty-table>
             </template>

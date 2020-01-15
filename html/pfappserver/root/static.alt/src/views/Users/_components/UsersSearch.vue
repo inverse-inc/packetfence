@@ -106,7 +106,7 @@
       </b-row>
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting striped>
+        show-empty responsive hover no-local-sorting sort-icon-left striped>
         <template v-slot:head(actions)="head">
           <b-form-checkbox id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange"></b-form-checkbox>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>

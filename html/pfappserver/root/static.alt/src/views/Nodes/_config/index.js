@@ -247,7 +247,7 @@ export const securityEventFields = [
     key: 'buttons',
     label: '',
     locked: true,
-    class: 'text-right'
+    tdClass: 'text-right'
   }
 ]
 
