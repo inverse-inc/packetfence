@@ -13,7 +13,7 @@
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
-        <span class="mr-2" v-if="leftLabel">{{ leftLabel }}</span>
+        <span v-if="leftLabel" class="mr-2" :class="{ 'text-secondary': lazyLoading }">{{ leftLabel }}</span>
         <input-range
           v-model="inputValue"
           v-on="forwardListeners"
@@ -33,7 +33,7 @@
         >
           <icon v-if="icon" :name="icon" :spin="lazyLoading"></icon>
         </input-range>
-        <span class="ml-2" v-if="rightLabel">{{ rightLabel }}</span>
+        <span v-if="rightLabel" class="ml-2" :class="{ 'text-secondary': lazyLoading }">{{ rightLabel }}</span>
         <slot class="ml-2"/>
       </label>
     </b-input-group>
@@ -240,12 +240,10 @@ export default {
     },
     leftLabel () {
       if (Object.keys(this.leftLabels).length === 0) return null
-      if (this.lazyLoading) return '...'
       return (this.inputValue === 1) ? this.leftLabels.checked : this.leftLabels.unchecked
     },
     rightLabel () {
       if (Object.keys(this.rightLabels).length === 0) return null
-      if (this.lazyLoading) return '...'
       return (this.inputValue === 1) ? this.rightLabels.checked : this.rightLabels.unchecked
     }
   },
