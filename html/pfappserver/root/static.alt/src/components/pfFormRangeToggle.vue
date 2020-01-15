@@ -158,6 +158,15 @@ export default {
         }
       },
       set (newValue = null) {
+        let previousValue // for lazyLoading
+        switch (this.inputValue) {
+          case 1:
+            previousValue = this.values.checked
+            break
+          default:
+            previousValue = this.values.unchecked
+        }
+
         let value
         switch (parseInt(newValue)) {
           case 1:
@@ -172,24 +181,17 @@ export default {
           this.$set(this, 'value', value)
           this.$emit('input', this.value) // use native (v-model)
         }
+
         // lazy handling
         if (Object.keys(this.lazy).length > 0) {
-          let previousValue
-          switch (this.inputValue) {
-            case 1:
-              previousValue = this.values.checked
-              break
-            default:
-              previousValue = this.values.unchecked
-          }
           const { lazy: { checked: lazyChecked, unchecked: lazyUnchecked } = {}, values: { checked, unchecked } = {} } = this
           switch (value) {
             case checked:
               this.lazyLoading = true
               Promise.resolve(lazyChecked(value)).then((lazyValue) => {
                 value = lazyValue
-              }).catch(() => {
-                value = previousValue
+              }).catch((newValue = previousValue) => {
+                value = newValue
               }).finally(() => {
                 this.lazyLoading = false
                 if (this.formStoreName) {
@@ -204,8 +206,8 @@ export default {
               this.lazyLoading = true
               Promise.resolve(lazyUnchecked(value)).then((lazyValue) => {
                 value = lazyValue
-              }).catch(() => {
-                value = previousValue
+              }).catch((newValue = previousValue) => {
+                value = newValue
               }).finally(() => {
                 this.lazyLoading = false
                 if (this.formStoreName) {
