@@ -39,8 +39,7 @@
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
           :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-          :disabled="isLoading"
-          @input="toggleStatus(item, $event)"
+          :lazy="{ checked: enable(item), unchecked: disable(item) }"
           @click.stop.prevent
         />
       </template>
@@ -80,23 +79,35 @@ export default {
       this.$router.push({ name: 'cloneSyslogParser', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_syslog_parsers/deleteSyslogParser', item.id).then(response => {
+      this.$store.dispatch('$_syslog_parsers/deleteSyslogParser', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
     },
-    toggleStatus (item, newStatus) {
-      switch (newStatus) {
-        case 'enabled':
-          this.$store.dispatch('$_syslog_parsers/enableSyslogParser', item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
+    enable (item) {
+      return () => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_syslog_parsers/enableSyslogParser', item).then(() => {
+            this.$store.dispatch(`${this.$refs.pfConfigList.searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
+              resolve('enabled')
+            })
+          }).catch(() => {
+            reject() // reset
           })
-          break
-        case 'disabled':
-          this.$store.dispatch('$_syslog_parsers/disableSyslogParser', item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
+        })
+      }
+    },
+    disable (item) {
+      return () => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_syslog_parsers/disableSyslogParser', item).then(() => {
+            this.$store.dispatch(`${this.$refs.pfConfigList.searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
+              resolve('disabled')
+            })
+          }).catch(() => {
+            reject() // reset
           })
-          break
+        })
       }
     }
   }

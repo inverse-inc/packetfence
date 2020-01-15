@@ -20,14 +20,14 @@
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No connection profiles found') }}</pf-empty-table>
       </template>
-      <template v-slot:cell(buttons)="{ item }">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-secondary" class="mr-1" @click.stop.prevent="preview(item)">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
-      <template v-slot:cell(status)="{ item }">
+      <template v-slot:cell(status)="item">
         <pf-form-range-toggle v-if="item.not_deletable"
           v-model="item.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
@@ -42,8 +42,7 @@
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
           :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-          :disabled="isLoading"
-          @input="toggleStatus(item, $event)"
+          :lazy="{ checked: enable(item), unchecked: disable(item) }"
           @click.stop.prevent
         />
       </template>
@@ -91,26 +90,38 @@ export default {
         refreshList() // soft reload
       })
     },
-    toggleStatus (item, newStatus) {
-      switch (newStatus) {
-        case 'enabled':
-          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(response => {
-            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
-            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' })
-          })
-          break
-        case 'disabled':
-          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(response => {
-            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
-            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' })
-          })
-          break
-      }
-    },
     sort (items) {
       this.$store.dispatch('$_connection_profiles/sortConnectionProfiles', items.map(item => item.id)).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Connection profiles resorted.') })
       })
+    },
+    enable (item) {
+      return (value) => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(response => {
+            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
+            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
+              resolve('enabled')
+            })
+          }).catch(() => {
+            reject() // reset
+          })
+        })
+      }
+    },
+    disable (item) {
+      return (value) => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(response => {
+            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
+            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
+              resolve('disabled')
+            })
+          }).catch(() => {
+            reject() // reset
+          })
+        })
+      }
     }
   }
 }

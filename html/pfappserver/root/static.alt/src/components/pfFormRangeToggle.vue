@@ -1,6 +1,6 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-range-toggle" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
+    class="pf-form-range-toggle" :class="{ 'is-focus': focus && !lazyLoading, 'mb-0': !columnLabel }">
     <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
@@ -13,7 +13,7 @@
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
-        <span class="mr-2" v-if="leftLabel">{{ leftLabel }}</span>
+        <span v-if="leftLabel" class="mr-2" :class="{ 'text-secondary': lazyLoading }">{{ leftLabel }}</span>
         <input-range
           v-model="inputValue"
           v-on="forwardListeners"
@@ -26,14 +26,14 @@
           :tooltip="Object.keys(tooltips).length > 0"
           :tooltipFunction="tooltip"
           :width="width"
-          :disabled="disabled"
+          :disabled="disabled || lazyLoading"
           class="d-inline-block"
           tabIndex="-1"
           @click="click"
         >
-          <icon v-if="icon" :name="icon"></icon>
+          <icon v-if="icon" :name="icon" :spin="lazyLoading"></icon>
         </input-range>
-        <span class="ml-2" v-if="rightLabel">{{ rightLabel }}</span>
+        <span v-if="rightLabel" class="ml-2" :class="{ 'text-secondary': lazyLoading }">{{ rightLabel }}</span>
         <slot class="ml-2"/>
       </label>
     </b-input-group>
@@ -102,6 +102,13 @@ export default {
         return (value.checked && value.unchecked)
       }
     },
+    lazy: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.checked && value.unchecked)
+      }
+    },
     leftLabels: {
       type: Object,
       default: () => { return {} },
@@ -130,7 +137,8 @@ export default {
   },
   data () {
     return {
-      focus: false
+      focus: false,
+      lazyLoading: false
     }
   },
   computed: {
@@ -150,6 +158,15 @@ export default {
         }
       },
       set (newValue = null) {
+        let previousValue // for lazyLoading
+        switch (this.inputValue) {
+          case 1:
+            previousValue = this.values.checked
+            break
+          default:
+            previousValue = this.values.unchecked
+        }
+
         let value
         switch (parseInt(newValue)) {
           case 1:
@@ -161,7 +178,47 @@ export default {
         if (this.formStoreName) {
           this.formStoreValue = value // use FormStore
         } else {
-          this.$emit('input', value) // use native (v-model)
+          this.$set(this, 'value', value)
+          this.$emit('input', this.value) // use native (v-model)
+        }
+
+        // lazy handling
+        if (Object.keys(this.lazy).length > 0) {
+          const { lazy: { checked: lazyChecked, unchecked: lazyUnchecked } = {}, values: { checked, unchecked } = {} } = this
+          switch (value) {
+            case checked:
+              this.lazyLoading = true
+              Promise.resolve(lazyChecked(value)).then((lazyValue) => {
+                value = lazyValue
+              }).catch((newValue = previousValue) => {
+                value = newValue
+              }).finally(() => {
+                this.lazyLoading = false
+                if (this.formStoreName) {
+                  this.formStoreValue = value // use FormStore
+                } else {
+                  this.$set(this, 'value', value)
+                  this.$emit('input', this.value) // use native (v-model)
+                }
+              })
+              break
+            case unchecked:
+              this.lazyLoading = true
+              Promise.resolve(lazyUnchecked(value)).then((lazyValue) => {
+                value = lazyValue
+              }).catch((newValue = previousValue) => {
+                value = newValue
+              }).finally(() => {
+                this.lazyLoading = false
+                if (this.formStoreName) {
+                  this.formStoreValue = value // use FormStore
+                } else {
+                  this.$set(this, 'value', value)
+                  this.$emit('input', this.value) // use native (v-model)
+                }
+              })
+              break
+          }
         }
       }
     },
@@ -170,23 +227,25 @@ export default {
       return listeners
     },
     color () {
-      if (this.colors === null) return null
+      if (Object.keys(this.colors).length === 0) return null
       return (this.inputValue === 1) ? this.colors.checked : this.colors.unchecked
     },
     icon () {
-      if (this.icons === null) return null
+      if (this.lazyLoading) return 'circle-notch'
+      if (Object.keys(this.icons).length === 0) return null
       return (this.inputValue === 1) ? this.icons.checked : this.icons.unchecked
     },
     innerLabel () {
-      if (this.innerLabels === null) return null
+      if (Object.keys(this.innerLabels).length === 0) return null
+      if (this.lazyLoading) return null
       return (this.inputValue === 1) ? this.innerLabels.checked : this.innerLabels.unchecked
     },
     leftLabel () {
-      if (this.leftLabels === null) return null
+      if (Object.keys(this.leftLabels).length === 0) return null
       return (this.inputValue === 1) ? this.leftLabels.checked : this.leftLabels.unchecked
     },
     rightLabel () {
-      if (this.rightLabels === null) return null
+      if (Object.keys(this.rightLabels).length === 0) return null
       return (this.inputValue === 1) ? this.rightLabels.checked : this.rightLabels.unchecked
     }
   },
@@ -202,7 +261,7 @@ export default {
       this.inputValue = (this.inputValue === 1) ? 0 : 1
     },
     keyUp (event) {
-      if (this.disabled) return
+      if (this.disabled || this.lazyLoading) return
       switch (event.keyCode) {
         case 8: // backspace
         case 32: // space

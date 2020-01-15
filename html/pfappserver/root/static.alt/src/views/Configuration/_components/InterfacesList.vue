@@ -29,15 +29,15 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
           </template>
-          <template v-slot:cell(is_running)="item">
+          <template v-slot:cell(is_running)="{ item }">
             <pf-form-range-toggle
-              v-model="item.item.is_running"
+              v-model="item.is_running"
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
               :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
               :right-labels="{ checked: $t('up'), unchecked: $t('down') }"
-              :disabled="isInterfacesLoading"
-              @input="toggleRunningInterface(item.item, $event)"
+              :lazy="{ checked: enableInterface(item), unchecked: disableInterface(item) }"
+              :disabled="item.type === 'management'"
               @click.stop.prevent
             />
           </template>
@@ -245,7 +245,7 @@ export default {
       })
     },
     ipv4NetmaskToSubnet (ip, netmask) {
-      return network.ipv4NetmaskToSubnet(ip, network)
+      return network.ipv4NetmaskToSubnet(ip, netmask)
     },
     /**
      * Interface
@@ -254,7 +254,7 @@ export default {
       this.$router.push({ name: 'cloneInterface', params: { id: item.id } })
     },
     removeInterface (item) {
-      this.$store.dispatch(`$_interfaces/deleteInterface`, item.id).then(response => {
+      this.$store.dispatch(`$_interfaces/deleteInterface`, item.id).then(() => {
         this.init() // reload
       })
     },
@@ -278,16 +278,25 @@ export default {
       }
       this.highlightedRoute = null
     },
-    toggleRunningInterface (item, event) {
-      if (!item.is_running) { // inverted logic because our model already changed
-        this.$store.dispatch(`$_interfaces/downInterface`, item.id).then(data => {
-        }).catch(() => {
-          this.init() // reload
+    enableInterface (item) {
+      return () => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch(`$_interfaces/upInterface`, item.id).then(() => {
+            resolve(true)
+          }).catch(() => {
+            reject() // resewt
+          })
         })
-      } else {
-        this.$store.dispatch(`$_interfaces/upInterface`, item.id).then(data => {
-        }).catch(() => {
-          this.init() // reload
+      }
+    },
+    disableInterface (item) {
+      return () => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch(`$_interfaces/downInterface`, item.id).then(() => {
+            resolve(false)
+          }).catch(() => {
+            reject() // reset
+          })
         })
       }
     },

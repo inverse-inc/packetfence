@@ -22,8 +22,7 @@
         :icons="{ checked: 'check', unchecked: 'times' }"
         :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
         :rightLabels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-        :disabled="isLoading"
-        @input="toggleStatus(item, $event)"
+        :lazy="{ checked: enable(item), unchecked: disable(item) }"
         @click.stop.prevent
       />
     </template>
@@ -61,14 +60,26 @@ export default {
     }
   },
   methods: {
-    toggleStatus (item, newStatus) {
-      switch (newStatus) {
-        case 'enabled':
-          this.$store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item)
-          break
-        case 'disabled':
-          this.$store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item)
-          break
+    enable (item) {
+      return (value) => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item).then(() => {
+            resolve('enabled')
+          }).catch(() => {
+            reject() // reset
+          })
+        })
+      }
+    },
+    disable (item) {
+      return (value) => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item).then(() => {
+            resolve('disabled')
+          }).catch(() => {
+            reject() // reset
+          })
+        })
       }
     }
   }

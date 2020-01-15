@@ -45,8 +45,8 @@
           </slot>
         </template>
         <!-- Proxy all possible column slots ([field]) into pf-table-sortable slots -->
-        <template v-for="column in config.columns" v-slot:[cell(column.key)]="data">
-          <slot :name="cell(column.key)" v-bind:item="data.item">{{ data.item[column.key] }}</slot>
+        <template v-for="column in config.columns" v-slot:[cell(column.key)]="item">
+          <slot :name="cell(column.key)" v-bind="item">{{ item[column.key] }}</slot>
         </template>
       </pf-table-sortable>
 
