@@ -32,9 +32,11 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
 );
 
-our $DISCONNECT_TYPE_COA = 'coa';
-our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';
-our $DISCONNECT_TYPE_BOTH = 'coaOrDisconnect';
+use pf::constants::template_switch qw(
+  $DISCONNECT_TYPE_COA
+  $DISCONNECT_TYPE_DISCONNECT
+  $DISCONNECT_TYPE_BOTH
+);
 
 our %DISCONNECT_DISPATCH = (
     $DISCONNECT_TYPE_COA => \&handleCoa,
