@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build-voice": "vue-cli-service build && say -v Samantha ready",
-    "build": "vue-cli-service build && afplay /System/Library/Sounds/Purr.aiff && osascript -e 'display notification \"Ready!\" with title \"npm build\"'",
+    "build": "vue-cli-service build",
     "build-debug": "vue-cli-service build --report",
     "lint": "vue-cli-service lint"
   },
