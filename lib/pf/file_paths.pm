@@ -116,7 +116,7 @@ our (
     $api_i18n_dir,
     $iptable_config_file,
     $ssl_config_file, $ssl_default_config_file,
-    $eap_config_file, $eap_default_config_file
+    $tls_config_file, $tls_default_config_file
 );
 
 BEGIN {
@@ -209,7 +209,7 @@ BEGIN {
         $api_i18n_dir
         $iptable_config_file
         $ssl_config_file $ssl_default_config_file
-        $eap_config_file $eap_default_config_file
+        $tls_config_file $tls_default_config_file
     );
 }
 
@@ -328,8 +328,8 @@ $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
 $iptable_config_file = catfile($conf_dir, "iptables.conf");
 $ssl_config_file = catfile($conf_dir,"ssl.conf");
 $ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
-$eap_config_file = catfile($conf_dir,"eap.conf");
-$eap_default_config_file = = catfile($conf_dir,"eap.conf.defaults");
+$tls_config_file = catfile($conf_dir,"tls.conf");
+$tls_default_config_file = = catfile($conf_dir,"tls.conf.defaults");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';

@@ -1,16 +1,16 @@
-package pfconfig::namespaces::config::Eap;
+package pfconfig::namespaces::config::Tls;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Eap
+pfconfig::namespaces::config::Tls
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Eap
+pfconfig::namespaces::config::Tls
 
-This module creates the configuration hash associated to eap.conf
+This module creates the configuration hash associated to tls.conf
 
 =cut
 
@@ -18,16 +18,16 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($eap_config_file $eap_default_config_file);
+use pf::file_paths qw($tls_config_file $tls_default_config_file);
 use pf::util;
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $eap_config_file;
+    $self->{file} = $tls_config_file;
 
-    my $defaults = Config::IniFiles->new( -file => $eap_default_config_file );
+    my $defaults = Config::IniFiles->new( -file => $tls_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
 
@@ -46,7 +46,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2020 Inverse inc.
 
 =head1 LICENSE
 
