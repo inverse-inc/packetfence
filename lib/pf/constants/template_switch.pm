@@ -18,11 +18,13 @@ our @EXPORT_OK = qw(
   $DISCONNECT_TYPE_COA
   $DISCONNECT_TYPE_DISCONNECT
   $DISCONNECT_TYPE_BOTH
+  @RADIUS_ATTRIBUTE_SETS
 );
 
 our $DISCONNECT_TYPE_COA = 'coa';
 our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';
 our $DISCONNECT_TYPE_BOTH = 'coaOrDisconnect';
+our @RADIUS_ATTRIBUTE_SETS = qw(acceptVlan acceptRole reject disconnect coa voip);
 
 =head1 AUTHOR
 

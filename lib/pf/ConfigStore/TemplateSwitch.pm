@@ -15,6 +15,8 @@ pf::ConfigStore::TemplateSwitch
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
+use pf::util qw(listify);
+use pf::constants::template_switch qw(@RADIUS_ATTRIBUTE_SETS);
 use pf::file_paths qw($template_switches_config_file $template_switches_default_config_file);
 extends 'pf::ConfigStore';
 
@@ -23,6 +25,20 @@ sub configFile { $template_switches_config_file }
 sub importConfigFile { $template_switches_default_config_file }
 
 sub pfconfigNamespace {'config::TemplateSwitches'}
+
+sub cleanupAfterRead {
+    my ($self, $id, $item) = @_;
+    for my $f (@RADIUS_ATTRIBUTE_SETS) {
+        if (exists $item->{$f}) {
+            my $value = $item->{$f};
+            if ($value eq "") {
+                $item->{$f} = [];
+            } else {
+                $item->{$f} = listify($value);
+            }
+        }
+    }
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
@@ -50,4 +66,3 @@ USA.
 =cut
 
 1;
-

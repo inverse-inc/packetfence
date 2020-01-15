@@ -14,12 +14,15 @@ use strict;
 use warnings;
 use base qw(pf::config::builder);
 use pf::mini_template;
+use pf::constants::template_switch qw(
+    @RADIUS_ATTRIBUTE_SETS
+);
 
 sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
     my $type = $id;
     $entry->{type} = $type;
-    for my $k (qw(acceptVlan acceptRole reject disconnect coa voip)) {
+    for my $k (@RADIUS_ATTRIBUTE_SETS) {
         next unless exists $entry->{$k};
         my $ras = delete $entry->{$k};
         if (!defined $ras || $ras eq '') {

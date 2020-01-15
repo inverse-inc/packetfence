@@ -16,22 +16,41 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
 use pf::util;
+use pf::constants::template_switch qw(
+  $DISCONNECT_TYPE_COA
+  $DISCONNECT_TYPE_DISCONNECT
+  $DISCONNECT_TYPE_BOTH
+  @RADIUS_ATTRIBUTE_SETS
+);
 
 ## Definition
-has_field 'id' =>
-  (
-   type => 'Text',
-   required => 1,
-  );
-has_field 'radiusDisconnect' =>
-  (
-   type => 'Select',
-   label => 'radiusDisconnect',
-  );
+has_field 'id' => (
+    type     => 'Text',
+    required => 1,
+);
 
-=head2 Methods
+has_field 'radiusDisconnect' => (
+    type    => 'Select',
+    label   => 'Radius Disconnect Method',
+    options => [
+        { value => $DISCONNECT_TYPE_COA, label => $DISCONNECT_TYPE_COA },
+        { value => $DISCONNECT_TYPE_DISCONNECT, label => $DISCONNECT_TYPE_DISCONNECT },
+        { value => $DISCONNECT_TYPE_BOTH, label => $DISCONNECT_TYPE_BOTH },
+    ],
+);
 
-=back
+
+for my $n (@RADIUS_ATTRIBUTE_SETS) {
+    has_field $n => (
+       type => 'Repeatable',
+       num_when_empty => 0,
+       num_extra => 0,
+    );
+
+    has_field "$n.contains" => (
+        type => 'RadiusAttribute'
+    );
+}
 
 =head1 COPYRIGHT
 
