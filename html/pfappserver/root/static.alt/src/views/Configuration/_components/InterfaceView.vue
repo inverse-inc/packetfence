@@ -159,8 +159,8 @@ export default {
       if (pressed) this.close()
     },
     'form.type' (a, b) {
-      if (a === 'inlinel2' && b !== 'inlinel2') {
-        this.form.nat_enabled = 'enabled' // enable NAT by default w/ Inline L2
+      if (this.isNew && (a === 'inlinel2' && b !== 'inlinel2')) {
+        this.$set(this.form, 'nat_enabled', 'enabled') // enable NAT by default w/ Inline L2
       }
     }
   }
