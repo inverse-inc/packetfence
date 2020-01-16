@@ -221,7 +221,7 @@ find /usr/local/pf -name \*.rpmnew
 
 The list of files returned are the new versions shipped with PacketFence.
 Compare them to your existing version and see if there are changes that should
-be merged into your existing configuration.  Then, once you are done make sure
+be merged into your existing configuration. Then, once you are done make sure
 to delete these files so that there is no confusion the next time you upgrade
 PacketFence.
 

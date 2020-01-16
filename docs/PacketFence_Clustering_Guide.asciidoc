@@ -1483,10 +1483,12 @@ systemctl stop packetfence-mariadb
 ===== Start service on node C
 
 
-Now, start the application service on node C
+Now, start the application service on node C:
 
 [source,bash]
 ----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd configreload hard
 /usr/local/pf/bin/pfcmd service pf start
 ----
 
@@ -1532,7 +1534,7 @@ You do not need to follow the upgrade procedure when upgrading these nodes. You 
 
 [source,bash]
 ----
-systemctl restart packetfence-config
+systemctl start packetfence-config
 /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
 /usr/local/pf/bin/pfcmd configreload hard
 ----
@@ -1542,6 +1544,8 @@ Where:
 * `_192.168.1.5_` is the management IP of node C
 * `_packet_` is the webservices username (_Configuration->Webservices_)
 * `_fence_` is the webservices password (_Configuration->Webservices_)
+
+WARNING: Make sure you sync by hand any changes to configuration files on node C that are not synced.
 
 ==== Reintegrating nodes A and B
 
