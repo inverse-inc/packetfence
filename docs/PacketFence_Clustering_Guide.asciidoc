@@ -1396,12 +1396,10 @@ Once this is done, restart `pfmon` on all nodes using:
 ==== Upgrading node C
 
 
-In order to be able to work on node C, we first need to stop all the PacketFence application services on it.
-
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd service pf stop
-----
+In order to be able to work on node C, we first need to stop all the
+PacketFence application services on it, see
+<<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
+PacketFence services section>>.
   
 Due to disconnection issues with the systemd-logind service while yum is performing the update, you need to ensure the service is stopped disabled. The last command will then ensure your current process is removed out of the user-0.slice.
 
@@ -1486,14 +1484,16 @@ The commands above will make sure that nodes A and B will not be forwarding requ
 From that moment node C is in standalone for its database. We can proceed to update the database schema so it matches the one of the latest version.
 In order to do so, upgrade the database schema using the instructions provided in <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade guide>>.
 
-===== Stop service on nodes A and B
+===== Stop services on nodes A and B
 
+Next, stop all application services on node A and B:
 
-Next, stop all application service on node A and B along with the database:
-
+* See <<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
+PacketFence services section>>
+* Stop database:
++
 [source,bash]
 ----
-/usr/local/pf/bin/pfcmd service pf stop
 systemctl stop packetfence-mariadb
 ----
 
