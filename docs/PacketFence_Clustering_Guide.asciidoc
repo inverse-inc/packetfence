@@ -1401,24 +1401,7 @@ PacketFence application services on it, see
 <<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
 PacketFence services section>>.
   
-Due to disconnection issues with the systemd-logind service while yum is performing the update, you need to ensure the service is stopped disabled. The last command will then ensure your current process is removed out of the user-0.slice.
-
-[source,bash]
-----
-/usr/bin/systemctl stop systemd-logind
-/usr/bin/systemctl --now mask systemd-logind
-/usr/bin/systemctl daemon-reload
-/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
-----
-
-Next, upgrade your operating system and PacketFence on node C:
-
-[source,bash]
-----
-yum upgrade --enablerepo=packetfence
-----
-
-NOTE: If you reboot your server during this procedure, make sure you set the systemd target to multi-user (`systemctl set-default multi-user.target`) before rebooting and back to packetfence-cluster (`systemctl set-default packetfence-cluster.target`) after it boots up. This will make sure your services don't start up after the reboot.
+Next, you can upgrade your operating system and/or PacketFence on node C by following instructions of <<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades section>>.
 
 Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asciidoc#,upgrade guide>> as you would on a standalone server with the exception of the database schema updates.
 
@@ -1540,27 +1523,12 @@ If you are happy about the state of your upgrade, you can continue on the steps 
 
 ==== Upgrading nodes A and B
 
+Next, you can upgrade your operating system and/or PacketFence on nodes A and B by
+following instructions of
+<<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades
+section>>.
 
-Due to disconnection issues with the systemd-logind service while yum is performing the update, you need to ensure the service is stopped disabled. The last command will then ensure your current process is removed out of the user-0.slice.
-
-[source,bash]
-----
-/usr/bin/systemctl stop systemd-logind
-/usr/bin/systemctl --now mask systemd-logind
-/usr/bin/systemctl daemon-reload
-/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
-----
-
-Next, upgrade your operating system and PacketFence on each server:
-
-[source,bash]
-----
-yum upgrade --enablerepo=packetfence
-----
-
-NOTE: If you reboot your server during this procedure, make sure you set the systemd target to multi-user (`systemctl set-default multi-user.target`) before rebooting and back to packetfence-cluster (`systemctl set-default packetfence-cluster.target`) after it boots up. This will make sure your services don't start up after the reboot.
-
-You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C on nodes A and B
+You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C on nodes A and B:
 
 [source,bash]
 ----
@@ -1569,7 +1537,7 @@ systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
-Where :
+Where:
 
 * `_192.168.1.5_` is the management IP of node C
 * `_packet_` is the webservices username (_Configuration->Webservices_)
