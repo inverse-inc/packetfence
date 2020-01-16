@@ -149,6 +149,9 @@ const api = {
   getSwitchGroups () {
     return apiCall({ url: 'config/switch_groups', method: 'get' })
   },
+  getSwitchTemplates () {
+    return apiCall({ url: 'config/template_switches', method: 'get' })
+  },
   getSyslogForwarders () {
     return apiCall({ url: 'config/syslog_forwarders', method: 'get' })
   },
@@ -273,6 +276,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     ssidsStatus: '',
     switchGroups: false,
     switchGroupsStatus: '',
+    switchTemplates: false,
+    switchTemplatesStatus: '',
     switches: false,
     switchesStatus: '',
     syslogForwarders: false,
@@ -464,6 +469,9 @@ const getters = {
   },
   isLoadingSwitchGroups: state => {
     return state.switchGroupsStatus === types.LOADING
+  },
+  isLoadingSwitchTemplates: state => {
+    return state.switchTemplatesStatus === types.LOADING
   },
   isLoadingSyslogForwarders: state => {
     return state.syslogForwardersStatus === types.LOADING
@@ -1257,6 +1265,20 @@ const actions = {
       return Promise.resolve(state.switchGroups)
     }
   },
+  getSwitchTemplates: ({ state, getters, commit }) => {
+    if (getters.isLoadingSwitchTemplates) {
+      return Promise.resolve(state.switchTemplates)
+    }
+    if (!state.switchTemplates) {
+      commit('SWICTH_TEMPLATES_REQUEST')
+      return api.getSwitchTemplates().then(response => {
+        commit('SWICTH_TEMPLATES_UPDATED', response.data.items)
+        return state.switchTemplates
+      })
+    } else {
+      return Promise.resolve(state.switchTemplates)
+    }
+  },
   getSyslogForwarders: ({ state, getters, commit }) => {
     if (getters.isLoadingSyslogForwarders) {
       return Promise.resolve(state.syslogForwarders)
@@ -1678,6 +1700,13 @@ const mutations = {
   SWICTH_GROUPS_UPDATED: (state, switchGroups) => {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
+  },
+  SWICTH_TEMPLATES_REQUEST: (state) => {
+    state.switchTemplatesStatus = types.LOADING
+  },
+  SWICTH_TEMPLATES_UPDATED: (state, switchTemplates) => {
+    state.switchTemplates = switchTemplates
+    state.switchTemplatesStatus = types.SUCCESS
   },
   SYSLOG_FORWARDERS_REQUEST: (state) => {
     state.syslogForwardersStatus = types.LOADING

@@ -28,6 +28,7 @@ import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
+import SwitchTemplatesStore from '../_store/switchTemplates'
 import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
 import WmiRulesStore from '../_store/wmiRules'
 import WrixLocationsStore from '../_store/wrixLocations'
@@ -71,6 +72,8 @@ const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_
 const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
 const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CiscoMobilityServicesEngineView')
 const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
+const SwitchTemplatesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchTemplatesList')
+const SwitchTemplateView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchTemplateView')
 const SyslogParsersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
 const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParserView')
 const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
@@ -209,6 +212,9 @@ const route = {
     }
     if (!store.state.$_switch_groups) {
       store.registerModule('$_switch_groups', SwitchGroupsStore)
+    }
+    if (!store.state.$_switch_templates) {
+      store.registerModule('$_switch_templates', SwitchTemplatesStore)
     }
     if (!store.state.$_traffic_shaping_policies) {
       store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStore)
@@ -1207,6 +1213,52 @@ const route = {
           store.registerModule('formWebServices', FormStore)
         }
         next()
+      }
+    },
+    {
+      path: 'switch_templates',
+      name: 'switchTemplates',
+      component: SwitchTemplatesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'switch_template/new/:switchTemplateType',
+      name: 'newSwitchTemplate',
+      component: SwitchTemplateView,
+      props: (route) => ({ formStoreName: 'formSwitchTemplates', isNew: true, switchTemplateType: route.params.switchTemplateType }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitchTemplates) { // Register store module only once
+          store.registerModule('formSwitchTemplates', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'switch_template/:id',
+      name: 'switchTemplate',
+      component: SwitchTemplateView,
+      props: (route) => ({ formStoreName: 'formSwitchTemplates', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitchTemplates) { // Register store module only once
+          store.registerModule('formSwitchTemplates', FormStore)
+        }
+        store.dispatch('$_switch_templates/getSwitchTemplate', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'switch_template/:id/clone',
+      name: 'cloneSwitchTemplate',
+      component: SwitchTemplateView,
+      props: (route) => ({ formStoreName: 'formSwitchTemplates', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formSwitchTemplates) { // Register store module only once
+          store.registerModule('formSwitchTemplates', FormStore)
+        }
+        store.dispatch('$_switch_templates/getSwitchTemplate', to.params.id).then(() => {
+          next()
+        })
       }
     },
     {

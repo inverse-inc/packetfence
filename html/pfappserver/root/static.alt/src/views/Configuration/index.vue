@@ -81,6 +81,7 @@ export default {
             { name: this.$i18n.t('Firewall SSO'), path: '/configuration/firewalls' },
             { name: this.$i18n.t('Cisco Mobility Services Engine'), path: '/configuration/mse' },
             { name: this.$i18n.t('Web Services'), path: '/configuration/webservices' },
+            { name: this.$i18n.t('Switch Templates'), path: '/configuration/switch_templates' },
             { name: this.$i18n.t('Syslog Parsers'), path: '/configuration/pfdetect' },
             { name: this.$i18n.t('Syslog Forwarding'), path: '/configuration/syslog' },
             { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' }
