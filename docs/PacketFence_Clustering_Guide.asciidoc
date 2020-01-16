@@ -1377,8 +1377,8 @@ Backups
 
 First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using:
 
-  # mysqldump --opt --routines -u root -p pf | gzip > /root/packetfence_db.sql.gz
-  # tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
+* <<PacketFence_Upgrade_Guide.asciidoc#_database_backup,Database backup instructions>>
+* <<PacketFence_Upgrade_Guide.asciidoc#_packetfence_configurations_and_codebase_backup,PacketFence configurations and codebase backup instructions>>
 
 Disabling the auto-correction of configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
