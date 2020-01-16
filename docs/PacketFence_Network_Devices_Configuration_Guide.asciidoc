@@ -6334,25 +6334,31 @@ Finally, we need to tie the service profiles with the proper AAA configuration.
   set authentication mac ssid PacketFence-Public * PF-RADIUS
   set authentication dot1x ssid PacketFence-Secure ** pass-through PF-RADIUS
 
-Ubiquiti
-~~~~~~~~
+=== Ubiquiti
 
-Web Authentication
-^^^^^^^^^^^^^^^^^^
+
+==== Web Authentication
+
+===== Unifi side
 
 In order to configure web authentication (external captive-portal) on Ubiquiti access points, you must have access to a Unifi controller and your APs must be connected to it.
 
-First, you must configure the guest policy. Go in 'Settings->Guest Control' and configure it as shown below:
+First, you must configure the guest policy. Go in _Settings->Guest Control_ and configure it as shown below:
 
 image::ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
 
-Make sure you enabled 'Enable Guest Portal', and that you've set 'External portal server'.
+Make sure you enabled _Enable Guest Portal_, and that you've set _External portal server_.
 
-You also need to enter the IP address of a portal enabled interface on the PacketFence server in 'Custom Portal'. Then in the 'ACCESS CONTROL' section, add that same IP address to the 'Pre-Authorization Access'
+You also need to enter the IP address of a portal enabled interface on the PacketFence server in _Custom Portal_. Then in the _ACCESS CONTROL_ section, add that same IP address to the _Pre-Authorization Access_
 
 Then, still in the settings, create or edit a new SSID with the following settings:
 
 image::ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
+
+You need to ensure link:https://help.ubnt.com/hc/en-us/articles/115015457668-UniFi-Troubleshooting-STUN-Communication-Errors#whatisstun[STUN protocol] is allowed between access points and
+controller so that controller gets link:https://help.ubnt.com/hc/en-us/articles/204976094#1[instant notifications] from access points. That's important to have a correct deauthentication mechanism.
+
+===== PacketFence side
 
 Once this is done, you will need to define all your APs MAC addresses in the PacketFence switches with a configuration similar to this:
 
@@ -6373,8 +6379,8 @@ Where :
 * *wsPwd* is the password that is associated to the wsUser. This is configured in the 'Web Services' tab of the switch.
 * *controllerIp* is the IP address of your Unifi controller. This is configured in the 'Definition' tab of the switch.
 
-VLAN Enforcement
-^^^^^^^^^^^^^^^^
+==== VLAN Enforcement
+
 
 In order to configure VLAN enforcement on the Unifi controller, you need first to configure a RADIUS profile, then a secure wireless network.
 
@@ -6382,13 +6388,13 @@ Important : You cannot reuse a VLAN ID for dynamic VLAN if it is set as a static
 
 Note that VLAN enforcement for an open SSID is not supported yet by the controller and access point.
 
-AAA Configuration
-+++++++++++++++++
+===== AAA Configuration
+
 
 image::unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile"]
 
-Secure SSID
-+++++++++++
+===== Secure SSID
+
 
 There is a special case when you want to be able to deauthenticate a device when it is connected on the secure SSID.
 
