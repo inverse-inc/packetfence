@@ -1,4 +1,12 @@
-[eap]
+[tls-common]
+private_key_file = [% install_dir %]/raddb/certs/server.key
+certificate_file = [% install_dir %]/raddb/certs/server.crt
+ca_file = [% install_dir %]/raddb/certs/ca.pem
+dh_file = ${certdir}/dh
+ca_path = ${cadir}
+cipher_list = "DEFAULT"
+ecdh_curve = "prime256v1"
+
 
 [eap-fast]
 
