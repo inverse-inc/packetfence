@@ -180,6 +180,32 @@ apt install fingerbank
 PacketFence and Fingerbank should now be upgraded. However, there may be extra
 steps required depending on the version you are upgrading from.
 
+==== Reboot after an upgrade
+
+If you reboot a standalone server or one server from a cluster after packages
+upgrade, make sure you set the systemd target to `multi-user.target` before rebooting:
+
+[source,bash]
+----
+systemctl set-default multi-user.target
+----
+
+Set it back to previous target after it boots up:
+
+.Cluster
+[source,bash]
+----
+systemctl set-default packetfence-cluster.target
+----
+
+.Standalone
+[source,bash]
+----
+systemctl set-default packetfence.target
+----
+
+This will make sure your services don't start up after the reboot.
+
 ==== New versions of configuration files
 
 You should take care to review any changes to configuration files and merge them if required. 
@@ -195,7 +221,7 @@ find /usr/local/pf -name \*.rpmnew
 
 The list of files returned are the new versions shipped with PacketFence.
 Compare them to your existing version and see if there are changes that should
-be merged into your existing configuration.  Then, once you are done make sure
+be merged into your existing configuration. Then, once you are done make sure
 to delete these files so that there is no confusion the next time you upgrade
 PacketFence.
 
