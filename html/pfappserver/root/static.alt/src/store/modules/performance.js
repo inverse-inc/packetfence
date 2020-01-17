@@ -11,8 +11,7 @@ const state = {
   now: (new Date()).getTime(), // current timestamp (ms)
   heartbeatInterval: false, // heartbeat used for interval updates on reactive model `now`
   cache: [], // all current pending requests
-  benchmarks: {}, // stats on previous completed requests
-  defaultBenchmark: { num: 0, time: 0, start: 0 }
+  benchmarks: {} // stats on previous completed requests
 }
 
 const getters = {
@@ -151,7 +150,7 @@ const mutations = {
       benchmarks = benchmarks.children[urlPart]
     })
     if (!(method in benchmarks)) {
-      Vue.set(benchmarks, method, state.defaultBenchmark)
+      Vue.set(benchmarks, method, { num: 0, time: 0, start: 0 })
     }
     Vue.set(benchmarks[method], 'start', now)
   },
