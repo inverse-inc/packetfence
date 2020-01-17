@@ -29,6 +29,11 @@ has_field 'id' => (
     required => 1,
 );
 
+has_field 'description' => (
+    type     => 'Text',
+    required => 1,
+);
+
 has_field 'radiusDisconnect' => (
     type    => 'Select',
     label   => 'Radius Disconnect Method',
