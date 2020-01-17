@@ -20,6 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
+* Allow to configure VOIP Radius atrributes in switch templates
 
 
 Bug Fixes
