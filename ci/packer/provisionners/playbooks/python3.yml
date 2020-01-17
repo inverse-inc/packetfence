@@ -1,5 +1,5 @@
 ---
-- hosts: ['devel_centos', 'stable_centos']
+- hosts: ['devel_centos8', 'stable_centos8']
   name: Install and configure Python 3 for rpmlint and nodejs
   become: True
   gather_facts: True

@@ -271,6 +271,8 @@ pfbuild_release:
     - .job_release_triggers
   variables:
     ANSIBLE_CENTOS_GROUP: stable_centos
+    ANSIBLE_CENTOS7_GROUP: stable_centos7
+    ANSIBLE_CENTOS8_GROUP: stable_centos8
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
     ACTIVE_BUILDS: 'pfbuild-centos-7,pfbuild-stretch'
