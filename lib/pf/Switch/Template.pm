@@ -391,6 +391,24 @@ sub updateArgsVariablesForSet {
     }
 }
 
+=head2 getVoipVsa
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
+sub getVoipVsa {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    my $template = $self->{_template}{voip};
+    if (!defined $template) {
+        return;
+    }
+
+    my ($attrs, undef) = $self->makeRadiusAttributes($template, { switch => $self });
+    return (@{$attrs // []});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
