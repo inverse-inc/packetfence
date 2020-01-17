@@ -25,6 +25,13 @@ export const columns = [
     visible: true
   },
   {
+    key: 'description',
+    label: i18n.t('Description'),
+    required: true,
+    sortable: true,
+    visible: true
+  },
+  {
     key: 'coa',
     label: i18n.t('CoA'),
     sortable: true,
@@ -41,6 +48,11 @@ export const fields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
     types: [conditionType.SUBSTRING]
   },
   {
