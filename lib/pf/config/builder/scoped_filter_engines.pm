@@ -69,7 +69,9 @@ sub preprocessCondition {
     my $logger = get_logger();
     $logger->info("Preprocessing filter condition '$id'");
     my $condition = eval {
-        pf::factory::condition::access_filter->instantiate($entry)
+        $entry->{operator} eq 'advance'
+          ? pf::condition::ast->new(ast => pf::factory::ast::build($entry->{value}))
+          : pf::factory::condition::access_filter->instantiate($entry);
     };
     unless (defined $condition) {
         $self->_error(
