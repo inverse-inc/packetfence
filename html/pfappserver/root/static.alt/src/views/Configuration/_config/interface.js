@@ -7,6 +7,7 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   and,
   not,
+  conditional,
   ipv6Address,
   isCIDR,
   isVLAN,
@@ -239,6 +240,7 @@ export const columns = [
 
 export const view = (form = {}, meta = {}) => {
   const {
+    master = false,
     type
   } = form
   const {
@@ -251,10 +253,24 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
+          if: (!master),
           label: i18n.t('Interface'),
           cols: [
             {
               namespace: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          if: (master),
+          label: i18n.t('Interface'),
+          cols: [
+            {
+              namespace: 'master',
               component: pfFormInput,
               attrs: {
                 disabled: true
@@ -271,7 +287,8 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 type: 'number',
-                step: 1
+                step: 1,
+                disabled: (!isNew && !isClone)
               }
             }
           ]
@@ -488,7 +505,7 @@ export const validators = (form = {}, meta = {}) => {
         vlan: {
           [i18n.t('VLAN required.')]: required,
           [i18n.t('Invalid VLAN.')]: isVLAN,
-          [i18n.t('VLAN exists.')]: not(and(required, hasInterfaces, interfaceVlanExists(id)))
+          [i18n.t('VLAN exists.')]: not(and(required, conditional(isNew || isClone), hasInterfaces, interfaceVlanExists(id)))
         }
       }
       : {}

@@ -586,10 +586,13 @@ export const interfaceExists = (value) => {
 export const interfaceVlanExists = (id) => {
   return (0, _common.withParams)({
     type: 'interfaceVlanExists',
-    id: id
+    id
   }, function (value) {
     if (!(0, _common.req)(value)) return true
     return store.dispatch('config/getInterfaces').then((response) => {
+      if (id.includes('.')) { // split dot-notation `iface.vlan` to `iface` only.
+        id = id.split('.')[0]
+      }
       if (response.length === 0) return true
       else return response.filter(iface => iface.master === id && iface.vlan === value).length > 0
     }).catch(() => {
