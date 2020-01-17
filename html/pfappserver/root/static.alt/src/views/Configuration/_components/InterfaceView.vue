@@ -21,7 +21,7 @@
           <span v-else-if="isClone">{{ $t('Clone Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
           <span v-else>{{ $t('New VLAN for Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
         </h4>
-        <b-badge v-if="isVlan" class="ml-2" variant="secondary">VLAN {{ form.vlan }}</b-badge>
+        <b-badge v-if="isVlan" class="ml-2" variant="secondary">VLAN {{ vlanFromId }}</b-badge>
       </template>
     </template>
     <template v-slot:footer>
@@ -111,25 +111,37 @@ export default {
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
+    },
+    vlanFromId () {
+      const { 1: vlan = null } = this.id.split('.')
+      return vlan
     }
   },
   methods: {
     init () {
+      let promise
       this.$store.dispatch('$_interfaces/getInterface', this.id).then(form => {
         if (this.isNew) {
-          this.$store.dispatch(`${this.formStoreName}/setForm`, { id: form.id, type: 'none' })
+          promise = this.$store.dispatch(`${this.formStoreName}/setForm`, { id: form.id, type: 'none' })
         } else {
-          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+          promise = this.$store.dispatch(`${this.formStoreName}/setForm`, form)
         }
+        promise.then(() => { // wait for `form` before consuming `isVlan`
+          const { id, isNew, isClone, isVlan } = this
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { id, isNew, isClone, isVlan })
+        })
       })
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
       this.$router.push({ name: 'interfaces' })
     },
+    clone () {
+      this.$router.push({ name: 'cloneInterface' })
+    },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_interfaces/createInterface', this.form).then(response => {
+      this.$store.dispatch('$_interfaces/createInterface', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -139,14 +151,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_interfaces/updateInterface', this.form).then(response => {
+      this.$store.dispatch('$_interfaces/updateInterface', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (id) {
-      this.$store.dispatch('$_interfaces/deleteInterface', this.id).then(response => {
+    remove () {
+      this.$store.dispatch('$_interfaces/deleteInterface', this.id).then(() => {
         this.close()
       })
     }
@@ -155,6 +167,11 @@ export default {
     this.init()
   },
   watch: {
+    isClone: {
+      handler: function () {
+        this.init()
+      }
+    },
     escapeKey (pressed) {
       if (pressed) this.close()
     },
