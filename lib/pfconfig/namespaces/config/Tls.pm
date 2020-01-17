@@ -27,6 +27,10 @@ sub init {
     my ($self) = @_;
     $self->{file} = $tls_config_file;
 
+    $self->{child_resources} = [
+        'resource::tls_config'
+    ];
+
     my $defaults = Config::IniFiles->new( -file => $tls_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }

@@ -27,6 +27,11 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
+
+    $self->{child_resources} = [
+        'resource::tls_config'
+    ];
+
     $self->{_scoped_by_tenant_id} = 1;
     $self->{ini} = pf::IniFiles->new(
         -file       => $ssl_config_file,
