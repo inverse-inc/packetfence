@@ -342,24 +342,47 @@ sub _authorizeMAC {
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 
+
     my $result;
     my $return;
     if ($authorize) {
         $logger->trace( "SNMP set_request for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType" );
         foreach $boardIndx (@boardIndx) {
-            $result = $self->{_sessionWrite}->set_request(
-                -varbindlist => [
-                    "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
-                    "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
-                ]
-            );
+
+            my $boardExist = $self->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgStatus.$boardIndx" );
+            next if !(defined $boardExist);
+
+            if (defined($boardExist) && exists($boardExist->{"$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid"}) && $boardExist->{"$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid"} eq "1") {
+                $result = $self->{_sessionWrite}->set_request(
+                    -varbindlist => [
+                        "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
+                    ]
+                );
+            } else {
+                # MAc exist in another place, remove it
+                foreach my $key (keys %{$boardExist}) {
+                    if ($key =~ /$mac_oid$/) {
+                        $result = $self->{_sessionWrite}->set_request(
+                            -varbindlist => [
+                            "$key", Net::SNMP::INTEGER, 3
+                            ]
+                        );
+                    }
+                }
+                $result = $self->{_sessionWrite}->set_request(
+                    -varbindlist => [
+                        "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
+                        "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
+                    ]
+                );
+            }
             if ($result) {
                 $return = 1;
             }
         }
     } else {
         foreach $boardIndx (@boardIndx) {
-            $logger->warn("Remove mac ".$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid);
+            $logger->warn("Remove mac ".$OID_s5SbsAuthCfgStatus.".".$boardIndx.".".$portIndx.".".$mac_oid);
             $logger->trace( "SNMP set_request for s5SbsAuthCfgStatus: $OID_s5SbsAuthCfgStatus" );
             $result = $self->{_sessionWrite}->set_request(
                 -varbindlist => [
