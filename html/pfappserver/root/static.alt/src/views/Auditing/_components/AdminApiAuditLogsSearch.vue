@@ -44,7 +44,6 @@
         </b-col>
       </b-row>
       <b-table
-        v-model="tableValues"
         class="table-clickable"
         :items="items"
         :fields="visibleColumns"
@@ -52,7 +51,6 @@
         :sort-desc="sortDesc"
         @sort-changed="onSortingChanged"
         @row-clicked="onRowClick"
-        @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting sort-icon-left striped
       >
         <template v-slot:empty>
@@ -140,7 +138,7 @@ export default {
         },
         {
           value: 'url',
-          text: this.$i18n.t('Admin API Audit Type'),
+          text: this.$i18n.t('URL'),
           types: [conditionType.SUBSTRING]
         },
         {
@@ -150,11 +148,17 @@ export default {
         },
         {
           value: 'status',
-          text: this.$i18n.t('Admin API Audit Answer'),
+          text: this.$i18n.t('Status'),
           types: [conditionType.SUBSTRING]
         }
       ],
       columns: [
+        {
+          key: 'id',
+          label: this.$i18n.t('Log ID'),
+          required: true,
+          sortable: true
+        },
         {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
@@ -162,12 +166,6 @@ export default {
           visible: true,
           class: 'text-nowrap',
           formatter: formatter.datetimeIgnoreZero
-        },
-        {
-          key: 'id',
-          label: this.$i18n.t('ID'),
-          required: true,
-          sortable: true
         },
         {
           key: 'user_name',
@@ -183,7 +181,7 @@ export default {
         },
         {
           key: 'object_id',
-          label: this.$i18n.t('Object Id'),
+          label: this.$i18n.t('Object ID'),
           sortable: false,
           visible: true
         },
