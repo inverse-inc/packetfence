@@ -345,7 +345,11 @@ sub ReAssignVlan : Public : Fork {
         return;
     }
 
-    my $switch = rebless_switch($postdata->{switch});
+    my $switch = pf::SwitchFactory->instantiate( $postdata->{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata->{'mac'})} );
+    unless ($switch) {
+        $logger->error("switch $postdata->{'switch'} not found for ReAssignVlan");
+        return;
+    }
 
     my $filter = pf::access_filter::switch->new;
     $filter->filterSwitch('reevaluate',\$switch, $postdata);
@@ -398,7 +402,11 @@ sub desAssociate : Public : Fork {
 
     my $logger = pf::log::get_logger();
 
-    my $switch = rebless_switch($postdata->{switch});
+    my $switch = pf::SwitchFactory->instantiate($postdata->{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata->{'mac'})});
+    unless ($switch) {
+        $logger->error("switch $postdata->{'switch'} not found for desAssociate");
+        return;
+    }
 
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
