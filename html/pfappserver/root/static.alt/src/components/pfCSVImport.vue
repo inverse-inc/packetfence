@@ -95,7 +95,7 @@
                 >
                   <b-input-group>
                     <template v-slot:append v-if="rowVariant(rowIndex)">
-                      <b-button variant="light" class="pb-1" :class="`text-${rowVariant(rowIndex)}`" :disabled="isDisabled" @click="deleteImportMapping(rowIndex)">
+                      <b-button variant="light" class="text-secondary pb-1" :disabled="isDisabled" @click="deleteImportMapping(rowIndex)">
                         <icon name="times-circle"/>
                       </b-button>
                     </template>
