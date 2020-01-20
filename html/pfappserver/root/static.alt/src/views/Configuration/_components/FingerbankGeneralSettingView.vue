@@ -22,8 +22,9 @@
         </b-row>
         <b-row class="my-1">
           <b-col sm="3" class="col-form-label pr-0">{{ $t('Account type') }}</b-col>
-          <b-col sm="auto" class="pt-1" v-if="accountInfo.github_uid">Github</b-col>
-          <b-col sm="auto" class="pt-1" v-else>Corporate</b-col>
+          <b-col sm="auto" class="pt-1" v-if="accountInfo.auth_type === 'github'">Github</b-col>
+          <b-col sm="auto" class="pt-1" v-else-if="accountInfo.auth_type === 'local'">{{ $t('Corporate') }}</b-col>
+          <b-col sm="auto" class="pt-1" v-else>{{ $t('Unknown') }}</b-col>
         </b-row>
         <b-row class="my-1">
           <b-col sm="3" class="col-form-label pr-0">{{ $t('Requests in the current hour') }}</b-col>
