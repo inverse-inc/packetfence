@@ -135,7 +135,7 @@ export default {
         },
         {
           value: 'object_id',
-          text: this.$i18n.t('object_id'),
+          text: this.$i18n.t('Object ID'),
           types: [conditionType.SUBSTRING]
         },
         {
