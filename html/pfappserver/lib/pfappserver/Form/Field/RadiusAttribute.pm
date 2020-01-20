@@ -23,6 +23,15 @@ has_field 'name' => (
     widget_wrapper => 'None',
     do_label       => 0,
     required       => 1,
+    tags => {
+        allowed_lookup => sub {
+            {
+                search_path => "/api/v1/radius_attributes",
+                field_name  => "name",
+                value_name  => 'name',
+            }
+        },
+    },
 );
 
 has_field 'value' => (

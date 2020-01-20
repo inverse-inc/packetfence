@@ -984,6 +984,11 @@ my %FB_MODEL_2_PATH = (
 
 sub field_allowed_lookup {
     my ($self, $field) = @_;
+    my $allowed_lookup  = $field->get_tag("allowed_lookup") || undef;
+    if ($allowed_lookup) {
+        return $allowed_lookup;
+    }
+
     if ($field->isa("pfappserver::Form::Field::FingerbankSelect") || $field->isa("pfappserver::Form::Field::FingerbankField")) {
         my $fingerbank_model = $field->fingerbank_model;
         my $name = $fingerbank_model->_parseClassName;
