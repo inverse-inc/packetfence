@@ -416,6 +416,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Wispr activation'),
+          text: i18n.t('Enable Wispr on this connection profile'),
+          cols: [
+            {
+              namespace: 'wispr',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           if: !isDefault,
           label: i18n.t('Filters'),
           cols: [

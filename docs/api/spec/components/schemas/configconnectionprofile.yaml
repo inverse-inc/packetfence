@@ -160,6 +160,9 @@ ConfigConnectionProfile:
         target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_roles_management"><i
         class="icon-question-circle-o"></i></a> '
       type: string
+    wispr:
+      description : Enable Wispr on this connection profile
+      type: string
   required:
   - id
   - root_module

@@ -36,3 +36,4 @@ network_logoff=disabled
 network_logoff_popup=disabled
 dot1x_unset_on_unmatch=disabled
 vlan_pool_technique=username_hash
+wispr=disabled
