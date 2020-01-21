@@ -18,7 +18,7 @@ extends 'HTML::FormHandler::Field::Compound';
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
 
-has_field 'name' => (
+has_field 'type' => (
     type           => 'Text',
     widget_wrapper => 'None',
     do_label       => 0,
