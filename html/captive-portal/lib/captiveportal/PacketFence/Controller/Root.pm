@@ -85,7 +85,8 @@ Check if the device needs to be redirected to trigger wispr
 
 sub checkWispr :Private {
     my ($self, $c) = @_;
-    if ($c->portalSession->profile->wisprEnabled) {
+        if ($c->portalSession->profile->wisprEnabled() &&
+               ( (!exists($c->request->{query_parameters}->{wispr})) || (exists($c->request->{query_parameters}->{wispr}) && $c->request->{query_parameters}->{wispr} eq "true") ) ) {
         $c->res->redirect("http://$fqdn?wispr=true");
         $c->detach();
     }

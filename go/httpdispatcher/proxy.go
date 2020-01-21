@@ -154,18 +154,38 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			PortalURL.Scheme = "http"
 		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
-		PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
+
+		wispr := r.URL.Query().Get("wispr")
+
+		destURL, _ := url.Parse(r.URL.String())
+
+		destURL.Scheme = r.Header.Get("X-Forwarded-Proto")
+		if r.Referer() != "" {
+			refererHost, err := url.Parse(r.Referer())
+			if err != nil {
+				destURL.Host = host
+			} else {
+				destURL.Host = refererHost.Hostname()
+			}
+		} else {
+			destURL.Host = host
+		}
+
+		q, _ := url.ParseQuery("destination_url=" + stripQueryParam(destURL.String(), "wispr"))
 
 		if parking {
 			PortalURL.Path = ""
 			PortalURL.RawQuery = ""
 		}
 
+		PortalURL.RawQuery = q.Encode()
 		w.Header().Set("Location", PortalURL.String())
-		w.WriteHeader(http.StatusOK)
+		t := template.New("foo")
 		if r.Method != "HEAD" {
-			t := template.New("foo")
-			t, _ = t.Parse(`
+			if wispr == "" || wispr == "false" {
+				w.WriteHeader(http.StatusOK)
+
+				t, _ = t.Parse(`
 <html>
     <head>
         <meta http-equiv="refresh" content="0; url={{.String}}">
@@ -174,6 +194,34 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         </script>
     </head>
 </html>`)
+
+			} else {
+				q.Add("wispr", "false")
+				PortalURL.RawQuery = q.Encode()
+				w.Header().Set("Location", PortalURL.String())
+				w.WriteHeader(http.StatusFound)
+				t, _ = t.Parse(`
+	<html>
+	<head><title>302 Moved Temporarily</title></head>
+	<body>
+		<h1>Moved</h1>
+			<p>The document has moved <a href="{{.String}}">here</a>.</p>
+			<!--<?xml version="1.0" encoding="UTF-8"?>
+				<WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
+					<Redirect>
+						<MessageType>100</MessageType>
+						<ResponseCode>0</ResponseCode>
+						<AccessProcedure>1.0</AccessProcedure>
+						<VersionLow>1.0</VersionLow>
+						<VersionHigh>2.0</VersionHigh>
+						<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
+						<LocationName>CDATA[[PacketFence]]</LocationName>
+						<LoginURL>{{.String}}</LoginURL>
+					</Redirect>
+				</WISPAccessGatewayParam>-->
+		</body>
+	</html>`)
+			}
 			t.Execute(w, &PortalURL)
 		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REDIRECT"))
@@ -526,4 +574,15 @@ func (p *Proxy) APIUnpark(ctx context.Context, mac string, ip string) error {
 		return errors.New("Empty response  from " + "POST" + " /api/v1/" + mac + "/unpark")
 	}
 	return nil
+}
+
+func stripQueryParam(inURL string, stripKey string) string {
+	u, err := url.Parse(inURL)
+	if err != nil {
+		return inURL
+	}
+	q := u.Query()
+	q.Del(stripKey)
+	u.RawQuery = q.Encode()
+	return u.String()
 }
