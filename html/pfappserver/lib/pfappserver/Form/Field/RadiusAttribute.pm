@@ -50,7 +50,7 @@ inflate the value from the config store
 sub inflate {
     my ($self, $value) = @_;
     my %data;
-    @data{qw(name value)} = split /\s*=\s*/, $value, 2;
+    @data{qw(type value)} = split /\s*=\s*/, $value, 2;
     return \%data;
 }
 
