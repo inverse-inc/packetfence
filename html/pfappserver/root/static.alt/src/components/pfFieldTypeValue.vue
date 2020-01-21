@@ -100,15 +100,9 @@ export default {
     pfMixinForm
   ],
   props: {
-    default: {
-      type: Object,
-      default: () => {
-        return { type: null, value: null }
-      }
-    },
     value: {
       type: Object,
-      default: () => { return { type: null, value: null } }
+      default: () => { return this.default }
     },
     typeLabel: {
       type: String
@@ -131,6 +125,7 @@ export default {
   },
   data () {
     return {
+      default: { type: null, value: null }, // default value
       componentType // @/globals/pfField
     }
   },

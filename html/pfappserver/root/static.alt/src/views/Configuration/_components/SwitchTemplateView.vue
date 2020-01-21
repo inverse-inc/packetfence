@@ -101,14 +101,26 @@ export default {
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
+    },
+    radiusAttributes: { // mutating this property will re-evaluate view() and validators()
+      get () {
+        const { meta: { radiusAttributes = [] } = {} } = this
+        return radiusAttributes
+      },
+      set (newValue) {
+        this.$set(this.meta, 'radiusAttributes', newValue)
+      }
     }
   },
   methods: {
     init () {
-      const { isNew, isClone, isDeletable } = this
+      this.$store.dispatch('radius/getAttributes').then(radiusAttributes => {
+        this.radiusAttributes = radiusAttributes
+      })
       this.$store.dispatch('$_switch_templates/options').then(options => {
         const { meta = {} } = options
-        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable } })
+        const { isNew, isClone, isDeletable, radiusAttributes } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, radiusAttributes } })
         if (this.id) {
           // existing
           this.$store.dispatch('$_switch_templates/getSwitchTemplate', this.id).then(form => {
