@@ -104,7 +104,7 @@ has query_mobiledevices => ( is => 'rw', default => sub { $TRUE } );
 
 =head2 sync_pid
 
-Option to query the "mobile devices" inventory
+Option to sync PID from provisioner
 
 =cut
 

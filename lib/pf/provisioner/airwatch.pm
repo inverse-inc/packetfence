@@ -26,12 +26,60 @@ use pf::person;
 use pf::node;
 extends 'pf::provisioner';
 
+=head2 protocol
+
+Protocol to connect to the Airwatch web API
+
+=cut
+
 has protocol => (is => 'rw', required => 1, default => sub{"https"});
-has host => (is => 'rw', required => 1);
-has port => (is => 'rw', required => 1, default => sub{443});
-has api_username => (is => 'rw', required => 1);
-has api_password => (is => 'rw', required => 1);
-has tenant_code => (is => 'rw', required => 1);
+
+=head2 host
+
+Host of the provisioner web API
+
+=cut
+
+has host => ( is => 'rw', required => $TRUE );
+
+=head2 port
+
+Port to connect to the provisioner web API
+
+=cut
+
+has port => ( is => 'rw', default => sub { $HTTPS_PORT } );
+
+=head2 api_username
+
+Username to connect to the API
+
+=cut
+
+has api_username => ( is => 'rw', required => $TRUE );
+
+=head2 api_password
+
+Password to connect to the API
+
+=cut
+
+has api_password => ( is => 'rw', required => $TRUE );
+
+=head2 tenant_code
+
+Tenant Code to connect to the API
+
+=cut
+
+has tenant_code => (is => 'rw', required => $TRUE);
+
+=head2 sync_pid
+
+Option to sync PID from provisioner
+
+=cut
+
 has sync_pid => (is => 'rw', required => 1);
 
 Readonly::Scalar our $AIRWATCH_ENROLLED_STATUS => "Enrolled";
