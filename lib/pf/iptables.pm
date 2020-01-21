@@ -725,6 +725,8 @@ sub generate_interception_rules {
                     $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
                     $rule = "--protocol tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
                     $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
+                    $rule = "--protocol tcp --match multiport --destination-port 80,443 -d 169.254.255.254";
+                    $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
                 }
             }
         }
