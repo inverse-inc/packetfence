@@ -45,6 +45,7 @@ use pf::config qw(
 );
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
+use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
