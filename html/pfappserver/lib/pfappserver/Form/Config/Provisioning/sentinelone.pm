@@ -65,7 +65,7 @@ has_field 'mac_osx_agent_download_uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses host port protocol api_username api_password win_agent_download_uri mac_osx_agent_download_uri apply_role role_to_apply) ],
+   render_list => [ qw(id type description category oses host port protocol api_username api_password win_agent_download_uri mac_osx_agent_download_uri apply_role role_to_apply autoregister) ],
   );
 
 =head1 COPYRIGHT

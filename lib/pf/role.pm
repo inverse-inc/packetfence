@@ -690,10 +690,11 @@ sub shouldAutoRegister {
 
     foreach my $id (@{$args->{profile}->getProvisioners()}) {
         my $provisioner = pf::factory::provisioner->new($id);
-        if(isenabled($provisioner->apply_role)) {
-            get_logger->debug("Provisioner $id is setup to apply a role on matching devices. Checking state of node for autoregistration");
+        if(isenabled($provisioner->autoregister)) {
+            get_logger->debug("Provisioner $id is setup to autoreg on matching devices. Checking state of node for autoregistration");
             my $role = $provisioner->authorize_apply_role($args->{mac});
             if(defined($role)) {
+                get_logger->info("Device is authorized in provisioner, autoregistering the device.");
                 return $TRUE
             }
         }

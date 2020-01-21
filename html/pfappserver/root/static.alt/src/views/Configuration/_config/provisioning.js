@@ -293,6 +293,21 @@ export const viewFields = {
       ]
     }
   },
+  autoregister: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Auto register'),
+      text: i18n.t('Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.'),
+      cols: [
+        {
+          namespace: 'autoregister',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
   enforce: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Enforce'),
@@ -927,6 +942,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -943,6 +959,7 @@ export const view = (form = {}, meta = {}) => {
               viewFields.id(form, meta),
               viewFields.description(form, meta),
               viewFields.enforce(form, meta),
+              viewFields.autoregister(form, meta),
               viewFields.apply_role(form, meta),
               viewFields.role_to_apply(form, meta),
               viewFields.category(form, meta),
@@ -980,6 +997,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -995,6 +1013,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1012,6 +1031,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1034,6 +1054,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1058,6 +1079,7 @@ export const view = (form = {}, meta = {}) => {
               viewFields.id(form, meta),
               viewFields.description(form, meta),
               viewFields.enforce(form, meta),
+              viewFields.autoregister(form, meta),
               viewFields.apply_role(form, meta),
               viewFields.role_to_apply(form, meta),
               viewFields.category(form, meta),
@@ -1104,6 +1126,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1127,6 +1150,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1157,6 +1181,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1179,6 +1204,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1203,6 +1229,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1225,6 +1252,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1247,6 +1275,7 @@ export const view = (form = {}, meta = {}) => {
               viewFields.id(form, meta),
               viewFields.description(form, meta),
               viewFields.enforce(form, meta),
+              viewFields.autoregister(form, meta),
               viewFields.apply_role(form, meta),
               viewFields.role_to_apply(form, meta),
               viewFields.category(form, meta),
@@ -1284,6 +1313,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1311,6 +1341,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
@@ -1386,6 +1417,9 @@ export const validatorFields = {
   can_sign_profile: (form = {}, meta = {}) => {},
   enforce: (form = {}, meta = {}) => {
     return { enforce: validatorsFromMeta(meta, 'enforce', i18n.t('Enforce')) }
+  },
+  autoregister: (form = {}, meta = {}) => {
+    return { autoregister: validatorsFromMeta(meta, 'autoregister', i18n.t('Auto register')) }
   },
   apply_role: (form = {}, meta = {}) => {
     return { apply_role: validatorsFromMeta(meta, 'apply_role', i18n.t('Apply Role')) }
@@ -1520,6 +1554,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta)
       }
@@ -1527,6 +1565,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.ssid(form, meta),
         ...validatorFields.broadcast(form, meta),
@@ -1555,6 +1597,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta)
       }
@@ -1562,6 +1608,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.ssid(form, meta),
         ...validatorFields.oses(form, meta),
@@ -1571,6 +1621,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.username(form, meta),
         ...validatorFields.password(form, meta),
@@ -1585,6 +1639,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.host(form, meta),
@@ -1600,6 +1658,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.ssid(form, meta),
         ...validatorFields.broadcast(form, meta),
@@ -1632,6 +1694,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.username(form, meta),
@@ -1647,6 +1713,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.client_id(form, meta),
@@ -1664,6 +1734,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.host(form, meta),
@@ -1678,6 +1752,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.client_id(form, meta),
@@ -1694,6 +1772,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.username(form, meta),
@@ -1708,6 +1790,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.username(form, meta),
@@ -1721,6 +1807,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.ssid(form, meta),
         ...validatorFields.broadcast(form, meta),
@@ -1749,6 +1839,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.applicationID(form, meta),
@@ -1769,6 +1863,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
         ...validatorFields.enforce(form, meta),
+        ...validatorFields.autoregister(form, meta),
         ...validatorFields.apply_role(form, meta),
         ...validatorFields.role_to_apply(form, meta),
         ...validatorFields.category(form, meta),

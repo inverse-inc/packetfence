@@ -101,6 +101,14 @@ If the provisioner has to be enforced on each connection
 
 has enforce => (is => 'rw', default => sub { 'enabled' });
 
+=head2 autoregister
+
+If a role should be applied to the devices authorized in the provisioner
+
+=cut
+
+has autoregister => (is => 'rw', default => sub { 'disabled' });
+
 =head2 apply_role
 
 If a role should be applied to the devices authorized in the provisioner

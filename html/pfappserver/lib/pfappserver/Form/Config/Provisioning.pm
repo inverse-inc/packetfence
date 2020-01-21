@@ -53,6 +53,17 @@ has_field 'enforce',
    default => 'enabled',
   );
 
+has_field 'autoregister',
+  (
+   type => 'Toggle',
+   label => 'Auto register',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.' },
+   default => 'disabled',
+  );
+
 has_field 'apply_role',
   (
    type => 'Toggle',
@@ -122,7 +133,7 @@ has_field 'pki_provider' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category pki_provider oses apply_role role_to_apply) ],
+   render_list => [ qw(id type description category pki_provider oses apply_role role_to_apply autoregister) ],
   );
 
 =head2 options_pki_provider
