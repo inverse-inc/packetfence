@@ -680,6 +680,17 @@ sub unregOnAcctStop {
     return isenabled($self->{'_unreg_on_acct_stop'});
 }
 
+=item wisprEnabled
+
+Is Wispr enabled on the connection profile
+
+=cut
+
+sub wisprEnabled {
+    my ($self) = @_;
+    return $self->{'_wispr'};
+}
+
 sub TO_JSON {
     return {%{$_[0]}};
 }

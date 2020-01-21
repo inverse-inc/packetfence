@@ -55,6 +55,7 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 sub auto : Private {
     my ( $self, $c ) = @_;
     $c->stash->{statsd_timer} = pf::StatsD::Timer->new({ 'stat' => 'captiveportal/' . $c->request->path, level => 6 });
+    $c->forward('checkWispr');
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
     $c->forward('checkReadonly');
@@ -74,6 +75,20 @@ sub updateNodeLastSeen :Private {
     my ($self, $c) = @_;
     # update last_seen of MAC address as some activity from it has been seen
     node_update_last_seen($c->portalSession->clientMac);
+}
+
+=head2 checkWispr
+
+Check if the device needs to be redirected to trigger wispr
+
+=cut
+
+sub checkWispr :Private {
+    my ($self, $c) = @_;
+    if ($c->portalSession->profile->wisprEnabled) {
+        $c->res->redirect("http://$fqdn?wispr=true");
+        $c->detach();
+    }
 }
 
 =head2 checkForParking
