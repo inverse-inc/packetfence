@@ -1,4 +1,3 @@
-# Copyright (C) Inverse inc.
 # Do not edit file
 # Changes will be lost on upgrade
 
@@ -17,4 +16,9 @@ reject=Reply-Message = This node is not allowed to use this service
 disconnect= <<EOT
 Calling-Station-Id = ${macToEUI48($mac)}
 NAS-IP-Address = $disconnectIp
+EOT
+voip= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-ID = $switch._voiceVlan
 EOT
