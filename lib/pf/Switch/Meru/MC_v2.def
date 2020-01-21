@@ -1,3 +1,5 @@
+# Do not edit.
+# Any changes will be lost on upgrade.	
 description=Meru Controller v2
 radiusDisconnect=disconnect
 acceptVlan=<<EOT
