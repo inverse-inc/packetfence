@@ -688,7 +688,7 @@ Is Wispr enabled on the connection profile
 
 sub wisprEnabled {
     my ($self) = @_;
-    return $self->{'_wispr'};
+    return isenabled($self->{'_wispr'});
 }
 
 sub TO_JSON {
