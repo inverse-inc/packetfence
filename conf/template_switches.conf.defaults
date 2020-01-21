@@ -1,6 +1,33 @@
 # Do not edit file
 # Changes will be lost on upgrade
 
+[Cisco::BubbleYouLC]
+description=Bubble YOU LC
+acceptVlan= <<EOT
+Filter-Id = balls
+Cisco-AVPair = ligma=${uc($mac)}
+EOT
+acceptRole= <<EOT
+Airespace-ACL-Name = $role
+Airespace-ACL-Name = fuckyou
+EOT
+radiusDisconnect=disconnect
+disconnect= <<EOT
+Calling-Station-Id = $mac
+User-Name = mrsugma
+EOT
+
+[Meru::MC_v2]
+description=Meru Controller v2
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-ID = $vlan
+EOT
+acceptRole=Filter-ID = $role
+disconnect=Calling-Station-Id = $mac
+
 [PacketFence::Standard]
 # Do not edit.
 # Any changes will be lost on upgrade.
