@@ -51,7 +51,7 @@ has_field 'tenant_code' => (
 );
 
 has_block definition => (
-    render_list => [ qw(id type description category oses host port protocol api_username api_password tenant_code apply_role role_to_apply autoregister) ],
+    render_list => [ qw(id type description category oses host port protocol api_username api_password tenant_code apply_role role_to_apply autoregister sync_pid) ],
 );
 
 =head1 COPYRIGHT

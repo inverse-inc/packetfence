@@ -21,6 +21,9 @@ use HTTP::Request::Common;
 use JSON::MaybeXS qw(encode_json decode_json);
 use Readonly;
 use pf::constants;
+use pf::util;
+use pf::person;
+use pf::node;
 extends 'pf::provisioner';
 
 has protocol => (is => 'rw', required => 1, default => sub{"https"});
@@ -29,6 +32,7 @@ has port => (is => 'rw', required => 1, default => sub{443});
 has api_username => (is => 'rw', required => 1);
 has api_password => (is => 'rw', required => 1);
 has tenant_code => (is => 'rw', required => 1);
+has sync_pid => (is => 'rw', required => 1);
 
 Readonly::Scalar our $AIRWATCH_ENROLLED_STATUS => "Enrolled";
 
@@ -54,7 +58,15 @@ sub authorize {
     }
     
     my $data = decode_json($res);
+
     if(defined($data->{Total}) && $data->{Total} == 1 && $data->{Devices}->[0]->{EnrollmentStatus} eq $AIRWATCH_ENROLLED_STATUS) {
+        if(isenabled($self->sync_pid) && $data->{Devices}->[0]->{UserName}) {
+            my $pid = $data->{Devices}->[0]->{UserName};
+            get_logger->info("Found username $pid through Airwatch");
+            person_add($pid);
+            node_modify($mac, pid => $pid);
+        }
+
         return $TRUE;
     }
     else {

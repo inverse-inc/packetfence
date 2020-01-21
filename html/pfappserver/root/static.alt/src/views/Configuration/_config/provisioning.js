@@ -308,6 +308,21 @@ export const viewFields = {
       ]
     }
   },
+  sync_pid: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Sync PID'),
+      text: i18n.t('Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.'),
+      cols: [
+        {
+          namespace: 'sync_pid',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
   enforce: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Enforce'),
@@ -1344,6 +1359,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.autoregister(form, meta),
             viewFields.apply_role(form, meta),
             viewFields.role_to_apply(form, meta),
+            viewFields.sync_pid(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
             viewFields.host(form, meta),
@@ -1415,6 +1431,9 @@ export const validatorFields = {
   },
   broadcast: (form = {}, meta = {}) => {},
   can_sign_profile: (form = {}, meta = {}) => {},
+  sync_pid: (form = {}, meta = {}) => {
+    return { sync_pid: validatorsFromMeta(meta, 'sync_pid', i18n.t('Sync PID')) }
+  },
   enforce: (form = {}, meta = {}) => {
     return { enforce: validatorsFromMeta(meta, 'enforce', i18n.t('Enforce')) }
   },
@@ -1866,6 +1885,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.autoregister(form, meta),
         ...validatorFields.apply_role(form, meta),
         ...validatorFields.role_to_apply(form, meta),
+        ...validatorFields.sync_pid(form, meta)
         ...validatorFields.category(form, meta),
         ...validatorFields.oses(form, meta),
         ...validatorFields.host(form, meta),

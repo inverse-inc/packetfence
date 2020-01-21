@@ -42,6 +42,17 @@ has_field 'type' =>
    messages => { required => 'Please select Provisioning type' },
   );
 
+has_field 'sync_pid',
+  (
+   type => 'Toggle',
+   label => 'Sync PID',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.' },
+   default => 'disabled',
+  );
+
 has_field 'enforce',
   (
    type => 'Toggle',
