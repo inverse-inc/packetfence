@@ -225,19 +225,6 @@ export const viewFields = {
       ]
     }
   },
-  tenant_code: ({ options: { meta = {} } } = {}) => {
-    return {
-      label: i18n.t('Tenant code'),
-      fields: [
-        {
-          key: 'tenant_code',
-          component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'tenant_code'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'tenant_code', i18n.t('Tenant code'))
-        }
-      ]
-    }
-  },
   api_uri: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Api uri'),
@@ -306,13 +293,13 @@ export const viewFields = {
       ]
     }
   },
-  enforce: () => {
+  enforce: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Enforce'),
       text: i18n.t('Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.'),
-      fields: [
+      cols: [
         {
-          key: 'enforce',
+          namespace: 'enforce',
           component: pfFormRangeToggle,
           attrs: {
             values: { checked: 'enabled', unchecked: 'disabled' }
@@ -321,13 +308,13 @@ export const viewFields = {
       ]
     }
   },
-  apply_role: () => {
+  apply_role: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Apply role'),
       text: i18n.t('When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.'),
-      fields: [
+      cols: [
         {
-          key: 'apply_role',
+          namespace: 'apply_role',
           component: pfFormRangeToggle,
           attrs: {
             values: { checked: 'enabled', unchecked: 'disabled' }
@@ -336,16 +323,16 @@ export const viewFields = {
       ]
     }
   },
-  role_to_apply: ({ options: { meta = {} } } = {}) => {
+  role_to_apply: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Role to apply'),
       text: i18n.t('When "Apply role" is enabled, this defines the role to apply when the device is authorized with the provisioner.'),
-      fields: [
+      cols: [
         {
-          key: 'role_to_apply',
+          namespace: 'role_to_apply',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'role_to_apply'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'role_to_apply', i18n.t('Role to apply'))
+          attrs: attributesFromMeta(meta, 'role_to_apply'),
+          validators: validatorsFromMeta(meta, 'role_to_apply', i18n.t('Role to apply'))
         }
       ]
     }
@@ -856,6 +843,19 @@ export const viewFields = {
       ]
     }
   },
+  tenant_code: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Tenant code'),
+      cols: [
+        {
+          namespace: 'tenant_code',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'tenant_code'),
+          validators: validatorsFromMeta(meta, 'tenant_code', i18n.t('Tenant code'))
+        }
+      ]
+    }
+  },
   username: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Username'),
@@ -1307,7 +1307,7 @@ export const view = (form = {}, meta = {}) => {
       return [
         {
           tab: null, // ignore tabs
-          fields: [
+          rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.enforce(form, meta),
@@ -1373,6 +1373,9 @@ export const validatorFields = {
   api_uri: (form = {}, meta = {}) => {
     return { api_uri: validatorsFromMeta(meta, 'api_uri', 'URI') }
   },
+  tenant_code: (form = {}, meta = {}) => {
+    return { tenant_code: validatorsFromMeta(meta, 'tenant_code', i18n.t('Tenant code')) }
+  },
   boarding_host: (form = {}, meta = {}) => {
     return { boarding_host: validatorsFromMeta(meta, 'boarding_host', i18n.t('Host')) }
   },
@@ -1381,6 +1384,15 @@ export const validatorFields = {
   },
   broadcast: (form = {}, meta = {}) => {},
   can_sign_profile: (form = {}, meta = {}) => {},
+  enforce: (form = {}, meta = {}) => {
+    return { enforce: validatorsFromMeta(meta, 'enforce', i18n.t('Enforce')) }
+  },
+  apply_role: (form = {}, meta = {}) => {
+    return { apply_role: validatorsFromMeta(meta, 'apply_role', i18n.t('Apply Role')) }
+  },
+  role_to_apply: (form = {}, meta = {}) => {
+    return { role_to_apply: validatorsFromMeta(meta, 'role_to_apply', i18n.t('Role to apply')) }
+  },
   category: (form = {}, meta = {}) => {
     return { category: validatorsFromMeta(meta, 'category', i18n.t('Roles')) }
   },
@@ -1751,6 +1763,22 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.windows_agent_download_uri(form, meta),
         ...validatorFields.mac_osx_agent_download_uri(form, meta),
         ...validatorFields.domains(form, meta)
+      }
+    case 'airwatch':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.enforce(form, meta),
+        ...validatorFields.apply_role(form, meta),
+        ...validatorFields.role_to_apply(form, meta),
+        ...validatorFields.category(form, meta),
+        ...validatorFields.oses(form, meta),
+        ...validatorFields.host(form, meta),
+        ...validatorFields.port(form, meta),
+        ...validatorFields.protocol(form, meta),
+        ...validatorFields.api_username(form, meta),
+        ...validatorFields.api_password(form, meta),
+        ...validatorFields.tenant_code(form, meta)
       }
     default:
       return {}
