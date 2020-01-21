@@ -33,8 +33,8 @@ VoIPLLDPDetect=N
 #SNMPPrivPasswordTrap = privpwdread
 
 [192.168.1.0/24]
-description=Test Range Switch
-type = Cisco::Catalyst_2900XL
+description=Test Range WLC
+type = Cisco::WLC
 mode = production
-uplink = 23,24
+uplink_dynamic=0
 VoIPLLDPDetect=N
