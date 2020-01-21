@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # DNS filter configuration
 #
 # you can trigger rule in pfdns on specific scope (registration, isolation, inline, dnsenforcement)

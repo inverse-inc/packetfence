@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 ## Update Log level for pfdetect
 ##
 LOG_LEVEL=INFO

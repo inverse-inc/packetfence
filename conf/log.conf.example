@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 ### Root/Parent (PacketFence) logger ###
 # Will log everything (even categories defined to log in another appender) unless 
 # specified using the additivity parameter

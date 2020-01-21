@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [1 DEFAULT]
 admin_strip_username=disabled
 radius_strip_username=disabled

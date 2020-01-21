@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [android]
 type=android
 description=android provisioner

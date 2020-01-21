@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Cluster configuration file for active/active
 # This file will have it deactivated by default
 # To activate the active/active mode, set a management IP in the cluster section

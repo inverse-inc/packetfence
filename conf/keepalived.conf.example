@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 global_defs {
    notification_email {
     %%emailaddr%%

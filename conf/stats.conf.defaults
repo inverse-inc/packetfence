@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [metric 'redis queue stats count']
 type=api
 statsd_type=gauge

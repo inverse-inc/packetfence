@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [akamaihd_net]
 filter = qname
 operator = regex

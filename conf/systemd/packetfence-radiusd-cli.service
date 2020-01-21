@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence FreeRADIUS multi-protocol CLI authentication server
 Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/

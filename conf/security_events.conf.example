@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Most of the snort rules are from Emerging Threats (http://www.emergingthreats.net/)
 #
 # In order to use different rulesets, please point the variable snort_rules,

@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [authentications]
 type=builtin
 description= All Authentications

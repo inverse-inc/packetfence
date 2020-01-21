@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Radius filter configuration
 # 
 # you are able to rewrite the radius answer based on attributes values, by default the radius filter

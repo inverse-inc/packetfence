@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Look in /usr/local/pf/conf/chi.conf.defaults
 # for allowed parameters 
 # Also look in the CHI and the CHI::Driver::<Class>
