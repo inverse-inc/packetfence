@@ -27,7 +27,7 @@ Enhancements
 Bug Fixes
 +++++++++
 * Fixed logic to move mac to another port (Avaya)
-
+* Fix serialization of the switch when calling ReAssignVlan/desAssociate
 
 Version 9.3.0 released on 2020-01-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
