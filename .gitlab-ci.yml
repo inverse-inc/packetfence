@@ -64,7 +64,7 @@ variables:
 
 # triggers for release jobs
 .job_release_triggers:
-  # run job on release tag (vX.Y.Z) (push and web)
+  # run jobs on release tag (vX.Y.Z) (push and web)
   # no schedule on tag
   # exclude branches to avoid trigger when a branch is called vX.Y.X
   only:
@@ -88,10 +88,17 @@ variables:
 
 # triggers for maintenance jobs
 .job_maintenance_triggers:
-  # run job on maintenance branches (push, schedules and web)
+  # run jobs on maintenance branches (push, schedules and web)
   # allow on all maintenance branches with a .gitlab-ci.yml (starting from 8.0)
   only:
     - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
+
+
+# triggers for nightly jobs (using schedule feature)
+.job_nightly_triggers:
+  # run only jobs scheduled in GitLab UI
+  only:
+    - schedules
 
 ########################################    
 # JOBS
@@ -405,6 +412,14 @@ test_pkg_dev_and_release_centos_7:
     - .job_dev_and_release_triggers
   when: manual
 
+test_pkg_nigthly_centos_7:
+  variables:
+    VM_NAME: pfcen7dev
+  extends:
+    - .test_job
+    - .test_script
+    - .job_nightly_triggers
+
 test_pkg_dev_and_release_debian_stretch:
   variables:
     VM_NAME: pfdeb9dev
@@ -414,6 +429,15 @@ test_pkg_dev_and_release_debian_stretch:
     - .test_script
     - .job_dev_and_release_triggers
   when: manual
+
+test_pkg_nightly_debian_stretch:
+  variables:
+    VM_NAME: pfdeb9dev
+    PERL_UNIT_TESTS: 'no'
+  extends:
+    - .test_job
+    - .test_script
+    - .job_nightly_triggers
     
 ########################################
 # UPLOAD JOBS
