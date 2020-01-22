@@ -45,6 +45,7 @@ type passthrough struct {
 	PortalURL               map[int]map[*net.IPNet]*url.URL
 	URIException            *regexp.Regexp
 	SecureRedirect          bool
+	Wispr                   bool
 }
 
 type fqdn struct {
@@ -169,42 +170,43 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			destURL.Host = host
 		}
 
-		q, _ := url.ParseQuery("destination_url=" + destURL.String())
-
 		if parking {
 			PortalURL.Path = ""
 			PortalURL.RawQuery = ""
 		}
 
+		// Detect wispr user agent but exclude istuff
 		wispr := regexp.MustCompile(`(?i)wispr`)
+		CaptiveNetworkSupport := regexp.MustCompile(`(?i)CaptiveNetworkSupport`)
 
-		PortalURL.RawQuery = q.Encode()
+		PortalURL.RawQuery = "destination_url=" + destURL.String()
+
 		w.Header().Set("Location", PortalURL.String())
 		t := template.New("foo")
 		if r.Method != "HEAD" {
-			if wispr.MatchString(r.UserAgent()) {
+			if (wispr.MatchString(r.UserAgent()) && !CaptiveNetworkSupport.MatchString(r.UserAgent())) || passThrough.Wispr {
 				w.WriteHeader(http.StatusFound)
 				t, _ = t.Parse(`
-	<html>
-	<head><title>302 Moved Temporarily</title></head>
-	<body>
-		<h1>Moved</h1>
-			<p>The document has moved <a href="{{.String}}">here</a>.</p>
-			<!--<?xml version="1.0" encoding="UTF-8"?>
-				<WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
-					<Redirect>
-						<MessageType>100</MessageType>
-						<ResponseCode>0</ResponseCode>
-						<AccessProcedure>1.0</AccessProcedure>
-						<VersionLow>1.0</VersionLow>
-						<VersionHigh>2.0</VersionHigh>
-						<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
-						<LocationName>CDATA[[PacketFence]]</LocationName>
-						<LoginURL>{{.String}}</LoginURL>
-					</Redirect>
-				</WISPAccessGatewayParam>-->
+<html>
+    <head><title>302 Moved Temporarily</title></head>
+    <body>
+        <h1>Moved</h1>
+            <p>The document has moved <a href="{{.String}}">here</a>.</p>
+            <!--<?xml version="1.0" encoding="UTF-8"?>
+                <WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
+                    <Redirect>
+                        <MessageType>100</MessageType>
+                        <ResponseCode>0</ResponseCode>
+                        <AccessProcedure>1.0</AccessProcedure>
+                        <VersionLow>1.0</VersionLow>
+                        <VersionHigh>2.0</VersionHigh>
+                        <AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
+                        <LocationName>CDATA[[PacketFence]]</LocationName>
+                        <LoginURL>{{.String}}</LoginURL>
+                    </Redirect>
+                </WISPAccessGatewayParam>-->
 		</body>
-	</html>`)
+</html>`)
 
 			} else {
 				w.WriteHeader(http.StatusOK)
@@ -305,6 +307,12 @@ func (p *passthrough) readConfig(ctx context.Context) {
 	} else {
 		p.SecureRedirect = false
 		scheme = "http"
+	}
+
+	if portal.WisprRedirection == "enabled" {
+		p.Wispr = true
+	} else {
+		p.Wispr = false
 	}
 
 	index := 0
