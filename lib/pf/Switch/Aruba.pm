@@ -490,7 +490,11 @@ sub radiusDisconnect {
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'Acct-Session-Id' => $acctsessionid,
+            # jsemaan@inverse.ca
+            # All controllers we see now don't want the Acct-Session-Id so I removed it
+            # Feel free to uncomment it if you're running a really really old controller version
+            # For the record, all the deployments we made or upgraded recently required the removal of this attribute
+            #'Acct-Session-Id' => $acctsessionid,
         };
 
         # merging additional attributes provided by caller to the standard attributes
