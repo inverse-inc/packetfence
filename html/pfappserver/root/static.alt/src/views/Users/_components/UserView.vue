@@ -151,7 +151,7 @@
           </template>
           <b-row align-h="between" align-v="center">
             <b-col cols="auto" class="mr-auto">
-              <b-dropdown size="sm" class="mb-2" variant="link" :disabled="isLoading || !hasNodes" no-caret>
+              <b-dropdown size="sm" class="mb-2" variant="link" :disabled="isLoadingNodes || !hasNodes" no-caret>
                 <template v-slot:button-content>
                   <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
                 </template>
@@ -179,7 +179,7 @@
               <b-button variant="link" :to="`../../node/${node.item.mac}`">{{ node.item.mac }}</b-button>
             </template>
             <template v-slot:empty>
-              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No devices found') }}</pf-empty-table>
+              <pf-empty-table :isLoading="isLoadingNodes" text="">{{ $t('No devices found') }}</pf-empty-table>
             </template>
           </b-table>
         </b-tab>
@@ -199,11 +199,11 @@
             </template>
             <template v-slot:cell(buttons)="securityEvent">
               <span class="float-right text-nowrap">
-                <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoading" @click="closeSecurityEvent(securityEvent)">{{ $t('Close Event') }}</b-button>
+                <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoadingSecurityEvents" @click="closeSecurityEvent(securityEvent)">{{ $t('Close Event') }}</b-button>
               </span>
             </template>
             <template v-slot:empty>
-              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
+              <pf-empty-table :isLoading="isLoadingSecurityEvents" text="">{{ $t('No security events found') }}</pf-empty-table>
             </template>
           </b-table>
         </b-tab>
@@ -277,7 +277,6 @@ export default {
       schema, // @/globals/pfDatabaseSchema
       tabIndex: 0,
       tabTitle: '',
-      userContent: { nodes: [], security_events: [] },
       actionField: {
         component: pfFieldTypeValue,
         attrs: {
@@ -287,9 +286,11 @@ export default {
         }
       },
       genders: pfFieldTypeValues[pfFieldType.GENDER](),
+      nodes: [],
       nodeFields, // ../_config/
       nodeSortBy: 'status',
       nodeSortDesc: false,
+      securityEvents: [],
       securityEventFields, // ../_config/
       securityEventSortBy: 'start_date',
       securityEventSortDesc: true
@@ -302,17 +303,23 @@ export default {
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    node () {
-      return this.$store.state.$_users.users[this.pid]
-    },
     isLoading () {
       return this.$store.getters['$_users/isLoading']
+    },
+    isLoadingNodes () {
+      return this.$store.getters['$_users/isLoadingNodes']
+    },
+    isLoadingSecurityEvents () {
+      return this.$store.getters['$_users/isLoadingSecurityEvents']
     },
     disableSave () {
       return this.invalidForm || this.isLoading
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     },
     isDefaultUser () {
       const { form: { pid } = {} } = this
@@ -321,17 +328,8 @@ export default {
     visibleNodeFields () {
       return this.nodeFields.filter(field => field.visible || field.locked)
     },
-    escapeKey () {
-      return this.$store.getters['events/escapeKey']
-    },
-    nodes () {
-      return this.$store.getters['$_users/nodes'](this.pid)
-    },
     hasNodes () {
       return (Array.isArray(this.nodes) && this.nodes.length > 0)
-    },
-    securityEvents () {
-      return this.$store.getters['$_users/securityEvents'](this.pid)
     },
     hasOpenSecurityEvents () {
       return (Array.isArray(this.securityEvents) && this.securityEvents.findIndex(securityEvent => securityEvent.status === 'open') > -1)
@@ -339,6 +337,12 @@ export default {
   },
   methods: {
     init () {
+      this.$store.dispatch('$_users/getUserNodes', this.pid).then(nodes => {
+        this.nodes = nodes
+      })
+      this.$store.dispatch('$_users/getUserSecurityEvents', this.pid).then(securityEvents => {
+        this.securityEvents = securityEvents
+      })
       this.$store.dispatch(`${this.formStoreName}/clearForm`)
       this.$store.dispatch(`${this.formStoreName}/clearFormValidations`)
       this.$store.dispatch('$_users/getUser', this.pid).then(user => {
