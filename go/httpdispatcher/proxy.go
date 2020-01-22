@@ -155,8 +155,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
 
-		wispr := r.URL.Query().Get("wispr")
-
 		destURL, _ := url.Parse(r.URL.String())
 
 		destURL.Scheme = r.Header.Get("X-Forwarded-Proto")
@@ -171,34 +169,20 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			destURL.Host = host
 		}
 
-		q, _ := url.ParseQuery("destination_url=" + stripQueryParam(destURL.String(), "wispr"))
+		q, _ := url.ParseQuery("destination_url=" + destURL.String())
 
 		if parking {
 			PortalURL.Path = ""
 			PortalURL.RawQuery = ""
 		}
 
+		wispr := regexp.MustCompile(`(?i)wispr`)
+
 		PortalURL.RawQuery = q.Encode()
 		w.Header().Set("Location", PortalURL.String())
 		t := template.New("foo")
 		if r.Method != "HEAD" {
-			if wispr == "" || wispr == "false" {
-				w.WriteHeader(http.StatusOK)
-
-				t, _ = t.Parse(`
-<html>
-    <head>
-        <meta http-equiv="refresh" content="0; url={{.String}}">
-        <script type="text/javascript">
-            window.location.replace('{{.String}}');
-        </script>
-    </head>
-</html>`)
-
-			} else {
-				q.Add("wispr", "false")
-				PortalURL.RawQuery = q.Encode()
-				w.Header().Set("Location", PortalURL.String())
+			if wispr.MatchString(r.UserAgent()) {
 				w.WriteHeader(http.StatusFound)
 				t, _ = t.Parse(`
 	<html>
@@ -221,6 +205,19 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				</WISPAccessGatewayParam>-->
 		</body>
 	</html>`)
+
+			} else {
+				w.WriteHeader(http.StatusOK)
+
+				t, _ = t.Parse(`
+<html>
+    <head>
+        <meta http-equiv="refresh" content="0; url={{.String}}">
+        <script type="text/javascript">
+            window.location.replace('{{.String}}');
+        </script>
+    </head>
+</html>`)
 			}
 			t.Execute(w, &PortalURL)
 		}
