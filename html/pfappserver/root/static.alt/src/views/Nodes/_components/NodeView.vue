@@ -209,7 +209,7 @@
         </b-tab>
 
         <b-tab title="IPv4 Addresses">
-          <template v-slottitle>
+          <template v-slot:title>
             {{ $t('IPv4') }} <b-badge pill v-if="node && node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
           </template>
           <b-table v-if="node && node.ip4"
