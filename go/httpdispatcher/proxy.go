@@ -580,14 +580,3 @@ func (p *Proxy) APIUnpark(ctx context.Context, mac string, ip string) error {
 	}
 	return nil
 }
-
-func stripQueryParam(inURL string, stripKey string) string {
-	u, err := url.Parse(inURL)
-	if err != nil {
-		return inURL
-	}
-	q := u.Query()
-	q.Del(stripKey)
-	u.RawQuery = q.Encode()
-	return u.String()
-}
