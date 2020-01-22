@@ -1522,7 +1522,7 @@ We highly suggest you delete data from the following tables if you don't need it
 * `radius_audit_log`: contains the data in 'Auditing->RADIUS Audit Log'
 * `ip4log_history`: Archiving data for the IPv4 history
 * `ip4log_archive`: Archiving data for the IPv4 history
-* `locationlog_archive`: Archiving data for the node location history
+* `locationlog_history`: Archiving data for the node location history
 
 You can safely delete the data from all of these tables without affecting the functionnalities as they are used for reporting and archiving purposes. Deleting the data from these tables can make the sync process considerably faster.
 

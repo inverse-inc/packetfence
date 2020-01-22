@@ -1,11 +1,9 @@
 #!/bin/bash
 #
-# Database maintenance and backup
+# Backup of $PF_DIRECTORY and $DB_NAME
 #
-# - Move entries older than a month from locationlog to locationlog_archive
-# - Optimize tables on sunday
+# - compressed $PF_DIRECTORY to $BACKUP_DIRECTORY, rotate and clean
 # - compressed mysqldump to $BACKUP_DIRECTORY, rotate and clean
-# - archive locationlog_archive entries older than a year the first day of each month
 #
 # Copyright (C) 2005-2019 Inverse inc.
 #
@@ -13,7 +11,6 @@
 #
 # Licensed under the GPL
 #
-# Installation: make sure you have locationlog_archive (based on locationlog) and edit DB_PWD to fit your password.
 
 NB_DAYS_TO_KEEP_DB=7
 NB_DAYS_TO_KEEP_FILES=7
@@ -113,8 +110,6 @@ should_backup(){
 }
 
 backup_db(){
-    /usr/local/pf/addons/database-cleaner.pl --table=locationlog_archive --date-field=end_time --older-than="1 MONTH"
-
     # Check to see if Percona XtraBackup is installed
     if hash innobackupex 2>/dev/null; then
         echo -e "Percona XtraBackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
@@ -159,7 +154,7 @@ backup_db(){
         else
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql.gz
-            mysqldump --opt --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_archive --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
+            mysqldump --opt --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_history --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
                 echo "mysqldump returned  error code: $?" >&2
