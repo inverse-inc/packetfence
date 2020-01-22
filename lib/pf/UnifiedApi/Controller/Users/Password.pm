@@ -20,6 +20,7 @@ has dal => 'pf::dal::password';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
 has 'url_parent_ids' =>  sub { [qw(user_id)] };
+has 'parent_primary_key_map' => sub { {user_id => 'pid'} };
 
 =head2 cleanup_item
 
@@ -37,7 +38,6 @@ sub cleanup_item {
 sub make_create_data {
     my ($self) = @_;
     my ($status, $data) = $self->SUPER::make_create_data();
-    $data->{pid} = $self->stash->{user_id};
     $data = $self->_handle_password_data($data);
     return ($status, $data);
 }
