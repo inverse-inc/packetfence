@@ -367,7 +367,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				if pf.NetworkType[k].NextHop != "" {
 					returnedIP = append([]byte(nil), v.To4()...)
 				} else {
-					returnedIP = append([]byte(nil), []byte{169, 254, 255, 254}...)
+					returnedIP = append([]byte(nil), []byte{192, 0, 2, 1}...)
 				}
 				rr.(*dns.A).A = returnedIP
 				break
