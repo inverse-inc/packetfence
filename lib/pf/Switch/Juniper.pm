@@ -201,7 +201,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
 
 =item returnRoleAttribute
 
-Meru uses the standard Filter-Id parameter.
+Juniper uses the standard Filter-Id parameter.
 
 =cut
 
