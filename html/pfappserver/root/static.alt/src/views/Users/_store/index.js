@@ -61,20 +61,22 @@ const deflateActions = (data) => {
 // Default values
 const state = {
   users: {}, // users details
+  usersStatus: '',
+  usersMessage: '',
+  usersNodes: {}, // user nodes
+  usersNodesStatus: '',
+  usersNodesMessage: '',
+  usersSecurityEvents: {}, // user security_events
+  usersSecurityEventsStatus: '',
+  usersSecurityEventsMessage: '',
   userExists: {}, // node exists true|false
-  message: '',
-  userStatus: '',
   createdUsers: []
 }
 
 const getters = {
-  isLoading: state => state.userStatus === 'loading',
-  securityEvents: state => (pid) => {
-    return state.users[pid].security_events
-  },
-  nodes: state => (pid) => {
-    return state.users[pid].nodes
-  }
+  isLoading: state => [state.usersStatus, state.usersNodesStatus, state.usersSecurityEventsStatus].includes('loading'),
+  isLoadingNodes: state => state.usersNodesStatus === 'loading',
+  isLoadingSecurityEvents: state => state.usersSecurityEventsStatus === 'loading'
 }
 
 const actions = {
@@ -132,15 +134,33 @@ const actions = {
     return api.user(pid).then(data => {
       inflateActions(data)
       commit('USER_REPLACED', data)
-      // Fetch nodes
-      api.nodes(pid).then(datas => {
-        commit('USER_UPDATED', { pid, prop: 'nodes', data: datas })
-      })
-      // Fetch security_events
-      api.securityEvents(pid).then(datas => {
-        commit('USER_UPDATED', { pid, prop: 'security_events', data: datas })
-      })
       return state.users[pid]
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+      return err
+    })
+  },
+  getUserNodes: ({ commit, state }, pid) => {
+    if (state.usersNodes[pid]) {
+      return Promise.resolve(state.usersNodes[pid])
+    }
+    commit('USER_NODES_REQUEST')
+    return api.nodes(pid).then(data => {
+      commit('USER_NODES_UPDATED', { pid, data })
+      return state.usersNodes[pid]
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+      return err
+    })
+  },
+  getUserSecurityEvents: ({ commit, state }, pid) => {
+    if (state.usersSecurityEvents[pid]) {
+      return Promise.resolve(state.usersSecurityEvents[pid])
+    }
+    commit('USER_SECURITY_EVENTS_REQUEST')
+    return api.securityEvents(pid).then(data => {
+      commit('USER_SECURITY_EVENTS_UPDATED', { pid, data })
+      return state.usersSecurityEvents[pid]
     }).catch(err => {
       commit('USER_ERROR', err.response)
       return err
@@ -347,17 +367,43 @@ const actions = {
 
 const mutations = {
   USER_REQUEST: (state) => {
-    state.userStatus = 'loading'
+    state.usersStatus = 'loading'
   },
   USER_REPLACED: (state, data) => {
     Vue.set(state.users, data.pid, data)
     // TODO: update items if found in it
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
   },
   USER_UPDATED: (state, params) => {
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
     if (params.pid in state.users) {
       Vue.set(state.users[params.pid], params.prop, params.data)
+    }
+  },
+  USER_NODES_REQUEST: (state) => {
+    state.usersNodesStatus = 'loading'
+  },
+  USER_NODES_UPDATED: (state, params) => {
+    state.usersNodesStatus = 'success'
+    Vue.set(state.usersNodes, params.pid, params.data)
+  },
+  USER_NODES_ERROR: (state, response) => {
+    state.usersNodesStatus = 'error'
+    if (response && response.data) {
+      state.usersNodesMessage = response.data.usersMessage
+    }
+  },
+  USER_SECURITY_EVENTS_REQUEST: (state) => {
+    state.usersSecurityEventsStatus = 'loading'
+},
+  USER_SECURITY_EVENTS_UPDATED: (state, params) => {
+    state.usersSecurityEventsStatus = 'success'
+    Vue.set(state.usersSecurityEvents, params.pid, params.data)
+  },
+  USER_SECURITY_EVENTS_ERROR: (state, response) => {
+    state.usersSecurityEventsStatus = 'error'
+    if (response && response.data) {
+      state.usersSecurityEventsMessage = response.data.usersMessage
     }
   },
   USER_BULK_SUCCESS: (state, response) => {
@@ -369,16 +415,16 @@ const mutations = {
     })
   },
   USER_DESTROYED: (state, pid) => {
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
     Vue.set(state.users, pid, null)
   },
   USER_SUCCESS: (state) => {
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
   },
   USER_ERROR: (state, response) => {
-    state.userStatus = 'error'
+    state.usersStatus = 'error'
     if (response && response.data) {
-      state.message = response.data.message
+      state.usersMessage = response.data.usersMessage
     }
   },
   USER_EXISTS: (state, pid) => {
