@@ -512,7 +512,7 @@ export default {
     },
     deleteNode () {
       this.$store.dispatch('$_nodes/deleteNode', this.mac).then(() => {
-        this.close()
+        this.$router.push('/nodes/search')
       })
     },
     ifTab (set) {

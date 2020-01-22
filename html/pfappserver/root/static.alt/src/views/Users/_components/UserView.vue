@@ -372,7 +372,7 @@ export default {
     },
     deleteUser () {
       this.$store.dispatch('$_users/deleteUser', this.pid).then(() => {
-        this.close()
+        this.$router.push('/users/search')
       })
     },
     closeSecurityEvent (securityEvent) {
