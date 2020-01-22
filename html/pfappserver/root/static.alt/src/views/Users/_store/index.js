@@ -68,7 +68,13 @@ const state = {
 }
 
 const getters = {
-  isLoading: state => state.userStatus === 'loading'
+  isLoading: state => state.userStatus === 'loading',
+  securityEvents: state => (pid) => {
+    return state.users[pid].security_events
+  },
+  nodes: state => (pid) => {
+    return state.users[pid].nodes
+  }
 }
 
 const actions = {

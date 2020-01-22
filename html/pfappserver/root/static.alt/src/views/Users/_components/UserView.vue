@@ -147,7 +147,7 @@
 
         <b-tab title="Devices">
           <template v-slot:title>
-            {{ $t('Devices') }} <b-badge pill v-if="hasNodes" variant="light" class="ml-1">{{ form.nodes.length }}</b-badge>
+            {{ $t('Devices') }} <b-badge pill v-if="hasNodes" variant="light" class="ml-1">{{ nodes.length }}</b-badge>
           </template>
           <b-row align-h="between" align-v="center">
             <b-col cols="auto" class="mr-auto">
@@ -169,7 +169,7 @@
             </b-col>
           </b-row>
 
-          <b-table :items="form.nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive sort-icon-left striped>
+          <b-table :items="nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive sort-icon-left striped>
             <template v-slot:cell(status)="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
@@ -186,9 +186,9 @@
 
         <b-tab title="Security Events">
           <template v-slot:title>
-            {{ $t('Security Events') }} <b-badge pill v-if="form.security_events && form.security_events.length > 0" variant="light" class="ml-1">{{ form.security_events.length }}</b-badge>
+            {{ $t('Security Events') }} <b-badge pill v-if="securityEvents && securityEvents.length > 0" variant="light" class="ml-1">{{ securityEvents.length }}</b-badge>
           </template>
-          <b-table :items="form.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive sort-icon-left striped>
+          <b-table :items="securityEvents" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive sort-icon-left striped>
             <template v-slot:cell(status)="securityEvent">
               <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="securityEvent.item.status === 'closed'">{{ $t('closed') }}</b-badge>
@@ -308,13 +308,11 @@ export default {
     isLoading () {
       return this.$store.getters['$_users/isLoading']
     },
-    hasNodes () {
-      const { form: { nodes = [] } = {} } = this
-      return (Array.isArray(nodes) && nodes.length > 0)
+    disableSave () {
+      return this.invalidForm || this.isLoading
     },
-    hasOpenSecurityEvents () {
-      const { form: { security_events = [] } = {} } = this
-      return (Array.isArray(security_events) && security_events.findIndex(securityEvent => securityEvent.status === 'open') > -1)
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     isDefaultUser () {
       const { form: { pid } = {} } = this
@@ -323,14 +321,20 @@ export default {
     visibleNodeFields () {
       return this.nodeFields.filter(field => field.visible || field.locked)
     },
-    disableSave () {
-      return this.invalidForm || this.isLoading
-    },
-    actionKey () {
-      return this.$store.getters['events/actionKey']
-    },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
+    },
+    nodes () {
+      return this.$store.getters['$_users/nodes'](this.pid)
+    },
+    hasNodes () {
+      return (Array.isArray(this.nodes) && this.nodes.length > 0)
+    },
+    securityEvents () {
+      return this.$store.getters['$_users/securityEvents'](this.pid)
+    },
+    hasOpenSecurityEvents () {
+      return (Array.isArray(this.securityEvents) && this.securityEvents.findIndex(securityEvent => securityEvent.status === 'open') > -1)
     }
   },
   methods: {
@@ -378,9 +382,7 @@ export default {
       console.log('closeSecurityEvents')
     },
     unassignNodes () {
-      this.$store.dispatch('$_users/unassignUserNodes', this.pid).then(() => {
-        this.form.nodes = []
-      })
+      this.$store.dispatch('$_users/unassignUserNodes', this.pid)
     },
     resetPassword () {
       const data = {
