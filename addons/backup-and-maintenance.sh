@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Backup of PF tree and database
+# Backup of $PF_DIRECTORY and $DB_NAME
 #
-# - compressed PF tree to $BACKUP_DIRECTORY, rotate and clean
+# - compressed $PF_DIRECTORY to $BACKUP_DIRECTORY, rotate and clean
 # - compressed mysqldump to $BACKUP_DIRECTORY, rotate and clean
 #
 # Copyright (C) 2005-2019 Inverse inc.
