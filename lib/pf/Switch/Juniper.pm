@@ -45,6 +45,7 @@ use pf::util;
 # TODO implement supportsSnmpTraps globally
 use pf::SwitchSupports qw(
     WiredMacAuth
+    RoleBasedEnforcement
     -SnmpTraps
     -WiredDot1x
 );
@@ -196,6 +197,18 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     sleep(2);
     pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $switch_ip -ifIndex $ifIndex -ifAdminStatus 1");
 
+}
+
+=item returnRoleAttribute
+
+Meru uses the standard Filter-Id parameter.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
 }
 
 =back
