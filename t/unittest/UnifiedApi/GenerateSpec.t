@@ -337,10 +337,6 @@ cmp_deeply(
                     type => 'string',
                     description => 'This allows users to access the network logoff page (http://pf.pfdemo.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)',
                 },
-                'wispr' => {
-                    type => 'string',
-                    description => 'Enable Wispr on this connection profile',
-                },
                 'network_logoff_popup' => {
                     type => 'string',
                     description => 'When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.',
