@@ -62,7 +62,7 @@ deflate to be saved into the config store
 
 sub deflate {
     my ($self, $value) = @_;
-    return join(" = ", @{$value}{qw(name value)});
+    return join(" = ", @{$value}{qw(type value)});
 }
 
 
