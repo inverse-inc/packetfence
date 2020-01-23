@@ -239,6 +239,7 @@ sub generate_filter_if_src_to_chain {
             $rules .= "# DHCP Sync\n";
             $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($pf::cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev --protocol udp --match udp --dport 67 -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev -d 192.0.2.1 --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n" if $interface->tag("vip");
             $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n";
@@ -725,13 +726,6 @@ sub generate_interception_rules {
                     $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
                     $rule = "--protocol tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
                     $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
-                    $rule = "--protocol tcp --match multiport --destination-port 80,443 -d 192.0.2.1";
-                    if ($cluster_enabled) {
-                        my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $dev"}->{ip};
-                        $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $cluster_ip\n";
-                    } else {
-                        $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
-                    }
                 }
             }
         }

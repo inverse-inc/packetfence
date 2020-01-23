@@ -69,13 +69,19 @@ sub generateConfig {
 
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
-    my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
-    foreach my $interface ( @ints ) {
-        my $cfg = $Config{"interface $interface"};
-        next unless $cfg;
-        my $priority = 100 - pf::cluster::cluster_index();
-        my $cluster_ip = pf::cluster::cluster_ip($interface);
-        $tags{'vrrp'} .= <<"EOT";
+    $tags{'vrrp'} .= <<"EOT";
+static_ipaddress {
+    192.0.2.1 dev lo scope link
+}
+EOT
+    if ( $pf::cluster::cluster_enabled ) {
+        my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
+        foreach my $interface ( @ints ) {
+            my $cfg = $Config{"interface $interface"};
+            next unless $cfg;
+            my $priority = 100 - pf::cluster::cluster_index();
+            my $cluster_ip = pf::cluster::cluster_ip($interface);
+            $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id $Config{'active_active'}{'virtual_router_id'}
   advert_int 5
@@ -87,20 +93,20 @@ vrrp_instance $cfg->{'ip'} {
     $cluster_ip dev $interface
   }
 EOT
-        if (isenabled($Config{'active_active'}{'vrrp_unicast'})) {
-        my $active_members = join("\n", grep( {$_ ne $cfg->{'ip'}} values %{pf::cluster::members_ips($interface)}));
-        $tags{'vrrp'} .= << "EOT";
+            if (isenabled($Config{'active_active'}{'vrrp_unicast'})) {
+                my $active_members = join("\n", grep( {$_ ne $cfg->{'ip'}} values %{pf::cluster::members_ips($interface)}));
+                $tags{'vrrp'} .= << "EOT";
 unicast_src_ip $cfg->{'ip'}
 unicast_peer {
 $active_members
 }
 EOT
-        }
-        $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
-        $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
-        $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
+            }
+            $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
+            $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
+            $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
 
-        $tags{'vrrp'} .= <<"EOT";
+            $tags{'vrrp'} .= <<"EOT";
   track_script {
     haproxy
   }
@@ -111,7 +117,7 @@ EOT
   smtp_alert
 }
 EOT
-
+        }
     }
     parse_template( \%tags, "$conf_dir/keepalived.conf", "$generated_conf_dir/keepalived.conf" );
     return 1;
@@ -132,11 +138,7 @@ sub stop {
 sub isManaged {
     my ($self) = @_;
     my $name = $self->name;
-    if (isenabled($pf::config::Config{'services'}{$name})) {
-        return $cluster_enabled;
-    } else {
-        return 0;
-    }
+    return 1;
 }
 
 =head1 AUTHOR
