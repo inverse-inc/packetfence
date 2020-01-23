@@ -334,11 +334,15 @@ sub _match_in_subclass {
 
     my $cached_connection = $self->_cached_connection;
     unless ( $cached_connection ) {
-        return undef;
+        my ($connection, $LDAPServer, $LDAPServerPort) = $self->_connect();
+        if (! defined($connection)) {
+            return undef;
+        }
+
+        $cached_connection = [$connection, $LDAPServer, $LDAPServerPort];
+        $self->_cached_connection($cached_connection);
     }
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
-
-
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     my $result = do {
@@ -588,22 +592,6 @@ sub postMatchProcessing {
         my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
         $self->_cached_connection(undef);
     }
-}
-
-=head2 preMatchProcessing
-
-Setup any resouces need for matching
-
-=cut
-
-sub preMatchProcessing {
-    my ($self) = @_;
-    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
-    if (! defined($connection)) {
-        return undef;
-    }
-
-    $self->_cached_connection([$connection, $LDAPServer, $LDAPServerPort]);
 }
 
 =head2 _makefilter
