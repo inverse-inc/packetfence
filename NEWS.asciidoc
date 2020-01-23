@@ -22,7 +22,7 @@ Enhancements
 ++++++++++++
 * Allow to configure VOIP Radius atrributes in switch templates
 * All configuration files have a copyright without year to avoid useless rpmnew or dpkg-dist files each yearly upgrade
-
+* Unifi: improve deauthentication using HTTP
 
 Bug Fixes
 +++++++++
