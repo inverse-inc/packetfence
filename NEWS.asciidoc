@@ -16,7 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* Added a new Meru controller module that supports RADIUS RFC3576 (RADIUS Disconnect)
 
 Enhancements
 ++++++++++++
