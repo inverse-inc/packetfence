@@ -220,7 +220,6 @@ EOT
         : $management_network->tag('ip');
 
 $tags{'http'} .= <<"EOT";
-# 127.0.0.1 Listeners
 
 frontend portal-http-192.0.2.1
         bind 192.0.2.1:80
