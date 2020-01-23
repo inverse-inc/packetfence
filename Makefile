@@ -213,9 +213,6 @@ devel: configurations conf/ssl/server.key conf/ssl/server.crt conf/local_secret 
 test:
 	cd t && ./smoke.t
 
-update_samsung_dns_filter:
-	bash /usr/local/pf/addons/update-samsung-dns-filter.sh
-
 .PHONY: html_install
 
 # install -D will automatically create target directories
