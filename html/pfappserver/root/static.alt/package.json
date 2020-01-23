@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-debug": "vue-cli-service build --report",
+    "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build",
+    "build-report": "vue-cli-service build --report",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
