@@ -86,7 +86,7 @@ sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
 
-    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/certmgmt/$cn/1", {
+    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/certmgmt/$cn/1");
     
 		    #    my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
 		    #    if ($curl_return_code == 0 && $response_code == 200) {
@@ -98,7 +98,7 @@ sub revoke {
 		    #        $logger->error("Certificate for CN $cn could not be revoked. Server replied with $response_body. Curl error : $curl_error");
 		    #        return $FALSE;
 		    #    }
-
+    
 
 }
 
