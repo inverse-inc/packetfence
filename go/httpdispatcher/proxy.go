@@ -172,7 +172,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			PortalURL.RawQuery = ""
 		}
 
-		// Detect wispr user agent but exclude istuff
+		// Detect wispr user agent but exclude Apple stuff
 		wispr := regexp.MustCompile(`(?i)wispr`)
 		CaptiveNetworkSupport := regexp.MustCompile(`(?i)CaptiveNetworkSupport`)
 
