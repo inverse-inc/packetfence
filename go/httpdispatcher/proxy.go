@@ -151,9 +151,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		_, PortalURL := p.detectPortalURL(r)
 
-		if (passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
-			PortalURL.Scheme = "http"
-		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
 
 		destURL, _ := url.Parse(r.URL.String())
