@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit
 
 PATH="/usr/local/go/bin:$PATH"
 

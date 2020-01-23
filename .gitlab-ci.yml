@@ -98,6 +98,8 @@ build_maintenance_centos_7:
     - .maintenance_build_job
     - .maintenance_build_script
     - .job_maintenance_triggers
+  before_script:
+    - yum downgrade -y ipset-devel-6.29 ipset-libs-6.29 --enablerepo=packetfence
 
 build_maintenance_debian_stretch:
   image: ${PFBUILD_DEB_STRETCH_IMG}:go1.9.3
