@@ -1,6 +1,7 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence LVS and VRRP High Availability Monitor
+Before=packetfence-haproxy-portal.service
 After=packetfence-httpd.portal.service
 Wants=packetfence-config.service
 
