@@ -156,6 +156,16 @@ sub node_view_reg_pid {
     return;
 }
 
+sub _can_delete {
+    my ($mac) = @_;
+    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
+        my $msg = "$mac has an open locationlog entry. Node deletion prohibited";
+        return (0, $msg);
+    }
+
+    return (1,'');
+}
+
 #
 # delete and return 1
 #
@@ -173,8 +183,9 @@ sub node_delete {
 
     require pf::locationlog;
     # TODO that limitation is arbitrary at best, we need to resolve that.
-    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
-        $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
+    my ($results, $msg) = _can_delete($mac);
+    if (!$results) {
+        $logger->warn($msg);
         return (0);
     }
     my %options = (

@@ -351,9 +351,9 @@ sub remove {
 }
 
 sub render_remove {
-    my ($self, $status) = @_;
+    my ($self, $status, $msg) = @_;
     if (is_error($status)) {
-        return $self->render_error($status, "Unable to remove resource");
+        return $self->render_error($status, $msg // "Unable to remove resource");
     }
 
     my $id = $self->id;
@@ -362,7 +362,16 @@ sub render_remove {
 
 sub do_remove {
     my ($self) = @_;
+    my ($status, $msg) = $self->can_remove();
+    if (is_error($status)) {
+        return ($status, $msg);
+    }
+
     return $self->dal->remove_by_id($self->build_item_lookup);
+}
+
+sub can_remove {
+    return (200, '');
 }
 
 =head2 update
