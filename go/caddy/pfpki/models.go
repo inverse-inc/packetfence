@@ -256,9 +256,9 @@ func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var cadb []CA
 	if val, ok := params["cn"]; ok {
-		pfpki.DB.Select("cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", val).First(&cadb)
+		pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", val).First(&cadb)
 	} else {
-		pfpki.DB.Select("cn").Find(&cadb)
+		pfpki.DB.Select("id, cn, organisation, mail").Find(&cadb)
 	}
 	Information.Entries = cadb
 
