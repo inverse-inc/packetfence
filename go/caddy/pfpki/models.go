@@ -181,7 +181,7 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	}
 
 	var cadb CA
-	var newcadb CA
+	var newcadb []CA
 
 	var SerialNumber *big.Int
 
