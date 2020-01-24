@@ -1,4 +1,5 @@
 package pf::services::manager::keepalived;
+
 =head1 NAME
 
 pf::services::manager::keepalived add documentation
@@ -106,9 +107,14 @@ EOT
             $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
             $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
 
+            my $process_tracking = "haproxy_portal";
+            if ($Config{"interface $interface"}{'type'} =~ /management/i) {
+                $process_tracking = "radius_load_balancer";
+            }
+
             $tags{'vrrp'} .= <<"EOT";
-  track_script {
-    haproxy
+  track_process {
+    $process_tracking
   }
   authentication {
     auth_type PASS
