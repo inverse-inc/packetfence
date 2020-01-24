@@ -181,6 +181,8 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	}
 
 	var cadb CA
+	var newcadb CA
+
 	var SerialNumber *big.Int
 
 	if CaDB := pfpki.DB.Last(&cadb); CaDB.Error != nil {
@@ -250,8 +252,8 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 		return Information, err
 	}
 
-	pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", c.Cn).First(&cadb)
-	Information.Entries = cadb
+	pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", c.Cn).First(&newcadb)
+	Information.Entries = newcadb
 	return Information, nil
 }
 
