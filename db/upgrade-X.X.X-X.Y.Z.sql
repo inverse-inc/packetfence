@@ -27,6 +27,16 @@ SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSIO
 SET @PREV_VERSION_INT = @PREV_MAJOR_VERSION << 16 | @PREV_MINOR_VERSION << 8 | @PREV_SUBMINOR_VERSION;
 
 DROP PROCEDURE IF EXISTS ValidateVersion;
+
+
+--
+-- Create the pf_pki database
+--
+
+CREATE DATABASE pf_pki;
+GRANT ALL PRIVILEGES ON `pf_pki`.* TO 'pf'@'%';
+GRANT ALL PRIVILEGES ON `pf_pki`.* TO 'pf'@'localhost';
+
 --
 -- Updating to current version
 --

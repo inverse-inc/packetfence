@@ -11,13 +11,17 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-func DbFromConfig(ctx context.Context) (*sql.DB, error) {
+func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
 
 	dbConfig := pfconfigdriver.Config.PfConf.Database
 
-	return ConnectDb(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Db)
+	if len(dbName) > 0 {
+		return ConnectDb(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbName[0])
+	} else {
+		return ConnectDb(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Db)
+	}
 }
 
 func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, error) {
@@ -46,7 +50,7 @@ func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, e
 	}
 }
 
-func ReturnURI(ctx context.Context) string {
+func ReturnURI(ctx context.Context, dbName ...string) string {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
 
@@ -62,7 +66,12 @@ func ReturnURI(ctx context.Context) string {
 			host = "/var/lib/mysql/mysql.sock"
 		}
 	}
-
-	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", dbConfig.User, dbConfig.Pass, proto, host, dbConfig.Db)
+	var DBName string
+	if len(dbName) > 0 {
+		DBName = dbName[0]
+	} else {
+		DBName = dbConfig.Db
+	}
+	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", dbConfig.User, dbConfig.Pass, proto, host, DBName)
 	return uri
 }
