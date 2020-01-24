@@ -357,6 +357,14 @@ export const hasMaintenanceTasks = () => {
   })
 }
 
+export const hasPkiCas = () => {
+  return store.dispatch('config/getPkiCas').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasPkiProviders = () => {
   return store.dispatch('config/getPkiProviders').then((response) => {
     return (response.length > 0)
@@ -647,6 +655,16 @@ export const nodeExists = (value) => {
   if (value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
+  }).catch(() => {
+    return true
+  })
+}
+
+export const pkiCaCnExists = (value) => {
+  if (!value) return true
+  return store.dispatch('config/getPkiCas').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(ca => ca.cn.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

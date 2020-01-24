@@ -778,6 +778,72 @@ export default {
   },
 
   /**
+   * PKI
+   */
+  pkiCas: () => {
+    return apiCall.get('pki/ca').then(response => {
+      const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+      return { items }
+    })
+  },
+  pkiCa: id => {
+    return apiCall.get(['pki', 'ca', id]).then(response => {
+      const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+      return item
+    })
+  },
+  createPkiCa: data => {
+    return apiCall.post('pki/ca', data).then(response => {
+      const { data: { result: { 0: { error } = {} } = {} } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        return response.data
+      }
+    })
+  },
+  pkiProfiles: () => {
+    return apiCall.get('pki/profile').then(response => {
+      return response.data
+    })
+  },
+  pkiProfile: id => {
+    return apiCall.get(['pki', 'profile', id]).then(response => {
+      return response.data.result
+    })
+  },
+  createPkiProfile: data => {
+    return apiCall.post('pki/ca', data).then(response => {
+      return response.data
+    })
+  },
+  pkiCerts: () => {
+    return apiCall.get('pki/cert').then(response => {
+      return response.data
+    })
+  },
+  pkiCert: id => {
+    return apiCall.get(['pki', 'cert', id]).then(response => {
+      return response.data.result
+    })
+  },
+  createPkiCert: data => {
+    return apiCall.post('pki/cert', data).then(response => {
+      return response.data
+    })
+  },
+  emailPkiCert: id => {
+    return apiCall.get(['pki', 'certmgmt', id]).then(response => {
+      return response.data.result
+    })
+  },
+  revokePkiCert: data => {
+    return apiCall.delete(['pki', 'cert', data.id, data.reason]).then(response => {
+      return response.data.result
+    })
+  },
+
+  /**
    * PKI Providers
    */
   pkiProviders: params => {

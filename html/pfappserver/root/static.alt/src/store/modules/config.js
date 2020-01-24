@@ -113,6 +113,9 @@ const api = {
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
+  getPkiCas () {
+    return apiCall({ url: 'pki/ca', method: 'get' })
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -252,6 +255,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     layer2NetworksStatus: '',
     maintenanceTasks: false,
     maintenanceTasksStatus: '',
+    pkiCas: false,
+    pkiCasStatus: '',
     pkiProviders: false,
     pkiProvidersStatus: '',
     portalModules: false,
@@ -433,6 +438,9 @@ const getters = {
   },
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
+  },
+  isLoadingPkiCas: state => {
+    return state.pkiCasStatus === types.LOADING
   },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
@@ -1090,6 +1098,21 @@ const actions = {
       return Promise.resolve(state.maintenanceTasks)
     }
   },
+  getPkiCas: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiCas) {
+      return Promise.resolve(state.pkiCas)
+    }
+    if (!state.pkiCas) {
+      commit('PKI_CAS_REQUEST')
+      return api.getPkiCas().then(response => {
+        const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+        commit('PKI_CAS_UPDATED', items)
+        return state.pkiCas
+      })
+    } else {
+      return Promise.resolve(state.pkiCas)
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
       return Promise.resolve(state.pkiProviders)
@@ -1618,6 +1641,13 @@ const mutations = {
   MAINTENANCE_TASKS_UPDATED: (state, maintenanceTasks) => {
     state.maintenanceTasks = maintenanceTasks
     state.maintenanceTasksStatus = types.SUCCESS
+  },
+  PKI_CAS_REQUEST: (state) => {
+    state.pkiCasStatus = types.LOADING
+  },
+  PKI_CAS_UPDATED: (state, pkiCas) => {
+    state.pkiCas = pkiCas
+    state.pkiCasStatus = types.SUCCESS
   },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING
