@@ -116,8 +116,17 @@ sub setAdminStatus {
     my $logger = $self->logger;
 
     #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
-    my @locationlog = locationlog_view_open_switchport( $self->{_ip}, $ifIndex );
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
     my $mac = $locationlog[0]->{'mac'};
+    if (!$mac) {
+        @locationlog = locationlog_view_open_switchport_only_VoIP( $self->{_ip}, $ifIndex );
+        $mac = $locationlog[0]->{'mac'};
+    }
+    
+    if (!$mac) {
+        $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
+        return 1;
+    }
 
     if ( !$self->isProductionMode() ) {
         $logger->info("Switch not in production mode... we won't perform port bounce");
@@ -169,6 +178,21 @@ sub setAdminStatus {
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );
     return;
+}
+
+=item bouncePort
+
+Performs a shut / no-shut on the port.
+Usually used to force the operating system to do a new DHCP Request after a VLAN change.
+
+=cut
+
+sub bouncePort {
+    my ($self, $ifIndex) = @_;
+
+    $self->setAdminStatus( $ifIndex );
+
+    return $TRUE;
 }
 
 =head1 AUTHOR
