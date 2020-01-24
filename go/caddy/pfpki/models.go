@@ -97,9 +97,9 @@ type CA struct {
 // Profile struct
 type Profile struct {
 	gorm.Model
-	Name             string `json:"name" gorm:"UNIQUE"`
-	Ca               CA     `json:"ca"`
-	CaID             uint
+	Name             string                  `json:"name" gorm:"UNIQUE"`
+	Ca               CA                      `json:"ca"`
+	CaID             uint                    `json:"caid"`
 	CaName           string                  `json:"caname"`
 	Validity         int                     `json:"validity"`
 	KeyType          Type                    `json:"keytype"`
@@ -118,10 +118,10 @@ type Profile struct {
 // Cert struct
 type Cert struct {
 	gorm.Model
-	Cn            string `json:"cn"  gorm:"UNIQUE"`
-	Mail          string `json:"mail"`
-	Ca            CA     `json:"ca"`
-	CaID          uint
+	Cn            string  `json:"cn"  gorm:"UNIQUE"`
+	Mail          string  `json:"mail"`
+	Ca            CA      `json:"ca"`
+	CaID          uint    `json:"caid"`
 	StreetAddress string  `json:"street,omitempty"`
 	Organisation  string  `json:"organisation,omitempty"`
 	Country       string  `json:"country,omitempty"`
@@ -132,7 +132,7 @@ type Cert struct {
 	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
 	ProfileName   string  `json:"profilename,omitempty"`
 	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint
+	ProfileID     uint    `json:"profileid"`
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	SerialNumber  string
@@ -141,10 +141,10 @@ type Cert struct {
 // RevokedCert struct
 type RevokedCert struct {
 	gorm.Model
-	Cn            string `json:"cn""`
-	Mail          string `json:"mail"`
-	Ca            CA     `json:"ca"`
-	CaID          uint
+	Cn            string  `json:"cn""`
+	Mail          string  `json:"mail"`
+	Ca            CA      `json:"ca"`
+	CaID          uint    `json:"caid"`
 	StreetAddress string  `json:"street,omitempty"`
 	Organisation  string  `json:"organisation,omitempty"`
 	Country       string  `json:"country,omitempty"`
@@ -155,7 +155,7 @@ type RevokedCert struct {
 	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
 	ProfileName   string  `json:"profilename,omitempty"`
 	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint
+	ProfileID     uint    `json:"profileid"`
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	Revoked       time.Time
@@ -255,8 +255,8 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var cadb []CA
-	if val, ok := params["cn"]; ok {
-		pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", val).First(&cadb)
+	if val, ok := params["id"]; ok {
+		pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("id = ?", val).First(&cadb)
 	} else {
 		pfpki.DB.Select("id, cn, organisation, mail").Find(&cadb)
 	}
@@ -314,10 +314,10 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var profiledb []Profile
-	if val, ok := params["name"]; ok {
-		pfpki.DB.Select("name, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", val).First(&profiledb)
+	if val, ok := params["id"]; ok {
+		pfpki.DB.Select("name, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("id = ?", val).First(&profiledb)
 	} else {
-		pfpki.DB.Select("name").Find(&profiledb)
+		pfpki.DB.Select("id, name, CaID").Find(&profiledb)
 	}
 	Information.Entries = profiledb
 

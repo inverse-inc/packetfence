@@ -67,14 +67,14 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	// CA list
 	api.Handle("/pki/ca", manageCA(PFPki)).Methods("GET")
 	// Get CA
-	api.Handle("/pki/ca/{cn}", manageCA(PFPki)).Methods("GET")
+	api.Handle("/pki/ca/{id}", manageCA(PFPki)).Methods("GET")
 
 	// New Profile
 	api.Handle("/pki/profile", manageProfile(PFPki)).Methods("POST")
 	// Profile list
 	api.Handle("/pki/profile", manageProfile(PFPki)).Methods("GET")
 	// Get Profile
-	api.Handle("/pki/profile/{name}", manageProfile(PFPki)).Methods("GET")
+	api.Handle("/pki/profile/{id}", manageProfile(PFPki)).Methods("GET")
 
 	// New Certificate
 	api.Handle("/pki/cert", manageCert(PFPki)).Methods("POST")
