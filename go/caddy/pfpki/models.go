@@ -249,6 +249,9 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
 		return Information, err
 	}
+
+	pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", c.Cn).First(&cadb)
+	Information.Entries = cadb
 	return Information, nil
 }
 
@@ -281,6 +284,8 @@ func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 func (p Profile) new(pfpki *Handler) (Info, error) {
 	// Create the table on the fly.
 	pfpki.DB.AutoMigrate(&Profile{})
+	var profiledb []Profile
+
 	Information := Info{}
 	switch p.KeyType {
 	case KEY_RSA:
@@ -308,6 +313,8 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, CaName: p.CaName, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		return Information, err
 	}
+	pfpki.DB.Select("name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
+	Information.Entries = profiledb
 	return Information, nil
 }
 
