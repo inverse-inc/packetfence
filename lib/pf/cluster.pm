@@ -249,6 +249,25 @@ sub cluster_index {
     return $cluster_index;
 }
 
+=head2 reg_cluster_index
+
+Returns the index of this server in the cluster and put the first one and the latest on at the end
+
+=cut
+
+sub reg_cluster_index {
+    my $cluster_index = first_index { $_ eq $host_id } enabled_hosts();
+    my $cluster_size = scalar enabled_hosts();
+    if ($cluster_index eq "0") {
+        return $cluster_size - 2;
+    } elsif ($cluster_index eq ($cluster_size - 1)) {
+        return $cluster_index;
+    } else {
+        return $cluster_index - ($cluster_size - 2);
+   }
+}
+
+
 =head2 mysql_servers
 
 Get the list of the MySQL servers ordered by priority

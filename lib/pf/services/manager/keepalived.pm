@@ -80,7 +80,13 @@ EOT
         foreach my $interface ( @ints ) {
             my $cfg = $Config{"interface $interface"};
             next unless $cfg;
-            my $priority = 100 - pf::cluster::cluster_index();
+            my $priority = 100 - pf::cluster::reg_cluster_index();
+            my $process_tracking = "haproxy_portal";
+            if ($Config{"interface $interface"}{'type'} =~ /management/i) {
+                $process_tracking = "radius_load_balancer";
+                $priority = 100 - pf::cluster::cluster_index();
+            }
+
             my $cluster_ip = pf::cluster::cluster_ip($interface);
             $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
@@ -106,11 +112,6 @@ EOT
             $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
             $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
             $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
-
-            my $process_tracking = "haproxy_portal";
-            if ($Config{"interface $interface"}{'type'} =~ /management/i) {
-                $process_tracking = "radius_load_balancer";
-            }
 
             $tags{'vrrp'} .= <<"EOT";
   track_process {
