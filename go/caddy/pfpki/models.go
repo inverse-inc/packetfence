@@ -315,9 +315,9 @@ func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var profiledb []Profile
 	if val, ok := params["id"]; ok {
-		pfpki.DB.Select("name, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("id = ?", val).First(&profiledb)
+		pfpki.DB.Select("name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("id = ?", val).First(&profiledb)
 	} else {
-		pfpki.DB.Select("id, name, CaID").Find(&profiledb)
+		pfpki.DB.Select("id, name, ca_id, ca_name").Find(&profiledb)
 	}
 	Information.Entries = profiledb
 
