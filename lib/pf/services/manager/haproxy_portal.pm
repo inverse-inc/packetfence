@@ -63,6 +63,7 @@ sub generateConfig {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
     my $cluster_ip;
+    my $ip_cluster;
     my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
     my @portal_ip;
     my $rate_limiting = isenabled($Config{captive_portal}{rate_limiting});
@@ -88,6 +89,7 @@ EOT
         }
         if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
             my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
+            $ip_cluster = $cluster_ip;
             push @portal_ip, $cluster_ip;
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             push @backend_ip, '127.0.0.1' if !@backend_ip;
@@ -242,7 +244,7 @@ EOT
             $tags{'http'} .= <<"EOT";
         reqadd X-Forwarded-Proto:\\ http
         use_backend %[var(req.action)]
-        default_backend $cluster_ip-backend
+        default_backend $ip_cluster-backend
         $bind_process
 
 frontend portal-https-192.0.2.1
@@ -266,7 +268,7 @@ EOT
             $tags{'http'} .= <<"EOT";
         reqadd X-Forwarded-Proto:\\ https
         use_backend %[var(req.action)]
-        default_backend $cluster_ip-backend
+        default_backend $ip_cluster-backend
         $bind_process
 EOT
 
