@@ -110,11 +110,12 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_pkis/createCa', recomposeCa(this.form)).then(() => {
+      this.$store.dispatch('$_pkis/createCa', recomposeCa(this.form)).then(response => {
+        const { result: { 0: { Entries: { 0: { ID: id } = {} } = {} } = {} } = {} } = response
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'pkiCa', params: { id: this.form.ID } })
+          this.$router.push({ name: 'pkiCa', params: { id } })
         }
       })
     }
