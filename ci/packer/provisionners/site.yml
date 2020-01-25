@@ -1,18 +1,6 @@
 ---
-- hosts: ['devel_centos','stable_centos']
-  name: install RPM keys
-  gather_facts: False
-  become: True
-
-  tasks:
-    - name: Upload specific RPM keys
-      copy:
-        src: "upstream/rpm_keys/{{ item['src_filename'] }}"
-        dest: "/etc/pki/rpm-gpg/{{ item['dst_filename'] }}"
-        owner: root
-        group: root
-        mode: '0644'
-      loop: '{{ upstream_rpm_keys }}'
+# only for el8, see https://developers.redhat.com/blog/2018/11/14/python-in-rhel-8/
+- import_playbook: playbooks/python3.yml
 
 - hosts: ['devel_centos', 'devel_debian', 'stable_centos', 'stable_debian']
   name: install upstream repos needed to install build requires

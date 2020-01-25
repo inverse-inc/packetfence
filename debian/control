@@ -2,7 +2,7 @@ Source: packetfence
 Section: net
 Priority: optional
 Maintainer: Inverse inc. <support@inverse.ca>
-Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, dpkg-distribution, dh-systemd, libfile-fcntllock-perl, git, libipset-dev, pkg-config, nodejs (>= 12.0), jq,
+Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, dh-systemd, libfile-fcntllock-perl, git, libipset-dev, pkg-config, nodejs (>= 12.0), jq,
  ruby, rubygems,
  quilt
 Standards-Version: 3.8.4
@@ -83,7 +83,7 @@ Depends: ${misc:Depends}, vlan,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
  libtime-period-perl (>= 1.25), libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
- liburi-escape-xs-perl, libsql-abstract-more-perl (>= 1.28), libsql-abstract-plugin-insertmulti-perl, libio-socket-timeout-perl, liblinux-distribution-perl, libwww-twilio-api-perl,
+ liburi-escape-xs-perl, libsql-abstract-more-perl (>= 1.28), libsql-abstract-plugin-insertmulti-perl, libio-socket-timeout-perl, libwww-twilio-api-perl,
  libpod-markdown-perl, libmojolicious-perl (>= 7.74), libmojox-log-log4perl-perl, liblingua-en-inflexion-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
@@ -143,7 +143,7 @@ Depends: ${misc:Depends}, vlan,
 # PaloAlto syslog SSO
  libnet-syslog-perl,
 # for packaging
- dpkg-distribution,
+ lsb-release,
 # wmi and nthash cache
  libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,
 # Distribution specific

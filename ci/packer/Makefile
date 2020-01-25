@@ -8,14 +8,10 @@ include ../../config.mk
 #==============================================================================
 # Packer command line variables
 #==============================================================================
-ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
+ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-centos-8,pfbuild-stretch,pfbuild-buster'
 
 # workaround for https://github.com/hashicorp/packer/issues/7904
 PARALLEL = false
-
-# by default, we make only *one* docker tag and skip
-# post-processors to add extra tag
-PACKER_EXTRA_ARG = '-except=set-extra-tag,push-extra-tag'
 
 #==============================================================================
 # Targets
@@ -31,17 +27,18 @@ all: pfbuild
 .PHONY: pfbuild
 pfbuild:
 	packer validate $@.json
-	DOCKER_TAG=$(DOCKER_TAG) \
-	DOCKER_EXTRA_TAG=$(DOCKER_EXTRA_TAG) \
+	DOCKER_TAGS=$(DOCKER_TAGS) \
 	GOVERSION=$(GOVERSION) \
 	REGISTRY=$(REGISTRY) \
 	REGISTRY_USER=$(REGISTRY_USER) \
+	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	ANSIBLE_CENTOS_GROUP=$(ANSIBLE_CENTOS_GROUP) \
+	ANSIBLE_CENTOS7_GROUP=$(ANSIBLE_CENTOS7_GROUP) \
+	ANSIBLE_CENTOS8_GROUP=$(ANSIBLE_CENTOS8_GROUP) \
 	ANSIBLE_DEBIAN_GROUP=$(ANSIBLE_DEBIAN_GROUP) \
 	ANSIBLE_RUBYGEMS_GROUP=$(ANSIBLE_RUBYGEMS_GROUP) \
 	packer build \
 	-only=$(ACTIVE_BUILDS) \
-	$(PACKER_EXTRA_ARG) \
 	-parallel=$(PARALLEL) $@.json
 
 .PHONY: variables

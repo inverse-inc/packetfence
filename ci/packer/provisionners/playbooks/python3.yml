@@ -1,0 +1,20 @@
+---
+- hosts: ['devel_centos8', 'stable_centos8']
+  name: Install and configure Python 3 for rpmlint and nodejs
+  become: True
+  gather_facts: True
+
+  tasks:
+    - name: Install Python 3 packages
+      dnf:
+        name: python3
+        state: present
+      when: ansible_distribution_major_version == '8' and ansible_os_family == 'RedHat'
+
+    - name: Update path to /usr/bin/python
+      alternatives:
+        name: python
+        path: /usr/bin/python3
+      when: ansible_distribution_major_version == '8' and ansible_os_family == 'RedHat'
+        
+
