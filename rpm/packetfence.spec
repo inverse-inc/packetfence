@@ -419,7 +419,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-redis-cache.service %{buildroot}%{_unitdir}/packetfence-redis-cache.service
 %{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service %{buildroot}%{_unitdir}/packetfence-redis_ntlm_cache.service
 %{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service %{buildroot}%{_unitdir}/packetfence-redis_queue.service
-%{__install} -D -m0644 conf/systemd/packetfence-routes.service %{buildroot}%{_unitdir}/packetfence-routes.service
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service %{buildroot}%{_unitdir}/packetfence-snmptrapd.service
 %{__install} -D -m0644 conf/systemd/packetfence-tc.service %{buildroot}%{_unitdir}/packetfence-tc.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service %{buildroot}%{_unitdir}/packetfence-winbindd.service
@@ -702,7 +701,6 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-redis-cache
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
-/bin/systemctl enable packetfence-routes
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl enable packetfence-iptables

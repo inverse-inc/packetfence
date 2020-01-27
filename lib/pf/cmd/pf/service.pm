@@ -45,7 +45,6 @@ Services managed by PacketFence:
   radsniff             | radsniff daemon
   redis_ntlm_cache     | Redis for the NTLM cache
   redis_queue          | Redis for pfqueue
-  routes               | manage static routes
   snmptrapd            | SNMP trap receiver daemon
   tc                   | Traffic shaping service
   winbindd             | Winbind daemon
