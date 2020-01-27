@@ -13,6 +13,7 @@ autentication
 
 use strict;
 use warnings;
+use Date::Parse;
 
 use Test::More tests => 57;                      # last test to print
 
@@ -262,7 +263,7 @@ is(
     pf::authentication::match(
         "htpasswd1",
         {
-            current_time_period => 1484846231,
+            current_time_period => str2time('Thu Jan 19 12:17:11 2017'),
             rule_class          => 'administration',
             username => 'in_time_period',
             context => $pf::constants::realm::ADMIN_CONTEXT,
