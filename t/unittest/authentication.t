@@ -271,7 +271,7 @@ is(
         \$source_id_ref
     ),
     'Security Event Manager',
-    "match time period condition ",
+    "match time period condition",
 );
 
 is($source_id_ref, 'htpasswd1', "Source id ref found");

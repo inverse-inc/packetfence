@@ -31,7 +31,7 @@ use utf8;
 use Test::NoWarnings;
 use pf::I18N::pfappserver;
 
-ok( pf::I18N::pfappserver->get_handle, "get_handle installed");
+ok(pf::I18N::pfappserver->get_handle, "get_handle installed");
 
 is(pf::I18N::pfappserver->localize("This is not localized"), "This is not localized", "localize text");
 
@@ -41,7 +41,7 @@ is(pf::I18N::pfappserver->localize("work_phone"), "work phone", "Localize englis
 
 is(pf::I18N::pfappserver->get_handle('en')->maketext("work_phone"), "work phone", "Default localization");
 
-is( pf::I18N::pfappserver->get_handle('es')->maketext("work_phone"), "work phone", "Default localization wrong lanaguage given");
+is(pf::I18N::pfappserver->get_handle('es')->maketext("work_phone"), "work phone", "Default localization wrong language given");
 
 is(pf::I18N::pfappserver->get_handle('fr')->maketext("work_phone"), "Téléphone de bureau", "Localize french");
 
