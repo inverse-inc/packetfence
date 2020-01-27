@@ -44,6 +44,8 @@ SRC_HTML_PFAPPDIR = $(SRC_HTMLDIR)/pfappserver
 SRC_HTML_PFAPPDIR_ROOT = $(SRC_HTMLDIR)/pfappserver/root
 SRC_HTML_PFAPPDIR_STATIC = $(SRC_HTML_PFAPPDIR_ROOT)/static
 SRC_HTML_PFAPPDIR_ALT = $(SRC_HTML_PFAPPDIR_ROOT)/static.alt
+SRC_HTML_PFAPPDIR_LIB = $(SRC_HTML_PFAPPDIR)/lib/pfappserver
+SRC_HTML_PFAPPDIR_I18N = $(SRC_HTML_PFAPPDIR_LIB)/I18N
 
 # Installed HTLML dirs
 HTMLDIR = $(PF_PREFIX)/html
@@ -54,6 +56,8 @@ HTML_PFAPPDIR = $(HTMLDIR)/pfappserver
 HTML_PFAPPDIR_ROOT = $(HTMLDIR)/pfappserver/root
 HTML_PFAPPDIR_STATIC = $(HTML_PFAPPDIR_ROOT)/static
 HTML_PFAPPDIR_ALT = $(HTML_PFAPPDIR_ROOT)/static.alt
+HTML_PFAPPDIR_LIB = $(HTML_PFAPPDIR)/lib/pfappserver
+HTML_PFAPPDIR_I18N = $(HTML_PFAPPDIR_LIB)/I18N
 
 # parking files
 parking_files = $(shell find $(SRC_HTML_PARKINGDIR) \
@@ -90,3 +94,7 @@ pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT) \
 	-type f \
 	-not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules/*")
 
+symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
+	-type l \
+	-not -path "$(SRC_HTML_PFAPPDIR_STATIC)/node_modules/*" \
+	-not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules/*")

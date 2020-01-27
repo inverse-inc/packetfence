@@ -257,9 +257,10 @@ html_install:
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install symlink"
-	cp -v --no-dereference $(SRC_HTML_PFAPPDIR_STATIC)/alt \
-	    $(DESTDIR)$(HTML_PFAPPDIR_STATIC)
+	@echo "install symlinks"
+	for link in $(symlink_files); do \
+	    cp -v --no-dereference $$link $(DESTDIR)$(PF_PREFIX)/$$link ; \
+	done
 
 .PHONY: conf/git_commit_id
 conf/git_commit_id:
