@@ -12,8 +12,8 @@ NAME		= pf
 PREFIX		= /usr/local
 INSTALL		= /usr/bin/install -c -D -m0644
 
-jessie := $(shell (dpkg-distribution --is_jessie && echo "yes") || echo "no")
-stretch := $(shell (dpkg-distribution --is_stretch && echo "yes") || echo "no")
+# DIST = jessie or stretch or ..
+DIST = $(shell lsb_release -c -s)
 
 configure: configure-stamp
 configure-stamp:
@@ -293,10 +293,10 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
-ifeq ($(jessie),yes)
+ifeq ($(DIST),jessie)
 	dh_gencontrol -- '-Vpacketfence:dist=openssl-blacklist,openssl-blacklist-extra,libapache2-mod-proxy-html,apache2-mpm-prefork'
 endif
-ifeq ($(stretch),yes)
+ifeq ($(DIST),stretch)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 	dh_md5sums
