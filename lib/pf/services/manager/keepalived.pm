@@ -37,6 +37,10 @@ use pf::util;
 use pf::constants qw($SPACE $SPACE_NUMBERS);
 use pf::cluster;
 
+my $host_id = $pf::config::cluster::host_id;
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
+
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'keepalived' } );
@@ -164,57 +168,43 @@ sub generateRoutes {
     my $logger = get_logger();
     my $routes = '';
     my $ips = '';
-    foreach my $network ( keys %ConfigNetworks ) {
-        my %net = %{$ConfigNetworks{$network}};
+    foreach my $network ( keys %NetworkConfig ) {
+        my %net = %{$NetworkConfig{$network}};
+        my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
         if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
-            $routes .= "$network/$net{'netmask'} via $net{'next_hop'}\n"
-        }
-    }
-    foreach my $interface ( @listen_ints ) {
-        my $cfg = $Config{"interface $interface"};
-        next unless $cfg;
-        my $current_interface = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
-        foreach my $network ( keys %ConfigNetworks ) {
-            my %net = %{$ConfigNetworks{$network}};
-            my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
-            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
-            if (defined($net{'next_hop'})) {
-                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
-            }
-            if ($current_interface->contains($ip)) {
-                if ( isenabled($net{'dhcpd'}) ) {
-                    if (isenabled($net{'split_network'})) {
-                        my @categories = nodecategory_view_all();
-                        my $count = @categories;
-                        $count++;
-                        push @categories, {'name' => 'registration'};
-                        my $len = $current_network->masklen;
-                        my $cidr = (ceil(log($count)/log(2)) + $len);
-                        if ($cidr > 30) {
-                            $logger->error("Can't split network");
-                            next;
-                        }
-                        if ($net{'reg_network'}) {
-                            $ips .= "$net{'reg_network'} dev $interface\n";
-                        }
-                        my @sub_net = $current_network->split($cidr);
-                        foreach my $net (@sub_net) {
-                            my $role = pop @categories;
-                            next unless $role->{'name'};
-                            my $pool = $role->{'name'}.$interface;
-                            my $pf_ip = $net + 1;
-                            $ip .= "$pf_ip->addr/$cidr dev $interface\n";
-                            my $first = $net + 2;
-                        }
+            $routes .= "$current_network via $net{'next_hop'} dev $dev\n"
+        } else {
+            if ( isenabled($NetworkConfig{$network}{'dhcpd'}) ) {
+                if (isenabled($NetworkConfig{$network}{'split_network'})) {
+                    my @categories = nodecategory_view_all();
+                    my $count = @categories;
+                    $count++;
+                    push @categories, {'name' => 'registration'};
+                    my $len = $current_network->masklen;
+                    my $cidr = (ceil(log($count)/log(2)) + $len);
+                    if ($cidr > 30) {
+                        $logger->error("Can't split network");
+                        next;
+                    }
+                    if ($NetworkConfig{$network}{'reg_network'}) {
+                        $ips .= "$NetworkConfig{$network}{'reg_network'} dev $dev\n";
+                    }
+                    my @sub_net = $current_network->split($cidr);
+                    foreach my $net (@sub_net) {
+                        my $role = pop @categories;
+                        next unless $role->{'name'};
+                        my $pf_ip = $net + 1;
+                        $ips .= "$pf_ip->addr/$cidr dev $dev\n";
+                        my $first = $net + 2;
                     }
                 }
-            } else {
-                next;
             }
         }
     }
     return $routes, $ips;
 }
+
 
 =head1 AUTHOR
 
