@@ -50,6 +50,7 @@ Bug Fixes
 * Fix allow external RADIUS accounting from eduroam server (they use it to detect if a server is alive)
 * Fix eduroam load-balancing issue on local realm
 * Adjust backup-and-maintenance.sh for locationlog_history table (#5076)
+* Prevent double restart when setting the port admin status of an EX2200 Juniper switch
 
 
 Version 9.2.0 released on 2019-11-26
