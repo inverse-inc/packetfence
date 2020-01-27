@@ -224,7 +224,7 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 		}
 
 		sort.Slice(ss, func(i, j int) bool {
-			return ss[i].Value > ss[j].Value
+			return ss[i].Value < ss[j].Value
 		})
 
 		for _, kv := range ss {
