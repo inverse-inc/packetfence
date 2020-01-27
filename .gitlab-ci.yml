@@ -25,6 +25,7 @@ stages:
 variables:
   PFBUILD_CENTOS_7_IMG: inverseinc/pfbuild-centos-7
   PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-stretch
+  PFBUILD_DEB_BUSTER_IMG: inverseinc/pfbuild-debian-buster
   CIDIR: ci
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
@@ -306,6 +307,13 @@ build_pkg_dev_debian_stretch:
     - .job_dev_triggers
     - .deb_script
 
+build_pkg_dev_debian_buster:
+  image: ${PFBUILD_DEB_BUSTER_IMG}:latest
+  extends:
+    - .build_job
+    - .job_dev_triggers
+    - .deb_script
+
 # build_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X
 build_pkg_release_centos_7:
@@ -317,6 +325,13 @@ build_pkg_release_centos_7:
 
 build_pkg_release_debian_stretch:
   image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_TAG}
+  extends:
+    - .build_job
+    - .job_release_triggers
+    - .deb_script
+
+build_pkg_release_debian_buster:
+  image: ${PFBUILD_DEB_BUSTER_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_job
     - .job_release_triggers
@@ -353,8 +368,10 @@ sign_dev_and_release:
   dependencies:
     - build_pkg_dev_centos_7
     - build_pkg_dev_debian_stretch
+    - build_pkg_dev_debian_buster
     - build_pkg_release_centos_7
     - build_pkg_release_debian_stretch
+    - build_pkg_release_debian_buster
   artifacts:
     expire_in: 1 day
     paths:
