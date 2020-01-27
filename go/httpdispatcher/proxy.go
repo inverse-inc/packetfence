@@ -179,7 +179,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		PortalURL.RawQuery = "destination_url=" + destURL.String()
 
 		w.Header().Set("Location", PortalURL.String())
-		t := template.New("foo")
+		t := template.New("redirect")
 		if r.Method != "HEAD" {
 			if (wispr.MatchString(r.UserAgent()) && !CaptiveNetworkSupport.MatchString(r.UserAgent())) || passThrough.Wispr {
 				w.WriteHeader(http.StatusFound)
