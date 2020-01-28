@@ -80,18 +80,18 @@ type CA struct {
 	Country          string                  `json:"country"`
 	State            string                  `json:"state"`
 	Locality         string                  `json:"locality"`
-	StreetAddress    string                  `json:"streetaddress"`
-	PostalCode       string                  `json:"postalcode"`
-	KeyType          Type                    `json:"keytype"`
-	KeySize          int                     `json:"keysize"`
+	StreetAddress    string                  `json:"street_address"`
+	PostalCode       string                  `json:"postal_code"`
+	KeyType          Type                    `json:"key_type"`
+	KeySize          int                     `json:"key_size"`
 	Digest           x509.SignatureAlgorithm `json:"digest"`
-	KeyUsage         string                  `json:"keyusage,omitempty"`
-	ExtendedKeyUsage string                  `json:"extendedkeyusage,omitempty"`
+	KeyUsage         string                  `json:"key_usage,omitempty"`
+	ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
 	Days             int                     `json:"days"`
 	Key              string                  `json:"key,omitempty" gorm:"type:longtext"`
 	Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
-	IssuerKeyHash    string                  `json:"issuerkeyhash,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerNameHash   string                  `json:"issuernamehash,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerNameHash   string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
 // Profile struct
@@ -99,20 +99,20 @@ type Profile struct {
 	gorm.Model
 	Name             string                  `json:"name" gorm:"UNIQUE"`
 	Ca               CA                      `json:"ca"`
-	CaID             uint                    `json:"caid"`
-	CaName           string                  `json:"caname"`
+	CaID             uint                    `json:"ca_id"`
+	CaName           string                  `json:"ca_name"`
 	Validity         int                     `json:"validity"`
-	KeyType          Type                    `json:"keytype"`
-	KeySize          int                     `json:"keysize"`
+	KeyType          Type                    `json:"key_type"`
+	KeySize          int                     `json:"key_size"`
 	Digest           x509.SignatureAlgorithm `json:"digest"`
-	KeyUsage         string                  `json:"keyusage,omitempty"`
-	ExtendedKeyUsage string                  `json:"extendedkeyusage,omitempty"`
-	P12SmtpServer    string                  `json:"p12smtpserver"`
-	P12MailPassword  int                     `json:"p12mailpassword"`
-	P12MailSubject   string                  `json:"p12mailsubject"`
-	P12MailFrom      string                  `json:"p12mailfrom"`
-	P12MailHeader    string                  `json:"p12mailheader"`
-	P12MailFooter    string                  `json:"p12mailfooter"`
+	KeyUsage         string                  `json:"key_usage,omitempty"`
+	ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
+	P12SmtpServer    string                  `json:"p12_smtp_server"`
+	P12MailPassword  int                     `json:"p12_mail_password"`
+	P12MailSubject   string                  `json:"p12_mail_subject"`
+	P12MailFrom      string                  `json:"p12_mail_from"`
+	P12MailHeader    string                  `json:"p12_mail_header"`
+	P12MailFooter    string                  `json:"p12_mail_footer"`
 }
 
 // Cert struct
@@ -121,18 +121,19 @@ type Cert struct {
 	Cn            string  `json:"cn"  gorm:"UNIQUE"`
 	Mail          string  `json:"mail"`
 	Ca            CA      `json:"ca"`
-	CaID          uint    `json:"caid"`
-	StreetAddress string  `json:"street,omitempty"`
+	CaID          uint    `json:"ca_id"`
+	CaName        string  `json:"ca_name"`
+	StreetAddress string  `json:"street_address,omitempty"`
 	Organisation  string  `json:"organisation,omitempty"`
 	Country       string  `json:"country,omitempty"`
 	State         string  `json:"state,omitempty"`
 	Locality      string  `json:"locality,omitempty"`
-	PostalCode    string  `json:"postalcode,omitempty"`
+	PostalCode    string  `json:"postal_code,omitempty"`
 	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
 	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
-	ProfileName   string  `json:"profilename,omitempty"`
 	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint    `json:"profileid"`
+	ProfileID     uint    `json:"profile_id"`
+	ProfileName   string  `json:"profile_name,omitempty"`
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	SerialNumber  string
@@ -145,17 +146,17 @@ type RevokedCert struct {
 	Mail          string  `json:"mail"`
 	Ca            CA      `json:"ca"`
 	CaID          uint    `json:"caid"`
-	StreetAddress string  `json:"street,omitempty"`
+	StreetAddress string  `json:"street_address,omitempty"`
 	Organisation  string  `json:"organisation,omitempty"`
 	Country       string  `json:"country,omitempty"`
 	State         string  `json:"state,omitempty"`
 	Locality      string  `json:"locality,omitempty"`
-	PostalCode    string  `json:"postalcode,omitempty"`
+	PostalCode    string  `json:"postal_code,omitempty"`
 	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
 	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
-	ProfileName   string  `json:"profilename,omitempty"`
 	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint    `json:"profileid"`
+	ProfileID     uint    `json:"profile_id"`
+	ProfileName   string  `json:"profile_name,omitempty"`
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	Revoked       time.Time
@@ -417,9 +418,9 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var certdb []Cert
 	if val, ok := params["cn"]; ok {
-		pfpki.DB.Select("cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_name, valid_until, serial_number").Where("cn = ?", val).First(&certdb)
+		pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_name, valid_until, serial_number").Where("cn = ?", val).First(&certdb)
 	} else {
-		pfpki.DB.Select("cn").Find(&certdb)
+		pfpki.DB.Select("id, cn").Find(&certdb)
 	}
 	Information.Entries = certdb
 
