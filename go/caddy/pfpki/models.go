@@ -264,7 +264,7 @@ func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 	if val, ok := params["id"]; ok {
 		pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("id = ?", val).First(&cadb)
 	} else {
-		pfpki.DB.Select("id, cn, organisation, mail").Find(&cadb)
+		pfpki.DB.Select("id, cn, mail, organisation").Find(&cadb)
 	}
 	Information.Entries = cadb
 
@@ -309,11 +309,11 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	}
 
 	var ca CA
-	if CaDB := pfpki.DB.Where("Cn = ?", p.CaName).Find(&ca); CaDB.Error != nil {
+	if CaDB := pfpki.DB.Where("id = ?", p.CaID).Find(&ca); CaDB.Error != nil {
 		return Information, CaDB.Error
 	}
 
-	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, CaName: p.CaName, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
+	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, CaID: p.CaID, CaName: p.CaName, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		return Information, err
 	}
 	pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
@@ -347,7 +347,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 
 	// Find the CA
 	var ca CA
-	if CaDB := pfpki.DB.Where("Cn = ?", prof.CaName).Find(&ca); CaDB.Error != nil {
+	if CaDB := pfpki.DB.Where("id = ?", prof.CaID).Find(&ca); CaDB.Error != nil {
 		return Information, CaDB.Error
 	}
 	// Load the certificates from the database
