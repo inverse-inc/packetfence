@@ -436,9 +436,15 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	// Find the Cert
 	var cert Cert
-	cn := params["cn"]
-	if CertDB := pfpki.DB.Where("Cn = ?", cn).Find(&cert); CertDB.Error != nil {
-		return Information, CertDB.Error
+	if val, ok := params["cn"]; ok {
+		if CertDB := pfpki.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
+			return Information, CertDB.Error
+		}
+	}
+	if val, ok := params["id"]; ok {
+		if CertDB := pfpki.DB.First(&cert, val); CertDB.Error != nil {
+			return Information, CertDB.Error
+		}
 	}
 
 	// Find the CA
@@ -484,14 +490,15 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	} else {
 		password = generatePassword()
 	}
+	Information.Password = password
 
 	pkcs12, err := pkcs12.Encode(PRNG, certtls.PrivateKey, certificate, CaCert, password)
 
 	if _, ok := params["password"]; ok {
-		Information, err = email(cert, prof, pkcs12, password)
-	} else {
 		Information.Raw = pkcs12
 		Information.ContentType = "application/x-pkcs12"
+	} else {
+		Information, err = email(cert, prof, pkcs12, password)
 	}
 
 	return Information, err
