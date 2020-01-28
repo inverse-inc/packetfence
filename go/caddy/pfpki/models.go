@@ -425,7 +425,7 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	} else if val, ok := params["id"]; ok {
 		pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").First(&certdb, val)
 	} else {
-		pfpki.DB.Select("id, cn, profile_id, ca_id").Find(&certdb)
+		pfpki.DB.Select("id, cn, profile_id, profile_name, ca_name, ca_id").Find(&certdb)
 	}
 	Information.Entries = certdb
 
