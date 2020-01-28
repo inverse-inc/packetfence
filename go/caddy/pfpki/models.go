@@ -309,7 +309,7 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	}
 
 	var ca CA
-	if CaDB := pfpki.DB.Where("id = ?", p.CaID).Find(&ca); CaDB.Error != nil {
+	if CaDB := pfpki.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
 		return Information, CaDB.Error
 	}
 
@@ -347,7 +347,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 
 	// Find the CA
 	var ca CA
-	if CaDB := pfpki.DB.Where("id = ?", prof.CaID).Find(&ca); CaDB.Error != nil {
+	if CaDB := pfpki.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
 		return Information, CaDB.Error
 	}
 	// Load the certificates from the database
