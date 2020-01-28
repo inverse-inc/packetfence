@@ -72,3 +72,4 @@ CREATE TABLE IF NOT EXISTS dhcppool (
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
 \! echo "Upgrade completed successfully.";
+
