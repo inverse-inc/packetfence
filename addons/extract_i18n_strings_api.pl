@@ -2,17 +2,19 @@
 
 =head1 NAME
 
-extract_i18n_strings_api.pl - extract localizable strings
+extract_i18n_strings_api.pl - extract localizable strings that are used by the API
 
 =head1 TODO
 
 
 =head1 DESCRIPTION
 
-The script extracts the localized strings from the Javascript code.
+The script extracts the localized strings from the Javascript code and the default configuration
+files.
 
 =cut
 
+use Config::IniFiles;
 use File::Find;
 use lib qw(/usr/local/pf/lib);
 
@@ -143,6 +145,33 @@ sub parse_js {
     }
 }
 
+=head2 parse_conf
+
+Parse the default configuration files and look for the 'description' parameters.
+
+=cut
+
+sub parse_conf {
+    my $dir = CONF;
+    my @files = ();
+    my $defaults = sub {
+        return unless -f && m/\.conf\.defaults$/;
+        push(@files, $File::Find::name);
+    };
+    find($defaults, $dir);
+    my %ini;
+    foreach my $file (@files) {
+        tie %ini, 'Config::IniFiles', ( -file => $file );
+        foreach my $section (keys %ini) {
+            foreach my $key (keys %{$ini{$section}}) {
+                if ($key =~ m/description$/) {
+                    add_string($ini{$section}{$key}, "$file:[$section]/$key");
+                }
+            }
+        }
+    }
+}
+
 =head2 print_po
 
 Print the PO file constructed from the extracted localizable strings.
@@ -160,8 +189,8 @@ sub print_po {
     close(RELEASE);
 
     print <<EOT;
+# Copyright (C) Inverse inc.
 # English translations for $package package.
-# Copyright (C) 2005-2019 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -222,6 +251,7 @@ sub verify {
 
 &parse_po;
 &parse_js;
+&parse_conf;
 &print_po;
 &verify;
 
