@@ -82,12 +82,12 @@ type CA struct {
 	Locality         string                  `json:"locality"`
 	StreetAddress    string                  `json:"street_address"`
 	PostalCode       string                  `json:"postal_code"`
-	KeyType          Type                    `json:"key_type"`
-	KeySize          int                     `json:"key_size"`
-	Digest           x509.SignatureAlgorithm `json:"digest"`
+	KeyType          Type                    `json:"key_type,string"`
+	KeySize          int                     `json:"key_size,string"`
+	Digest           x509.SignatureAlgorithm `json:"digest,string"`
 	KeyUsage         string                  `json:"key_usage,omitempty"`
 	ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
-	Days             int                     `json:"days"`
+	Days             int                     `json:"days,string"`
 	Key              string                  `json:"key,omitempty" gorm:"type:longtext"`
 	Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
 	IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
@@ -99,16 +99,16 @@ type Profile struct {
 	gorm.Model
 	Name             string                  `json:"name" gorm:"UNIQUE"`
 	Ca               CA                      `json:"ca"`
-	CaID             uint                    `json:"ca_id"`
+	CaID             uint                    `json:"ca_id,string"`
 	CaName           string                  `json:"ca_name"`
-	Validity         int                     `json:"validity"`
-	KeyType          Type                    `json:"key_type"`
-	KeySize          int                     `json:"key_size"`
-	Digest           x509.SignatureAlgorithm `json:"digest"`
+	Validity         int                     `json:"validity,string"`
+	KeyType          Type                    `json:"key_type,string"`
+	KeySize          int                     `json:"key_size,string"`
+	Digest           x509.SignatureAlgorithm `json:"digest,string"`
 	KeyUsage         string                  `json:"key_usage,omitempty"`
 	ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
 	P12SmtpServer    string                  `json:"p12_smtp_server"`
-	P12MailPassword  int                     `json:"p12_mail_password"`
+	P12MailPassword  int                     `json:"p12_mail_password,string"`
 	P12MailSubject   string                  `json:"p12_mail_subject"`
 	P12MailFrom      string                  `json:"p12_mail_from"`
 	P12MailHeader    string                  `json:"p12_mail_header"`
@@ -121,7 +121,7 @@ type Cert struct {
 	Cn            string  `json:"cn"  gorm:"UNIQUE"`
 	Mail          string  `json:"mail"`
 	Ca            CA      `json:"ca"`
-	CaID          uint    `json:"ca_id"`
+	CaID          uint    `json:"ca_id,string"`
 	CaName        string  `json:"ca_name"`
 	StreetAddress string  `json:"street_address,omitempty"`
 	Organisation  string  `json:"organisation,omitempty"`
@@ -132,7 +132,7 @@ type Cert struct {
 	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
 	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
 	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint    `json:"profile_id"`
+	ProfileID     uint    `json:"profile_id,string"`
 	ProfileName   string  `json:"profile_name,omitempty"`
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
@@ -145,7 +145,7 @@ type RevokedCert struct {
 	Cn            string  `json:"cn""`
 	Mail          string  `json:"mail"`
 	Ca            CA      `json:"ca"`
-	CaID          uint    `json:"caid"`
+	CaID          uint    `json:"caid,string"`
 	StreetAddress string  `json:"street_address,omitempty"`
 	Organisation  string  `json:"organisation,omitempty"`
 	Country       string  `json:"country,omitempty"`
@@ -155,7 +155,7 @@ type RevokedCert struct {
 	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
 	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
 	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint    `json:"profile_id"`
+	ProfileID     uint    `json:"profile_id,string"`
 	ProfileName   string  `json:"profile_name,omitempty"`
 	ValidUntil    time.Time
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
