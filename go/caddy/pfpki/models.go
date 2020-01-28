@@ -341,7 +341,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 
 	// Find the profile
 	var prof Profile
-	if profDB := pfpki.DB.Where("Name = ?", c.ProfileName).Find(&prof); profDB.Error != nil {
+	if profDB := pfpki.DB.First(&prof, c.ProfileID); profDB.Error != nil {
 		return Information, profDB.Error
 	}
 
