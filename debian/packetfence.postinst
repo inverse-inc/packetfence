@@ -141,6 +141,8 @@ case "$1" in
         systemctl disable packetfence-iptables
         systemctl enable packetfence-routes
         systemctl enable packetfence-httpd.admin
+        systemctl enable packetfence-tracking-config.service
+        systemctl enable packetfence-tracking-config.path
         systemctl daemon-reload
         systemctl isolate packetfence-base.target
 
