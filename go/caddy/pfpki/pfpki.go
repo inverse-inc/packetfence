@@ -80,8 +80,11 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	api.Handle("/pki/cert", manageCert(PFPki)).Methods("POST")
 	// Certificate list
 	api.Handle("/pki/cert", manageCert(PFPki)).Methods("GET")
-	// Get Certificate
+	// Get Certificate by cn
 	api.Handle("/pki/cert/{cn}", manageCert(PFPki)).Methods("GET")
+	api.Handle("/pki/cert/getbycn/{cn}", manageCert(PFPki)).Methods("GET")
+	// Get Certificate by id
+	api.Handle("/pki/cert/getbyid/{id}", manageCert(PFPki)).Methods("GET")
 
 	// Get Certificate by email
 	api.Handle("/pki/certmgmt/{cn}", manageCert(PFPki)).Methods("GET")
