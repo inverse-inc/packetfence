@@ -132,13 +132,13 @@ const actions = {
     })
   },
   getCert: ({ state, commit }, id) => {
-    if (state.profileItemCache[id]) {
-      return Promise.resolve(state.profileItemCache[id])
+    if (state.certItemCache[id]) {
+      return Promise.resolve(state.certItemCache[id])
     }
     commit('CERT_REQUEST')
     return api.pkiCert(id).then(item => {
       commit('CERT_ITEM_REPLACED', item)
-      return state.profileItemCache[id]
+      return state.certItemCache[id]
     }).catch((err) => {
       commit('CERT_ERROR', err.response)
       throw err
@@ -206,7 +206,7 @@ const mutations = {
   },
   PROFILE_ITEM_REPLACED: (state, data) => {
     state.profileStatus = types.SUCCESS
-    Vue.set(state.profileItemCache, data.id, data)
+    Vue.set(state.profileItemCache, data.ID, data)
   },
   PROFILE_ERROR: (state, response) => {
     state.profileStatus = types.ERROR
@@ -225,7 +225,7 @@ const mutations = {
   },
   CERT_ITEM_REPLACED: (state, data) => {
     state.certStatus = types.SUCCESS
-    Vue.set(state.certItemCache, data.id, data)
+    Vue.set(state.certItemCache, data.ID, data)
   },
   CERT_ITEM_EMAILED: (state) => {
     state.certStatus = types.SUCCESS

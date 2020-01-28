@@ -1466,10 +1466,10 @@ const route = {
       props: (route) => ({ tab: 'pkiProfiles', query: route.query.query })
     },
     {
-      path: 'pki/profiles/new',
+      path: 'pki/ca/:ca_id/profiles/new',
       name: 'newPkiProfile',
       component: PkiProfileView,
-      props: () => ({ formStoreName: 'formPkiProfile', isNew: true }),
+      props: (route) => ({ formStoreName: 'formPkiProfile', ca_id: String(route.params.ca_id).toString(), isNew: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formPkiProfile) { // Register store module only once
           store.registerModule('formPkiProfile', FormStore)
@@ -1492,16 +1492,30 @@ const route = {
       }
     },
     {
+      path: 'pki/profile/:id/clone',
+      name: 'clonePkiProfile',
+      component: PkiProfileView,
+      props: (route) => ({ formStoreName: 'formPkiProfile', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProfile) { // Register store module only once
+          store.registerModule('formPkiProfile', FormStore)
+        }
+        store.dispatch('$_pkis/getProfile', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
       path: 'pki/certs',
       name: 'pkiCerts',
       component: PkisTabs,
       props: (route) => ({ tab: 'pkiCerts', query: route.query.query })
     },
     {
-      path: 'pki/certs/new',
+      path: 'pki/profile/:profile_id/certs/new',
       name: 'newPkiCert',
       component: PkiCertView,
-      props: () => ({ formStoreName: 'formPkiCert', isNew: true }),
+      props: (route) => ({ formStoreName: 'formPkiCert', profile_id: String(route.params.profile_id).toString(), isNew: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formPkiCert) { // Register store module only once
           store.registerModule('formPkiCert', FormStore)
@@ -1514,6 +1528,20 @@ const route = {
       name: 'pkiCert',
       component: PkiCertView,
       props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCert) { // Register store module only once
+          store.registerModule('formPkiCert', FormStore)
+        }
+        store.dispatch('$_pkis/getCert', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/cert/:id/clone',
+      name: 'clonePkiCert',
+      component: PkiCertView,
+      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formPkiCert) { // Register store module only once
           store.registerModule('formPkiCert', FormStore)

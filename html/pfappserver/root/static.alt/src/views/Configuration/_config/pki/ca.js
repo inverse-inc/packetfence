@@ -11,8 +11,17 @@ import {
   pkiCaCnExists
 } from '@/globals/pfValidators'
 import {
-  required
+  required,
+  minValue,
+  email
 } from 'vuelidate/lib/validators'
+import {
+  digests,
+  keyTypes,
+  keySizes,
+  keyUsages,
+  extendedKeyUsages
+} from './'
 
 export const columns = [
   {
@@ -47,99 +56,26 @@ export const columns = [
   }
 ]
 
-export const digests = [
-  { value: '0', text: 'UnknownSignatureAlgorithm' },
-  { value: '1', text: 'MD2WithRSA' },
-  { value: '2', text: 'MD5WithRSA' },
-  { value: '3', text: 'SHA1WithRSA' },
-  { value: '4', text: 'SHA256WithRSA' },
-  { value: '5', text: 'SHA384WithRSA' },
-  { value: '6', text: 'SHA512WithRSA' },
-  { value: '7', text: 'DSAWithSHA1' },
-  { value: '8', text: 'DSAWithSHA256' },
-  { value: '9', text: 'ECDSAWithSHA1' },
-  { value: '10', text: 'ECDSAWithSHA256' },
-  { value: '11', text: 'ECDSAWithSHA384' },
-  { value: '12', text: 'ECDSAWithSHA512' },
-  { value: '13', text: 'SHA256WithRSAPSS' },
-  { value: '14', text: 'SHA384WithRSAPSS' },
-  { value: '15', text: 'SHA512WithRSAPSS' },
-  { value: '16', text: 'PureEd25519' }
-]
-
-export const keyTypes = [
-  { value: '0', text: 'KEY_ECDSA' },
-  { value: '1', text: 'KEY_RSA' },
-  { value: '2', text: 'KEY_DSA' }
-]
-
-export const keySizes = {
-  0: [ // KEY_ECDSA
-    { value: '256', text: '256' },
-    { value: '384', text: '384' },
-    { value: '521', text: '521' }
-  ],
-  1: [ // KEY_RSA
-    { value: '512', text: '512' },
-    { value: '1024', text: '1024' },
-    { value: '2048', text: '2048' }
-  ],
-  2: [ // KEY_DSA
-    { value: '1024', text: '1024' },
-    { value: '2048', text: '2048' },
-    { value: '3072', text: '3072' }
-  ]
-}
-
-export const keyUsages = [
-  { value: '1', text: 'DigitalSignature' },
-  { value: '2', text: 'ContentCommitment' },
-  { value: '4', text: 'KeyEncipherment' },
-  { value: '8', text: 'DataEncipherment' },
-  { value: '16', text: 'KeyAgreement' },
-  { value: '32', text: 'CertSign' },
-  { value: '64', text: 'CRLSign' },
-  { value: '128', text: 'EncipherOnly' },
-  { value: '256', text: 'DecipherOnly' }
-]
-
-export const extendedKeyUsages = [
-  { value: '0', text: 'Any' },
-  { value: '1', text: 'ServerAuth' },
-  { value: '2', text: 'ClientAuth' },
-  { value: '3', text: 'CodeSigning' },
-  { value: '4', text: 'EmailProtection' },
-  { value: '5', text: 'IPSECEndSystem' },
-  { value: '6', text: 'IPSECTunnel' },
-  { value: '7', text: 'IPSECUser' },
-  { value: '8', text: 'TimeStamping' },
-  { value: '9', text: 'OCSPSigning' },
-  { value: '10', text: 'MicrosoftServerGatedCrypto' },
-  { value: '11', text: 'NetscapeServerGatedCrypto' },
-  { value: '12', text: 'MicrosoftCommercialCodeSigning' },
-  { value: '13', text: 'MicrosoftKernelCodeSigning' }
-]
-
 export const decomposeCa = (item) => {
-  const { keyusage = null, extendedkeyusage = null } = item
+  const { key_usage = null, extended_key_usage = null } = item
   return { ...item, ...{
-    keyusage: keyusage.split('|'),
-    extendedkeyusage: extendedkeyusage.split('|')
+    key_usage: key_usage.split('|'),
+    extended_key_usage: extended_key_usage.split('|')
   } }
 }
 
 export const recomposeCa = (item) => {
-  const { keyusage = null, extendedkeyusage = null } = item
+  const { key_usage = null, extended_key_usage = null } = item
   return { ...item, ...{
-    keyusage: keyusage.join('|'),
-    extendedkeyusage: extendedkeyusage.join('|')
+    key_usage: key_usage.join('|'),
+    extended_key_usage: extended_key_usage.join('|')
   } }
 }
 
 export const view = (form = {}, meta = {}) => {
   const {
-    keytype = null,
-    keysize = null,
+    key_type = null,
+    key_size = null,
     cert = null
   } = form
   const {
@@ -236,10 +172,34 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Street Address'),
+          cols: [
+            {
+              namespace: 'street_address',
+              component: pfFormInput,
+              attrs: {
+                disabled: (!isNew && !isClone)
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Postal Code'),
+          cols: [
+            {
+              namespace: 'postal_code',
+              component: pfFormInput,
+              attrs: {
+                disabled: (!isNew && !isClone)
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Key type'),
           cols: [
             {
-              namespace: 'keytype',
+              namespace: 'key_type',
               component: pfFormChosen,
               attrs: {
                 disabled: (!isNew && !isClone),
@@ -247,11 +207,11 @@ export const view = (form = {}, meta = {}) => {
               },
               listeners: {
                 select: (event) => {
-                  const { value: keytype } = event
-                  if (keySizes[keytype].filter(option => { // does keysize exist in new keytype?
-                    return option.value === keysize
-                  }).length === 0) { // keysize does not exist in new keytype
-                    Vue.set(form, 'keysize', null) // clear keysize
+                  const { value: key_type } = event
+                  if (keySizes[key_type].filter(option => { // does key_size exist in new key_type?
+                    return option.value === key_size
+                  }).length === 0) { // key_size does not exist in new key_type
+                    Vue.set(form, 'key_size', null) // clear key_size
                   }
                 }
               }
@@ -259,15 +219,15 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: keytype,
+          if: key_type,
           label: i18n.t('Key size'),
           cols: [
             {
-              namespace: 'keysize',
+              namespace: 'key_size',
               component: pfFormChosen,
               attrs: {
                 disabled: (!isNew && !isClone),
-                options: (keytype in keySizes) ? keySizes[keytype] : []
+                options: (key_type in keySizes) ? keySizes[key_type] : []
               }
             }
           ]
@@ -290,7 +250,7 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('Optional. One or many of: digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly.'),
           cols: [
             {
-              namespace: 'keyusage',
+              namespace: 'key_usage',
               component: pfFormChosen,
               attrs: {
                 disabled: (!isNew && !isClone),
@@ -305,7 +265,7 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('Optional. One or many of: serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, msCodeInd, msCodeCom, msCTLSign, msSGC, msEFS, nsSGC.'),
           cols: [
             {
-              namespace: 'extendedkeyusage',
+              namespace: 'extended_key_usage',
               component: pfFormChosen,
               attrs: {
                 disabled: (!isNew && !isClone),
@@ -359,7 +319,8 @@ export const validators = (form = {}, meta = {}) => {
       [i18n.t('Common name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiCas, pkiCaCnExists))
     },
     mail: {
-      [i18n.t('Email required.')]: required
+      [i18n.t('Email required.')]: required,
+      [i18n.t('Invalid email address.')]: email
     },
     organisation: {
       [i18n.t('Organisation required.')]: required
@@ -373,17 +334,24 @@ export const validators = (form = {}, meta = {}) => {
     locality: {
       [i18n.t('Locality required.')]: required
     },
-    keytype: {
+    street_address: {
+      [i18n.t('Street address required.')]: required
+    },
+    postal_code: {
+      [i18n.t('Postal code required.')]: required
+    },
+    key_type: {
       [i18n.t('Key type required.')]: required
     },
-    keysize: {
+    key_size: {
       [i18n.t('Key size required.')]: required
     },
     digest: {
       [i18n.t('Digest required.')]: required
     },
     days: {
-      [i18n.t('Days required.')]: required
+      [i18n.t('Days required.')]: required,
+      [i18n.t('Minimum 1 day(s).')]: minValue(1)
     }
   }
 }

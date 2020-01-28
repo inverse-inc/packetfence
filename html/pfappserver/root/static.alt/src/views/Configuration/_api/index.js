@@ -804,32 +804,46 @@ export default {
   },
   pkiProfiles: () => {
     return apiCall.get('pki/profile').then(response => {
-      return response.data
+      const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+      return { items }
     })
   },
   pkiProfile: id => {
     return apiCall.get(['pki', 'profile', id]).then(response => {
-      return response.data.result
+      const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+      return item
     })
   },
   createPkiProfile: data => {
-    return apiCall.post('pki/ca', data).then(response => {
-      return response.data
+    return apiCall.post('pki/profile', data).then(response => {
+      const { data: { result: { 0: { error } = {} } = {} } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        return response.data
+      }
     })
   },
   pkiCerts: () => {
     return apiCall.get('pki/cert').then(response => {
-      return response.data
+      const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+      return { items }
     })
   },
   pkiCert: id => {
-    return apiCall.get(['pki', 'cert', id]).then(response => {
-      return response.data.result
+    return apiCall.get(['pki', 'cert', 'getbyid', id]).then(response => {
+      const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+      return item
     })
   },
   createPkiCert: data => {
     return apiCall.post('pki/cert', data).then(response => {
-      return response.data
+      const { data: { result: { 0: { error } = {} } = {} } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        return response.data
+      }
     })
   },
   emailPkiCert: id => {

@@ -365,6 +365,22 @@ export const hasPkiCas = () => {
   })
 }
 
+export const hasPkiProfiles = () => {
+  return store.dispatch('config/getPkiProfiles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasPkiCerts = () => {
+  return store.dispatch('config/getPkiCerts').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasPkiProviders = () => {
   return store.dispatch('config/getPkiProviders').then((response) => {
     return (response.length > 0)
@@ -665,6 +681,26 @@ export const pkiCaCnExists = (value) => {
   return store.dispatch('config/getPkiCas').then((response) => {
     if (response.length === 0) return true
     else return response.filter(ca => ca.cn.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
+  })
+}
+
+export const pkiProfileNameExists = (value) => {
+  if (!value) return true
+  return store.dispatch('config/getPkiProfiles').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(profile => profile.name.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
+  })
+}
+
+export const pkiCertCnExists = (value) => {
+  if (!value) return true
+  return store.dispatch('config/getPkiCerts').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(cert => cert.cn.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

@@ -19,10 +19,11 @@
       </template>
       <template v-slot:cell(buttons)="{ item }">
         <span class="float-right text-nowrap">
-          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clipboard(item)">
-            <icon class="mr-2" name="clipboard-list"></icon> {{ $t('Copy Certificate') }}
-          </b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clipboard(item)">
+            <icon class="mr-1" name="clipboard-list"></icon> {{ $t('Copy Certificate') }}
+          </b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'newPkiProfile', params: { ca_id: item.ID } }">{{ $t('New Profile') }}</b-button>
         </span>
       </template>
     </b-table>

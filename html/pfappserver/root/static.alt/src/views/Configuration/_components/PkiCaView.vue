@@ -73,7 +73,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/authenticationSource
+      return view(this.form, this.meta) // ../_config/pki/ca
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]
@@ -117,6 +117,8 @@ export default {
         } else {
           this.$router.push({ name: 'pkiCa', params: { id } })
         }
+      }).catch(e => {
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Certificate Authority: ') + e })
       })
     }
   },
