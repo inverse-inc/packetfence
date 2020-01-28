@@ -1373,7 +1373,7 @@ CREATE TABLE dhcppool (
   idx                   int(11) NOT NULL,
   mac                   VARCHAR(30) NOT NULL,
   free                  BOOLEAN NOT NULL default '1',
-  released              DATETIME NULL default NULL,
+  released              DATETIME(6) NULL default NULL,
   PRIMARY KEY (id),
   UNIQUE KEY dhcppool_poolname_idx (pool_name, idx),
   KEY mac (mac),

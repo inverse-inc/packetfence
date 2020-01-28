@@ -54,3 +54,39 @@ func Create(ctx context.Context, poolType string, capacity uint64, name string, 
 	return nil, fmt.Errorf("Pool of %s not found", poolType)
 }
 
+// DHCPPool struct
+type DHCPPool struct {
+	lock      *sync.RWMutex
+	free      map[uint64]bool
+	mac       map[uint64]string
+	capacity  uint64
+	released  map[uint64]int64
+	algorithm int
+	ctx       context.Context
+	statsd    *statsd.Client
+}
+
+type Timing struct {
+	timing statsd.Timing
+}
+
+func (dp *DHCPPool) NewTiming() *Timing {
+	if dp.statsd == nil {
+		return nil
+	}
+
+	return &Timing{timing: dp.statsd.NewTiming()}
+}
+
+func (t *Timing) Send(name string) {
+	if t == nil {
+		return
+	}
+
+	t.timing.Send("pfdhcp." + name)
+}
+
+// Track timing for each function
+func (dp *DHCPPool) timeTrack(t *Timing, name string) {
+	t.Send("pfdhcp." + name)
+}
