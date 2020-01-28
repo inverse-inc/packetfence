@@ -418,9 +418,9 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var certdb []Cert
 	if val, ok := params["cn"]; ok {
-		pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_name, valid_until, serial_number").Where("cn = ?", val).First(&certdb)
+		pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, valid_until, serial_number").Where("cn = ?", val).First(&certdb)
 	} else {
-		pfpki.DB.Select("id, cn").Find(&certdb)
+		pfpki.DB.Select("id, cn, profile_id").Find(&certdb)
 	}
 	Information.Entries = certdb
 
