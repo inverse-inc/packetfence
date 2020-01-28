@@ -136,7 +136,7 @@ export default {
      * search array and return single report matching path.
      */
     report () {
-      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
+      return reportCategories().map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
     },
     totalRows () {
       return this.items.length
@@ -149,9 +149,9 @@ export default {
      * otherwise use the default sort.
      */
     sortCompare (a, b, key) {
-      if (reportColumns[key].sort) {
+      if (reportColumns()[key].sort) {
         // custom sort
-        return reportColumns[key].sort(a[key], b[key])
+        return reportColumns()[key].sort(a[key], b[key])
       } else {
         // default sort
         return null
@@ -171,10 +171,10 @@ export default {
       })
     },
     getReportByName (name) {
-      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.name === name)[0]
+      return reportCategories().map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.name === name)[0]
     },
     getReportByPath (path) {
-      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(path))[0]
+      return reportCategories().map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(path))[0]
     },
     onChangeDatetimeStart (datetime) {
       this.datetimeStart = datetime
@@ -200,7 +200,7 @@ export default {
     if (this.getReportByPath(to.params.path).name !== this.getReportByPath(from.params.path).name) {
       this.tabIndex = 0
     }
-    const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
+    const report = reportCategories().map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
     const range = report.tabs[this.tabIndex].range
     const rpath = this.getApiEndpointRangePath(range)
     this.apiEndpoint = `reports/${to.params.path}${rpath}`

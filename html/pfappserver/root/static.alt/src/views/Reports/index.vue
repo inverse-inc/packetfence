@@ -18,18 +18,6 @@ export default {
   },
   data () {
     return {
-      standardReports: reportCategories.map(reportCategory => {
-        return {
-          name: reportCategory.name,
-          items: reportCategory.reports.map(report => {
-            return {
-              name: report.name,
-              path: `/reports/standard/chart/${report.tabs[0].path}`,
-              icon: report.chart ? 'chart-pie' : null
-            }
-          })
-        }
-      }),
       otherReports: this.$store.dispatch('$_reports/all').then(reports => {
         this.otherReports = reports.sort((a, b) => {
           return a.description.localeCompare(b.description)
@@ -59,6 +47,20 @@ export default {
     }
   },
   computed: {
+    standardReports () {
+      return reportCategories().map(reportCategory => {
+        return {
+          name: reportCategory.name,
+          items: reportCategory.reports.map(report => {
+            return {
+              name: report.name,
+              path: `/reports/standard/chart/${report.tabs[0].path}`,
+              icon: report.chart ? 'chart-pie' : null
+            }
+          })
+        }
+      })
+    },
     sections () {
       return [
         {
