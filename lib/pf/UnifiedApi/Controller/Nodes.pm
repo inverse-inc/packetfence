@@ -449,8 +449,11 @@ sub apply_security_event {
     my $mac = $self->id;
     my $security_event_id = $data->{security_event_id};
     my ($last_id) = security_event_add($mac, $security_event_id, ( 'force' => $TRUE ));
+    if ($last_id > 0) {
+        return $self->render(status => 200, json => { id => $last_id });
+    }
 
-    return $self->render(status => 200, json => { security_event_id => $last_id });
+    return $self->render_error(422, join("", security_event_last_errors()));
 }
 
 =head2 bulk_apply_role

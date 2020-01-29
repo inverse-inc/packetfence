@@ -384,7 +384,7 @@ sub security_event_add {
         my $msg = "security_event $security_event_id already exists for $mac, not adding again";
         $logger->info($msg);
         security_event_add_warnings($msg);
-        return ($security_event->{security_event_id});
+        return ($security_event->{id});
     }
 
     my $latest_security_event = ( security_event_view_open($mac) )[0];
@@ -396,7 +396,7 @@ sub security_event_add {
             $logger->warn(
                 "hostscan detected from $mac, but security_event $latest_security_event_id exists - ignoring"
             );
-            return (1);
+            return ($latest_security_event->{id});
         }
 
         #replace UNKNOWN hostscan with known security_event
