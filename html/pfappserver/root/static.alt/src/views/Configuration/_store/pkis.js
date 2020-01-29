@@ -161,10 +161,10 @@ const actions = {
       throw err
     })
   },
-  emailCert: ({ commit }, id) => {
+  emailCert: ({ commit }, cn) => {
     commit('CERT_REQUEST')
-    return api.emailPkiCert(id).then(response => {
-      commit('CERT_ITEM_REVOKED', id)
+    return api.emailPkiCert(cn).then(response => {
+      commit('CERT_SUCCESS')
       return response
     }).catch(err => {
       commit('CERT_ERROR', err.response)

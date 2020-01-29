@@ -855,9 +855,15 @@ export default {
       return response.data
     })
   },
-  emailPkiCert: id => {
-    return apiCall.get(['pki', 'certmgmt', id]).then(response => {
-      return response.data.result
+  emailPkiCert: cn => {
+    return apiCall.get(['pki', 'certmgmt', cn]).then(response => {
+      const { data: { result: { 0: { error } = {} } = {} } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+        return item
+      }
     })
   },
   revokePkiCert: data => {

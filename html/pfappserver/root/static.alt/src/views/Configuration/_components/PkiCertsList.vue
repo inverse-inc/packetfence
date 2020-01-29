@@ -29,6 +29,9 @@
           <pf-button-pki-cert-download size="sm" variant="outline-primary" class="mr-1"
             :disabled="isLoading" :cert="item" :download="download"
           />
+          <b-button v-if="item.mail" size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="email(item)">
+            <icon class="mr-1" name="at"></icon> {{ $t('Email') }}
+          </b-button>
         </span>
       </template>
     </b-table>
@@ -79,6 +82,16 @@ export default {
     },
     clone (item) {
       this.$router.push({ name: 'clonePkiCert', params: { id: item.ID } })
+    },
+    email (item) {
+      const { cn, mail } = item
+      if (mail) {
+        this.$store.dispatch('$_pkis/emailCert', cn).then(response => {
+          this.$store.dispatch('notification/success', { message: this.$i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>', item) })
+        }).catch(e => {
+          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>.<br/>Reason: ', item) + e })
+        })
+      }
     },
     onRowClick (item) {
       this.$router.push({ name: 'pkiCert', params: { id: item.ID } })

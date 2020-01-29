@@ -28,6 +28,9 @@
         <pf-button-pki-cert-download v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary"
           :cert="form" :download="download"
         />
+        <b-button v-if="!isNew && !isClone && form.mail" :disabled="isLoading" variant="outline-primary" class="ml-1" @click="email()">
+          <icon class="mr-1" name="at"></icon> {{ $t('Email') }}
+        </b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -152,8 +155,18 @@ export default {
           this.$router.push({ name: 'pkiCert', params: { id } })
         }
       }).catch(e => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Certificate: ') + e })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Certificate.<br/>Reason: ') + e })
       })
+    },
+    email () {
+      const { cn, mail } = this.form
+      if (mail) {
+        this.$store.dispatch('$_pkis/emailCert', cn).then(response => {
+          this.$store.dispatch('notification/success', { message: this.$i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>', { cn, mail }) })
+        }).catch(e => {
+          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>.<br/>Reason: ', { cn, mail }) + e })
+        })
+      }
     }
   },
   created () {

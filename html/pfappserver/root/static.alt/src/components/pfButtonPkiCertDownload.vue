@@ -1,7 +1,7 @@
 <template>
   <span>
     <b-button :disabled="isDisabled" v-bind="$attrs" @click="open()">
-      <icon class="mr-1" name="download"></icon> {{ $t('Download Certificate') }}
+      <icon class="mr-1" name="download"></icon> {{ $t('Download') }}
     </b-button>
     <b-modal v-model="showModal" size="lg" @hidden="close()"
       centered

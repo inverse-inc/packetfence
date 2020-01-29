@@ -118,7 +118,7 @@ export default {
           this.$router.push({ name: 'pkiCa', params: { id } })
         }
       }).catch(e => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Certificate Authority: ') + e })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Certificate Authority.<br/>Reason: ') + e })
       })
     }
   },

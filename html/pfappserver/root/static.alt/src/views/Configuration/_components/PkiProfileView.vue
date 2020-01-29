@@ -137,7 +137,7 @@ export default {
           this.$router.push({ name: 'pkiProfile', params: { id } })
         }
       }).catch(e => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Profile: ') + e })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Profile.<br/>Reason: ') + e })
       })
     }
   },
