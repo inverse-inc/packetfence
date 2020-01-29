@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import countries from '@/globals/countries'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -13,7 +14,9 @@ import {
 import {
   required,
   minValue,
-  email
+  email,
+  maxLength,
+  minLength
 } from 'vuelidate/lib/validators'
 import {
   digests,
@@ -140,9 +143,12 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'country',
-              component: pfFormInput,
+              component: pfFormChosen,
               attrs: {
-                disabled: (!isNew && !isClone)
+                disabled: (!isNew && !isClone),
+                options: Object.keys(countries).map(countryCode => {
+                  return { value: countryCode, text: countries[countryCode] }
+                })
               }
             }
           ]
@@ -316,29 +322,36 @@ export const validators = (form = {}, meta = {}) => {
   return {
     cn: {
       [i18n.t('Common name required.')]: required,
-      [i18n.t('Common name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiCas, pkiCaCnExists))
+      [i18n.t('Common name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiCas, pkiCaCnExists)),
+      [i18n.t('Maximum 64 characters.')]: maxLength(64)
     },
     mail: {
       [i18n.t('Email required.')]: required,
-      [i18n.t('Invalid email address.')]: email
+      [i18n.t('Invalid email address.')]: email,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     },
     organisation: {
-      [i18n.t('Organisation required.')]: required
+      [i18n.t('Organisation required.')]: required,
+      [i18n.t('Maximum 64 characters.')]: maxLength(64)
     },
     country: {
       [i18n.t('Country required.')]: required
     },
     state: {
-      [i18n.t('State required.')]: required
+      [i18n.t('State required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     },
     locality: {
-      [i18n.t('Locality required.')]: required
+      [i18n.t('Locality required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     },
     street_address: {
-      [i18n.t('Street address required.')]: required
+      [i18n.t('Street address required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     },
     postal_code: {
-      [i18n.t('Postal code required.')]: required
+      [i18n.t('Postal code required.')]: required,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     },
     key_type: {
       [i18n.t('Key type required.')]: required

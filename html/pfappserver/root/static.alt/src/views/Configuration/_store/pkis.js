@@ -144,6 +144,13 @@ const actions = {
       throw err
     })
   },
+  downloadCert: ({ commit }, data) => {
+    commit('CERT_REQUEST')
+    return api.downloadPkiCert(data).then(binary => {
+      commit('CERT_SUCCESS')
+      return binary
+    })
+  },
   createCert: ({ commit }, data) => {
     commit('CERT_REQUEST')
     return api.createPkiCert(data).then(response => {
@@ -217,6 +224,10 @@ const mutations = {
 
   CERT_REQUEST: (state, type) => {
     state.certStatus = type || types.LOADING
+    state.certMessage = ''
+  },
+  CERT_SUCCESS: (state) => {
+    state.certStatus = types.SUCCESS
     state.certMessage = ''
   },
   CERT_LIST_REPLACED: (state, items) => {

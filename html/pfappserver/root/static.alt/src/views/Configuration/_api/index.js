@@ -846,6 +846,12 @@ export default {
       }
     })
   },
+  downloadPkiCert: data => {
+    const { id, password } = data
+    return apiCall.getArrayBuffer(['pki', 'certmgmt', 'getbyid', id, password]).then(response => {
+      return response.data
+    })
+  },
   emailPkiCert: id => {
     return apiCall.get(['pki', 'certmgmt', id]).then(response => {
       return response.data.result

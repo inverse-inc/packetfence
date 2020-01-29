@@ -52,6 +52,13 @@ Object.assign(apiCall, {
       }]
     })
   },
+  getArrayBuffer (url) {
+    return this.request({
+      responseType: 'arraybuffer',
+      method: 'get',
+      url: _encodeURL(url)
+    })
+  },
   getQuiet (url) {
     return this.request({
       method: 'get',

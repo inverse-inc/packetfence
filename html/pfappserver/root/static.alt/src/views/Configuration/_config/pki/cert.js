@@ -1,4 +1,5 @@
-import Vue from 'vue'
+import store from '@/store'
+import countries from '@/globals/countries'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -12,16 +13,11 @@ import {
   pkiCertCnExists
 } from '@/globals/pfValidators'
 import {
+  email,
   required,
-  email
+  maxLength,
+  minLength
 } from 'vuelidate/lib/validators'
-import {
-  digests,
-  keyTypes,
-  keySizes,
-  keyUsages,
-  extendedKeyUsages
-} from './'
 
 export const columns = [
   {
@@ -53,6 +49,27 @@ export const columns = [
     locked: true
   }
 ]
+
+export const download = (id, password, filename='cert.p12') => {
+  return new Promise((resolve, reject) => {
+    store.dispatch('$_pkis/downloadCert', { id, password }).then(arrayBuffer => {
+      const blob = new Blob([arrayBuffer], { type: 'application/x-pkcs12' })
+      if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename)
+      } else {
+        let elem = window.document.createElement('a')
+        elem.href = window.URL.createObjectURL(blob)
+        elem.download = filename
+        document.body.appendChild(elem)
+        elem.click()
+        document.body.removeChild(elem)
+      }
+      resolve()
+    }).catch(e => {
+      reject(e)
+    })
+  })
+}
 
 export const view = (form = {}, meta = {}) => {
   const {
@@ -139,9 +156,12 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'country',
-              component: pfFormInput,
+              component: pfFormChosen,
               attrs: {
-                disabled: (!isNew && !isClone)
+                disabled: (!isNew && !isClone),
+                options: Object.keys(countries).map(countryCode => {
+                  return { value: countryCode, text: countries[countryCode] }
+                })
               }
             }
           ]
@@ -210,10 +230,26 @@ export const validators = (form = {}, meta = {}) => {
     },
     cn: {
       [i18n.t('Common Name required.')]: required,
-      [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiCerts, pkiCertCnExists))
+      [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiCerts, pkiCertCnExists)),
+      [i18n.t('Maximum 64 characters.')]: maxLength(64)
     },
     mail: {
       [i18n.t('Invalid email address.')]: email
+    },
+    organisation: {
+      [i18n.t('Maximum 64 characters.')]: maxLength(64)
+    },
+    state: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    locality: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    street_address: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    postal_code: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     }
   }
 }

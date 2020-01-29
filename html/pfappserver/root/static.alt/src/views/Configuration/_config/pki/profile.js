@@ -12,8 +12,10 @@ import {
   pkiProfileNameExists
 } from '@/globals/pfValidators'
 import {
+  email,
   required,
-  minValue
+  minValue,
+  maxLength
 } from 'vuelidate/lib/validators'
 import {
   digests,
@@ -300,11 +302,25 @@ export const validators = (form = {}, meta = {}) => {
     },
     name: {
       [i18n.t('Name required.')]: required,
-      [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiProfiles, pkiProfileNameExists))
+      [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiProfiles, pkiProfileNameExists)),
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     },
     validity: {
       [i18n.t('Validity required.')]: required,
       [i18n.t('Minimum 1 day(s).')]: minValue(1)
+    },
+    p12_smtp_server: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    p12_mail_password: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    p12_mail_subject: {
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+    },
+    p12_mail_from: {
+      [i18n.t('Invalid email address.')]: email,
+      [i18n.t('Maximum 255 characters.')]: maxLength(255)
     }
   }
 }
