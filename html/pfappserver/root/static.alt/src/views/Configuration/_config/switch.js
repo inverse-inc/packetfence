@@ -738,12 +738,12 @@ export const viewFields = {
   },
   SNMPEngineID: (form = {}, meta = {}) => {
     return {
-      label: i18n.t('Community Write'),
+      label: i18n.t('Engine ID'),
       cols: [
         {
-          namespace: 'SNMPCommunityWrite',
+          namespace: 'SNMPEngineID',
           component: pfFormInput,
-          attrs: attributesFromMeta(meta, 'SNMPCommunityWrite')
+          attrs: attributesFromMeta(meta, 'SNMPEngineID')
         }
       ]
     }
