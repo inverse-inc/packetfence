@@ -162,7 +162,7 @@ export default {
       const { cn, mail } = this.form
       if (mail) {
         this.$store.dispatch('$_pkis/emailCert', cn).then(response => {
-          this.$store.dispatch('notification/success', { message: this.$i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>', { cn, mail }) })
+          this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', { cn, mail }) })
         }).catch(e => {
           this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>.<br/>Reason: ', { cn, mail }) + e })
         })
