@@ -64,12 +64,12 @@ export default {
       this.$router.push({ name: 'clonePkiCa', params: { id: item.ID } })
     },
     clipboard (item) {
-      this.$store.dispatch('$_pkis/getCa', item.ID).then(data => {
+      this.$store.dispatch('$_pkis/getCa', item.ID).then(ca => {
         try {
-          navigator.clipboard.writeText(data.cert).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate copied to clipboard') })
+          navigator.clipboard.writeText(ca.cert).then(() => {
+            this.$store.dispatch('notification/info', { message: this.$i18n.t('<code>{cn}</code> certificate copied to clipboard', ca) })
           }).catch(err => {
-            this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not copy certificate to clipboard.') })
+            this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not copy <code>{cn}</code> certificate to clipboard.', ca) })
           })
         } catch (e) {
           this.$store.dispatch('notification/danger', { message: this.$i18n.t('Clipboard not supported.') })

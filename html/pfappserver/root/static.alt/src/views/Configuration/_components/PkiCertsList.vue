@@ -20,6 +20,9 @@
       <template v-slot:empty>
         <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new Certificate.')">{{ $t('No certificates defined') }}</pf-empty-table>
       </template>
+      <template v-slot:cell(ca_profile)="{ item }">
+        <router-link :to="{ name: 'pkiCa', params: { id: item.ca_id } }">{{ item.ca_name }}</router-link> - <router-link :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
+      </template>
       <template v-slot:cell(buttons)="{ item }">
         <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>

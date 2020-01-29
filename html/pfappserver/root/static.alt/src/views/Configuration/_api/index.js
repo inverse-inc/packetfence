@@ -844,7 +844,7 @@ export default {
       if (error) {
         throw error
       } else {
-        const { data: { result: { 0: { Entries: item } = {} } = {} } = {} } = response
+        const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
         return item
       }
     })

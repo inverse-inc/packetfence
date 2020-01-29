@@ -361,7 +361,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	}
 
 	var certdb Cert
-	var dbcert Cert
+	var newcertdb []Cert
 	var SerialNumber *big.Int
 
 	if CertDB := pfpki.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
@@ -412,8 +412,8 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		return Information, err
 	}
-	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&dbcert)
-	Information.Entries = dbcert
+	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
+	Information.Entries = newcertdb
 	return Information, nil
 }
 
@@ -425,7 +425,7 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	} else if val, ok := params["id"]; ok {
 		pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").First(&certdb, val)
 	} else {
-		pfpki.DB.Select("id, cn, profile_id, profile_name, ca_name, ca_id").Find(&certdb)
+		pfpki.DB.Select("id, cn, mail, profile_id, profile_name, ca_name, ca_id").Find(&certdb)
 	}
 	Information.Entries = certdb
 
