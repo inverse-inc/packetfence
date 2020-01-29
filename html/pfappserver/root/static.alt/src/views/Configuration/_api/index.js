@@ -798,7 +798,8 @@ export default {
       if (error) {
         throw error
       } else {
-        return response.data
+        const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+        return item
       }
     })
   },
@@ -820,7 +821,8 @@ export default {
       if (error) {
         throw error
       } else {
-        return response.data
+        const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+        return item
       }
     })
   },
@@ -842,7 +844,8 @@ export default {
       if (error) {
         throw error
       } else {
-        return response.data
+        const { data: { result: { 0: { Entries: item } = {} } = {} } = {} } = response
+        return item
       }
     })
   },

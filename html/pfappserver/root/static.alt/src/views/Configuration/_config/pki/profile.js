@@ -34,14 +34,14 @@ export const columns = [
     visible: true
   },
   {
-    key: 'name',
-    label: i18n.t('Name'),
+    key: 'ca_name',
+    label: i18n.t('Certificate Authority'),
     sortable: true,
     visible: true
   },
   {
-    key: 'ca_name',
-    label: i18n.t('Certificate Authority'),
+    key: 'name',
+    label: i18n.t('Name'),
     sortable: true,
     visible: true
   },

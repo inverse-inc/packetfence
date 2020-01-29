@@ -26,12 +26,6 @@ export const columns = [
     visible: true
   },
   {
-    key: 'cn',
-    label: i18n.t('Common Name'),
-    sortable: true,
-    visible: true
-  },
-  {
     key: 'ca_profile',
     label: i18n.t('Certificate Authority - Profile'),
     sortable: true,
@@ -40,6 +34,18 @@ export const columns = [
     formatter: (value, key, item) => {
       return `${item.ca_name} - ${item.profile_name}`
     }
+  },
+  {
+    key: 'cn',
+    label: i18n.t('Common Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'mail',
+    label: i18n.t('Email'),
+    sortable: true,
+    visible: true
   },
   {
     key: 'buttons',

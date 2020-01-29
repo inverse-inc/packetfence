@@ -37,7 +37,6 @@
 import pfButtonPkiCertDownload from '@/components/pfButtonPkiCertDownload'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
-import pfFormPassword from '@/components/pfFormPassword'
 import {
   view,
   validators,
@@ -49,8 +48,7 @@ export default {
   components: {
     pfButtonPkiCertDownload,
     pfButtonSave,
-    pfConfigView,
-    pfFormPassword
+    pfConfigView
   },
   props: {
     formStoreName: { // from router
@@ -146,11 +144,11 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_pkis/createCert', this.form).then(response => {
-        const { result: { 0: { Entries: { 0: { ID: id } = {} } = {} } = {} } = {} } = response
+      this.$store.dispatch('$_pkis/createCert', this.form).then(item => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
+          const { ID: id } = item
           this.$router.push({ name: 'pkiCert', params: { id } })
         }
       }).catch(e => {

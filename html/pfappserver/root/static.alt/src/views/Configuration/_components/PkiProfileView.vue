@@ -129,11 +129,11 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_pkis/createProfile', this.form).then(response => {
-        const { result: { 0: { Entries: { 0: { ID: id } = {} } = {} } = {} } = {} } = response
+      this.$store.dispatch('$_pkis/createProfile', this.form).then(item => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
+          const { ID: id } = item
           this.$router.push({ name: 'pkiProfile', params: { id } })
         }
       }).catch(e => {

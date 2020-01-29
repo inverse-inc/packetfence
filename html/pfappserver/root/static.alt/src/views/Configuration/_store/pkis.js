@@ -72,9 +72,9 @@ const actions = {
   },
   createCa: ({ commit }, data) => {
     commit('CA_REQUEST')
-    return api.createPkiCa(data).then(response => {
-      commit('CA_ITEM_REPLACED', data)
-      return response
+    return api.createPkiCa(data).then(item => {
+      commit('CA_ITEM_REPLACED', item)
+      return item
     }).catch(err => {
       commit('CA_ERROR', err.response)
       throw err
@@ -109,9 +109,9 @@ const actions = {
   },
   createProfile: ({ commit }, data) => {
     commit('PROFILE_REQUEST')
-    return api.createPkiProfile(data).then(response => {
-      commit('PROFILE_ITEM_REPLACED', data)
-      return response
+    return api.createPkiProfile(data).then(item => {
+      commit('PROFILE_ITEM_REPLACED', item)
+      return item
     }).catch(err => {
       commit('PROFILE_ERROR', err.response)
       throw err
@@ -153,9 +153,9 @@ const actions = {
   },
   createCert: ({ commit }, data) => {
     commit('CERT_REQUEST')
-    return api.createPkiCert(data).then(response => {
-      commit('CERT_ITEM_REPLACED', data)
-      return response
+    return api.createPkiCert(data).then(item => {
+      commit('CERT_ITEM_REPLACED', item)
+      return item
     }).catch(err => {
       commit('CERT_ERROR', err.response)
       throw err
