@@ -60,7 +60,7 @@ Please refer to the following table for IP and subnet information :
 |ens192          |Inline        |192.168.2.0/24    |192.168.2.1    |192.168.2.1  
 |===================================================================================
 
-Finally, from 'Status->Services', restart the `haproxy-portal`, `httpd.portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
+Finally, from _Status->Services_, restart the `haproxy-portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
 Network Devices

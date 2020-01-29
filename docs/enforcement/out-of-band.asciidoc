@@ -94,7 +94,7 @@ According to our example, we'll associate the correct type the each interfaces.
 
 Make sure that those three interfaces are in an *enabled* state for the persistence to occur. We also need to set the Default Gateway which will generally be the gateway of the management network.
 
-Finally, from 'Status->Services', restart the `haproxy-portal`, `httpd.portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
+Finally, from _Status->Services_, restart the `haproxy-portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
 Network Devices
