@@ -23,43 +23,19 @@
       <template v-slot:cell(buttons)="{ item }">
         <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="setDownload(item)">
-            <icon class="mr-1" name="download"></icon> {{ $t('Download Certificate') }}
-          </b-button>
+          <pf-button-pki-cert-download size="sm" variant="outline-primary" class="mr-1"
+            :disabled="isLoading" :cert="item" :download="download"
+          />
         </span>
       </template>
     </b-table>
-    <b-modal v-model="downloadCertModal" size="lg" @hidden="unsetDownload()"
-     centered
-     :hide-header-close="downloadCertLoading"
-     :no-close-on-backdrop="downloadCertLoading"
-     :no-close-on-esc="downloadCertLoading"
-    >
-      <template v-slot:modal-title>
-        <h4>{{ $t('Download PKCS-12 Certificate') }}</h4>
-        <b-form-text v-t="'Choose a password to encrypt the certificate.'" class="mb-0"></b-form-text>
-      </template>
-      <b-form-group class="mb-0">
-        <pf-form-password :column-label="$t('Password')" :disabled="downloadCertLoading"
-          v-model="downloadCertPassword"
-          :text="$t('The certificate will be encrypted with this password.')"
-          generate
-        />
-      </b-form-group>
-      <template v-slot:modal-footer>
-        <b-button variant="secondary" class="mr-1" @click="unsetDownload()">{{ $t('Cancel') }}</b-button>
-        <b-button variant="primary" @click="doDownload()" :disabled="downloadCertLoading">
-          <icon v-if="downloadCertLoading" class="mr-1" name="circle-notch" spin></icon> {{ $t('Download P12') }}
-        </b-button>
-      </template>
-    </b-modal>
   </b-card>
 </template>
 
 <script>
+import pfButtonPkiCertDownload from '@/components/pfButtonPkiCertDownload'
 import pfButtonService from '@/components/pfButtonService'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormPassword from '@/components/pfFormPassword'
 import {
   columns,
   download
@@ -68,19 +44,16 @@ import {
 export default {
   name: 'pki-certs-list',
   components: {
+    pfButtonPkiCertDownload,
     pfButtonService,
-    pfEmptyTable,
-    pfFormPassword
+    pfEmptyTable
   },
   data () {
     return {
       columns, // ../_config/pki/cert
+      download, // ../_config/pki/cert
       profiles: [],
-      certs: [],
-      downloadCertLoading: false,
-      downloadCertModal: false,
-      downloadCertItem: undefined,
-      downloadCertPassword: null
+      certs: []
     }
   },
   computed: {
@@ -103,32 +76,6 @@ export default {
     },
     clone (item) {
       this.$router.push({ name: 'clonePkiCert', params: { id: item.ID } })
-    },
-    setDownload (item) {
-      this.downloadCertItem = item
-      this.downloadCertModal = true
-    },
-    unsetDownload () {
-      this.downloadCertModal = false
-    },
-    doDownload () {
-      const { downloadCertItem: { ID: id, ca_name, profile_name, cn } = {}, downloadCertPassword: password = null } = this
-      const filename = `${ca_name}-${profile_name}-${cn}.p12`
-      this.downloadCertLoading = true
-      Promise.resolve(download(id, password, filename)).then(() => {
-        // copy password to clipboard
-        try {
-          navigator.clipboard.writeText(password).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate password copied to clipboard') })
-          })
-        } catch (e) {
-          // noop
-        }
-      }).finally(() => {
-        this.downloadCertItem = undefined
-        this.downloadCertModal = false
-        this.downloadCertLoading = false
-      })
     },
     onRowClick (item) {
       this.$router.push({ name: 'pkiCert', params: { id: item.ID } })

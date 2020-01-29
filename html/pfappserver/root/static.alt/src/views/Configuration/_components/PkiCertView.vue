@@ -25,24 +25,32 @@
         </pf-button-save>
         <b-button v-if="isNew || isClone" :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-pki-cert-download v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary"
+          :cert="form" :download="download"
+        />
       </b-card-footer>
     </template>
   </pf-config-view>
 </template>
 
 <script>
+import pfButtonPkiCertDownload from '@/components/pfButtonPkiCertDownload'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
+import pfFormPassword from '@/components/pfFormPassword'
 import {
   view,
-  validators
+  validators,
+  download
 } from '../_config/pki/cert'
 
 export default {
   name: 'pki-cert-view',
   components: {
+    pfButtonPkiCertDownload,
     pfButtonSave,
-    pfConfigView
+    pfConfigView,
+    pfFormPassword
   },
   props: {
     formStoreName: { // from router
@@ -65,6 +73,11 @@ export default {
     profile_id: { // from router
       type: String,
       default: null
+    }
+  },
+  data () {
+    return {
+      download, // ../_config/pki/cert
     }
   },
   computed: {

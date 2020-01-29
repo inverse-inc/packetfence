@@ -4,7 +4,6 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   and,
   not,
@@ -15,8 +14,7 @@ import {
 import {
   email,
   required,
-  maxLength,
-  minLength
+  maxLength
 } from 'vuelidate/lib/validators'
 
 export const columns = [
@@ -72,11 +70,6 @@ export const download = (id, password, filename='cert.p12') => {
 }
 
 export const view = (form = {}, meta = {}) => {
-  const {
-    key_type = null,
-    key_size = null,
-    cert = null
-  } = form
   const {
     isNew = false,
     isClone = false,
