@@ -25,13 +25,16 @@
       </template>
       <template v-slot:cell(buttons)="{ item }">
         <span class="float-right text-nowrap">
-          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+          <pf-button-pki-cert-revoke size="sm" variant="outline-danger" class="mr-1"
+            :disabled="isLoading" :cert="item" :revoke="revoke"
+          />
           <pf-button-pki-cert-download size="sm" variant="outline-primary" class="mr-1"
             :disabled="isLoading" :cert="item" :download="download"
           />
           <b-button v-if="item.mail" size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="email(item)">
             <icon class="mr-1" name="at"></icon> {{ $t('Email') }}
           </b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
     </b-table>
@@ -40,10 +43,12 @@
 
 <script>
 import pfButtonPkiCertDownload from '@/components/pfButtonPkiCertDownload'
+import pfButtonPkiCertRevoke from '@/components/pfButtonPkiCertRevoke'
 import pfButtonService from '@/components/pfButtonService'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   columns,
+  revoke,
   download
 } from '../_config/pki/cert'
 
@@ -51,12 +56,14 @@ export default {
   name: 'pki-certs-list',
   components: {
     pfButtonPkiCertDownload,
+    pfButtonPkiCertRevoke,
     pfButtonService,
     pfEmptyTable
   },
   data () {
     return {
       columns, // ../_config/pki/cert
+      revoke, // ../_config/pki/cert
       download, // ../_config/pki/cert
       profiles: [],
       certs: []

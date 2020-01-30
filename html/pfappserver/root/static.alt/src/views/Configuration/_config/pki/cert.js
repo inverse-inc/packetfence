@@ -75,6 +75,10 @@ export const download = (id, password, filename='cert.p12') => {
   })
 }
 
+export const revoke = (id, reason) => {
+  return store.dispatch('$_pkis/revokeCert', { id, reason })
+}
+
 export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,

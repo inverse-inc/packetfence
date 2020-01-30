@@ -868,7 +868,12 @@ export default {
   },
   revokePkiCert: data => {
     return apiCall.delete(['pki', 'cert', data.id, data.reason]).then(response => {
-      return response.data.result
+      const { data: { result: { 0: { error } = {} } = {} } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        return true
+      }
     })
   },
 

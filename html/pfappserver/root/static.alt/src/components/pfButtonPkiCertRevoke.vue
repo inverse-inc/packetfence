@@ -1,7 +1,7 @@
 <template>
   <span>
     <b-button :disabled="isDisabled" v-bind="$attrs" @click="open()">
-      <icon class="mr-1" name="download"></icon> {{ $t('Download') }}
+      {{ $t('Revoke') }}
     </b-button>
     <b-modal v-model="showModal" size="lg" @shown="focus()" @hidden="close()"
       centered
@@ -10,26 +10,21 @@
       :no-close-on-esc="isLoading"
     >
       <template v-slot:modal-title>
-        <h4>{{ $t('Download PKCS-12 Certificate') }}</h4>
-        <b-form-text v-t="'Choose a password to encrypt the certificate.'" class="mb-0"></b-form-text>
+        <h4>{{ $t('Revoke Certificate') }}</h4>
+        <b-form-text v-t="'Choose a reason to revoke the certificate.'" class="mb-0"></b-form-text>
       </template>
       <b-form-group class="mb-0">
-        <pf-form-password ref="password" :column-label="$t('Password')" :disabled="isLoading"
-          v-model="password"
+        <pf-form-chosen ref="reason" :column-label="$t('Reason')" :disabled="isLoading"
+          v-model="reason"
           :state="state" :invalid-feedback="invalidFeedback"
-          :text="$t('The certificate will be encrypted with this password.')"
-          generate
-        />
-        <pf-form-range-toggle :column-label="$t('Copy to clipboard')" :disabled="isLoading"
-          v-model="clipboard"
-          :text="$t('Copy the password to the clipboard.')"
-          :values="{ checked: true, unchecked: false }"
+          :text="$t('The certificate will be revoked for this reason.')"
+          :options="revokeReasons"
         />
       </b-form-group>
       <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="close()">{{ $t('Cancel') }}</b-button>
         <b-button variant="primary" @click="start()" :disabled="isLoading || invalidForm">
-          <icon v-if="isLoading" class="mr-1" name="circle-notch" spin></icon> {{ $t('Download P12') }}
+          <icon v-if="isLoading" class="mr-1" name="circle-notch" spin></icon> {{ $t('Revoke') }}
         </b-button>
       </template>
     </b-modal>
@@ -37,30 +32,30 @@
 </template>
 
 <script>
-import pfFormPassword from '@/components/pfFormPassword'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormChosen from '@/components/pfFormChosen'
 import {
-  required,
-  minLength
+  revokeReasons
+} from '@/views/Configuration/_config/pki/'
+import {
+  required
 } from 'vuelidate/lib/validators'
 
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'pf-button-pki-cert-download',
+  name: 'pf-button-pki-cert-revoke',
   components: {
-    pfFormPassword,
-    pfFormRangeToggle
-  },
+    pfFormChosen
+},
   mixins: [
     validationMixin
   ],
   data () {
     return {
+      revokeReasons, // @/views/Configuration/_config/pki/
       isLoading: false,
       showModal: false,
-      password: null,
-      clipboard: false
+      reason: null
     }
   },
   props: {
@@ -68,7 +63,7 @@ export default {
       type: Object,
       default: () => { return {} }
     },
-    download: {
+    revoke: {
       type: Function,
       default: () => {}
     },
@@ -82,16 +77,16 @@ export default {
      return this.disabled || this.isLoading
     },
     invalidForm () {
-      return this.$v.password.$invalid
+      return this.$v.reason.$invalid
     },
     state () {
       return !this.invalidForm
     },
     invalidFeedback () {
       const invalidFeedback = []
-      const { password, password: { $params } = {} } = this.$v
+      const { reason, reason: { $params } = {} } = this.$v
       for (const key of Object.keys($params)) {
-        if (key in password && password[key] === false) {
+        if (key in reason && reason[key] === false) {
           invalidFeedback.push(key)
         }
       }
@@ -106,22 +101,15 @@ export default {
       this.showModal = false
     },
     focus () {
-      this.$refs.password.focus()
+      this.$refs.reason.focus()
     },
     start () {
-      const { cert: { ID: id, ca_name, profile_name, cn } = {}, password = null } = this
-      const filename = `${ca_name}-${profile_name}-${cn}.p12`
+      const { cert: { ID: id, cn } = {}, reason = null } = this
       this.isLoading = true
-      Promise.resolve(this.download(id, password, filename)).then(() => {
-        if (this.clipboard) { // copy password to clipboard
-          try {
-            navigator.clipboard.writeText(password).then(() => {
-              this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate password copied to clipboard') })
-            })
-          } catch (e) {
-            // noop
-          }
-        }
+      Promise.resolve(this.revoke(id, reason)).then(() => {
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate <code>{cn}</code> revoked.', { cn }) })
+      }).catch(e => {
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not revoke certificate <code>{cn}</code>.<br/>Reason: ', { cn }) + e })
       }).finally(() => {
         this.isLoading = false
         this.close()
@@ -131,9 +119,8 @@ export default {
   },
   validations () {
     return {
-      password: {
-        [this.$i18n.t('Password required.')]: required,
-        [this.$i18n.t('Minimum 8 characters.')]: minLength(8)
+      reason: {
+        [this.$i18n.t('Reason required.')]: required
       }
     }
   }

@@ -69,3 +69,16 @@ export const extendedKeyUsages = [
   { value: '12', text: 'MicrosoftCommercialCodeSigning' },
   { value: '13', text: 'MicrosoftKernelCodeSigning' }
 ]
+
+export const revokeReasons = [
+  { value: '0', text: 'Unspecified' },
+  { value: '1', text: 'KeyCompromise' },
+  { value: '2', text: 'CACompromise' },
+  { value: '3', text: 'AffiliationChanged' },
+  { value: '4', text: 'Superseded' },
+  { value: '5', text: 'CessationOfOperation' },
+  { value: '6', text: 'CertificateHold' },
+  { value: '8', text: 'RemoveFromCRL' },
+  { value: '9', text: 'PrivilegeWithdrawn' },
+  { value: '10', text: 'AACompromise' }
+]
