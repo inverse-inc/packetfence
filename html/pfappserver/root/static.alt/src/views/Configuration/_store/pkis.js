@@ -174,7 +174,7 @@ const actions = {
   revokeCert: ({ commit }, data) => {
     commit('CERT_REQUEST')
     return api.revokePkiCert(data).then(response => {
-      commit('CERT_ITEM_DOWNLOADED', data.id)
+      commit('CERT_ITEM_REVOKED', data.id)
       return response
     }).catch(err => {
       commit('CERT_ERROR', err.response)
@@ -241,7 +241,7 @@ const mutations = {
   CERT_ITEM_EMAILED: (state) => {
     state.certStatus = types.SUCCESS
   },
-  CERT_ITEM_REVOKED: (state) => {
+  CERT_ITEM_REVOKED: (state, id) => {
     state.certStatus = types.SUCCESS
   },
   CERT_ERROR: (state, response) => {

@@ -31,6 +31,9 @@
         <b-button v-if="!isNew && !isClone && form.mail" :disabled="isLoading" variant="outline-primary" class="ml-1" @click="email()">
           <icon class="mr-1" name="at"></icon> {{ $t('Email') }}
         </b-button>
+        <pf-button-pki-cert-revoke v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-danger"
+          :cert="form" :revoke="revoke" @on-revoke="close()"
+        />
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -38,18 +41,21 @@
 
 <script>
 import pfButtonPkiCertDownload from '@/components/pfButtonPkiCertDownload'
+import pfButtonPkiCertRevoke from '@/components/pfButtonPkiCertRevoke'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
 import {
   view,
   validators,
-  download
+  download,
+  revoke
 } from '../_config/pki/cert'
 
 export default {
   name: 'pki-cert-view',
   components: {
     pfButtonPkiCertDownload,
+    pfButtonPkiCertRevoke,
     pfButtonSave,
     pfConfigView
   },
@@ -79,6 +85,7 @@ export default {
   data () {
     return {
       download, // ../_config/pki/cert
+      revoke // ../_config/pki/cert
     }
   },
   computed: {

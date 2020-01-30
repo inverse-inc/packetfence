@@ -108,12 +108,13 @@ export default {
       this.isLoading = true
       Promise.resolve(this.revoke(id, reason)).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate <code>{cn}</code> revoked.', { cn }) })
+        this.$emit('on-revoke', true)
       }).catch(e => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not revoke certificate <code>{cn}</code>.<br/>Reason: ', { cn }) + e })
+        this.$emit('on-error', e)
       }).finally(() => {
         this.isLoading = false
         this.close()
-        this.$emit('on-delete', true)
       })
     }
   },

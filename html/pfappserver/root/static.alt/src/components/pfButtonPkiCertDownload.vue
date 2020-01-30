@@ -122,10 +122,12 @@ export default {
             // noop
           }
         }
+        this.$emit('on-download', true)
+      }).catch(e => {
+        this.$emit('on-error', e)
       }).finally(() => {
         this.isLoading = false
         this.close()
-        this.$emit('on-delete', true)
       })
     }
   },
