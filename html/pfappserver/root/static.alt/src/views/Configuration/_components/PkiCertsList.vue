@@ -29,9 +29,7 @@
           <pf-button-pki-cert-download size="sm" variant="outline-primary" class="mr-1"
             :disabled="isLoading" :cert="item" :download="download"
           />
-          <b-button v-if="item.mail" size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="email(item)">
-            <icon class="mr-1" name="at"></icon> {{ $t('Email') }}
-          </b-button>
+          <b-button v-if="item.mail" size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="email(item)">{{ $t('Email') }}</b-button>
           <pf-button-pki-cert-revoke size="sm" variant="outline-danger" class="mr-1"
             :disabled="isLoading" :cert="item" :revoke="revoke"
           />

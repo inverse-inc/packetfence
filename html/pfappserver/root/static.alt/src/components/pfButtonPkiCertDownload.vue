@@ -1,8 +1,6 @@
 <template>
   <span>
-    <b-button :disabled="isDisabled" v-bind="$attrs" @click="open()">
-      <icon class="mr-1" name="download"></icon> {{ $t('Download') }}
-    </b-button>
+    <b-button :disabled="isDisabled" v-bind="$attrs" @click="open()">{{ $t('Download') }}</b-button>
     <b-modal v-model="showModal" size="lg" @shown="focus()" @hidden="close()"
       centered
       :hide-header-close="isLoading"

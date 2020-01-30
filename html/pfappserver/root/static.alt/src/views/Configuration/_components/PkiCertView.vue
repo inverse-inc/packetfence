@@ -28,9 +28,7 @@
         <pf-button-pki-cert-download v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary"
           :cert="form" :download="download"
         />
-        <b-button v-if="!isNew && !isClone && form.mail" :disabled="isLoading" variant="outline-primary" class="ml-1" @click="email()">
-          <icon class="mr-1" name="at"></icon> {{ $t('Email') }}
-        </b-button>
+        <b-button v-if="!isNew && !isClone && form.mail" :disabled="isLoading" variant="outline-primary" class="ml-1" @click="email()">{{ $t('Email') }}</b-button>
         <pf-button-pki-cert-revoke v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-danger"
           :cert="form" :revoke="revoke" @on-revoke="close()"
         />
