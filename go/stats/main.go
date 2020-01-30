@@ -21,8 +21,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	ldap "gopkg.in/ldap.v2"
-	"layeh.com/radius"
-	. "layeh.com/radius/rfc2865"
+	radius "github.com/inverse-inc/go-radius"
+	. "github.com/inverse-inc/go-radius/rfc2865"
 )
 
 var VIP map[string]bool

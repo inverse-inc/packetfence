@@ -9,10 +9,14 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/captncraig/cors v0.0.0-20170507232344-153f484dcf3d
 	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f
+	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.15+incompatible
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
+	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/davecgh/go-spew v1.1.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/dgryski/go-csnappy v0.0.0-20150721071530-9d18391da197 // indirect
 	github.com/diegoguarnieri/go-conntrack v0.0.0-20161208180411-9abb0707ff31
 	github.com/dnstap/golang-dnstap v0.0.0-20170829151710-2cf77a2b5e11
 	github.com/dustin/go-humanize v1.0.0
@@ -31,20 +35,24 @@ require (
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/groupcache v0.0.0-20191002201903-404acd9df4cc // indirect
 	github.com/golang/protobuf v1.3.2
+	github.com/google/btree v1.0.0 // indirect
 	github.com/google/go-cmp v0.3.0
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v0.0.0-20180120075819-c0091a029979
 	github.com/gorilla/rpc v0.0.0-20160927134711-22c016f3df3f
 	github.com/gorilla/websocket v1.4.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.11.3 // indirect
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20171214222146-0e7658f8ee99
 	github.com/hashicorp/go-syslog v1.0.0
-	github.com/hashicorp/golang-lru v0.0.0-20180201235237-0fb14efe8c47 // indirect
 	github.com/hpcloud/tail v1.0.0
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
+	github.com/inverse-inc/go-radius v0.0.0-20200130155649-ef3018b84628
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
+	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/julienschmidt/httprouter v0.0.0-20171027133709-e1b9828bc9e5
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
@@ -52,7 +60,6 @@ require (
 	github.com/kr/pretty v0.1.0
 	github.com/krolaw/dhcp4 v0.0.0-20171222085133-4abfceffa76a
 	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
-	github.com/lucas-clemente/quic-clients v0.1.0 // indirect
 	github.com/lucas-clemente/quic-go v0.11.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
@@ -79,17 +86,21 @@ require (
 	github.com/prometheus/procfs v0.0.5 // indirect
 	github.com/russross/blackfriday v1.5.2
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
+	github.com/soheilhy/cmux v0.1.4 // indirect
+	github.com/tmc/grpc-websocket-proxy v0.0.0-20200122045848-3419fae592fc // indirect
+	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
-	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
-	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+	go.uber.org/zap v1.13.0 // indirect
+	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
+	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/grpc v1.19.0
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
-	gopkg.in/mcuadros/go-syslog.v2 v2.2.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.2
-	layeh.com/radius v0.0.0-20180123164351-38e2cda15058
+	sigs.k8s.io/yaml v1.1.0 // indirect
 )
 
 replace github.com/inverse-inc/packetfence => ../
