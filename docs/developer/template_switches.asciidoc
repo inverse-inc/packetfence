@@ -1,24 +1,26 @@
-// to display images directly on GitHub
-ifdef::env-github[]
-:imagesdir: ../images
-endif::[]
-
 == Creating a new Switch via a Template
 
-To create a new Switch Template you must create a template file in the /usr/local/pf/lib/pf/Switch directory.
-The file must have the following pattern /usr/local/pf/lib/pf/Switch/<Vendor>/<SwitchName>.def
+To create a new Switch Template you must create a template file in the [filename]`/usr/local/pf/lib/pf/Switch` directory.
+The file must have the following pattern [filename]`/usr/local/pf/lib/pf/Switch/_<Vendor>_/_<SwitchName>_.def`.
 
-For example to create a template for the vendor "Cyberdyne" and switch "Switchinator 800".
-The file name is /usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def
+For example to create a template for the vendor `Cyberdyne` and switch `Switchinator 800`.
+The file name is [filename]`/usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def`
 The file name must must only consist of alphanumeric characters and under scores and must begin with a letter.
 
 Once you have completed your switch template, you will need to perform the following commands so it can be used:
 
-  # /usr/local/pf/addons/dev-helpers/bin/generator-template-switches-defaults.pl
-  # /usr/local/pf/bin/pfcmd configreload hard
-  # /usr/local/pf/bin/pfcmd service pf restart
+[source,bash]
+----
+/usr/local/pf/addons/dev-helpers/bin/generator-template-switches-defaults.pl
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----
 
-The file consist of parameter names and their values.
+The file consist of parameter names and their values. There is no sections but RADIUS scope parameters act like this.
+
+You can find a full working example
+<<_full_working_example,below>>. Other examples are available in
+[filename]`/usr/local/pf/lib/pf/Switch/` folder.
 
 === Required Parameters
 
@@ -42,8 +44,7 @@ For example:
 # This is a comment
 ....
 
-
-=== Defining RADIUS Attributes.
+=== Defining RADIUS Attributes
 
 ....
 scopeName = <<EOT
@@ -65,9 +66,9 @@ EOT
 Some values depends on the context of the current request.
 So here is mini templating language to format values.
 
-* Text replacement:  $name
-* Embedded text replacement:  start-${name}-end
-* Functions: ${f1("",$var, f2())}
+* Text replacement: `$name`
+* Embedded text replacement:  `start-${name}-end`
+* Functions: `${f1("",$var, f2())}`
 
 ==== Available variables for RADIUS scope
 
@@ -275,15 +276,16 @@ So here is mini templating language to format values.
 
 ==== Available functions
 
-* macToEUI48($mac)            - format a mac to AA-BB-CC-DD-FF-EE format
-* uc($string)                 - uppercases a string
-* lc($string)                 - lowercases a string
-* log($string)                - log a message to the log
-* substr($str, $offset, $len) - Extracts a substring from a string
-* split($sep, $str)           - Split a string by a seperator.
-* join($sep, $a, $b, ..)      - Join a list of string with a seperator.
+* `macToEUI48($mac)`            - format a mac to AA-BB-CC-DD-FF-EE format
+* `uc($string)`                 - uppercases a string
+* `lc($string)`                 - lowercases a string
+* `log($string)`                - log a message to the log
+* `substr($str, $offset, $len)` - Extracts a substring from a string
+* `split($sep, $str)`           - Split a string by a seperator.
+* `join($sep, $a, $b, ..)`      - Join a list of string with a seperator.
 
 ==== Full Working Example
+
 ....
 description = The Switchinator 800
 radiusDisconnect = disconnect
@@ -313,4 +315,3 @@ NAS-IP-Address = $disconnectIp
 Cisco:Cisco-AVPair = subscriber:command=bounce-host-port
 EOT
 ....
-
