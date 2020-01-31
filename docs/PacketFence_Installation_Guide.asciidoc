@@ -2773,7 +2773,7 @@ To perform EAP-PEAP authentication using Microsoft Active Directory, please refe
 EAP Authentication against OpenLDAP
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in `/usr/local/pf/raddb/modules/ldap` and
+To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in [filename]`/usr/local/pf/raddb/modules/ldap` and
 be sure that the user password is define as a NTHASH or as clear text.
 
 [source,radius,numbered]
@@ -2806,7 +2806,7 @@ be sure that the user password is define as a NTHASH or as clear text.
   }
 ----
 
-Next in `/usr/local/pf/raddb/sites-available/packetfence-tunnel` add in the authorize section:
+Next in [filename]`/usr/local/pf/raddb/sites-available/packetfence-tunnel`, add  in the `authorize` section:
 
 [source,radius,numbered]
 ----
@@ -2821,7 +2821,12 @@ authorize {
     }
 ----
 
+Then you need to enable `ldap` module:
 
+[source,bash]
+----
+ln -s ../mods-available/ldap /usr/local/pf/raddb/mods-enabled/ldap
+---
 
 EAP Guest Authentication on Email, Sponsor and SMS Registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
