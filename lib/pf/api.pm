@@ -1455,13 +1455,13 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
-    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+    my $remapped_radius_request = pf::radius::rest::format_request($radius_request);
 
-    my $return = $class->handle_accounting_metadata(%remapped_radius_request);
+    my $return = $class->handle_accounting_metadata($remapped_radius_request);
 
     my $radius = new pf::radius::custom();
     eval {
-        $return = $radius->accounting(\%remapped_radius_request, $headers);
+        $return = $radius->accounting($remapped_radius_request, $headers);
     };
     if ($@) {
         $logger->error("radius accounting failed with error: $@");
@@ -1475,51 +1475,53 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
 
 sub handle_accounting_metadata : Public {
-    my ($class, %RAD_REQUEST) = @_;
+    my ($class, $RAD_REQUEST) = @_;
     my $logger = pf::log::get_logger();
     $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
 
     my $return = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ];
-    my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::START) {
+    my $mac = pf::util::clean_mac($RAD_REQUEST->{'Calling-Station-Id'});
+    my $acct_status_type = $RAD_REQUEST->{'Acct-Status-Type'};
+    if ($acct_status_type == $ACCOUNTING::START) {
         #
         # Updating location log in on initial ('Start') accounting run.
         #
         $logger->info("Updating locationlog from accounting request");
-        $client->notify("radius_update_locationlog", %RAD_REQUEST);
-
+        $client->notify("radius_update_locationlog", %$RAD_REQUEST);
     }
 
-    if ($RAD_REQUEST{'Acct-Status-Type'} != $ACCOUNTING::STOP){
+    if ($acct_status_type != $ACCOUNTING::STOP){
         # Tracking IP address.
-        if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
+        my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
+        if ($framed_ip && pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})) {
             $logger->info("Updating iplog from accounting request");
-            $client->notify("update_ip4log", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+            $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
         }
         else {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
         
-        if(pf::util::isenabled($pf::config::Config{advanced}{scan_on_accounting}) && $RAD_REQUEST{"Framed-IP-Address"}) {
+        if ($framed_ip && pf::util::isenabled($pf::config::Config{advanced}{scan_on_accounting})) {
             my $node = pf::node::node_attributes($mac);
             if($node->{status} eq $pf::constants::node::STATUS_REGISTERED) {
                 $logger->debug("Will trigger scan engines for this device based on the data in the accounting packet");
-                $client->notify("trigger_scan", mac => $mac, ip => $RAD_REQUEST{"Framed-IP-Address"}, net_type => "management");
+                $client->notify("trigger_scan", mac => $mac, ip => $framed_ip, net_type => "management");
             }
         }
         else {
             pf::log::get_logger->debug("Not handling scan engines because we're not configured to do so on accounting packets or the IP address (Framed-IP-Address) is missing from the packet.");
         }
     }
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
+
+    if ($acct_status_type == $ACCOUNTING::STOP){
         if (pf::Connection::ProfileFactory->instantiate($mac)->unregOnAcctStop()) {
             pf::log::get_logger->info("Unregistering $mac on Accounting-Stop");
             $client->notify("deregister_node", mac => $mac);
         }
     }
-    $client->notify("firewallsso_accounting", %RAD_REQUEST);
 
+    $client->notify("firewallsso_accounting", %$RAD_REQUEST);
     return $return;
 }
 
