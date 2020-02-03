@@ -196,12 +196,12 @@ apiCall.interceptors.request.use((config) => {
 
 // Intercept responses
 apiCall.interceptors.response.use((response) => {
-  const { config = {} } = response
-  store.dispatch('performance/stopRequest', config) // stop performance benchmark
+  const { config: { baseURL, method, url, params = {} } } = response
+  store.dispatch('performance/stopRequest', { method, url: `${baseURL}${url}`, params }) // stop performance benchmark
   return response
 }, (error) => {
-  const { config = {} } = error
-  store.dispatch('performance/dropRequest', config) // discard performance benchmark
+  const { config: { baseURL, method, url, params = {} } } = error
+  store.dispatch('performance/dropRequest', { method, url: `${baseURL}${url}`, params }) // discard performance benchmark
   return Promise.reject(error)
 })
 
