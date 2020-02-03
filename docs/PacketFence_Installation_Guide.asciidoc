@@ -2485,7 +2485,7 @@ Below are several common examples of VLAN filters usage.
   [2:igmout&ssid]
   scope = RegisteredRole
   action = trigger_security_event
-  action_param = mac = $mac, tid = 1100012, type = INTERNAL
+  action_param = mac = $mac, tid = SOMETHING_HAPPENED, type = CUSTOM
 ----
 
 .EXAMPLE: autoregister the device and assign the role staff to each device where the username is igmout.
@@ -3651,7 +3651,7 @@ Let's take the Software_Installed rule:
 
   [1:Google]
   action=trigger_security_event
-  action_param = mac = $mac, tid = 888888, type = INTERNAL
+  action_param = mac = $mac, tid = GOOGLE_SOFTWARE_INSTALLED, type = CUSTOM
 
 This rule will do the following:
 
