@@ -236,7 +236,7 @@ use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
-    plan tests => 41 +
+    plan tests => 42 +
       scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
       scalar @INVALID_DATES +
       scalar @NORMALIZE_TIME_TESTS +
@@ -271,6 +271,7 @@ is_deeply(undef, strip_username(undef),
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
 is(clean_mac("aa:bb:cc:dd:ee:ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx:xx:xx:xx:xx:xx");
 is(clean_mac("aa-bb-cc-dd-ee-ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx-xx-xx-xx-xx-xx");
+is(clean_mac("AA-BB-CC-DD-EE-FF"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx-xx-xx-xx-xx-xx");
 is(clean_mac("aabb-ccdd-eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx-xxxx-xxxx");
 is(clean_mac("aabb.ccdd.eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx.xxxx.xxxx");
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
