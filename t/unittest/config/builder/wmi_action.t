@@ -78,9 +78,27 @@ action_param = mac = $mac, tid = 888888, type = INTERNAL
 CONF
 
     my ($error, $filters) = build_from_conf($conf);
-    use Data::Dumper;print Dumper($filters);
     is($error, undef, "No Error found");
     is(scalar @$filters, 2, "2 filters built");
+    is_deeply(
+        $filters->[0],
+          bless( {
+                   'answer' => {
+                                 'action_param' => 'mac = $mac, tid = 888888, type = INTERNAL',
+                                 '_rule' => '1:Google',
+                                 'action' => 'trigger_violation'
+                               },
+                   'condition' => bless( {
+                                           'match_on_empty' => 0,
+                                           'condition' => bless( {
+                                                                   'condition' => bless( {
+                                                                                           'value' => 'Google'
+                                                                                                                 }, 'pf::condition::matches' ),
+                                                                   'key' => 'Caption'
+                                                                 }, 'pf::condition::key' )
+                                         }, 'pf::condition::multi_any' )
+                 }, 'pf::filter' ),
+    );
 }
 
 sub build_from_conf {

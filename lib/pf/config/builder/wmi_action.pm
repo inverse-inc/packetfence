@@ -36,7 +36,7 @@ sub buildEntry {
 
 sub preprocessCondition {
     my ($self, $buildData, $id, $entry) = @_;
-    $entry->{filter} = $entry->{attribute};
+    $entry->{filter} = delete $entry->{attribute};
     my $condition = eval {
         $entry->{operator} eq 'advance'
           ? pf::condition::ast->new(ast => pf::factory::ast::build($entry->{value}))
