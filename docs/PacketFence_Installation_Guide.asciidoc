@@ -3495,18 +3495,17 @@ Juniper SRX
 
 include::firewall/junipersrx.asciidoc[]
 
-Performing Compliance Checks
-----------------------------
+== Performing Compliance Checks
 
 PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
 Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
 It mean per example that you are now able to active a scan for specific Operating System only on a specific SSID.
 
-Installation
-~~~~~~~~~~~~
+=== Installation
 
-Nessus
-^^^^^^
+
+==== Nessus
+
 
 Please visit https://www.tenable.com/downloads/nessus to download Nessus v7 and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
 
@@ -3514,11 +3513,11 @@ After you installed Nessus, follow the Nessus documentation for the configuratio
 
 NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRPC module (which is the default behavior in PacketFence). Please refer to the http://packetfence.org/bugs/view.php?id=1841[bug tracking system] for more information.
 
-OpenVAS
-^^^^^^^
+==== OpenVAS
 
-Requirements
-++++++++++++
+
+===== Requirements
+
 
 You will first need to install OpenVAS along with XYZ and ABC in order to manage OpenVAS remotely via the `omp` command line.
 
@@ -3528,8 +3527,8 @@ In order to validate proper connectivity from PacketFence to OpenVAS for remote 
 
 The output of the above command should provide you the version of OpenVAS. Otherwise, ensure all the necessary components are in place for management through the `omp` command line client and that PacketFence is able to communicate with OpenVAS on port 9390.
 
-Configuring the alert
-+++++++++++++++++++++
+===== Configuring the alert
+
 
 You will need to configure an alert policy in OpenVAS to inform PacketFence of the completion of a task. The httpd.portal daemon takes care of handling this callback so you'll want to make sure that you have "portal" in your additionnal listening daemons on your management interface in PacketFence.
 
@@ -3546,8 +3545,8 @@ Where:
  * HTTP Get URL is set to: http://PF_MANAGEMENT_IP/hook/openvas?task=$n
  ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of your PacketFence server. Leave the rest of the URL untouched as this exact URL and format is expected by PacketFence.
 
-Collecting the identifiers
-++++++++++++++++++++++++++
+===== Collecting the identifiers
+
 
 Once you have connectivity working between PacketFence and OpenVAS, use the Greebone Security Assistant to obtain the following information for configuring PacketFence
 
@@ -3569,22 +3568,21 @@ Navigate to "Configuration->Report Formats" and then select the "CSV Results" re
 
 image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
 
-WMI
-^^^
+==== WMI
+
 
 You just have to enable WMI on each Microsoft Windows devices with a GPO from Active Directory.
 
-Configuration
-~~~~~~~~~~~~~
+=== Configuration
+
 
 In order for the compliance checks to correctly work with PacketFence (communication and generate security events inside PacketFence), you need to configure these sections:
 
-Scanner Definition
-^^^^^^^^^^^^^^^^^^
+==== Scanner Definition
 
-First go in Configuration and Scanner Definition: 'Configuration->Compliance->Scans Engines'
+First go in Configuration and Scanner Definition: _Configuration -> Compliance -> Scan Engines_
 
-Then add a scan:
+Then add a scan engine
 
 image::scan_type.png[alt="Scanner add"]
 
@@ -3623,111 +3621,47 @@ Specific to WMI:
   Password: Password of the account
   WMI Rules: Ordered list of WMI rules you defined in Configuration -> Compliance -> Scans -> WMI Rules
 
-WMI Rules Definition
-^^^^^^^^^^^^^^^^^^^^
+==== WMI Rules Definition
 
 If you have configured a WMI scan engine then you need to define WMI Rules.
-WMI is a sort of database on each windows devices, to retrieve information on the device you need to know the sql request.
+WMI is a sort of database on each windows devices, to retrieve information on the device you need to know the SQL request.
 In order to help you to find and make a rule you can use a third party tool like WMI Explorer.
 
-Go in configuration -> WMI Rules Definition:
+Some example rules are defined in `/usr/local/pf/conf/wmi.conf.example` with
+their description. You can browse these rules in _Configuration -> Compliance
+-> WMI Rules Definition_.
 
-There are already 3 rules defined:
+===== Rules syntax
 
-  Software_Installed
-  logged_user
-  Process_Running
+the syntax of the rules are simple to understand:
 
-Let's take the Software_Installed rule:
+the request is the sql request you will launch on the remote device, you must know what the request will return to write the test.
 
-  request: select * from Win32_Product
+Inside the Rules Actions we define 2 sorts of blocs:
+The test bloc (ie [explorer]) and the action bloc (ie [1:explorer])
 
-  Rules Actions:
+The test bloc is a simple test based on the result of the request:
+- attribute is the attribute you want to test
+- operator can be:
+  is
+  is_not
+  match
+  match_not
+- value is the value you want to compare
 
-  [Google]
-  attribute = Caption
-  operator = match
-  value =Google
+Feel free to define multiples test blocs
 
-  [1:Google]
-  action=trigger_security_event
-  action_param = mac = $mac, tid = GOOGLE_SOFTWARE_INSTALLED, type = CUSTOM
+The action bloc is where you will define your logic, per example let's take this one [1:google&explorer], this mean that if the google test is true and explorer is true then we execute the action.
+The logic can be more complex and can be something like that [1:!google|(explorer&memory)] that mean if not google or (explorer and memory)
 
-This rule will do the following:
+==== WMI tab
 
-  retrieve all the installed software on the device and test if the attribute Caption contain Google.
-  if it matched then we will trigger a security event (with the trigger internal::888888) for the mac address of the device.
+It is possible to have the result of a WMI scan in the node section. To have
+this, go into the rule configuration and check the box _On Node tab_. Now
+configure your WMI scanner as you would usually do and you will be able to
+have the results in the tab _WMI Rules_ under Node.
 
-
-The second one, logged_user:
-
-  request: select UserName from Win32_ComputerSystem
-
-  Rules Actions:
-
-  [UserName]
-  attribute = UserName
-  operator = match
-  value = (.*)
-
-  [1:UserName]
-  action = dynamic_register_node
-  action_param = mac = $mac, username = $result->{'UserName'}
-
-This rule will do the following:
-
-  retrieve the current logged user on the device and register the device based on the user account.
-
-The last one, Process_Running:
-
-  request: select Name from Win32_Process
-
-  Rules Actions:
-
-  [explorer]
-  attribute = Name
-  operator = match
-  value = explorer.exe
-
- [1:explorer]
- action = allow
-
-This rule will do the following:
-
-  retrieve all the running process on the device and if one match explorer.exe then we bypass the scan.
-
-* Rules syntax
-
-  the syntax of the rules are simple to understand:
-
-  the request is the sql request you will launch on the remote device, you must know what the request will return
-  to write the test.
-
-  Inside the Rules Actions we define 2 sorts of blocs:
-  The test bloc (ie [explorer]) and the action bloc (ie [1:explorer])
-
-  The test bloc is a simple test based on the result of the request:
-  - attribute is the attribute you want to test
-  - operator can be:
-    is
-    is_not
-    match
-    match_not
-  - value is the value you want to compare
-
-  Feel free to define multiples test blocs
-
-  The action bloc is where you will define your logic, per example let's take this one [1:google&explorer], this mean that if the google test is
-  true and explorer is true then we execute the action.
-  The logic can be more complex and can be something like that [1:!google|(explorer&memory)] that mean if not google or (explorer and memory)
-
-WMI tab
-^^^^^^^
-
-It is possible to have the result of a WMI scan in the node section. To have this, go into the rule configuration and check the box 'On Node tab'. Now configure your WMI scanner as you would usually do and you will be able to have the results in the tab 'WMI Rules' under Node.
-
-Security Events Definition
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Security Events Definition
 
 You need to create a new security event section and have to specify:
 
@@ -3739,20 +3673,23 @@ Using OpenVAS:
 
   trigger=OpenVAS::<security event ID>
 
-Where `security event ID` is either the ID of the Nessus plugin or the OID of the OpenVAS plugin to check for. Once you have finished the configuration, you need to reload the security event related database contents using:
+Where `security event ID` is either the ID of the Nessus plugin or the OID of
+the OpenVAS plugin to check for. Once you have finished the configuration, you
+need to reload the security event related database contents using:
 
-  $ pfcmd reload security_events 
+[source,bash]
+----
+pfcmd reload security_events
+----
 
 NOTE: Security events will trigger if the plugin is higher than a low severity vulnerability.
 
-Assign Scan definition to connection profiles
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Assign Scan definition to connection profiles
 
 The last step is to assign one or more scanner you configured to one or more connection profiles.
 Go in Configuration -> Policies and Access Control -> Connection Profiles -> Edit a Profile -> Add Scan
 
-Hosting Nessus / OpenVAS remotely
-+++++++++++++++++++++++++++++++++
+===== Hosting Nessus / OpenVAS remotely
 
 Because of the CPU intensive nature of an automated vulnerability assessment, we recommend that it is hosted on a separate server for large environments. To do so, a couple of things are required:
 
