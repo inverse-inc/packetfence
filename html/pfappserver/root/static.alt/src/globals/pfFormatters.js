@@ -1,7 +1,8 @@
-import store from '@/store'
+import acl from '@/utils/acl'
 import bytes from '@/utils/bytes'
 import filters from '@/utils/filters'
 import i18n from '@/utils/locale'
+import store from '@/store'
 import { format } from 'date-fns'
 
 const locales = {
@@ -19,25 +20,37 @@ export const pfFormatters = {
   },
   categoryId: (value, key, item) => {
     if (!value) return null
-    store.dispatch('config/getRoles')
-    if (store.state.config.roles) {
-      return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)[0]
+    if (acl.$can('read', 'nodes')) {
+      store.dispatch('config/getRoles')
+      if (store.state.config.roles) {
+        return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)[0]
+      }
+    } else {
+      return item.category_id
     }
   },
   categoryIdFromIntOrString: (value) => {
     if (!value) return null
-    store.dispatch('config/getRoles')
     if (!/\d+/.test(value)) {
-      return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id)[0] // string
+      if (acl.$can('read', 'nodes')) {
+        store.dispatch('config/getRoles')
+        return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id)[0] // string
+      } else {
+        return value
+      }
     } else {
       return value // int
     }
   },
   bypassRoleId: (value, key, item) => {
     if (!value) return null
-    store.dispatch('config/getRoles')
-    if (store.state.config.roles) {
-      return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
+    if (acl.$can('read', 'nodes')) {
+      store.dispatch('config/getRoles')
+      if (store.state.config.roles) {
+        return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
+      }
+    } else {
+      return item.bypass_role_id
     }
   },
   securityEventIdToDesc: (value) => {

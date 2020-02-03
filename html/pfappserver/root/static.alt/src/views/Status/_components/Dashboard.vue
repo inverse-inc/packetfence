@@ -3,7 +3,7 @@
       <b-alert variant="danger" :show="chartsError" fade>
         <h4 class="alert-heading" v-t="'Error'"></h4>
         <p>{{ $t('The charts of the dasboard are currently not available.') }}</p>
-        <pf-button-service service="netdata" class="mr-1" restart start></pf-button-service>
+        <pf-button-service service="netdata" class="mr-1" v-can:read="'services'" restart start></pf-button-service>
       </b-alert>
       <b-tabs nav-class="nav-fill">
         <b-tab v-for="(section, index) in sections" :title="section.name" :key="section.name">
@@ -771,7 +771,7 @@ export default {
         // In case of an error, the interceptor will set CHART_ERROR
         this.$store.dispatch(`${this.storeName}/getChart`, firstChart.id)
         this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
-      } else {
+      } else if (this.$can('read', 'services')) {
         // No charts yet
         this.$store.dispatch('services/getService', 'netdata').then(service => {
           if (service.alive) {
