@@ -682,7 +682,7 @@ PacketFence supports having clusters where servers are located in multiple layer
 
 Simple RADIUS only clusters are more simple and can be configured without too much in-depth knowledge, but if you want to use the captive portal with a layer 3 cluster, this will definitely make your setup more complex and will certainly require a lot of thinking and understanding on how PacketFence works to be able to know how to properly design a cluster like this.
 
-This section will describe the changes to do on your cluster.conf when dealing with layer 3 clusters but doesn't cover all the cluster installation. In order to install your cluster, follow the instructions in "Cluster Setup" and refer to this section when reaching the step to configure your cluster.conf.
+This section will describe the changes to do on your [filename]`cluster.conf` when dealing with layer 3 clusters but doesn't cover all the cluster installation. In order to install your cluster, follow the instructions in <<_cluster_setup>> and refer to this section when reaching the step to configure your [filename]`cluster.conf`.
 
 Simple RADIUS only cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -691,15 +691,15 @@ In order to configure a RADIUS only layer 3 cluster, you will need at least 3 se
 
 Cluster design and behavior:
 
- * This example will use 3 servers in a network (called DC1), and 2 in another network (called DC2).
- * Each group of server (in the same L2 network) will have a virtual IP address and will perform load-balancing to members in the same L2 zone (i.e. same network).
- * All the servers will use MariaDB Galera cluster and will be part of the same database cluster meaning all servers will have the same data.
- * In the event of the loss of DC1 or a network split between DC1 and DC2, the databases on DC2 will go in read-only and will exhibit the behavior described in "Quorum behavior".
- * All the servers will share the same configuration and same cluster.conf. The data in cluster.conf will serve as an overlay to the data in pf.conf to perform changes specific to each layer 3 zone.
+* This example will use 3 servers in a network (called DC1), and 2 in another network (called DC2).
+* Each group of server (in the same L2 network) will have a virtual IP address and will perform load-balancing to members in the same L2 zone (i.e. same network).
+* All the servers will use MariaDB Galera cluster and will be part of the same database cluster meaning all servers will have the same data.
+* In the event of the loss of DC1 or a network split between DC1 and DC2, the databases on DC2 will go in read-only and will exhibit the behavior described in "Quorum behavior".
+* All the servers will share the same configuration and same cluster.conf. The data in cluster.conf will serve as an overlay to the data in pf.conf to perform changes specific to each layer 3 zone.
 
 Things to take into consideration while performing the cluster setup:
 
- * While going through the configurator to configure the network interfaces, you only need to have a single interface and set its type to management and high-availability.
+* While going through the configurator to configure the network interfaces, you only need to have a single interface and set its type to management and high-availability.
 
 Cluster configuration
 +++++++++++++++++++++
@@ -755,12 +755,13 @@ ip=192.168.2.12
 
 Notes on the configuration:
 
- * The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
- * Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
- * Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
- * You should always declare a "CLUSTER" definition even though a zone has only a single server.
- * Your network equipment should point RADIUS authentication and accounting to both virtual IPs (192.168.1.10 and 192.168.2.10 in this example) either in primary/secondary or load-balancing mode.
- * RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
+* The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
+* Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
+* Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
+* You should always declare a "CLUSTER" definition even though a zone has only a single server.
+* Your network equipment should point RADIUS authentication and accounting to both virtual IPs (192.168.1.10 and 192.168.2.10 in this example) either in primary/secondary or load-balancing mode.
+* RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
+* You can use any virtual IP you want to update configuration: it will be sync between cluster zones
 
 RADIUS server with captive-portal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -773,11 +774,11 @@ NOTE: Isolation is omitted in this example for brevity and should be configured 
 
 Cluster design and behavior:
 
- * This example will use 3 servers in a network (called DC1), and 2 in another network (called DC2).
- * Each group of server (in the same L2 network) will have a virtual IP address and will perform load-balancing (RADIUS, HTTP) to members in the same L2 zone (i.e. same network).
- * All the servers will use MariaDB Galera cluster and will be part of the same database cluster meaning all servers will have the same data.
- * In the event of the loss of DC1 or a network split between DC1 and DC2, the databases on DC2 will go in read-only and will exhibit the behavior described in "Quorum behavior".
- * All the servers will share the same configuration and same cluster.conf. The data in cluster.conf will serve as an overlay to the data in pf.conf and networks.conf to perform changes specific to each layer 3 zone.
+* This example will use 3 servers in a network (called DC1), and 2 in another network (called DC2).
+* Each group of server (in the same L2 network) will have a virtual IP address and will perform load-balancing (RADIUS, HTTP) to members in the same L2 zone (i.e. same network).
+* All the servers will use MariaDB Galera cluster and will be part of the same database cluster meaning all servers will have the same data.
+* In the event of the loss of DC1 or a network split between DC1 and DC2, the databases on DC2 will go in read-only and will exhibit the behavior described in "Quorum behavior".
+* All the servers will share the same configuration and same cluster.conf. The data in cluster.conf will serve as an overlay to the data in pf.conf and networks.conf to perform changes specific to each layer 3 zone.
 
 The schema below presents the routing that needs to be setup in your network in order to deploy this example:
 
@@ -785,16 +786,16 @@ image::cluster-zones-registration.png[scaledwidth="100%",alt="Cluster zones with
 
 Notes on the schema:
 
- * The static routes from the PacketFence servers to the gateways on your network equipment will be configured through networks.conf and do not need to be configured manually on the servers. You will simply need to declare the remote networks so that PacketFence offers DHCP on them and routes them properly.
- * Since the network of the clients is not directly connected to the PacketFence servers via layer 2, you will need to use IP helper (DHCP relaying) on your network equipment that points to both virtual IPs of your cluster.
- * We assume that your routers are able to route all the different networks that are involved for registration (192.168.11.0/24, 192.168.22.0/24, 192.168.100.0/24) and that any client in these 3 networks can be routed to any of these networks via its gateway (192.168.11.1, 192.168.22.2, 192.168.100.1).
- * Access lists should be put in place to restrict the clients (network 192.168.100.0/24) from accessing networks other than the 3 registrations networks.
- * No special routing is required for the management interface.
+* The static routes from the PacketFence servers to the gateways on your network equipment will be configured through networks.conf and do not need to be configured manually on the servers. You will simply need to declare the remote networks so that PacketFence offers DHCP on them and routes them properly.
+* Since the network of the clients is not directly connected to the PacketFence servers via layer 2, you will need to use IP helper (DHCP relaying) on your network equipment that points to both virtual IPs of your cluster.
+* We assume that your routers are able to route all the different networks that are involved for registration (192.168.11.0/24, 192.168.22.0/24, 192.168.100.0/24) and that any client in these 3 networks can be routed to any of these networks via its gateway (192.168.11.1, 192.168.22.2, 192.168.100.1).
+* Access lists should be put in place to restrict the clients (network 192.168.100.0/24) from accessing networks other than the 3 registrations networks.
+* No special routing is required for the management interface.
 
 Things to take into consideration while performing the cluster setup:
 
- * While going through the configurator to configure the network interfaces, you will need to set an interface to management and high-availability.
- * While going through the configurator to configure the network interfaces, you will need to set an interface to registration.
+* While going through the configurator to configure the network interfaces, you will need to set an interface to management and high-availability.
+* While going through the configurator to configure the network interfaces, you will need to set an interface to registration.
 
 Cluster configuration
 +++++++++++++++++++++
@@ -871,12 +872,13 @@ ip=192.168.22.12
 
 Notes on the configuration:
 
- * The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
- * Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
- * Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
- * You should always declare a "CLUSTER" definition even though a zone has only a single server.
- * Your network equipment should point RADIUS authentication and accounting to both virtual IPs (192.168.1.10 and 192.168.2.10 in this example) either in primary/secondary or load-balancing mode.
- * RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
+* The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
+* Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
+* Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
+* You should always declare a "CLUSTER" definition even though a zone has only a single server.
+* Your network equipment should point RADIUS authentication and accounting to both virtual IPs (192.168.1.10 and 192.168.2.10 in this example) either in primary/secondary or load-balancing mode.
+* RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
+* You can use any virtual IP you want to update configuration: it will be sync between cluster zones
 
 NOTE: You should use the configuration above to perform the cluster setup and complete all the steps required to build your cluster. You should only continue these steps after it is fully setup and running.
 
@@ -1157,6 +1159,7 @@ At the end it you want to check the status of the slave server for debug purpose
 
  SHOW SLAVE STATUS;
 
+HAProxy daemon is responsible to detect when link between DC2 and DC1 is down.
 
 Advanced configuration
 ----------------------
