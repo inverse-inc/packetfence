@@ -1,3 +1,4 @@
+import acl from '@/utils/acl'
 import store from '@/store'
 import StatusView from '../'
 import StatusStore from '../_store'
@@ -20,7 +21,10 @@ const route = {
       // Register store module only once
       store.registerModule('$_status', StatusStore)
     }
-    store.dispatch('$_status/getCluster').then(() => next())
+    if (acl.$can('read', 'system'))
+      store.dispatch('$_status/getCluster').then(() => next())
+    else
+      next()
   },
   children: [
     {
@@ -28,12 +32,9 @@ const route = {
       component: Dashboard,
       props: { storeName: '$_status' },
       beforeEnter: (to, from, next) => {
-        Promise.all([
-          store.dispatch('config/getSources'),
-          store.dispatch('$_status/allCharts')
-        ]).finally(() => {
-          next()
-        })
+        if (acl.$can('read', 'users_sources'))
+          store.dispatch('config/getSources')
+        store.dispatch('$_status/allCharts').finally(() => next())
       },
       meta: {
         can: 'read reports',

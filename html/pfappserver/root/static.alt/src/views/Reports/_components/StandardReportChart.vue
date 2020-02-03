@@ -233,7 +233,8 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('config/getRoles')
+    if (this.$can('read', 'nodes'))
+      this.$store.dispatch('config/getRoles')
     // if range defined in route, prepopulate datetime fields
     this.datetimeStart = (this.start_datetime) ? this.start_datetime : ''
     this.datetimeEnd = (this.end_datetime) ? this.end_datetime : ''

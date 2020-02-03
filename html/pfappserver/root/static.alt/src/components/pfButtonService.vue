@@ -217,7 +217,8 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('services/getService', this.service)
+    if (this.$can('read', 'services'))
+      this.$store.dispatch('services/getService', this.service)
   }
 }
 </script>
