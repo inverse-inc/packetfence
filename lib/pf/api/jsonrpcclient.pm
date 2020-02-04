@@ -30,6 +30,8 @@ use WWW::Curl::Easy;
 use Moo;
 use HTTP::Status qw(:constants);
 
+our $logger = get_logger();
+
 our $JSON = JSON->new->convert_blessed(1);
 
 =head1 Attributes
@@ -189,12 +191,12 @@ sub notify {
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code != HTTP_NO_CONTENT) {
-            get_logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
+            $logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
         } else {
             $results = 1;
         }
     } else {
-        get_logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
+        $logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
     }
 
     return $results;
