@@ -1506,9 +1506,10 @@ sub handle_accounting_metadata : Public {
     }
 
     if ($acct_status_type != $ACCOUNTING::STOP){
+        my $advanced = $pf::config::Config{advanced};
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
-        if ($framed_ip && pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})) {
+        if ($framed_ip && pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
             $logger->info("Updating iplog from accounting request");
             $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
         }
@@ -1516,7 +1517,7 @@ sub handle_accounting_metadata : Public {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
         
-        if ($framed_ip && pf::util::isenabled($pf::config::Config{advanced}{scan_on_accounting})) {
+        if ($framed_ip && pf::util::isenabled($advanced->{scan_on_accounting})) {
             my $node = pf::node::node_attributes($mac);
             if($node->{status} eq $pf::constants::node::STATUS_REGISTERED) {
                 $logger->debug("Will trigger scan engines for this device based on the data in the accounting packet");
