@@ -3627,32 +3627,38 @@ If you have configured a WMI scan engine then you need to define WMI Rules.
 WMI is a sort of database on each windows devices, to retrieve information on the device you need to know the SQL request.
 In order to help you to find and make a rule you can use a third party tool like WMI Explorer.
 
-Some example rules are defined in `/usr/local/pf/conf/wmi.conf.example` with
+Some example rules are defined in [filename]`/usr/local/pf/conf/wmi.conf.example` with
 their description. You can browse these rules in _Configuration -> Compliance
--> WMI Rules Definition_.
+-> WMI Rules_.
 
 ===== Rules syntax
 
-the syntax of the rules are simple to understand:
+The syntax of the rules are simple to understand and use same syntax as <<_vlan_filter_definition,VLAN filters>>.
 
-the request is the sql request you will launch on the remote device, you must know what the request will return to write the test.
+* _Request_ is the SQL request you will launch on the remote device, you
+  must know what the request will return to write the test.
 
-Inside the Rules Actions we define 2 sorts of blocs:
-The test bloc (ie [explorer]) and the action bloc (ie [1:explorer])
+Inside the _Rules Actions_ field we define 2 sorts of blocs:
+
+* The test bloc (i.e. `[explorer]`)
+* The action bloc (i.e. `[1:explorer]`)
 
 The test bloc is a simple test based on the result of the request:
-- attribute is the attribute you want to test
-- operator can be:
-  is
-  is_not
-  match
-  match_not
-- value is the value you want to compare
 
-Feel free to define multiples test blocs
+* attribute is the attribute you want to test
+* operator can be:
+** is
+** is_not
+** match
+** match_not
+** advance
+* value is the value you want to compare
 
-The action bloc is where you will define your logic, per example let's take this one [1:google&explorer], this mean that if the google test is true and explorer is true then we execute the action.
-The logic can be more complex and can be something like that [1:!google|(explorer&memory)] that mean if not google or (explorer and memory)
+You can define multiple test blocs.
+
+The action bloc is where you will define your logic. All actions available are
+identical to <<_vlan_filter_definition,VLAN filters>>. Take a look at
+[filename]`/usr/local/pf/conf/vlan_filters.conf.example` for all available actions.
 
 ==== WMI tab
 
