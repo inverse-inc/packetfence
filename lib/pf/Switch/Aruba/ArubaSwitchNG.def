@@ -1,7 +1,7 @@
 # - better handling of disconnection than ArubaSwitch.pm
 # - don't want a getIfIndexByNasPortId function for these switches
 description = Aruba Switch NG
-radiusDisconnect = coaOrDisconnect
+radiusDisconnect = disconnect
 
 acceptVlan = <<EOT
 Tunnel-Medium-Type = 6
@@ -15,10 +15,7 @@ EOT
 
 disconnect = <<EOT
 Calling-Station-Id = ${macToEUI48($mac)}
+User-Name = $last_accounting.username
 NAS-IP-Address = $disconnectIp
-EOT
-
-coa = <<EOT
-Calling-Station-Id = ${macToEUI48($mac)}
-NAS-IP-Address = $disconnectIp
+Acct-Session-Id = $last_accounting.acctsessionid
 EOT
