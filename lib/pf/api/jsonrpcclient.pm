@@ -283,6 +283,17 @@ sub _build_jsonrpc_data {
     return $JSON->encode({method => $function, jsonrpc => '2.0', params => $args, tenant_id => pf::dal->get_tenant(), (defined $id ? (id => $id) : ()) });
 }
 
+sub BUILDARGS {
+    my ($class, @args) = @_;
+    my %args = (
+        %{$Config{'webservices'}{jsonrpcclient_args}},
+        (
+            @args == 1 ? (%{$args[0]}) : @args
+        )
+    );
+
+    return \%args;
+}
 
 =head1 AUTHOR
 
