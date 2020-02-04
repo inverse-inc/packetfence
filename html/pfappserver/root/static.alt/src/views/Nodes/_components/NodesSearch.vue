@@ -117,7 +117,7 @@
         @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting sort-icon-left striped
       >
-        <template v-slot:head(actions)="head">
+        <template v-slot:head(actions)>
           <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
