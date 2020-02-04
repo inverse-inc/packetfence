@@ -165,6 +165,14 @@ sub build_child {
         $logger->info("No timezone defined, using $tz");
         $Config{general}{timezone} = $tz;
     }
+    my $webservices = $Config{'webservices'};
+    $webservices->{jsonrpcclient_args} = {
+        username => $webservices->{'user'},
+        password => $webservices->{'pass'},
+        proto    => $webservices->{'proto'},
+        host     => $webservices->{'host'},
+        port     => $webservices->{'port'},
+    };
 
     return \%Config;
 }
