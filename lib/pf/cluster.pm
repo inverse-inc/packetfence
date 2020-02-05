@@ -726,6 +726,17 @@ sub find_server_by_hostname {
     return firstval { $_->{host} eq $hostname } pf::cluster::config_enabled_servers;
 }
 
+=head2 all_find_server_by_hostname
+
+Finds a server configuration using the hostname
+
+=cut
+
+sub all_find_server_by_hostname {
+    my ($hostname) = @_;
+    return firstval { $_->{host} eq $hostname } @config_cluster_servers;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

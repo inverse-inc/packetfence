@@ -69,7 +69,7 @@ unless(defined($node_hostname)) {
     exit;
 }
 
-unless(pf::cluster::find_server_by_hostname($node_hostname)) {
+unless(pf::cluster::all_find_server_by_hostname($node_hostname)) {
     print STDERR "Node $node_hostname doesn't exist in the cluster configuration \n\n";
     pod2usage(1);
 }
