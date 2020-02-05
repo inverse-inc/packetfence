@@ -288,7 +288,7 @@ sub _build_jsonrpc_data {
 sub BUILDARGS {
     my ($class, @args) = @_;
     my %args = (
-        %{$Config{'webservices'}{jsonrpcclient_args}},
+        %{$Config{'webservices'}{jsonrpcclient_args} // {}},
         (
             @args == 1 ? (%{$args[0]}) : @args
         )
