@@ -186,16 +186,16 @@ sub merge_conditions {
   foreach my $cond (@_) {
     if    (does($cond, 'HASH'))  {
       foreach my $col (sort keys %$cond) {
+        my $curr = $cond->{$col};
         if (exists $merged{$col}) {
             my $prev = $merged{$col};
-            my $curr = $cond->{$col};
             if (defined $prev && defined $curr && !ref $prev && !ref $curr && ($prev eq $curr)) {
                 next;
             } else {
-                $merged{$col} = [-and => $merged{$col}, $cond->{$col}];
+                $merged{$col} = $prev ? [-and => $prev, $curr] : $curr;
             }
         } else {
-            $merged{$col} = $cond->{$col};
+            $merged{$col} = $curr;
         }
       }
     }
