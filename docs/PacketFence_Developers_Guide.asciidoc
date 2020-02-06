@@ -1077,6 +1077,7 @@ a similar environment to develop.
 ==== Virtual environment: prerequisites
 
 Install following softwares:
+
 * link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3)
 * Virtualbox if you wan to use Virtualbox as a provider for Vagrant
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
@@ -1147,7 +1148,7 @@ To keep your machine up-to-date, you can run the following commands:
 
 [source,bash]
 ----
-vagrant provision --provision-with=config VN_NAME
+vagrant provision --provision-with=config VM_NAME
 ----
 
 Make sure you read the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>> after every upgrades to avoid any surprises.
