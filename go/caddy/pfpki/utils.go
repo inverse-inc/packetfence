@@ -39,37 +39,51 @@ func email(cert Cert, profile Profile, file []byte, password string) (Info, erro
 	return Information, nil
 }
 
-func (query Query) Sanitize(class interface{}) Query {
-	var sane Query
-	if query.Cursor <= 0 {
-		f, _ := reflect.TypeOf(query).FieldByName("Cursor")
+func (params PostVars) Sanitize(class interface{}) GetVars {
+	var sane GetVars
+	sane.Cursor = params.Cursor
+	sane.Limit = params.Limit
+	if len(params.Sort) > 0 {
+		sane.Sort = strings.Join(params.Sort[:], ",")
+	}
+	if len(params.Fields) > 0 {
+		sane.Fields = strings.Join(params.Fields[:], ",")
+	}
+	sane.Query = params.Query
+	return sane.Sanitize(class)
+}
+
+func (params GetVars) Sanitize(class interface{}) GetVars {
+	var sane GetVars
+	if params.Cursor <= 0 {
+		f, _ := reflect.TypeOf(params).FieldByName("Cursor")
 		if defaultCursor, err := strconv.Atoi(f.Tag.Get("default")); err == nil {
 			sane.Cursor = defaultCursor
 		}
 	} else {
-		sane.Cursor = query.Cursor
+		sane.Cursor = params.Cursor
 	}
-	if query.Limit <= 0 {
-		f, _ := reflect.TypeOf(query).FieldByName("Limit")
+	if params.Limit <= 0 {
+		f, _ := reflect.TypeOf(params).FieldByName("Limit")
 		if defaultLimit, err := strconv.Atoi(f.Tag.Get("default")); err == nil {
 			sane.Limit = defaultLimit
 		}
 	} else {
-		sane.Limit = query.Limit
+		sane.Limit = params.Limit
 	}
-	if query.Fields == "" {
+	if params.Fields == "" {
 		sane.Fields = sanitizeFields(strings.Join(jsonFields(class)[:], ","), class)
 	} else {
-		sane.Fields = sanitizeFields(query.Fields, class)
+		sane.Fields = sanitizeFields(params.Fields, class)
 	}
-	if query.Sort == "" {
-		f, _ := reflect.TypeOf(query).FieldByName("Sort")
+	if params.Sort == "" {
+		f, _ := reflect.TypeOf(params).FieldByName("Sort")
 		sane.Sort = f.Tag.Get("default")
 	} else {
-		sane.Sort = sanitizeSort(query.Sort, class)
+		sane.Sort = sanitizeSort(params.Sort, class)
 	}
-	if !reflect.DeepEqual(query.Query, Search{}) {
-		sane.Query = sanitizeQuery(query.Query, class)
+	if !reflect.DeepEqual(params.Query, Search{}) {
+		sane.Query = sanitizeQuery(params.Query, class)
 	}
 	return sane
 }

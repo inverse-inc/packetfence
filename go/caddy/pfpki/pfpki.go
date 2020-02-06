@@ -32,13 +32,22 @@ type (
 		Ctx    context.Context
 	}
 
-	// Query struct
-	Query struct {
+	// GET Vars struct
+	GetVars struct {
 		Cursor int    `schema:"cursor" json:"cursor" default:"0"`
 		Limit  int    `schema:"limit" json:"limit" default:"100"`
 		Fields string `schema:"fields" json:"fields" default:"id"`
 		Sort   string `schema:"sort" json:"sort" default:"id asc"`
 		Query  Search `schema:"query" json:"query"`
+	}
+
+	// POST Vars struct
+	PostVars struct {
+		Cursor int      `schema:"cursor" json:"cursor" default:"0"`
+		Limit  int      `schema:"limit" json:"limit" default:"100"`
+		Fields []string `schema:"fields" json:"fields" default:"id"`
+		Sort   []string `schema:"sort" json:"sort" default:"id asc"`
+		Query  Search   `schema:"query" json:"query"`
 	}
 
 	// Search struct

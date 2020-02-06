@@ -85,12 +85,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/cas/search$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "POST":
-				var query Query
-				err := json.Unmarshal(body, &query)
+				var params PostVars
+				err := json.Unmarshal(body, &params)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 				} else {
-					pagination := query.Sanitize(object)
+					pagination := params.Sanitize(object)
 					Information, err = v.search(pfpki, pagination)
 				}
 			default:
@@ -101,12 +101,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/cas`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
-				var query Query
-				err := decoder.Decode(&query, req.URL.Query())
+				var params GetVars
+				err := decoder.Decode(&params, req.URL.Query())
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 				} else {
-					pagination := query.Sanitize(object)
+					pagination := params.Sanitize(object)
 					Information, err = v.paginated(pfpki, pagination)
 				}
 			case "POST":
@@ -141,12 +141,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/profiles/search$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "POST":
-				var query Query
-				err := json.Unmarshal(body, &query)
+				var params PostVars
+				err := json.Unmarshal(body, &params)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 				} else {
-					pagination := query.Sanitize(object)
+					pagination := params.Sanitize(object)
 					Information, err = v.search(pfpki, pagination)
 				}
 			default:
@@ -157,12 +157,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/profiles`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
-				var query Query
-				err := decoder.Decode(&query, req.URL.Query())
+				var params GetVars
+				err := decoder.Decode(&params, req.URL.Query())
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 				} else {
-					pagination := query.Sanitize(object)
+					pagination := params.Sanitize(object)
 					Information, err = v.paginated(pfpki, pagination)
 				}
 			case "POST":
@@ -197,12 +197,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/certs/search$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "POST":
-				var query Query
-				err := json.Unmarshal(body, &query)
+				var params PostVars
+				err := json.Unmarshal(body, &params)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 				} else {
-					pagination := query.Sanitize(object)
+					pagination := params.Sanitize(object)
 					Information, err = v.search(pfpki, pagination)
 				}
 			default:
@@ -213,12 +213,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/certs`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
-				var query Query
-				err := decoder.Decode(&query, req.URL.Query())
+				var params GetVars
+				err := decoder.Decode(&params, req.URL.Query())
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 				} else {
-					pagination := query.Sanitize(object)
+					pagination := params.Sanitize(object)
 					Information, err = v.paginated(pfpki, pagination)
 				}
 			case "POST":

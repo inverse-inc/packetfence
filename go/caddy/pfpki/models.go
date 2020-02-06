@@ -287,34 +287,34 @@ func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	return Information, nil
 }
 
-func (c CA) paginated(pfpki *Handler, query Query) (Info, error) {
+func (c CA) paginated(pfpki *Handler, params GetVars) (Info, error) {
 	Information := Info{}
 	var count int
 	pfpki.DB.Model(&CA{}).Count(&count)
 	Information.TotalCount = count
 	var cadb []CA
-	Information.PrevCursor = query.Cursor
-	if query.Cursor < count {
-		pfpki.DB.Select(query.Fields).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&cadb)
+	Information.PrevCursor = params.Cursor
+	if params.Cursor < count {
+		pfpki.DB.Select(params.Fields).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&cadb)
 		Information.Entries = cadb
 	}
-	Information.NextCursor = query.Cursor + query.Limit
+	Information.NextCursor = params.Cursor + params.Limit
 	return Information, nil
 }
 
-func (c CA) search(pfpki *Handler, query Query) (Info, error) {
+func (c CA) search(pfpki *Handler, params GetVars) (Info, error) {
 	Information := Info{}
 	var count int
-	where := query.Query.Where()
+	where := params.Query.Where()
 	pfpki.DB.Model(&CA{}).Where(where.Query, where.Values...).Count(&count)
 	Information.TotalCount = count
 	var cadb []CA
-	Information.PrevCursor = query.Cursor
-	if query.Cursor < count {
-		pfpki.DB.Select(query.Fields).Where(where.Query, where.Values...).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&cadb)
+	Information.PrevCursor = params.Cursor
+	if params.Cursor < count {
+		pfpki.DB.Select(params.Fields).Where(where.Query, where.Values...).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&cadb)
 		Information.Entries = cadb
 	}
-	Information.NextCursor = query.Cursor + query.Limit
+	Information.NextCursor = params.Cursor + params.Limit
 	return Information, nil
 }
 
@@ -396,34 +396,34 @@ func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error)
 	return Information, nil
 }
 
-func (p Profile) paginated(pfpki *Handler, query Query) (Info, error) {
+func (p Profile) paginated(pfpki *Handler, params GetVars) (Info, error) {
 	Information := Info{}
 	var count int
 	pfpki.DB.Model(&Profile{}).Count(&count)
 	Information.TotalCount = count
 	var profiledb []Profile
-	Information.PrevCursor = query.Cursor
-	if query.Cursor < count {
-		pfpki.DB.Select(query.Fields).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&profiledb)
+	Information.PrevCursor = params.Cursor
+	if params.Cursor < count {
+		pfpki.DB.Select(params.Fields).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&profiledb)
 		Information.Entries = profiledb
 	}
-	Information.NextCursor = query.Cursor + query.Limit
+	Information.NextCursor = params.Cursor + params.Limit
 	return Information, nil
 }
 
-func (p Profile) search(pfpki *Handler, query Query) (Info, error) {
+func (p Profile) search(pfpki *Handler, params GetVars) (Info, error) {
 	Information := Info{}
 	var count int
-	where := query.Query.Where()
+	where := params.Query.Where()
 	pfpki.DB.Model(&Profile{}).Where(where.Query, where.Values...).Count(&count)
 	Information.TotalCount = count
 	var profiledb []Profile
-	Information.PrevCursor = query.Cursor
-	if query.Cursor < count {
-		pfpki.DB.Select(query.Fields).Where(where.Query, where.Values...).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&profiledb)
+	Information.PrevCursor = params.Cursor
+	if params.Cursor < count {
+		pfpki.DB.Select(params.Fields).Where(where.Query, where.Values...).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&profiledb)
 		Information.Entries = profiledb
 	}
-	Information.NextCursor = query.Cursor + query.Limit
+	Information.NextCursor = params.Cursor + params.Limit
 	return Information, nil
 }
 
@@ -540,34 +540,34 @@ func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	return Information, nil
 }
 
-func (c Cert) paginated(pfpki *Handler, query Query) (Info, error) {
+func (c Cert) paginated(pfpki *Handler, params GetVars) (Info, error) {
 	Information := Info{}
 	var count int
 	pfpki.DB.Model(&Cert{}).Count(&count)
 	Information.TotalCount = count
 	var certdb []Cert
-	Information.PrevCursor = query.Cursor
-	if query.Cursor < count {
-		pfpki.DB.Select(query.Fields).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&certdb)
+	Information.PrevCursor = params.Cursor
+	if params.Cursor < count {
+		pfpki.DB.Select(params.Fields).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&certdb)
 		Information.Entries = certdb
 	}
-	Information.NextCursor = query.Cursor + query.Limit
+	Information.NextCursor = params.Cursor + params.Limit
 	return Information, nil
 }
 
-func (c Cert) search(pfpki *Handler, query Query) (Info, error) {
+func (c Cert) search(pfpki *Handler, params GetVars) (Info, error) {
 	Information := Info{}
 	var count int
-	where := query.Query.Where()
+	where := params.Query.Where()
 	pfpki.DB.Model(&Cert{}).Where(where.Query, where.Values...).Count(&count)
 	Information.TotalCount = count
 	var certdb []Cert
-	Information.PrevCursor = query.Cursor
-	if query.Cursor < count {
-		pfpki.DB.Select(query.Fields).Where(where.Query, where.Values...).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&certdb)
+	Information.PrevCursor = params.Cursor
+	if params.Cursor < count {
+		pfpki.DB.Select(params.Fields).Where(where.Query, where.Values...).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&certdb)
 		Information.Entries = certdb
 	}
-	Information.NextCursor = query.Cursor + query.Limit
+	Information.NextCursor = params.Cursor + params.Limit
 	return Information, nil
 }
 
