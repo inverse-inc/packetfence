@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"regexp"
 
+  "github.com/gorilla/schema"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
 )
@@ -22,8 +23,13 @@ type Info struct {
 	Error       string `json:"error"`
 	ContentType string
 	Raw         []byte
-	Entries     interface{}
+	Entries     interface{} `json:"items"`
+	NextCursor  int    `json:"nextCursor"`
+	PrevCursor  int    `json:"prevCursor"`
+	TotalCount  int    `json:"total_count"`
 }
+
+var decoder = schema.NewDecoder()
 
 // Create interface
 type Create interface {
@@ -74,60 +80,201 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	switch v := object.(type) {
 	case CA:
 
-		switch method := req.Method; method {
-		case "GET":
-			Information, err = v.get(pfpki, vars)
-		case "POST":
-			err = json.Unmarshal(body, &v)
-			if err != nil {
-				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-			}
-			Information, err = v.new(pfpki)
-		default:
-			err = errors.New("Method not supported")
-			log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
-		}
+    switch {
+
+    case len(regexp.MustCompile(`/pki/cas/search$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "POST":
+        var query Query
+        err := json.Unmarshal(body, &query)
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        } else {
+          pagination := query.Sanitize(object)
+          Information, err = v.search(pfpki, pagination)
+        }
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/cas`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        var query Query
+        err := decoder.Decode(&query, req.URL.Query())
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        } else {
+          pagination := query.Sanitize(object)
+          Information, err = v.paginated(pfpki, pagination)
+        }
+      case "POST":
+        err = json.Unmarshal(body, &v)
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        }
+        Information, err = v.new(pfpki)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/ca/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        Information, err = v.getById(pfpki, vars)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    default:
+      err = errors.New("Path not supported")
+      log.LoggerWContext(pfpki.Ctx).Info("Path not supported" + req.URL.Path)
+    }
+
+  case Profile:
+
+    switch {
+
+    case len(regexp.MustCompile(`/pki/profiles/search$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "POST":
+        var query Query
+        err := json.Unmarshal(body, &query)
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        } else {
+          pagination := query.Sanitize(object)
+          Information, err = v.search(pfpki, pagination)
+        }
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/profiles`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        var query Query
+        err := decoder.Decode(&query, req.URL.Query())
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        } else {
+          pagination := query.Sanitize(object)
+          Information, err = v.paginated(pfpki, pagination)
+        }
+      case "POST":
+        err = json.Unmarshal(body, &v)
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        }
+        Information, err = v.new(pfpki)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/profile/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        Information, err = v.getById(pfpki, vars)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    default:
+      err = errors.New("Path not supported")
+      log.LoggerWContext(pfpki.Ctx).Info("Path not supported")
+    }
 
 	case Cert:
 
-		if matched, _ := regexp.MatchString(`/pki/certmgmt`, req.URL.Path); matched {
-			switch method := req.Method; method {
-			case "GET":
-				Information, err = v.download(pfpki, vars)
-			case "DELETE":
-				Information, err = v.revoke(pfpki, vars)
-			default:
-				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-			}
-		} else {
-			switch method := req.Method; method {
-			case "GET":
-				Information, err = v.get(pfpki, vars)
-			case "POST":
-				err = json.Unmarshal(body, &v)
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				}
-				Information, err = v.new(pfpki)
-			}
-		}
-	case Profile:
-		switch method := req.Method; method {
-		case "GET":
-			Information, err = v.get(pfpki, vars)
-		case "POST":
-			err = json.Unmarshal(body, &v)
-			if err != nil {
-				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-			}
-			Information, err = v.new(pfpki)
-		default:
-			err = errors.New("Method not supported")
-			log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-		}
+    switch {
+
+    case len(regexp.MustCompile(`/pki/certs/search$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "POST":
+        var query Query
+        err := json.Unmarshal(body, &query)
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        } else {
+          pagination := query.Sanitize(object)
+          Information, err = v.search(pfpki, pagination)
+        }
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/certs`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        var query Query
+        err := decoder.Decode(&query, req.URL.Query())
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        } else {
+          pagination := query.Sanitize(object)
+          Information, err = v.paginated(pfpki, pagination)
+        }
+      case "POST":
+        err = json.Unmarshal(body, &v)
+        if err != nil {
+          log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+        }
+        Information, err = v.new(pfpki)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/cert/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        Information, err = v.getById(pfpki, vars)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/cert/[0-9]+/download/.*$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        Information, err = v.download(pfpki, vars)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/cert/[0-9]+/email$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "GET":
+        Information, err = v.download(pfpki, vars)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    case len(regexp.MustCompile(`/pki/cert/[0-9]+/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
+      switch req.Method {
+      case "DELETE":
+        Information, err = v.revoke(pfpki, vars)
+      default:
+        err = errors.New("Method not supported")
+        log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+      }
+
+    default:
+      err = errors.New("Path not supported")
+      log.LoggerWContext(pfpki.Ctx).Info("Path not supported")
+    }
+
 	default:
-		err = errors.New("invalid type")
+		err = errors.New("Type not supported")
 	}
 
 	if err != nil {

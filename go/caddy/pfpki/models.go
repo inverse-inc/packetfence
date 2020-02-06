@@ -14,12 +14,11 @@ import (
 	"encoding/pem"
 	"errors"
 	"math/big"
-	"strconv"
+  "strconv"
 	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
-
 	// Import MySQL lib
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
@@ -71,98 +70,100 @@ import (
 // 12 ExtKeyUsageMicrosoftCommercialCodeSigning
 // 13 ExtKeyUsageMicrosoftKernelCodeSigning
 
-// CA struct
-type CA struct {
-	gorm.Model
-	Cn               string                  `json:"cn" gorm:"UNIQUE"`
-	Mail             string                  `json:"mail"`
-	Organisation     string                  `json:"organisation"`
-	Country          string                  `json:"country"`
-	State            string                  `json:"state"`
-	Locality         string                  `json:"locality"`
-	StreetAddress    string                  `json:"street_address"`
-	PostalCode       string                  `json:"postal_code"`
-	KeyType          Type                    `json:"key_type,string"`
-	KeySize          int                     `json:"key_size,string"`
-	Digest           x509.SignatureAlgorithm `json:"digest,string"`
-	KeyUsage         string                  `json:"key_usage,omitempty"`
-	ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
-	Days             int                     `json:"days,string"`
-	Key              string                  `json:"key,omitempty" gorm:"type:longtext"`
-	Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
-	IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
-	IssuerNameHash   string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
-}
+type (
+  // CA struct
+  CA struct {
+    gorm.Model
+    Cn               string                  `json:"cn" gorm:"UNIQUE"`
+    Mail             string                  `json:"mail"`
+    Organisation     string                  `json:"organisation"`
+    Country          string                  `json:"country"`
+    State            string                  `json:"state"`
+    Locality         string                  `json:"locality"`
+    StreetAddress    string                  `json:"street_address"`
+    PostalCode       string                  `json:"postal_code"`
+    KeyType          Type                    `json:"key_type,string"`
+    KeySize          int                     `json:"key_size,string"`
+    Digest           x509.SignatureAlgorithm `json:"digest,string"`
+    KeyUsage         string                  `json:"key_usage,omitempty"`
+    ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
+    Days             int                     `json:"days,string"`
+    Key              string                  `gorm:"type:longtext"`
+    Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
+    IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
+    IssuerNameHash   string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
+  }
 
-// Profile struct
-type Profile struct {
-	gorm.Model
-	Name             string                  `json:"name" gorm:"UNIQUE"`
-	Ca               CA                      `json:"ca"`
-	CaID             uint                    `json:"ca_id,string"`
-	CaName           string                  `json:"ca_name"`
-	Validity         int                     `json:"validity,string"`
-	KeyType          Type                    `json:"key_type,string"`
-	KeySize          int                     `json:"key_size,string"`
-	Digest           x509.SignatureAlgorithm `json:"digest,string"`
-	KeyUsage         string                  `json:"key_usage,omitempty"`
-	ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
-	P12SmtpServer    string                  `json:"p12_smtp_server"`
-	P12MailPassword  int                     `json:"p12_mail_password,string"`
-	P12MailSubject   string                  `json:"p12_mail_subject"`
-	P12MailFrom      string                  `json:"p12_mail_from"`
-	P12MailHeader    string                  `json:"p12_mail_header"`
-	P12MailFooter    string                  `json:"p12_mail_footer"`
-}
+  // Profile struct
+  Profile struct {
+    gorm.Model
+    Name             string                  `json:"name" gorm:"UNIQUE"`
+    Ca               CA
+    CaID             uint                    `json:"ca_id,string"`
+    CaName           string                  `json:"ca_name"`
+    Validity         int                     `json:"validity,string"`
+    KeyType          Type                    `json:"key_type,string"`
+    KeySize          int                     `json:"key_size,string"`
+    Digest           x509.SignatureAlgorithm `json:"digest,string"`
+    KeyUsage         string                  `json:"key_usage,omitempty"`
+    ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
+    P12SmtpServer    string                  `json:"p12_smtp_server"`
+    P12MailPassword  int                     `json:"p12_mail_password,string"`
+    P12MailSubject   string                  `json:"p12_mail_subject"`
+    P12MailFrom      string                  `json:"p12_mail_from"`
+    P12MailHeader    string                  `json:"p12_mail_header"`
+    P12MailFooter    string                  `json:"p12_mail_footer"`
+  }
 
-// Cert struct
-type Cert struct {
-	gorm.Model
-	Cn            string  `json:"cn"  gorm:"UNIQUE"`
-	Mail          string  `json:"mail"`
-	Ca            CA      `json:"ca"`
-	CaID          uint    `json:"ca_id,string"`
-	CaName        string  `json:"ca_name"`
-	StreetAddress string  `json:"street_address,omitempty"`
-	Organisation  string  `json:"organisation,omitempty"`
-	Country       string  `json:"country,omitempty"`
-	State         string  `json:"state,omitempty"`
-	Locality      string  `json:"locality,omitempty"`
-	PostalCode    string  `json:"postal_code,omitempty"`
-	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
-	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
-	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint    `json:"profile_id,string"`
-	ProfileName   string  `json:"profile_name,omitempty"`
-	ValidUntil    time.Time
-	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	SerialNumber  string
-}
+  // Cert struct
+  Cert struct {
+    gorm.Model
+    Cn            string  `json:"cn,omitempty" gorm:"UNIQUE"`
+    Mail          string  `json:"mail,omitempty"`
+    Ca            CA
+    CaID          uint    `json:"ca_id,omitempty,string"`
+    CaName        string  `json:"ca_name,omitempty"`
+    StreetAddress string  `json:"street_address,omitempty"`
+    Organisation  string  `json:"organisation,omitempty"`
+    Country       string  `json:"country,omitempty"`
+    State         string  `json:"state,omitempty"`
+    Locality      string  `json:"locality,omitempty"`
+    PostalCode    string  `json:"postal_code,omitempty"`
+    Key           string  `gorm:"type:longtext"`
+    Cert          string  `json:"cert,omitempty" gorm:"type:longtext"`
+    Profile       Profile
+    ProfileID     uint    `json:"profile_id,omitempty,string"`
+    ProfileName   string  `json:"profile_name,omitempty"`
+    ValidUntil    time.Time `json:"valid_until,omitempty"`
+    Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+    SerialNumber  string `json:"serial_number,omitempty"`
+  }
 
-// RevokedCert struct
-type RevokedCert struct {
-	gorm.Model
-	Cn            string  `json:"cn""`
-	Mail          string  `json:"mail"`
-	Ca            CA      `json:"ca"`
-	CaID          uint    `json:"caid,string"`
-	StreetAddress string  `json:"street_address,omitempty"`
-	Organisation  string  `json:"organisation,omitempty"`
-	Country       string  `json:"country,omitempty"`
-	State         string  `json:"state,omitempty"`
-	Locality      string  `json:"locality,omitempty"`
-	PostalCode    string  `json:"postal_code,omitempty"`
-	Key           string  `json:"key,omitempty" gorm:"type:longtext"`
-	Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
-	Profile       Profile `json:"profile,omitempty"`
-	ProfileID     uint    `json:"profile_id,string"`
-	ProfileName   string  `json:"profile_name,omitempty"`
-	ValidUntil    time.Time
-	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	Revoked       time.Time
-	CRLReason     int
-	SerialNumber  string
-}
+  // RevokedCert struct
+  RevokedCert struct {
+    gorm.Model
+    Cn            string  `json:"cn""`
+    Mail          string  `json:"mail"`
+    Ca            CA
+    CaID          uint    `json:"caid,string"`
+    StreetAddress string  `json:"street_address,omitempty"`
+    Organisation  string  `json:"organisation,omitempty"`
+    Country       string  `json:"country,omitempty"`
+    State         string  `json:"state,omitempty"`
+    Locality      string  `json:"locality,omitempty"`
+    PostalCode    string  `json:"postal_code,omitempty"`
+    Key           string  `gorm:"type:longtext"`
+    Cert          string  `json:"publickey,omitempty" gorm:"type:longtext"`
+    Profile       Profile
+    ProfileID     uint    `json:"profile_id,string"`
+    ProfileName   string  `json:"profile_name,omitempty"`
+    ValidUntil    time.Time `json:"valid_until,omitempty"`
+    Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+    Revoked       time.Time `json:"revoked,omitempty"`
+    CRLReason     int `json:"crl_reason,omitempty"`
+    SerialNumber  string `json:"serial_number,omitempty"`
+  }
+)
 
 func (c CA) new(pfpki *Handler) (Info, error) {
 	// Create the table on the fly.
@@ -258,6 +259,7 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
+/*
 func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var cadb []CA
@@ -269,6 +271,51 @@ func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information.Entries = cadb
 
 	return Information, nil
+}
+*/
+
+func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
+	Information := Info{}
+	var cadb []CA
+	if val, ok := params["id"]; ok {
+    jsonFields := strings.Join(jsonFields(c)[:], ",")
+    saneFields := sanitizeFields(jsonFields, c)
+		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&cadb)
+	}
+	Information.Entries = cadb
+
+	return Information, nil
+}
+
+func (c CA) paginated(pfpki *Handler, query Query) (Info, error) {
+  Information := Info{}
+	var count int
+  pfpki.DB.Model(&CA{}).Count(&count)
+  Information.TotalCount = count
+	var cadb []CA
+  Information.PrevCursor = query.Cursor
+  if query.Cursor < count {
+    pfpki.DB.Select(query.Fields).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&cadb)
+    Information.Entries = cadb
+  }
+  Information.NextCursor = query.Cursor + query.Limit
+  return Information, nil
+}
+
+func (c CA) search(pfpki *Handler, query Query) (Info, error) {
+  Information := Info{}
+	var count int
+  where := query.Query.Where()
+  pfpki.DB.Model(&CA{}).Where(where.Query, where.Values...).Count(&count)
+  Information.TotalCount = count
+	var cadb []CA
+  Information.PrevCursor = query.Cursor
+  if query.Cursor < count {
+    pfpki.DB.Select(query.Fields).Where(where.Query, where.Values...).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&cadb)
+    Information.Entries = cadb
+  }
+  Information.NextCursor = query.Cursor + query.Limit
+  return Information, nil
 }
 
 // func (c *CA) save() {
@@ -321,6 +368,7 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
+/*
 func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var profiledb []Profile
@@ -332,6 +380,51 @@ func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information.Entries = profiledb
 
 	return Information, nil
+}
+*/
+
+func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error) {
+	Information := Info{}
+	var profiledb []Profile
+	if val, ok := params["id"]; ok {
+    jsonFields := strings.Join(jsonFields(p)[:], ",")
+    saneFields := sanitizeFields(jsonFields, p)
+		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&profiledb)
+	}
+	Information.Entries = profiledb
+
+	return Information, nil
+}
+
+func (p Profile) paginated(pfpki *Handler, query Query) (Info, error) {
+  Information := Info{}
+	var count int
+  pfpki.DB.Model(&Profile{}).Count(&count)
+  Information.TotalCount = count
+	var profiledb []Profile
+  Information.PrevCursor = query.Cursor
+  if query.Cursor < count {
+    pfpki.DB.Select(query.Fields).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&profiledb)
+    Information.Entries = profiledb
+  }
+  Information.NextCursor = query.Cursor + query.Limit
+  return Information, nil
+}
+
+func (p Profile) search(pfpki *Handler, query Query) (Info, error) {
+  Information := Info{}
+	var count int
+  where := query.Query.Where()
+  pfpki.DB.Model(&Profile{}).Where(where.Query, where.Values...).Count(&count)
+  Information.TotalCount = count
+	var profiledb []Profile
+  Information.PrevCursor = query.Cursor
+  if query.Cursor < count {
+    pfpki.DB.Select(query.Fields).Where(where.Query, where.Values...).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&profiledb)
+    Information.Entries = profiledb
+  }
+  Information.NextCursor = query.Cursor + query.Limit
+  return Information, nil
 }
 
 func (c Cert) new(pfpki *Handler) (Info, error) {
@@ -417,6 +510,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
+/*
 func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var certdb []Cert
@@ -430,6 +524,51 @@ func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
 	Information.Entries = certdb
 
 	return Information, nil
+}
+*/
+
+func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
+	Information := Info{}
+	var certdb []Cert
+	if val, ok := params["id"]; ok {
+    jsonFields := strings.Join(jsonFields(c)[:], ",")
+    saneFields := sanitizeFields(jsonFields, c)
+		pfpki.DB.Select(saneFields).First(&certdb, val)
+	}
+	Information.Entries = certdb
+
+	return Information, nil
+}
+
+func (c Cert) paginated(pfpki *Handler, query Query) (Info, error) {
+  Information := Info{}
+	var count int
+  pfpki.DB.Model(&Cert{}).Count(&count)
+  Information.TotalCount = count
+	var certdb []Cert
+  Information.PrevCursor = query.Cursor
+  if query.Cursor < count {
+    pfpki.DB.Select(query.Fields).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&certdb)
+    Information.Entries = certdb
+  }
+  Information.NextCursor = query.Cursor + query.Limit
+  return Information, nil
+}
+
+func (c Cert) search(pfpki *Handler, query Query) (Info, error) {
+  Information := Info{}
+	var count int
+  where := query.Query.Where()
+  pfpki.DB.Model(&Cert{}).Where(where.Query, where.Values...).Count(&count)
+  Information.TotalCount = count
+	var certdb []Cert
+  Information.PrevCursor = query.Cursor
+  if query.Cursor < count {
+    pfpki.DB.Select(query.Fields).Where(where.Query, where.Values...).Order(query.Sort).Offset(query.Cursor).Limit(query.Limit).Find(&certdb)
+    Information.Entries = certdb
+  }
+  Information.NextCursor = query.Cursor + query.Limit
+  return Information, nil
 }
 
 func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {

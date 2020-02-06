@@ -23,13 +23,38 @@ func init() {
 	})
 }
 
-// Handler struct
-type Handler struct {
-	Next   httpserver.Handler
-	router *mux.Router
-	DB     *gorm.DB
-	Ctx    context.Context
-}
+type (
+  // Handler struct
+  Handler struct {
+    Next   httpserver.Handler
+    router *mux.Router
+    DB     *gorm.DB
+    Ctx    context.Context
+  }
+
+  // Query struct
+  Query struct {
+    Cursor int    `schema:"cursor" json:"cursor" default:"0"`
+    Limit  int    `schema:"limit" json:"limit" default:"100"`
+    Fields string `schema:"fields" json:"fields" default:"id"`
+    Sort   string `schema:"sort" json:"sort" default:"id asc"`
+    Query  Search `schema:"query" json:"query"`
+  }
+
+  // Search struct
+  Search struct {
+    Field  string      `schema:"field" json:"field,omitempty"`
+    Op     string      `schema:"op" json:"op"`
+    Value  interface{} `schema:"value" json:"value,omitempty"`
+    Values []Search    `schema:"values" json:"values,omitempty"`
+  }
+
+  // Where struct
+  Where struct {
+    Query string
+    Values []interface{}
+  }
+)
 
 // Setup the pfpki middleware
 func setup(c *caddy.Controller) error {
@@ -53,7 +78,8 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 
 	Database, err := gorm.Open("mysql", db.ReturnURI(ctx, "pf_pki"))
 	sharedutils.CheckError(err)
-	pfpki.DB = Database
+  //pfpki.DB = Database
+	pfpki.DB = Database.Debug()
 	pfpki.Ctx = ctx
 
 	// Default http timeout
@@ -62,30 +88,44 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	pfpki.router = mux.NewRouter()
 	PFPki := &pfpki
 	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
+
+	// CAs list
+	api.Handle("/pki/cas", manageCA(PFPki)).Methods("GET")
+  // Search CAs
+  api.Handle("/pki/cas/search", manageCA(PFPki)).Methods("POST")
 	// New CA
 	api.Handle("/pki/ca", manageCA(PFPki)).Methods("POST")
-	// CA list
-	api.Handle("/pki/ca", manageCA(PFPki)).Methods("GET")
-	// Get CA
+	// Get CA by ID
 	api.Handle("/pki/ca/{id}", manageCA(PFPki)).Methods("GET")
 
+	// Profiles list
+	api.Handle("/pki/profiles", manageProfile(PFPki)).Methods("GET")
+  // Search Profiles
+  api.Handle("/pki/profiles/search", manageProfile(PFPki)).Methods("POST")
 	// New Profile
 	api.Handle("/pki/profile", manageProfile(PFPki)).Methods("POST")
-	// Profile list
-	api.Handle("/pki/profile", manageProfile(PFPki)).Methods("GET")
-	// Get Profile
+	// Get Profile by ID
 	api.Handle("/pki/profile/{id}", manageProfile(PFPki)).Methods("GET")
 
-	// New Certificate
-	api.Handle("/pki/cert", manageCert(PFPki)).Methods("POST")
 	// Certificate list
-	api.Handle("/pki/cert", manageCert(PFPki)).Methods("GET")
-	// Get Certificate by cn
-	api.Handle("/pki/cert/{cn}", manageCert(PFPki)).Methods("GET")
+	api.Handle("/pki/certs", manageCert(PFPki)).Methods("GET")
+  // Search Certificates
+  api.Handle("/pki/certs/search", manageCert(PFPki)).Methods("POST")
+  // New Certificate
+	api.Handle("/pki/cert", manageCert(PFPki)).Methods("POST")
+	// Get Certificate by ID
+	api.Handle("/pki/cert/{id}", manageCert(PFPki)).Methods("GET")
+  // Download Certificate
+  api.Handle("/pki/cert/{id}/download/{password}", manageCert(PFPki)).Methods("GET")
+  // Get Certificate by email
+  api.Handle("/pki/cert/{id}/email", manageCert(PFPki)).Methods("GET")
+  // Revoke Certificate
+  api.Handle("/pki/cert/{id}/{reason}", manageCert(PFPki)).Methods("DELETE")
+
+  /*
 	api.Handle("/pki/cert/getbycn/{cn}", manageCert(PFPki)).Methods("GET")
 	// Get Certificate by id
 	api.Handle("/pki/cert/getbyid/{id}", manageCert(PFPki)).Methods("GET")
-
 	// Get Certificate by email
 	api.Handle("/pki/certmgmt/{cn}", manageCert(PFPki)).Methods("GET")
 	// Download Certificate
@@ -98,9 +138,9 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	api.Handle("/pki/certmgmt/getbycn/{cn}", manageCert(PFPki)).Methods("GET")
 	// Download Certificate
 	api.Handle("/pki/certmgmt/getbycn/{cn}/{password}", manageCert(PFPki)).Methods("GET")
-
 	// Revoke Certificate
 	api.Handle("/pki/cert/{cn}/{reason}", manageCert(PFPki)).Methods("DELETE")
+  */
 
 	// OCSP responder
 	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")
