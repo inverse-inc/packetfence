@@ -909,6 +909,11 @@ statsd_listen_port = 8125
 # Execution timeout for pfperl-api
 pfperl_api_timeout = 600
 
+# advanced.configurator
+#
+# Enable the Configurator and the Configurator API
+configurator = enabled
+
 [provisioning]
 #
 # provisioning.autoconfig
