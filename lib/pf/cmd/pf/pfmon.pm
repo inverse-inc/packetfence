@@ -106,6 +106,7 @@ sub _run {
     my $params = $self->{params};
     my $task = pf::factory::pfmon::task->new($task_id, $params);
     $task->run();
+    print "task $task_id finished\n"; 
     return $EXIT_SUCCESS;
 }
 
