@@ -52,7 +52,6 @@ export default class SearchableStore {
   }
 
   module () {
-    let _this = this
     const state = () => {
       return {
         results: [], // search results
@@ -63,11 +62,11 @@ export default class SearchableStore {
         searchStatus: '',
         searchFields: [],
         searchQuery: null,
-        searchSortBy: _this.defaultSortKeys[0],
-        searchSortDesc: _this.defaultSortDesc,
+        searchSortBy: this.defaultSortKeys[0],
+        searchSortDesc: this.defaultSortDesc,
         searchMaxPageNumber: 1,
-        searchPageSize: localStorage.getItem(_this.storage_search_limit_key) || _this.pageSizeLimit,
-        visibleColumns: JSON.parse(localStorage.getItem(_this.storage_visible_columns_key)) || false
+        searchPageSize: localStorage.getItem(this.storage_search_limit_key) || this.pageSizeLimit,
+        visibleColumns: JSON.parse(localStorage.getItem(this.storage_visible_columns_key)) || false
       }
     }
 
@@ -88,7 +87,7 @@ export default class SearchableStore {
         commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
       },
       setSearchPageSize: ({ commit }, limit) => {
-        localStorage.setItem(_this.storage_search_limit_key, limit)
+        localStorage.setItem(this.storage_search_limit_key, limit)
         commit('SEARCH_LIMIT_UPDATED', limit)
         commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
       },
@@ -98,7 +97,7 @@ export default class SearchableStore {
         commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
       },
       setVisibleColumns: ({ commit }, columns) => {
-        localStorage.setItem(_this.storage_visible_columns_key, JSON.stringify(columns))
+        localStorage.setItem(this.storage_visible_columns_key, JSON.stringify(columns))
         commit('VISIBLE_COLUMNS_UPDATED', columns)
       },
       search: ({ state, commit }, page) => {
@@ -112,7 +111,7 @@ export default class SearchableStore {
           },
           ...state.extraFields
         }
-        let apiPromise = state.searchQuery ? _this.api.search(Object.assign(body, { query: state.searchQuery })) : _this.api.all(body)
+        let apiPromise = state.searchQuery ? this.api.search(Object.assign(body, { query: state.searchQuery })) : this.api.all(body)
         if (state.searchStatus !== types.LOADING) {
           commit('SEARCH_REQUEST')
           return new Promise((resolve, reject) => {
@@ -151,7 +150,7 @@ export default class SearchableStore {
           return Promise.resolve(state.cache[id])
         }
         commit('ITEM_REQUEST')
-        return _this.api.item(id).then(data => {
+        return this.api.item(id).then(data => {
           commit('ITEM_REPLACED', data)
           return state.cache[id]
         }).catch(err => {
@@ -192,10 +191,12 @@ export default class SearchableStore {
       SEARCH_SUCCESS: (state, response) => {
         state.searchStatus = types.SUCCESS
         if (response) {
-          response.items = response.items || []
-          Vue.set(state, 'results', [ ...response.items.filter(item => item.not_sortable), ...response.items.filter(item => !item.not_sortable) ])
-          let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
-          if (nextPage > state.searchMaxPageNumber) {
+          const { items = [], nextCursor, total_count: totalCount } = response
+          Vue.set(state, 'results', [ ...(items || []).filter(item => item.not_sortable), ...(items || []).filter(item => !item.not_sortable) ])
+          let nextPage = Math.floor(nextCursor / state.searchPageSize) + 1
+          if (totalCount) {
+            state.searchMaxPageNumber = Math.ceil(totalCount / state.searchPageSize)
+          } else if (nextPage > state.searchMaxPageNumber) {
             state.searchMaxPageNumber = nextPage
           }
         }
