@@ -781,14 +781,14 @@ export default {
    * PKI
    */
   pkiCas: () => {
-    return apiCall.get('pki/ca').then(response => {
-      const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+    return apiCall.get('pki/cas').then(response => {
+      const { data: { result: { 0: { items = [] } = {} } = {} } = {} } = response
       return { items }
     })
   },
   pkiCa: id => {
     return apiCall.get(['pki', 'ca', id]).then(response => {
-      const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+      const { data: { result: { 0: { items: { 0: item = {} } = {} } = {} } = {} } = {} } = response
       return item
     })
   },
@@ -798,20 +798,20 @@ export default {
       if (error) {
         throw error
       } else {
-        const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+        const { data: { result: { 0: { items: { 0: item = {} } = {} } = {} } = {} } = {} } = response
         return item
       }
     })
   },
   pkiProfiles: () => {
-    return apiCall.get('pki/profile').then(response => {
-      const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+    return apiCall.get('pki/profiles').then(response => {
+      const { data: { result: { 0: { items = [] } = {} } = {} } = {} } = response
       return { items }
     })
   },
   pkiProfile: id => {
     return apiCall.get(['pki', 'profile', id]).then(response => {
-      const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+      const { data: { result: { 0: { items: { 0: item = {} } = {} } = {} } = {} } = {} } = response
       return item
     })
   },
@@ -821,20 +821,20 @@ export default {
       if (error) {
         throw error
       } else {
-        const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+        const { data: { result: { 0: { items: { 0: item = {} } = {} } = {} } = {} } = {} } = response
         return item
       }
     })
   },
   pkiCerts: () => {
-    return apiCall.get('pki/cert').then(response => {
-      const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+    return apiCall.get('pki/certs').then(response => {
+      const { data: { result: { 0: { items = [] } = {} } = {} } = {} } = response
       return { items }
     })
   },
   pkiCert: id => {
-    return apiCall.get(['pki', 'cert', 'getbyid', id]).then(response => {
-      const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+    return apiCall.get(['pki', 'cert', id]).then(response => {
+      const { data: { result: { 0: { items: { 0: item = {} } = {} } = {} } = {} } = {} } = response
       return item
     })
   },
@@ -844,19 +844,19 @@ export default {
       if (error) {
         throw error
       } else {
-        const { data: { result: { 0: { Entries: { 0: item = {} } = {} } = {} } = {} } = {} } = response
+        const { data: { result: { 0: { items: { 0: item = {} } = {} } = {} } = {} } = {} } = response
         return item
       }
     })
   },
   downloadPkiCert: data => {
     const { id, password } = data
-    return apiCall.getArrayBuffer(['pki', 'certmgmt', 'getbyid', id, password]).then(response => {
+    return apiCall.getArrayBuffer(['pki', 'cert', id, 'download', password]).then(response => {
       return response.data
     })
   },
-  emailPkiCert: cn => {
-    return apiCall.get(['pki', 'certmgmt', cn]).then(response => {
+  emailPkiCert: id => {
+    return apiCall.get(['pki', 'cert', id, 'email']).then(response => {
       const { data: { result: { 0: { error } = {} } = {} } = {} } = response
       if (error) {
         throw error

@@ -114,13 +114,13 @@ const api = {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
   getPkiCas () {
-    return apiCall({ url: 'pki/ca', method: 'get' })
+    return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
   },
   getPkiProfiles () {
-    return apiCall({ url: 'pki/profile', method: 'get' })
+    return apiCall({ url: 'pki/profiles', method: 'get', params: { limit: 1000 } })
   },
   getPkiCerts () {
-    return apiCall({ url: 'pki/cert', method: 'get' })
+    return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
   },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
@@ -1121,7 +1121,7 @@ const actions = {
     if (!state.pkiCas) {
       commit('PKI_CAS_REQUEST')
       return api.getPkiCas().then(response => {
-        const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+        const { data: { result: { 0: { items = [] } = {} } = {} } = {} } = response
         commit('PKI_CAS_UPDATED', items)
         return state.pkiCas
       })
@@ -1136,7 +1136,7 @@ const actions = {
     if (!state.pkiProfiles) {
       commit('PKI_PROFILES_REQUEST')
       return api.getPkiProfiles().then(response => {
-        const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+        const { data: { result: { 0: { items = [] } = {} } = {} } = {} } = response
         commit('PKI_PROFILES_UPDATED', items)
         return state.pkiProfiles
       })
@@ -1151,7 +1151,7 @@ const actions = {
     if (!state.pkiCerts) {
       commit('PKI_CERTS_REQUEST')
       return api.getPkiCerts().then(response => {
-        const { data: { result: { 0: { Entries: items = [] } = {} } = {} } = {} } = response
+        const { data: { result: { 0: { items = [] } = {} } = {} } = {} } = response
         commit('PKI_CERTS_UPDATED', items)
         return state.pkiCerts
       })
