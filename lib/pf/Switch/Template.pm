@@ -21,6 +21,7 @@ use pf::util qw(isenabled);
 use List::MoreUtils qw(uniq);
 use pf::constants::role qw($REJECT_ROLE);
 use pf::access_filter::radius;
+use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::roles::custom;
 use pf::mini_template;
 use pf::SwitchSupports qw(
