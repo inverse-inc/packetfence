@@ -490,7 +490,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.' => $ZERO_DATE,
+                '%2$s.end_time' => $ZERO_DATE,
             },
         },
         'locationlog',
@@ -498,7 +498,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.' => [$ZERO_DATE, { ">", \'NOW()'}],
+                '%2$s.end_time' => [$ZERO_DATE, { ">", \'NOW()'}],
             },
         },
         'ip4log'
