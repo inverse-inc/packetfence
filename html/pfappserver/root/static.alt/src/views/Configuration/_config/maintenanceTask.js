@@ -164,7 +164,7 @@ export const viewFields = {
   delete_window: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Delete window'),
-      text: i18n.t(`How long can an unregistered node be inactive on the network before being deleted.\nThis shouldn't be used if you are using port-security.`),
+      text: i18n.t(`How long can an unregistered node be inactive before being deleted.\nThis shouldn't be used if you are using port-security.`),
       cols: [
         {
           namespace: 'delete_window.interval',
@@ -326,7 +326,7 @@ export const viewFields = {
   unreg_window: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Unreg window'),
-      text: i18n.t('How long can a registered node be inactive on the network before it becomes unregistered.'),
+      text: i18n.t('How long can a registered node be inactive before it becomes unregistered.'),
       cols: [
         {
           namespace: 'unreg_window.interval',

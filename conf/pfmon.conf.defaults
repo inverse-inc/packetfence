@@ -333,12 +333,12 @@ interval=60s
 #
 # window
 #
-# How long to keep an inactive node before deleting it
+# How long can an unregistered node be inactive before being deleted
 delete_window=0D
 #
 # unreg_window
 #
-# How long to keep an inactive node before unregistering it
+# How long can a registered node be inactive before it becomes unregistered
 unreg_window=0D
 #
 # voip
