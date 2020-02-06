@@ -4,6 +4,7 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -15,8 +16,7 @@ import {
   required,
   minValue,
   email,
-  maxLength,
-  minLength
+  maxLength
 } from 'vuelidate/lib/validators'
 import {
   digests,
@@ -58,6 +58,73 @@ export const columns = [
     locked: true
   }
 ]
+
+export const fields = [
+  {
+    value: 'ID',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'cn',
+    text: i18n.t('Common Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'mail',
+    text: i18n.t('Email'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'organisation',
+    text: i18n.t('Organisation'),
+    types: [conditionType.SUBSTRING]
+  }
+]
+
+export const config = () => {
+  return {
+    columns,
+    fields,
+    rowClickRoute (item) {
+      return { name: 'pkiCa', params: { id: item.ID } }
+    },
+    searchPlaceholder: i18n.t('Search by identifier, common name, email or organisation'),
+    searchableOptions: {
+      searchApiEndpoint: 'pki/cas',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'cn', op: 'contains', value: null },
+            { field: 'mail', op: 'contains', value: null },
+            { field: 'organisation', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'pkiCas' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'cn', op: 'contains', value: quickCondition },
+              { field: 'mail', op: 'contains', value: quickCondition },
+              { field: 'organisation', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const decomposeCa = (item) => {
   const { key_usage = null, extended_key_usage = null } = item

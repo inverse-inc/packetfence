@@ -1,23 +1,21 @@
 <template>
-  <b-card>
-    <h4 class="mb-3">{{ $t('Certificate Authorities') }}</h4>
-    <b-row align-h="end" align-v="start" class="mb-3">
-      <b-col>
+  <b-card no-body>
+    <pf-config-list
+      :config="config"
+    >
+      <template v-slot:pageHeader>
+        <b-card-header>
+          <h4 class="mb-0">{{ $t('Certificate Authorities') }}</h4>
+        </b-card-header>
+      </template>
+      <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newPkiCa' }">{{ $t('New Certificate Authority') }}</b-button>
         <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
-      </b-col>
-    </b-row>
-    <b-table
-      :items="cas"
-      :fields="columns"
-      @row-clicked="onRowClick"
-      hover
-      striped
-    >
-      <template v-slot:empty>
-        <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new Certificate Authority.')">{{ $t('No certificate authorities defined') }}</pf-empty-table>
       </template>
-      <template v-slot:cell(buttons)="{ item }">
+      <template v-slot:emptySearch="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No certificate authorities found') }}</pf-empty-table>
+      </template>
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clipboard(item)">
@@ -26,40 +24,31 @@
           <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'newPkiProfile', params: { ca_id: item.ID } }">{{ $t('New Profile') }}</b-button>
         </span>
       </template>
-    </b-table>
+    </pf-config-list>
   </b-card>
 </template>
 
 <script>
 import pfButtonService from '@/components/pfButtonService'
+import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  columns
+  config
 } from '../_config/pki/ca'
 
 export default {
   name: 'pki-cas-list',
   components: {
     pfButtonService,
+    pfConfigList,
     pfEmptyTable
   },
   data () {
     return {
-      columns, // ../_config/pki/ca
-      cas: []
-    }
-  },
-  computed: {
-    isLoading () {
-      return this.$store.getters['$_pkis/isCaLoading']
+      config: config(this)
     }
   },
   methods: {
-    init () {
-      this.$store.dispatch('$_pkis/allCas').then(cas => {
-        this.cas = cas
-      })
-    },
     clone (item) {
       this.$router.push({ name: 'clonePkiCa', params: { id: item.ID } })
     },
@@ -75,13 +64,7 @@ export default {
           this.$store.dispatch('notification/danger', { message: this.$i18n.t('Clipboard not supported.') })
         }
       })
-    },
-    onRowClick (item) {
-      this.$router.push({ name: 'pkiCa', params: { id: item.ID } })
     }
-  },
-  created () {
-    this.init()
   }
 }
 </script>

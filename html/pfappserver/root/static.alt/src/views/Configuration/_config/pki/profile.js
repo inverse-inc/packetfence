@@ -4,6 +4,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -34,6 +35,10 @@ export const columns = [
     visible: true
   },
   {
+    key: 'ca_id',
+    required: true
+  },
+  {
     key: 'ca_name',
     label: i18n.t('Certificate Authority'),
     sortable: true,
@@ -51,6 +56,66 @@ export const columns = [
     locked: true
   }
 ]
+
+export const fields = [
+  {
+    value: 'ID',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'ca_name',
+    text: i18n.t('Certificate Authority'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'name',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  }
+]
+
+export const config = () => {
+  return {
+    columns,
+    fields,
+    rowClickRoute (item) {
+      return { name: 'pkiProfile', params: { id: item.ID } }
+    },
+    searchPlaceholder: i18n.t('Search by identifier, certificate authority or name'),
+    searchableOptions: {
+      searchApiEndpoint: 'pki/profiles',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'ca_name', op: 'contains', value: null },
+            { field: 'name', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'pkiProfiles' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'ca_name', op: 'contains', value: quickCondition },
+              { field: 'name', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const view = (form = {}, meta = {}) => {
   const {

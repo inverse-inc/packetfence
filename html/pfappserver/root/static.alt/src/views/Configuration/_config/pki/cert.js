@@ -4,6 +4,7 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -26,14 +27,24 @@ export const columns = [
     visible: true
   },
   {
-    key: 'ca_profile',
-    label: i18n.t('Certificate Authority - Profile'),
+    key: 'ca_id',
+    required: true
+  },
+  {
+    key: 'ca_name',
+    label: i18n.t('Certificate Authority'),
     sortable: true,
-    visible: true,
-    sortByFormatted: true,
-    formatter: (value, key, item) => {
-      return `${item.ca_name} - ${item.profile_name}`
-    }
+    visible: true
+  },
+  {
+    key: 'profile_id',
+    required: true
+  },
+  {
+    key: 'profile_name',
+    label: i18n.t('Profile'),
+    sortable: true,
+    visible: true
   },
   {
     key: 'cn',
@@ -53,6 +64,90 @@ export const columns = [
     locked: true
   }
 ]
+
+export const fields = [
+  {
+    value: 'ID',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'ca_id',
+    text: i18n.t('Certificate Authority Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'ca_name',
+    text: i18n.t('Certificate Authority Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'profile_id',
+    text: i18n.t('Profile Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'profile_name',
+    text: i18n.t('Profile Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'cn',
+    text: i18n.t('Common Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'mail',
+    text: i18n.t('Email'),
+    types: [conditionType.SUBSTRING]
+  }
+]
+
+export const config = () => {
+  return {
+    columns,
+    fields,
+    rowClickRoute (item) {
+      return { name: 'pkiCert', params: { id: item.ID } }
+    },
+    searchPlaceholder: i18n.t('Search by identifier, certificate authority, profile, common name or email'),
+    searchableOptions: {
+      searchApiEndpoint: 'pki/certs',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'ca_name', op: 'contains', value: null },
+            { field: 'profile_name', op: 'contains', value: null },
+            { field: 'cn', op: 'contains', value: null },
+            { field: 'mail', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'pkiCerts' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'ca_name', op: 'contains', value: quickCondition },
+              { field: 'profile_name', op: 'contains', value: quickCondition },
+              { field: 'cn', op: 'contains', value: quickCondition },
+              { field: 'mail', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const download = (id, password, filename='cert.p12') => {
   return new Promise((resolve, reject) => {
