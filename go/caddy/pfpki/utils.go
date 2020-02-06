@@ -116,11 +116,12 @@ func sanitizeSort(sorts string, class interface{}) string {
 	sortFields := strings.Split(sorts, ",")
 	for i := 0; i < len(sortFields); i++ {
 		s := strings.Split(sortFields[i], " ")
-		field, order := s[0], s[1]
-		if matched, _ := regexp.MatchString(`(?i)desc`, order); matched {
-			order = "DESC"
-		} else {
-			order = "ASC" // default
+		field := s[0]
+		order := "ASC" // default
+		if len(s) > 1 {
+			if matched, _ := regexp.MatchString(`(?i)desc`, s[1]); matched {
+				order = "DESC"
+			}
 		}
 		if field == "id" {
 			sane = append(sane, "`id` "+order)
