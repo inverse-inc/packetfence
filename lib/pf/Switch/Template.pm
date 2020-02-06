@@ -409,6 +409,17 @@ sub getVoipVsa {
     return (@{$attrs // []});
 }
 
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    return $SNMP::RADIUS, 'deauthenticateMacDefault';
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
