@@ -283,11 +283,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		Information.Status = "ACK"
 	}
 
-	var result = map[string][]*Info{
-		"result": {
-			&Information,
-		},
-	}
+	var result = &Information
 
 	switch ContentType := Information.ContentType; ContentType {
 
