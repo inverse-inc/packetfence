@@ -1122,7 +1122,7 @@ const actions = {
       commit('PKI_CAS_REQUEST')
       return api.getPkiCas().then(response => {
         const { data: { items = [] } = {} } = response
-        commit('PKI_CAS_UPDATED', items)
+        commit('PKI_CAS_UPDATED', items || [])
         return state.pkiCas
       })
     } else {
@@ -1137,7 +1137,7 @@ const actions = {
       commit('PKI_PROFILES_REQUEST')
       return api.getPkiProfiles().then(response => {
         const { data: { items = [] } = {} } = response
-        commit('PKI_PROFILES_UPDATED', items)
+        commit('PKI_PROFILES_UPDATED', items || [])
         return state.pkiProfiles
       })
     } else {
@@ -1152,7 +1152,7 @@ const actions = {
       commit('PKI_CERTS_REQUEST')
       return api.getPkiCerts().then(response => {
         const { data: { items = [] } = {} } = response
-        commit('PKI_CERTS_UPDATED', items)
+        commit('PKI_CERTS_UPDATED', items || [])
         return state.pkiCerts
       })
     } else {
