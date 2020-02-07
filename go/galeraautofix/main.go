@@ -9,6 +9,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/galeraautofix/mariadb"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 func main() {
@@ -16,6 +17,42 @@ func main() {
 	go seqnoReporting(ctx)
 
 	decisionLoop(ctx)
+}
+
+func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
+	log.LoggerWContext(ctx).Info("Started server to listen to sequence numbers from peers")
+	sAddr, err := net.ResolveUDPAddr("udp", ":4253")
+	sharedutils.CheckError(err)
+	serv, err := net.ListenUDP("udp", sAddr)
+	defer serv.Close()
+
+	waitUntil := time.Now().Add(2 * time.Minute)
+	serv.SetDeadline(waitUntil)
+
+	for {
+		if time.Now().After(waitUntil) {
+			log.LoggerWContext(ctx).Warn("Waited too long for peers to report their sequence number.")
+			return false
+		}
+
+		buf := make([]byte, 1024)
+		n, addr, err := serv.ReadFromUDP(buf)
+		if err != nil {
+			continue
+		}
+		handleMessage(ctx, addr.IP, buf[:n], nodes)
+
+		allReported := true
+		for _, node := range nodes.Nodes {
+			if node.Seqno == mariadb.DefaultSeqno {
+				allReported = false
+			}
+		}
+
+		if allReported {
+			return true
+		}
+	}
 }
 
 func seqnoReporting(ctx context.Context) {
@@ -43,6 +80,7 @@ func seqnoReporting(ctx context.Context) {
 			}
 			log.LoggerWContext(ctx).Debug("Reported sequence number to " + server.ManagementIp)
 			sendMessage(ctx, conn, MSG_SET_SEQNO, seqNo)
+			conn.Close()
 		}
 		time.Sleep(1 * time.Second)
 	}
@@ -96,23 +134,9 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 		}
 	}
 
-	waitUntil := time.Now().Add(2 * time.Minute)
-	for {
-		if time.Now().After(waitUntil) {
-			log.LoggerWContext(ctx).Warn("Waited too long for peers to report their sequence number.")
-			return false
-		}
-
-		allReported := true
-		for _, node := range nodes.Nodes {
-			if node.Seqno == mariadb.DefaultSeqno {
-				allReported = false
-			}
-		}
-
-		if allReported {
-			break
-		}
+	if !getSeqnoReport(ctx, nodes) {
+		log.LoggerWContext(ctx).Warn("Unable to obtain sequence number from all the cluster members")
+		return false
 	}
 
 	highestSeqnoNode := nodes.Nodes[0]
@@ -154,8 +178,8 @@ func handlePeerDBAvailable(ctx context.Context, nodes *NodeList) bool {
 	return false
 }
 
-func filterPeers(ctx context.Context, nodes *NodeList) []Node {
-	peers := []Node{}
+func filterPeers(ctx context.Context, nodes *NodeList) []*Node {
+	peers := []*Node{}
 	for _, node := range nodes.Nodes {
 		if !node.IsThisServer(ctx) {
 			peers = append(peers, node)

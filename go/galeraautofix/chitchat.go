@@ -15,7 +15,7 @@ const (
 	MSG_SET_SEQNO = "set_seqno"
 )
 
-var handlers = map[string]func(ctx context.Context, message MessageInbound) error{
+var handlers = map[string]func(context.Context, net.IP, MessageInbound, *NodeList) error{
 	MSG_SET_SEQNO: handleMsgSetSeqno,
 }
 
@@ -39,13 +39,11 @@ func sendMessage(ctx context.Context, conn net.Conn, t string, payload interface
 		return err
 	}
 
-	handleMessage(ctx, jsonPayload)
-
-	fmt.Fprint(conn, jsonPayload)
+	conn.Write(jsonPayload)
 	return nil
 }
 
-func handleMessage(ctx context.Context, from net.IP, payload []byte) error {
+func handleMessage(ctx context.Context, from net.IP, payload []byte, nodes *NodeList) error {
 	message := MessageInbound{}
 	err := json.Unmarshal(payload, &message)
 	if err != nil {
@@ -53,7 +51,7 @@ func handleMessage(ctx context.Context, from net.IP, payload []byte) error {
 	}
 
 	if f, ok := handlers[message.Type]; ok {
-		return f(ctx, from, message)
+		return f(ctx, from, message, nodes)
 	} else {
 		err := "No handler for message type: " + message.Type
 		log.LoggerWContext(ctx).Error(err)
@@ -66,14 +64,15 @@ func handleMsgSetSeqno(ctx context.Context, from net.IP, message MessageInbound,
 	err := json.Unmarshal(message.Args, &seqno)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Unable to parse the sequence number from the message: " + err.Error())
-		return ctx, err
+		return err
 	}
 
 	for _, node := range nodes.Nodes {
-		if node.IP == from {
+		if node.IP.String() == from.String() {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Recording sequence number %d for %s", seqno, node.IP))
+			node.Seqno = seqno
 		}
 	}
 
-	return ctx, nil
+	return nil
 }

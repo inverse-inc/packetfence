@@ -6,6 +6,7 @@ import (
 	"net"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -68,14 +69,19 @@ func WsrepRecover(ctx context.Context) error {
 
 func GetSeqno(ctx context.Context) (int, error) {
 	cmd := exec.Command(`bash`, `-c`, `grep seqno: /var/lib/mysql/grastate.dat | grep -oP '\-?[0-9]+'`)
-	err := cmd.Run()
+	out, err := cmd.Output()
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Unable to obtain sequence number (seqno) from /var/lib/mysql/grastate.dat: " + err.Error())
 		return DefaultSeqno, err
 	}
+	outStr := strings.TrimSuffix(string(out), "\n")
+	intResult, err := strconv.Atoi(outStr)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to parse sequence number '%s' from /var/lib/mysql/grastate.dat: %s", outStr, err.Error()))
+		return DefaultSeqno, err
+	}
 
-	//TODO: handle the output and extract the seqno
-	return RunningSeqno, nil
+	return intResult, nil
 }
 
 func IsLocalDBAvailable(ctx context.Context) bool {

@@ -16,17 +16,17 @@ import (
 
 type NodeList struct {
 	sync.RWMutex
-	Nodes []Node
+	Nodes []*Node
 }
 
 func NewNodeList() *NodeList {
 	return &NodeList{
 		RWMutex: sync.RWMutex{},
-		Nodes:   []Node{},
+		Nodes:   []*Node{},
 	}
 }
 
-func (nl *NodeList) AddNode(node Node) {
+func (nl *NodeList) AddNode(node *Node) {
 	nl.Lock()
 	defer nl.Unlock()
 	nl.Nodes = append(nl.Nodes, node)
@@ -44,8 +44,8 @@ type Node struct {
 	Stats    NodeStats
 }
 
-func NewNode(ip net.IP, hostname string) Node {
-	return Node{
+func NewNode(ip net.IP, hostname string) *Node {
+	return &Node{
 		IP:       ip,
 		Hostname: hostname,
 		Seqno:    mariadb.DefaultSeqno,
@@ -78,7 +78,7 @@ func (n *Node) IsPingable(ctx context.Context) bool {
 }
 
 func (n *Node) IsDBAvailable(ctx context.Context) bool {
-	conn, err := net.Dial("tcp", n.IP.String()+":3306")
+	conn, err := net.DialTimeout("tcp", n.IP.String()+":3306", 2*time.Second)
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("The database on node %s is not available right now: %s", n.IP.String(), err.Error()))
 		return false
