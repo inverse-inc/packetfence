@@ -14,7 +14,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"math/big"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -258,7 +257,6 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 	pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", c.Cn).First(&newcadb)
 	Information.Entries = newcadb
-	Information.Status = http.StatusCreated
 
 	return Information, nil
 }
@@ -287,7 +285,6 @@ func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
 		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&cadb)
 	}
 	Information.Entries = cadb
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -304,7 +301,6 @@ func (c CA) paginated(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = cadb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -322,7 +318,6 @@ func (c CA) search(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = cadb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -374,7 +369,6 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	}
 	pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
-	Information.Status = http.StatusCreated
 
 	return Information, nil
 }
@@ -403,7 +397,6 @@ func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error)
 		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&profiledb)
 	}
 	Information.Entries = profiledb
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -420,7 +413,6 @@ func (p Profile) paginated(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = profiledb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -438,7 +430,6 @@ func (p Profile) search(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = profiledb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -523,7 +514,6 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	}
 	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
 	Information.Entries = newcertdb
-	Information.Status = http.StatusCreated
 
 	return Information, nil
 }
@@ -554,7 +544,6 @@ func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
 		pfpki.DB.Select(saneFields).First(&certdb, val)
 	}
 	Information.Entries = certdb
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -571,7 +560,6 @@ func (c Cert) paginated(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = certdb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -589,7 +577,6 @@ func (c Cert) search(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = certdb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -662,7 +649,6 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	} else {
 		Information, err = email(cert, prof, pkcs12, password)
 	}
-	Information.Status = http.StatusOK
 
 	return Information, err
 }
@@ -703,7 +689,6 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	if err := pfpki.DB.Delete(&cert).Error; err != nil {
 		return Information, err
 	}
-	Information.Status = http.StatusOK
 
 	return Information, nil
 }

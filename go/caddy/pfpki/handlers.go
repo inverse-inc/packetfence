@@ -19,26 +19,26 @@ import (
 type (
 	// Info struct
 	Info struct {
-		Status      int    `json:"status"`
-		Password    string `json:"password"`
-		Error       string `json:"error"`
-		ContentType string
-		Raw         []byte
+		Status      int         `json:"status"`
+		Password    string      `json:"password"`
+		Error       string      `json:"error"`
+		ContentType string      `json:"contentType"`
+		Raw         []byte      `json:"raw"`
 		Entries     interface{} `json:"items"`
 		NextCursor  int         `json:"nextCursor"`
 		PrevCursor  int         `json:"prevCursor"`
 		TotalCount  int         `json:"total_count"`
 	}
+
+	// Create interface
+	Create interface {
+		new() error
+		get() error
+		revoke() error
+	}
 )
 
 var decoder = schema.NewDecoder()
-
-// Create interface
-type Create interface {
-	new() error
-	get() error
-	revoke() error
-}
 
 func manageCA(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
@@ -89,15 +89,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "POST":
 				var params PostVars
 				err := json.Unmarshal(body, &params)
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					pagination := params.Sanitize(object)
+					Information, err = v.search(pfpki, pagination)
+					Information.Status = http.StatusOK
 				}
-				pagination := params.Sanitize(object)
-				Information, err = v.search(pfpki, pagination)
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cas`).FindStringIndex(req.URL.Path)) > 0:
@@ -105,36 +105,38 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "GET":
 				var params GetVars
 				err := decoder.Decode(&params, req.URL.Query())
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					pagination := params.Sanitize(object)
+					Information, err = v.paginated(pfpki, pagination)
+					Information.Status = http.StatusOK
 				}
-				pagination := params.Sanitize(object)
-				Information, err = v.paginated(pfpki, pagination)
+
 			case "POST":
 				err = json.Unmarshal(body, &v)
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					Information, err = v.new(pfpki)
+					Information.Status = http.StatusCreated
 				}
-				Information, err = v.new(pfpki)
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/ca/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
 				Information, err = v.getById(pfpki, vars)
+				Information.Status = http.StatusOK
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
 			err = errors.New("Path not supported")
-			log.LoggerWContext(pfpki.Ctx).Info("Path not supported" + req.URL.Path)
+			Information.Status = http.StatusNotFound
 		}
 
 	case Profile:
@@ -146,15 +148,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "POST":
 				var params PostVars
 				err := json.Unmarshal(body, &params)
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					pagination := params.Sanitize(object)
+					Information, err = v.search(pfpki, pagination)
+					Information.Status = http.StatusOK
 				}
-				pagination := params.Sanitize(object)
-				Information, err = v.search(pfpki, pagination)
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/profiles`).FindStringIndex(req.URL.Path)) > 0:
@@ -162,36 +164,38 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "GET":
 				var params GetVars
 				err := decoder.Decode(&params, req.URL.Query())
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					pagination := params.Sanitize(object)
+					Information, err = v.paginated(pfpki, pagination)
+					Information.Status = http.StatusOK
 				}
-				pagination := params.Sanitize(object)
-				Information, err = v.paginated(pfpki, pagination)
+
 			case "POST":
 				err = json.Unmarshal(body, &v)
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					Information, err = v.new(pfpki)
+					Information.Status = http.StatusCreated
 				}
-				Information, err = v.new(pfpki)
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/profile/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
 				Information, err = v.getById(pfpki, vars)
+				Information.Status = http.StatusOK
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
 			err = errors.New("Path not supported")
-			log.LoggerWContext(pfpki.Ctx).Info("Path not supported")
+			Information.Status = http.StatusNotFound
 		}
 
 	case Cert:
@@ -203,15 +207,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "POST":
 				var params PostVars
 				err := json.Unmarshal(body, &params)
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					pagination := params.Sanitize(object)
+					Information, err = v.search(pfpki, pagination)
+					Information.Status = http.StatusOK
 				}
-				pagination := params.Sanitize(object)
-				Information, err = v.search(pfpki, pagination)
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/certs`).FindStringIndex(req.URL.Path)) > 0:
@@ -219,74 +223,88 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "GET":
 				var params GetVars
 				err := decoder.Decode(&params, req.URL.Query())
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					pagination := params.Sanitize(object)
+					Information, err = v.paginated(pfpki, pagination)
+					Information.Status = http.StatusOK
 				}
-				pagination := params.Sanitize(object)
-				Information, err = v.paginated(pfpki, pagination)
+
 			case "POST":
 				err = json.Unmarshal(body, &v)
-				if err != nil {
-					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-					panic(err)
+				if err == nil {
+					Information, err = v.new(pfpki)
+					Information.Status = http.StatusCreated
 				}
-				Information, err = v.new(pfpki)
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
 				Information, err = v.getById(pfpki, vars)
+				Information.Status = http.StatusOK
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+/download/.*$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
 				Information, err = v.download(pfpki, vars)
+				Information.Status = http.StatusOK
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+/email$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
 				Information, err = v.download(pfpki, vars)
+				Information.Status = http.StatusOK
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "DELETE":
 				Information, err = v.revoke(pfpki, vars)
+				Information.Status = http.StatusOK
+
 			default:
 				err = errors.New("Method not supported")
-				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
+				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
 			err = errors.New("Path not supported")
-			log.LoggerWContext(pfpki.Ctx).Info("Path not supported")
+			Information.Status = http.StatusNotFound
 		}
 
 	default:
 		err = errors.New("Type not supported")
+		Information.Status = http.StatusNotFound
 	}
 
 	if err != nil {
 		Information.Error = err.Error()
+		log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 	}
 
-	var result = &Information
+	/*
+		if Information.Entries == nil {
+			Information.Entries = make([]string, 0)
+		}
+	*/
 
 	switch ContentType := Information.ContentType; ContentType {
 
@@ -299,7 +317,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	default:
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		res.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(res).Encode(result); err != nil {
+		if err := json.NewEncoder(res).Encode(&Information); err != nil {
 			panic(err)
 		}
 	}

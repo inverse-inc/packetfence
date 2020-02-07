@@ -2,7 +2,6 @@ package pfpki
 
 import (
 	"crypto/tls"
-	"fmt"
 	"io"
 	"reflect"
 	"regexp"
@@ -40,17 +39,17 @@ func email(cert Cert, profile Profile, file []byte, password string) (Info, erro
 }
 
 func (params PostVars) Sanitize(class interface{}) GetVars {
-	var sane GetVars
-	sane.Cursor = params.Cursor
-	sane.Limit = params.Limit
+	var normalized GetVars
+	normalized.Cursor = params.Cursor
+	normalized.Limit = params.Limit
 	if len(params.Sort) > 0 {
-		sane.Sort = strings.Join(params.Sort[:], ",")
+		normalized.Sort = strings.Join(params.Sort[:], ",")
 	}
 	if len(params.Fields) > 0 {
-		sane.Fields = strings.Join(params.Fields[:], ",")
+		normalized.Fields = strings.Join(params.Fields[:], ",")
 	}
-	sane.Query = params.Query
-	return sane.Sanitize(class)
+	normalized.Query = params.Query
+	return normalized.Sanitize(class)
 }
 
 func (params GetVars) Sanitize(class interface{}) GetVars {
@@ -182,63 +181,4 @@ func sanitizeQuery(search Search, class interface{}) Search {
 		}
 	}
 	return sane
-}
-
-func (search Search) Where() Where {
-	var where Where
-	if len(search.Values) > 0 {
-		if len(search.Values) == 1 {
-			return search.Values[0].Where()
-		} else {
-			if matched, _ := regexp.MatchString(`(?i)(and|or)`, search.Op); matched {
-				query := make([]string, 0)
-				for _, value := range search.Values {
-					w := value.Where()
-					query = append(query, w.Query)
-					where.Values = append(where.Values, w.Values...)
-				}
-				switch strings.ToLower(search.Op) {
-				case "or":
-					where.Query = fmt.Sprintf("(%s)", strings.Join(query[:], " OR "))
-				case "and":
-					fallthrough
-				default:
-					where.Query = fmt.Sprintf("(%s)", strings.Join(query[:], " AND "))
-				}
-			}
-		}
-	} else {
-		switch strings.ToLower(search.Op) {
-		case "not_equals":
-			where.Query = "`" + search.Field + "` != ?"
-			where.Values = append(where.Values, search.Value)
-		case "starts_with":
-			where.Query = "`" + search.Field + "` LIKE ?"
-			where.Values = append(where.Values, search.Value.(string)+"%")
-		case "ends_with":
-			where.Query = "`" + search.Field + "` LIKE ?"
-			where.Values = append(where.Values, "%"+search.Value.(string))
-		case "contains":
-			where.Query = "`" + search.Field + "` LIKE ?"
-			where.Values = append(where.Values, "%"+search.Value.(string)+"%")
-		case "greater_than":
-			where.Query = "`" + search.Field + "` > ?"
-			where.Values = append(where.Values, search.Value)
-		case "greater_than_equals":
-			where.Query = "`" + search.Field + "` >= ?"
-			where.Values = append(where.Values, search.Value)
-		case "less_than":
-			where.Query = "`" + search.Field + "` < ?"
-			where.Values = append(where.Values, search.Value)
-		case "less_than_equals":
-			where.Query = "`" + search.Field + "` <= ?"
-			where.Values = append(where.Values, search.Value)
-		case "equals":
-			fallthrough
-		default:
-			where.Query = "`" + search.Field + "` = ?"
-			where.Values = append(where.Values, search.Value)
-		}
-	}
-	return where
 }
