@@ -401,7 +401,25 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub wiredeauthTechniques {
     my ($self, $method, $connection_type) = @_;
-    return $SNMP::RADIUS, 'deauthenticateMacDefault';
+    return $SNMP::RADIUS, 'deauthenticateMacRadius';
+}
+
+=head2 deauthenticateMacRadius
+
+Method to deauth a wired node with CoA.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = $self->logger();
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    $self->radiusDisconnect($mac );
 }
 
 =head1 AUTHOR
