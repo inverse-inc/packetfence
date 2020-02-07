@@ -96,7 +96,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				}
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -119,7 +119,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				}
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -130,12 +130,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Information.Status = http.StatusOK
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
-			err = errors.New("Path not supported")
+			err = errors.New("Path " + req.URL.Path + " not supported")
 			Information.Status = http.StatusNotFound
 		}
 
@@ -155,7 +155,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				}
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -178,7 +178,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				}
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -189,12 +189,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Information.Status = http.StatusOK
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
-			err = errors.New("Path not supported")
+			err = errors.New("Path " + req.URL.Path + " not supported")
 			Information.Status = http.StatusNotFound
 		}
 
@@ -214,7 +214,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				}
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -237,7 +237,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				}
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -248,7 +248,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Information.Status = http.StatusOK
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -259,7 +259,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Information.Status = http.StatusOK
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -270,7 +270,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Information.Status = http.StatusOK
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
@@ -281,30 +281,26 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Information.Status = http.StatusOK
 
 			default:
-				err = errors.New("Method not supported")
+				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
-			err = errors.New("Path not supported")
+			err = errors.New("Path " + req.URL.Path + " not supported")
 			Information.Status = http.StatusNotFound
 		}
 
 	default:
-		err = errors.New("Type not supported")
+		err = errors.New("Not supported")
 		Information.Status = http.StatusNotFound
 	}
 
 	if err != nil {
-		Information.Error = err.Error()
 		log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-	}
-
-	/*
-		if Information.Entries == nil {
-			Information.Entries = make([]string, 0)
+		if Information.Status >= 400 {
+			Information.Error = http.StatusText(Information.Status)
 		}
-	*/
+	}
 
 	switch ContentType := Information.ContentType; ContentType {
 
