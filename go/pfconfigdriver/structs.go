@@ -71,6 +71,7 @@ type configStruct struct {
 			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
 			PfconfigClusterNameOverlay string `val:"yes"`
 		}
+		AllServers AllClusterServers
 	}
 	Dns struct {
 		Configuration PfConfDns
@@ -509,4 +510,17 @@ type PfConfAlerting struct {
 	SMTPPort       int    `json:"smtp_port"`
 	SMTPVerifySSL  string `json:"smtp_verifyssl"`
 	SMTPServer     string `json:"smtpserver"`
+}
+
+type AllClusterServers struct {
+	StructConfig
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"resource::all_cluster_servers"`
+	PfconfigArray  string `val:"yes"`
+	Element        []ClusterServer
+}
+
+type ClusterServer struct {
+	ManagementIp string `json:"management_ip"`
+	Host         string `json:"host"`
 }
