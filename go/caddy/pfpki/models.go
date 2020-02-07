@@ -554,7 +554,7 @@ func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
 		pfpki.DB.Select(saneFields).First(&certdb, val)
 	}
 	Information.Entries = certdb
-  Information.Status = http.StatusOK
+	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -571,7 +571,7 @@ func (c Cert) paginated(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = certdb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
-  Information.Status = http.StatusOK
+	Information.Status = http.StatusOK
 
 	return Information, nil
 }
