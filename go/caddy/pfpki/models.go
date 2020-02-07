@@ -75,8 +75,8 @@ type (
 	CA struct {
 		gorm.Model
 		Cn               string                  `json:"cn" gorm:"UNIQUE"`
-		Mail             string                  `json:"mail"`
-		Organisation     string                  `json:"organisation"`
+		Mail             string                  `json:"mail" gorm:"index:mail"`
+		Organisation     string                  `json:"organisation" gorm:"index:organisation"`
 		Country          string                  `json:"country"`
 		State            string                  `json:"state"`
 		Locality         string                  `json:"locality"`
@@ -99,8 +99,8 @@ type (
 		gorm.Model
 		Name             string `json:"name" gorm:"UNIQUE"`
 		Ca               CA
-		CaID             uint                    `json:"ca_id,string"`
-		CaName           string                  `json:"ca_name"`
+		CaID             uint                    `json:"ca_id,string" gorm:"index:ca_id"`
+		CaName           string                  `json:"ca_name" gorm:"index:ca_name"`
 		Validity         int                     `json:"validity,string"`
 		KeyType          Type                    `json:"key_type,string"`
 		KeySize          int                     `json:"key_size,string"`
@@ -121,10 +121,10 @@ type (
 		Cn            string `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail          string `json:"mail,omitempty"`
 		Ca            CA
-		CaID          uint   `json:"ca_id,omitempty,string"`
-		CaName        string `json:"ca_name,omitempty"`
+		CaID          uint   `json:"ca_id,omitempty,string" gorm:"index:ca_id"`
+		CaName        string `json:"ca_name,omitempty" gorm:"index:ca_name"`
 		StreetAddress string `json:"street_address,omitempty"`
-		Organisation  string `json:"organisation,omitempty"`
+		Organisation  string `json:"organisation,omitempty" gorm:"index:organisation"`
 		Country       string `json:"country,omitempty"`
 		State         string `json:"state,omitempty"`
 		Locality      string `json:"locality,omitempty"`
@@ -132,8 +132,8 @@ type (
 		Key           string `gorm:"type:longtext"`
 		Cert          string `json:"cert,omitempty" gorm:"type:longtext"`
 		Profile       Profile
-		ProfileID     uint      `json:"profile_id,omitempty,string"`
-		ProfileName   string    `json:"profile_name,omitempty"`
+		ProfileID     uint      `json:"profile_id,omitempty,string" gorm:"index:profile_id"`
+		ProfileName   string    `json:"profile_name,omitempty" gorm:"index:profile_name"`
 		ValidUntil    time.Time `json:"valid_until,omitempty"`
 		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber  string    `json:"serial_number,omitempty"`
@@ -142,12 +142,13 @@ type (
 	// RevokedCert struct
 	RevokedCert struct {
 		gorm.Model
-		Cn            string `json:"cn""`
-		Mail          string `json:"mail"`
+		Cn            string `json:"cn" gorm:"index:cn"`
+		Mail          string `json:"mail" gorm:"index:mail"`
 		Ca            CA
-		CaID          uint   `json:"caid,string"`
+		CaID          uint   `json:"caid,string" gorm:"index:ca_id"`
+		CaName        string `json:"ca_name,omitempty" gorm:"index:ca_name"`
 		StreetAddress string `json:"street_address,omitempty"`
-		Organisation  string `json:"organisation,omitempty"`
+		Organisation  string `json:"organisation,omitempty" gorm:"index:organisation"`
 		Country       string `json:"country,omitempty"`
 		State         string `json:"state,omitempty"`
 		Locality      string `json:"locality,omitempty"`
@@ -155,8 +156,8 @@ type (
 		Key           string `gorm:"type:longtext"`
 		Cert          string `json:"publickey,omitempty" gorm:"type:longtext"`
 		Profile       Profile
-		ProfileID     uint      `json:"profile_id,string"`
-		ProfileName   string    `json:"profile_name,omitempty"`
+		ProfileID     uint      `json:"profile_id,string" gorm:"index:profile_id"`
+		ProfileName   string    `json:"profile_name,omitempty" gorm:"index:profile_name"`
 		ValidUntil    time.Time `json:"valid_until,omitempty"`
 		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		Revoked       time.Time `json:"revoked,omitempty"`
