@@ -87,7 +87,7 @@ export const pfConfigurationAuthenticationSourceListConfig = () => {
     searchPlaceholder: i18n.t('Search by name or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/sources',
-      defaultSortKeys: ['id'],
+      defaultSortKeys: [null], // use natural ordering
       defaultSearchCondition: {
         op: 'and',
         values: [{
