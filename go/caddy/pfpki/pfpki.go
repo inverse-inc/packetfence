@@ -100,28 +100,28 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 
 	// CAs list
 	api.Handle("/pki/cas", manageCA(PFPki)).Methods("GET")
+	// New CA
+	api.Handle("/pki/cas", manageCA(PFPki)).Methods("POST")
 	// Search CAs
 	api.Handle("/pki/cas/search", manageCA(PFPki)).Methods("POST")
-	// New CA
-	api.Handle("/pki/ca", manageCA(PFPki)).Methods("POST")
 	// Get CA by ID
 	api.Handle("/pki/ca/{id}", manageCA(PFPki)).Methods("GET")
 
 	// Profiles list
 	api.Handle("/pki/profiles", manageProfile(PFPki)).Methods("GET")
+	// New Profile
+	api.Handle("/pki/profiles", manageProfile(PFPki)).Methods("POST")
 	// Search Profiles
 	api.Handle("/pki/profiles/search", manageProfile(PFPki)).Methods("POST")
-	// New Profile
-	api.Handle("/pki/profile", manageProfile(PFPki)).Methods("POST")
 	// Get Profile by ID
 	api.Handle("/pki/profile/{id}", manageProfile(PFPki)).Methods("GET")
 
 	// Certificate list
 	api.Handle("/pki/certs", manageCert(PFPki)).Methods("GET")
+	// New Certificate
+	api.Handle("/pki/certs", manageCert(PFPki)).Methods("POST")
 	// Search Certificates
 	api.Handle("/pki/certs/search", manageCert(PFPki)).Methods("POST")
-	// New Certificate
-	api.Handle("/pki/cert", manageCert(PFPki)).Methods("POST")
 	// Get Certificate by ID
 	api.Handle("/pki/cert/{id}", manageCert(PFPki)).Methods("GET")
 	// Download Certificate

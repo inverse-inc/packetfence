@@ -89,10 +89,10 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				err := json.Unmarshal(body, &params)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				} else {
-					pagination := params.Sanitize(object)
-					Information, err = v.search(pfpki, pagination)
+					panic(err)
 				}
+				pagination := params.Sanitize(object)
+				Information, err = v.search(pfpki, pagination)
 			default:
 				err = errors.New("Method not supported")
 				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
@@ -105,14 +105,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				err := decoder.Decode(&params, req.URL.Query())
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				} else {
-					pagination := params.Sanitize(object)
-					Information, err = v.paginated(pfpki, pagination)
+					panic(err)
 				}
+				pagination := params.Sanitize(object)
+				Information, err = v.paginated(pfpki, pagination)
 			case "POST":
 				err = json.Unmarshal(body, &v)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+					panic(err)
 				}
 				Information, err = v.new(pfpki)
 			default:
@@ -145,10 +146,10 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				err := json.Unmarshal(body, &params)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				} else {
-					pagination := params.Sanitize(object)
-					Information, err = v.search(pfpki, pagination)
+					panic(err)
 				}
+				pagination := params.Sanitize(object)
+				Information, err = v.search(pfpki, pagination)
 			default:
 				err = errors.New("Method not supported")
 				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
@@ -161,14 +162,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				err := decoder.Decode(&params, req.URL.Query())
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				} else {
-					pagination := params.Sanitize(object)
-					Information, err = v.paginated(pfpki, pagination)
+					panic(err)
 				}
+				pagination := params.Sanitize(object)
+				Information, err = v.paginated(pfpki, pagination)
 			case "POST":
 				err = json.Unmarshal(body, &v)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+					panic(err)
 				}
 				Information, err = v.new(pfpki)
 			default:
@@ -201,10 +203,10 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				err := json.Unmarshal(body, &params)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				} else {
-					pagination := params.Sanitize(object)
-					Information, err = v.search(pfpki, pagination)
+					panic(err)
 				}
+				pagination := params.Sanitize(object)
+				Information, err = v.search(pfpki, pagination)
 			default:
 				err = errors.New("Method not supported")
 				log.LoggerWContext(pfpki.Ctx).Info("Method not supported")
@@ -217,14 +219,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				err := decoder.Decode(&params, req.URL.Query())
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				} else {
-					pagination := params.Sanitize(object)
-					Information, err = v.paginated(pfpki, pagination)
+					panic(err)
 				}
+				pagination := params.Sanitize(object)
+				Information, err = v.paginated(pfpki, pagination)
 			case "POST":
 				err = json.Unmarshal(body, &v)
 				if err != nil {
 					log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+					panic(err)
 				}
 				Information, err = v.new(pfpki)
 			default:
