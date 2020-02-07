@@ -793,7 +793,7 @@ export default {
     })
   },
   createPkiCa: data => {
-    return apiCall.post('pki/ca', data).then(response => {
+    return apiCall.post('pki/cas', data).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
@@ -816,7 +816,7 @@ export default {
     })
   },
   createPkiProfile: data => {
-    return apiCall.post('pki/profile', data).then(response => {
+    return apiCall.post('pki/profiles', data).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
@@ -839,7 +839,7 @@ export default {
     })
   },
   createPkiCert: data => {
-    return apiCall.post('pki/cert', data).then(response => {
+    return apiCall.post('pki/certs', data).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
