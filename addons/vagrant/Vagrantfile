@@ -101,10 +101,11 @@ Vagrant.configure("2") do |pfservers|
   end
   inventory['all']['children']['pfservers']['children']['dev']['hosts'].each do |server,details|
     pfservers.vm.define server do |srv|
-      # we mount PF sources in VM
+      # we mount test dir and local repo in VM
       # override to avoid issue with symlink without referent
       # see https://github.com/hashicorp/vagrant/issues/5471
-      srv.vm.synced_folder "../..", "/src", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+      srv.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+      srv.vm.synced_folder "../../public", "/src/public", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
 
       # provisioner for dev machines
       #srv.vm.provision "setup-dev-env", type: "shell", path: "../dev-helpers/setup-dev-env.sh"
