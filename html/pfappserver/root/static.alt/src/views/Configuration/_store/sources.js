@@ -28,7 +28,7 @@ const getters = {
 const actions = {
   all: ({ commit }) => {
     const params = {
-      sort: 'id',
+      sort: null, // use natural ordering
       fields: ['id', 'description', 'type', 'class'].join(',')
     }
     commit('ITEM_REQUEST')
