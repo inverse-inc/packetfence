@@ -37,8 +37,9 @@ require (
 	github.com/google/btree v1.0.0 // indirect
 	github.com/google/go-cmp v0.3.0
 	github.com/google/uuid v1.1.1
-	github.com/gorilla/mux v1.6.2
+	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/rpc v0.0.0-20160927134711-22c016f3df3f
+	github.com/gorilla/schema v1.1.0
 	github.com/gorilla/websocket v1.4.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
@@ -80,7 +81,7 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492 // indirect
 	github.com/opentracing/opentracing-go v1.1.0
-	github.com/openzipkin/zipkin-go-opentracing v0.0.0-20180123190626-6bb822a7f15f
+	github.com/openzipkin-contrib/zipkin-go-opentracing v0.3.5
 	github.com/patrickmn/go-cache v0.0.0-20170722040110-a3647f8e31d7
 	github.com/pierrec/lz4 v2.3.0+incompatible // indirect
 	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
@@ -98,6 +99,9 @@ require (
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/grpc v1.19.0
+	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
+	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+	google.golang.org/grpc v1.22.1
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
