@@ -244,7 +244,7 @@ sub handleDisconnect {
         mac => $mac,
     );
     $self->updateArgsVariablesForSet(\%args, $radiusDisconnect);
-    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, { disconnectIp => $send_disconnect_to, mac => $mac });
+    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, \%args);
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
     return perform_disconnect($connection_info, $attributes_ref, $vsa);
@@ -300,7 +300,7 @@ sub handleCoa {
         role => $role,
     );
     $self->updateArgsVariablesForSet(\%args, $radiusDisconnect);
-    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, { disconnectIp => $send_disconnect_to, mac => $mac });
+    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, \%args);
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
     return perform_coa($connection_info, $attributes_ref, $vsa);
