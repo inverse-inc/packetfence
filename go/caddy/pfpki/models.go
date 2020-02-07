@@ -14,6 +14,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"math/big"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -75,8 +76,8 @@ type (
 	CA struct {
 		gorm.Model
 		Cn               string                  `json:"cn" gorm:"UNIQUE"`
-		Mail             string                  `json:"mail" gorm:"index:mail"`
-		Organisation     string                  `json:"organisation" gorm:"index:organisation"`
+		Mail             string                  `json:"mail" gorm:"INDEX:mail"`
+		Organisation     string                  `json:"organisation" gorm:"INDEX:organisation"`
 		Country          string                  `json:"country"`
 		State            string                  `json:"state"`
 		Locality         string                  `json:"locality"`
@@ -99,8 +100,8 @@ type (
 		gorm.Model
 		Name             string `json:"name" gorm:"UNIQUE"`
 		Ca               CA
-		CaID             uint                    `json:"ca_id,string" gorm:"index:ca_id"`
-		CaName           string                  `json:"ca_name" gorm:"index:ca_name"`
+		CaID             uint                    `json:"ca_id,string" gorm:"INDEX:ca_id"`
+		CaName           string                  `json:"ca_name" gorm:"INDEX:ca_name"`
 		Validity         int                     `json:"validity,string"`
 		KeyType          Type                    `json:"key_type,string"`
 		KeySize          int                     `json:"key_size,string"`
@@ -121,10 +122,10 @@ type (
 		Cn            string `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail          string `json:"mail,omitempty"`
 		Ca            CA
-		CaID          uint   `json:"ca_id,omitempty,string" gorm:"index:ca_id"`
-		CaName        string `json:"ca_name,omitempty" gorm:"index:ca_name"`
+		CaID          uint   `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
+		CaName        string `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
 		StreetAddress string `json:"street_address,omitempty"`
-		Organisation  string `json:"organisation,omitempty" gorm:"index:organisation"`
+		Organisation  string `json:"organisation,omitempty" gorm:"INDEX:organisation"`
 		Country       string `json:"country,omitempty"`
 		State         string `json:"state,omitempty"`
 		Locality      string `json:"locality,omitempty"`
@@ -132,8 +133,8 @@ type (
 		Key           string `gorm:"type:longtext"`
 		Cert          string `json:"cert,omitempty" gorm:"type:longtext"`
 		Profile       Profile
-		ProfileID     uint      `json:"profile_id,omitempty,string" gorm:"index:profile_id"`
-		ProfileName   string    `json:"profile_name,omitempty" gorm:"index:profile_name"`
+		ProfileID     uint      `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
+		ProfileName   string    `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
 		ValidUntil    time.Time `json:"valid_until,omitempty"`
 		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber  string    `json:"serial_number,omitempty"`
@@ -142,13 +143,13 @@ type (
 	// RevokedCert struct
 	RevokedCert struct {
 		gorm.Model
-		Cn            string `json:"cn" gorm:"index:cn"`
-		Mail          string `json:"mail" gorm:"index:mail"`
+		Cn            string `json:"cn" gorm:"INDEX:cn"`
+		Mail          string `json:"mail" gorm:"INDEX:mail"`
 		Ca            CA
-		CaID          uint   `json:"caid,string" gorm:"index:ca_id"`
-		CaName        string `json:"ca_name,omitempty" gorm:"index:ca_name"`
+		CaID          uint   `json:"caid,string" gorm:"INDEX:ca_id"`
+		CaName        string `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
 		StreetAddress string `json:"street_address,omitempty"`
-		Organisation  string `json:"organisation,omitempty" gorm:"index:organisation"`
+		Organisation  string `json:"organisation,omitempty" gorm:"INDEX:organisation"`
 		Country       string `json:"country,omitempty"`
 		State         string `json:"state,omitempty"`
 		Locality      string `json:"locality,omitempty"`
@@ -156,8 +157,8 @@ type (
 		Key           string `gorm:"type:longtext"`
 		Cert          string `json:"publickey,omitempty" gorm:"type:longtext"`
 		Profile       Profile
-		ProfileID     uint      `json:"profile_id,string" gorm:"index:profile_id"`
-		ProfileName   string    `json:"profile_name,omitempty" gorm:"index:profile_name"`
+		ProfileID     uint      `json:"profile_id,string" gorm:"INDEX:profile_id"`
+		ProfileName   string    `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
 		ValidUntil    time.Time `json:"valid_until,omitempty"`
 		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		Revoked       time.Time `json:"revoked,omitempty"`
@@ -257,6 +258,8 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 	pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", c.Cn).First(&newcadb)
 	Information.Entries = newcadb
+	Information.Status = http.StatusCreated
+
 	return Information, nil
 }
 
@@ -284,6 +287,7 @@ func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
 		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&cadb)
 	}
 	Information.Entries = cadb
+	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -300,6 +304,8 @@ func (c CA) paginated(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = cadb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
+	Information.Status = http.StatusOK
+
 	return Information, nil
 }
 
@@ -316,6 +322,8 @@ func (c CA) search(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = cadb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
+	Information.Status = http.StatusOK
+
 	return Information, nil
 }
 
@@ -366,6 +374,8 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	}
 	pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
+	Information.Status = http.StatusCreated
+
 	return Information, nil
 }
 
@@ -393,6 +403,7 @@ func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error)
 		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&profiledb)
 	}
 	Information.Entries = profiledb
+	Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -409,6 +420,8 @@ func (p Profile) paginated(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = profiledb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
+	Information.Status = http.StatusOK
+
 	return Information, nil
 }
 
@@ -425,6 +438,8 @@ func (p Profile) search(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = profiledb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
+	Information.Status = http.StatusOK
+
 	return Information, nil
 }
 
@@ -508,6 +523,8 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	}
 	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
 	Information.Entries = newcertdb
+	Information.Status = http.StatusCreated
+
 	return Information, nil
 }
 
@@ -537,6 +554,7 @@ func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
 		pfpki.DB.Select(saneFields).First(&certdb, val)
 	}
 	Information.Entries = certdb
+  Information.Status = http.StatusOK
 
 	return Information, nil
 }
@@ -553,6 +571,8 @@ func (c Cert) paginated(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = certdb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
+  Information.Status = http.StatusOK
+
 	return Information, nil
 }
 
@@ -569,6 +589,8 @@ func (c Cert) search(pfpki *Handler, params GetVars) (Info, error) {
 		Information.Entries = certdb
 	}
 	Information.NextCursor = params.Cursor + params.Limit
+	Information.Status = http.StatusOK
+
 	return Information, nil
 }
 
@@ -640,6 +662,7 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	} else {
 		Information, err = email(cert, prof, pkcs12, password)
 	}
+	Information.Status = http.StatusOK
 
 	return Information, err
 }
@@ -680,5 +703,7 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	if err := pfpki.DB.Delete(&cert).Error; err != nil {
 		return Information, err
 	}
+	Information.Status = http.StatusOK
+
 	return Information, nil
 }
