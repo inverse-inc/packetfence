@@ -48,6 +48,18 @@ sub startService {
     return 1;
 }
 
+=head2
+
+generateConfig
+
+=cut
+
+sub generateConfig {
+    my $technique;
+    $technique ||= getIptablesTechnique();
+    $technique->iptables_generate();
+    return 1;
+}
 
 =head2 getIptablesTechnique
 
