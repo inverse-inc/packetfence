@@ -289,9 +289,25 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 				}
 				// Defer to the proxy middleware if the device is registered
-				if status == "reg" && !securityEvent && category != "REJECT" {
-					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
-					return pf.Next.ServeDNS(ctx, w, r)
+				if status == "reg" && !security_event && category != "REJECT" {
+					var found bool
+					found = false
+					for i := 0; i <= len(pf.PortalFQDN); i++ {
+						if found {
+							break
+						}
+						for c, d := range pf.PortalFQDN[i] {
+							if c.Contains(bIP) {
+								if d.MatchString(state.QName()) {
+									found = true
+								}
+							}
+						}
+					}
+					if !found {
+						log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
+						return pf.Next.ServeDNS(ctx, w, r)
+					}
 				} else if status == "reg" && category == "REJECT" {
 					rr, _ = dns.NewRR("30 IN A 127.0.0.1")
 					a.Answer = []dns.RR{rr}
