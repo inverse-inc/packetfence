@@ -28,6 +28,11 @@ has_field 'id' => (
     required => 1,
 );
 
+has_field 'condition' => (
+    type => 'Text',
+    required => 1,
+);
+
 has_field 'scopes' => (
     type     => 'Select',
     multiple => 1,
