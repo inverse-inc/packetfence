@@ -21,7 +21,7 @@ Slice=packetfence-base.slice
 ExecStartPre=/usr/local/pf/bin/pfcmd generatemariadbconfig
 # Note: we set --basedir to prevent probes that might trigger SELinux alarms,
 # per bug #547485
-ExecStart=/usr/local/pf/sbin/pf-mariadb
+ExecStart=/usr/local/pf/sbin/pf-mariadb $MARIADB_ARGS
 Restart=on-failure
 
 # Give a reasonable amount of time for the server to start up/shut down

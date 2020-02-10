@@ -22,11 +22,7 @@ func ForceStop(ctx context.Context) error {
 		return err
 	}
 
-	err = exec.Command(`pkill`, `-9`, `-f`, `mysqld`).Run()
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Failed to force kill any remaining mysqld processes: " + err.Error())
-		return err
-	}
+	exec.Command(`pkill`, `-9`, `-f`, `mysqld`).Run()
 
 	return nil
 }
@@ -48,9 +44,22 @@ func ClearAndStart(ctx context.Context) error {
 }
 
 func StartNewCluster(ctx context.Context) error {
-	err := exec.Command(`systemctl`, `start`, `packetfence-mariadb`, `--force-new-cluster`).Run()
+
+	err := exec.Command(`systemctl`, `set-environment`, `MARIADB_ARGS=--force-new-cluster`).Run()
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Failed to set the MARIADB_ARGS environment variable in systemctl" + err.Error())
+		return err
+	}
+
+	err = exec.Command(`systemctl`, `start`, `packetfence-mariadb.service`).Run()
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Failed to start packetfence-mariadb in force new cluster mode: " + err.Error())
+		return err
+	}
+
+	err = exec.Command(`systemctl`, `unset-environment`, `MARIADB_ARGS`).Run()
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Failed to unset the MARIADB_ARGS environment variable in systemctl" + err.Error())
 		return err
 	}
 
@@ -90,7 +99,13 @@ func IsLocalDBAvailable(ctx context.Context) bool {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("The database on this node is not available right now: %s", err.Error()))
 		return false
 	} else {
+		buf := make([]byte, 1024)
+		len, err := conn.Read(buf[:])
 		conn.Close()
+		if err != nil || len == 0 {
+			log.LoggerWContext(ctx).Warn("The database on this node is not available right now: unable to read from established connection")
+			return false
+		}
 		return true
 	}
 }

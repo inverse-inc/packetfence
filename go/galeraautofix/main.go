@@ -26,7 +26,7 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 	serv, err := net.ListenUDP("udp", sAddr)
 	defer serv.Close()
 
-	waitUntil := time.Now().Add(2 * time.Minute)
+	waitUntil := time.Now().Add(1 * time.Minute)
 	serv.SetDeadline(waitUntil)
 
 	for {
@@ -44,7 +44,7 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 
 		allReported := true
 		for _, node := range nodes.Nodes {
-			if node.Seqno == mariadb.DefaultSeqno {
+			if node.Seqno == mariadb.DefaultSeqno || node.Seqno == mariadb.RunningSeqno {
 				allReported = false
 			}
 		}
@@ -63,7 +63,6 @@ func seqnoReporting(ctx context.Context) {
 			log.LoggerWContext(ctx).Info("Database is currently running on this node, the sequence number is implicitely set to -1")
 			seqNo = mariadb.RunningSeqno
 		} else {
-			mariadb.WsrepRecover(ctx)
 			var err error
 			seqNo, err = mariadb.GetSeqno(ctx)
 			if err != nil {
@@ -82,7 +81,7 @@ func seqnoReporting(ctx context.Context) {
 			sendMessage(ctx, conn, MSG_SET_SEQNO, seqNo)
 			conn.Close()
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }
 
@@ -143,7 +142,10 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 	for _, node := range nodes.Nodes {
 		if node.Seqno == mariadb.DefaultSeqno {
 			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Node %s hasn't reported its status. Cannot perform boot based on sequence number", node.IP.String()))
-		} else if node.Seqno == mariadb.RunningSeqno {
+			return false
+
+			// If we detect the sequence is -1, we check again for the DB running. If it is, then this is not the right strategy
+		} else if node.Seqno == mariadb.RunningSeqno && node.IsDBAvailable(ctx) {
 			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Node %s is actively running. Stopping the sequence number boot process since the DB available process should be used.", node.IP.String()))
 			return false
 		}
@@ -151,6 +153,11 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 		if node.Seqno > highestSeqnoNode.Seqno {
 			highestSeqnoNode = node
 		}
+	}
+
+	if highestSeqnoNode.Seqno == mariadb.RunningSeqno {
+		log.LoggerWContext(ctx).Warn("Failed to obtain a valid sequence number to determine best bootable node.")
+		return false
 	}
 
 	log.LoggerWContext(ctx).Info(fmt.Sprintf("Node %s has the highest sequence number: %d", highestSeqnoNode.IP.String(), highestSeqnoNode.Seqno))
@@ -191,6 +198,7 @@ func filterPeers(ctx context.Context, nodes *NodeList) []*Node {
 
 func bootAndRejoinCluster(ctx context.Context) {
 	if mariadb.IsActive(ctx) {
+		mariadb.ForceStop(ctx)
 		mariadb.ClearAndStart(ctx)
 	} else {
 		log.LoggerWContext(ctx).Warn("MariaDB service is inactive. System can be in maintenance or service may have explicitely been disabled. Not performing any operation to rejoin the cluster.")
@@ -199,6 +207,7 @@ func bootAndRejoinCluster(ctx context.Context) {
 
 func bootNewCluster(ctx context.Context) {
 	if mariadb.IsActive(ctx) {
+		mariadb.ForceStop(ctx)
 		mariadb.StartNewCluster(ctx)
 	} else {
 		log.LoggerWContext(ctx).Warn("MariaDB service is inactive. System can be in maintenance or service may have explicitely been disabled. Not performing any operation to start a new cluster.")
