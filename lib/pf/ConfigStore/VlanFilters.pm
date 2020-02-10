@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($vlan_filters_config_file);
+use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
 
 sub configFile { $vlan_filters_config_file };
@@ -28,21 +29,31 @@ cleanupBeforeCommit
 =cut
 
 sub cleanupBeforeCommit {
-    my ($self, $id, $data) = @_;
-    my $actions = $data->{actions} // [];
+    my ($self, $id, $item) = @_;
+    my $actions = $item->{actions} // [];
     my $i = 0;
     for my $action (@$actions) {
-        $rule->{"action.$i"} = $action;
+        $item->{"action.$i"} = $action;
         $i++;
     }
+    $self->flatten_list($item, $self->_fields_expanded);
     return ;
 }
 
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
-    my @action_keys = nsort grep {/^action\.\d+$/} keys %$items;
-    $rule->{actions} = [delete @$rule{@action_keys}];
+    my @action_keys = nsort grep {/^action\.\d+$/} keys %$item;
+    $item->{actions} = [delete @$item{@action_keys}];
+    $self->expand_list($item, $self->_fields_expanded);
     return;
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(scopes);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
