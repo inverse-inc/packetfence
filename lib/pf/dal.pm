@@ -19,6 +19,7 @@ Which generates all the companion modules for table in the database.
 use strict;
 use warnings;
 use pf::db;
+use Sub::Name;
 use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
@@ -1207,6 +1208,85 @@ sub batch_update {
     }
     $logger->info("updated $rows_updated entries from $table for batch_update ($start_time $end_time) ");
     return $STATUS::OK, $rows_updated;
+}
+
+sub make_dal_finder {
+    my ($proto) = @_;
+    my $class = ref($proto) || $proto;
+    my @pkeys = @{$proto->primary_keys};
+    my $i = -1;
+    my %args = map { $i++; ($_ => "param_$i") } @pkeys;
+    if (exists $args{tenant_id}) {
+        $args{tenant_id} = pf::config::tenant::get_tenant();
+    }
+    my %reverse = map { $args{$_} => $_ } keys %args;
+    my $select_args = $proto->find_select_args(\%args);
+    my @select_args = $proto->update_params_for_select(%$select_args);
+    my ($sql, @bind) = $proto->get_sql_abstract->select(@select_args);
+    my %pos;
+
+    for (my $i =0;$i< @bind;$i++) {
+        my $b = $bind[$i];
+        my $col = $reverse{$b};
+        $pos{$col} = $i;
+    }
+    my $tenant_id_position;
+    my $pkey_position;
+    my $pkey;
+    if (exists $args{tenant_id} && @pkeys == 2) {
+        $tenant_id_position = $pos{tenant_id};
+        ($pkey) = grep { $_ ne 'tenant_id' } @pkeys;
+        $pkey_position = $pos{$pkey};
+    } elsif (@pkeys == 1) {
+        $pkey = $pkeys[0];
+        $pkey_position = 0;
+    }
+
+    if ($pkey) {
+        return subname "${class}::find" => sub {
+            my ($proto, $ids) = @_;
+            my @bind;
+            if ($tenant_id_position) {
+                $bind[$tenant_id_position] = $proto->get_tenant();
+            }
+
+            $bind[$pkey_position] = exists $ids->{$pkey} ? $ids->{$pkey} : undef;
+            my ($status, $sth) = $proto->db_execute($sql, @bind);
+            return $status, undef if is_error($status);
+            my $row = $sth->fetchrow_hashref;
+            $sth->finish;
+            unless ($row) {
+                return $STATUS::NOT_FOUND, undef;
+            }
+
+            my $dal = $proto->new_from_row($row);
+            return $STATUS::OK, $dal;
+        };
+    }
+
+    return subname "${class}::find" => sub {
+        my ($proto, $ids) = @_;
+        my @bind;
+        for my $p (@pkeys) {
+            my $i = $pos{$p};
+            if ($p eq 'tenant_id') {
+                $bind[$i] = $proto->get_tenant();
+            } else {
+                $bind[$i] = exists $ids->{$p} ? $ids->{$p} : undef;
+            }
+        }
+
+        my ($status, $sth) = $proto->db_execute($sql, @bind);
+        return $status, undef if is_error($status);
+        my $row = $sth->fetchrow_hashref;
+        $sth->finish;
+        unless ($row) {
+            return $STATUS::NOT_FOUND, undef;
+        }
+
+        my $dal = $proto->new_from_row($row);
+        return $STATUS::OK, $dal;
+    };
 }
 
 =head1 AUTHOR
