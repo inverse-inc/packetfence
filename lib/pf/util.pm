@@ -1395,7 +1395,7 @@ Parse an api action spec
 
 sub parse_api_action_spec {
     my ($spec) = @_;
-    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
+    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_\.]+)\s*:\s*(?<api_parameters>.*)$/) {
         return undef;
     }
     #return a copy of the named captures hash
