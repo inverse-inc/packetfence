@@ -62,6 +62,7 @@ type configStruct struct {
 		Webservices   PfConfWebservices
 		Database      PfConfDatabase
 		Parking       PfConfParking
+		Alerting      PfConfAlerting
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -491,4 +492,21 @@ type PfConfParking struct {
 	Threshold               string `json:"threshold"`
 	PlaceInDhcpParkingGroup string `json:"place_in_dhcp_parking_group"`
 	ShowParkingPortal       string `json:"show_parking_portal"`
+}
+
+type PfConfAlerting struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"alerting"`
+	EmailAddr      string `json:"emailaddr"`
+	FromAddr       string `json:"fromaddr"`
+	SMTPPassword   string `json:"smtp_password"`
+	SMTPEncryption string `json:"smtp_encryption"`
+	SubjectPrefic  string `json:"subjectprefix"`
+	SMTPUsername   string `json:"smtp_username"`
+	SMTPTimeout    string `json:"smtp_timeout"`
+	SMTPPort       string `json:"smtp_port"`
+	SMTPVerifySSL  string `json:"smtp_verifyssl"`
+	SMTPServer     string `json:"smtpserver"`
 }
