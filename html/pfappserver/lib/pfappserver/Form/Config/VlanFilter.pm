@@ -24,7 +24,7 @@ with qw(
 
 has_field 'id' => (
     type     => 'Text',
-    label    => 'RuleName',
+    label    => 'Rule Name',
     required => 1,
 );
 
@@ -45,7 +45,7 @@ has_field 'scopes' => (
     ]
 );
 
-has_field 'roles' => (
+has_field 'role' => (
     type     => 'Select',
     options_method => \&options_role,
 );
