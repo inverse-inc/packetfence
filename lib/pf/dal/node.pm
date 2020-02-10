@@ -54,6 +54,9 @@ our @COLUMN_NAMES = (
     'nr.name|bypass_role',
 );
 
+*old_find = \&pf::dal::find;
+*find = __PACKAGE__->make_dal_finder();
+
 =head2 find_from_tables
 
 Join the node_category table information in the node results
