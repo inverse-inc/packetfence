@@ -21,6 +21,30 @@ sub configFile { $vlan_filters_config_file };
 
 sub pfconfigNamespace {'config::VlanFilters'}
 
+=head2 cleanupBeforeCommit
+
+cleanupBeforeCommit
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $data) = @_;
+    my $actions = $data->{actions} // [];
+    my $i = 0;
+    for my $action (@$actions) {
+        $rule->{"action.$i"} = $action;
+        $i++;
+    }
+    return ;
+}
+
+sub cleanupAfterRead {
+    my ($self, $id, $item, $idKey) = @_;
+    my @action_keys = nsort grep {/^action\.\d+$/} keys %$items;
+    $rule->{actions} = [delete @$rule{@action_keys}];
+    return;
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
