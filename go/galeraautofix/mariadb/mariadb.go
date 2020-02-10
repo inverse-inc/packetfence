@@ -3,17 +3,25 @@ package mariadb
 import (
 	"context"
 	"fmt"
-	"net"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 const RunningSeqno = -1
 const DefaultSeqno = -2
+
+var databaseConf = pfconfigdriver.PfConfDatabase{}
+
+func DatabaseConfig(ctx context.Context) pfconfigdriver.PfConfDatabase {
+	pfconfigdriver.FetchDecodeSocketCache(ctx, &databaseConf)
+	return databaseConf
+}
 
 func ForceStop(ctx context.Context) error {
 	err := exec.Command(`systemctl`, `stop`, `packetfence-mariadb`).Run()
@@ -94,20 +102,38 @@ func GetSeqno(ctx context.Context) (int, error) {
 }
 
 func IsLocalDBAvailable(ctx context.Context) bool {
-	conn, err := net.Dial("unix", "/var/lib/mysql/mysql.sock")
+	return IsDBAvailable(ctx, "localhost")
+}
+
+func IsDBAvailable(ctx context.Context, host string) bool {
+	conf := DatabaseConfig(ctx)
+	db, err := db.ConnectDb(ctx, conf.User, conf.Pass, host, conf.Db)
 	if err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("The database on this node is not available right now: %s", err.Error()))
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 		return false
-	} else {
-		buf := make([]byte, 1024)
-		len, err := conn.Read(buf[:])
-		conn.Close()
-		if err != nil || len == 0 {
-			log.LoggerWContext(ctx).Warn("The database on this node is not available right now: unable to read from established connection")
+	}
+	defer db.Close()
+	rows, err := db.Query("select count(1) as c from node_category;")
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+		return false
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var c int
+		if err := rows.Scan(&c); err != nil {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 			return false
 		}
-		return true
+		if c > 0 {
+			return true
+		} else {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+			return false
+		}
 	}
+	log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+	return false
 }
 
 func IsActive(ctx context.Context) bool {

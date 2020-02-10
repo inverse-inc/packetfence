@@ -43,13 +43,16 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 		handleMessage(ctx, addr.IP, buf[:n], nodes)
 
 		allReported := true
+		atLeastOneSeqno := false
 		for _, node := range nodes.Nodes {
-			if node.Seqno == mariadb.DefaultSeqno || node.Seqno == mariadb.RunningSeqno {
+			if node.Seqno == mariadb.DefaultSeqno {
 				allReported = false
+			} else if node.Seqno > 0 {
+				atLeastOneSeqno = true
 			}
 		}
 
-		if allReported {
+		if allReported && atLeastOneSeqno {
 			return true
 		}
 	}
@@ -86,8 +89,8 @@ func seqnoReporting(ctx context.Context) {
 }
 
 func decisionLoop(ctx context.Context) {
+	servers := pfconfigdriver.AllClusterServers{}
 	for {
-		servers := pfconfigdriver.AllClusterServers{}
 		pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
 		nodes := NewNodeList()
 		for _, server := range servers.Element {
@@ -106,7 +109,7 @@ func handle(ctx context.Context, nodes *NodeList) {
 		return
 	}
 
-	if len(nodes.Nodes) == 0 {
+	if len(nodes.Nodes) <= 1 {
 		log.LoggerWContext(ctx).Info("No cluster peers found. Not doing anything.")
 		return
 	}
@@ -156,8 +159,7 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 	}
 
 	if highestSeqnoNode.Seqno == mariadb.RunningSeqno {
-		log.LoggerWContext(ctx).Warn("Failed to obtain a valid sequence number to determine best bootable node.")
-		return false
+		log.LoggerWContext(ctx).Warn("Failed to obtain a valid sequence number to determine best bootable node. Will be picking the first node of the cluster: " + highestSeqnoNode.IP.String())
 	}
 
 	log.LoggerWContext(ctx).Info(fmt.Sprintf("Node %s has the highest sequence number: %d", highestSeqnoNode.IP.String(), highestSeqnoNode.Seqno))

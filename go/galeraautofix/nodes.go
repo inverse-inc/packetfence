@@ -78,20 +78,7 @@ func (n *Node) IsPingable(ctx context.Context) bool {
 }
 
 func (n *Node) IsDBAvailable(ctx context.Context) bool {
-	conn, err := net.DialTimeout("tcp", n.IP.String()+":3306", 2*time.Second)
-	if err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("The database on node %s is not available right now: %s", n.IP.String(), err.Error()))
-		return false
-	} else {
-		buf := make([]byte, 1024)
-		len, err := conn.Read(buf[:])
-		conn.Close()
-		if err != nil || len == 0 {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("The database on node %s is not available right now: unable to read from established connection", n.IP.String()))
-			return false
-		}
-		return true
-	}
+	return mariadb.IsDBAvailable(ctx, n.IP.String())
 }
 
 func (n *Node) IsThisServer(ctx context.Context) bool {

@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -28,13 +29,13 @@ func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
 	uri := ReturnURI(ctx, dbName)
 
 	db, err := sql.Open("mysql", uri)
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(100)
-	db.SetConnMaxLifetime(time.Minute * 5)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to DB: %s", err))
 		return nil, err
 	} else {
+		db.SetMaxIdleConns(5)
+		db.SetMaxOpenConns(100)
+		db.SetConnMaxLifetime(time.Minute * 5)
 		return db, nil
 	}
 }

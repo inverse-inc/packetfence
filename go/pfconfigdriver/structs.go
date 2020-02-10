@@ -63,6 +63,7 @@ type configStruct struct {
 		Database      PfConfDatabase
 		Parking       PfConfParking
 		Alerting      PfConfAlerting
+		ActiveActive  PfConfActiveActive
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -510,6 +511,15 @@ type PfConfAlerting struct {
 	SMTPPort       int    `json:"smtp_port"`
 	SMTPVerifySSL  string `json:"smtp_verifyssl"`
 	SMTPServer     string `json:"smtpserver"`
+}
+
+type PfConfActiveActive struct {
+	StructConfig
+	PfconfigMethod            string `val:"hash_element"`
+	PfconfigNS                string `val:"config::Pf"`
+	PfconfigHashNS            string `val:"active_active"`
+	GaleraReplicationUsername string `json:"galera_replication_username"`
+	GaleraReplicationPassword string `json:"galera_replication_password"`
 }
 
 type AllClusterServers struct {
