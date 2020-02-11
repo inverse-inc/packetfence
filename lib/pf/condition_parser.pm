@@ -55,7 +55,7 @@ BEGIN {
 
 Parses a string to a structure for building filters and conditions
 
-    my ($array, $msg) = parse_condition_string('(a || b) && (c || d)');
+    my ($array, $err) = parse_condition_string('(a || b) && (c || d)');
 
 On success
 
@@ -79,7 +79,14 @@ $array will be the following structure
               ]
             ];
 
-$msg will be an empty string
+$err is an hash with an error message and the offset in
+
+$err = {
+    offset => 35, #Offset where the error happened
+    message => "The error message",
+    condition  => "The original condition string"
+    highlighted_error => "The highlghted error",
+}
 
 If an invalid string is passed then the array will be undef and $msg will have have the error message
 
@@ -356,6 +363,22 @@ format the parse to make easier to
 =cut
 
 sub format_parse_error {
+    my ($error_msg, $string, $postion) = @_;
+    return {
+        offset => $postion,
+        message => $error_msg,
+        condition => $string,
+        highlighted_error => highlight_error($error_msg, $string, $postion)
+    };
+}
+
+=head2 highlight_error
+
+format the parse to make easier to
+
+=cut
+
+sub highlight_error {
     my ($error_msg, $string, $postion) = @_;
     my $msg = "parse error: $error_msg\n$string\n";
     my $string_length = length($string);
