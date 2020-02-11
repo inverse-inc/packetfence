@@ -4,6 +4,15 @@
 # also use as a Ansible inventory file to provision VMs
 all:
   children:
+    winservers:
+      hosts:
+        ad:
+          box: jborean93/WindowsServer2016
+          mgmt_ip: 172.17.1.100
+          mgmt_netmask: 255.255.255.0
+          ansible_host:  "{{ mgmt_ip }}"
+          cpus: 1
+          memory: 2048
     stable_and_nightly:
       children:
         stable:
@@ -160,5 +169,6 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
+
   vars:
     tz: Etc/UTC
