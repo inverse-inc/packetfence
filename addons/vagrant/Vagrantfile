@@ -7,24 +7,18 @@ require 'yaml'
 # Read YAML file with box details
 inventory = YAML.load_file('inventory/hosts')
 
-Vagrant.configure("2") do |pfservers|
+Vagrant.configure("2") do |config|
 
-  ## Global settings for pfservers
+  ## Global settings for config
   # disable synced folders
-  pfservers.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder ".", "/vagrant", disabled: true
   
   # use same private key on all machines
-  pfservers.ssh.insert_key = false
+  config.ssh.insert_key = false
 
-  # provisionners
-  # Sync timezone with host
-  pfservers.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/#{inventory['all']['vars']['tz']} /etc/localtime", run: "always"
-
-  # Allow SSH as root with insecure_private_key
-  pfservers.vm.provision "ssh", type:"shell", inline: "sudo mkdir -p /root/.ssh && sudo cp /home/vagrant/.ssh/authorized_keys /root/.ssh/"
-
-  # Provision with ansible
-  pfservers.vm.provision "ansible" do |ansible|
+  # common Ansible provisionner for all hosts
+  # filtering is done using 'hosts' directive in site.yml
+  config.vm.provision "ansible" do |ansible|
     ansible.playbook = "site.yml"
     ansible.config_file = "ansible.cfg"
     ansible.inventory_path = "inventory"
@@ -33,41 +27,11 @@ Vagrant.configure("2") do |pfservers|
     ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end
 
-  # Use to run only tasks tagged "install" in site.yml
-  pfservers.vm.provision "config", type:"ansible", run:"never" do |config|
-    config.playbook = "site.yml"
-    config.config_file = "ansible.cfg"
-    config.inventory_path = "inventory"
-    config.tags = "install"
-    # only for debug
-    config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
-  end
-
-  # Use to run only tasks tagged "upgrade" in site.yml
-  pfservers.vm.provision "upgrade", type:"ansible", run:"never" do |config|
-    config.playbook = "site.yml"
-    config.config_file = "ansible.cfg"
-    config.inventory_path = "inventory"
-    config.tags = "upgrade"
-    # only for debug
-    config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
-  end
-
-  pfservers.vm.provision "api_config", type:"ansible", run:"never" do |config|
-    config.playbook = "site.yml"
-    config.config_file = "ansible.cfg"
-    config.inventory_path = "inventory"
-    config.tags = "install"
-    config.start_at_task = "include api_config tasks"
-    # only for debug
-    config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
-  end
-
   # loop on **all** host(s) in pfservers group in inventory to create VM(s)
   inventory['all']['children']['pfservers']['children'].each do |groups, hosts|
     hosts['hosts'].each do |server, details|
       # don't start automatically virtual machines
-      pfservers.vm.define server, autostart: false do |srv|
+      config.vm.define server, autostart: false do |srv|
         srv.vm.box = details['box']
         srv.vm.hostname = server
 
@@ -96,19 +60,54 @@ Vagrant.configure("2") do |pfservers|
           v.cpus = details['cpus']
           v.memory = details['memory']
         end
+
+        # provisionners
+        # Sync timezone with host
+        srv.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/#{inventory['all']['vars']['tz']} /etc/localtime", run: "always"
+
+        # Allow SSH as root with insecure_private_key
+        srv.vm.provision "ssh", type:"shell", inline: "sudo mkdir -p /root/.ssh && sudo cp /home/vagrant/.ssh/authorized_keys /root/.ssh/"
+
+        # Use to run only tasks tagged "install" in site.yml
+        srv.vm.provision "config", type:"ansible", run:"never" do |config|
+          config.playbook = "site.yml"
+          config.config_file = "ansible.cfg"
+          config.inventory_path = "inventory"
+          config.tags = "install"
+          # only for debug
+          config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+        end
+
+        # Use to run only tasks tagged "upgrade" in site.yml
+        srv.vm.provision "upgrade", type:"ansible", run:"never" do |config|
+          config.playbook = "site.yml"
+          config.config_file = "ansible.cfg"
+          config.inventory_path = "inventory"
+          config.tags = "upgrade"
+          # only for debug
+          config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+        end
+
+        srv.vm.provision "api_config", type:"ansible", run:"never" do |config|
+          config.playbook = "site.yml"
+          config.config_file = "ansible.cfg"
+          config.inventory_path = "inventory"
+          config.tags = "install"
+          config.start_at_task = "include api_config tasks"
+          # only for debug
+          config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+        end
       end
     end
   end
+  # loop on all pfservers in *dev* group in inventory
   inventory['all']['children']['pfservers']['children']['dev']['hosts'].each do |server,details|
-    pfservers.vm.define server do |srv|
+    config.vm.define server do |srv|
       # we mount test dir and local repo in VM
       # override to avoid issue with symlink without referent
       # see https://github.com/hashicorp/vagrant/issues/5471
       srv.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
       srv.vm.synced_folder "../../public", "/src/public", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
-
-      # provisioner for dev machines
-      #srv.vm.provision "setup-dev-env", type: "shell", path: "../dev-helpers/setup-dev-env.sh"
 
       # reset communicator to make /etc/environment variables available for next scripts
       srv.vm.provision "reset", type: "shell" do |config|
@@ -121,6 +120,31 @@ Vagrant.configure("2") do |pfservers|
           PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'] || "yes",
           GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'] || "yes"
         }
+      end
+    end
+  end
+
+  inventory['all']['children']['winservers']['hosts'].each do |server,details|
+    config.vm.define server do |srv|
+      srv.vm.box = details['box']
+      srv.vm.hostname = server
+
+      # mgmt
+      # libvirt__forward_mode: "route" mean:
+      # Allow inbound, but only to our expected subnet. Allow outbound, but
+      # only from our expected subnet. Allow traffic between guests. Deny
+      # all other inbound. Deny all other outbound.
+      srv.vm.network "private_network", ip: details['mgmt_ip'], netmask: details['mgmt_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "route"
+
+      srv.vm.provider "libvirt" do |v|
+        v.random_hostname = true
+        v.cpus = details['cpus']
+        v.memory = details['memory']
+      end
+
+      srv.vm.provider "virtualbox" do |v|
+        v.cpus = details['cpus']
+        v.memory = details['memory']
       end
     end
   end
