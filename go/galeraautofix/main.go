@@ -17,6 +17,10 @@ func main() {
 	ctx := context.Background()
 	go seqnoReporting(ctx)
 
+	log.LoggerWContext(ctx).Info("Waiting 5 minutes before we start checking for DB issues")
+	time.Sleep(5 * time.Minute)
+	log.LoggerWContext(ctx).Info("Activating galera-autofix")
+
 	decisionLoop(ctx)
 }
 
@@ -109,7 +113,7 @@ func decisionLoop(ctx context.Context) {
 			nodes.AddNode(node)
 		}
 		handle(ctx, nodes)
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Minute)
 	}
 }
 
