@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"time"
 
@@ -43,34 +44,43 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 		handleMessage(ctx, addr.IP, buf[:n], nodes)
 
 		allReported := true
-		atLeastOneSeqno := false
 		for _, node := range nodes.Nodes {
 			if node.Seqno == mariadb.DefaultSeqno {
 				allReported = false
-			} else if node.Seqno > 0 {
-				atLeastOneSeqno = true
 			}
 		}
 
-		if allReported && atLeastOneSeqno {
+		if allReported {
 			return true
 		}
 	}
 }
 
+func getRecordLiveSeqno(ctx context.Context) int {
+	seqno := mariadb.GetLocalLiveSeqno(ctx)
+	if seqno != mariadb.DefaultSeqno {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Found the following live sequence number: %d", seqno))
+		err := ioutil.WriteFile(mariadb.GaleraAutofixSeqnoFile, []byte(fmt.Sprintf("%d", seqno)), 0644)
+		sharedutils.CheckError(err)
+	} else {
+		log.LoggerWContext(ctx).Debug("Failed to obtain the live sequence number")
+	}
+	return seqno
+}
+
 func seqnoReporting(ctx context.Context) {
 	servers := pfconfigdriver.AllClusterServers{}
 	for {
-		seqNo := mariadb.DefaultSeqno
+		seqno := mariadb.DefaultSeqno
 		if mariadb.IsLocalDBAvailable(ctx) {
-			log.LoggerWContext(ctx).Info("Database is currently running on this node, the sequence number is implicitely set to -1")
-			seqNo = mariadb.RunningSeqno
+			seqno = getRecordLiveSeqno(ctx)
 		} else {
 			var err error
-			seqNo, err = mariadb.GetSeqno(ctx)
+			seqno, err = mariadb.GetColdSeqno(ctx)
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Unable to obtain sequence number")
-				return
+				time.Sleep(10 * time.Second)
+				continue
 			}
 		}
 
@@ -80,8 +90,8 @@ func seqnoReporting(ctx context.Context) {
 			if err != nil {
 				log.LoggerWContext(ctx).Warn("Unable to dial " + server.ManagementIp + ": " + err.Error())
 			}
-			log.LoggerWContext(ctx).Debug("Reported sequence number to " + server.ManagementIp)
-			sendMessage(ctx, conn, MSG_SET_SEQNO, seqNo)
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Reported sequence number %d to %s", seqno, server.ManagementIp))
+			sendMessage(ctx, conn, MSG_SET_SEQNO, seqno)
 			conn.Close()
 		}
 		time.Sleep(10 * time.Second)
@@ -146,11 +156,6 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 		if node.Seqno == mariadb.DefaultSeqno {
 			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Node %s hasn't reported its status. Cannot perform boot based on sequence number", node.IP.String()))
 			return false
-
-			// If we detect the sequence is -1, we check again for the DB running. If it is, then this is not the right strategy
-		} else if node.Seqno == mariadb.RunningSeqno && node.IsDBAvailable(ctx) {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Node %s is actively running. Stopping the sequence number boot process since the DB available process should be used.", node.IP.String()))
-			return false
 		}
 		log.LoggerWContext(ctx).Info(fmt.Sprintf("Node %s has a sequence number of %d", node.IP.String(), node.Seqno))
 		if node.Seqno > highestSeqnoNode.Seqno {
@@ -159,7 +164,8 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 	}
 
 	if highestSeqnoNode.Seqno == mariadb.RunningSeqno {
-		log.LoggerWContext(ctx).Warn("Failed to obtain a valid sequence number to determine best bootable node. Will be picking the first node of the cluster: " + highestSeqnoNode.IP.String())
+		log.LoggerWContext(ctx).Warn("Failed to obtain a valid sequence number to determine best bootable node. Cannot use this strategy to boot: " + highestSeqnoNode.IP.String())
+		return false
 	}
 
 	log.LoggerWContext(ctx).Info(fmt.Sprintf("Node %s has the highest sequence number: %d", highestSeqnoNode.IP.String(), highestSeqnoNode.Seqno))
@@ -167,7 +173,8 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 		log.LoggerWContext(ctx).Info("This node should be bootstraping based off the sequence number and the node ordering in cluster.conf. Starting in --force-new-cluster mode")
 		bootNewCluster(ctx)
 	} else {
-		log.LoggerWContext(ctx).Info("This node is not the one that was selected for bootstraping. Will have to wait until the DB becomes available to connect to it")
+		log.LoggerWContext(ctx).Info("This node is not the one that was selected for bootstraping. Starting bootAndRejoinCluster")
+		bootAndRejoinCluster(ctx, highestSeqnoNode)
 	}
 
 	return true
@@ -177,8 +184,16 @@ func handlePeerDBAvailable(ctx context.Context, nodes *NodeList) bool {
 	peers := filterPeers(ctx, nodes)
 	for _, node := range peers {
 		if node.Stats.DBAvailable {
-			log.LoggerWContext(ctx).Info("Database is available on " + node.IP.String() + ". Starting clean and boot process.")
-			bootAndRejoinCluster(ctx)
+			log.LoggerWContext(ctx).Info("Found a peer DB available. Cooling down for a minute to see if the DB on this server will become ready before attempting to rejoin cluster by force.")
+			// Wait a minute to see if the local DB becomes availble before clearing data and restarting from scratch
+			time.Sleep(1 * time.Minute)
+			if mariadb.IsLocalDBAvailable(ctx) {
+				log.LoggerWContext(ctx).Info("Database became available on this server. Skipping forced rejoin.")
+				return true
+			}
+
+			log.LoggerWContext(ctx).Info("Database is available on " + node.IP.String() + ". Starting bootAndRejoinCluster.")
+			bootAndRejoinCluster(ctx, node)
 			return true
 		}
 	}
@@ -198,9 +213,29 @@ func filterPeers(ctx context.Context, nodes *NodeList) []*Node {
 	return peers
 }
 
-func bootAndRejoinCluster(ctx context.Context) {
+func bootAndRejoinCluster(ctx context.Context, node *Node) {
 	if mariadb.IsActive(ctx) {
 		mariadb.ForceStop(ctx)
+
+		waitUntil := time.Now().Add(1 * time.Minute)
+		for {
+			if time.Now().After(waitUntil) {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Waited too long for %s to offer DB service.", node.IP.String()))
+				// Start it again so the service stays active
+				mariadb.Start(ctx)
+				return
+			}
+
+			if node.IsDBAvailable(ctx) {
+				log.LoggerWContext(ctx).Info(fmt.Sprintf("Database on %s is ready. Clearing own data and starting DB.", node.IP.String()))
+				break
+			} else {
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("Database on %s is not ready yet. Waiting until its ready to start booting this node", node.IP.String()))
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+
 		mariadb.ClearAndStart(ctx)
 	} else {
 		log.LoggerWContext(ctx).Warn("MariaDB service is inactive. System can be in maintenance or service may have explicitely been disabled. Not performing any operation to rejoin the cluster.")

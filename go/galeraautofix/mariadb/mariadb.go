@@ -3,7 +3,10 @@ package mariadb
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"os/exec"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -15,6 +18,8 @@ import (
 
 const RunningSeqno = -1
 const DefaultSeqno = -2
+
+const GaleraAutofixSeqnoFile = "/var/lib/mysql/galera-autofix-seqno.dat"
 
 var databaseConf = pfconfigdriver.PfConfDatabase{}
 
@@ -36,13 +41,24 @@ func ForceStop(ctx context.Context) error {
 }
 
 func ClearAndStart(ctx context.Context) error {
-	err := exec.Command(`rm`, `-fr`, `/var/lib/mysql/*`).Run()
+	dir, err := ioutil.ReadDir("/var/lib/mysql")
 	if err != nil {
-		log.LoggerWContext(ctx).Error("Failed to empty the /var/lib/mysql/ directory: " + err.Error())
+		log.LoggerWContext(ctx).Error("Failed to list the /var/lib/mysql/ directory: " + err.Error())
 		return err
 	}
+	for _, d := range dir {
+		err := os.RemoveAll(path.Join([]string{"/var/lib/mysql", d.Name()}...))
+		if err != nil {
+			log.LoggerWContext(ctx).Error("Failed to empty the /var/lib/mysql/ directory: " + err.Error())
+			return err
+		}
+	}
 
-	err = exec.Command(`systemctl`, `start`, `packetfence-mariadb`).Run()
+	return Start(ctx)
+}
+
+func Start(ctx context.Context) error {
+	err := exec.Command(`systemctl`, `start`, `packetfence-mariadb`).Run()
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Failed to start packetfence-mariadb: " + err.Error())
 		return err
@@ -84,28 +100,60 @@ func WsrepRecover(ctx context.Context) error {
 	return nil
 }
 
-func GetSeqno(ctx context.Context) (int, error) {
-	cmd := exec.Command(`bash`, `-c`, `grep seqno: /var/lib/mysql/grastate.dat | grep -oP '\-?[0-9]+'`)
-	out, err := cmd.Output()
+func GetColdSeqno(ctx context.Context) (int, error) {
+	data, err := ioutil.ReadFile(GaleraAutofixSeqnoFile)
 	if err != nil {
-		log.LoggerWContext(ctx).Error("Unable to obtain sequence number (seqno) from /var/lib/mysql/grastate.dat: " + err.Error())
-		return DefaultSeqno, err
-	}
-	outStr := strings.TrimSuffix(string(out), "\n")
-	intResult, err := strconv.Atoi(outStr)
-	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to parse sequence number '%s' from /var/lib/mysql/grastate.dat: %s", outStr, err.Error()))
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to get cold sequence number from %s: %s", GaleraAutofixSeqnoFile, err.Error()))
 		return DefaultSeqno, err
 	}
 
-	return intResult, nil
+	seqno, err := strconv.Atoi(string(data))
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to convert recorded sequence number '%s' to an int: %s", data, err.Error()))
+		return DefaultSeqno, err
+	}
+
+	return seqno, nil
 }
 
 func IsLocalDBAvailable(ctx context.Context) bool {
 	return IsDBAvailable(ctx, "localhost")
 }
 
+func GetLocalLiveSeqno(ctx context.Context) int {
+	return GetLiveSeqno(ctx, "localhost")
+}
+
+func GetLiveSeqno(ctx context.Context, host string) int {
+	ctx = log.AddToLogContext(ctx, "function", "GetLocalSeqno")
+	conf := DatabaseConfig(ctx)
+	db, err := db.ConnectDb(ctx, conf.User, conf.Pass, host, conf.Db)
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+		return DefaultSeqno
+	}
+	defer db.Close()
+	rows, err := db.Query("show status like 'wsrep_last_committed'")
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+		return DefaultSeqno
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		var lastCommitted int
+		if err := rows.Scan(&name, &lastCommitted); err != nil {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+			return DefaultSeqno
+		}
+		return lastCommitted
+	}
+	log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+	return DefaultSeqno
+}
+
 func IsDBAvailable(ctx context.Context, host string) bool {
+	ctx = log.AddToLogContext(ctx, "function", "IsDBAvailable")
 	conf := DatabaseConfig(ctx)
 	db, err := db.ConnectDb(ctx, conf.User, conf.Pass, host, conf.Db)
 	if err != nil {
@@ -113,19 +161,20 @@ func IsDBAvailable(ctx context.Context, host string) bool {
 		return false
 	}
 	defer db.Close()
-	rows, err := db.Query("select count(1) as c from node_category;")
+	rows, err := db.Query("show status like 'wsrep_cluster_status'")
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 		return false
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var c int
-		if err := rows.Scan(&c); err != nil {
+		var name string
+		var status string
+		if err := rows.Scan(&name, &status); err != nil {
 			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 			return false
 		}
-		if c > 0 {
+		if status == "Primary" {
 			return true
 		} else {
 			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
