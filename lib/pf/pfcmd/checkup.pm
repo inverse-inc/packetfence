@@ -1040,8 +1040,8 @@ sub vlan_filter_rules {
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
         my $rule_data = $ConfigVlanFilters{$rule};
         if ($rule =~ /^[^:]+:(.*)$/) {
-            my ($condition, $msg) = parse_condition_string($1);
-            add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
+            my ($condition, $err) = parse_condition_string($1);
+            add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $err->{highlighted_error})
                 if !defined $condition;
             add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
                 if (!defined($rule_data->{'scope'}));

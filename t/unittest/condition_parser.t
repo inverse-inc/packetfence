@@ -116,16 +116,16 @@ for my $test (@VALID_IDS) {
 
 sub test_valid_string {
     my ($string, $expected) = @_;
-    my ($array, $msg) = parse_condition_string($string);
+    my ($array, $err) = parse_condition_string($string);
     is_deeply($array, $expected, "Check if '$string' is valid");
     unless ($array){
-        print "$msg\n";
+        print "$err->{highlighted_error}\n";
     }
 }
 
 sub test_invalid_string {
     my ($string) = @_;
-    my ($array,$msg) = parse_condition_string($string);
+    my ($array,$err) = parse_condition_string($string);
     is(undef, $array, "Check if '$string' invalid");
 }
 

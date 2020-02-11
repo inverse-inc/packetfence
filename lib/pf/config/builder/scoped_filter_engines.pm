@@ -95,9 +95,9 @@ sub preprocessRule {
     my ($self, $buildData, $id, $condition, $entry) = @_;
     my $logger = get_logger();
     $logger->info("Processing rule '$id'");
-    my ($conditions, $msg) = parse_condition_string($condition);
+    my ($conditions, $err) = parse_condition_string($condition);
     unless ( defined $conditions ) {
-        $self->_error($buildData, $id, "Error building rule", $msg);
+        $self->_error($buildData, $id, "Error building rule", $err->{highlighted_error});
         return;
     }
 

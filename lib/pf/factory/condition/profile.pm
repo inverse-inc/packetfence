@@ -122,8 +122,8 @@ my %VALUE_FILTERS = (
 
 sub instantiate_advanced {
     my ($class, $filter) = @_;
-    my ($condition, $msg) = parse_condition_string($filter);
-    die "$msg" unless defined $condition;
+    my ($condition, $err) = parse_condition_string($filter);
+    die $err->{highlighted_error} unless defined $condition;
     return build_conditions($class, $condition);
 }
 
