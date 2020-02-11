@@ -31,38 +31,6 @@ type (
 		DB     *gorm.DB
 		Ctx    context.Context
 	}
-
-	// GET Vars struct
-	GetVars struct {
-		Cursor int    `schema:"cursor" json:"cursor" default:"0"`
-		Limit  int    `schema:"limit" json:"limit" default:"100"`
-		Fields string `schema:"fields" json:"fields" default:"id"`
-		Sort   string `schema:"sort" json:"sort" default:"id asc"`
-		Query  Search `schema:"query" json:"query"`
-	}
-
-	// POST Vars struct
-	PostVars struct {
-		Cursor int      `schema:"cursor" json:"cursor" default:"0"`
-		Limit  int      `schema:"limit" json:"limit" default:"100"`
-		Fields []string `schema:"fields" json:"fields" default:"id"`
-		Sort   []string `schema:"sort" json:"sort" default:"id asc"`
-		Query  Search   `schema:"query" json:"query"`
-	}
-
-	// Search struct
-	Search struct {
-		Field  string      `schema:"field" json:"field,omitempty"`
-		Op     string      `schema:"op" json:"op"`
-		Value  interface{} `schema:"value" json:"value,omitempty"`
-		Values []Search    `schema:"values" json:"values,omitempty"`
-	}
-
-	// Where struct
-	Where struct {
-		Query  string
-		Values []interface{}
-	}
 )
 
 // Setup the pfpki middleware

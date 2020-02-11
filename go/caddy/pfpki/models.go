@@ -279,44 +279,50 @@ func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var cadb []CA
 	if val, ok := params["id"]; ok {
-		jsonFields := strings.Join(jsonFields(c)[:], ",")
-		saneFields := sanitizeFields(jsonFields, c)
-		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&cadb)
+		allFields := strings.Join(SqlFields(c)[:], ",")
+		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&cadb)
 	}
 	Information.Entries = cadb
 
 	return Information, nil
 }
 
-func (c CA) paginated(pfpki *Handler, params GetVars) (Info, error) {
+func (c CA) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
 	var count int
 	pfpki.DB.Model(&CA{}).Count(&count)
 	Information.TotalCount = count
-	var cadb []CA
-	Information.PrevCursor = params.Cursor
-	if params.Cursor < count {
-		pfpki.DB.Select(params.Fields).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&cadb)
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		sql, err := vars.Sql(c)
+		if err != nil {
+			return Information, err
+		}
+		var cadb []CA
+		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
 		Information.Entries = cadb
 	}
-	Information.NextCursor = params.Cursor + params.Limit
 
 	return Information, nil
 }
 
-func (c CA) search(pfpki *Handler, params GetVars) (Info, error) {
+func (c CA) search(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
+	sql, err := vars.Sql(c)
+	if err != nil {
+		return Information, err
+	}
 	var count int
-	where := params.Query.Where()
-	pfpki.DB.Model(&CA{}).Where(where.Query, where.Values...).Count(&count)
+	pfpki.DB.Model(&CA{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
 	Information.TotalCount = count
-	var cadb []CA
-	Information.PrevCursor = params.Cursor
-	if params.Cursor < count {
-		pfpki.DB.Select(params.Fields).Where(where.Query, where.Values...).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&cadb)
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		var cadb []CA
+		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
 		Information.Entries = cadb
 	}
-	Information.NextCursor = params.Cursor + params.Limit
 
 	return Information, nil
 }
@@ -391,44 +397,50 @@ func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error)
 	Information := Info{}
 	var profiledb []Profile
 	if val, ok := params["id"]; ok {
-		jsonFields := strings.Join(jsonFields(p)[:], ",")
-		saneFields := sanitizeFields(jsonFields, p)
-		pfpki.DB.Select(saneFields).Where("`id` = ?", val).First(&profiledb)
+		allFields := strings.Join(SqlFields(p)[:], ",")
+		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&profiledb)
 	}
 	Information.Entries = profiledb
 
 	return Information, nil
 }
 
-func (p Profile) paginated(pfpki *Handler, params GetVars) (Info, error) {
+func (p Profile) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
 	var count int
 	pfpki.DB.Model(&Profile{}).Count(&count)
 	Information.TotalCount = count
-	var profiledb []Profile
-	Information.PrevCursor = params.Cursor
-	if params.Cursor < count {
-		pfpki.DB.Select(params.Fields).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&profiledb)
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		sql, err := vars.Sql(p)
+		if err != nil {
+			return Information, err
+		}
+		var profiledb []Profile
+		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
 		Information.Entries = profiledb
 	}
-	Information.NextCursor = params.Cursor + params.Limit
 
 	return Information, nil
 }
 
-func (p Profile) search(pfpki *Handler, params GetVars) (Info, error) {
+func (p Profile) search(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
+	sql, err := vars.Sql(p)
+	if err != nil {
+		return Information, err
+	}
 	var count int
-	where := params.Query.Where()
-	pfpki.DB.Model(&Profile{}).Where(where.Query, where.Values...).Count(&count)
+	pfpki.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
 	Information.TotalCount = count
-	var profiledb []Profile
-	Information.PrevCursor = params.Cursor
-	if params.Cursor < count {
-		pfpki.DB.Select(params.Fields).Where(where.Query, where.Values...).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&profiledb)
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		var profiledb []Profile
+		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
 		Information.Entries = profiledb
 	}
-	Information.NextCursor = params.Cursor + params.Limit
 
 	return Information, nil
 }
@@ -538,44 +550,50 @@ func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	var certdb []Cert
 	if val, ok := params["id"]; ok {
-		jsonFields := strings.Join(jsonFields(c)[:], ",")
-		saneFields := sanitizeFields(jsonFields, c)
-		pfpki.DB.Select(saneFields).First(&certdb, val)
+		allFields := strings.Join(SqlFields(c)[:], ",")
+		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&certdb)
 	}
 	Information.Entries = certdb
 
 	return Information, nil
 }
 
-func (c Cert) paginated(pfpki *Handler, params GetVars) (Info, error) {
+func (c Cert) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
 	var count int
 	pfpki.DB.Model(&Cert{}).Count(&count)
 	Information.TotalCount = count
-	var certdb []Cert
-	Information.PrevCursor = params.Cursor
-	if params.Cursor < count {
-		pfpki.DB.Select(params.Fields).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&certdb)
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		sql, err := vars.Sql(c)
+		if err != nil {
+			return Information, err
+		}
+		var certdb []Cert
+		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
 		Information.Entries = certdb
 	}
-	Information.NextCursor = params.Cursor + params.Limit
 
 	return Information, nil
 }
 
-func (c Cert) search(pfpki *Handler, params GetVars) (Info, error) {
+func (c Cert) search(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
+	sql, err := vars.Sql(c)
+	if err != nil {
+		return Information, err
+	}
 	var count int
-	where := params.Query.Where()
-	pfpki.DB.Model(&Cert{}).Where(where.Query, where.Values...).Count(&count)
+	pfpki.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
 	Information.TotalCount = count
-	var certdb []Cert
-	Information.PrevCursor = params.Cursor
-	if params.Cursor < count {
-		pfpki.DB.Select(params.Fields).Where(where.Query, where.Values...).Order(params.Sort).Offset(params.Cursor).Limit(params.Limit).Find(&certdb)
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		var certdb []Cert
+		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
 		Information.Entries = certdb
 	}
-	Information.NextCursor = params.Cursor + params.Limit
 
 	return Information, nil
 }
