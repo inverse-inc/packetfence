@@ -356,6 +356,11 @@ pfipset=enabled
 # Should pfpki be managed by PacketFence?
 pfpki=enabled
 #
+# services.galera-autofix
+#
+# Should galera-autofix be managed by PacketFence?
+galera-autofix=enabled
+#
 # services.pfdhcp
 #
 # Should pfdhcp be managed by PacketFence?

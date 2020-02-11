@@ -25,6 +25,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: 'galera-autofix',
+          text: i18n.t('Should galera-autofix be managed by PacketFence?'),
+          cols: [
+            {
+              namespace: 'galera-autofix',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: 'fingerbank-collector',
           text: i18n.t('Should the fingerbank-collector be managed by PacketFence?'),
           cols: [

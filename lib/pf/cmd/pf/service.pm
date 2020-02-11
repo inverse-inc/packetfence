@@ -16,6 +16,7 @@ Services managed by PacketFence:
 
   api-frontend         | Golang daemon providing API
   fingerbank-collector | Fingerprinting data collection daemon
+  galera-autofix       | Automated recovery of Galera clusters
   haproxy-portal       | haproxy portal daemon
   haproxy-db           | haproxy database daemon
   httpd.aaa            | Apache AAA webservice
