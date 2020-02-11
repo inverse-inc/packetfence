@@ -5,7 +5,7 @@ After=network.target packetfence-config.service
 Wants=packetfence-config.service
 
 [Service]
-ExecStart=/usr/local/pf/sbin/galeraautofix
+ExecStart=/usr/local/pf/sbin/galera-autofix
 Restart=on-failure
 Slice=packetfence-base.slice
 User=root

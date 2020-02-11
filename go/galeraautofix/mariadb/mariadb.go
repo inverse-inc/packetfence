@@ -177,7 +177,7 @@ func IsDBAvailable(ctx context.Context, host string) bool {
 		if status == "Primary" {
 			return true
 		} else {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : status is not Primary", host))
 			return false
 		}
 	}
