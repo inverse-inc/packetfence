@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import store from '@/store'
 
 const types = {
   LOADING: 'loading',
@@ -195,6 +196,7 @@ const mutations = {
   CA_ITEM_REPLACED: (state, data) => {
     state.caStatus = types.SUCCESS
     Vue.set(state.caItemCache, data.ID, data)
+    store.dispatch('config/resetPkiCas')
   },
   CA_ERROR: (state, response) => {
     state.caStatus = types.ERROR
@@ -214,6 +216,7 @@ const mutations = {
   PROFILE_ITEM_REPLACED: (state, data) => {
     state.profileStatus = types.SUCCESS
     Vue.set(state.profileItemCache, data.ID, data)
+    store.dispatch('config/resetPkiProfiles')
   },
   PROFILE_ERROR: (state, response) => {
     state.profileStatus = types.ERROR
@@ -237,12 +240,14 @@ const mutations = {
   CERT_ITEM_REPLACED: (state, data) => {
     state.certStatus = types.SUCCESS
     Vue.set(state.certItemCache, data.ID, data)
+    store.dispatch('config/resetPkiCerts')
   },
   CERT_ITEM_EMAILED: (state) => {
     state.certStatus = types.SUCCESS
   },
   CERT_ITEM_REVOKED: (state, id) => {
     state.certStatus = types.SUCCESS
+    store.dispatch('config/resetPkiCerts')
   },
   CERT_ERROR: (state, response) => {
     state.certStatus = types.ERROR
