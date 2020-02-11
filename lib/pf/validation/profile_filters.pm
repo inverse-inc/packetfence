@@ -209,9 +209,9 @@ sub validate_tenant {
 
 sub validate_advanced {
     my ($self, $type, $value) = @_;
-    my ($array, $msg) = parse_condition_string($value);
+    my ($array, $err) = parse_condition_string($value);
     unless (defined $array) {
-        return ($FALSE, $msg);
+        return ($FALSE, $err->{highlighted_error});
     }
     return ($TRUE, undef);
 }

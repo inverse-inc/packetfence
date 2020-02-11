@@ -50,7 +50,7 @@ sub build {
     my ($str) = @_;
     my ($ast, $err) = parse_condition_string($str);
     if ($err) {
-        die $err;
+        die $err->{highlighted_error};
     }
 
     return build_ast($ast);
