@@ -271,6 +271,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_self_services_routes($root);
     $self->setup_api_v1_config_domains_routes($root);
     $self->setup_api_v1_config_filters_routes($root);
+    $self->setup_api_v1_config_filter_engines_routes($root);
     $self->setup_api_v1_config_fingerbank_settings_routes($root);
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
@@ -294,7 +295,6 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_template_switches_routes($root);
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
     $self->setup_api_v1_config_wmi_rules_routes($root);
-    $self->setup_api_v1_config_vlan_filters_routes($root);
     return;
 }
 
@@ -1845,21 +1845,22 @@ sub setup_api_v1_config_wmi_rules_routes {
     return ($collection_route, $resource_route);
 }
 
-=head2 setup_api_v1_config_vlan_filters_routes
+=head2 setup_api_v1_config_filter_engines_routes
 
-setup_api_v1_config_vlan_filters_routes
+setup_api_v1_config_filter_engines_routes
 
 =cut
 
-sub setup_api_v1_config_vlan_filters_routes {
+sub setup_api_v1_config_filter_engines_routes {
     my ($self, $root) = @_;
+    my $filter_engines_root = $root->any("/filter_engines")->name("api.v1.Config.FilterEngines");
     my ($collection_route, $resource_route) =
       $self->setup_api_v1_std_config_routes(
         $root,
         "Config::VlanFilters",
-        "/vlan_filters",
-        "/vlan_filter/#vlan_filter_id",
-        "api.v1.Config.VlanFilters"
+        "/vlans",
+        "/vlan/#vlan_id",
+        "api.v1.Config.FilterEngines.Vlan"
     );
 
     return ($collection_route, $resource_route);
