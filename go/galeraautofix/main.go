@@ -128,6 +128,13 @@ func handle(ctx context.Context, nodes *NodeList) {
 		return
 	}
 
+	for _, n := range nodes.Nodes {
+		if n.IsDisabled(ctx) {
+			log.LoggerWContext(ctx).Info("At least one of the cluster nodes is disabled. Not doing anything.")
+			return
+		}
+	}
+
 	if handlePeerDBAvailable(ctx, nodes) {
 		log.LoggerWContext(ctx).Info("The DB available workflow has been used for this iteration")
 		return

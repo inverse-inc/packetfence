@@ -86,3 +86,8 @@ func (n *Node) IsThisServer(ctx context.Context) bool {
 	sharedutils.CheckError(err)
 	return hostname == n.Hostname
 }
+
+func (n *Node) IsDisabled(ctx context.Context) bool {
+	_, err := os.Stat(fmt.Sprintf("/usr/local/pf/var/run/%s-cluster-disabled", n.Hostname))
+	return err == nil
+}
