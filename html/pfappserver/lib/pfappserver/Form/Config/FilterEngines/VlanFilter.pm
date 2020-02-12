@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::VlanFilter;
+package pfappserver::Form::Config::FilterEngines::VlanFilter;
 
 =head1 NAME
 
-pfappserver::Form::Config::VlanFilter -
+pfappserver::Form::Config::FilterEngines::VlanFilter -
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::VlanFilter
+pfappserver::Form::Config::FilterEngines::VlanFilter
 
 =cut
 
@@ -29,7 +29,7 @@ has_field 'id' => (
 );
 
 has_field 'condition' => (
-    type => 'Text',
+    type => 'FilterCondition',
     required => 1,
 );
 

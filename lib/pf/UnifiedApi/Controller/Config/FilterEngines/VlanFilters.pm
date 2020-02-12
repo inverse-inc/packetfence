@@ -1,8 +1,8 @@
-package pf::UnifiedApi::Controller::Config::VlanFilters;
+package pf::UnifiedApi::Controller::Config::FilterEngines::VlanFilters;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::VlanFilters - 
+pf::UnifiedApi::Controller::Config::FilterEngines::VlanFilters - 
 
 =cut
 
@@ -19,10 +19,10 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 has 'config_store_class' => 'pf::ConfigStore::VlanFilters';
 has 'form_class' => 'pfappserver::Form::Config::VlanFilter';
-has 'primary_key' => 'vlan_id';
+has 'primary_key' => 'vlan_filter_id';
 
 use pf::ConfigStore::VlanFilters;
-use pfappserver::Form::Config::VlanFilter;
+use pfappserver::Form::Config::FilterEngines::VlanFilter;
  
 =head1 AUTHOR
 
