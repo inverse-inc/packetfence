@@ -1836,9 +1836,9 @@ sub setup_api_v1_config_filter_engines_routes {
     my ($collection_route, $resource_route) =
       $self->setup_api_v1_std_config_routes(
         $filter_engines_root,
-        "Config::VlanFilters",
-        "/vlans",
-        "/vlan/#vlan_id",
+        "Config::FilterEngines::VlanFilters",
+        "/vlan_filters",
+        "/vlan_filter/#vlan_filter_id",
         "api.v1.Config.FilterEngines.Vlan"
     );
 
