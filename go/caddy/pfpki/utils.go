@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"strconv"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	gomail "gopkg.in/gomail.v2"

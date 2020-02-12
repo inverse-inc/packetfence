@@ -89,7 +89,7 @@ func (vars Vars) SqlSelect(class interface{}) (string, error) {
 					}
 				}
 				if valid == false {
-					err := errors.New("(1) Unknown field `" + field + "`")
+					err := errors.New("Unknown field `" + field + "`")
 					return "", err
 				}
 			}
@@ -128,7 +128,7 @@ func (vars Vars) SqlOrder(class interface{}) (string, error) {
 				}
 			}
 			if valid == false {
-				err := errors.New("(2) Unknown field `" + field + "`")
+				err := errors.New("Unknown field `" + field + "`")
 				return "", err
 			}
 		}
@@ -207,7 +207,7 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 			}
 		}
 		if valid == false {
-			err = errors.New("(3) Unknown field `" + search.Field + "`")
+			err = errors.New("Unknown field `" + search.Field + "`")
 			return Where{}, err
 		}
 		if search.Value == "" {
