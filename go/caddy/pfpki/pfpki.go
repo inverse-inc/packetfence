@@ -13,6 +13,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/text/message"
+	"golang.org/x/text/message/catalog"
 )
 
 // Register the plugin in caddy
@@ -21,6 +23,15 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
+	dict, err := parseYAMLDict()
+	if err != nil {
+		panic(err)
+	}
+	cat, err := catalog.NewFromMap(dict)
+	if err != nil {
+		panic(err)
+	}
+	message.DefaultCatalog = cat
 }
 
 type (

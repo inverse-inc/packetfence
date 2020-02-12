@@ -101,6 +101,7 @@ require (
 	google.golang.org/grpc v1.19.0
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
 	google.golang.org/grpc v1.22.1
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect

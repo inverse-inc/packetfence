@@ -506,7 +506,7 @@ type PfConfAlerting struct {
 	SubjectPrefic  string `json:"subjectprefix"`
 	SMTPUsername   string `json:"smtp_username"`
 	SMTPTimeout    string `json:"smtp_timeout"`
-	SMTPPort       string `json:"smtp_port"`
+	SMTPPort       int    `json:"smtp_port"`
 	SMTPVerifySSL  string `json:"smtp_verifyssl"`
 	SMTPServer     string `json:"smtpserver"`
 }
