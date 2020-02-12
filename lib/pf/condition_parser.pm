@@ -47,7 +47,7 @@ use warnings;
 use base qw(Exporter);
 
 BEGIN {
-    our @EXPORT_OK = qw(parse_condition_string);
+    our @EXPORT_OK = qw(parse_condition_string ast_to_object);
 }
 
 
@@ -55,13 +55,13 @@ BEGIN {
 
 Parses a string to a structure for building filters and conditions
 
-    my ($array, $err) = parse_condition_string('(a || b) && (c || d)');
+    my ($ast, $err) = parse_condition_string('(a || b) && (c || d)');
 
 On success
 
-$array will be the following structure
+$ast will be the following structure
 
-    $array = [
+    $ast = [
               'AND',
               [
                 'OR',
@@ -388,6 +388,46 @@ sub highlight_error {
     my $pre_hilight = $HIGH_LIGHT x ($postion - 1)  . " ";
     my $post_hilight = " " . $HIGH_LIGHT x ( $string_length - length($pre_hilight) - 2);
     return "${msg}${pre_hilight}${MARKER}${post_hilight}\n";
+}
+
+our %OPS_WITH_VALUES = (
+    'AND' => 'and',
+    'OR' => 'or',
+    'NOT' => 'not',
+);
+
+our %OP_BINARY = (
+#    %OPS_WITH_VALUES
+    "==" => 'equals',
+    "!=" => 'not_equals',
+    "=~" => 'regex',
+    "!~" => 'regex_not',
+    ">"  => 'greater',
+    ">=" => 'greater_equals',
+    "<"  => 'lower',
+    "<=" => 'lower_equals',
+);
+
+sub ast_to_object {
+    my ($ast) = @_;
+    if (ref $ast) {
+        my $op = $ast->[0];
+        if (exists $OPS_WITH_VALUES{$op}) {
+            return { op => $OPS_WITH_VALUES{$op}, values => [map { ast_to_object($_) } @{$ast}[1..(@{$ast} - 1)] ] };
+        }
+
+        if (exists $OP_BINARY{$op}) {
+            return { op => $OP_BINARY{$op}, field => $ast->[1], value => $ast->[2] };
+        }
+
+        if ($op eq 'FUNC') {
+            my ($f, $args) = @{$ast}[1,2];
+            return { op => $f, field => $args->[0], value => $args->[1] };
+        }
+
+        return undef;
+    }
+    return { op => "var" , field => $ast };
 }
 
 =head1 AUTHOR
