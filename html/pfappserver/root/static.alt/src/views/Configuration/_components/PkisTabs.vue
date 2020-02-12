@@ -7,11 +7,14 @@
       <b-tab :title="$t('Certificate Authorities')" @click="changeTab('pkiCas')">
         <pki-cas-list />
       </b-tab>
-      <b-tab :title="$t('All Profiles')" @click="changeTab('pkiProfiles')">
+      <b-tab :title="$t('Profiles')" @click="changeTab('pkiProfiles')">
         <pki-profiles-list />
       </b-tab>
-      <b-tab :title="$t('All Certificates')" @click="changeTab('pkiCerts')">
+      <b-tab :title="$t('Certificates')" @click="changeTab('pkiCerts')">
         <pki-certs-list />
+      </b-tab>
+      <b-tab :title="$t('Revoked Certificates')" @click="changeTab('pkiRevokedCerts')">
+        <pki-revoked-certs-list />
       </b-tab>
     </b-tabs>
   </b-card>
@@ -22,13 +25,15 @@ import FormStore from '@/store/base/form'
 import PkiCasList from './PkiCasList'
 import PkiProfilesList from './PkiProfilesList'
 import PkiCertsList from './PkiCertsList'
+import PkiRevokedCertsList from './PkiRevokedCertsList'
 
 export default {
   name: 'pkis-tabs',
   components: {
     PkiCasList,
     PkiProfilesList,
-    PkiCertsList
+    PkiCertsList,
+    PkiRevokedCertsList
   },
   props: {
     tab: {
@@ -38,7 +43,7 @@ export default {
   },
   computed: {
     tabIndex () {
-      return ['pkiCas', 'pkiProfiles', 'pkiCerts'].indexOf(this.tab)
+      return ['pkiCas', 'pkiProfiles', 'pkiCerts', 'pkiRevokedCerts'].indexOf(this.tab)
     }
   },
   methods: {

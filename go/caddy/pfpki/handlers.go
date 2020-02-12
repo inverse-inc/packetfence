@@ -46,6 +46,15 @@ func manageCA(pfpki *Handler) http.Handler {
 	})
 }
 
+func manageProfile(pfpki *Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		var o Profile
+
+		manage(o, pfpki, res, req)
+	})
+}
+
 func manageCert(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
@@ -55,10 +64,10 @@ func manageCert(pfpki *Handler) http.Handler {
 	})
 }
 
-func manageProfile(pfpki *Handler) http.Handler {
+func manageRevokedCert(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o Profile
+		var o RevokedCert
 
 		manage(o, pfpki, res, req)
 	})
@@ -321,6 +330,66 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "DELETE":
 				vars := mux.Vars(req)
 				Information, err = v.revoke(pfpki, vars)
+				if err != nil {
+					panic(err)
+				}
+				Information.Status = http.StatusOK
+
+			default:
+				err = errors.New("Method " + req.Method + " not supported")
+				Information.Status = http.StatusMethodNotAllowed
+			}
+
+		default:
+			err = errors.New("Path " + req.URL.Path + " not supported")
+			Information.Status = http.StatusNotFound
+		}
+
+	case RevokedCert:
+
+		switch {
+
+		case len(regexp.MustCompile(`/pki/revokedcerts/search$`).FindStringIndex(req.URL.Path)) > 0:
+			switch req.Method {
+			case "POST":
+				var vars Vars
+				if err := vars.DecodeBody(req); err != nil {
+					panic(err)
+				}
+				Information, err = v.search(pfpki, vars)
+				if err != nil {
+					panic(err)
+				}
+				Information.Status = http.StatusOK
+
+			default:
+				err = errors.New("Method " + req.Method + " not supported")
+				Information.Status = http.StatusMethodNotAllowed
+			}
+
+		case len(regexp.MustCompile(`/pki/revokedcerts`).FindStringIndex(req.URL.Path)) > 0:
+			switch req.Method {
+			case "GET":
+				vars, err := DecodeUrl(req)
+				if err != nil {
+					panic(err)
+				}
+				Information, err = v.paginated(pfpki, vars)
+				if err != nil {
+					panic(err)
+				}
+				Information.Status = http.StatusOK
+
+			default:
+				err = errors.New("Method " + req.Method + " not supported")
+				Information.Status = http.StatusMethodNotAllowed
+			}
+
+		case len(regexp.MustCompile(`/pki/revokedcert/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
+			switch req.Method {
+			case "GET":
+				vars := mux.Vars(req)
+				Information, err = v.getById(pfpki, vars)
 				if err != nil {
 					panic(err)
 				}

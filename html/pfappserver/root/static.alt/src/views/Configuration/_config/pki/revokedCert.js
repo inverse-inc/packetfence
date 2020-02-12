@@ -1,22 +1,8 @@
-import store from '@/store'
 import countries from '@/globals/countries'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import {
-  and,
-  not,
-  conditional,
-  hasPkiCerts,
-  pkiCertCnExists
-} from '@/globals/pfValidators'
-import {
-  email,
-  required,
-  maxLength
-} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -59,15 +45,17 @@ export const columns = [
     visible: true
   },
   {
-    key: 'valid_until',
-    label: i18n.t('Valid Until'),
+    key: 'revoked',
+    label: i18n.t('Revoked'),
     sortable: true,
     visible: true
   },
   {
-    key: 'buttons',
-    label: '',
-    locked: true
+    key: 'crl_reason',
+    label: i18n.t('Reason'),
+    sortable: true,
+    sortByFormatted: true,
+    visible: true
   }
 ]
 
@@ -114,11 +102,11 @@ export const config = () => {
     columns,
     fields,
     rowClickRoute (item) {
-      return { name: 'pkiCert', params: { id: item.ID } }
+      return { name: 'pkiRevokedCert', params: { id: item.ID } }
     },
     searchPlaceholder: i18n.t('Search by identifier, certificate authority, profile, common name or email'),
     searchableOptions: {
-      searchApiEndpoint: 'pki/certs',
+      searchApiEndpoint: 'pki/revokedcerts',
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -133,7 +121,7 @@ export const config = () => {
           ]
         }]
       },
-      defaultRoute: { name: 'pkiCerts' }
+      defaultRoute: { name: 'pkiRevokedCerts' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -153,31 +141,6 @@ export const config = () => {
       }
     }
   }
-}
-
-export const download = (id, password, filename='cert.p12') => {
-  return new Promise((resolve, reject) => {
-    store.dispatch('$_pkis/downloadCert', { id, password }).then(arrayBuffer => {
-      const blob = new Blob([arrayBuffer], { type: 'application/x-pkcs12' })
-      if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(blob, filename)
-      } else {
-        let elem = window.document.createElement('a')
-        elem.href = window.URL.createObjectURL(blob)
-        elem.download = filename
-        document.body.appendChild(elem)
-        elem.click()
-        document.body.removeChild(elem)
-      }
-      resolve()
-    }).catch(e => {
-      reject(e)
-    })
-  })
-}
-
-export const revoke = (id, reason) => {
-  return store.dispatch('$_pkis/revokeCert', { id, reason })
 }
 
 export const view = (form = {}, meta = {}) => {
@@ -324,36 +287,5 @@ export const view = (form = {}, meta = {}) => {
 }
 
 export const validators = (form = {}, meta = {}) => {
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
-  return {
-    profile_id: {
-      [i18n.t('Profile required.')]: required
-    },
-    cn: {
-      [i18n.t('Common Name required.')]: required,
-      [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiCerts, pkiCertCnExists)),
-      [i18n.t('Maximum 64 characters.')]: maxLength(64)
-    },
-    mail: {
-      [i18n.t('Invalid email address.')]: email
-    },
-    organisation: {
-      [i18n.t('Maximum 64 characters.')]: maxLength(64)
-    },
-    state: {
-      [i18n.t('Maximum 255 characters.')]: maxLength(255)
-    },
-    locality: {
-      [i18n.t('Maximum 255 characters.')]: maxLength(255)
-    },
-    street_address: {
-      [i18n.t('Maximum 255 characters.')]: maxLength(255)
-    },
-    postal_code: {
-      [i18n.t('Maximum 255 characters.')]: maxLength(255)
-    }
-  }
+  return {}
 }

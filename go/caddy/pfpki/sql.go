@@ -76,7 +76,7 @@ func (vars Vars) SqlSelect(class interface{}) (string, error) {
 		selectFields := make([]string, 0)
 		var valid bool = false
 		for _, field := range vars.Fields {
-			if field == "id" {
+			if strings.ToLower(field) == "id" {
 				selectFields = append(selectFields, "`id`")
 			} else {
 				valid = false
@@ -115,7 +115,7 @@ func (vars Vars) SqlOrder(class interface{}) (string, error) {
 				order = "DESC"
 			}
 		}
-		if field == "id" {
+		if strings.ToLower(field) == "id" {
 			orderFields = append(orderFields, "`id` "+order)
 		} else {
 			valid = false

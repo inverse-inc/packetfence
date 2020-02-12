@@ -85,6 +85,7 @@ const PkisTabs = () => import(/* webpackChunkName: "Editor" */ '../_components/P
 const PkiCaView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiCaView')
 const PkiProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProfileView')
 const PkiCertView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiCertView')
+const PkiRevokedCertView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiRevokedCertView')
 
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
@@ -1547,6 +1548,26 @@ const route = {
           store.registerModule('formPkiCert', FormStore)
         }
         store.dispatch('$_pkis/getCert', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/revokedcerts',
+      name: 'pkiRevokedCerts',
+      component: PkisTabs,
+      props: (route) => ({ tab: 'pkiRevokedCerts', query: route.query.query })
+    },
+    {
+      path: 'pki/revokedcert/:id',
+      name: 'pkiRevokedCert',
+      component: PkiRevokedCertView,
+      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCert) { // Register store module only once
+          store.registerModule('formPkiCert', FormStore)
+        }
+        store.dispatch('$_pkis/getRevokedCert', to.params.id).then(() => {
           next()
         })
       }

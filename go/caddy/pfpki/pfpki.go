@@ -104,6 +104,13 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	// Revoke Certificate
 	api.Handle("/pki/cert/{id}/{reason}", manageCert(PFPki)).Methods("DELETE")
 
+	// Revoked Certificates
+	api.Handle("/pki/revokedcerts", manageRevokedCert(PFPki)).Methods("GET")
+	// Search Revoked Certificates
+	api.Handle("/pki/revokedcerts/search", manageRevokedCert(PFPki)).Methods("POST")
+	// Get Revoked Certificate by ID
+	api.Handle("/pki/revokedcert/{id}", manageRevokedCert(PFPki)).Methods("GET")
+
 	// OCSP responder
 	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")
 

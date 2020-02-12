@@ -89,7 +89,8 @@ export default {
               items: [
                 { name: this.$i18n.t('Certificate Authorities'), path: '/configuration/pki/cas' },
                 { name: this.$i18n.t('Profiles'), path: '/configuration/pki/profiles' },
-                { name: this.$i18n.t('Certificates'), path: '/configuration/pki/certs' }
+                { name: this.$i18n.t('Certificates'), path: '/configuration/pki/certs' },
+                { name: this.$i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
               ]
             }
           ]

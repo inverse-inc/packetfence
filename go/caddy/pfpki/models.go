@@ -118,7 +118,7 @@ type (
 	Cert struct {
 		gorm.Model
 		Cn            string    `json:"cn,omitempty" gorm:"UNIQUE"`
-		Mail          string    `json:"mail,omitempty"`
+		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca            CA        `json:"-"`
 		CaID          uint      `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
 		CaName        string    `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
@@ -133,7 +133,7 @@ type (
 		Profile       Profile   `json:"-"`
 		ProfileID     uint      `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
 		ProfileName   string    `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil    time.Time `json:"valid_until,omitempty"`
+		ValidUntil    time.Time `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
 		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber  string    `json:"serial_number,omitempty"`
 	}
@@ -144,7 +144,7 @@ type (
 		Cn            string    `json:"cn,omitempty" gorm:"INDEX:cn"`
 		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca            CA        `json:"-"`
-		CaID          uint      `json:"caid,omitempty" gorm:"INDEX:ca_id"`
+		CaID          uint      `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
 		CaName        string    `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
 		StreetAddress string    `json:"street_address,omitempty"`
 		Organisation  string    `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -153,15 +153,15 @@ type (
 		Locality      string    `json:"locality,omitempty"`
 		PostalCode    string    `json:"postal_code,omitempty"`
 		Key           string    `json:"-" gorm:"type:longtext"`
-		Cert          string    `json:"publickey,omitempty" gorm:"type:longtext"`
+		Cert          string    `json:"cert,omitempty" gorm:"type:longtext"`
 		Profile       Profile   `json:"-"`
 		ProfileID     uint      `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
 		ProfileName   string    `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil    time.Time `json:"valid_until,omitempty"`
+		ValidUntil    time.Time `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
 		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		Revoked       time.Time `json:"revoked,omitempty"`
-		CRLReason     int       `json:"crl_reason,omitempty"`
 		SerialNumber  string    `json:"serial_number,omitempty"`
+		Revoked       time.Time `json:"revoked,omitempty" gorm:"INDEX:revoked"`
+		CRLReason     int       `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
 	}
 )
 
@@ -677,10 +677,10 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	// Find the Cert
 	var cert Cert
 
-	cn := params["cn"]
+	id := params["id"]
 	reason := params["reason"]
 
-	if CertDB := pfpki.DB.Where("Cn = ?", cn).Find(&cert); CertDB.Error != nil {
+	if CertDB := pfpki.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
 		return Information, CertDB.Error
 	}
 
@@ -700,11 +700,64 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	if err != nil {
 		return Information, errors.New("Reason unsupported")
 	}
-	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, ProfileName: cert.ProfileName, Profile: profile, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
+
+	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
 		return Information, err
 	}
 	if err := pfpki.DB.Delete(&cert).Error; err != nil {
 		return Information, err
+	}
+
+	return Information, nil
+}
+
+func (c RevokedCert) getById(pfpki *Handler, params map[string]string) (Info, error) {
+	Information := Info{}
+	var revokedcertdb []RevokedCert
+	if val, ok := params["id"]; ok {
+		allFields := strings.Join(SqlFields(c)[:], ",")
+		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&revokedcertdb)
+	}
+	Information.Entries = revokedcertdb
+
+	return Information, nil
+}
+
+func (c RevokedCert) paginated(pfpki *Handler, vars Vars) (Info, error) {
+	Information := Info{}
+	var count int
+	pfpki.DB.Model(&Cert{}).Count(&count)
+	Information.TotalCount = count
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		sql, err := vars.Sql(c)
+		if err != nil {
+			return Information, err
+		}
+		var revokedcertdb []RevokedCert
+		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
+		Information.Entries = revokedcertdb
+	}
+
+	return Information, nil
+}
+
+func (c RevokedCert) search(pfpki *Handler, vars Vars) (Info, error) {
+	Information := Info{}
+	sql, err := vars.Sql(c)
+	if err != nil {
+		return Information, err
+	}
+	var count int
+	pfpki.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	Information.TotalCount = count
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < count {
+		var revokedcertdb []RevokedCert
+		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
+		Information.Entries = revokedcertdb
 	}
 
 	return Information, nil

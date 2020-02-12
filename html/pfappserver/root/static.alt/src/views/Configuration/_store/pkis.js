@@ -27,12 +27,17 @@ const state = {
   certListCache: false, // cert list details
   certItemCache: {}, // cert item details
   certMessage: '',
-  certStatus: ''
+  certStatus: '',
+
+  revokedCertListCache: false, // revoked cert list details
+  revokedCertItemCache: {}, // revoked cert item details
+  revokedCertMessage: '',
+  revokedCertStatus: ''
 }
 
 const getters = {
-  isWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus) || [types.LOADING, types.DELETING].includes(state.profileStatus) || [types.LOADING, types.DELETING].includes(state.certStatus),
-  isLoading: state => state.caStatus === types.LOADING || state.profileStatus === types.LOADING || state.certStatus === types.LOADING,
+  isWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus) || [types.LOADING, types.DELETING].includes(state.profileStatus) || [types.LOADING, types.DELETING].includes(state.certStatus) || [types.LOADING, types.DELETING].includes(state.revokedCertStatus),
+  isLoading: state => state.caStatus === types.LOADING || state.profileStatus === types.LOADING || state.certStatus === types.LOADING || state.revokedCertStatus === types.LOADING,
 
   isCaWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus),
   isCaLoading: state => state.caStatus === types.LOADING,
@@ -42,6 +47,9 @@ const getters = {
 
   isCertWaiting: state => [types.LOADING, types.DELETING].includes(state.certStatus),
   isCertLoading: state => state.certStatus === types.LOADING,
+
+  isRevokedCertWaiting: state => [types.LOADING, types.DELETING].includes(state.revokedCertStatus),
+  isRevokedCertLoading: state => state.revokedCertStatus === types.LOADING
 }
 
 const actions = {
@@ -181,6 +189,33 @@ const actions = {
       commit('CERT_ERROR', err.response)
       throw err
     })
+  },
+
+  allRevokedCerts: ({ state, commit }) => {
+    if (state.revokedCertListCache) {
+      return Promise.resolve(state.revokedCertListCache)
+    }
+    commit('REVOKED_CERT_REQUEST')
+    return api.pkiRevokedCerts().then(response => {
+      commit('REVOKED_CERT_LIST_REPLACED', response.items)
+      return state.revokedCertListCache
+    }).catch((err) => {
+      commit('REVOKED_CERT_ERROR', err.response)
+      throw err
+    })
+  },
+  getRevokedCert: ({ state, commit }, id) => {
+    if (state.revokedCertItemCache[id]) {
+      return Promise.resolve(state.revokedCertItemCache[id])
+    }
+    commit('REVOKED_CERT_REQUEST')
+    return api.pkiRevokedCert(id).then(item => {
+      commit('REVOKED_CERT_ITEM_REPLACED', item)
+      return state.revokedCertItemCache[id]
+    }).catch((err) => {
+      commit('REVOKED_CERT_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -253,6 +288,25 @@ const mutations = {
     state.certStatus = types.ERROR
     if (response && response.data) {
       state.certMessage = response.data.message
+    }
+  },
+
+  REVOKED_CERT_REQUEST: (state, type) => {
+    state.revokedCertStatus = type || types.LOADING
+    state.revokedCertMessage = ''
+  },
+  REVOKED_CERT_LIST_REPLACED: (state, items) => {
+    state.revokedCertStatus = types.SUCCESS
+    state.revokedCertListCache = items
+  },
+  REVOKED_CERT_ITEM_REPLACED: (state, data) => {
+    state.revokedCertStatus = types.SUCCESS
+    Vue.set(state.revokedCertItemCache, data.ID, data)
+  },
+  REVOKED_CERT_ERROR: (state, response) => {
+    state.revokedCertStatus = types.ERROR
+    if (response && response.data) {
+      state.revokedCertMessage = response.data.message
     }
   }
 }
