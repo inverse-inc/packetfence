@@ -20,14 +20,15 @@
         <mj-column>
           <mj-text>
             <p style="padding-bottom: 20px">{{translate "msg_hello"}}</p>
-            <p>{{.Header}}</p>
+            <p>{{translate .Header }}</p>
           </mj-text>
         </mj-column>
       </mj-section>
       <mj-section padding-top="0">
-        <mj-column width="50%">
-          <mj-text align="left">
-            <p class="label">Password: {{.Password}}</p>
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">{{translate "msg_password"}} {{.Password}}</p>
+            <p style="padding-bottom: 20px">{{translate .Footer }}</p>
           </mj-text>
         </mj-column>
       </mj-section>

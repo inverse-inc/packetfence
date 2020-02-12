@@ -49,16 +49,17 @@ func (h Handler) email(cert Cert, profile Profile, file []byte, password string)
 	email := Email{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
 
 	if profile.P12MailHeader == "" {
-		email.Header = "Hello\n attached to this email your certificate and the password\n"
+		email.Header = "msg_header"
 	}
 	if profile.P12MailHeader == "" {
-		email.Footer = "Regards\n"
+		email.Footer = "msg_footer"
 	}
 
 	if profile.P12MailPassword == 1 {
 		email.Password = password
 		Information.Password = password
 	}
+
 	lang := language.MustParse(advanced.Language)
 
 	emailContent, err := ParseTemplate("emails-pki_certificate.html", lang, email)
