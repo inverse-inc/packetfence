@@ -360,7 +360,12 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Error.Status = http.StatusMethodNotAllowed
 			}
 
-		case len(regexp.MustCompile(`/pki/cert/[0-9]+/download/.*$`).FindStringIndex(req.URL.Path)) > 0:
+		case len(regexp.MustCompile(`/pki/cert/[0-9A-Za-z_:]+/download/.*$`).FindStringIndex(req.URL.Path)) > 0:
+			vars := mux.Vars(req)
+			if len(regexp.MustCompile(`[0-9A-Za-z_:]+`).FindStringIndex(vars["id"])) > 0 {
+				vars["cn"] = vars["id"]
+				delete(vars, "id")
+			}
 			switch req.Method {
 			case "GET":
 				vars := mux.Vars(req)
@@ -494,7 +499,8 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 
 	if Error.Status != 0 {
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		res.WriteHeader(Error.Status)
+		res.WriteHeader(http.StatusOK)
+		log.LoggerWContext(pfpki.Ctx).Error(Information.Error)
 		if err := json.NewEncoder(res).Encode(&Error); err != nil {
 			fmt.Println(err)
 		}

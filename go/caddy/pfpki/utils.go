@@ -33,11 +33,13 @@ func (h Handler) email(cert Cert, profile Profile, file []byte, password string)
 
 	dict, err := parseYAMLDict()
 	if err != nil {
-		panic(err)
+		Information.Error = err.Error()
+		return Information, err
 	}
 	cat, err := catalog.NewFromMap(dict)
 	if err != nil {
-		panic(err)
+		Information.Error = err.Error()
+		return Information, err
 	}
 	message.DefaultCatalog = cat
 
@@ -48,9 +50,11 @@ func (h Handler) email(cert Cert, profile Profile, file []byte, password string)
 
 	email := Email{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
 
+	// Undefined Header
 	if profile.P12MailHeader == "" {
 		email.Header = "msg_header"
 	}
+	// Undefined Footer
 	if profile.P12MailHeader == "" {
 		email.Footer = "msg_footer"
 	}
@@ -78,6 +82,7 @@ func (h Handler) email(cert Cert, profile Profile, file []byte, password string)
 	}
 
 	if err := d.DialAndSend(m); err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
