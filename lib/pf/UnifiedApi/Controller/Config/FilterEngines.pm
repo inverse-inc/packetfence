@@ -13,7 +13,7 @@ pf::UnifiedApi::Controller::Config::FilterEngines
 use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
-use pf::condition_parser qw(parse_condition_string);
+use pf::condition_parser qw(parse_condition_string ast_to_object);
 
 sub parse_condition {
     my ($self) = @_;
@@ -36,7 +36,7 @@ sub parse_condition {
         return $self->render_error(422, "Cannot parser error", $err);
     }
 
-    $self->render(json => {ast => $ast});
+    $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
 }
 
 =head1 AUTHOR
