@@ -808,6 +808,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
