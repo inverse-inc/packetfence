@@ -1,3 +1,5 @@
+import Vue from 'vue'
+import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -110,6 +112,16 @@ export const view = (form = {}, meta = {}) => {
     isClone = false,
     providerType = null
   } = meta
+
+  let pkiProfiles = Vue.observable([])
+  if (['packetfence_pki'].includes(providerType)) {
+    store.dispatch('$_pkis/allProfiles').then(profiles => {
+      profiles.map((profile, index) => {
+        Vue.set(pkiProfiles, index, { text: `${profile.ca_name} - ${profile.name}`, value: profile.ID })
+      })
+    })
+  }
+
   return [
     {
       tab: null,
@@ -172,8 +184,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'profile',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'profile')
+              component: pfFormChosen,
+              attrs: {
+                ...attributesFromMeta(meta, 'profile'),
+                ...{
+                  options: pkiProfiles
+                }
+              }
             }
           ]
         },
