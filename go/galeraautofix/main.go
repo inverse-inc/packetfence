@@ -13,12 +13,21 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
+const (
+	startWait                    = time.Duration(10 * time.Minute)
+	decisionLoopInterval         = time.Duration(1 * time.Minute)
+	seqnoReportingTimeout        = time.Duration(1 * time.Minute)
+	seqnoReportingInterval       = time.Duration(10 * time.Second)
+	dbAvailableDetectionCooldown = time.Duration(1 * time.Minute)
+	bootAndRejoinClusterTimeout  = time.Duration(1 * time.Minute)
+)
+
 func main() {
 	ctx := context.Background()
 	go seqnoReporting(ctx)
 
-	log.LoggerWContext(ctx).Info("Waiting 5 minutes before we start checking for DB issues")
-	time.Sleep(5 * time.Minute)
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("Waiting %s before we start checking for DB issues", startWait))
+	time.Sleep(startWait)
 	log.LoggerWContext(ctx).Info("Activating galera-autofix")
 
 	decisionLoop(ctx)
@@ -31,7 +40,7 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 	serv, err := net.ListenUDP("udp", sAddr)
 	defer serv.Close()
 
-	waitUntil := time.Now().Add(1 * time.Minute)
+	waitUntil := time.Now().Add(seqnoReportingTimeout)
 	serv.SetDeadline(waitUntil)
 
 	for {
@@ -83,7 +92,7 @@ func seqnoReporting(ctx context.Context) {
 			seqno, err = mariadb.GetColdSeqno(ctx)
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Unable to obtain sequence number")
-				time.Sleep(10 * time.Second)
+				time.Sleep(seqnoReportingInterval)
 				continue
 			}
 		}
@@ -98,7 +107,7 @@ func seqnoReporting(ctx context.Context) {
 			sendMessage(ctx, conn, MSG_SET_SEQNO, seqno)
 			conn.Close()
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(seqnoReportingInterval)
 	}
 }
 
@@ -113,7 +122,7 @@ func decisionLoop(ctx context.Context) {
 			nodes.AddNode(node)
 		}
 		handle(ctx, nodes)
-		time.Sleep(1 * time.Minute)
+		time.Sleep(decisionLoopInterval)
 	}
 }
 
@@ -197,7 +206,7 @@ func handlePeerDBAvailable(ctx context.Context, nodes *NodeList) bool {
 		if node.Stats.DBAvailable {
 			log.LoggerWContext(ctx).Info("Found a peer DB available. Cooling down for a minute to see if the DB on this server will become ready before attempting to rejoin cluster by force.")
 			// Wait a minute to see if the local DB becomes availble before clearing data and restarting from scratch
-			time.Sleep(1 * time.Minute)
+			time.Sleep(dbAvailableDetectionCooldown)
 			if mariadb.IsLocalDBAvailable(ctx) {
 				log.LoggerWContext(ctx).Info("Database became available on this server. Skipping forced rejoin.")
 				return true
@@ -228,7 +237,7 @@ func bootAndRejoinCluster(ctx context.Context, node *Node) {
 	if mariadb.IsActive(ctx) {
 		mariadb.ForceStop(ctx)
 
-		waitUntil := time.Now().Add(1 * time.Minute)
+		waitUntil := time.Now().Add(bootAndRejoinClusterTimeout)
 		for {
 			if time.Now().After(waitUntil) {
 				log.LoggerWContext(ctx).Error(fmt.Sprintf("Waited too long for %s to offer DB service.", node.IP.String()))
