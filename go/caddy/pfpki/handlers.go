@@ -362,7 +362,9 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9A-Za-z_:]+/download/.*$`).FindStringIndex(req.URL.Path)) > 0:
 			vars := mux.Vars(req)
-			if len(regexp.MustCompile(`[0-9A-Za-z_:]+`).FindStringIndex(vars["id"])) > 0 {
+			if len(regexp.MustCompile(`[0-9]+`).FindStringIndex(vars["id"])) > 0 {
+				delete(vars, "cn")
+			} else {
 				vars["cn"] = vars["id"]
 				delete(vars, "id")
 			}
@@ -399,10 +401,16 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				Error.Status = http.StatusMethodNotAllowed
 			}
 
-		case len(regexp.MustCompile(`/pki/cert/[0-9]+/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
+		case len(regexp.MustCompile(`/pki/cert/[0-9A-Za-z_:]+/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
+			vars := mux.Vars(req)
+			if len(regexp.MustCompile(`[0-9]+`).FindStringIndex(vars["id"])) > 0 {
+				delete(vars, "cn")
+			} else {
+				vars["cn"] = vars["id"]
+				delete(vars, "id")
+			}
 			switch req.Method {
 			case "DELETE":
-				vars := mux.Vars(req)
 				Information, err = v.revoke(pfpki, vars)
 				if err != nil {
 					Error.Message = err.Error()
