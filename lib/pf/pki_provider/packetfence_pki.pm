@@ -61,7 +61,7 @@ sub get_bundle {
 	"profile_id"   => $profile + 0,
     });
 
-    if ($return->{'status'} eq "422" {
+    if ($return->{'status'} eq "422") {
         $logger->warn("Certificate already exist");
     }
 
