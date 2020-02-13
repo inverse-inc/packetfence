@@ -1,14 +1,14 @@
-package pf::pki_provider::packetfence_pfpki;
+package pf::pki_provider::packetfence_pki;
 
 =head1 NAME
 
-pf::pki_provider::packetfence_pfpki
+pf::pki_provider::packetfence_pki
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pki_provider::packetfence_pfpki
+pf::pki_provider::packetfence_pki
 
 =cut
 
@@ -23,7 +23,7 @@ extends 'pf::pki_provider';
 
 use pf::log;
 
-sub module_description { 'PacketFence PKI NG' }
+sub module_description { 'PacketFence PKI' }
 
 =head2 profile
 
