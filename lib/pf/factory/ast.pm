@@ -108,6 +108,11 @@ sub build_ast {
 sub build_not_ast {
     my ($ast) = @_;
     my ($t, $nast) = @$ast;
+    # check if it is a double not (!!)
+    if (ref($nast) && $nast->[0] eq 'NOT') {
+        return $nast->[1];
+    }
+
     return pf::ast::not->new(build_ast($nast));
 }
 
