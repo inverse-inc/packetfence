@@ -88,8 +88,8 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	api.Handle("/pki/profiles", manageProfile(PFPki)).Methods("GET", "POST")
 	// Search Profiles
 	api.Handle("/pki/profiles/search", manageProfile(PFPki)).Methods("POST")
-	// Get Profile by ID
-	api.Handle("/pki/profile/{id}", manageProfile(PFPki)).Methods("GET")
+	// Profile by ID (GET: get, PATCH: update)
+	api.Handle("/pki/profile/{id}", manageProfile(PFPki)).Methods("GET", "PATCH")
 
 	// Certificates (GET: list, POST: create)
 	api.Handle("/pki/certs", manageCert(PFPki)).Methods("GET", "POST")

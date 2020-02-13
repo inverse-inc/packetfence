@@ -8,6 +8,7 @@
     :view="view"
     @close="close"
     @create="create"
+    @save="save"
   >
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
@@ -19,11 +20,12 @@
     </template>
     <template v-slot:footer>
       <b-card-footer>
-        <pf-button-save v-if="isNew || isClone" :disabled="invalidForm" :isLoading="isLoading">
-          <template v-if="isNew">{{ $t('Create') }}</template>
-          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+          <template v-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <b-button v-if="isNew || isClone" :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
       </b-card-footer>
     </template>
@@ -137,7 +139,18 @@ export default {
           this.$router.push({ name: 'pkiProfile', params: { id } })
         }
       }).catch(e => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Profile.<br/>Reason: ') + e })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Profile: ') + e })
+      })
+    },
+    save () {
+      const actionKey = this.actionKey
+      const { ID, ...form } = { ...this.form, ...{ id: ~~this.id } } // lower-case `ID` to `id`, cast as (int)
+      this.$store.dispatch('$_pkis/updateProfile', form).then(response => {
+        if (actionKey) { // [CTRL] key pressed
+          this.close()
+        }
+      }).catch(e => {
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not save Profile: ') + e })
       })
     }
   },

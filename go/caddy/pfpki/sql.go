@@ -83,7 +83,7 @@ func (vars Vars) SqlSelect(class interface{}) (string, error) {
 				for c, classField := range classFields {
 					if strings.ToLower(classField) == strings.ToLower(field) {
 						selectFields = append(selectFields, "`"+classField+"`")
-						classFields = append(classFields[:c], classFields[c+1:]...) // pop from stack to avoid reuse (unique)
+						classFields = append(classFields[:c], classFields[c+1:]...) // pop to avoid reuse (unique)
 						valid = true
 						break
 					}
@@ -122,7 +122,7 @@ func (vars Vars) SqlOrder(class interface{}) (string, error) {
 			for c, classField := range classFields {
 				if strings.ToLower(classField) == strings.ToLower(field) {
 					orderFields = append(orderFields, "`"+classField+"` "+order)
-					classFields = append(classFields[:c], classFields[c+1:]...) // pop from stack to avoid reuse (unique)
+					classFields = append(classFields[:c], classFields[c+1:]...) // pop to avoid reuse (unique)
 					valid = true
 					break
 				}
@@ -174,7 +174,7 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 		if len(search.Values) == 1 {
 			where, err = search.Values[0].SqlWhere(class)
 			return where, nil
-		} else {
+		} else if search.Op != "" {
 			if matched, _ := regexp.MatchString(`(?i)(and|or)`, search.Op); matched {
 				children := make([]string, 0)
 				for _, value := range search.Values {
@@ -182,17 +182,23 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 					if err != nil {
 						return Where{}, err
 					}
-					children = append(children, w.Query)
-					where.Values = append(where.Values, w.Values...)
+					if w.Query != "" {
+						children = append(children, w.Query)
+						where.Values = append(where.Values, w.Values...)
+					}
 				}
-				switch strings.ToLower(search.Op) {
-				case "and":
-					where.Query = fmt.Sprintf("(%s)", strings.Join(children[:], " AND "))
-				case "or":
-					where.Query = fmt.Sprintf("(%s)", strings.Join(children[:], " OR "))
-				default:
-					err = errors.New("Unknown operator `" + search.Op + "`")
-					return Where{}, err
+				if len(children) == 0 {
+					where.Query = "1=1"
+				} else {
+					switch strings.ToLower(search.Op) {
+					case "and":
+						where.Query = fmt.Sprintf("(%s)", strings.Join(children[:], " AND "))
+					case "or":
+						where.Query = fmt.Sprintf("(%s)", strings.Join(children[:], " OR "))
+					default:
+						err = errors.New("Unknown operator `" + search.Op + "`")
+						return Where{}, err
+					}
 				}
 			}
 		}
@@ -210,9 +216,7 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 			err = errors.New("Unknown field `" + search.Field + "`")
 			return Where{}, err
 		}
-		if search.Value == "" {
-			where.Query = "1=1"
-		} else {
+		if search.Value != "" {
 			switch strings.ToLower(search.Op) {
 			case "equals":
 				where.Query = "`" + search.Field + "` = ?"

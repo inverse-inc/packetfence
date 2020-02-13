@@ -89,7 +89,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			switch req.Method {
 			case "POST":
 				var vars Vars
-				if err := vars.DecodeBody(req); err != nil {
+				if err := vars.DecodeBodyJson(req); err != nil {
 					panic(err)
 				}
 				Information, err = v.search(pfpki, vars)
@@ -106,7 +106,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/cas`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
-				vars, err := DecodeUrl(req)
+				vars, err := DecodeUrlQuery(req)
 				if err != nil {
 					panic(err)
 				}
@@ -162,7 +162,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			switch req.Method {
 			case "POST":
 				var vars Vars
-				if err := vars.DecodeBody(req); err != nil {
+				if err := vars.DecodeBodyJson(req); err != nil {
 					panic(err)
 				}
 				Information, err = v.search(pfpki, vars)
@@ -179,7 +179,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/profiles`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
-				vars, err := DecodeUrl(req)
+				vars, err := DecodeUrlQuery(req)
 				if err != nil {
 					panic(err)
 				}
@@ -217,6 +217,19 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				}
 				Information.Status = http.StatusOK
 
+			case "PATCH":
+				body, err := ioutil.ReadAll(req.Body)
+				if err != nil {
+					panic(err)
+				}
+				if err = json.Unmarshal(body, &v); err != nil {
+					panic(err)
+				}
+				if Information, err = v.update(pfpki); err != nil {
+					panic(err)
+				}
+				Information.Status = http.StatusOK
+
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
 				Information.Status = http.StatusMethodNotAllowed
@@ -235,7 +248,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			switch req.Method {
 			case "POST":
 				var vars Vars
-				if err := vars.DecodeBody(req); err != nil {
+				if err := vars.DecodeBodyJson(req); err != nil {
 					panic(err)
 				}
 				Information, err = v.search(pfpki, vars)
@@ -252,7 +265,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/certs`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
-				vars, err := DecodeUrl(req)
+				vars, err := DecodeUrlQuery(req)
 				if err != nil {
 					panic(err)
 				}
@@ -353,7 +366,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			switch req.Method {
 			case "POST":
 				var vars Vars
-				if err := vars.DecodeBody(req); err != nil {
+				if err := vars.DecodeBodyJson(req); err != nil {
 					panic(err)
 				}
 				Information, err = v.search(pfpki, vars)
@@ -370,7 +383,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		case len(regexp.MustCompile(`/pki/revokedcerts`).FindStringIndex(req.URL.Path)) > 0:
 			switch req.Method {
 			case "GET":
-				vars, err := DecodeUrl(req)
+				vars, err := DecodeUrlQuery(req)
 				if err != nil {
 					panic(err)
 				}

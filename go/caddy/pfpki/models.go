@@ -107,7 +107,7 @@ type (
 		Digest           x509.SignatureAlgorithm `json:"digest,omitempty"`
 		KeyUsage         string                  `json:"key_usage,omitempty"`
 		ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
-		P12MailPassword  int                     `json:"p12_mail_password,omitempty"`
+		P12MailPassword  int                     `json:"p12_mail_password,omitempty,string"`
 		P12MailSubject   string                  `json:"p12_mail_subject,omitempty"`
 		P12MailFrom      string                  `json:"p12_mail_from,omitempty"`
 		P12MailHeader    string                  `json:"p12_mail_header,omitempty"`
@@ -370,6 +370,18 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	}
 
 	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, CaID: p.CaID, CaName: ca.Cn, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
+		return Information, err
+	}
+	pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
+	Information.Entries = profiledb
+
+	return Information, nil
+}
+
+func (p Profile) update(pfpki *Handler) (Info, error) {
+	var profiledb []Profile
+	Information := Info{}
+	if err := pfpki.DB.Model(&Profile{}).Updates(&Profile{P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		return Information, err
 	}
 	pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)

@@ -29,7 +29,7 @@ type (
 
 var decoder = schema.NewDecoder()
 
-func DecodeUrl(req *http.Request) (Vars, error) {
+func DecodeUrlQuery(req *http.Request) (Vars, error) {
 	vars := Vars{}
 	if err := decoder.Decode(&vars, req.URL.Query()); err != nil {
 		return vars, err
@@ -55,7 +55,7 @@ func DecodeUrl(req *http.Request) (Vars, error) {
 	return vars, nil
 }
 
-func (vars *Vars) DecodeBody(req *http.Request) error {
+func (vars *Vars) DecodeBodyJson(req *http.Request) error {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		return err

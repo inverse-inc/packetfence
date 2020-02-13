@@ -826,6 +826,17 @@ export default {
       }
     })
   },
+  updatePkiProfile: data => {
+    return apiCall.patch(['pki', 'profile', data.id], data).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return item
+      }
+    })
+  },
   pkiCerts: () => {
     return apiCall.get('pki/certs').then(response => {
       const { data: { items = [] } = {} } = response

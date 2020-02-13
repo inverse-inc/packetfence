@@ -126,6 +126,16 @@ const actions = {
       throw err
     })
   },
+  updateProfile: ({ commit }, data) => {
+    commit('PROFILE_REQUEST')
+    return api.updatePkiProfile(data).then(item => {
+      commit('PROFILE_ITEM_REPLACED', item)
+      return item
+    }).catch(err => {
+      commit('PROFILE_ERROR', err.response)
+      throw err
+    })
+  },
 
   allCerts: ({ state, commit }) => {
     if (state.certListCache) {

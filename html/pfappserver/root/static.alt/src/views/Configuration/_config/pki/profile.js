@@ -271,19 +271,6 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('PKCS 12'),
       rows: [
         {
-          label: i18n.t('P12 SMTP server'),
-          text: i18n.t('IP or FQDN of the SMTP server to relay the email containing the certificate.'),
-          cols: [
-            {
-              namespace: 'p12_smtp_server',
-              component: pfFormInput,
-              attrs: {
-                disabled: (!isNew && !isClone)
-              }
-            }
-          ]
-        },
-        {
           label: i18n.t('P12 mail password'),
           text: i18n.t('Email the password of the pkcs12 file.'),
           cols: [
@@ -291,7 +278,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'p12_mail_password',
               component: pfFormRangeToggle,
               attrs: {
-                disabled: (!isNew && !isClone),
                 values: { checked: '1', unchecked: '0' }
               }
             }
@@ -303,10 +289,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'p12_mail_subject',
-              component: pfFormInput,
-              attrs: {
-                disabled: (!isNew && !isClone)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -316,10 +299,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'p12_mail_from',
-              component: pfFormInput,
-              attrs: {
-                disabled: (!isNew && !isClone)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -331,7 +311,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'p12_mail_header',
               component: pfFormTextarea,
               attrs: {
-                disabled: (!isNew && !isClone),
                 rows: 10
               }
             }
@@ -345,7 +324,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'p12_mail_footer',
               component: pfFormTextarea,
               attrs: {
-                disabled: (!isNew && !isClone),
                 rows: 10
               }
             }

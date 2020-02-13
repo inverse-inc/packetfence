@@ -160,7 +160,7 @@ export default {
           this.$router.push({ name: 'pkiCert', params: { id } })
         }
       }).catch(e => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Certificate.<br/>Reason: ') + e })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Certificate: ') + e })
       })
     },
     email () {
@@ -169,7 +169,7 @@ export default {
         this.$store.dispatch('$_pkis/emailCert', ID).then(response => {
           this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', { cn, mail }) })
         }).catch(e => {
-          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>.<br/>Reason: ', { cn, mail }) + e })
+          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>: ', { cn, mail }) + e })
         })
       }
     }
