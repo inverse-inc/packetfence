@@ -52,13 +52,13 @@ sub get_bundle {
     my $certpwd = $args->{'certificate_pwd'};
 
 
-    pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/cert", {
+    pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/certs", {
         "cn"           => $cn,
 	"mail"         => $email,
 	"organisation" => $organisation,
 	"country"      => $country,
 	"state"        => $state,
-	"profilename"  => $profile,
+	"profile_id"   => $profile + 0,
     });
 
     my $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$cn/download/$certpwd");

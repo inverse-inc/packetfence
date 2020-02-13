@@ -174,11 +174,13 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	keyOut, pub, key, err := GenerateKey(c.KeyType, c.KeySize)
 
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
 	skid, err := calculateSKID(pub)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -238,10 +240,12 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	// Calculate the IssuerNameHash
 	catls, err := tls.X509KeyPair([]byte(cert.String()), []byte(keyOut.String()))
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	h := sha1.New()
@@ -251,6 +255,7 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	pfpki.DB.AutoMigrate(&CA{})
 
 	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -297,6 +302,7 @@ func (c CA) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	if vars.Cursor < count {
 		sql, err := vars.Sql(c)
 		if err != nil {
+			Information.Error = err.Error()
 			return Information, err
 		}
 		var cadb []CA
@@ -311,6 +317,7 @@ func (c CA) search(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	var count int
@@ -344,20 +351,26 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	// Create the table on the fly.
 	pfpki.DB.AutoMigrate(&Profile{})
 	var profiledb []Profile
-
+	var err error
 	Information := Info{}
 	switch p.KeyType {
 	case KEY_RSA:
 		if p.KeySize < 2048 {
-			return Information, errors.New("invalid private key size, should be at least 2048")
+			err = errors.New("invalid private key size, should be at least 2048")
+			Information.Error = err.Error()
+			return Information, err
 		}
 	case KEY_ECDSA:
 		if !(p.KeySize == 256 || p.KeySize == 384 || p.KeySize == 521) {
-			return Information, errors.New("invalid private key size, should be 256 or 384 or 521")
+			err = errors.New("invalid private key size, should be 256 or 384 or 521")
+			Information.Error = err.Error()
+			return Information, err
 		}
 	case KEY_DSA:
 		if !(p.KeySize == 1024 || p.KeySize == 2048 || p.KeySize == 3072) {
-			return Information, errors.New("invalid private key size, should be 1024 or 2048 or 3072")
+			err = errors.New("invalid private key size, should be 1024 or 2048 or 3072")
+			Information.Error = err.Error()
+			return Information, err
 		}
 	default:
 		return Information, errors.New("KeyType unsupported")
@@ -366,6 +379,7 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 
 	var ca CA
 	if CaDB := pfpki.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
+		Information.Error = err.Error()
 		return Information, CaDB.Error
 	}
 
@@ -427,6 +441,7 @@ func (p Profile) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	if vars.Cursor < count {
 		sql, err := vars.Sql(p)
 		if err != nil {
+			Information.Error = err.Error()
 			return Information, err
 		}
 		var profiledb []Profile
@@ -441,6 +456,7 @@ func (p Profile) search(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
 	sql, err := vars.Sql(p)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	var count int
@@ -465,21 +481,25 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	// Find the profile
 	var prof Profile
 	if profDB := pfpki.DB.First(&prof, c.ProfileID); profDB.Error != nil {
+		Information.Error = profDB.Error.Error()
 		return Information, profDB.Error
 	}
 
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
+		Information.Error = CaDB.Error.Error()
 		return Information, CaDB.Error
 	}
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -496,11 +516,13 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	keyOut, pub, _, err := GenerateKey(prof.KeyType, prof.KeySize)
 
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
 	skid, err := calculateSKID(pub)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -533,6 +555,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
 	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
@@ -580,6 +603,7 @@ func (c Cert) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	if vars.Cursor < count {
 		sql, err := vars.Sql(c)
 		if err != nil {
+			Information.Error = err.Error()
 			return Information, err
 		}
 		var certdb []Cert
@@ -594,6 +618,7 @@ func (c Cert) search(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	var count int
@@ -616,11 +641,13 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	var cert Cert
 	if val, ok := params["cn"]; ok {
 		if CertDB := pfpki.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
+			Information.Error = CertDB.Error.Error()
 			return Information, CertDB.Error
 		}
 	}
 	if val, ok := params["id"]; ok {
 		if CertDB := pfpki.DB.First(&cert, val); CertDB.Error != nil {
+			Information.Error = CertDB.Error.Error()
 			return Information, CertDB.Error
 		}
 	}
@@ -628,33 +655,39 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
+		Information.Error = CaDB.Error.Error()
 		return Information, CaDB.Error
 	}
 
 	// Load the certificates from the database
 	certtls, err := tls.X509KeyPair([]byte(cert.Cert), []byte(cert.Key))
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
 	// Find the profile
 	var prof Profile
 	if profDB := pfpki.DB.Where("Name = ?", cert.ProfileName).Find(&prof); profDB.Error != nil {
+		Information.Error = profDB.Error.Error()
 		return Information, profDB.Error
 	}
 
 	certificate, err := x509.ParseCertificate(certtls.Certificate[0])
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -693,30 +726,36 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	reason := params["reason"]
 
 	if CertDB := pfpki.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
+		Information.Error = CertDB.Error.Error()
 		return Information, CertDB.Error
 	}
 
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
+		Information.Error = CaDB.Error.Error()
 		return Information, CaDB.Error
 	}
 
 	// Find the Profile
 	var profile Profile
 	if ProfileDB := pfpki.DB.Model(&cert).Related(&profile); ProfileDB.Error != nil {
+		Information.Error = ProfileDB.Error.Error()
 		return Information, ProfileDB.Error
 	}
 
 	intreason, err := strconv.Atoi(reason)
 	if err != nil {
+		Information.Error = "Reason unsupported"
 		return Information, errors.New("Reason unsupported")
 	}
 
 	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	if err := pfpki.DB.Delete(&cert).Error; err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 
@@ -745,6 +784,7 @@ func (c RevokedCert) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	if vars.Cursor < count {
 		sql, err := vars.Sql(c)
 		if err != nil {
+			Information.Error = err.Error()
 			return Information, err
 		}
 		var revokedcertdb []RevokedCert
@@ -759,6 +799,7 @@ func (c RevokedCert) search(pfpki *Handler, vars Vars) (Info, error) {
 	Information := Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
+		Information.Error = err.Error()
 		return Information, err
 	}
 	var count int
