@@ -142,54 +142,6 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: ['packetfence_pki'].includes(providerType),
-          label: i18n.t('Protocol'),
-          text: i18n.t('Protocol to use to contact the PacketFence PKI API.'),
-          cols: [
-            {
-              namespace: 'proto',
-              component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'proto')
-            }
-          ]
-        },
-        {
-          if: ['packetfence_pki'].includes(providerType),
-          label: i18n.t('Host'),
-          text: i18n.t('Host which hosts the PacketFence PKI.'),
-          cols: [
-            {
-              namespace: 'host',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'host')
-            }
-          ]
-        },
-        {
-          if: ['packetfence_pki'].includes(providerType),
-          label: i18n.t('Port'),
-          text: i18n.t('Port on which to contact the PacketFence PKI API.'),
-          cols: [
-            {
-              namespace: 'port',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'port')
-            }
-          ]
-        },
-        {
-          if: ['packetfence_pki'].includes(providerType),
-          label: i18n.t('Username'),
-          text: i18n.t('Username to connect to the PKI.'),
-          cols: [
-            {
-              namespace: 'username',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'username')
-            }
-          ]
-        },
-        {
           if: ['scep'].includes(providerType),
           label: i18n.t('Username'),
           text: i18n.t('Username to connect to the SCEP PKI Service.'),
@@ -202,7 +154,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: ['packetfence_pki', 'scep'].includes(providerType),
+          if: ['scep'].includes(providerType),
           label: i18n.t('Password'),
           text: i18n.t('Password for the username filled in above.'),
           cols: [
