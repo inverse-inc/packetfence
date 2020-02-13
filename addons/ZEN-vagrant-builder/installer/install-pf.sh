@@ -2,6 +2,9 @@
 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
+# Upgrade to latest version
+yum upgrade -y
+
 # Install the PacketFence repos
 yum localinstall http://inverse.ca/downloads/PacketFence/CentOS7/x86_64/RPMS/packetfence-release-2.0.0-20191126180126.98740132.0007.el7.noarch.rpm -y
 
