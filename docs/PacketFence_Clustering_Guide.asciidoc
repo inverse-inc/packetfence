@@ -439,7 +439,60 @@ NOTE: You can know a node was hard-shutdown if `/var/lib/mysql/gvwstate.dat` exi
 
 If at least one node is still alive, other nodes will be able to connect to it and re-integrate the cluster.
 
-When all nodes are ungracefuly shutdown, they will be able to recover when the last 2 running nodes will be able to talk to each other. If all nodes were shutdown at the same time, all of them must rejoin the cluster for it to form again. Until the cluster reaches a healthy state, you will not have any database service.
+If all nodes are ungracefuly shutdown at the same time, they will recover when all nodes boot back up. When all nodes are ungracefuly shutdown, but not at the same time, the galera-autofix service will elect one of the nodes as the new master and the cluster will recover. See the chapter on galera-autofix for details on this.
+
+The galera-autofix service
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence contains a service to automatically recover problematic MariaDB Galera nodes. In some cases (like with a full cluster hard shutdown or machines that are frozen), Galera cannot recover gracefully. This service will attempt to take the best decision on what to do to recover a healthy state in the cluster. It is important to note that when recovering a complete cluster failure, data loss may occur even though the service will attempt to determine the most advanced node of the cluster prior to the failure. If data loss is not an option for you, disable the galera-autofix service in the admin so that it doesn't attempt any automated recovery of the cluster. 
+
+This service will only be able to join a failing node when one of the conditions below is met:
+
+ * The database is available on at least one of the members of the cluster.
+ * All of the nodes of the cluster are online on the network with their galera-autofix service started.
+
+This service will not perform anything when one of the conditions below is met:
+
+ * One of the cluster nodes is disabled via /usr/local/pf/bin/cluster/node
+ * The packetfence-mariadb service is inactive in systemd
+ * The database is available on the local UNIX socket (/var/lib/mysql/mysql.sock)
+ * There is only one node in the cluster
+
+
+This next section will describe how the service will behave and attempt the cluster recovery when necessary
+
+Boot steps
+^^^^^^^^^^
+
+. Cooldown for 10 minutes after starting up so that MariaDB has a chance to join the cluster automatically.
+. Start a thread to report asynchronously the sequence number of this node to its peers.
+
+Decision steps
+^^^^^^^^^^^^^^
+
+. Verify if the database is available on one of the peers (can connect to it and the `wsrep_cluster_status` is `Primary`).
+.. If this succeeds, then we proceed to the 'Reset data and boot steps'
+.. If this fails, we proceed in the next decision steps
+. Verify all nodes are pingable
+.. If this succeeds, then we proceed to the next decision step
+.. If this fails, then we cooldown for 1 minute and restart the decision steps from 'Decision step 2'
+. We wait for all the nodes to report their last recorded sequence number
+.. If this succeeds, then we proceed to the next decision step
+.. If this fails, then we cooldown for 1 minute and restart the decision steps from 'Decision step 2'
+. Selection of the node with the highest sequence number to boot as the new master
+.. If this node has the highest sequence number then it elects itself as the new database master
+.. If more than 1 node have the same sequence number, then the node that appears first in cluster.conf elects itself as the new database master
+.. When the node doesn't meet any of the conditions above, then it isn't the one selected to be the new master, it proceeds to the 'Reset data and boot steps'
+
+Reset data and boot steps
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. Force stop packetfence-mariadb to prevent any disruption caused by this node in a new cluster that could be forming
+. Wait at most 1 minute for the database to be available on at least one of the cluster nodes
+.. If this succeeds, then we proceed to the next step
+.. If this fails, we stop this process, start back packetfence-mariadb and start back at the beginning of the 'Decision steps'
+. We delete the content of the /var/lib/mysql/ directory
+. We start packetfence-mariadb normally
 
 Troubleshooting a cluster
 -------------------------
@@ -455,17 +508,7 @@ First, stop `packetfence-mariadb` on all servers:
 
 Then remove `/var/lib/mysql/gvwstate.dat` on all the servers that are still alive.
 
-Next, see the section 'Electing a new master' to start up a new cluster.
-
-Electing a new master
-~~~~~~~~~~~~~~~~~~~~~
-
-CAUTION: Before doing this, we suggest you are confortable working with the MariaDB Galera cluster stack in order to fix potential conflicts that arise from this procedure.
-
-At any time, you can start up a new cluster without the management node which is the source of truth by default. In order to do so, execute: `/usr/local/pf/sbin/pf-mariadb --force-new-cluster`.
-Wait for another server to connect to this new cluster, break the command and start `packetfence-mariadb` like you normally would.
-
-Note that if your management node is alive, but not communicating with the new master node, then it will create a new cluster on its side automatically unless it is in maintenance mode. When electing a new cluster, you should ensure your management has (or will have when its alive) valid communication with the newly promoted cluster. Otherwise, you will end up in a split brain situation. See 'Recovering from a split brain' to fix this.
+Next, see the section 'Recovering from a split brain' to start up a new cluster.
 
 Recovering from a split brain
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
