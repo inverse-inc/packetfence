@@ -27,8 +27,8 @@
 - name: create Domain Controller and set AD CS
   hosts: ad
   gather_facts: no
-  # collections:
-  #   - inverse_inc.windows
+  collections:
+    - inverse_inc.windows
 
   roles:
 
