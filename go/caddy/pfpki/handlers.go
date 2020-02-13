@@ -498,6 +498,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		if err := json.NewEncoder(res).Encode(&Error); err != nil {
 			fmt.Println(err)
 		}
+		return
 	}
 	if err != nil {
 		log.LoggerWContext(pfpki.Ctx).Info(err.Error())
