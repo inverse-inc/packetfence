@@ -38,14 +38,14 @@ type (
 
 	// Error struct
 	Error struct {
-		field   string `json:"field"`
-		message string `json:"message"`
+		Field   string `json:"field"`
+		Message string `json:"message"`
 	}
 	// Error struct
 	Errors struct {
-		errors  []Error `json:"errors"`
-		message string  `json:"message"`
-		status  int     `json:"status"`
+		Errors  []Error `json:"errors"`
+		Message string  `json:"message"`
+		Status  int     `json:"status"`
 	}
 )
 
@@ -89,6 +89,9 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 	var Information Info
 	var err error
 	var Error Errors
+
+	Error = Errors{Status: 0}
+
 	// Set the default Content-Type
 	Information.ContentType = "application/json; charset=UTF-8"
 
@@ -102,13 +105,13 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "POST":
 				var vars Vars
 				if err := vars.DecodeBodyJson(req); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotAcceptable
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.search(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
@@ -122,36 +125,36 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "GET":
 				vars, err := DecodeUrlQuery(req)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.paginated(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information.Status = http.StatusOK
 
 			case "POST":
 				body, err := ioutil.ReadAll(req.Body)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if err = json.Unmarshal(body, &v); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if Information, err = v.new(pfpki); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusUnprocessableEntity
 				}
 				Information.Status = http.StatusCreated
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/ca/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
@@ -160,21 +163,21 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				vars := mux.Vars(req)
 				Information, err = v.getById(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
 			err = errors.New("Path " + req.URL.Path + " not supported")
-			Error.message = err.Error()
-			Error.status = http.StatusNotFound
+			Error.Message = err.Error()
+			Error.Status = http.StatusNotFound
 		}
 
 	case Profile:
@@ -186,20 +189,20 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "POST":
 				var vars Vars
 				if err := vars.DecodeBodyJson(req); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.search(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/profiles`).FindStringIndex(req.URL.Path)) > 0:
@@ -207,36 +210,36 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "GET":
 				vars, err := DecodeUrlQuery(req)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.paginated(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information.Status = http.StatusOK
 
 			case "POST":
 				body, err := ioutil.ReadAll(req.Body)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if err = json.Unmarshal(body, &v); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if Information, err = v.new(pfpki); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusUnprocessableEntity
 				}
 				Information.Status = http.StatusCreated
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/profile/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
@@ -245,34 +248,37 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				vars := mux.Vars(req)
 				Information, err = v.getById(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			case "PATCH":
 				body, err := ioutil.ReadAll(req.Body)
 				if err != nil {
-					panic(err)
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if err = json.Unmarshal(body, &v); err != nil {
-					panic(err)
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if Information, err = v.update(pfpki); err != nil {
-					panic(err)
+					Error.Message = err.Error()
+					Error.Status = http.StatusUnprocessableEntity
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
 			err = errors.New("Path " + req.URL.Path + " not supported")
-			Error.message = err.Error()
-			Error.status = http.StatusMethodNotAllowed
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
 		}
 
 	case Cert:
@@ -284,20 +290,20 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "POST":
 				var vars Vars
 				if err := vars.DecodeBodyJson(req); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.search(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/certs`).FindStringIndex(req.URL.Path)) > 0:
@@ -305,36 +311,36 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "GET":
 				vars, err := DecodeUrlQuery(req)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.paginated(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information.Status = http.StatusOK
 
 			case "POST":
 				body, err := ioutil.ReadAll(req.Body)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if err = json.Unmarshal(body, &v); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				if Information, err = v.new(pfpki); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusUnprocessableEntity
 				}
 				Information.Status = http.StatusCreated
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
@@ -343,15 +349,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				vars := mux.Vars(req)
 				Information, err = v.getById(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+/download/.*$`).FindStringIndex(req.URL.Path)) > 0:
@@ -360,15 +366,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				vars := mux.Vars(req)
 				Information, err = v.download(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+/email$`).FindStringIndex(req.URL.Path)) > 0:
@@ -377,15 +383,15 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				vars := mux.Vars(req)
 				Information, err = v.download(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9]+/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
@@ -394,21 +400,21 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				vars := mux.Vars(req)
 				Information, err = v.revoke(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusUnprocessableEntity
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
 			err = errors.New("Path " + req.URL.Path + " not supported")
-			Error.message = err.Error()
-			Error.status = http.StatusMethodNotAllowed
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
 		}
 
 	case RevokedCert:
@@ -420,20 +426,20 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "POST":
 				var vars Vars
 				if err := vars.DecodeBodyJson(req); err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.search(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/revokedcerts`).FindStringIndex(req.URL.Path)) > 0:
@@ -441,20 +447,20 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 			case "GET":
 				vars, err := DecodeUrlQuery(req)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information, err = v.paginated(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusInternalServerError
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		case len(regexp.MustCompile(`/pki/revokedcert/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
@@ -463,29 +469,36 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 				vars := mux.Vars(req)
 				Information, err = v.getById(pfpki, vars)
 				if err != nil {
-					Error.message = err.Error()
-					Error.status = http.StatusNotFound
+					Error.Message = err.Error()
+					Error.Status = http.StatusNotFound
 				}
 				Information.Status = http.StatusOK
 
 			default:
 				err = errors.New("Method " + req.Method + " not supported")
-				Error.message = err.Error()
-				Error.status = http.StatusMethodNotAllowed
+				Error.Message = err.Error()
+				Error.Status = http.StatusMethodNotAllowed
 			}
 
 		default:
 			err = errors.New("Path " + req.URL.Path + " not supported")
-			Error.message = err.Error()
-			Error.status = http.StatusMethodNotAllowed
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
 		}
 
 	default:
 		err = errors.New("Not supported")
-		Error.message = err.Error()
-		Error.status = http.StatusMethodNotAllowed
+		Error.Message = err.Error()
+		Error.Status = http.StatusMethodNotAllowed
 	}
 
+	if Error.Status != 0 {
+		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		res.WriteHeader(Error.Status)
+		if err := json.NewEncoder(res).Encode(&Error); err != nil {
+			fmt.Println(err)
+		}
+	}
 	if err != nil {
 		log.LoggerWContext(pfpki.Ctx).Info(err.Error())
 		if Information.Status >= 400 {
