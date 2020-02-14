@@ -99,14 +99,14 @@ type (
 		gorm.Model
 		Name             string                  `json:"name" gorm:"UNIQUE"`
 		Ca               CA                      `json:"-"`
-		CaID             uint                    `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
+		CaID             uint                    `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
 		CaName           string                  `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
-		Validity         int                     `json:"validity,omitempty"`
-		KeyType          Type                    `json:"key_type,omitempty"`
-		KeySize          int                     `json:"key_size,omitempty"`
-		Digest           x509.SignatureAlgorithm `json:"digest,omitempty"`
-		KeyUsage         string                  `json:"key_usage,omitempty"`
-		ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
+		Validity         int                     `json:"validity,omitempty,string"`
+		KeyType          Type                    `json:"key_type,omitempty,string"`
+		KeySize          int                     `json:"key_size,omitempty,string"`
+		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
+		KeyUsage         []string                `json:"key_usage,omitempty"`
+		ExtendedKeyUsage []string                `json:"extended_key_usage,omitempty"`
 		P12MailPassword  int                     `json:"p12_mail_password,omitempty,string"`
 		P12MailSubject   string                  `json:"p12_mail_subject,omitempty"`
 		P12MailFrom      string                  `json:"p12_mail_from,omitempty"`
@@ -542,8 +542,8 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		},
 		NotBefore:      time.Now(),
 		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
-		ExtKeyUsage:    extkeyusage(strings.Split(prof.ExtendedKeyUsage, "|")),
-		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(prof.KeyUsage, "|"))),
+		ExtKeyUsage:    extkeyusage(prof.ExtendedKeyUsage),
+		KeyUsage:       x509.KeyUsage(keyusage(prof.KeyUsage)),
 		EmailAddresses: []string{c.Mail},
 		SubjectKeyId:   skid,
 	}
