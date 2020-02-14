@@ -182,7 +182,6 @@ sub node_delete {
     }
 
     require pf::locationlog;
-    # TODO that limitation is arbitrary at best, we need to resolve that.
     my ($can_delete, $msg) = _can_delete($mac);
     if (!$can_delete) {
         $logger->warn($msg);
