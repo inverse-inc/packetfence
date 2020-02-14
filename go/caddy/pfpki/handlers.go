@@ -282,7 +282,6 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 		}
 
 	case Cert:
-
 		switch {
 
 		case len(regexp.MustCompile(`/pki/certs/search$`).FindStringIndex(req.URL.Path)) > 0:
@@ -362,7 +361,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9A-Za-z_:]+/download/.*$`).FindStringIndex(req.URL.Path)) > 0:
 			vars := mux.Vars(req)
-			if len(regexp.MustCompile(`[0-9]+`).FindStringIndex(vars["id"])) > 0 {
+			if len(regexp.MustCompile(`^[0-9]+$`).FindStringIndex(vars["id"])) > 0 {
 				delete(vars, "cn")
 			} else {
 				vars["cn"] = vars["id"]
@@ -403,7 +402,7 @@ func manage(object interface{}, pfpki *Handler, res http.ResponseWriter, req *ht
 
 		case len(regexp.MustCompile(`/pki/cert/[0-9A-Za-z_:]+/[0-9]+$`).FindStringIndex(req.URL.Path)) > 0:
 			vars := mux.Vars(req)
-			if len(regexp.MustCompile(`[0-9]+`).FindStringIndex(vars["id"])) > 0 {
+			if len(regexp.MustCompile(`^[0-9]+$`).FindStringIndex(vars["id"])) > 0 {
 				delete(vars, "cn")
 			} else {
 				vars["cn"] = vars["id"]
