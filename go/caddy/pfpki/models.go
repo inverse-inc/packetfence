@@ -105,8 +105,8 @@ type (
 		KeyType          Type                    `json:"key_type,omitempty,string"`
 		KeySize          int                     `json:"key_size,omitempty,string"`
 		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
-		KeyUsage         []string                `json:"key_usage,omitempty"`
-		ExtendedKeyUsage []string                `json:"extended_key_usage,omitempty"`
+		KeyUsage         string                  `json:"key_usage,omitempty"`
+		ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
 		P12MailPassword  int                     `json:"p12_mail_password,omitempty,string"`
 		P12MailSubject   string                  `json:"p12_mail_subject,omitempty"`
 		P12MailFrom      string                  `json:"p12_mail_from,omitempty"`
@@ -542,8 +542,8 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		},
 		NotBefore:      time.Now(),
 		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
-		ExtKeyUsage:    extkeyusage(prof.ExtendedKeyUsage),
-		KeyUsage:       x509.KeyUsage(keyusage(prof.KeyUsage)),
+		ExtKeyUsage:    extkeyusage(strings.Split(prof.ExtendedKeyUsage, "|")),
+		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(prof.KeyUsage, "|"))),
 		EmailAddresses: []string{c.Mail},
 		SubjectKeyId:   skid,
 	}
