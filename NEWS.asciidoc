@@ -26,6 +26,8 @@ Enhancements
 * Unifi: improve deauthentication using HTTP
 * Set TTL to 5 seconds when the host match with a captive portal detection host
 * Enable tracking configuration service by default
+* Better captive portal detection for Samsung devices
+* Faster captive portal detection for Apple devices
 
 Bug Fixes
 +++++++++
