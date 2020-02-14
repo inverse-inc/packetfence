@@ -10,7 +10,8 @@ import {
   not,
   conditional,
   hasPkiProfiles,
-  pkiProfileNameExists
+  pkiProfileNameExists,
+  isPkiCn
 } from '@/globals/pfValidators'
 import {
   email,
@@ -362,7 +363,8 @@ export const validators = (form = {}, meta = {}) => {
     name: {
       [i18n.t('Name required.')]: required,
       [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiProfiles, pkiProfileNameExists)),
-      [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      [i18n.t('Maximum 255 characters.')]: maxLength(255),
+      [i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).')]: isPkiCn
     },
     validity: {
       [i18n.t('Validity required.')]: required,

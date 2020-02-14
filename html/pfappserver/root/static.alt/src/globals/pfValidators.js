@@ -194,6 +194,11 @@ export const isPattern = (pattern) => {
   })
 }
 
+export const isPkiCn = (value) => {
+  if (!value) return true
+    return /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
+}
+
 export const isPort = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535

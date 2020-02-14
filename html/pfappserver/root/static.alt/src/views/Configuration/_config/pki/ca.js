@@ -10,7 +10,8 @@ import {
   not,
   conditional,
   hasPkiCas,
-  pkiCaCnExists
+  pkiCaCnExists,
+  isPkiCn
 } from '@/globals/pfValidators'
 import {
   required,
@@ -127,7 +128,6 @@ export const config = () => {
 }
 
 export const decomposeCa = (item) => {
-console.log('decomposeCa', JSON.stringify(item, null, 2))
   const { key_usage = null, extended_key_usage = null } = item
   return { ...item, ...{
     key_usage: (!key_usage) ? [] : key_usage.split('|'),
@@ -391,7 +391,8 @@ export const validators = (form = {}, meta = {}) => {
     cn: {
       [i18n.t('Common name required.')]: required,
       [i18n.t('Common name exists.')]: not(and(required, conditional(isNew || isClone), hasPkiCas, pkiCaCnExists)),
-      [i18n.t('Maximum 64 characters.')]: maxLength(64)
+      [i18n.t('Maximum 64 characters.')]: maxLength(64),
+      [i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).')]: isPkiCn
     },
     mail: {
       [i18n.t('Email required.')]: required,
