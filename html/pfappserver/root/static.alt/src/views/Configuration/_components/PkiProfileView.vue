@@ -147,7 +147,7 @@ export default {
     save () {
       const actionKey = this.actionKey
       const { ID, ...form } = { ...this.form, ...{ id: ~~this.id } } // lower-case `ID` to `id`, cast as (int)
-      this.$store.dispatch('$_pkis/updateProfile', form).then(response => {
+      this.$store.dispatch('$_pkis/updateProfile', recomposeProfile(form)).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
