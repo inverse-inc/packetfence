@@ -82,12 +82,12 @@ type (
 		Locality         string                  `json:"locality,omitempty"`
 		StreetAddress    string                  `json:"street_address,omitempty"`
 		PostalCode       string                  `json:"postal_code,omitempty"`
-		KeyType          Type                    `json:"key_type,omitempty"`
-		KeySize          int                     `json:"key_size,omitempty"`
-		Digest           x509.SignatureAlgorithm `json:"digest,omitempty"`
+		KeyType          Type                    `json:"key_type,omitempty,string"`
+		KeySize          int                     `json:"key_size,omitempty,string"`
+		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
 		KeyUsage         string                  `json:"key_usage,omitempty"`
 		ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
-		Days             int                     `json:"days,omitempty"`
+		Days             int                     `json:"days,omitempty,string"`
 		Key              string                  `json:"-" gorm:"type:longtext"`
 		Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
 		IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
