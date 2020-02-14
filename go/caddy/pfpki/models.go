@@ -82,11 +82,11 @@ type (
 		Locality         string                  `json:"locality,omitempty"`
 		StreetAddress    string                  `json:"street_address,omitempty"`
 		PostalCode       string                  `json:"postal_code,omitempty"`
-		KeyType          Type                    `json:"key_type,omitempty,string"`
+		KeyType          *Type                   `json:"key_type,omitempty,string"`
 		KeySize          int                     `json:"key_size,omitempty,string"`
 		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
-		KeyUsage         string                  `json:"key_usage,omitempty"`
-		ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
+		KeyUsage         *string                 `json:"key_usage,omitempty"`
+		ExtendedKeyUsage *string                 `json:"extended_key_usage,omitempty"`
 		Days             int                     `json:"days,omitempty,string"`
 		Key              string                  `json:"-" gorm:"type:longtext"`
 		Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
@@ -102,11 +102,11 @@ type (
 		CaID             uint                    `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
 		CaName           string                  `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
 		Validity         int                     `json:"validity,omitempty,string"`
-		KeyType          Type                    `json:"key_type,omitempty,string"`
+		KeyType          *Type                   `json:"key_type,omitempty,string"`
 		KeySize          int                     `json:"key_size,omitempty,string"`
 		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
-		KeyUsage         string                  `json:"key_usage,omitempty"`
-		ExtendedKeyUsage string                  `json:"extended_key_usage,omitempty"`
+		KeyUsage         *string                 `json:"key_usage,omitempty"`
+		ExtendedKeyUsage *string                 `json:"extended_key_usage,omitempty"`
 		P12MailPassword  int                     `json:"p12_mail_password,omitempty,string"`
 		P12MailSubject   string                  `json:"p12_mail_subject,omitempty"`
 		P12MailFrom      string                  `json:"p12_mail_from,omitempty"`
@@ -171,7 +171,7 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 	Information := Info{}
 
-	keyOut, pub, key, err := GenerateKey(c.KeyType, c.KeySize)
+	keyOut, pub, key, err := GenerateKey(*c.KeyType, c.KeySize)
 
 	if err != nil {
 		Information.Error = err.Error()
@@ -210,8 +210,8 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
 		SignatureAlgorithm:    c.Digest,
-		ExtKeyUsage:           extkeyusage(strings.Split(c.ExtendedKeyUsage, "|")),
-		KeyUsage:              x509.KeyUsage(keyusage(strings.Split(c.KeyUsage, "|"))),
+		ExtKeyUsage:           extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
+		KeyUsage:              x509.KeyUsage(keyusage(strings.Split(*c.KeyUsage, "|"))),
 		BasicConstraintsValid: true,
 		EmailAddresses:        []string{c.Mail},
 		SubjectKeyId:          skid,
@@ -220,7 +220,7 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 	var caBytes []byte
 
-	switch c.KeyType {
+	switch *c.KeyType {
 	case KEY_RSA:
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
 	case KEY_ECDSA:
@@ -353,7 +353,7 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	var profiledb []Profile
 	var err error
 	Information := Info{}
-	switch p.KeyType {
+	switch *p.KeyType {
 	case KEY_RSA:
 		if p.KeySize < 2048 {
 			err = errors.New("invalid private key size, should be at least 2048")
@@ -515,7 +515,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
 	}
 
-	keyOut, pub, _, err := GenerateKey(prof.KeyType, prof.KeySize)
+	keyOut, pub, _, err := GenerateKey(*prof.KeyType, prof.KeySize)
 
 	if err != nil {
 		Information.Error = err.Error()
@@ -542,8 +542,8 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		},
 		NotBefore:      time.Now(),
 		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
-		ExtKeyUsage:    extkeyusage(strings.Split(prof.ExtendedKeyUsage, "|")),
-		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(prof.KeyUsage, "|"))),
+		ExtKeyUsage:    extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
+		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(*prof.KeyUsage, "|"))),
 		EmailAddresses: []string{c.Mail},
 		SubjectKeyId:   skid,
 	}
