@@ -28,6 +28,7 @@ Enhancements
 * Enable tracking configuration service by default
 * Better captive portal detection for Samsung devices
 * Faster captive portal detection for Apple devices
+* Routes are now managed by the keepalived service
 
 Bug Fixes
 +++++++++
