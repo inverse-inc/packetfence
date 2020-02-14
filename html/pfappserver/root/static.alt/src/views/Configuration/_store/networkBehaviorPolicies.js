@@ -53,7 +53,7 @@ const actions = {
       })
     }
   },
-  getNetworkBehaviorPolicies: ({ state, commit }, id) => {
+  getNetworkBehaviorPolicy: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }

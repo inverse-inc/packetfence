@@ -57,6 +57,7 @@ our (
     @stored_config_files, @log_files,
     $provisioning_config_file,
     $self_service_config_file, $self_service_default_config_file,
+    $network_behavior_policy_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
@@ -146,6 +147,7 @@ BEGIN {
         $provisioning_config_file
         $self_service_config_file
         $self_service_default_config_file
+        $network_behavior_policy_config_file
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
@@ -258,6 +260,7 @@ $syslog_config_file  = catfile($conf_dir, "syslog.conf");
 $syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
 $rsyslog_packetfence_config_file  = "/etc/rsyslog.d/packetfence.conf";
 $fingerbank_collector_env_defaults_file = catfile($conf_dir, "fingerbank-collector.env.defaults");
+$network_behavior_policy_config_file = catfile($conf_dir,"network_behavior_policies.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");

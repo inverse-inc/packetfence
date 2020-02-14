@@ -125,54 +125,27 @@ export const view = (form = {}, meta = {}) => {
             }
           ]
         },
-        { label: i18n.t('Status Page'), labelSize: 'lg' },
         {
-          label: i18n.t('Allowed roles'),
-          text: i18n.t('The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.'),
+          label: 'Devices Included',
+          text: i18n.t('The list of Fingerbank devices that will be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the childs of the selected devices. Leaving this empty will have all devices impacted by this policy.'),
           cols: [
             {
-              namespace: 'roles_allowed_to_unregister',
+              namespace: 'devices_included',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'roles_allowed_to_unregister')
-            }
-          ]
-        },
-        { label: i18n.t('Self Service'), labelSize: 'lg' },
-        {
-          label: i18n.t('Role to assign'),
-          text: i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.'),
-          cols: [
-            {
-              namespace: 'device_registration_role',
-              component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'device_registration_role')
+              attrs: attributesFromMeta(meta, 'devices_included'),
+              validators: validatorsFromMeta(meta, 'devices_included', 'Device')
             }
           ]
         },
         {
-          label: i18n.t('Access duration to assign'),
-          text: i18n.t(`The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.`),
+          label: 'Devices Excluded',
+          text: i18n.t('The list of Fingerbank devices that should not be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the childs of the selected devices.'),
           cols: [
             {
-              namespace: 'device_registration_access_duration.interval',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'device_registration_access_duration.interval')
-            },
-            {
-              namespace: 'device_registration_access_duration.unit',
+              namespace: 'devices_included',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'device_registration_access_duration.unit')
-            }
-          ]
-        },
-        {
-          label: i18n.t('Allowed OS'),
-          text: i18n.t('List of OS which will be allowed to be register via the self service portal.'),
-          cols: [
-            {
-              namespace: 'device_registration_allowed_devices',
-              component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'device_registration_allowed_devices')
+              attrs: attributesFromMeta(meta, 'devices_included'),
+              validators: validatorsFromMeta(meta, 'devices_included', 'Device')
             }
           ]
         }
@@ -194,12 +167,6 @@ export const validators = (form = {}, meta = {}) => {
       }
     },
     description: validatorsFromMeta(meta, 'description', i18n.t('Description')),
-    roles_allowed_to_unregister: validatorsFromMeta(meta, 'roles_allowed_to_unregister', i18n.t('Allowed roles')),
-    device_registration_role: validatorsFromMeta(meta, 'device_registration_role', i18n.t('Role to assign')),
-    device_registration_access_duration: {
-      interval: validatorsFromMeta(meta, 'device_registration_access_duration.interval', i18n.t('Interval')),
-      unit: validatorsFromMeta(meta, 'device_registration_access_duration.unit', i18n.t('Unit'))
-    },
-    device_registration_allowed_devices: validatorsFromMeta(meta, 'device_registration_allowed_devices', 'OS')
+    device_registration_allowed_devices: validatorsFromMeta(meta, 'devices_included', 'Device')
   }
 }
