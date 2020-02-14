@@ -33,6 +33,8 @@ import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
 import WmiRulesStore from '../_store/wmiRules'
 import WrixLocationsStore from '../_store/wrixLocations'
 
+const Test = () => import(/* webpackChunkName: "Configuration" */ '../_components/Test')
+
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
@@ -228,6 +230,21 @@ const route = {
     next()
   },
   children: [
+
+    {
+      path: 'test',
+      name: 'test',
+      component: Test,
+      props: (route) => ({ formStoreName: 'formTest', query: route.query.query }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formTest) { // Register store module only once
+          store.registerModule('formTest', FormStore)
+        }
+        next()
+      }
+    },
+
+
     /**
      * Policies Access Control
      */
