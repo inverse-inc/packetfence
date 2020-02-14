@@ -239,17 +239,18 @@ sub generate_filter_if_src_to_chain {
             $rules .= "# DHCP Sync\n";
             $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($pf::cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev --protocol udp --match udp --dport 67 -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ($cluster_enabled);
-            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n" if $interface->tag("vip");
-            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
+            $rules .= "-A INPUT --in-interface $dev -d 192.0.2.1 --jump $chain\n";
+            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $chain\n" if ($cluster_enabled);
+            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $chain\n" if $interface->tag("vip");
+            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $chain\n";
+            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $chain\n";
             if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
-                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
-                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $chain\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $chain\n";
             }
             if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
-                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
-                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $chain\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $chain\n";
             }
 
         # inline enforcement
@@ -260,6 +261,7 @@ sub generate_filter_if_src_to_chain {
             $rules .= "# DHCP Sync\n";
             $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev --protocol udp --match udp --dport 67 -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev -d 192.0.2.1 --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_INLINE\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev --protocol udp --match udp --dport 53 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 53 --jump $FW_FILTER_INPUT_INT_INLINE\n";
