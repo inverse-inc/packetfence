@@ -139,7 +139,6 @@ case "$1" in
         systemctl enable packetfence-redis-cache
         systemctl enable packetfence-config
         systemctl disable packetfence-iptables
-        systemctl enable packetfence-routes
         systemctl enable packetfence-httpd.admin
         systemctl enable packetfence-tracking-config.service
         systemctl enable packetfence-tracking-config.path
