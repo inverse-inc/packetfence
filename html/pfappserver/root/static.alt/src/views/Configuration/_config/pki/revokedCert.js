@@ -3,6 +3,9 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import {
+  revokeReasons
+} from './'
 
 export const columns = [
   {
@@ -276,6 +279,31 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'postal_code',
               component: pfFormInput,
               attrs: {
+                disabled: (!isNew && !isClone)
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Revoked'),
+          cols: [
+            {
+              namespace: 'revoked',
+              component: pfFormInput,
+              attrs: {
+                disabled: (!isNew && !isClone)
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Reason'),
+          cols: [
+            {
+              namespace: 'crl_reason',
+              component: pfFormChosen,
+              attrs: {
+                options: revokeReasons,
                 disabled: (!isNew && !isClone)
               }
             }

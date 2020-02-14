@@ -37,7 +37,9 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
 import {
   view,
-  validators
+  validators,
+  decomposeProfile,
+  recomposeProfile
 } from '../_config/pki/profile'
 
 export default {
@@ -113,9 +115,9 @@ export default {
         // existing
         this.$store.dispatch('$_pkis/getProfile', this.id).then(form => {
           if (ca_id) {
-            this.$store.dispatch(`${this.formStoreName}/setForm`, { ...form, ...{ ca_id } })
+            this.$store.dispatch(`${this.formStoreName}/setForm`, { ...decomposeProfile(form), ...{ ca_id } })
           } else {
-            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+            this.$store.dispatch(`${this.formStoreName}/setForm`, decomposeProfile(form))
           }
         })
       } else {
@@ -131,7 +133,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_pkis/createProfile', this.form).then(item => {
+      this.$store.dispatch('$_pkis/createProfile', recomposeProfile(this.form)).then(item => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
