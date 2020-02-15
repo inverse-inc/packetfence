@@ -55,11 +55,10 @@ router.beforeEach((to, from, next) => {
         currentPath = document.location.hash.substring(1)
       }
       if (store.state.session.token) {
-        router.push({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [4]
+        next({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [4]
       } else {
-        router.push({ name: 'login' }) // [5]
+        next({ name: 'login' }) // [5]
       }
-      next()
     })
   } else {
     next()
