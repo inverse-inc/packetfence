@@ -12,7 +12,7 @@
   "dependencies": {
     "axios": "0.19.2",
     "bootstrap": "4.4.1",
-    "bootstrap-vue": "2.4.0",
+    "bootstrap-vue": "2.4.2",
     "core-js": "3.6.4",
     "d3-force": "^2.0.1",
     "date-fns": "^1.30.1",
