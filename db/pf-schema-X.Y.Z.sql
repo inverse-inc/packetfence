@@ -1363,6 +1363,154 @@ CREATE TABLE `admin_api_audit_log` (
    KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPRESSED;
 
+
+--
+-- Table structure for table `cas`
+--
+
+CREATE TABLE `cas` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cn` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  `organisation` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `locality` varchar(255) DEFAULT NULL,
+  `street_address` varchar(255) DEFAULT NULL,
+  `postal_code` varchar(255) DEFAULT NULL,
+  `key_type` int(11) DEFAULT NULL,
+  `key_size` int(11) DEFAULT NULL,
+  `digest` int(11) DEFAULT NULL,
+  `key_usage` varchar(255) DEFAULT NULL,
+  `extended_key_usage` varchar(255) DEFAULT NULL,
+  `days` int(11) DEFAULT NULL,
+  `key` longtext,
+  `cert` longtext,
+  `issuer_key_hash` varchar(255) DEFAULT NULL,
+  `issuer_name_hash` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cn` (`cn`),
+  UNIQUE KEY `uix_cas_issuer_key_hash` (`issuer_key_hash`),
+  UNIQUE KEY `uix_cas_issuer_name_hash` (`issuer_name_hash`),
+  KEY `mail` (`mail`),
+  KEY `organisation` (`organisation`),
+  KEY `idx_cas_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `certs`
+--
+
+CREATE TABLE `certs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cn` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  `ca_id` int(10) unsigned DEFAULT NULL,
+  `ca_name` varchar(255) DEFAULT NULL,
+  `street_address` varchar(255) DEFAULT NULL,
+  `organisation` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `locality` varchar(255) DEFAULT NULL,
+  `postal_code` varchar(255) DEFAULT NULL,
+  `key` longtext,
+  `cert` longtext,
+  `profile_id` int(10) unsigned DEFAULT NULL,
+  `profile_name` varchar(255) DEFAULT NULL,
+  `valid_until` timestamp NULL DEFAULT NULL,
+  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `serial_number` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cn` (`cn`),
+  KEY `profile_name` (`profile_name`),
+  KEY `valid_until` (`valid_until`),
+  KEY `idx_certs_deleted_at` (`deleted_at`),
+  KEY `mail` (`mail`),
+  KEY `ca_id` (`ca_id`),
+  KEY `ca_name` (`ca_name`),
+  KEY `organisation` (`organisation`),
+  KEY `profile_id` (`profile_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `profiles`
+--
+
+CREATE TABLE `profiles` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `ca_id` int(10) unsigned DEFAULT NULL,
+  `ca_name` varchar(255) DEFAULT NULL,
+  `validity` int(11) DEFAULT NULL,
+  `key_type` int(11) DEFAULT NULL,
+  `key_size` int(11) DEFAULT NULL,
+  `digest` int(11) DEFAULT NULL,
+  `key_usage` varchar(255) DEFAULT NULL,
+  `extended_key_usage` varchar(255) DEFAULT NULL,
+  `p12_mail_password` int(11) DEFAULT NULL,
+  `p12_mail_subject` varchar(255) DEFAULT NULL,
+  `p12_mail_from` varchar(255) DEFAULT NULL,
+  `p12_mail_header` varchar(255) DEFAULT NULL,
+  `p12_mail_footer` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `idx_profiles_deleted_at` (`deleted_at`),
+  KEY `ca_id` (`ca_id`),
+  KEY `ca_name` (`ca_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `revoked_certs`
+--
+
+CREATE TABLE `revoked_certs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cn` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  `ca_id` int(10) unsigned DEFAULT NULL,
+  `ca_name` varchar(255) DEFAULT NULL,
+  `street_address` varchar(255) DEFAULT NULL,
+  `organisation` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `locality` varchar(255) DEFAULT NULL,
+  `postal_code` varchar(255) DEFAULT NULL,
+  `key` longtext,
+  `cert` longtext,
+  `profile_id` int(10) unsigned DEFAULT NULL,
+  `profile_name` varchar(255) DEFAULT NULL,
+  `valid_until` timestamp NULL DEFAULT NULL,
+  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `serial_number` varchar(255) DEFAULT NULL,
+  `revoked` timestamp NULL DEFAULT NULL,
+  `crl_reason` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `valid_until` (`valid_until`),
+  KEY `crl_reason` (`crl_reason`),
+  KEY `idx_revoked_certs_deleted_at` (`deleted_at`),
+  KEY `cn` (`cn`),
+  KEY `mail` (`mail`),
+  KEY `ca_id` (`ca_id`),
+  KEY `profile_id` (`profile_id`),
+  KEY `profile_name` (`profile_name`),
+  KEY `ca_name` (`ca_name`),
+  KEY `organisation` (`organisation`),
+  KEY `revoked` (`revoked`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- Updating to current version
 --

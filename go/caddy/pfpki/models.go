@@ -166,8 +166,6 @@ type (
 )
 
 func (c CA) new(pfpki *Handler) (Info, error) {
-	// Create the table on the fly.
-	pfpki.DB.AutoMigrate(&CA{})
 
 	Information := Info{}
 
@@ -252,8 +250,6 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 	h.Write(cacert.RawIssuer)
 
-	pfpki.DB.AutoMigrate(&CA{})
-
 	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
@@ -264,21 +260,6 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 
 	return Information, nil
 }
-
-/*
-func (c CA) get(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
-	var cadb []CA
-	if val, ok := params["id"]; ok {
-		pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("id = ?", val).First(&cadb)
-	} else {
-		pfpki.DB.Select("id, cn, mail, organisation").Find(&cadb)
-	}
-	Information.Entries = cadb
-
-	return Information, nil
-}
-*/
 
 func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
@@ -334,22 +315,8 @@ func (c CA) search(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-// func (c *CA) save() {
-// 	// Public key
-// 	certOut, err := os.Create("ca.crt")
-// 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: ca_b})
-// 	certOut.Close()
-
-// 	// Private key
-// 	keyOut, err := os.OpenFile("ca.key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-// 	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
-// 	keyOut.Close()
-
-// }
-
 func (p Profile) new(pfpki *Handler) (Info, error) {
-	// Create the table on the fly.
-	pfpki.DB.AutoMigrate(&Profile{})
+
 	var profiledb []Profile
 	var err error
 	Information := Info{}
@@ -405,21 +372,6 @@ func (p Profile) update(pfpki *Handler) (Info, error) {
 
 	return Information, nil
 }
-
-/*
-func (p Profile) get(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
-	var profiledb []Profile
-	if val, ok := params["id"]; ok {
-		pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_smtp_server, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("id = ?", val).First(&profiledb)
-	} else {
-		pfpki.DB.Select("id, name, ca_id, ca_name").Find(&profiledb)
-	}
-	Information.Entries = profiledb
-
-	return Information, nil
-}
-*/
 
 func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
@@ -477,8 +429,6 @@ func (p Profile) search(pfpki *Handler, vars Vars) (Info, error) {
 
 func (c Cert) new(pfpki *Handler) (Info, error) {
 	Information := Info{}
-	pfpki.DB.AutoMigrate(&Cert{})
-	pfpki.DB.AutoMigrate(&RevokedCert{})
 
 	// Find the profile
 	var prof Profile
@@ -565,23 +515,6 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 
 	return Information, nil
 }
-
-/*
-func (c Cert) get(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
-	var certdb []Cert
-	if val, ok := params["cn"]; ok {
-		pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", val).First(&certdb)
-	} else if val, ok := params["id"]; ok {
-		pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").First(&certdb, val)
-	} else {
-		pfpki.DB.Select("id, cn, mail, profile_id, profile_name, ca_name, ca_id").Find(&certdb)
-	}
-	Information.Entries = certdb
-
-	return Information, nil
-}
-*/
 
 func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
@@ -723,7 +656,6 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 
 func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 
-	pfpki.DB.AutoMigrate(&RevokedCert{})
 	Information := Info{}
 	// Find the Cert
 	var cert Cert
