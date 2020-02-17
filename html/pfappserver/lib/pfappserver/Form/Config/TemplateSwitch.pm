@@ -36,7 +36,7 @@ has_field 'description' => (
 
 has_field 'radiusDisconnect' => (
     type    => 'Select',
-    label   => 'Radius Disconnect Method',
+    label   => 'RADIUS Disconnect Method',
     options => [
         { value => $DISCONNECT_TYPE_COA, label => $DISCONNECT_TYPE_COA },
         { value => $DISCONNECT_TYPE_DISCONNECT, label => $DISCONNECT_TYPE_DISCONNECT },
