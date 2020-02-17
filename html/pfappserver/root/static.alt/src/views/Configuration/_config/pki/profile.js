@@ -370,9 +370,6 @@ export const validators = (form = {}, meta = {}) => {
       [i18n.t('Validity required.')]: required,
       [i18n.t('Minimum 1 day(s).')]: minValue(1)
     },
-    p12_smtp_server: {
-      [i18n.t('Maximum 255 characters.')]: maxLength(255)
-    },
     p12_mail_password: {
       [i18n.t('Maximum 255 characters.')]: maxLength(255)
     },
