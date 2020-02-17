@@ -1,19 +1,28 @@
 <template>
-  <b-form-row>
-    <b-col v-for="(value, index) in values" :key="value">
-      <template v-if="'values' in value">
-        <pf-form-boolean v-bind="attrs(index)" v-slot:default="{ value, formStoreName, formNamespace }">
-         <slot v-bind="{ value, formStoreName, formNamespace }"></slot>
+  <div class="pf-form-boolean">
+
+    <div v-if="values.length > 0 && op" class="pf-form-boolean-op">
+      <slot name="op" v-bind="{ op, formStoreName, formNamespace }"></slot>
+    </div>
+
+    <div v-if="values.length > 0" class="pf-form-boolean-values">
+      <template v-for="(value, index) in values">
+        <pf-form-boolean :key="value" v-bind="attrs(index)">
+          <template v-slot:op="{ op, formStoreName, formNamespace }">
+            <slot name="op" v-bind="{ op, formStoreName, formNamespace }"></slot>
+          </template>
+          <template v-slot:value="{ value, formStoreName, formNamespace }">
+            <slot name="value" v-bind="{ value, formStoreName, formNamespace }"></slot>
+          </template>
         </pf-form-boolean>
       </template>
-      <template v-else>
-        <slot v-bind="{ value, formStoreName, formNamespace: `${formNamespace}.values.${index}` }"></slot>
-      </template>
-      <template v-if="index < values.length - 1">
-        <span><strong>{{ op }}</strong></span>
-      </template>
-    </b-col>
-  </b-form-row>
+    </div>
+
+    <div v-else class="pf-form-boolean-value">
+      <slot name="value" v-bind="{ value, formStoreName, formNamespace }"></slot>
+    </div>
+
+  </div>
 </template>
 
 <script>
@@ -56,24 +65,62 @@ export default {
       }
     },
     op () {
-      const { inputValue: { op } = {} } = this
-      return op
+      const { inputValue: { op = null } = {} } = this
+      return op || null
     },
     values () {
-      const { inputValue: { values } = {} } = this
+      const { inputValue: { values = [] } = {} } = this
       return values || []
     },
   },
   methods: {
     attrs (index) {
       const { inputValue: { values: { [index]: value } = {} } = {}, formStoreName, formNamespace } = this
-      const attrs = { value, formStoreName, formNamespace: `${formNamespace}.values.${index}` }
-
-console.log('attrs', JSON.stringify(attrs, null, 2), this.$slots)
-
-      return attrs
+      return { value, formStoreName, formNamespace: `${formNamespace}.values.${index}` }
     }
   }
 
 }
 </script>
+
+<style lang="scss">
+  .pf-form-boolean {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+
+    .pf-form-boolean-op,
+    .pf-form-boolean-values,
+    .pf-form-boolean-value {
+      display: flex;
+    }
+
+    .pf-form-boolean-op {
+      align-self: center;
+      margin: 0 1rem !important;
+    }
+
+    .pf-form-boolean-values {
+      align-items: stretch;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+      border-color: var(--secondary);
+      border-radius: 0.5rem;
+      border-style: solid;
+      border-width: 0 .25rem;
+      padding: 0 .25rem;
+
+      &:hover {
+        border-color: var(--primary);
+      }
+    }
+
+    .pf-form-boolean-value {
+
+    }
+
+
+  }
+</style>

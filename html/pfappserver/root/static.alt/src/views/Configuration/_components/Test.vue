@@ -6,13 +6,19 @@
     <div class="card-body">
 <pre>{{ JSON.stringify(form, null, 2) }}</pre>
 
-      <pf-form-boolean :form-store-name="formStoreName" form-namespace="condition">
-        <template v-slot:default="{ value, formStoreName, formNamespace }">
+      <pf-form-boolean :form-store-name="formStoreName" form-namespace="condition" style="background-color:#e8e8e8;">
 
-          <strong>{{ formStoreName }} {{ formNamespace }}</strong>
-          <pre>{{ JSON.stringify(value, null, 2) }}</pre>
+        <template v-slot:op="{ op }">
+          <strong>{{ op }}</strong>
+        </template>
 
-          <!-- -->
+        <template v-slot:value="{ value, formStoreName, formNamespace }">
+
+          <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1"/>
+          <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.op'" class="m-1"/>
+          <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1"/>
+
+          <!--
           <b-row>
             <b-col>op</b-col>
             <b-col><pf-form-input v-model="value.op"/></b-col>
@@ -25,9 +31,7 @@
             <b-col>value</b-col>
             <b-col><pf-form-input v-model="value.value"/></b-col>
           </b-row>
-          <!-- -->
 
-          <!--
           <b-row>
             <b-col>op</b-col>
             <b-col><pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.op'"/></b-col>
@@ -96,12 +100,7 @@ export default {
                 op: 'contains',
                 field: 'keyB',
                 value: 'valueB'
-              }
-            ]
-          },
-          {
-            op: 'or',
-            values: [
+              },
               {
                 op: 'contains',
                 field: 'keyC',
@@ -111,6 +110,56 @@ export default {
                 op: 'contains',
                 field: 'keyD',
                 value: 'valueD'
+              }
+            ]
+          },
+          {
+            op: 'and',
+            values: [
+              {
+                op: 'contains',
+                field: 'keyE',
+                value: 'valueE'
+              },
+              {
+                op: 'contains',
+                field: 'keyF',
+                value: 'valueF'
+              },
+              {
+                op: 'contains',
+                field: 'keyG',
+                value: 'valueG'
+              },
+              {
+                op: 'contains',
+                field: 'keyH',
+                value: 'valueH'
+              }
+            ]
+          },
+          {
+            op: 'or',
+            values: [
+              {
+                op: 'contains',
+                field: 'keyI',
+                value: 'valueI'
+              },
+              {
+                op: 'contains',
+                field: 'keyJ',
+                value: 'valueJ'
+              },
+              {
+                op: 'contains',
+                field: 'keyK',
+                value: 'valueK'
+              },
+              {
+                op: 'contains',
+                field: 'keyL',
+                value: 'valueL'
               }
             ]
           }
