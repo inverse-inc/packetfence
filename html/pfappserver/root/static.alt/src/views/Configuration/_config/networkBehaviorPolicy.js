@@ -1,6 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   attributesFromMeta,
   validatorsFromMeta
@@ -142,13 +143,80 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('The list of Fingerbank devices that should not be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the childs of the selected devices.'),
           cols: [
             {
-              namespace: 'devices_included',
+              namespace: 'devices_excluded',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'devices_included'),
-              validators: validatorsFromMeta(meta, 'devices_included', 'Device')
+              attrs: attributesFromMeta(meta, 'devices_excluded'),
+              validators: validatorsFromMeta(meta, 'devices_excluded', 'Device')
             }
           ]
-        }
+        },
+        {
+          label: i18n.t('Watch blacklisted IPs'),
+          text: i18n.t('Whether or not the policy should check if the endpoints are communicating with blacklisted IP addresses.'),
+          cols: [
+            {
+              namespace: 'watch_blacklisted_ips',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              },
+              validators: validatorsFromMeta(meta, 'watch_blacklisted_ips', 'Watch blacklisted IPs')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Whitelisted IPs'),
+          text: i18n.t('Which IPs (can be CIDR) to ignore when checking against the blacklisted IPs list'),
+          cols: [
+            {
+              namespace: 'whitelisted_ips',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'whitelisted_ips'),
+              validators: validatorsFromMeta(meta, 'whitelisted_ips', 'Whitelisted IPs')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Blacklisted IP Hosts Window'),
+          text: i18n.t('The window to consider when counting the amount of blacklisted IPs the endpoint has communicated with.'),
+          cols: [
+            {
+              namespace: 'blacklisted_ip_hosts_window.interval',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'blacklisted_ip_hosts_window.interval')
+            },
+            {
+              namespace: 'blacklisted_ip_hosts_window.unit',
+              component: pfFormChosen,
+              //TODO: units should only be seconds, minutes, hours
+              attrs: attributesFromMeta(meta, 'blacklisted_ip_hosts_window.unit')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Blacklisted IPs Threshold'),
+          text: i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers an event.'),
+          cols: [
+            {
+              namespace: 'blacklisted_ip_hosts_threshold',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'blacklisted_ip_hosts_threshold'),
+              validators: validatorsFromMeta(meta, 'blacklisted_ip_hosts_threshold', 'Blacklisted IPs Threshold')
+            }
+          ]
+        },
+        {
+          label: 'Watched Device Attributes',
+          text: i18n.t('Defines the attributes that should be analysed when checking against the pristine profile of the endpoint'),
+          cols: [
+            {
+              namespace: 'watched_device_attributes',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'watched_device_attributes'),
+              validators: validatorsFromMeta(meta, 'watched_device_attributes', 'Watched Device Attributes')
+            }
+          ]
+        },
       ]
     }
   ]
@@ -160,13 +228,5 @@ export const validators = (form = {}, meta = {}) => {
     isClone = false
   } = meta
   return {
-    id: {
-      ...validatorsFromMeta(meta, 'id', i18n.t('Name')),
-      ...{
-        [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasNetworkBehaviorPolicies, networkBehaviorPolicyExists))
-      }
-    },
-    description: validatorsFromMeta(meta, 'description', i18n.t('Description')),
-    device_registration_allowed_devices: validatorsFromMeta(meta, 'devices_included', 'Device')
   }
 }

@@ -31,7 +31,6 @@ Clean up data
 sub cleanupAfterRead {
     my ($self, $id, $data) = @_;
     $self->expand_list($data, $self->_fields_expanded);
-    $data->{device_attributes_diff_threshold_overrides} = { map { split(':', $_)  } @{$data->{device_attributes_diff_threshold_overrides}} }
 }
 
 =head2 cleanupBeforeCommit
@@ -43,7 +42,6 @@ Clean data before update or creating
 sub cleanupBeforeCommit {
     my ($self, $id, $data) = @_;
     use Data::Dumper;print Dumper($data);
-    $data->{device_attributes_diff_threshold_overrides} = [ map { join(':', $_, $data->{device_attributes_diff_threshold_overrides}->{$_}) } keys(%{$data->{device_attributes_diff_threshold_overrides}}) ]; 
     use Data::Dumper;print Dumper($data);
     my $real_id = $self->_formatSectionName($id);
     my $config = $self->cachedConfig;
@@ -57,7 +55,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(watched_device_attributes device_attributes_diff_threshold_overrides);
+    return qw(watched_device_attributes device_attributes_diff_threshold_overrides devices_included devices_excluded);
 }
 
 =head1 AUTHOR

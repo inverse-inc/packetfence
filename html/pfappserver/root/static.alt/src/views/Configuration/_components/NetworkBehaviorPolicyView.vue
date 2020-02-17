@@ -114,7 +114,7 @@ export default {
         const { isNew, isClone } = this
         this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
         if (this.id) { // existing
-          this.$store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicies', this.id).then(form => {
+          this.$store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })

@@ -80,6 +80,7 @@ has_field 'blacklisted_ip_hosts_window' => (
    label => 'Blacklisted IP Hosts Window',
    type => 'Duration',
    required => 1,
+   with_time_only => 1,
    tags => { after_element => \&help,
              help => 'The window to consider when counting the amount of blacklisted IPs the endpoint has communicated with.' },
 );
@@ -97,7 +98,7 @@ has_field 'watched_device_attributes' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Roles',
+   label => 'Watched Device Attributes',
    options_method => \&options_device_attributes,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add an attribute'},
