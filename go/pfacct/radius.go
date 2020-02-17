@@ -9,17 +9,60 @@ import (
 	"layeh.com/radius/rfc2866"
 )
 
-func HandleRadius(w radius.ResponseWriter, r *radius.Request) {
+type PfRadiusHandler struct {
+}
+
+func New() *PfRadiusHandler {
+	return &PfRadiusHandler{}
+}
+
+func (h *PfRadiusHandler) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
 	in_bytes := uint64(rfc2866.AcctInputOctets_Get(r.Packet))
 	out_bytes := uint64(rfc2866.AcctOutputOctets_Get(r.Packet))
 	statusType := rfc2866.AcctStatusType_Get(r.Packet)
 	_, _ = in_bytes, out_bytes
 	switch statusType {
+	default:
+		w.Write(r.Response(radius.CodeAccessReject))
 	case rfc2866.AcctStatusType_Value_Start:
+		h.handleStart(w, r)
 	case rfc2866.AcctStatusType_Value_Stop:
+		h.handleStop(w, r)
 	case rfc2866.AcctStatusType_Value_InterimUpdate:
+		h.handleUpdate(w, r)
+	case rfc2866.AcctStatusType_Value_AccountingOn:
+		h.handleAccountingOn(w, r)
+	case rfc2866.AcctStatusType_Value_AccountingOff:
+		h.handleAccountingOff(w, r)
 	}
 
+}
+
+func (h *PfRadiusHandler) handleStart(w radius.ResponseWriter, r *radius.Request) {
+	code := radius.CodeAccountingResponse
+	log.Printf("Writing %v to %v", code, r.RemoteAddr)
+	w.Write(r.Response(code))
+}
+
+func (h *PfRadiusHandler) handleAccountingOn(w radius.ResponseWriter, r *radius.Request) {
+	code := radius.CodeAccountingResponse
+	log.Printf("Writing %v to %v", code, r.RemoteAddr)
+	w.Write(r.Response(code))
+}
+
+func (h *PfRadiusHandler) handleAccountingOff(w radius.ResponseWriter, r *radius.Request) {
+	code := radius.CodeAccountingResponse
+	log.Printf("Writing %v to %v", code, r.RemoteAddr)
+	w.Write(r.Response(code))
+}
+
+func (h *PfRadiusHandler) handleStop(w radius.ResponseWriter, r *radius.Request) {
+	code := radius.CodeAccountingResponse
+	log.Printf("Writing %v to %v", code, r.RemoteAddr)
+	w.Write(r.Response(code))
+}
+
+func (h *PfRadiusHandler) handleUpdate(w radius.ResponseWriter, r *radius.Request) {
 	code := radius.CodeAccountingResponse
 	log.Printf("Writing %v to %v", code, r.RemoteAddr)
 	w.Write(r.Response(code))
@@ -36,7 +79,7 @@ func radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	}
 
 	server := &radius.PacketServer{
-		Handler:      radius.HandlerFunc(HandleRadius),
+		Handler:      New(),
 		SecretSource: radius.StaticSecretSource([]byte(`secret`)),
 	}
 	w.Add(1)
