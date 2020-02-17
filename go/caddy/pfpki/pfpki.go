@@ -64,7 +64,7 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 
 	pfpki := Handler{}
 
-	Database, err := gorm.Open("mysql", db.ReturnURI(ctx, "pf_pki"))
+	Database, err := gorm.Open("mysql", db.ReturnURI(ctx, "pf"))
 	sharedutils.CheckError(err)
 	//pfpki.DB = Database
 	pfpki.DB = Database.Debug()
