@@ -109,10 +109,27 @@ has_field 'watched_device_attributes' =>
 has_field 'device_attributes_diff_score' =>
   (
    type => 'PosInteger',
-   label => 'Device Attributed Diff Score',
+   label => 'Device Attribute Diff Score',
    checkbox_value => 'enabled',
    tags => { after_element => \&help,
              help => 'The score a device has to reach when its compared against the pristine profile of the endpoint. Anything lower than this will trigger an event.' },
+  );
+
+has_field 'device_attributes_diff_threshold_overrides' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+     tags => { 
+       when_empty => 'If none are specified, the default ones of the module will be used.' 
+     },
+  );
+
+has_field 'device_attributes_diff_threshold_overrides.contains' =>
+  (
+    label => 'Device attribute weight',
+    type => '+NetworkBehaviorPolicyAttributeWeight',
+    widget_wrapper => 'DynamicTableRow',
   );
 
 has_block definition =>

@@ -2,6 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import { pfFieldType as fieldType } from '@/globals/pfField'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFormFields from '@/components/pfFormFields'
 import {
   attributesFromMeta,
   validatorsFromMeta
@@ -217,6 +220,85 @@ export const view = (form = {}, meta = {}) => {
             }
           ]
         },
+        {
+         label: i18n.t('Device Attributes weight'),
+         text: i18n.t('Override the weight of the different attributes when matching them against the pristine profiles'),
+         cols: [
+           {
+             namespace: 'device_attributes_diff_threshold_overrides',
+             component: pfFormFields,
+             attrs: {
+               buttonLabel: i18n.t('Add field'),
+               sortable: false,
+               field: {
+                 component: pfFieldTypeValue,
+                 attrs: {
+                   typeLabel: i18n.t('Select attribute'),
+                   valueLabel: i18n.t('Enter weight override'),
+                   fields: [
+                     {
+                       value: 'dhcp_fingerprint',
+                       text: i18n.t('DHCP fingerprint'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'dhcp_vendor',
+                       text: i18n.t('DHCP vendor'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'hostname',
+                       text: i18n.t('Hostname'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'oui',
+                       text: i18n.t('OUI (MAC Vendor)'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'destination_hosts',
+                       text: i18n.t('Destination hosts'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'mdns_services',
+                       text: i18n.t('mDNS services'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'tcp_syn_signatures',
+                       text: i18n.t('TCP SYN signatures'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'tcp_syn_ack_signatures',
+                       text: i18n.t('TCP SYN ACK signatures'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'upnp_server_strings',
+                       text: i18n.t('UPnP server strings'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'upnp_user_agents',
+                       text: i18n.t('UPnP user-agent'),
+                       types: [fieldType.INTEGER],
+                     },
+                     {
+                       value: 'user_agents',
+                       text: i18n.t('HTTP user-agent'),
+                       types: [fieldType.INTEGER],
+                     },
+                   ]
+                 }
+               },
+               invalidFeedback: i18n.t('Inline Conditions contain one or more errors.')
+             }
+           }
+         ]
+        }
       ]
     }
   ]
