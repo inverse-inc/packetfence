@@ -1,16 +1,16 @@
 package main
 
 import (
-    "context"
-	"github.com/inverse-inc/packetfence/go/netflow5"
+	"context"
 	"database/sql"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/netflow5"
 	"strconv"
 	"time"
 )
 
 const (
-    MySqlDateFormat = "2006-01-02 15:04:05"
+	MySqlDateFormat = "2006-01-02 15:04:05"
 )
 
 type NetFlowBandwidthAccountingRec struct {
@@ -78,29 +78,29 @@ ON DUPLICATE KEY UPDATE in_bytes = in_bytes + VALUES(in_bytes), out_bytes = out_
 }
 
 func IpAddressAllowed(ip string) bool {
-    return true
+	return true
 }
 
 type BandwidthAccountingNetFlow struct {
-	Db                  *sql.DB
+	Db *sql.DB
 }
 
 func NewBandwidthAccountingNetFlow() *BandwidthAccountingNetFlow {
 	var ctx = context.Background()
 	db, err := db.DbFromConfig(ctx)
-    if err != nil {
-        return nil
-    }
+	if err != nil {
+		return nil
+	}
 
-    return &BandwidthAccountingNetFlow{Db : db}
+	return &BandwidthAccountingNetFlow{Db: db}
 }
 
 func (h *BandwidthAccountingNetFlow) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
-    recs := NetFlowV5ToBandwidthAccounting(header, flows)
-    sql := recs.ToSQL();
-    if sql != "" {
-        h.Db.Exec(sql)
-    }
+	recs := NetFlowV5ToBandwidthAccounting(header, flows)
+	sql := recs.ToSQL()
+	if sql != "" {
+		h.Db.Exec(sql)
+	}
 }
 
 func NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Flow) NetFlowBandwidthAccountingRecs {
@@ -115,23 +115,23 @@ func NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Fl
 		dstIndex = -1
 		var found bool
 		srcIp := flow.SrcIP().String()
-        if IpAddressAllowed(srcIp) {
-            if srcIndex, found = lookup[srcIp]; !found {
-                recs.AppendEmpty()
-                lookup[srcIp] = index
-                srcIndex = index
-                index++
-            }
-        }
+		if IpAddressAllowed(srcIp) {
+			if srcIndex, found = lookup[srcIp]; !found {
+				recs.AppendEmpty()
+				lookup[srcIp] = index
+				srcIndex = index
+				index++
+			}
+		}
 		dstIp := flow.DstIP().String()
-        if IpAddressAllowed(dstIp) {
-            if dstIndex, found = lookup[dstIp]; !found {
-                recs.AppendEmpty()
-                lookup[dstIp] = index
-                dstIndex = index
-                index++
-            }
-        }
+		if IpAddressAllowed(dstIp) {
+			if dstIndex, found = lookup[dstIp]; !found {
+				recs.AppendEmpty()
+				lookup[dstIp] = index
+				dstIndex = index
+				index++
+			}
+		}
 
 		layer3Bytes := uint64(flow.DPkts())
 		if srcIndex != -1 {
@@ -153,7 +153,7 @@ func NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Fl
 }
 
 func HandleNetFlowV5(header *netflow5.Header, flows []netflow5.Flow) {
-    recs := NetFlowV5ToBandwidthAccounting(header, flows)
-    sql := recs.ToSQL();
-    _ = sql
+	recs := NetFlowV5ToBandwidthAccounting(header, flows)
+	sql := recs.ToSQL()
+	_ = sql
 }

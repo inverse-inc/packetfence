@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"net"
-    "sync"
+	"sync"
 
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2866"
@@ -39,14 +39,14 @@ func radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 		Handler:      radius.HandlerFunc(HandleRadius),
 		SecretSource: radius.StaticSecretSource([]byte(`secret`)),
 	}
-    w.Add(1)
+	w.Add(1)
 	go func() {
 		if err := server.Serve(pc); err != radius.ErrServerShutdown {
 			panic(err)
 		}
 
-        w.Done()
+		w.Done()
 	}()
-    
-    return server
+
+	return server
 }

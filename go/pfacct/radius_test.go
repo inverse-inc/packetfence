@@ -1,12 +1,12 @@
 package main
 
 import (
-    "testing"
-	"layeh.com/radius"
-	 _ "layeh.com/radius/rfc2866"
 	"context"
 	"fmt"
+	"layeh.com/radius"
+	_ "layeh.com/radius/rfc2866"
 	"net"
+	"testing"
 	"time"
 )
 
@@ -29,7 +29,7 @@ func TestPacketServer_basic(t *testing.T) {
 
 	server := radius.PacketServer{
 		SecretSource: radius.StaticSecretSource(secret),
-		Handler: radius.HandlerFunc(HandleRadius),
+		Handler:      radius.HandlerFunc(HandleRadius),
 	}
 
 	var clientErr error
@@ -50,9 +50,9 @@ func TestPacketServer_basic(t *testing.T) {
 		if response.Code != radius.CodeAccountingResponse {
 			clientErr = fmt.Errorf("expected CodeAccessAccept, got %s", response.Code)
 		}
-        if (clientErr != nil) {
-            fmt.Println(nil)
-        }
+		if clientErr != nil {
+			fmt.Println(nil)
+		}
 	}()
 
 	if err := server.Serve(pc); err != nil && err != radius.ErrServerShutdown {
