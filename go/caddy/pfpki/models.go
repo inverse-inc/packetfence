@@ -131,7 +131,7 @@ type (
 		Key           string    `json:"-" gorm:"type:longtext"`
 		Cert          string    `json:"cert,omitempty" gorm:"type:longtext"`
 		Profile       Profile   `json:"-"`
-		ProfileID     uint      `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
+		ProfileID     uint      `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
 		ProfileName   string    `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
 		ValidUntil    time.Time `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
 		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`

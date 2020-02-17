@@ -58,7 +58,7 @@ sub get_bundle {
 	"organisation" => $organisation,
 	"country"      => $country,
 	"state"        => $state,
-	"profile_id"   => $profile + 0,
+	"profile_id"   => $profile,
     });
 
     if ($return->{'status'} eq "422") {
