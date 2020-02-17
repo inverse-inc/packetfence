@@ -1238,13 +1238,13 @@ const actions = {
       return Promise.resolve(state.switches)
     }
     if (!state.switches) {
-      commit('SWICTHES_REQUEST')
+      commit('SWITCHES_REQUEST')
       return api.getSwitches().then(response => {
         // group can be undefined
         response.data.items.forEach(function (item, index) {
           response.data.items[index] = Object.assign({ group: item.group || 'Default' }, item)
         })
-        commit('SWICTHES_UPDATED', response.data.items)
+        commit('SWITCHES_UPDATED', response.data.items)
         return state.switches
       })
     } else {
@@ -1256,10 +1256,13 @@ const actions = {
       return Promise.resolve(state.switchGroups)
     }
     if (!state.switchGroups) {
-      commit('SWICTH_GROUPS_REQUEST')
+      commit('SWITCH_GROUPS_REQUEST')
       return api.getSwitchGroups().then(response => {
-        commit('SWICTH_GROUPS_UPDATED', response.data.items)
+        commit('SWITCH_GROUPS_UPDATED', response.data.items)
         return state.switchGroups
+      }).catch((err) => {
+        commit('SWITCH_GROUPS_ERROR', err)
+        throw err
       })
     } else {
       return Promise.resolve(state.switchGroups)
@@ -1270,10 +1273,13 @@ const actions = {
       return Promise.resolve(state.switchTemplates)
     }
     if (!state.switchTemplates) {
-      commit('SWICTH_TEMPLATES_REQUEST')
+      commit('SWITCH_TEMPLATES_REQUEST')
       return api.getSwitchTemplates().then(response => {
-        commit('SWICTH_TEMPLATES_UPDATED', response.data.items)
+        commit('SWITCH_TEMPLATES_UPDATED', response.data.items)
         return state.switchTemplates
+      }).catch((err) => {
+        commit('SWITCH_TEMPLATES_ERROR', err)
+        throw err
       })
     } else {
       return Promise.resolve(state.switchTemplates)
@@ -1687,26 +1693,32 @@ const mutations = {
     state.ssids = ssids
     state.ssidsStatus = types.SUCCESS
   },
-  SWICTHES_REQUEST: (state) => {
+  SWITCHES_REQUEST: (state) => {
     state.switchesStatus = types.LOADING
   },
-  SWICTHES_UPDATED: (state, switches) => {
+  SWITCHES_UPDATED: (state, switches) => {
     state.switches = switches
     state.switchesStatus = types.SUCCESS
   },
-  SWICTH_GROUPS_REQUEST: (state) => {
+  SWITCH_GROUPS_REQUEST: (state) => {
     state.switchGroupsStatus = types.LOADING
   },
-  SWICTH_GROUPS_UPDATED: (state, switchGroups) => {
+  SWITCH_GROUPS_UPDATED: (state, switchGroups) => {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
   },
-  SWICTH_TEMPLATES_REQUEST: (state) => {
+  SWITCH_GROUPS_ERROR: (state, err) => {
+    state.switchGroupsStatus = types.ERROR
+  },
+  SWITCH_TEMPLATES_REQUEST: (state) => {
     state.switchTemplatesStatus = types.LOADING
   },
-  SWICTH_TEMPLATES_UPDATED: (state, switchTemplates) => {
+  SWITCH_TEMPLATES_UPDATED: (state, switchTemplates) => {
     state.switchTemplates = switchTemplates
     state.switchTemplatesStatus = types.SUCCESS
+  },
+  SWITCH_TEMPLATES_ERROR: (state, err) => {
+    state.switchTemplatesStatus = types.ERROR
   },
   SYSLOG_FORWARDERS_REQUEST: (state) => {
     state.syslogForwardersStatus = types.LOADING
