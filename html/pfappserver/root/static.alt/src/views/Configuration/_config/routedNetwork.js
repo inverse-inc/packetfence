@@ -49,14 +49,14 @@ export const htmlNote = `<div class="alert alert-warning">
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
 </div>`
 
-export const pfConfigurationDHCPPoolTypes = [
+export const DHCPPoolTypes = [
   { value: 'memory', text: i18n.t('Memory Pool') },
   { value: 'mysql', text: i18n.t('Mysql Pool') }
 ]
 
-export const pfConfigurationDHCPPoolTypesFormatter = (value, key, item) => {
+export const DHCPPoolTypesFormatter = (value) => {
   if (value === null || value === '') return null
-  return pfConfigurationDHCPPoolTypes.find(type => type.value === value).text
+  return DHCPPoolTypes.find(type => type.value === value).text
 }
 
 export const columns = [
@@ -106,7 +106,7 @@ export const columns = [
     label: i18n.t('Backend'),
     sortable: false,
     visible: true,
-    formatter: pfConfigurationDHCPPoolTypesFormatter
+    formatter: DHCPPoolTypesFormatter
   }
 ]
 
@@ -425,7 +425,7 @@ export const view = (form = {}, meta = {}) => {
         {
           key: 'dev',
           component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'dev'),
+          attrs: attributesFromMeta(meta, 'dev'),
         }
       ]
     },
