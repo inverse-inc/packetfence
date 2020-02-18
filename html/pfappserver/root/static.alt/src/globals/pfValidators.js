@@ -445,6 +445,13 @@ export const hasSwitchGroups = () => {
   })
 }
 
+export const hasSwitchTemplates = () => {
+  return store.dispatch('config/getSwitchTemplates').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
 export const hasSyslogForwarders = () => {
   return store.dispatch('config/getSyslogForwarders').then((response) => {
     return (response.length > 0)
@@ -750,6 +757,16 @@ export const switchGroupExists = (value) => {
   return store.dispatch('config/getSwitchGroups').then((response) => {
     if (response.length === 0) return true
     else return response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
+  })
+}
+
+export const switchTemplateExists = (value) => {
+  if (!value) return true
+  return store.dispatch('config/getSwitchTemplates').then((response) => {
+    if (response.length === 0) return true
+    else return response.filter(switchTemplate => switchTemplate.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

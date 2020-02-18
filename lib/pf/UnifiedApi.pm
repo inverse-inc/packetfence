@@ -291,6 +291,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_switch_groups_routes($root);
     $self->setup_api_v1_config_syslog_forwarders_routes($root);
     $self->setup_api_v1_config_syslog_parsers_routes($root);
+    $self->setup_api_v1_config_template_switches_routes($root);
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
     $self->setup_api_v1_config_wmi_rules_routes($root);
     return;
@@ -1306,6 +1307,27 @@ sub setup_api_v1_config_switches_routes {
     );
 
     $resource_route->any(['POST'] => "/invalidate_cache")->to("Config::Switches#invalidate_cache", auditable => 1)->name("api.v1.Config.Switches.invalidate_cache");
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_template_switches_routes
+
+setup_api_v1_config_template_switches_routes
+
+=cut
+
+sub setup_api_v1_config_template_switches_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::TemplateSwitches",
+        "/template_switches",
+        "/template_switch/#template_switch_id",
+        "api.v1.Config.TemplateSwitches"
+    );
 
     return ($collection_route, $resource_route);
 }
