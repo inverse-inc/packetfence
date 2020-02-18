@@ -1,9 +1,6 @@
 package main
 
 import (
-	"context"
-	"database/sql"
-	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/netflow5"
 	"strconv"
 	"time"
@@ -81,21 +78,7 @@ func IpAddressAllowed(ip string) bool {
 	return true
 }
 
-type BandwidthAccountingNetFlow struct {
-	Db *sql.DB
-}
-
-func NewBandwidthAccountingNetFlow() *BandwidthAccountingNetFlow {
-	var ctx = context.Background()
-	db, err := db.DbFromConfig(ctx)
-	if err != nil {
-		return nil
-	}
-
-	return &BandwidthAccountingNetFlow{Db: db}
-}
-
-func (h *BandwidthAccountingNetFlow) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
+func (h *PfAcct) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
 	recs := NetFlowV5ToBandwidthAccounting(header, flows)
 	sql := recs.ToSQL()
 	if sql != "" {

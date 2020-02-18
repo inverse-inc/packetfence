@@ -11,10 +11,12 @@ import (
 )
 
 func main() {
+	pfacct := NewPfAcct()
 	w := sync.WaitGroup{}
-	rs := radiusListen(&w)
+	pfRadius := NewPfRadius()
+	rs := pfRadius.radiusListen(&w)
 	processor := processor.Processor{
-		Handler: NewBandwidthAccountingNetFlow(),
+		Handler: pfacct,
 	}
 	w.Add(1)
 	c := make(chan os.Signal, 1)

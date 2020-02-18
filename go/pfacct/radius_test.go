@@ -25,7 +25,7 @@ func TestPacketServer_reject(t *testing.T) {
 
 	server := radius.PacketServer{
 		SecretSource: radius.StaticSecretSource(secret),
-		Handler:      New(),
+		Handler:      NewPfRadius(),
 	}
 
 	var clientErr error
@@ -63,15 +63,15 @@ func TestPacketServer_reject(t *testing.T) {
 }
 
 func TestPacketServer_start(t *testing.T) {
-    packetServerTestStatusCode(t, rfc2866.AcctStatusType_Value_Start)
+	packetServerTestStatusCode(t, rfc2866.AcctStatusType_Value_Start)
 }
 
 func TestPacketServer_update(t *testing.T) {
-    packetServerTestStatusCode(t, rfc2866.AcctStatusType_Value_InterimUpdate)
+	packetServerTestStatusCode(t, rfc2866.AcctStatusType_Value_InterimUpdate)
 }
 
 func TestPacketServer_stop(t *testing.T) {
-    packetServerTestStatusCode(t, rfc2866.AcctStatusType_Value_Stop)
+	packetServerTestStatusCode(t, rfc2866.AcctStatusType_Value_Stop)
 }
 
 func packetServerTestStatusCode(t *testing.T, statusType rfc2866.AcctStatusType) {
@@ -89,7 +89,7 @@ func packetServerTestStatusCode(t *testing.T, statusType rfc2866.AcctStatusType)
 
 	server := radius.PacketServer{
 		SecretSource: radius.StaticSecretSource(secret),
-		Handler:      New(),
+		Handler:      NewPfRadius(),
 	}
 
 	var clientErr error
