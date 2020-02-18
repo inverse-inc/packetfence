@@ -55,6 +55,7 @@ has_field 'watch_blacklisted_ips' => (
    checkbox_value  => 'enabled',
    unchecked_value => 'disabled',
    default => 'enabled',
+   required => 1,
 );
 
 has_field 'whitelisted_ips' =>
@@ -65,12 +66,18 @@ has_field 'whitelisted_ips' =>
 has_field 'blacklisted_ip_hosts_window' => (
    type => 'Duration',
    with_time_only => 1,
+   default => {
+    interval => 10,
+    unit => 's',
+   },
 );
 
 has_field 'blacklisted_ip_hosts_threshold' =>
   (
    type => 'PosInteger',
    checkbox_value => 'enabled',
+   default => 1,
+   required => 1,
   );
 
 has_field 'watched_device_attributes' =>
@@ -86,6 +93,8 @@ has_field 'device_attributes_diff_score' =>
   (
    type => 'PosInteger',
    checkbox_value => 'enabled',
+   required => 1,
+   default => 0,
   );
 
 has_field 'device_attributes_diff_threshold_overrides' =>
