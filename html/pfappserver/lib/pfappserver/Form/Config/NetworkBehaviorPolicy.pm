@@ -64,7 +64,6 @@ has_field 'whitelisted_ips' =>
 
 has_field 'blacklisted_ip_hosts_window' => (
    type => 'Duration',
-   required => 1,
    with_time_only => 1,
 );
 

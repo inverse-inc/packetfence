@@ -1,0 +1,19 @@
+[android_blacklisted]
+blacklisted_ip_hosts_threshold=1
+whitelisted_ips=8.8.8.8/32
+description=Android devices shouldn't talk to blacklisted hosts
+watched_device_attributes=
+devices_excluded=33453
+devices_included=
+device_attributes_diff_threshold_overrides=
+watch_blacklisted_ips=enabled
+blacklisted_ip_hosts_window=10m
+
+[iot_pristine_match]
+device_attributes_diff_score=20
+description=IoT devices should match pristine profile
+watched_device_attributes=dhcp_fingerprint,dhcp_vendor,hostname
+devices_excluded=
+devices_included=15
+device_attributes_diff_threshold_overrides=hostname:10
+watch_blacklisted_ips=disabled

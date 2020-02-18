@@ -211,13 +211,25 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: 'Watched Device Attributes',
-          text: i18n.t('Defines the attributes that should be analysed when checking against the pristine profile of the endpoint'),
+          text: i18n.t('Defines the attributes that should be analysed when checking against the pristine profile of the endpoint. Leaving this empty will disable the feature.'),
           cols: [
             {
               namespace: 'watched_device_attributes',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'watched_device_attributes'),
               validators: validatorsFromMeta(meta, 'watched_device_attributes', 'Watched Device Attributes')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Device attributes minimal score'),
+          text: i18n.t('If an endpoint doesn\'t get at least this score when being matched against the pristine profile, then it triggers an event.'),
+          cols: [
+            {
+              namespace: 'device_attributes_diff_score',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'device_attributes_diff_score'),
+              validators: validatorsFromMeta(meta, 'device_attributes_diff_score', 'Device attributes minimal score')
             }
           ]
         },
