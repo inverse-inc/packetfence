@@ -95,6 +95,6 @@ func (h *PfRadius) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	return server
 }
 
-func (h *PfRadius) RADIUSSecret(ctx context.Context, remoteAddr net.Addr) ([]byte, error) {
+func (h *PfRadius) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, error) {
 	return nil, nil
 }
