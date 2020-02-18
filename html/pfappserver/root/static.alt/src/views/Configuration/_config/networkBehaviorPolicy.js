@@ -1,5 +1,6 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { pfFieldType as fieldType } from '@/globals/pfField'
@@ -222,7 +223,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
          label: i18n.t('Device Attributes weight'),
-         text: i18n.t('Override the weight of the different attributes when matching them against the pristine profiles'),
+         text: i18n.t('Override the weight of the different attributes when matching them against the pristine profiles. '),
          cols: [
            {
              namespace: 'device_attributes_diff_threshold_overrides',
@@ -298,6 +299,32 @@ export const view = (form = {}, meta = {}) => {
              }
            }
          ]
+        },
+        {
+          label: null,
+          cols: [
+            {
+              component: pfFormHtml,
+              attrs: {
+                html: `<div class="alert alert-info">
+                  ${i18n.t('The default weights are:')}<br/>
+                  <ul>
+                    <li><strong>DHCP fingerprint</strong> = 10</li>
+                    <li><strong>DHCP vendor</strong> = 10</li>
+                    <li><strong>Hostname</strong> = 3</li>
+                    <li><strong>OUI</strong> = 3</li>
+                    <li><strong>Destination hosts</strong> = 5</li>
+                    <li><strong>mDNS Services</strong> = 5</li>
+                    <li><strong>TCP SYN signatures</strong> = 10</li>
+                    <li><strong>TCP SYN ACK signatures</strong> = 10</li>
+                    <li><strong>UPnP server strings</strong> = 5</li>
+                    <li><strong>UPnP user-agents</strong> = 5</li>
+                    <li><strong>HTTP user-agents</strong> = 5</li>
+                  </ul>
+                </div>`
+              }
+            }
+          ]
         }
       ]
     }
