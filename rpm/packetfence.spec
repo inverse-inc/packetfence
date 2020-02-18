@@ -288,8 +288,8 @@ Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.1.5, fingerbank < 5.0.0
-Requires: fingerbank-collector >= 1.2.2, fingerbank-collector < 2.0.0
+Requires: fingerbank >= 4.2.0, fingerbank < 5.0.0
+Requires: fingerbank-collector >= 1.3.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
 %description
