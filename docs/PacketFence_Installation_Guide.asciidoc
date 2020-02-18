@@ -4924,7 +4924,7 @@ First you need to create the GRE configuration, let's assume that on the other s
  10.0.0.1 and 10.0.0.2 are the ip addresses used inside the tunnel.
  172.20.0.0/24 is the remote registration network.
 
-On the PacketFence side edit the file /etc/sysconfig/metwork-script/ifcfg-gre1
+On the PacketFence side edit the file /etc/sysconfig/network-scripts/ifcfg-gre1
 
  DEVICE=gre1
  BOOTPROTO=none
@@ -4936,7 +4936,7 @@ On the PacketFence side edit the file /etc/sysconfig/metwork-script/ifcfg-gre1
  MY_INNER_IPADDR=10.0.0.1/32
  MY_OUTER_IPADDR=192.168.1.5
 
-On the other side edit the file /etc/sysconfig/metwork-script/ifcfg-gre1
+On the other side edit the file /etc/sysconfig/network-scripts/ifcfg-gre1
 
  DEVICE=gre1
  BOOTPROTO=none
@@ -4948,7 +4948,7 @@ On the other side edit the file /etc/sysconfig/metwork-script/ifcfg-gre1
  MY_INNER_IPADDR=10.0.0.2/32
  MY_OUTER_IPADDR=172.19.0.5
 
-And this file too edit the file /etc/sysconfig/metwork-script/route-gre1
+And this file too edit the file /etc/sysconfig/network-scripts/route-gre1
 
  192.168.0.1 dev gre1
 

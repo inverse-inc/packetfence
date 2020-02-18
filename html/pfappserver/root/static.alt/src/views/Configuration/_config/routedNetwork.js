@@ -250,9 +250,9 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('DHCP Pool Backend Type'),
-          fields: [
+          cols: [
             {
-              key: 'pool_backend',
+              namespace: 'pool_backend',
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
@@ -406,6 +406,17 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Interface'),
+          text: i18n.t('Define a network interface to associate it with the dhcp scope.(In most cases you don\'t need to do it)'),
+          cols: [
+            {
+              namespace: 'dev',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'dev'),
+            }
+          ]
+        },
+        {
           label: null, /* no label */
           cols: [
             {
@@ -415,17 +426,6 @@ export const view = (form = {}, meta = {}) => {
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      label: i18n.t('Interface'),
-      text: i18n.t('Define a network interface to associate it with the dhcp scope.(In most cases you don\'t need to do it)'),
-      fields: [
-        {
-          key: 'dev',
-          component: pfFormInput,
-          attrs: attributesFromMeta(meta, 'dev'),
         }
       ]
     },
@@ -480,6 +480,7 @@ export const validators = (form = {}, meta = {}) => {
     },
     type: validatorsFromMeta(meta, 'type', i18n.t('Type')),
     algorithm: validatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm')),
+    pool_backend: validatorsFromMeta(meta, 'pool_backend', i18n.t('DHCP Pool Backend Type')),
     dhcp_start: {
       ...validatorsFromMeta(meta, 'dhcp_start', 'IP'),
       ...{
