@@ -25,7 +25,7 @@ func TestPacketServer_reject(t *testing.T) {
 
 	server := radius.PacketServer{
 		SecretSource: radius.StaticSecretSource(secret),
-		Handler:      NewPfRadius(),
+		Handler:      NewPfAcct(),
 	}
 
 	var clientErr error
@@ -89,7 +89,7 @@ func packetServerTestStatusCode(t *testing.T, statusType rfc2866.AcctStatusType)
 
 	server := radius.PacketServer{
 		SecretSource: radius.StaticSecretSource(secret),
-		Handler:      NewPfRadius(),
+		Handler:      NewPfAcct(),
 	}
 
 	var clientErr error

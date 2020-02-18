@@ -13,8 +13,7 @@ import (
 func main() {
 	pfacct := NewPfAcct()
 	w := sync.WaitGroup{}
-	pfRadius := NewPfRadius()
-	rs := pfRadius.radiusListen(&w)
+	rs := pfacct.radiusListen(&w)
 	processor := processor.Processor{
 		Handler: pfacct,
 	}

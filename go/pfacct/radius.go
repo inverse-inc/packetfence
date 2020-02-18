@@ -10,14 +10,7 @@ import (
 	"github.com/inverse-inc/go-radius/rfc2866"
 )
 
-type PfRadius struct {
-}
-
-func NewPfRadius() *PfRadius {
-	return &PfRadius{}
-}
-
-func (h *PfRadius) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
+func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
 	in_bytes := uint64(rfc2866.AcctInputOctets_Get(r.Packet))
 	out_bytes := uint64(rfc2866.AcctOutputOctets_Get(r.Packet))
 	statusType := rfc2866.AcctStatusType_Get(r.Packet)
@@ -39,37 +32,37 @@ func (h *PfRadius) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
 
 }
 
-func (h *PfRadius) handleStart(w radius.ResponseWriter, r *radius.Request) {
+func (h *PfAcct) handleStart(w radius.ResponseWriter, r *radius.Request) {
 	code := radius.CodeAccountingResponse
 	log.Printf("Writing %v to %v", code, r.RemoteAddr)
 	w.Write(r.Response(code))
 }
 
-func (h *PfRadius) handleAccountingOn(w radius.ResponseWriter, r *radius.Request) {
+func (h *PfAcct) handleAccountingOn(w radius.ResponseWriter, r *radius.Request) {
 	code := radius.CodeAccountingResponse
 	log.Printf("Writing %v to %v", code, r.RemoteAddr)
 	w.Write(r.Response(code))
 }
 
-func (h *PfRadius) handleAccountingOff(w radius.ResponseWriter, r *radius.Request) {
+func (h *PfAcct) handleAccountingOff(w radius.ResponseWriter, r *radius.Request) {
 	code := radius.CodeAccountingResponse
 	log.Printf("Writing %v to %v", code, r.RemoteAddr)
 	w.Write(r.Response(code))
 }
 
-func (h *PfRadius) handleStop(w radius.ResponseWriter, r *radius.Request) {
+func (h *PfAcct) handleStop(w radius.ResponseWriter, r *radius.Request) {
 	code := radius.CodeAccountingResponse
 	log.Printf("Writing %v to %v", code, r.RemoteAddr)
 	w.Write(r.Response(code))
 }
 
-func (h *PfRadius) handleUpdate(w radius.ResponseWriter, r *radius.Request) {
+func (h *PfAcct) handleUpdate(w radius.ResponseWriter, r *radius.Request) {
 	code := radius.CodeAccountingResponse
 	log.Printf("Writing %v to %v", code, r.RemoteAddr)
 	w.Write(r.Response(code))
 }
 
-func (h *PfRadius) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
+func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	addr, err := net.ResolveUDPAddr("udp", "localhost:1813")
 	if err != nil {
 		panic(err)
@@ -95,6 +88,6 @@ func (h *PfRadius) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	return server
 }
 
-func (h *PfRadius) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, error) {
+func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, error) {
 	return nil, nil
 }
