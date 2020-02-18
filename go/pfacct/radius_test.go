@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"layeh.com/radius"
-	"layeh.com/radius/rfc2866"
+	"github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2866"
 	"net"
 	"testing"
 	"time"
