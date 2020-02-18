@@ -259,7 +259,7 @@ export const view = (form = {}, meta = {}) => {
                 placeholder: i18n.t('Select a backend'),
                 trackBy: 'value',
                 label: 'text',
-                options: pfConfigurationDHCPPoolTypes
+                options: DHCPPoolTypes
               }
             }
           ]
