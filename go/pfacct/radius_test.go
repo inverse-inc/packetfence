@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
+	"github.com/inverse-inc/go-radius/vendors/cisco"
 	"net"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -123,5 +126,17 @@ func packetServerTestStatusCode(t *testing.T, statusType rfc2866.AcctStatusType)
 
 	if clientErr != nil {
 		t.Fatal(clientErr)
+	}
+}
+
+func TestPacketToMap(t *testing.T) {
+	packet := radius.New(radius.CodeAccountingRequest, []byte("bob"))
+	rfc2865.UserName_SetString(packet, "tim")
+	cisco.CiscoAVPair_AddString(packet, "bob=bobby")
+	cisco.CiscoAVPair_AddString(packet, "j=r")
+	attributeMap := packetToMap(packet)
+	expected := map[string]interface{}{"User-Name": "tim", "Cisco-AVPair": []interface{}{"bob=bobby", "j=r"}}
+	if reflect.DeepEqual(expected, attributeMap) == false {
+		t.Errorf("expected : %v, got : %v", expected, attributeMap)
 	}
 }
