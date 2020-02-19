@@ -126,11 +126,6 @@ func (d *Interfaces) readConfig() {
 			var IP net.IP
 			IP, NetIP, _ = net.ParseCIDR(adresse.String())
 
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
-
 			if IsIPv6(IP) {
 				ethIf.Ipv6 = IP
 				continue
@@ -140,17 +135,14 @@ func (d *Interfaces) readConfig() {
 			}
 
 			ethIf.layer2 = append(ethIf.layer2, NetIP)
-
 			for _, key := range keyConfNet.Keys {
 				var ConfNet pfconfigdriver.RessourseNetworkConf
 				ConfNet.PfconfigHashNS = key
-
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
 				if ConfNet.Dhcpd == "disabled" {
 					continue
 				}
 				NetInt := strings.Split(ConfNet.Dev, ",")
-
 				if !added && ((NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) || (stringInSlice(ethIf.Name, NetInt))) {
 					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
 						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)

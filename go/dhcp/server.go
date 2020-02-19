@@ -49,7 +49,7 @@ func Serve(ctx context.Context, conn *serveIfConn, handler Handler, jobs chan jo
 
 	for {
 
-		n, _, addr, err := conn.ReadFromRaw(buffer)
+		n, cm, addr, err := conn.ReadFromRaw(buffer)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func Serve(ctx context.Context, conn *serveIfConn, handler Handler, jobs chan jo
 		var dhcprequest dhcp.Packet
 		dhcprequest = append([]byte(nil), req...)
 		// addr is source ip address cm.Dst is the target
-		jobe := job{DHCPpacket: dhcprequest, msgType: reqType, Int: interfaceNet, handler: handler, clientAddr: addr, localCtx: ctx}
+		jobe := job{DHCPpacket: dhcprequest, msgType: reqType, Int: interfaceNet, handler: handler, clientAddr: addr, srvAddr: cm.Dst, localCtx: ctx}
 		go func() {
 			jobs <- jobe
 		}()
