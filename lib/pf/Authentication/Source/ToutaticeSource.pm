@@ -33,6 +33,25 @@ Which module to use for DynamicRouting
 
 sub dynamic_routing_module { 'Authentication::OAuth::Toutatice' }
 
+=head2 available_attributes
+
+=cut
+
+sub available_attributes {
+    my $self = shift;
+    my $super_attributes = $self->SUPER::available_attributes;
+    my @own_attributes = map { {value => $_, type => $Conditions::SUBSTRING}} qw(
+      username
+      title
+      ENTPersonDateNaissance
+      ENTPersonUid
+      ENTPersonStructRattachRNE
+      personalTitle
+      ENTPersonFonctions
+    );
+    return [@$super_attributes, @own_attributes];
+}
+
 =head2 lookup_from_provider_info
 
 Lookup the person information from the authentication hash received during the OAuth process
