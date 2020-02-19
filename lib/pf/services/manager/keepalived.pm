@@ -107,6 +107,7 @@ EOT
                 $priority = 100 - pf::cluster::cluster_index();
             }
             my $cluster_ip = pf::cluster::cluster_ip($interface);
+            my $cluster_ip_alias = pf::cluster::cluster_ip_alias($interface);
             $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id $Config{'active_active'}{'virtual_router_id'}
