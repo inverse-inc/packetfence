@@ -214,10 +214,10 @@ sub generateRoutes {
                 $cmd .= $ref;
                 $cmd .= "\nEOF";
                 my $output = `$cmd`;
-                $routes .= "$network" . "/". $net{'netmask'} . " dev " . $dev." table ".$dev."_table\n";
+                $routes .= "$current_network" . " dev " . $dev." table ".$dev."_table\n";
             }
         }
-        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
+        elsif ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
             $routes .= "$current_network via $net{'next_hop'} dev $dev\n"
         } else {
             if ( isenabled($NetworkConfig{$network}{'dhcpd'}) ) {
