@@ -77,7 +77,7 @@ sub generateConfig {
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
 
-    my ($routes,$ips) = $self->generateRoutes();
+    my ($routes,$ips, $rules) = $self->generateRoutes();
     $tags{'vrrp'} .= <<"EOT";
 
 static_ipaddress {
@@ -89,6 +89,9 @@ static_routes {
 $routes
 }
 
+static_rules {
+$rules
+}
 EOT
 
 
@@ -176,10 +179,43 @@ sub generateRoutes {
     my $logger = get_logger();
     my $routes = '';
     my $ips = '';
+    my $rules = '';
+    my ( $rt_tables_fh, @rt_lines );
+    open( $rt_tables_fh, '<', "/etc/iproute2/rt_tables" );
+    chomp(@rt_lines = <$rt_tables_fh>);
+    close $rt_tables_fh;
+    my %dev = map { /^(\d+)\s+.*/ => /^\d+\s+(.*)/ } grep { $_ =~ /^\d+\s+.*/ } @rt_lines;
+    my $inc = 4;
+    my @dev = uniq(map { map { $_ } split(',',$ConfigNetworks{$_}{'dev'}) } keys %ConfigNetworks);
+    my %interfaces;
+    foreach my $interface (@dev) {
+        $rules.= "from all fwmark $inc table ".$interface."_table\n";
+        $interfaces{$interface} = $inc;
+        $inc++;
+    }
     foreach my $network ( keys %NetworkConfig ) {
         my %net = %{$NetworkConfig{$network}};
         my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
         my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        if ( defined($net{'dev'}) ) {
+            my $i = 1;
+            foreach my $dev (split(',',$net{'dev'})) {
+                if (!(grep { $_ eq $dev."_table" } values %dev)) {
+                    while (exists $dev{$i}) {
+                        $i++;
+                    }
+                    $i .= (" " x (6 - length($i)));
+                    push (@rt_lines, "$i".$dev."_table");
+                    $i++;
+                }
+                my $ref = join("\n", @rt_lines);
+                my $cmd = "sudo tee /etc/iproute2/rt_tables << EOF\n";
+                $cmd .= $ref;
+                $cmd .= "\nEOF";
+                my $output = `$cmd`;
+                $routes .= "$network" . "/". $net{'netmask'} . " dev " . $dev." table ".$dev."_table\n";
+            }
+        }
         if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
             $routes .= "$current_network via $net{'next_hop'} dev $dev\n"
         } else {
@@ -210,7 +246,7 @@ sub generateRoutes {
             }
         }
     }
-    return $routes, $ips;
+    return $routes, $ips, $rules;
 }
 
 
