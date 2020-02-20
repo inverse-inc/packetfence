@@ -1081,6 +1081,7 @@ Install following softwares:
 * link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3)
 * Virtualbox if you wan to use Virtualbox as a provider for Vagrant
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
+* pywinrm > 0.3.0 if you want to use Windows virtual machine
 
 ==== Virtual environment: initial setup
 
@@ -1178,6 +1179,32 @@ packetfence_install__centos_packages:
 EOF
 ansible-playbook site.yml --limit VM_NAME -e @extra.yml
 ----
+
+=== Running virtual machines other than PF
+
+==== Active directory server
+
+You can start a virtual machine called `ad` by running: [command]`vagrant up
+ad`. This virtual machine will be auto-provision with:
+
+* a DNS domain
+* an Active Directory domain
+* AD CS services with auto-enrollment using a GPO
+* a packetfence account
+
+.Vagrant admin accounts:
+[source,yaml]
+----
+include::../addons/vagrant/inventory/group_vars/winservers/domain_setup.yml[]
+----
+
+.PacketFence domain account:
+[source,yaml]
+----
+include::../addons/vagrant/inventory/group_vars/winservers/domain_account.yml[]
+----
+
+
 
 == Running tests
 
