@@ -1,5 +1,12 @@
 <template>
-  <div class="pf-form-boolean">
+  <div class="pf-form-boolean" :class="{ 'root': isRoot }"
+    :draggable="!isRoot"
+    @dragstart.stop="$emit('dragStart', $event)"
+    @dragleave.stop="$emit('dragLeave', $event)"
+    @dragend.stop="$emit('dragEnd', $event)"
+    @dragover.stop="$emit('dragOver', $event)"
+    @drop.stop="dragDrop($event)"
+  >
 
     <div v-if="hasValues" class="pf-form-boolean-op">
       <span
@@ -21,22 +28,22 @@
           </template>
           <b-dropdown-group v-if="!isRoot">
             <b-dropdown-header>{{ $t('Operator') }}</b-dropdown-header>
-            <b-dropdown-item v-on:click="$emit('cloneOperator'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="$emit('cloneOperator'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="copy" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
-            <b-dropdown-item v-on:click="$emit('deleteOperator'); highlight = false;">
+            <b-dropdown-item @click="$emit('deleteOperator'); highlight = false;">
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
             </b-dropdown-item>
           </b-dropdown-group>
           <b-dropdown-group>
             <b-dropdown-header>{{ $t('Collection') }}</b-dropdown-header>
-            <b-dropdown-item v-on:click="addOperator(values.length); (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="addOperator(values.length); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Operator') }}
             </b-dropdown-item>
-            <b-dropdown-item v-on:click="addValue(values.length); (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="addValue(values.length); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Value') }}
             </b-dropdown-item>
-            <b-dropdown-item v-on:click="truncate(); (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="truncate(); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="times-circle" class="mr-1"></icon> {{ $t('Truncate') }}
             </b-dropdown-item>
           </b-dropdown-group>
@@ -48,14 +55,24 @@
       @mousemove="highlight = false"
     >
       <template v-for="(value, index) in values">
-      <!-- recurse -->
-        <pf-form-boolean :key="index" v-bind="attrs(index)" :isRoot="false"
-          v-on:addOperator="addOperator(index)"
-          v-on:cloneOperator="cloneOperator(index)"
-          v-on:deleteOperator="deleteOperator(index)"
-          v-on:addValue="addValue(index)"
-          v-on:cloneValue="cloneValue(index)"
-          v-on:deleteValue="deleteValue(index)"
+
+        <!-- drag/drop placeholder -->
+        <div v-if="index === drop" v-html="drag.innerHTML" :key="'$' + index">{{ drag.innerHTML }}</div>
+
+        <!-- recurse -->
+        <pf-form-boolean :key="index" v-bind="attrs(index)" :isRoot="false" :eventBus="eventBus"
+          @addOperator="addOperator(index)"
+          @cloneOperator="cloneOperator(index)"
+          @deleteOperator="deleteOperator(index)"
+          @addValue="addValue(index)"
+          @cloneValue="cloneValue(index)"
+          @deleteValue="deleteValue(index)"
+
+          @dragStart="dragStart(index, $event)"
+          @dragLeave="dragLeave(index, $event)"
+          @dragOver="dragOver(index, $event)"
+          @dragEnd="dragEnd(index, $event)"
+          @dropValue="dropValue(index, $event)"
         >
           <!-- proxy `op` slot -->
           <template v-slot:op="{ op, formStoreName, formNamespace }">
@@ -83,10 +100,10 @@
           </template>
           <b-dropdown-group>
             <b-dropdown-header>{{ $t('Value') }}</b-dropdown-header>
-            <b-dropdown-item v-on:click="$emit('cloneValue'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="$emit('cloneValue'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="copy" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
-            <b-dropdown-item v-on:click="$emit('deleteValue'); highlight = false;">
+            <b-dropdown-item @click="$emit('deleteValue'); highlight = false;">
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
             </b-dropdown-item>
           </b-dropdown-group>
@@ -98,7 +115,21 @@
 </template>
 
 <script>
+import Vue from 'vue' // eventBus
 import pfMixinForm from '@/components/pfMixinForm'
+
+const isBefore = (event) => {
+  const { target, pageX: x, pageY: y } = event
+  const { width, height, top, left } = target.getBoundingClientRect()
+  /* 2 drop zones
+    *  previous: within triangle from @top-left/bottom-left/top-right corners
+    *  next: within triangle from @bottom-right/top-right/bottom-left corners
+    */
+  const ar = width / height
+  const dx = x - left
+  const dy = height - dx / ar
+  return (y - top < dy) // true: previous, false: next
+}
 
 export default {
   name: 'pf-form-boolean',
@@ -110,6 +141,8 @@ export default {
   },
   data () {
     return {
+      drag: false,
+      drop: false,
       highlight: false
     }
   },
@@ -121,6 +154,10 @@ export default {
     isRoot: {
       type: Boolean,
       default: true
+    },
+    eventBus: { // singleton event bus for all child components
+      type: Object,
+      default: new Vue()
     }
   },
   computed: {
@@ -148,11 +185,11 @@ export default {
     },
     op () {
       const { inputValue: { op = null } = {} } = this
-      return op || null
+      return op
     },
     values () {
       const { inputValue: { values = [] } = {} } = this
-      return values || []
+      return values
     },
     opListeners () {
       return {
@@ -222,6 +259,50 @@ export default {
     },
     truncate () {
       this.$set(this.inputValue, 'values', [])
+    },
+    dragStart (index, event) { // @source
+      const { target: source, target: { parentNode: { innerHTML } = {} } = {} } = event
+console.log('HTML', innerHTML)
+      let { inputValue: { values: { [index]: value } = {} } = {} } = this
+      try { // dereference
+        value = JSON.parse(JSON.stringify(value))
+      } catch (err) {
+        value = (value && Object.keys(value).length > 0)
+          ? Object.assign({}, value)
+          : null
+      }
+      this.eventBus.$emit('drag', { source, value, innerHTML })
+    },
+    dragEnd () { // @source
+      this.eventBus.$emit('drag', false)
+    },
+    dragLeave () { // @target
+      this.drop = false
+    },
+    dragOver (index, event) { // @target
+      const { target } = event
+      const { source } = this.drag
+      if (source === target) return // ignore self
+      if (source.contains(target)) return // ignore child nodes
+      let inspect = target
+      while (!inspect.classList.contains('pf-form-boolean')) { // search parentNode's recursively
+        inspect = inspect.parentNode
+      }
+      if (inspect.classList.contains('root')) return // ignore root's immediate children
+      event.preventDefault() // allow drop
+      this.drop = (isBefore(event)) ? index : index + 1 // set drop index (placeholder)
+    },
+    dragDrop (event) {
+      if (isBefore(event)) { // previous
+        this.$emit('dropValue', { ...this.drag, ...{ offset: 0 } })
+      } else { // next
+        this.$emit('dropValue', { ...this.drag, ...{ offset: 1 } })
+      }
+    },
+    dropValue (index, event) {
+      const { inputValue: { values } = {} } = this
+      const { value, offset } = event
+      this.$set(this.inputValue, 'values', [...values.slice(0, index + offset), ...[value], ...values.slice(index + offset)])
     }
   },
   watch: {
@@ -232,6 +313,11 @@ export default {
         }
       }
     }
+  },
+  mounted () {
+    this.eventBus.$on('drag', (data) => { // event bus listener
+      this.$set(this, 'drag', data)
+    })
   }
 }
 </script>
