@@ -281,7 +281,7 @@ desc=Fingerbank profile anomaly
 enabled=Y
 
 [1300008]
-trigger=internal::fingerbank_blacklisted_ips_threshold_too_high
+trigger=internal::fingerbank_blacklisted_ips_threshold_too_high,internal::fingerbank_blacklisted_ports
 actions=email_admin
 desc=Fingerbank detected blacklisted communication
 enabled=Y
