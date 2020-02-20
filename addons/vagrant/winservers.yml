@@ -45,3 +45,19 @@
       dest: ca_chain.pem
     delegate_to: localhost
     run_once: yes    
+
+- name: Create a domain user account
+  hosts: ad
+  gather_facts: no
+
+  tasks:
+  - name: Create a packetfence domain account
+    win_domain_user:
+      name: '{{ packetfence_domain_account }}'
+      upn: '{{ packetfence_domain_account }}@{{ domain_setup__domain_name }}'
+      description: 'packetfence Domain Users Account'
+      password: '{{ packetfence_domain_password }}'
+      password_never_expires: yes
+      groups:
+        - Domain Users
+      state: present

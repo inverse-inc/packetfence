@@ -1,0 +1,5 @@
+---
+packetfence_domain_account: 'packetfence'
+
+# be careful with password restrictions
+packetfence_domain_password: 'P@ck3tF3nc3pass'
