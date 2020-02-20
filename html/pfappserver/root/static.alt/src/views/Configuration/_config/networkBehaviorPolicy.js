@@ -192,7 +192,6 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'blacklisted_ip_hosts_window.unit',
               component: pfFormChosen,
-              //TODO: units should only be seconds, minutes, hours
               attrs: attributesFromMeta(meta, 'blacklisted_ip_hosts_window.unit')
             }
           ]
@@ -233,7 +232,6 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'blacklisted_ports_window.unit',
               component: pfFormChosen,
-              //TODO: units should only be seconds, minutes, hours
               attrs: attributesFromMeta(meta, 'blacklisted_ports_window.unit')
             }
           ]
