@@ -72,6 +72,20 @@ has_field 'blacklisted_ip_hosts_window' => (
    },
 );
 
+has_field 'blacklisted_ports' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'blacklisted_ports_window' => (
+   type => 'Duration',
+   with_time_only => 1,
+   default => {
+    interval => 1,
+    unit => 'm',
+   },
+);
+
 has_field 'blacklisted_ip_hosts_threshold' =>
   (
    type => 'PosInteger',

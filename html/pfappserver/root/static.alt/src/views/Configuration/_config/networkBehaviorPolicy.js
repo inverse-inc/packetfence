@@ -210,6 +210,35 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Blacklisted ports'),
+          text: i18n.t('Which ports should be considered as vulnerable/dangerous and trigger an event. Should be a comma delimited list of ports. Also supports ranges (ex: "1000-1024" configures ports 1000 to 1024 inclusively). This list is for the outbound communication of the endpoint.'),
+          cols: [
+            {
+              namespace: 'blacklisted_ports',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'blacklisted_ports'),
+              validators: validatorsFromMeta(meta, 'blacklisted_ports', 'Blacklisted ports')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Blacklisted ports window'),
+          text: i18n.t('The window to consider when checking for blacklisted ports communication.'),
+          cols: [
+            {
+              namespace: 'blacklisted_ports_window.interval',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'blacklisted_ports_window.interval')
+            },
+            {
+              namespace: 'blacklisted_ports_window.unit',
+              component: pfFormChosen,
+              //TODO: units should only be seconds, minutes, hours
+              attrs: attributesFromMeta(meta, 'blacklisted_ports_window.unit')
+            }
+          ]
+        },
+        {
           label: 'Watched Device Attributes',
           text: i18n.t('Defines the attributes that should be analysed when checking against the pristine profile of the endpoint. Leaving this empty will disable the feature.'),
           cols: [

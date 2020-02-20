@@ -9,6 +9,7 @@ devices_included=33453
 device_attributes_diff_threshold_overrides=
 watch_blacklisted_ips=enabled
 blacklisted_ip_hosts_window=10m
+blacklisted_ports=22-23,6667,3128,8080
 
 [iot_pristine_match]
 blacklisted_ip_hosts_threshold=1
