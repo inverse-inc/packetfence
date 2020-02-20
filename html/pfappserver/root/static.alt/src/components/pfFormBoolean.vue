@@ -1,13 +1,13 @@
 <template>
   <div class="pf-form-boolean">
 
-    <div v-if="values.length > 0 && hasOp" class="pf-form-boolean-op">
+    <div v-if="hasValues" class="pf-form-boolean-op">
       <span
         @mouseover.stop.prevent="highlight = true"
         @mouseout="highlight = false"
         class="m-0"
       >
-        <span v-if="!root" v-on="opListeners" class="handle">
+        <span v-if="!isRoot" v-on="opListeners" class="handle">
           <icon name="grip-vertical"></icon>
         </span>
         <slot name="op" v-bind="{ op, formStoreName, formNamespace }"></slot>
@@ -19,7 +19,7 @@
           <template v-slot:button-content>
             <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
           </template>
-          <b-dropdown-group v-if="!root">
+          <b-dropdown-group v-if="!isRoot">
             <b-dropdown-header>{{ $t('Operator') }}</b-dropdown-header>
             <b-dropdown-item v-on:click="$emit('cloneOperator'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="copy" class="mr-1"></icon> {{ $t('Clone') }}
@@ -44,12 +44,12 @@
       </span>
     </div>
 
-    <div v-if="values.length > 0" class="pf-form-boolean-values" :class="{ 'highlight': highlight }"
+    <div v-if="hasValues" class="pf-form-boolean-values" :class="{ 'highlight': highlight }"
       @mousemove="highlight = false"
     >
       <template v-for="(value, index) in values">
       <!-- recurse -->
-        <pf-form-boolean :key="index" v-bind="attrs(index)" :root="false"
+        <pf-form-boolean :key="index" v-bind="attrs(index)" :isRoot="false"
           v-on:addOperator="addOperator(index)"
           v-on:cloneOperator="cloneOperator(index)"
           v-on:deleteOperator="deleteOperator(index)"
@@ -118,7 +118,7 @@ export default {
       type: Object,
       default: null
     },
-    root: {
+    isRoot: {
       type: Boolean,
       default: true
     }
@@ -140,8 +140,8 @@ export default {
         }
       }
     },
-    hasOp () {
-      return ('op' in this.inputValue)
+    hasValues () {
+      return (this.inputValue && 'values' in this.inputValue)
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -177,7 +177,14 @@ export default {
     },
     cloneValue (index) {
       const { inputValue: { values } = {} } = this
-      const newValue = values[index]
+      let newValue
+      try { // dereference
+        newValue = JSON.parse(JSON.stringify(values[index]))
+      } catch (err) {
+        newValue = (values[index] && Object.keys(values[index]).length > 0)
+          ? Object.assign({}, values[index])
+          : null
+      }
       this.$set(this.inputValue, 'values', [...values.slice(0, index + 1), ...[newValue], ...values.slice(index + 1)])
     },
     deleteValue (index) {
@@ -192,12 +199,19 @@ export default {
       if (index in values && 'op' in values[index]) {
         op = values[index].op
       }
-      const newOp = { op, values: [undefined] }
+      const newOp = { op, values: [] }
       this.$set(this.inputValue, 'values', [...values.slice(0, index + 1), ...[newOp], ...values.slice(index + 1)])
     },
     cloneOperator (index) {
       const { inputValue: { values } = {} } = this
-      const newOp = values[index]
+      let newOp
+      try { // dereference
+        newOp = JSON.parse(JSON.stringify(values[index]))
+      } catch (err) {
+        newOp = (values[index] && Object.keys(values[index]).length > 0)
+          ? Object.assign({}, values[index])
+          : null
+      }
       this.$set(this.inputValue, 'values', [...values.slice(0, index + 1), ...[newOp], ...values.slice(index + 1)])
     },
     deleteOperator (index) {
@@ -256,12 +270,13 @@ export default {
       flex-wrap: wrap;
       justify-content: flex-start;
       margin-left: 8.33333%;
+      margin-right: .25rem;
 
       /* curly brackets */
       border-color: var(--secondary);
       border-radius: 0.5rem;
       border-style: solid;
-      border-width: 0 0 0 .25rem;
+      border-width: 0 .25rem;
       padding: 0 .25rem;
       &.highlight {
         border-color: var(--primary);
@@ -298,14 +313,16 @@ export default {
       cursor: pointer;
       flex-shrink: 0;
       .dropdown > .btn { // menu dropdown
+        /*
         margin-right: .5rem;
+        */
         padding: .375rem 0;
         .fa-icon {
           height: 14px !important;
         }
       }
       & > * {
-        margin: 0 .25rem;
+        margin: 0 0 0 .25rem;
         &:hover {
           color: var(--primary);
         }
