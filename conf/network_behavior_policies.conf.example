@@ -1,7 +1,7 @@
 [android_blacklisted]
 blacklisted_ip_hosts_threshold=1
 device_attributes_diff_score=0
-whitelisted_ips=8.8.8.8/32
+whitelisted_ips=1.1.1.1/32,8.8.8.8/32
 description=Android devices shouldn't talk to blacklisted hosts
 watched_device_attributes=
 devices_excluded=
