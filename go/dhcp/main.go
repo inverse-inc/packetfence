@@ -80,6 +80,14 @@ func main() {
 
 	connectDB(configDatabase)
 
+	// Keep the db alive
+	go func() {
+		for {
+			MySQLdatabase.Ping()
+			time.Sleep(5 * time.Second)
+		}
+	}()
+
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
 
