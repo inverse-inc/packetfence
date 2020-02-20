@@ -17,7 +17,6 @@ func (pf *pfdns) Refresh(ctx context.Context) {
 		log.LoggerWContext(ctx).Info("Reloading passthroughs and flushing cache")
 		pf.PassthroughsInit()
 		pf.PassthroughsIsolationInit()
-		pf.detectVIP()
 
 		pf.DNSFilter.Flush()
 		pf.IpsetCache.Flush()

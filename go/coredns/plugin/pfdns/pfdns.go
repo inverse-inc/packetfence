@@ -378,6 +378,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.A).A = returnedIP
 				break
 			} else {
+				pf.detectVIP()
 				rr.(*dns.A).A = pf.RedirectIP.To4()
 			}
 		}
@@ -412,6 +413,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.AAAA).AAAA = returnedIP
 				break
 			} else {
+				pf.detectVIP()
 				rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
 			}
 		}
