@@ -52,12 +52,8 @@ require (
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20200130155649-ef3018b84628
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
-	github.com/jonboulle/clockwork v0.1.0 // indirect
-	github.com/json-iterator/go v1.1.7 // indirect
-	github.com/julienschmidt/httprouter v0.0.0-20171027133709-e1b9828bc9e5
-	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
-	github.com/klauspost/cpuid v1.2.0
 	github.com/jinzhu/gorm v1.9.11
+	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
@@ -98,11 +94,8 @@ require (
 	go.uber.org/zap v1.13.0 // indirect
 	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	google.golang.org/grpc v1.19.0
-	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
-	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/grpc v1.22.1
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
@@ -110,8 +103,8 @@ require (
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.2
-	sigs.k8s.io/yaml v1.1.0 // indirect
 	layeh.com/radius v0.0.0-20180123164351-38e2cda15058
+	sigs.k8s.io/yaml v1.1.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.0.0-20190322163127-6e380ad96778
 )
 
