@@ -244,9 +244,6 @@ export default {
         this.layer2Networks = layer2Networks
       })
     },
-    ipv4NetmaskToSubnet (ip, netmask) {
-      return network.ipv4NetmaskToSubnet(ip, netmask)
-    },
     /**
      * Interface
      */
