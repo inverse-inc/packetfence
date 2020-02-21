@@ -1188,7 +1188,7 @@ ocsp_override_cert_url = yes
 # radius_configuration.ocsp_url
 #
 # The overridden OCSP Responder URL.
-ocsp_url = http://127.0.0.1/ocsp/
+ocsp_url = http://127.0.0.1:22225/api/v1/pki/ocsp
 #
 # radius_configuration.ocsp_use_nonce
 #
