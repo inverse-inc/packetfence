@@ -83,8 +83,14 @@ func (pf *pfdns) detectVIP() error {
 	var NetIndex net.IPNet
 	pf.Network = make(map[*net.IPNet]net.IP)
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	var DNSinterfaces pfconfigdriver.DNSInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &DNSinterfaces)
+
+	var Additionalinterfaces pfconfigdriver.AdditionalListen
+	pfconfigdriver.FetchDecodeSocket(ctx, &Additionalinterfaces)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -96,7 +102,7 @@ func (pf *pfdns) detectVIP() error {
 
 	var intDNS []string
 
-	for _, vi := range pfconfigdriver.Config.Interfaces.DNSInts.Element {
+	for _, vi := range DNSinterfaces.Element {
 		for key, DNSint := range vi.(map[string]interface{}) {
 			if key == "int" {
 				intDNS = append(intDNS, DNSint.(string))
@@ -104,7 +110,7 @@ func (pf *pfdns) detectVIP() error {
 		}
 	}
 
-	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(sharedutils.RemoveDuplicates(append(interfaces.Element, Additionalinterfaces.Element...)), intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
@@ -117,24 +123,24 @@ func (pf *pfdns) detectVIP() error {
 			var NetIP *net.IPNet
 			var IP net.IP
 			IP, NetIP, _ = net.ParseCIDR(adresse.String())
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
 			if keyConfCluster.Ip != "" {
 				VIP = net.ParseIP(keyConfCluster.Ip)
 			} else {
 				VIP = IP
 			}
 			for _, key := range keyConfNet.Keys {
-				var ConfNet pfconfigdriver.NetworkConf
+				var ConfNet pfconfigdriver.RessourseNetworkConf
 				ConfNet.PfconfigHashNS = key
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
+				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) || (ConfNet.Dev == eth.Name) {
 					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 					NetIndex.IP = net.ParseIP(key)
 					Index := NetIndex
-					pf.Network[&Index] = VIP
+					if ConfNet.Dev == eth.Name {
+						pf.Network[&Index] = append([]byte(nil), []byte{192, 0, 2, 1}...)
+					} else {
+						pf.Network[&Index] = VIP
+					}
 				}
 				if ConfNet.RegNetwork != "" {
 					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
