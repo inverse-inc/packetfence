@@ -9,6 +9,7 @@ import AuditingRoute from '@/views/Auditing/_router'
 import NodesRoute from '@/views/Nodes/_router'
 import UsersRoute from '@/views/Users/_router'
 import ConfigurationRoute from '@/views/Configuration/_router'
+import ConfiguratorRoute from '@/views/Configurator/_router'
 
 Vue.use(Router)
 
@@ -26,6 +27,7 @@ let router = new Router({
     NodesRoute,
     UsersRoute,
     ConfigurationRoute,
+    ConfiguratorRoute,
     DefaultRoute
   ]
 })
@@ -42,13 +44,14 @@ router.beforeEach((to, from, next) => {
     document.body.classList.add('modal-open') // [2]
   }
   /**
-   * 3. Session token loaded from local storage
-   * 4. Token has expired -- go back to login page
-   * 5. No token -- go back to login page
+   * 3. Ignore login page and everything under /configurator
+   * 4. Session token loaded from local storage
+   * 5. Token has expired -- go back to login page
+   * 6. No token -- go back to login page
    */
-  if (to.name !== 'login') {
-    store.dispatch('session/load').then(() => {
-      next() // [3]
+  if (to.name !== 'login' && !/^configurator-/.test(to.name)) { // [3]
+      store.dispatch('session/load').then(() => {
+      next() // [4]
     }).catch(() => {
       let currentPath = router.currentRoute.fullPath
       if (currentPath === '/') {
