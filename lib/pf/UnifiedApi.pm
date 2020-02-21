@@ -146,7 +146,7 @@ sub setup_api_v1_routes {
     my ($self, $api_v1_route) = @_;
     $self->setup_api_v1_crud_routes($api_v1_route);
     $self->setup_api_v1_config_routes($api_v1_route->any("/config")->name("api.v1.Config"));
-    $self->setup_api_v1_configurator_routes($api_v1_route->under("/configurator")->to(controller => "Configurator", action => "allowed")->name("api.v1.Configurator"));
+    $self->setup_api_v1_configurator_routes($api_v1_route->under("/configurator/config")->to(controller => "Configurator", action => "allowed")->name("api.v1.Configurator"));
     $self->setup_api_v1_fingerbank_routes($api_v1_route->any("/fingerbank")->to(controller => 'Fingerbank')->name("api.v1.Fingerbank"));
     $self->setup_api_v1_reports_routes($api_v1_route->any("/reports")->name("api.v1.Reports"));
     $self->setup_api_v1_dynamic_reports_routes($api_v1_route);
