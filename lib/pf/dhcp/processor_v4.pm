@@ -351,7 +351,7 @@ sub parse_dhcp_request {
     else {
         $self->checkForParking($client_mac);
     }
-    my $cache = pf::CHI->new( namespace => 'trigger_violation' );
+    my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
 
     if ($self->pf_is_managing($client_ip)) {
         my %security_event_data = (

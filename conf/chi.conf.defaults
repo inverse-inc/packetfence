@@ -166,9 +166,9 @@ storage=distributed
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
-[storage trigger_violation]
+[storage trigger_security_event]
 #
-# storage trigger_violation.expires_in
+# storage trigger_security_event.expires_in
 #
 # Amount of time from the current time to expire an entry
 expires_in=10s

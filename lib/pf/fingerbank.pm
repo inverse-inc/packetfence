@@ -271,7 +271,7 @@ sub _trigger_new_dhcp_security_event {
 
     $apiclient->notify('trigger_security_event', %security_event_data);
 
-    my $cache = pf::CHI->new( namespace => 'trigger_violation' );
+    my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
 
     %security_event_data = $cache->get($mac);
 
