@@ -378,10 +378,13 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.A).A = returnedIP
 				break
 			} else {
-				pf.detectVIP()
 				rr.(*dns.A).A = pf.RedirectIP.To4()
 			}
 		}
+		if rr.(*dns.A).A == nil {
+			pf.detectVIP()
+		}
+
 	case 2:
 		rr = new(dns.AAAA)
 		var found bool
@@ -413,9 +416,11 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.AAAA).AAAA = returnedIP
 				break
 			} else {
-				pf.detectVIP()
 				rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
 			}
+		}
+		if rr.(*dns.AAAA).AAAA == nil {
+			pf.detectVIP()
 		}
 	}
 
