@@ -83,14 +83,9 @@ func (pf *pfdns) detectVIP() error {
 	var NetIndex net.IPNet
 	pf.Network = make(map[*net.IPNet]net.IP)
 
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
-
-	var DNSinterfaces pfconfigdriver.DNSInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &DNSinterfaces)
-
-	var Additionalinterfaces pfconfigdriver.AdditionalListen
-	pfconfigdriver.FetchDecodeSocket(ctx, &Additionalinterfaces)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.AdditionalListen)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -102,7 +97,7 @@ func (pf *pfdns) detectVIP() error {
 
 	var intDNS []string
 
-	for _, vi := range DNSinterfaces.Element {
+	for _, vi := range pfconfigdriver.Config.Interfaces.DNSInts.Element {
 		for key, DNSint := range vi.(map[string]interface{}) {
 			if key == "int" {
 				intDNS = append(intDNS, DNSint.(string))
@@ -110,7 +105,7 @@ func (pf *pfdns) detectVIP() error {
 		}
 	}
 
-	for _, v := range sharedutils.RemoveDuplicates(append(sharedutils.RemoveDuplicates(append(interfaces.Element, Additionalinterfaces.Element...)), intDNS...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, pfconfigdriver.Config.Interfaces.AdditionalListen.Element...)), intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
