@@ -56,7 +56,7 @@ use pf::config qw(
     @radius_ints
     @dhcp_ints
     @dns_ints
-    @additional_dhcp
+    @additional_listen_interfaces
 );
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;
@@ -316,7 +316,7 @@ sub generate_filter_if_src_to_chain {
     }
 
     # 'special interface like gre'
-    foreach my $special_interface ( @additional_dhcp ) {
+    foreach my $special_interface ( @additional_listen_interfaces ) {
         $rules .= "-A INPUT --in-interface $special_interface --jump $FW_FILTER_INPUT_DHCP\n";
         $rules .= "-A INPUT --in-interface $special_interface --jump $FW_FILTER_INPUT_DNS\n";
         $rules .= "-A INPUT --in-interface $special_interface --jump $FW_FILTER_INPUT_RADIUS\n";

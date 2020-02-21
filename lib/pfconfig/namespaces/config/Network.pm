@@ -35,7 +35,7 @@ sub init {
     $self->{child_resources} = [
         'interfaces',
         'resource::network_config',
-        'resource::dhcp_additional_listen'
+        'resource::additional_listen_interfaces'
     ];
     
     $self->{cluster_config}  = $self->{cluster_name} ? $self->{cache}->get_cache("config::Cluster(".$self->{cluster_name}.")") : {};

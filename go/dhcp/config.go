@@ -76,8 +76,8 @@ func (d *Interfaces) readConfig() {
 	var DHCPinterfaces pfconfigdriver.DHCPInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
 
-	var DHCPAdditionalinterfaces pfconfigdriver.DHCPAdditionalListen
-	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPAdditionalinterfaces)
+	var Additionalinterfaces pfconfigdriver.AdditionalListen
+	pfconfigdriver.FetchDecodeSocket(ctx, &Additionalinterfaces)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -88,7 +88,7 @@ func (d *Interfaces) readConfig() {
 	var intDhcp []string
 
 	var interfacesDhcp []string
-	interfacesDhcp = sharedutils.RemoveDuplicates(append(interfaces.Element, DHCPAdditionalinterfaces.Element...))
+	interfacesDhcp = sharedutils.RemoveDuplicates(append(interfaces.Element, Additionalinterfaces.Element...))
 
 	for _, vi := range DHCPinterfaces.Element {
 		for key, dhcpint := range vi.(map[string]interface{}) {

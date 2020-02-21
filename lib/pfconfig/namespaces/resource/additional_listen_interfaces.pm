@@ -1,14 +1,14 @@
-package pfconfig::namespaces::resource::dhcp_additional_listen;
+package pfconfig::namespaces::resource::additional_listen_interfaces;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::dhcp_additional_listen
+pfconfig::namespaces::resource::additional_listen_interfaces
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::dhcp_additional_listen
+pfconfig::namespaces::resource::additional_listen_interfaces
 
 =cut
 
@@ -35,14 +35,14 @@ sub build {
 
     $self->{cluster_resource}->build();
 
-    my @additional_dhcp;
+    my @additional_interfaces;
 
     foreach my $network ( keys %{$self->{networks}} ) {
         if ( defined($self->{networks}{$network}{dev}) && $self->{networks}{$network}{dev} ne "") {
-            push @additional_dhcp ,  map { $_ } split(',',$self->{networks}{$network}{dev});
+            push @additional_interfaces ,  map { $_ } split(',',$self->{networks}{$network}{dev});
         }
     }
-    return \@additional_dhcp;
+    return \@additional_interfaces;
 }
 
 =head1 AUTHOR
