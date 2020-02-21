@@ -236,7 +236,6 @@ binary-arch: build install
 	dh_installinit --name=packetfence-radsniff
 	dh_installinit --name=packetfence-redis_ntlm_cache
 	dh_installinit --name=packetfence-redis_queue
-	dh_installinit --name=packetfence-routes
 	dh_installinit --name=packetfence-snmptrapd
 	dh_installinit --name=packetfence-tc
 	dh_installinit --name=packetfence-winbindd

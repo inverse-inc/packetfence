@@ -24,6 +24,7 @@ use pf::config qw(
     @listen_ints
     @dhcplistener_ints
     @radius_ints
+    %ConfigNetworks
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -35,6 +36,10 @@ use pf::log;
 use pf::util;
 use pf::constants qw($SPACE $SPACE_NUMBERS);
 use pf::cluster;
+
+my $host_id = $pf::config::cluster::host_id;
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 extends 'pf::services::manager';
 
@@ -70,11 +75,22 @@ sub generateConfig {
 
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
+
+    my ($routes,$ips) = $self->generateRoutes();
     $tags{'vrrp'} .= <<"EOT";
+
 static_ipaddress {
     192.0.2.1 dev lo scope link
+    $ips
 }
+
+static_routes {
+$routes
+}
+
 EOT
+
+
     if ( $pf::cluster::cluster_enabled ) {
         my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
         foreach my $interface ( @ints ) {
@@ -86,7 +102,6 @@ EOT
                 $process_tracking = "radius_load_balancer";
                 $priority = 100 - pf::cluster::cluster_index();
             }
-
             my $cluster_ip = pf::cluster::cluster_ip($interface);
             $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
@@ -147,6 +162,49 @@ sub isManaged {
     my $name = $self->name;
     return 1;
 }
+
+sub generateRoutes {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $routes = '';
+    my $ips = '';
+    foreach my $network ( keys %NetworkConfig ) {
+        my %net = %{$NetworkConfig{$network}};
+        my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
+            $routes .= "$current_network via $net{'next_hop'} dev $dev\n"
+        } else {
+            if ( isenabled($NetworkConfig{$network}{'dhcpd'}) ) {
+                if (isenabled($NetworkConfig{$network}{'split_network'})) {
+                    my @categories = nodecategory_view_all();
+                    my $count = @categories;
+                    $count++;
+                    push @categories, {'name' => 'registration'};
+                    my $len = $current_network->masklen;
+                    my $cidr = (ceil(log($count)/log(2)) + $len);
+                    if ($cidr > 30) {
+                        $logger->error("Can't split network");
+                        next;
+                    }
+                    if ($NetworkConfig{$network}{'reg_network'}) {
+                        $ips .= "$NetworkConfig{$network}{'reg_network'} dev $dev\n";
+                    }
+                    my @sub_net = $current_network->split($cidr);
+                    foreach my $net (@sub_net) {
+                        my $role = pop @categories;
+                        next unless $role->{'name'};
+                        my $pf_ip = $net + 1;
+                        $ips .= "$pf_ip->addr/$cidr dev $dev\n";
+                        my $first = $net + 2;
+                    }
+                }
+            }
+        }
+    }
+    return $routes, $ips;
+}
+
 
 =head1 AUTHOR
 
