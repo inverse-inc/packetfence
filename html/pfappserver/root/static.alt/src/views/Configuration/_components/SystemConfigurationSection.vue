@@ -1,7 +1,7 @@
 <template>
     <b-container>
         <h4>
-            <icon class="mr-2" name="project-diagram" scale="1.5"></icon>
+            <icon class="mr-2" name="cogs" scale="1.5"></icon>
             {{ $t('System Configuration') }}
         </h4>
         <p v-t="'PacketFence allows you to perform advanced system configuration. Among the configuration options, there are:'"></p>
