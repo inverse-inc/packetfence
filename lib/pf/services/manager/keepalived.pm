@@ -36,6 +36,7 @@ use pf::log;
 use pf::util;
 use pf::constants qw($SPACE $SPACE_NUMBERS);
 use pf::cluster;
+use pf::nodecategory qw(nodecategory_view_all);
 
 my $host_id = $pf::config::cluster::host_id;
 

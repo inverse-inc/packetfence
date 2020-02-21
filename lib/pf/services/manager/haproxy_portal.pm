@@ -221,6 +221,7 @@ EOT
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
 
+    if (scalar @portal_ip > 0) {
 $tags{'http'} .= <<"EOT";
 
 frontend portal-http-192.0.2.1
@@ -271,6 +272,7 @@ EOT
         default_backend $ip_cluster-backend
         $bind_process
 EOT
+    }
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );

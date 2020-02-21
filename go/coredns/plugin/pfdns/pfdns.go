@@ -361,6 +361,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 			}
 		}
+
 		var returnedIP []byte
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
@@ -374,6 +375,9 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			} else {
 				rr.(*dns.A).A = pf.RedirectIP.To4()
 			}
+		}
+		if rr.(*dns.A).A == nil {
+			pf.detectVIP()
 		}
 	case 2:
 		rr = new(dns.AAAA)
@@ -404,6 +408,9 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
 			}
 		}
+		if rr.(*dns.AAAA).AAAA == nil {
+			pf.detectVIP()
+		}
 	}
 
 	a.Answer = []dns.RR{rr}
@@ -423,80 +430,6 @@ func readConfig(ctx context.Context) pfconfigdriver.PfConfDatabase {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
 	return sections
-}
-
-// DetectVIP
-func (pf *pfdns) detectVIP() error {
-	var ctx = context.Background()
-	var NetIndex net.IPNet
-	pf.Network = make(map[*net.IPNet]net.IP)
-
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
-
-	var DNSinterfaces pfconfigdriver.DNSInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &DNSinterfaces)
-
-	var keyConfNet pfconfigdriver.PfconfigKeys
-	keyConfNet.PfconfigNS = "config::Network"
-	keyConfNet.PfconfigHostnameOverlay = "yes"
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
-
-	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
-
-	var intDNS []string
-
-	for _, vi := range DNSinterfaces.Element {
-		for key, DNSint := range vi.(map[string]interface{}) {
-			if key == "int" {
-				intDNS = append(intDNS, DNSint.(string))
-			}
-		}
-	}
-
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, intDNS...)) {
-
-		keyConfCluster.PfconfigHashNS = "interface " + v
-		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
-		// Nothing in keyConfCluster.Ip so we are not in cluster mode
-		var VIP net.IP
-
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
-		for _, adresse := range adresses {
-			var NetIP *net.IPNet
-			var IP net.IP
-			IP, NetIP, _ = net.ParseCIDR(adresse.String())
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
-			if keyConfCluster.Ip != "" {
-				VIP = net.ParseIP(keyConfCluster.Ip)
-			} else {
-				VIP = IP
-			}
-			for _, key := range keyConfNet.Keys {
-				var ConfNet pfconfigdriver.NetworkConf
-				ConfNet.PfconfigHashNS = key
-				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
-					NetIndex.IP = net.ParseIP(key)
-					Index := NetIndex
-					pf.Network[&Index] = VIP
-				}
-				if ConfNet.RegNetwork != "" {
-					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
-					if NetIP.Contains(IP2) {
-						pf.Network[NetIP2] = VIP
-					}
-				}
-			}
-		}
-	}
-	return nil
 }
 
 func (pf *pfdns) DomainPassthroughInit() error {

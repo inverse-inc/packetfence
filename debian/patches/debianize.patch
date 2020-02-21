@@ -38,7 +38,7 @@ index d3a3cd9b63..fe284fcaa2 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 6142ef7f64..e8d8c5cdab 100644
+index e22c34aeba..122714f6be 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -399,7 +399,7 @@ radiusd=enabled
@@ -65,10 +65,10 @@ index 6142ef7f64..e8d8c5cdab 100644
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
 -arp_binary=/sbin/arp
 +arp_binary=/usr/sbin/arp
- 
  #
- # services.routes
-@@ -586,8 +586,8 @@ tc=enabled
+ # services.netdata
+ #
+@@ -575,8 +575,8 @@ tc=enabled
  #
  # services.tc_binary
  #
@@ -93,7 +93,7 @@ index e153b95087..714ffe04bc 100644
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index 8d8562f2cc..ef6759d174 100644
+index 3dee5d6b5a..ae85fd0181 100644
 --- a/conf/systemd/packetfence-haproxy-portal.service
 +++ b/conf/systemd/packetfence-haproxy-portal.service
 @@ -8,7 +8,7 @@ Wants=packetfence-config.service
@@ -386,21 +386,6 @@ index aeed30f122..51bbe88866 100644
  ExecStart=/usr/bin/redis-server /usr/local/pf/var/conf/redis_queue.conf --daemonize no
  ExecStop=/bin/kill $MAINPID
  Restart=on-failure
-diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
-index 0ec6f76c7a..76d782325b 100644
---- a/conf/systemd/packetfence-routes.service
-+++ b/conf/systemd/packetfence-routes.service
-@@ -9,8 +9,8 @@ StartLimitBurst=3
- StartLimitInterval=10
- Type=oneshot
- RemainAfterExit=yes
--ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_start()'
--ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
-+ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_start()'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
- Slice=packetfence.slice
- 
- [Install]
 diff --git a/conf/systemd/packetfence-snmptrapd.service b/conf/systemd/packetfence-snmptrapd.service
 index 53f8c75423..a6dcd32092 100644
 --- a/conf/systemd/packetfence-snmptrapd.service
