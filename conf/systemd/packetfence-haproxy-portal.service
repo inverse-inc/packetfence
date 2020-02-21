@@ -1,6 +1,6 @@
 [Unit]
 Description=PacketFence HAProxy Load Balancer for the captive portal
-Before=packetfence-httpd.portal.service packetfence-httpd.admin.service 
+Before=packetfence-httpd.admin.service
 Wants=packetfence-config.service 
 
 [Service]

@@ -769,7 +769,7 @@ detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.go
 # captive_portal.wispr_redirection
 #
 # Enable or disable WISPr redirection capabilities on the captive-portal
-wispr_redirection = enabled
+wispr_redirection = disabled
 #
 # captive_portal.rate_limiting
 #

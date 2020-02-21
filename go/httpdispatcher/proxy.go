@@ -45,6 +45,7 @@ type passthrough struct {
 	PortalURL               map[int]map[*net.IPNet]*url.URL
 	URIException            *regexp.Regexp
 	SecureRedirect          bool
+	Wispr                   bool
 }
 
 type fqdn struct {
@@ -150,42 +151,73 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		_, PortalURL := p.detectPortalURL(r)
 
-		if (passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
-			PortalURL.Scheme = "http"
-		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
-		PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
+
+		destURL, _ := url.Parse(r.URL.String())
+
+		destURL.Scheme = r.Header.Get("X-Forwarded-Proto")
+		if r.Referer() != "" {
+			refererHost, err := url.Parse(r.Referer())
+			if err != nil {
+				destURL.Host = host
+			} else {
+				destURL.Host = refererHost.Hostname()
+			}
+		} else {
+			destURL.Host = host
+		}
 
 		if parking {
 			PortalURL.Path = ""
 			PortalURL.RawQuery = ""
 		}
 
+		// Detect wispr user agent but exclude Apple stuff
+		wispr := regexp.MustCompile(`(?i)wispr`)
+		CaptiveNetworkSupport := regexp.MustCompile(`(?i)CaptiveNetworkSupport`)
+
+		PortalURL.RawQuery = "destination_url=" + destURL.String()
+
 		w.Header().Set("Location", PortalURL.String())
-		w.WriteHeader(http.StatusFound)
+		t := template.New("redirect")
 		if r.Method != "HEAD" {
-			t := template.New("foo")
-			t, _ = t.Parse(`
+			if (wispr.MatchString(r.UserAgent()) && !CaptiveNetworkSupport.MatchString(r.UserAgent())) || passThrough.Wispr {
+				w.WriteHeader(http.StatusFound)
+				t, _ = t.Parse(`
 <html>
-<head><title>302 Moved Temporarily</title></head>
-<body>
-	<h1>Moved</h1>
-		<p>The document has moved <a href="{{.String}}">here</a>.</p>
-		<!--<?xml version="1.0" encoding="UTF-8"?>
-			<WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
-				<Redirect>
-					<MessageType>100</MessageType>
-					<ResponseCode>0</ResponseCode>
-					<AccessProcedure>1.0</AccessProcedure>
-					<VersionLow>1.0</VersionLow>
-					<VersionHigh>2.0</VersionHigh>
-					<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
-					<LocationName>CDATA[[PacketFence]]</LocationName>
-					<LoginURL>{{.String}}</LoginURL>
-				</Redirect>
-			</WISPAccessGatewayParam>-->
-	</body>
+    <head><title>302 Moved Temporarily</title></head>
+    <body>
+        <h1>Moved</h1>
+            <p>The document has moved <a href="{{.String}}">here</a>.</p>
+            <!--<?xml version="1.0" encoding="UTF-8"?>
+                <WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
+                    <Redirect>
+                        <MessageType>100</MessageType>
+                        <ResponseCode>0</ResponseCode>
+                        <AccessProcedure>1.0</AccessProcedure>
+                        <VersionLow>1.0</VersionLow>
+                        <VersionHigh>2.0</VersionHigh>
+                        <AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
+                        <LocationName>CDATA[[PacketFence]]</LocationName>
+                        <LoginURL>{{.String}}</LoginURL>
+                    </Redirect>
+                </WISPAccessGatewayParam>-->
+		</body>
 </html>`)
+
+			} else {
+				w.WriteHeader(http.StatusOK)
+
+				t, _ = t.Parse(`
+<html>
+    <head>
+        <meta http-equiv="refresh" content="0; url={{.String}}">
+        <script type="text/javascript">
+            window.location.replace('{{.String}}');
+        </script>
+    </head>
+</html>`)
+			}
 			t.Execute(w, &PortalURL)
 		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REDIRECT"))
@@ -272,6 +304,12 @@ func (p *passthrough) readConfig(ctx context.Context) {
 	} else {
 		p.SecureRedirect = false
 		scheme = "http"
+	}
+
+	if portal.WisprRedirection == "enabled" {
+		p.Wispr = true
+	} else {
+		p.Wispr = false
 	}
 
 	index := 0
