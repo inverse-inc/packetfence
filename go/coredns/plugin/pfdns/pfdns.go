@@ -511,10 +511,13 @@ func (pf *pfdns) detectType() error {
 	keyConfNet.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
+	var Additionalinterfaces pfconfigdriver.AdditionalListen
+	pfconfigdriver.FetchDecodeSocket(ctx, &Additionalinterfaces)
+
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces.Element {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, Additionalinterfaces.Element...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
@@ -525,10 +528,6 @@ func (pf *pfdns) detectType() error {
 		for _, adresse := range adresses {
 			var NetIP *net.IPNet
 			_, NetIP, _ = net.ParseCIDR(adresse.String())
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
 
 			for _, key := range keyConfNet.Keys {
 				var ConfNet pfconfigdriver.NetworkConf
