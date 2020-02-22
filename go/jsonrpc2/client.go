@@ -72,6 +72,20 @@ func NewClientFromConfig(ctx context.Context) *Client {
 	}
 }
 
+func NewAAAClientFromConfig(ctx context.Context) *Client {
+	var webservices pfconfigdriver.PfConfWebservices
+	var ports pfconfigdriver.PfConfPorts
+	pfconfigdriver.FetchDecodeSocket(ctx, &webservices)
+	pfconfigdriver.FetchDecodeSocket(ctx, &ports)
+	return &Client{
+		Username: webservices.User,
+		Password: webservices.Pass,
+		Proto:    webservices.Proto,
+		Host:     webservices.Host,
+		Port:     ports.AAA,
+	}
+}
+
 func (c *Client) Call(method string, args interface{}, tenant_id int) (interface{}, error) {
 	c.Id++
 	request := JsonRPC2Request{

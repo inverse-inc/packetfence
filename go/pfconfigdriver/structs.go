@@ -94,6 +94,19 @@ type PfConfGeneral struct {
 	DHCP_Servers   string `json:"dhcpservers"`
 }
 
+type PfConfPorts struct {
+	StructConfig
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Pf"`
+	PfconfigHashNS       string `val:"ports"`
+	Admin                string `json:"admin"`
+	Soap                 string `json:"soap"`
+	Collector            string `json:"collector"`
+	AAA                  string `json:"aaa"`
+	HttpdPortalModStatus string `json:"httpd_portal_modstatus"`
+	UnifiedAPI           string `json:"unifiedapi"`
+}
+
 type PfConfFencing struct {
 	StructConfig
 	PfconfigMethod        string   `val:"hash_element"`
