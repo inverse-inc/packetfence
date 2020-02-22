@@ -113,8 +113,8 @@ our (
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
     $api_i18n_dir,
-    $iptable_config_file
-    $radius_remote_config_file,
+    $iptable_config_file,
+    $radius_remote_config_file
 );
 
 BEGIN {
