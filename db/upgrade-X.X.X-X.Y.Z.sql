@@ -232,6 +232,10 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     PRIMARY KEY (tenant_id, mac, time_bucket)
 );
 
+\! echo "Alter table radius_nas";
+ALTER TABLE radius_nas
+  ADD INDEX IF NOT EXISTS radius_nas_start_ip_end_time (start_ip, end_ip);
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 

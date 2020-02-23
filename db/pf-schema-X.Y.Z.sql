@@ -617,7 +617,8 @@ CREATE TABLE radius_nas (
   end_ip INT UNSIGNED DEFAULT 0,
   range_length INT DEFAULT 0,
   PRIMARY KEY nasname (nasname),
-  KEY id (id)
+  KEY id (id),
+  INDEX radius_nas_start_ip_end_time (start_ip, end_ip)
 ) ENGINE=InnoDB;
 
 -- Adding RADIUS accounting table
