@@ -134,7 +134,7 @@ func TestPacketToMap(t *testing.T) {
 	rfc2865.UserName_SetString(packet, "tim")
 	cisco.CiscoAVPair_AddString(packet, "bob=bobby")
 	cisco.CiscoAVPair_AddString(packet, "j=r")
-	attributeMap := packetToMap(packet)
+	attributeMap := packetToMap(context.Background(), packet)
 	expected := map[string]interface{}{"User-Name": "tim", "Cisco-AVPair": []interface{}{"bob=bobby", "j=r"}}
 	if reflect.DeepEqual(expected, attributeMap) == false {
 		t.Errorf("expected : %v, got : %v", expected, attributeMap)
