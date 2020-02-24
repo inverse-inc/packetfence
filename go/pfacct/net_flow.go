@@ -20,7 +20,7 @@ type NetFlowBandwidthAccountingRec struct {
 func (rec *NetFlowBandwidthAccountingRec) ToSQLSelect() string {
 	buffer := [256]byte{}
 	sqlBytes := buffer[:0] // Use buffer as the backing of the slice
-	sqlBytes = append(sqlBytes, []byte(`SELECT "`)...)
+	sqlBytes = append(sqlBytes, []byte(`SELECT _latin1"`)...)
 	sqlBytes = append(sqlBytes, []byte(rec.Ip)...)
 	sqlBytes = append(sqlBytes, []byte(`" as ip, `)...)
 	sqlBytes = strconv.AppendUint(sqlBytes, rec.InBytes, 10)
@@ -28,7 +28,7 @@ func (rec *NetFlowBandwidthAccountingRec) ToSQLSelect() string {
 	sqlBytes = strconv.AppendUint(sqlBytes, rec.OutBytes, 10)
 	sqlBytes = append(sqlBytes, []byte(` as out_bytes_, "`)...)
 	sqlBytes = rec.TimeBucket.AppendFormat(sqlBytes, MySqlDateFormat)
-	sqlBytes = append(sqlBytes, []byte(`" as time_bucket`)...)
+	sqlBytes = append(sqlBytes, []byte("\" as time_bucket\n")...)
 	return string(sqlBytes)
 }
 
@@ -41,7 +41,7 @@ func (array *NetFlowBandwidthAccountingRecs) AppendEmpty() {
 /*
 INSERT INTO bandwidth_accounting (tenant_id, mac, time_bucket, in_bytes, out_bytes)
     SELECT * FROM (
-        SELECT time_bucket, tenant_id, mac, in_bytes_, out_bytes_ FROM  (
+        SELECT time_bucket, tenant_id, mac, in_bytes_, out_bytes_ FROM (
             SELECT
                 "1.2.3.4" as ip , 2 as in_bytes_, 3 as out_bytes_, '1975-06-11 23:50:00' as time_bucket
             UNION ALL SELECT
@@ -57,17 +57,17 @@ func (array NetFlowBandwidthAccountingRecs) ToSQL() string {
 	}
 
 	sql :=
-		`INSERT INTO bandwidth_accounting (tenant_id, mac, time_bucket, in_bytes, out_bytes) 
-    SELECT * FROM ( 
-        SELECT time_bucket, tenant_id, mac, in_bytes_, out_bytes_ FROM  (`
+		`INSERT INTO bandwidth_accounting (tenant_id, mac, time_bucket, in_bytes, out_bytes)
+    SELECT * FROM (
+        SELECT time_bucket, tenant_id, mac, in_bytes_, out_bytes_ FROM (
+            `
 	first := array[0]
 	sql += first.ToSQLSelect()
 	for _, rec := range array[1:] {
-		sql += " UNION ALL " + rec.ToSQLSelect()
+		sql += "            UNION ALL " + rec.ToSQLSelect()
 	}
 
-	sql += `
-        ) as time_buckets INNER JOIN ip4log as ip4 ON time_buckets.ip = ip4.ip 
+	sql += `        ) as time_buckets INNER JOIN ip4log as ip4 ON time_buckets.ip = ip4.ip
     ) as x
 ON DUPLICATE KEY UPDATE in_bytes = in_bytes + VALUES(in_bytes), out_bytes = out_bytes + VALUES(out_bytes);`
 
@@ -132,6 +132,7 @@ func NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Fl
 		}
 
 	}
+
 	return recs
 }
 
