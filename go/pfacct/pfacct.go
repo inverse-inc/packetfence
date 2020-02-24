@@ -9,6 +9,7 @@ import (
 
 type PfAcct struct {
 	Db *sql.DB
+	RadiusStatements
 }
 
 func NewPfAcct() *PfAcct {
@@ -18,5 +19,7 @@ func NewPfAcct() *PfAcct {
 		return nil
 	}
 
-	return &PfAcct{Db: db}
+	pfAcct := &PfAcct{Db: db}
+	pfAcct.RadiusStatements.Setup(pfAcct.Db)
+	return pfAcct
 }
