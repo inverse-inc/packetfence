@@ -426,19 +426,6 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('routes'),
-          text: i18n.t('Should routes be managed by PacketFence?'),
-          cols: [
-            {
-              namespace: 'routes',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'enabled', unchecked: 'disabled' }
-              }
-            }
-          ]
-        },
-        {
           label: 'snmptrapd',
           text: i18n.t(`Should snmptrapd be started? Keep enabled unless you know what you're doing.`),
           cols: [
