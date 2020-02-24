@@ -38,34 +38,34 @@ func (m *Mac) String() string {
 }
 
 func (m *Mac) Decimal() string {
-    var _buff [24]byte
-    buff := _buff[:0]
-    switch {
-    case m[0] > 99:
-        j := int(m[0] - 100) * 3
-        buff = append(buff, digits3[j:j+3]...)
-    case m[0] > 9:
-        j := (m[0] - 10) * 2
-        buff = append(buff, digits2[j:j+2]...)
-    default:
-        buff = append(buff, m[0] + '0')
-    }
+	var _buff [24]byte
+	buff := _buff[:0]
+	switch {
+	case m[0] > 99:
+		j := int(m[0]-100) * 3
+		buff = append(buff, digits3[j:j+3]...)
+	case m[0] > 9:
+		j := (m[0] - 10) * 2
+		buff = append(buff, digits2[j:j+2]...)
+	default:
+		buff = append(buff, m[0]+'0')
+	}
 
-    for i:=1;i<6;i++ {
-        buff = append(buff,'.')    
-        switch {
-        case m[i] > 99:
-            j := int(m[i] - 100) * 3
-            buff = append(buff, digits3[j:j+3]...)
-        case m[i] > 9:
-            j := (m[i] - 10) * 2
-            buff = append(buff, digits2[j:j+2]...)
-        default:
-            buff = append(buff, m[i] + '0')
-        }
-    }
+	for i := 1; i < 6; i++ {
+		buff = append(buff, '.')
+		switch {
+		case m[i] > 99:
+			j := int(m[i]-100) * 3
+			buff = append(buff, digits3[j:j+3]...)
+		case m[i] > 9:
+			j := (m[i] - 10) * 2
+			buff = append(buff, digits2[j:j+2]...)
+		default:
+			buff = append(buff, m[i]+'0')
+		}
+	}
 
-    return string(buff)
+	return string(buff)
 }
 
 func hex4tob(h byte) byte {
@@ -97,17 +97,13 @@ func hextob(h []byte) (byte, bool) {
 
 func (mac *Mac) InitFromString(s string) error {
 	m := Mac{}
+	length := len(s)
+	if length < 12 {
+		return ErrNotEnoughBytes
+	}
+
 	switch {
-	case len(s) == 12:
-		// xxxxxxxxxxxx
-		for i, x := 0, 0; i < 12; i += 2 {
-			var ok bool
-			if m[x], ok = hextob([]byte(s[i : i+2])); !ok {
-				goto error
-			}
-			x++
-		}
-	case len(s) == 17 && (s[2] == ':' || s[2] == '-' || s[2] == '.'):
+	case length >= 17 && (s[2] == ':' || s[2] == '-' || s[2] == '.'):
 		// xx:xx:xx:xx:xx:xx, xx-xx-xx-xx-xx-xx, xx.xx.xx.xx.xx.xx
 		for i, x := 0, 0; i < 17; i += 3 {
 			var ok bool
@@ -116,7 +112,7 @@ func (mac *Mac) InitFromString(s string) error {
 			}
 			x++
 		}
-	case len(s) == 15 && s[3] == '.':
+	case length >= 15 && s[3] == '.':
 		// 012.345.678.9ab
 		// xxx.xxx.xxx.xxx
 		var temp [2]byte
@@ -134,7 +130,7 @@ func (mac *Mac) InitFromString(s string) error {
 			}
 			x += 3
 		}
-	case len(s) == 14 && s[4] == '.':
+	case length >= 14 && s[4] == '.':
 		// 0123.4567.89ab
 		// xxxx.xxxx.xxxx
 		for i, x := 0, 0; i < 14; i += 5 {
@@ -148,7 +144,14 @@ func (mac *Mac) InitFromString(s string) error {
 			x += 2
 		}
 	default:
-		goto error
+		// xxxxxxxxxxxx
+		for i, x := 0, 0; i < 12; i += 2 {
+			var ok bool
+			if m[x], ok = hextob([]byte(s[i : i+2])); !ok {
+				goto error
+			}
+			x++
+		}
 	}
 
 	*mac = m
