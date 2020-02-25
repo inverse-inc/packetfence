@@ -67,6 +67,11 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	Database, err := gorm.Open("mysql", db.ReturnURI(ctx, "pf"))
 	sharedutils.CheckError(err)
 	//pfpki.DB = Database
+
+	gorm.DefaultTableNameHandler = func(Database *gorm.DB, defaultTableName string) string {
+		return "pki_" + defaultTableName
+	}
+
 	pfpki.DB = Database.Debug()
 	pfpki.Ctx = ctx
 

@@ -1365,10 +1365,10 @@ CREATE TABLE `admin_api_audit_log` (
 
 
 --
--- Table structure for table `cas`
+-- Table structure for table `pki_cas`
 --
 
-CREATE TABLE `cas` (
+CREATE TABLE `pki_cas` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1401,10 +1401,10 @@ CREATE TABLE `cas` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `certs`
+-- Table structure for table `pki_certs`
 --
 
-CREATE TABLE `certs` (
+CREATE TABLE `pki_certs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1439,10 +1439,10 @@ CREATE TABLE `certs` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `profiles`
+-- Table structure for table `pki_profiles`
 --
 
-CREATE TABLE `profiles` (
+CREATE TABLE `pki_profiles` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1470,10 +1470,10 @@ CREATE TABLE `profiles` (
 
 
 --
--- Table structure for table `revoked_certs`
+-- Table structure for table `pki_revoked_certs`
 --
 
-CREATE TABLE `revoked_certs` (
+CREATE TABLE `pki_revoked_certs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,

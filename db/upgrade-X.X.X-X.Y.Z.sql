@@ -33,8 +33,8 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- Create the pki table cas
 --
 
-\! echo "Creating table 'cas'...";
-CREATE TABLE IF NOT EXISTS `cas` (
+\! echo "Creating table 'pki_cas'...";
+CREATE TABLE IF NOT EXISTS `pki_cas` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -70,8 +70,8 @@ CREATE TABLE IF NOT EXISTS `cas` (
 -- Create the pki table certs
 --
 
-\! echo "Creating table 'certs'...";
-CREATE TABLE IF NOT EXISTS `certs` (
+\! echo "Creating table 'pki_certs'...";
+CREATE TABLE IF NOT EXISTS `pki_certs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -109,8 +109,8 @@ CREATE TABLE IF NOT EXISTS `certs` (
 -- Create the pki table profiles
 --
 
-\! echo "Creating table 'profiles'...";
-CREATE TABLE IF NOT EXISTS `profiles` (
+\! echo "Creating table 'pki_profiles'...";
+CREATE TABLE IF NOT EXISTS `pki_profiles` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -141,8 +141,8 @@ CREATE TABLE IF NOT EXISTS `profiles` (
 -- Create the pki table revoked_certs
 --
 
-\! echo "Creating table 'revoked_certs'...";
-CREATE TABLE IF NOT EXISTS `revoked_certs` (
+\! echo "Creating table 'pki_revoked_certs'...";
+CREATE TABLE IF NOT EXISTS `pki_revoked_certs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
