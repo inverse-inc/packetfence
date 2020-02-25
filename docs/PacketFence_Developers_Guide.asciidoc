@@ -1184,8 +1184,7 @@ ansible-playbook site.yml --limit VM_NAME -e @extra.yml
 
 ==== Active directory server
 
-You can start a virtual machine called `ad` by running: [command]`vagrant up
-ad`. This virtual machine will be auto-provision with:
+You can start a virtual machine called `ad` by running: [command]`vagrant up ad`. This virtual machine will be auto-provision with:
 
 * a DNS domain
 * an Active Directory domain
