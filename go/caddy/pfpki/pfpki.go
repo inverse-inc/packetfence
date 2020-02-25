@@ -87,38 +87,38 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
 
 	// CAs (GET: list, POST: create)
-	api.Handle("/pki/cas", manageCA(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/cas", getSetCA(PFPki)).Methods("GET", "POST")
 	// Search CAs
-	api.Handle("/pki/cas/search", manageCA(PFPki)).Methods("POST")
+	api.Handle("/pki/cas/search", searchCA(PFPki)).Methods("POST")
 	// Get CA by ID
-	api.Handle("/pki/ca/{id}", manageCA(PFPki)).Methods("GET")
+	api.Handle("/pki/ca/{id}", getCAByID(PFPki)).Methods("GET")
 
 	// Profiles (GET: list, POST: create)
-	api.Handle("/pki/profiles", manageProfile(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/profiles", getSetProfile(PFPki)).Methods("GET", "POST")
 	// Search Profiles
-	api.Handle("/pki/profiles/search", manageProfile(PFPki)).Methods("POST")
+	api.Handle("/pki/profiles/search", searchProfile(PFPki)).Methods("POST")
 	// Profile by ID (GET: get, PATCH: update)
-	api.Handle("/pki/profile/{id}", manageProfile(PFPki)).Methods("GET", "PATCH")
+	api.Handle("/pki/profile/{id}", getProfileByID(PFPki)).Methods("GET", "PATCH")
 
 	// Certificates (GET: list, POST: create)
-	api.Handle("/pki/certs", manageCert(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/certs", getSetCert(PFPki)).Methods("GET", "POST")
 	// Search Certificates
-	api.Handle("/pki/certs/search", manageCert(PFPki)).Methods("POST")
+	api.Handle("/pki/certs/search", searchCert(PFPki)).Methods("POST")
 	// Get Certificate by ID
-	api.Handle("/pki/cert/{id}", manageCert(PFPki)).Methods("GET")
+	api.Handle("/pki/cert/{id}", getCertByID(PFPki)).Methods("GET")
 	// Download Certificate
-	api.Handle("/pki/cert/{id}/download/{password}", manageCert(PFPki)).Methods("GET")
+	api.Handle("/pki/cert/{id}/download/{password}", downloadCert(PFPki)).Methods("GET")
 	// Get Certificate by email
-	api.Handle("/pki/cert/{id}/email", manageCert(PFPki)).Methods("GET")
+	api.Handle("/pki/cert/{id}/email", emailCert(PFPki)).Methods("GET")
 	// Revoke Certificate
-	api.Handle("/pki/cert/{id}/{reason}", manageCert(PFPki)).Methods("DELETE")
+	api.Handle("/pki/cert/{id}/{reason}", revokeCert(PFPki)).Methods("DELETE")
 
 	// Revoked Certificates
-	api.Handle("/pki/revokedcerts", manageRevokedCert(PFPki)).Methods("GET")
+	api.Handle("/pki/revokedcerts", getRevoked(PFPki)).Methods("GET")
 	// Search Revoked Certificates
-	api.Handle("/pki/revokedcerts/search", manageRevokedCert(PFPki)).Methods("POST")
+	api.Handle("/pki/revokedcerts/search", searchRevoked(PFPki)).Methods("POST")
 	// Get Revoked Certificate by ID
-	api.Handle("/pki/revokedcert/{id}", manageRevokedCert(PFPki)).Methods("GET")
+	api.Handle("/pki/revokedcert/{id}", getRevokedByID(PFPki)).Methods("GET")
 
 	// OCSP responder
 	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")

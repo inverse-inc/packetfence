@@ -17,6 +17,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Email strucure
 type Email struct {
 	Header   string
 	Footer   string
@@ -66,7 +67,7 @@ func (h Handler) email(cert Cert, profile Profile, file []byte, password string)
 
 	lang := language.MustParse(advanced.Language)
 
-	emailContent, err := ParseTemplate("emails-pki_certificate.html", lang, email)
+	emailContent, err := parseTemplate("emails-pki_certificate.html", lang, email)
 
 	m.SetBody("text/html", emailContent)
 
@@ -89,7 +90,7 @@ func (h Handler) email(cert Cert, profile Profile, file []byte, password string)
 	return Information, nil
 }
 
-func ParseTemplate(tplName string, lang language.Tag, data interface{}) (string, error) {
+func parseTemplate(tplName string, lang language.Tag, data interface{}) (string, error) {
 	p := message.NewPrinter(lang)
 	fmap := template.FuncMap{
 		"translate": p.Sprintf,
