@@ -18,25 +18,14 @@ func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 	dbConfig := pfconfigdriver.Config.PfConf.Database
 
 	if len(dbName) > 0 {
-		return ConnectDb(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbName[0])
+		return ConnectDb(ctx, dbName[0])
 	} else {
-		return ConnectDb(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Db)
+		return ConnectDb(ctx, dbConfig.Db)
 	}
 }
 
-func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, error) {
-	proto := "tcp"
-	if host == "localhost" {
-		proto = "unix"
-		if _, err := os.Stat("/etc/debian_version"); err == nil {
-			host = "/var/run/mysqld/mysqld.sock"
-
-		} else {
-			host = "/var/lib/mysql/mysql.sock"
-		}
-	}
-
-	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, dbName)
+func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
+	uri := ReturnURI(ctx, dbName)
 
 	db, err := sql.Open("mysql", uri)
 	db.SetMaxIdleConns(5)
