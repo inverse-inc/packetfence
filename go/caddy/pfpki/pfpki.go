@@ -70,7 +70,6 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	gorm.DefaultTableNameHandler = func(Database *gorm.DB, defaultTableName string) string {
 		return "pki_" + defaultTableName
 	}
-
 	if log.LoggerGetLevel(ctx) == "DEBUG" {
 		pfpki.DB = Database.Debug()
 	} else {
