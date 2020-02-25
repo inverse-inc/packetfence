@@ -66,13 +66,17 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 
 	Database, err := gorm.Open("mysql", db.ReturnURI(ctx, "pf"))
 	sharedutils.CheckError(err)
-	//pfpki.DB = Database
 
 	gorm.DefaultTableNameHandler = func(Database *gorm.DB, defaultTableName string) string {
 		return "pki_" + defaultTableName
 	}
 
-	pfpki.DB = Database.Debug()
+	if log.LoggerGetLevel(ctx) == "DEBUG" {
+		pfpki.DB = Database.Debug()
+	} else {
+		pfpki.DB = Database
+	}
+
 	pfpki.Ctx = ctx
 
 	// Default http timeout
