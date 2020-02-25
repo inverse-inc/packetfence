@@ -229,15 +229,13 @@ Add a new PKI provider and select SCEP.
 
 Fill out the form for a PKI provider according to your Certificate of Authority configuration.
 
-image::scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
-
 For the URL it will be `http://<ServerDNSName>/CertSrv/mscep/`.
 
 WARNING: Don't use `https:` scheme.
 
 You do not need any Username/Password combination for this configuration.
 
-image::scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
+image::scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
 
 The "Server cert path" and "CA cert path" both need to be absolute (e.g. `/usr/local/pf/conf/ssl/tls_certs/MyCA.pem` is an absolute path).
 
