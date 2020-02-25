@@ -1328,14 +1328,18 @@ Go to _Configuration -> Policies and Access Control -> Connection Profiles -> Ne
 
 Create the Connection Profile named `External Eduroam authentication` Check `Automatically register devices` then create a REALM filter `Eduroam`. Next, make sure to add the Eduroam source previouly created.
 
-SAML Authentication
-~~~~~~~~~~~~~~~~~~~
+=== SAML Authentication
 
 PacketFence supports SAML authentication in the captive portal in combination with another internal source to define the level of authorization of the user.
 
 First, transfer the Identity Provider metadata on the PacketFence server. In this example, it will be under the path `/usr/local/pf/conf/idp-metadata.xml`.
 
-Then, transfer the certificate and CA certificate of the Identity provider on the server. In this example, they will be under the paths `/usr/local/pf/conf/ssl/idp.crt` and `/usr/local/pf/conf/ssl/idp-ca.crt`. If it is a self-signed certificate, then you will be able to use it as the CA in the PacketFence configuration.
+Then, transfer the certificate and CA certificate of the Identity provider on
+the server. In this example, they will be under the paths
+`/usr/local/pf/conf/ssl/idp.crt` and `/usr/local/pf/conf/ssl/idp-ca.crt`. If
+it is a self-signed certificate, then you will be able to use it as the CA in
+the PacketFence configuration. Make sure `-----BEGIN CERTIFICATE-----` and
+`-----END CERTIFICATE----` headers are present in these certificate files.
 
 Then, to configure SAML in PacketFence, go in `Configuration -> Policies and Access Control -> Sources` and then create a new Internal source of the type SAML and configure it.
 
@@ -1367,15 +1371,13 @@ In the case of SimpleSAMLPHP, the following configuration was used in `metadata/
 
 NOTE: PacketFence does not support logoff on the SAML Identity Provider. You can still define the URL in the metadata but it will not be used.
 
-Passthroughs
-^^^^^^^^^^^^
+==== Passthroughs
 
 In order for your users to be able to access the Identity Provider login page, you will need to activate passthroughs and add the Identity Provider domain to the allowed passthroughs.
 
 To do so, go in 'Configuration -> Network Configuration -> Networks -> Fencing', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
 Next, restart `iptables` and `pfdns` to apply your new passthroughs.
-
 
 Billing Engine
 ~~~~~~~~~~~~~~
