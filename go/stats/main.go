@@ -15,14 +15,14 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/hpcloud/tail"
+	radius "github.com/inverse-inc/go-radius"
+	. "github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	ldap "gopkg.in/ldap.v2"
-	radius "github.com/inverse-inc/go-radius"
-	. "github.com/inverse-inc/go-radius/rfc2865"
 )
 
 var VIP map[string]bool
@@ -256,10 +256,10 @@ func main() {
 
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
+	var connected bool
 
 	go func() {
 		var err error
-		var connected bool
 
 		for !connected {
 			var keyConfAdvanced pfconfigdriver.PfConfAdvanced
@@ -267,16 +267,20 @@ func main() {
 			keyConfAdvanced.PfconfigHostnameOverlay = "yes"
 			pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
 			Options := statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
-
 			StatsdClient, err = statsd.New(Options)
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
 				time.Sleep(1 * time.Second)
+				connected = false
 			} else {
 				connected = true
 			}
 		}
 	}()
+
+	for !connected {
+		time.Sleep(1 * time.Second)
+	}
 
 	log.LoggerWContext(ctx).Info("Starting stats server")
 	// Systemd
