@@ -256,10 +256,10 @@ func main() {
 
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
+	var connected bool
 
 	go func() {
 		var err error
-		var connected bool
 
 		for !connected {
 			var keyConfAdvanced pfconfigdriver.PfConfAdvanced
@@ -272,11 +272,16 @@ func main() {
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
 				time.Sleep(1 * time.Second)
+				connected = false
 			} else {
 				connected = true
 			}
 		}
 	}()
+
+	for !connected {
+		time.Sleep(1 * time.Second)
+	}
 
 	log.LoggerWContext(ctx).Info("Starting stats server")
 	// Systemd
