@@ -321,7 +321,7 @@ On *all your servers*, make sure that 'iptables' is stopped:
 
   # systemctl stop packetfence-iptables
 
-Then, reload the configuration and start the webservices on these servers:
+Then, reload the configuration and start the webservices on second and third servers:
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload
