@@ -14,20 +14,11 @@ pf::services::manager::pfpki
 use strict;
 use warnings;
 use Moo;
-use pf::cluster;
-use pf::config qw(
-    %Config
-);
-use pf::util;
+
 
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfpki' } );
-
-sub isManaged {
-    my ($self) = @_;
-    return  $self->SUPER::isManaged();
-}
 
 =head1 AUTHOR
 
@@ -36,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2020 Inverse inc.
 
 =head1 LICENSE
 
