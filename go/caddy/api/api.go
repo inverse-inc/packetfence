@@ -49,7 +49,7 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 
 	apiHandler := APIHandler{}
 	router := httprouter.New()
-	router.GET("/api/v1/radius_attributes", apiHandler.radiusAttributes)
+	router.POST("/api/v1/radius_attributes", apiHandler.radiusAttributes)
 
 	apiHandler.router = router
 
