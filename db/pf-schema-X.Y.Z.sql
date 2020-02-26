@@ -616,6 +616,7 @@ CREATE TABLE radius_nas (
   start_ip INT UNSIGNED DEFAULT 0,
   end_ip INT UNSIGNED DEFAULT 0,
   range_length INT DEFAULT 0,
+  unique_session_attributes varchar(255),
   PRIMARY KEY nasname (nasname),
   KEY id (id),
   INDEX radius_nas_start_ip_end_time (start_ip, end_ip)
@@ -1536,11 +1537,13 @@ CREATE TABLE `pki_revoked_certs` (
 CREATE TABLE bandwidth_accounting (
     tenant_id INT,
     mac char(17) NOT NULL,
+    unique_session_id char(32),
     time_bucket DATETIME NOT NULL,
     in_bytes BIGINT UNSIGNED NOT NULL,
     out_bytes BIGINT UNSIGNED NOT NULL,
     total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
-    PRIMARY KEY (tenant_id, mac, time_bucket)
+    PRIMARY KEY (tenant_id, unique_session_id, mac, time_bucket),
+    KEY bandwidth_accounting_time_bucket (time_bucket)
 );
 
 --

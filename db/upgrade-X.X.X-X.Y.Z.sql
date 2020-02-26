@@ -225,15 +225,18 @@ CREATE TABLE IF NOT EXISTS dhcppool (
 CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     tenant_id INT,
     mac char(17) NOT NULL,
+    unique_session_id char(32) NOT NULL,
     time_bucket DATETIME NOT NULL,
     in_bytes BIGINT UNSIGNED NOT NULL,
     out_bytes BIGINT UNSIGNED NOT NULL,
     total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
-    PRIMARY KEY (tenant_id, mac, time_bucket)
+    PRIMARY KEY (tenant_id, unique_session_id, mac, time_bucket),
+    KEY bandwidth_accounting_time_bucket (time_bucket)
 );
 
 \! echo "Alter table radius_nas";
 ALTER TABLE radius_nas
+  ADD COLUMN IF NOT EXISTS unique_session_attributes varchar(255),
   ADD INDEX IF NOT EXISTS radius_nas_start_ip_end_time (start_ip, end_ip);
 
 \! echo "Incrementing PacketFence schema version...";
