@@ -222,6 +222,7 @@ func ExportRsaPublicKeyAsPemStr(pubkey *rsa.PublicKey) (string, error) {
 
 func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 	block, _ := pem.Decode([]byte(pubPEM))
+
 	if block == nil {
 		return nil, errors.New("failed to parse PEM block containing the key")
 	}

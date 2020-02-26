@@ -134,6 +134,7 @@ func (ocspr *OCSPResponder) verifyIssuer(req *ocsp.Request) (CA, error) {
 	if CaDB := ocspr.Handler.DB.Where(&CA{IssuerKeyHash: hex.EncodeToString(req.IssuerKeyHash)}).Find(&ca); CaDB.Error != nil {
 		return ca, errors.New("Unable to find Key name")
 	}
+
 	return ca, nil
 }
 

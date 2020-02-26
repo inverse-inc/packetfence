@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/knq/pemutil"
 	// Import MySQL lib
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
@@ -269,6 +270,47 @@ func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
 		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&cadb)
 	}
 	Information.Entries = cadb
+
+	return Information, nil
+}
+
+func (c CA) fix(pfpki *Handler) (Info, error) {
+	Information := Info{}
+	var cadb []CA
+
+	pfpki.DB.Find(&cadb)
+	for _, v := range cadb {
+		if v.IssuerNameHash == "" {
+
+			// Calculate the IssuerNameHash
+			catls, err := tls.X509KeyPair([]byte(v.Cert), []byte(v.Key))
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+			cacert, err := x509.ParseCertificate(catls.Certificate[0])
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+			h := sha1.New()
+
+			h.Write(cacert.RawIssuer)
+			// var store pemutil.Store
+			store := make(map[pemutil.BlockType]interface{})
+
+			pemutil.Decode(store, []byte(v.Cert))
+			var skid []byte
+			for _, pemUtil := range store {
+				cert := pemUtil.(*x509.Certificate)
+				skid, _ = calculateSKID(cert.PublicKey)
+			}
+
+			v.IssuerKeyHash = hex.EncodeToString(skid)
+			v.IssuerNameHash = hex.EncodeToString(h.Sum(nil))
+			pfpki.DB.Save(&v)
+		}
+	}
 
 	return Information, nil
 }

@@ -89,6 +89,8 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	api.Handle("/pki/cas", getSetCA(PFPki)).Methods("GET", "POST")
 	// Search CAs
 	api.Handle("/pki/cas/search", searchCA(PFPki)).Methods("POST")
+	// Fix CA after Import
+	api.Handle("/pki/ca/fix", fixCA(PFPki)).Methods("GET")
 	// Get CA by ID
 	api.Handle("/pki/ca/{id}", getCAByID(PFPki)).Methods("GET")
 

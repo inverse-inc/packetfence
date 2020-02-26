@@ -156,6 +156,25 @@ func getCAByID(pfpki *Handler) http.Handler {
 	})
 }
 
+func fixCA(pfpki *Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		var o CA
+		var Information Info
+		var err error
+		var Error Errors
+
+		Error = Errors{Status: 0}
+
+		Information, err = o.fix(pfpki)
+		if err != nil {
+			Error.Message = err.Error()
+			Error.Status = http.StatusNotFound
+		}
+		Information.Status = http.StatusOK
+		manageAnswer(Information, Error, pfpki, res, req)
+	})
+}
+
 func getSetProfile(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
@@ -499,7 +518,7 @@ func revokeCert(pfpki *Handler) http.Handler {
 func getRevoked(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o Cert
+		var o RevokedCert
 		var Information Info
 		var err error
 		var Error Errors
@@ -531,7 +550,7 @@ func getRevoked(pfpki *Handler) http.Handler {
 func searchRevoked(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o Cert
+		var o RevokedCert
 		var Information Info
 		var err error
 		var Error Errors
@@ -563,7 +582,7 @@ func searchRevoked(pfpki *Handler) http.Handler {
 func getRevokedByID(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o Cert
+		var o RevokedCert
 		var Information Info
 		var err error
 		var Error Errors
