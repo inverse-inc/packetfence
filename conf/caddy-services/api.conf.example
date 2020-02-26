@@ -21,6 +21,8 @@
   }
 
   api-aaa
+  
+  api
 
   # Job status access
   job-status
