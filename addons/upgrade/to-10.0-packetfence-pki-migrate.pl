@@ -9,7 +9,7 @@ BEGIN {
 }
 
 use pf::db;
-
+use WWW::Curl::Easy;
 
 my $driver   = "SQLite";
 my $database = "db.sqlite3";
@@ -59,6 +59,7 @@ ca();
 profiles();
 certs();
 revokedcerts();
+fixca();
 
 $dbh->disconnect();
 
@@ -72,16 +73,15 @@ sub ca {
         print $DBI::errstr;
     }
 
-    my $sql = "INSERT INTO pki_cas(`id`, `cn` ,`mail`, `organisation`, `country`, `state`, `locality`, `key_type`, `key_size`, `digest`, `key_usage`, `extended_key_usage`, `days`, `key`, `cert`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    my $sql = "INSERT INTO pki_cas(`id`, `cn` ,`mail`, `organisation`, `country`, `state`, `locality`, `key_type`, `key_size`, `digest`, `key_usage`, `extended_key_usage`, `days`, `key`, `cert`, `issuer_key_hash`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     my $pf_stmt = $pf_dbh->prepare($sql);
 
     while (my $hash = $sth->fetchrow_hashref()) {
         $cas->{$hash->{id}} = $hash;
 
-
-        my $pf_stmt = $pf_dbh->prepare($sql);
-        if($pf_stmt->execute($hash->{'id'},$hash->{'cn'},$hash->{'mail'},$hash->{'organisation'},$hash->{'country'},$hash->{'state'},$hash->{'locality'},$hash->{'key_type'}, $hash->{'key_size'},$digest{$hash->{'digest'}},$hash->{'key_usage'},$hash->{'extended_key_usage'},$hash->{'days'},$hash->{'ca_key'},$hash->{'ca_cert'})){
+	my $pf_stmt = $pf_dbh->prepare($sql);
+        if($pf_stmt->execute($hash->{'id'},$hash->{'cn'},$hash->{'mail'},$hash->{'organisation'},$hash->{'country'},$hash->{'state'},$hash->{'locality'},$hash->{'key_type'}, $hash->{'key_size'},$digest{$hash->{'digest'}},$hash->{'key_usage'},$hash->{'extended_key_usage'},$hash->{'days'},$hash->{'ca_key'},$hash->{'ca_cert'},$hash->{'issuerKeyHashsha1'})){
             print "CA inserted successfully\n";
         }
     }
@@ -127,7 +127,7 @@ sub certs {
     while (my $hash = $sth->fetchrow_hashref()) {
         $certs->{$hash->{id}} = $hash;
         if($pf_stmt->execute($hash->{'id'},$hash->{'cn'},$hash->{'mail'},$profiles->{$hash->{'profile_id'}}->{'ca_id'},$cas->{$profiles->{$hash->{'profile_id'}}->{'ca_id'}}->{'cn'},$hash->{'organisation'},$hash->{'country'},$hash->{'st'},$hash->{'pkey'},$hash->{'x509'},$hash->{'profile_id'}, $profiles->{$hash->{'profile_id'}}->{'name'},$hash->{'valid_until'},$hash->{'date'},$serial)){
-            print "revoked certificates inserted successfully\n";
+            print "certificates inserted successfully\n";
             $serial ++;
        }
     }
@@ -156,3 +156,18 @@ sub revokedcerts {
     }
 }
 
+sub fixca {
+    my $curl = WWW::Curl::Easy->new;
+    my $url = "http://127.0.0.1:22225/api/v1/pki/ca/fix";
+
+    $curl->setopt(CURLOPT_URL, $url );
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ;
+    $curl->setopt(CURLOPT_HEADER, 0);
+
+    my $curl_return_code = $curl->perform;
+    my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
+
+    if ( $curl_return_code != 0 or $curl_info != 200 ) {
+        print "Error fixing CA, does the pfpki running ";
+    }
+}
