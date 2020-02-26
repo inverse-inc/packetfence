@@ -276,7 +276,7 @@ export default {
         return
       }
       this.sourceIndex = index
-      this.eventBus.$on('drag-end', () => {
+      this.eventBus.$once('drag-end', () => {
         this.sourceIndex = false
         if (this.targetIndex === false) {
           this.eventBus.$off('drag-end')
@@ -333,15 +333,16 @@ export default {
             this.targetIndex = index + 1
             break
         }
+        this.eventBus.$emit('drag-over', { target })
         if (this.targetIndex !== false) {
           this.eventBus.$on('drag-over', ({ target }) => {
             const { 0: { childNodes = [] } = {} } = this.$el.getElementsByClassName('pf-form-boolean-values')
             if (Array.from(childNodes).indexOf(target) === -1) { // target is not an immediate child
-              this.targetIndex = false
               this.eventBus.$off('drag-over')
+              this.targetIndex = false
             }
           })
-          this.eventBus.$on('drag-end', () => {
+          this.eventBus.$once('drag-end', () => {
             const { eventBus: { cache: { reject = () => {} } = {} } = {} } = this
             reject()
             this.targetIndex = false
@@ -351,7 +352,6 @@ export default {
             }
           })
         }
-        this.eventBus.$emit('drag-over', { target })
       }
     },
     dragDrop (event) { // @target
