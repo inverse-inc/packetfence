@@ -1,5 +1,6 @@
 # - better handling of disconnection than ArubaSwitch.pm
 # - don't want a getIfIndexByNasPortId function for these switches
+# tested on Aruba 2530 running Aruba OS 16.10
 description = Aruba Switch NG
 radiusDisconnect = disconnect
 
@@ -11,6 +12,10 @@ EOT
 
 acceptRole = <<EOT
 Filter-ID = $role
+EOT
+
+reject = <<EOT
+Reply-Message = This node is not allowed to use this service
 EOT
 
 disconnect = <<EOT
