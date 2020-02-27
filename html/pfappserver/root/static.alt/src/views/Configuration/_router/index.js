@@ -1231,10 +1231,10 @@ const route = {
       props: (route) => ({ query: route.query.query })
     },
     {
-      path: 'switch_template/new/:switchTemplateType',
+      path: 'switch_template/new',
       name: 'newSwitchTemplate',
       component: SwitchTemplateView,
-      props: (route) => ({ formStoreName: 'formSwitchTemplates', isNew: true, switchTemplateType: route.params.switchTemplateType }),
+      props: (route) => ({ formStoreName: 'formSwitchTemplates', isNew: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formSwitchTemplates) { // Register store module only once
           store.registerModule('formSwitchTemplates', FormStore)
