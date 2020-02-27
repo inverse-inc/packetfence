@@ -1,5 +1,12 @@
 == Creating a new Switch via a Template
 
+
+=== Using web admin
+
+You can directly create or edit switch templates in `_Configuration -> Integration -> Switch Templates_` menu.
+
+=== Using CLI
+
 To create a new Switch Template you must create a template file in the [filename]`/usr/local/pf/lib/pf/Switch` directory.
 The file must have the following pattern [filename]`/usr/local/pf/lib/pf/Switch/_<Vendor>_/_<SwitchName>_.def`.
 
@@ -17,6 +24,8 @@ Once you have completed your switch template, you will need to perform the follo
 ----
 
 The file consist of parameter names and their values. There is no sections but RADIUS scope parameters act like this.
+
+No scopes are inherited from a base switch template, you need to define each scope you want to use.
 
 You can find a full working example
 <<_full_working_example,below>>. Other examples are available in
