@@ -31,6 +31,16 @@ export const dhcpList = [
   { value: '2', text: i18n.t('Oldest Released') }
 ]
 
+export const DHCPPoolTypes = [
+  { value: 'memory', text: i18n.t('Memory Pool') },
+  { value: 'mysql', text: i18n.t('Mysql Pool') }
+]
+
+export const DHCPPoolTypesFormatter = (value) => {
+  if (value === null || value === '') return null
+  return DHCPPoolTypes.find(type => type.value === value).text
+}
+
 export const columns = [
   {
     key: 'id',
@@ -43,6 +53,12 @@ export const columns = [
     label: i18n.t('Algorithm'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'pool_backend',
+    label: i18n.t('Backend'),
+    sortable: false,
+    visible: true,
   },
   {
     key: 'dhcp_start',
@@ -114,6 +130,22 @@ export const view = (form = {}, meta = {}) => {
                 trackBy: 'value',
                 label: 'text',
                 options: dhcpList
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCP Pool Backend Type'),
+          cols: [
+            {
+              namespace: 'pool_backend',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: i18n.t('Select a backend'),
+                trackBy: 'value',
+                label: 'text',
+                options: DHCPPoolTypes
               }
             }
           ]
@@ -256,6 +288,7 @@ export const validators = (form = {}, meta = {}) => {
       }
     },
     algorithm: validatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm')),
+    pool_backend: validatorsFromMeta(meta, 'pool_backend', i18n.t('DHCP Pool Backend Type')),
     dhcp_start: {
       ...validatorsFromMeta(meta, 'dhcp_start', 'IP'),
       ...{
