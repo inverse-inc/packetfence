@@ -1854,7 +1854,21 @@ setup_api_v1_config_filter_engines_routes
 sub setup_api_v1_config_filter_engines_routes {
     my ($self, $root) = @_;
     my $filter_engines_root = $root->any("/filter_engines")->name("api.v1.Config.FilterEngines");
-    $filter_engines_root->register_sub_action({method => 'POST', action => 'parse_condition', controller => 'Config::FilterEngines'});
+    $filter_engines_root->register_sub_action(
+        {
+            method     => 'OPTIONS',
+            action     => 'options',
+            path       => '',
+            controller => 'Config::FilterEngines'
+        }
+    );
+    $filter_engines_root->register_sub_action(
+        {
+            method     => 'POST',
+            action     => 'parse_condition',
+            controller => 'Config::FilterEngines'
+        }
+    );
     my ($collection_route, $resource_route) =
       $self->setup_api_v1_std_config_routes(
         $filter_engines_root,
@@ -1862,7 +1876,7 @@ sub setup_api_v1_config_filter_engines_routes {
         "/vlan_filters",
         "/vlan_filter/#vlan_filter_id",
         "api.v1.Config.FilterEngines.Vlan"
-    );
+      );
 
     return ($collection_route, $resource_route);
 }

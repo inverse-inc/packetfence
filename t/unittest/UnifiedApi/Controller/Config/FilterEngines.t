@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::Mojo;
 
 #This test will running last
@@ -40,6 +40,9 @@ $t->post_ok("$url/parse_condition" => json => { condition => 'b == "bob" && a = 
   ->status_is(422);
 
 $t->post_ok("$url/parse_condition" => json => { condition => "b && a"})
+  ->status_is(200);
+
+$t->options_ok("$url")
   ->status_is(200);
 
 =head1 AUTHOR

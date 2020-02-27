@@ -39,6 +39,17 @@ sub parse_condition {
     $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
 }
 
+=head2 options
+
+options
+
+=cut
+
+sub options {
+    my ($self) = @_;
+    $self->render(json => { items => [{ collection => "vlan_filters", resource => "vlan_filter", name => "VLAN Filters" }] });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
