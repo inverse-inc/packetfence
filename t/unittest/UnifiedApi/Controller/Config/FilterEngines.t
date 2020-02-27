@@ -42,7 +42,7 @@ $t->post_ok("$url/parse_condition" => json => { condition => 'b == "bob" && a = 
 $t->post_ok("$url/parse_condition" => json => { condition => "b && a"})
   ->status_is(200);
 
-$t->options_ok("$url")
+$t->get_ok("$url")
   ->status_is(200);
 
 =head1 AUTHOR

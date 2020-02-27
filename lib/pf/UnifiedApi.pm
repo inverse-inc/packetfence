@@ -1856,8 +1856,8 @@ sub setup_api_v1_config_filter_engines_routes {
     my $filter_engines_root = $root->any("/filter_engines")->name("api.v1.Config.FilterEngines");
     $filter_engines_root->register_sub_action(
         {
-            method     => 'OPTIONS',
-            action     => 'options',
+            method     => 'GET',
+            action     => 'engines',
             path       => '',
             controller => 'Config::FilterEngines'
         }

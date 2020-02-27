@@ -39,13 +39,13 @@ sub parse_condition {
     $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
 }
 
-=head2 options
+=head2 engines
 
-options
+engines
 
 =cut
 
-sub options {
+sub engines {
     my ($self) = @_;
     $self->render(json => { items => [{ collection => "vlan_filters", resource => "vlan_filter", name => "VLAN Filters" }] });
 }
