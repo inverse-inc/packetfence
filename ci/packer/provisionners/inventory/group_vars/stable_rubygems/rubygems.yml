@@ -1,7 +1,6 @@
 ---
 gems:
   - name: 'asciidoctor'
-
-gems_pre:
   - name: 'asciidoctor-pdf'
-    extra_options: '--pre'
+
+gems_pre: []
