@@ -27,7 +27,7 @@ NOTE: Don't forget to add that Root CA certifiate to the radius configuration to
 Template creation
 ^^^^^^^^^^^^^^^^^
 
-Now you will need to create a certificate template to that will gather all the settings for your certificate like the validity period or the certificate usage.
+Now you will need to create a certificate template that will gather all the settings for your certificate like the validity period or the certificate usage.
 
 Select the Certificate Authority previously created:
 ++++++++++++++++++++++++++++++++++++++++++++++++++++
