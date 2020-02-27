@@ -708,10 +708,11 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					// Update Global Caches
 					GlobalIPCache.Set(reqIP.String(), p.CHAddr().String(), cacheDuration)
 					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), cacheDuration)
-					err := MysqlUpdateIP4Log(p.CHAddr().String(), reqIP.String(), cacheDuration)
-					if err != nil {
-						log.LoggerWContext(ctx).Info(err.Error())
-					}
+					// Update ip4log from pfdhcp. Commented for now.
+					// err := MysqlUpdateIP4Log(p.CHAddr().String(), reqIP.String(), cacheDuration)
+					// if err != nil {
+					// 	log.LoggerWContext(ctx).Info(err.Error())
+					// }
 					// Update the cache
 					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")
 

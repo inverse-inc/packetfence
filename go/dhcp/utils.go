@@ -428,13 +428,13 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		oldIP  string
 	)
 	err = MAC2IP.QueryRow(mac, 1).Scan(&oldIP)
-	// if err != nil {
-	// 	return err
-	// }
+	if err != nil {
+		return err
+	}
 	err = IP2MAC.QueryRow(ip, 1).Scan(&oldMAC)
-	// if err != nil {
-	// 	return err
-	// }
+	if err != nil {
+		return err
+	}
 	if oldMAC != mac {
 		_, err = IPClose.Exec(ip)
 		if err != nil {
