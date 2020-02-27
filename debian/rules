@@ -145,7 +145,7 @@ install: build
 	install -m0600 conf/redis_cache.conf.example $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf/redis_cache.conf
 
 	# packetfence-tracking-config
-	$(INSTALL) -m0644 $(CURDIR)/packetfence-tracking-config.path $(CURDIR)/debian/packetfence/lib/systemd/system/packetfence-tracking-config.path
+	install -m0644 $(CURDIR)/debian/packetfence-tracking-config.path $(CURDIR)/debian/packetfence/lib/systemd/system/packetfence-tracking-config.path
 
 	#Portal javascript/css
 	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css
