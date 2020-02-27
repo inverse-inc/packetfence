@@ -1090,6 +1090,13 @@ cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Tracking configuration service enabled by default
+
+`packetfence-tracking-config` service is now enabled by default. It means that all
+manual changes to configuration files will be recorded, included passwords.
+
+You can disable this service from PacketFence Web admin if you don't want such behavior.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
