@@ -3,12 +3,12 @@ ifdef::env-github[]
 :imagesdir: ../images
 endif::[]
 
-This section has been created to give a quick start to install the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PacketFence PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
+This section has been created to give a quick start to configure the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PacketFence PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
 
 Certificate Authority creation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You will need to create a new a certificate authority. Go to the PacketFence web administration under the section Configuration -> Integration -> PKI -> Certificate Authorities and click on *New Certificate Authority*
+You will need to create a new certificate authority. Go to the PacketFence web administration under the section Configuration -> Integration -> PKI -> Certificate Authorities and click on *New Certificate Authority*
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
