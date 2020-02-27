@@ -768,12 +768,12 @@ sub nodes_maintenance {
         pf::dal->set_tenant($row->{tenant_id});
 
         my $apiclient = pf::client::getClient;
-        my %violation_data = (
+        my %security_event = (
             'mac'   => $currentMac,
             'tid'   => 'node_maintenance',
             'type'  => 'internal',
         );
-        $apiclient->call('trigger_violation', %violation_data);
+        $apiclient->call('security_event', %security_event);
 
         node_deregister($currentMac);
 
