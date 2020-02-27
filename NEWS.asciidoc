@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 * Added a new Meru controller module that supports RADIUS RFC3576 (RADIUS Disconnect)
 * CLI login to juniper switches
+* PacketFence pki service in golang
 
 Enhancements
 ++++++++++++
