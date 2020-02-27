@@ -39,6 +39,10 @@ Here's a template example:
 
 image::packetfence-pki-template_creation.png[scaledwidth="100%",alt="Template configuration"]
 
+Key usage clientAuth: To use your certificate for a client authentication.
+
+Key usage serverAuth: If you want to install your certificate on a server.
+
 Clear text password when it emails the certificate to users:
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -55,6 +59,16 @@ Once it's created, you can send it to the email user or download the p12 format:
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 image::packetfence-pki-certificate_download.png[scaledwidth="100%",alt="Certificate creation"]
+
+PEM format
+^^^^^^^^^^
+
+The PacketFence PKI hand out PKCS12 certificates, if you want to convert your certificate to PEM format, you can use the commands:
+
+----
+openssl pkcs12 -in YourCert.p12 -nocerts -out YourCert.key -nodes
+openssl pkcs12 -in YourCert.p12 -out YourCert.pem -clcerts -nokeys
+----
 
 Revoke a certificate
 ^^^^^^^^^^^^^^^^^^^^
