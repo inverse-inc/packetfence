@@ -18,7 +18,7 @@ type RadiusAttributeValue struct {
 type RadiusAttribute struct {
 	Name          string                 `json:"name"`
 	AllowedValues []RadiusAttributeValue `json:"allowed_values"`
-	PlaceHolder   string                 `json:"place_holder,omitempty"`
+	PlaceHolder   string                 `json:"placeholder,omitempty"`
 }
 
 type RadiusAttributesResults struct {
@@ -58,7 +58,7 @@ func setupRadiusDictionary() {
 
 		for _, v := range d.Vendors {
 			for _, a := range v.Attributes {
-				results.Items = append(results.Items, RadiusAttribute{Name: a.Name})
+				results.Items = append(results.Items, RadiusAttribute{Name: a.Name, PlaceHolder: placeHolders[a.Name]})
 			}
 		}
 	}
