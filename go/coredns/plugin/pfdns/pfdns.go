@@ -289,7 +289,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 				}
 				// Defer to the proxy middleware if the device is registered
-				if status == "reg" && !security_event && category != "REJECT" {
+				if status == "reg" && !securityEvent && category != "REJECT" {
 					var found bool
 					found = false
 					for i := 0; i <= len(pf.PortalFQDN); i++ {
