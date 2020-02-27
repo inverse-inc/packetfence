@@ -34,6 +34,7 @@ use pfappserver::Form::Config::PortalModule::Authentication::OAuth::OpenID;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Pinterest;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Twitter;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::WindowsLive;
+use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Toutatice;
 use pfappserver::Form::Config::PortalModule::Authentication::Billing;
 use pfappserver::Form::Config::PortalModule::Authentication::Blackhole;
 use pfappserver::Form::Config::PortalModule::Authentication::Choice;
@@ -69,6 +70,7 @@ our %TYPES_TO_FORMS = (
         Authentication::OAuth::Pinterest
         Authentication::OAuth::Twitter
         Authentication::OAuth::WindowsLive
+        Authentication::OAuth::Toutatice
         Authentication::Billing
         Authentication::Blackhole
         Authentication::Choice

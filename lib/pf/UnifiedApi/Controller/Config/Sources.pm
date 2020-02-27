@@ -57,6 +57,7 @@ use pfappserver::Form::Config::Source::Stripe;
 use pfappserver::Form::Config::Source::Twilio;
 use pfappserver::Form::Config::Source::Twitter;
 use pfappserver::Form::Config::Source::WindowsLive;
+use pfappserver::Form::Config::Source::Toutatice;
 use pfappserver::Form::Config::Source::Potd;
 
 our %TYPES_TO_FORMS = (
@@ -92,6 +93,7 @@ our %TYPES_TO_FORMS = (
       SponsorEmail
       SQL
       Stripe
+      Toutatice
       Twilio
       Twitter
       WindowsLive
