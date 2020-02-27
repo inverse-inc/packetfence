@@ -19,6 +19,7 @@ type RadiusAttribute struct {
 	Name          string                 `json:"name"`
 	AllowedValues []RadiusAttributeValue `json:"allowed_values"`
 	PlaceHolder   string                 `json:"placeholder,omitempty"`
+	Vendor        string                 `json:"vendor,omitempty"`
 }
 
 type RadiusAttributesResults struct {
@@ -47,22 +48,24 @@ func setupRadiusDictionary() {
 		fmt.Println(err)
 	} else {
 
-		for _, a := range d.Attributes {
-			var values []RadiusAttributeValue
-			for _, v := range dictionary.ValuesByAttribute(d.Values, a.Name) {
-				values = append(values, RadiusAttributeValue{Name: v.Name, Value: v.Number})
-			}
-
-			results.Items = append(results.Items, RadiusAttribute{Name: a.Name, AllowedValues: values, PlaceHolder: placeHolders[a.Name]})
-		}
+		appendRadiusAttributes(&results.Items, d.Attributes, d.Values, "")
 
 		for _, v := range d.Vendors {
-			for _, a := range v.Attributes {
-				results.Items = append(results.Items, RadiusAttribute{Name: a.Name, PlaceHolder: placeHolders[a.Name]})
-			}
+			appendRadiusAttributes(&results.Items, v.Attributes, v.Values, v.Name)
 		}
 	}
 
 	res, _ := json.Marshal(&results)
 	radiusAttributesJson = string(res)
+}
+
+func appendRadiusAttributes(items *[]RadiusAttribute, attributes []*dictionary.Attribute, values []*dictionary.Value, vendor string) {
+	for _, a := range attributes {
+		var allowedValues []RadiusAttributeValue
+		for _, v := range dictionary.ValuesByAttribute(values, a.Name) {
+			allowedValues = append(allowedValues, RadiusAttributeValue{Name: v.Name, Value: v.Number})
+		}
+
+		*items = append(*items, RadiusAttribute{Name: a.Name, AllowedValues: allowedValues, PlaceHolder: placeHolders[a.Name], Vendor: vendor})
+	}
 }
