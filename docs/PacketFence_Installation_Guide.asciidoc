@@ -1821,7 +1821,12 @@ image::portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",al
 Calling an external website
 +++++++++++++++++++++++++++
 
-Using the 'URL' module, you can redirect the user to a local or external URL (as long as it is in the passthroughs). Then you can make it so the portal accepts a callback in order for the flow to continue.
+Using the 'URL' module, you can redirect the user to a local or external URL
+(as long as it is in the passthroughs). Then you can make it so the portal
+accepts a callback in order for the flow to continue. Having a callback on
+local or external URL is a requirement to use this portal module. Otherwise, users
+will be *always* redirected to URL without any possibility to continue the
+registration process.
 
 In this example, the portal will redirect to an externally hosted PHP script that will give a random token to the user and then callback the portal to complete the registration process.
 
