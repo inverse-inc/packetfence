@@ -78,4 +78,4 @@ image::packetfence-pki-pki-provider_menu.png[scaledwidth="100%",alt="PKI Provide
 Create a certificate per user or per device mac address, this example will cover one certificate per device:
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-image::packetfence-pki-pki-provider_creation.png[scaledwidth="100%",alt="PKI Provider
+image::packetfence-pki-pki-provider_creation.png[scaledwidth="100%",alt="PKI Provider"]
