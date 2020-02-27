@@ -28,6 +28,22 @@ sub _extract_username_from_response {
     return $info->{sub};
 }
 
+=head2 auth_source_params_child
+
+The parameters available for source matching
+
+=cut
+
+sub auth_source_params_child {
+    my ($self) = @_;
+    my $info = person_view($self->username());
+    return {
+        title => $info->{title},
+        ENTPersonUid => $info->{custom_field_1},
+        personalTitle => $info->{custom_field_3}
+    };
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
