@@ -32,6 +32,7 @@ export const pfFieldType = {
   LDAPATTRIBUTE:                       'ldapattribute',
   PREFIXMULTIPLIER:                    'prefixmultiplier',
   RADIUSATTRIBUTE:                     'radiusattribute',
+  SELECTONE:                           'selectone',
   SELECTMANY:                          'selectmany',
   TIME_BALANCE:                        'time_balance',
   YESNO:                               'yesno',

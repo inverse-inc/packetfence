@@ -108,11 +108,23 @@ export const view = (form = {}, meta = {}) => {
 
   const radiusFields = Object.keys(radiusAttributes).sort((a, b) => {
     return a.localeCompare(b)
-  }).map(radiusAttribute => {
-    return {
-      value: radiusAttribute,
-      text: radiusAttribute,
-      types: [fieldType.RADIUSATTRIBUTE]
+  }).map(key => {
+    const { [key]: radiusAttribute, [key]: { allowed_values } = {} } = radiusAttributes
+    if (allowed_values) {
+      return {
+        value: key,
+        text: key,
+        types: [fieldType.OPTIONS],
+        options: allowed_values.map(option => {
+          return { text: option.name, value: option.value }
+        })
+      }
+    } else {
+      return {
+        value: key,
+        text: key,
+        types: [fieldType.RADIUSATTRIBUTE]
+      }
     }
   })
 
