@@ -41,7 +41,6 @@ sub available_attributes {
     my $self = shift;
     my $super_attributes = $self->SUPER::available_attributes;
     my @own_attributes = map { {value => $_, type => $Conditions::SUBSTRING}} qw(
-      username
       title
       ENTPersonDateNaissance
       ENTPersonUid
