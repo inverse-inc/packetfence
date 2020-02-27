@@ -23,24 +23,24 @@ func TestNetFlowBandwidthAccountingRecToSQLSelect(t *testing.T) {
 
 func TestNetFlowBandwidthAccountingRecsToSQLSelect(t *testing.T) {
 	recs := NetFlowBandwidthAccountingRecs{
-        NetFlowBandwidthAccountingRec{
-            Ip:         "1.2.3.4",
-            TimeBucket: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
-            InBytes:    1000,
-            OutBytes:   1000,
-        },
-        NetFlowBandwidthAccountingRec{
-            Ip:         "1.2.3.5",
-            TimeBucket: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
-            InBytes:    1000,
-            OutBytes:   1000,
-        },
-        NetFlowBandwidthAccountingRec{
-            Ip:         "1.2.3.6",
-            TimeBucket: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
-            InBytes:    1000,
-            OutBytes:   1000,
-        },
+		NetFlowBandwidthAccountingRec{
+			Ip:         "1.2.3.4",
+			TimeBucket: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+			InBytes:    1000,
+			OutBytes:   1000,
+		},
+		NetFlowBandwidthAccountingRec{
+			Ip:         "1.2.3.5",
+			TimeBucket: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+			InBytes:    1000,
+			OutBytes:   1000,
+		},
+		NetFlowBandwidthAccountingRec{
+			Ip:         "1.2.3.6",
+			TimeBucket: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+			InBytes:    1000,
+			OutBytes:   1000,
+		},
 	}
 
 	expectedSQL := `INSERT INTO bandwidth_accounting (tenant_id, mac, time_bucket, in_bytes, out_bytes)
