@@ -406,17 +406,6 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Interface'),
-          text: i18n.t('Define a network interface to associate it with the dhcp scope.(In most cases you don\'t need to do it)'),
-          cols: [
-            {
-              namespace: 'dev',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'dev'),
-            }
-          ]
-        },
-        {
           label: null, /* no label */
           cols: [
             {
