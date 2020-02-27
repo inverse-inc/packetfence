@@ -7,7 +7,7 @@
       <b-tab :title="$t('Certificate Authorities')" @click="changeTab('pkiCas')">
         <pki-cas-list />
       </b-tab>
-      <b-tab :title="$t('Profiles')" @click="changeTab('pkiProfiles')">
+      <b-tab :title="$t('Templates')" @click="changeTab('pkiProfiles')">
         <pki-profiles-list />
       </b-tab>
       <b-tab :title="$t('Certificates')" @click="changeTab('pkiCerts')">
