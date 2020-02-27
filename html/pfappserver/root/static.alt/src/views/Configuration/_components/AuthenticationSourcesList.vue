@@ -60,6 +60,7 @@
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Pinterest' } }">Pinterest</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SMS' } }">SMS</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SponsorEmail' } }">{{ $t('Sponsor') }}</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Toutatice' } }">Toutatice</b-dropdown-item>          
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Twilio' } }">Twilio</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Twitter' } }">Twitter</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'WindowsLive' } }">WindowsLive</b-dropdown-item>

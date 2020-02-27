@@ -114,6 +114,7 @@ export const moduleTypes = () => {
         { type: 'Authentication::OAuth::OpenID', name: 'OpenID' },
         { type: 'Authentication::OAuth::Pinterest', name: 'Pinterest' },
         { type: 'Authentication::OAuth::Twitter', name: 'Twitter' },
+        { type: 'Authentication::OAuth::Toutatice', name: 'Toutatice' },
         { type: 'Authentication::OAuth::WindowsLive', name: 'WindowsLive' },
         { type: 'Authentication::SAML', name: 'SAML' },
         { type: 'Authentication::SMS', name: i18n.t('SMS') },
@@ -782,6 +783,7 @@ export const view = (form = {}, meta = {}) => {
     case 'Authentication::OAuth::OpenID':
     case 'Authentication::OAuth::Pinterest':
     case 'Authentication::OAuth::Twitter':
+    case 'Authentication::OAuth::Toutatice':
     case 'Authentication::OAuth::WindowsLive':
       return [
         {
@@ -1227,6 +1229,7 @@ export const validators = (form = {}, meta = {}) => {
     case 'Authentication::OAuth::OpenID':
     case 'Authentication::OAuth::Pinterest':
     case 'Authentication::OAuth::Twitter':
+    case 'Authentication::OAuth::Toutatice':
     case 'Authentication::OAuth::WindowsLive':
       return {
         ...validatorFields.id(form, meta),

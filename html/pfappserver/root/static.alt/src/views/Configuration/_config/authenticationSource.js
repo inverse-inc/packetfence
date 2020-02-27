@@ -2211,6 +2211,30 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
+    case 'Toutatice':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.client_id(form, meta),
+            viewFields.client_secret(form, meta),
+            { ...viewFields.site(form, meta), ...{ label: i18n.t('API URL') } }, // re-label
+            viewFields.authorize_path(form, meta),
+            { ...viewFields.access_token_path(form, meta), ...{ label: i18n.t('API Token Path') } }, // re-label
+            viewFields.access_scope(form, meta),
+            { ...viewFields.protected_resource_url(form, meta), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            viewFields.redirect_url(form, meta),
+            viewFields.domains(form, meta),
+            viewFields.create_local_account(form, meta),
+            viewFields.hash_passwords(form, meta),
+            viewFields.password_length(form, meta),
+            viewFields.local_account_logins(form, meta),
+            viewFields.authentication_rules(form, meta)
+          ]
+        }
+      ]      
     case 'Twilio':
       return [
         {
@@ -3165,6 +3189,24 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.local_account_logins(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
+    case 'Toutatice':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.client_id(form, meta),
+        ...validatorFields.client_secret(form, meta),
+        ...validatorFields.site(form, meta),
+        ...validatorFields.authorize_path(form, meta),
+        ...validatorFields.access_token_path(form, meta),
+        ...validatorFields.access_scope(form, meta),
+        ...validatorFields.protected_resource_url(form, meta),
+        ...validatorFields.redirect_url(form, meta),
+        ...validatorFields.domains(form, meta),
+        ...validatorFields.hash_passwords(form, meta),
+        ...validatorFields.password_length(form, meta),
+        ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.authentication_rules(form, meta)
+      }      
     case 'Twilio':
       return {
         ...validatorFields.id(form, meta),
