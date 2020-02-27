@@ -281,6 +281,7 @@ type NetworkConf struct {
 	RegNetwork              string `json:"reg_network"`
 	PortalFQDN              string `json:"portal_fqdn"`
 	Algorithm               string `json:"algorithm"`
+	PoolBackend             string `json:"pool_backend"`
 }
 
 type Interface struct {
@@ -317,6 +318,8 @@ type RessourseNetworkConf struct {
 	IpReserved              string    `json:"ip_reserved"`
 	IpAssigned              string    `json:"ip_assigned"`
 	Interface               Interface `json:"interface"`
+	PortalFQDN              string    `json:"portal_fqdn"`
+	PoolBackend             string    `json:"pool_backend"`
 	Algorithm               string    `json:"algorithm"`
 }
 

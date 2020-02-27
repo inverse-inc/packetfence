@@ -396,3 +396,75 @@ func IsIPv4(address net.IP) bool {
 func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
 }
+
+// MysqlUpdateIP4Log update the ip4log table
+func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
+	if err := MySQLdatabase.PingContext(ctx); err != nil {
+		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
+	}
+
+	MAC2IP, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) AND tenant_id = ? ORDER BY start_time DESC LIMIT 1")
+	if err != nil {
+		return err
+	}
+
+	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) AND tenant_id = ? ORDER BY start_time DESC")
+	if err != nil {
+		return err
+	}
+
+	IPClose, err := MySQLdatabase.Prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
+	if err != nil {
+		return err
+	}
+
+	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND))")
+	if err != nil {
+		return err
+	}
+
+	var (
+		oldMAC string
+		oldIP  string
+	)
+	err = MAC2IP.QueryRow(mac, 1).Scan(&oldIP)
+	// if err != nil {
+	// 	return err
+	// }
+	err = IP2MAC.QueryRow(ip, 1).Scan(&oldMAC)
+	// if err != nil {
+	// 	return err
+	// }
+	if oldMAC != mac {
+		_, err = IPClose.Exec(ip)
+		if err != nil {
+			return err
+		}
+	}
+	if oldIP != ip {
+		_, err = IPClose.Exec(oldIP)
+		if err != nil {
+			return err
+		}
+	}
+	IPInsert.Exec(mac, ip, duration.Seconds())
+
+	return err
+
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func setOptionServerIdentifier(srvIP net.IP, handlerIP net.IP) net.IP {
+	if srvIP.Equal(handlerIP) || srvIP.Equal(net.IPv4zero) || srvIP.Equal(net.IPv4bcast) {
+		return handlerIP
+	}
+	return srvIP
+}

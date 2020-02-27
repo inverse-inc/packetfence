@@ -1365,6 +1365,23 @@ CREATE TABLE `admin_api_audit_log` (
 
 
 --
+-- Table structure for table `dhcppool`
+--
+
+CREATE TABLE dhcppool (
+  id                    int(11) unsigned NOT NULL auto_increment,
+  pool_name             varchar(30) NOT NULL,
+  idx                   int(11) NOT NULL,
+  mac                   VARCHAR(30) NOT NULL,
+  free                  BOOLEAN NOT NULL default '1',
+  released              DATETIME(6) NULL default NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY dhcppool_poolname_idx (pool_name, idx),
+  KEY mac (mac),
+  KEY released (released)
+) ENGINE=InnoDB;
+
+--
 -- Table structure for table `pki_cas`
 --
 
