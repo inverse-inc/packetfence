@@ -12,7 +12,7 @@ use pf::db;
 use WWW::Curl::Easy;
 
 my $driver   = "SQLite";
-my $database = "db.sqlite3";
+my $database = "/usr/local/packetfence-pki/db.sqlite3";
 my $dsn = "DBI:$driver:dbname=$database";
 my $userid = "";
 my $password = "";
