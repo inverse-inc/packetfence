@@ -21,6 +21,13 @@ proxy . /etc/resolv.conf
     }
     # Anything not handled by pfdns will be resolved normally
 [% domain %]
+
+    # This configuration will check in the /etc/hosts and if the fqdn match it will return the corresponding ip.
+    # If it doesn't match then it will continue
+    #hosts {
+    #    fallthrough
+    #}
+
 [% inline %]
 
     # Default to system resolv.conf file
