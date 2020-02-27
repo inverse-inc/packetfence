@@ -1097,6 +1097,18 @@ manual changes to configuration files will be recorded, included passwords.
 
 You can disable this service from PacketFence Web admin if you don't want such behavior.
 
+=== New PacketFence PKI in Golang
+
+PacketFence-pki is deprecated in favour of the new packetfence pki written in golang.
+If you previously ran the PacketFence-pki you will need to migrate from the sqlite db to mysql.
+To migrate be sure that the database is running and the new pki too and do the following:
+
+  /usr/local/pf/addons/upgrade/to-10.0-packetfence-pki-migrate.pl
+
+Next edit the pki providers (Configuration -> PKI Providers) and redefined the profile to use.
+And if you use oscp then change the url to use this one:
+http://127.0.0.1:22225/api/v1/pki/ocsp
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
