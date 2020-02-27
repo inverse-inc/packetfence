@@ -1,4 +1,4 @@
-package captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::Toutatice;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth::Toutatice;
 
 =head1 NAME
 
