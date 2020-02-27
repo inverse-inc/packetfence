@@ -14,11 +14,15 @@ pf::ConfigStore::VlanFilters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($vlan_filters_config_file);
+use pf::file_paths qw($vlan_filters_config_file $vlan_filters_config_default_file);
 use Sort::Naturally qw(nsort);
+use pf::condition_parser qw(parse_condition_string ast_to_object);
+use namespace::autoclean;
 extends 'pf::ConfigStore';
 
 sub configFile { $vlan_filters_config_file };
+
+sub importConfigFile { $vlan_filters_config_default_file };
 
 sub pfconfigNamespace {'config::VlanFilters'}
 
@@ -45,6 +49,8 @@ sub cleanupAfterRead {
     my @action_keys = nsort grep {/^action\.\d+$/} keys %$item;
     $item->{actions} = [delete @$item{@action_keys}];
     $self->expand_list($item, $self->_fields_expanded);
+    my ($ast, $err) = parse_condition_string($item->{condition});
+    $item->{condition} = ast_to_object($ast);
     return;
 }
 
