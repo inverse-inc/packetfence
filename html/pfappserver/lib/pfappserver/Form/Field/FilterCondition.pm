@@ -43,12 +43,10 @@ has_field 'op' => (
 
 has_field values => (
     type => 'Repeatable',
-    inactive => 1,
 );
 
 has_field 'values.contains' => (
-    type => 'NoValue',
-    inactive => 1,
+    type => 'Nested',
 );
 
 =head1 AUTHOR
