@@ -36,10 +36,10 @@
           </b-dropdown-group>
           <b-dropdown-group>
             <b-dropdown-header>{{ $t('Collection') }}</b-dropdown-header>
-            <b-dropdown-item @click="addOperator(values.length); (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="addOperator(values.length + 1); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Operator') }}
             </b-dropdown-item>
-            <b-dropdown-item @click="addValue(values.length); (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="addValue(values.length + 1); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Value') }}
             </b-dropdown-item>
             <b-dropdown-item @click="truncate(); (actionKey && $nextTick(() => $refs.menu.show(true)))">
@@ -56,7 +56,7 @@
       <template v-for="(value, index) in valuesPlusOne">
 
         <!-- drag/drop placeholder -->
-        <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-placeholder"
+        <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-target"
           v-model="eventBus.cache.value" :formStoreName="eventBus.cache.formStoreName" :formNamespace="eventBus.cache.formNamespace"
           @dragOver="dragOver(index, $event)"
           @dropValuePrev="dropValueNext(index - 1, $event)"
@@ -131,13 +131,14 @@
 import Vue from 'vue' // eventBus
 import pfMixinForm from '@/components/pfMixinForm'
 
-const isBefore = (event) => {
+/*  CSS flex-box layout can stack elements either vertical (above/below) or horizontal (left/right)
+ *  2 drop zones accomodate both layouts:
+ *    previous: within triangle @top-left (returns true)
+ *    next: within triangle @bottom-right (returns false)
+ */
+const isMouseOverPrevious = (event) => {
   const { target, pageX: x, pageY: y } = event
   const { width, height, top, left } = target.closest('.pf-form-boolean').getBoundingClientRect()
-  /* 2 drop zones, CSS flex-box layout can be either vertical or horizontal
-    *  previous: within triangle from @top-left/bottom-left/top-right corners
-    *  next: within triangle from @bottom-right/top-right/bottom-left corners
-    */
   const ar = width / height
   const dx = x - left
   const dy = height - dx / ar
@@ -216,10 +217,9 @@ export default {
       const { inputValue: { values: { [index]: value } = {} } = {}, formStoreName, formNamespace } = this
       return { value, formStoreName, formNamespace: `${formNamespace}.values.${index}` }
     },
-    addValue (index) {
+    addValue (index, newValue = {}) {
       const { inputValue: { values } = {} } = this
-      const newValue = undefined
-      this.$set(this.inputValue, 'values', [...values.slice(0, index + 1), newValue, ...values.slice(index + 1)])
+      this.$set(this.inputValue, 'values', [...values.slice(0, index), newValue, ...values.slice(index)])
     },
     cloneValue (index) {
       const { inputValue: { values } = {} } = this
@@ -239,14 +239,10 @@ export default {
         this.$set(this.inputValue, 'values', [...values.slice(0, index), ...values.slice(index + 1)])
       }
     },
-    addOperator (index) {
+    addOperator (index, op = 'and') {
       const { inputValue: { values } = {} } = this
-      let op = 'and'
-      if (index in values && 'op' in values[index]) {
-        op = values[index].op
-      }
       const newOp = { op, values: [] }
-      this.$set(this.inputValue, 'values', [...values.slice(0, index + 1), newOp, ...values.slice(index + 1)])
+      this.$set(this.inputValue, 'values', [...values.slice(0, index), newOp, ...values.slice(index)])
     },
     cloneOperator (index) {
       const { inputValue: { values } = {} } = this
@@ -295,16 +291,16 @@ export default {
         this.eventBus.cache = { source, clone, value, resolve, reject, formStoreName, formNamespace: `${formNamespace}.values.${index}` }
       }).then(({ index: dropIndex }) => { // drop success
         if (!clone) { // delete old value
-          if (this.targetIndex !== false && dropIndex < index) { // drag/drop from/to same parent (above only)
+          if (this.targetIndex !== false && dropIndex < index) { // drag/drop from/to same parent (previous only)
             index++
           }
-          this.$set(inputValue, 'values', [...inputValue.values.slice(0, index), ...inputValue.values.slice(index + 1)])
+          this.deleteValue(index)
         }
-        this.eventBus.$emit('drag-end')
+        this.eventBus.$emit('drag-end') // finished, cleanup handlers
       }).catch(() => { // drop cancelled
         // noop
       })
-      this.$store.dispatch('events/onKeyUp') // fix: unable to detect actionKey change while dragging
+      this.$store.dispatch('events/onKeyUp') // fix: unable to detect actionKey keyup while dragging
     },
     dragEnd () { // @source
       this.eventBus.$emit('drag-end')
@@ -313,28 +309,29 @@ export default {
       event.preventDefault() // always allow drop
       let { target } = event
       target = target.closest('.pf-form-boolean')
+      if (target.classList.contains('drag-target')) return // ignore placeholder
       if (target.classList.contains('root')) return // ignore root children
-      if (target.classList.contains('drag-placeholder')) return // ignore placeholder
       const { eventBus: { cache: { source, clone } = {} } = {} } = this
       if (source) {
         if (source.isSameNode(target)) return // ignore self
         if (source.contains(target)) return // ignore child nodes
-        switch (isBefore(event)) {
-          case true: // before @target
+        // @target is valid
+        switch (isMouseOverPrevious(event)) { // determine index from mouse position over @target
+          case true: // @target previous
             if (!clone && target.previousElementSibling && target.previousElementSibling.isSameNode(source)) { // ignore self
               return
             }
             this.targetIndex = index
             break
-          case false: // after @target
+          case false: // @target next
             if (!clone && target.nextElementSibling && target.nextElementSibling.isSameNode(source)) { // ignore self
               return
             }
             this.targetIndex = index + 1
             break
         }
-        this.eventBus.$emit('drag-over', { target })
-        if (this.targetIndex !== false) {
+        this.eventBus.$emit('drag-over', { target }) // emit for previous iteration
+        if (this.targetIndex !== false) { // listeners for next iteration
           this.eventBus.$on('drag-over', ({ target }) => {
             const { 0: { childNodes = [] } = {} } = this.$el.getElementsByClassName('pf-form-boolean-values')
             if (Array.from(childNodes).indexOf(target) === -1) { // target is not an immediate child
@@ -355,7 +352,7 @@ export default {
       }
     },
     dragDrop (event) { // @target
-      if (isBefore(event)) { // previous
+      if (isMouseOverPrevious(event)) { // previous
         this.$emit('dropValuePrev')
       } else { // next
         this.$emit('dropValueNext')
@@ -368,8 +365,8 @@ export default {
       this.dropValue(index + 1)
     },
     dropValue (index) {
-      const { inputValue: { values = [] } = {}, eventBus: { cache: { value, resolve = () => {} } = {} } = {} } = this
-      this.$set(this.inputValue, 'values', [...values.slice(0, index), value, ...values.slice(index)])
+      const { eventBus: { cache: { value, resolve = () => {} } = {} } = {} } = this
+      this.addValue(index, value)
       resolve({ index })
     }
   },
@@ -400,17 +397,6 @@ export default {
       color: var(--light);
       .menu .dropdown > .btn {
         color: var(--light);
-      }
-      .pf-form-boolean-values {
-        border-color: var(--light);
-      }
-    }
-
-    &.drag-placeholder {
-      border-color: var(--primary);
-      background-color: var(--primary);
-      svg {
-        visibility: hidden;
       }
       .pf-form-boolean-values {
         border-color: var(--light);
@@ -461,17 +447,6 @@ export default {
       flex-wrap: nowrap;
     }
 
-    &.drag-source {
-      opacity: .5;
-    }
-
-    .drag-handle {
-      align-self: center;
-      cursor: grab;
-      flex-shrink: 0;
-      margin: 0 .25rem;
-    }
-
     /* add/del menu */
     .menu {
       align-self: center;
@@ -488,6 +463,28 @@ export default {
         &:hover {
           color: var(--primary);
         }
+      }
+    }
+
+    .drag-handle {
+      align-self: center;
+      cursor: grab;
+      flex-shrink: 0;
+      margin: 0 .25rem;
+    }
+
+    &.drag-source {
+      opacity: .5;
+    }
+
+    &.drag-target {
+      border-color: var(--primary);
+      background-color: var(--primary);
+      svg {
+        visibility: hidden;
+      }
+      .pf-form-boolean-values {
+        border-color: var(--light);
       }
     }
   }
