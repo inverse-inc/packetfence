@@ -18,7 +18,7 @@ use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 has 'config_store_class' => 'pf::ConfigStore::VlanFilters';
-has 'form_class' => 'pfappserver::Form::Config::VlanFilter';
+has 'form_class' => 'pfappserver::Form::Config::FilterEngines::VlanFilter';
 has 'primary_key' => 'vlan_filter_id';
 
 use pf::ConfigStore::VlanFilters;
