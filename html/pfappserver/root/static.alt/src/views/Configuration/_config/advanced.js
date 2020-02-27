@@ -61,6 +61,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Configurator'),
+          text: i18n.t('Enable the Configurator and the Configurator API.'),
+          cols: [
+            {
+              namespace: 'configurator',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('CSP headers for Admin'),
           text: i18n.t('(Experimental) Enforce Content-Security-Policy (CSP) HTTP response header in admin interface.'),
           cols: [
