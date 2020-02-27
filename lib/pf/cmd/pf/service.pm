@@ -38,6 +38,7 @@ Services managed by PacketFence:
   pffilter             | PF conditions filtering daemon
   pfmon                | PF monitoring daemon
   pfperl-api           | Perl daemon providing API
+  pfpki                | PKI daemon
   pfqueue              | PF queueing service
   pfsso                | Firewall SSO daemon
   pfstats              | PF statistics daemon

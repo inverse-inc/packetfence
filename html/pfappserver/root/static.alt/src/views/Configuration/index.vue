@@ -84,7 +84,15 @@ export default {
             { name: this.$i18n.t('Switch Templates'), path: '/configuration/switch_templates' },
             { name: this.$i18n.t('Syslog Parsers'), path: '/configuration/pfdetect' },
             { name: this.$i18n.t('Syslog Forwarding'), path: '/configuration/syslog' },
-            { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' }
+            { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' },
+            { name: this.$i18n.t('PKI'),
+              items: [
+                { name: this.$i18n.t('Certificate Authorities'), path: '/configuration/pki/cas' },
+                { name: this.$i18n.t('Profiles'), path: '/configuration/pki/profiles' },
+                { name: this.$i18n.t('Certificates'), path: '/configuration/pki/certs' },
+                { name: this.$i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
+              ]
+            }
           ]
         },
         {

@@ -113,6 +113,15 @@ const api = {
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
+  getPkiCas () {
+    return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
+  },
+  getPkiProfiles () {
+    return apiCall({ url: 'pki/profiles', method: 'get', params: { limit: 1000 } })
+  },
+  getPkiCerts () {
+    return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -252,6 +261,12 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     layer2NetworksStatus: '',
     maintenanceTasks: false,
     maintenanceTasksStatus: '',
+    pkiCas: false,
+    pkiCasStatus: '',
+    pkiProfiles: false,
+    pkiProfilesStatus: '',
+    pkiCerts: false,
+    pkiCertsStatus: '',
     pkiProviders: false,
     pkiProvidersStatus: '',
     portalModules: false,
@@ -433,6 +448,15 @@ const getters = {
   },
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
+  },
+  isLoadingPkiCas: state => {
+    return state.pkiCasStatus === types.LOADING
+  },
+  isLoadingPkiProfiles: state => {
+    return state.pkiProfilesStatus === types.LOADING
+  },
+  isLoadingPkiCerts: state => {
+    return state.pkiCertsStatus === types.LOADING
   },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
@@ -1090,6 +1114,66 @@ const actions = {
       return Promise.resolve(state.maintenanceTasks)
     }
   },
+  getPkiCas: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiCas) {
+      return Promise.resolve(state.pkiCas)
+    }
+    if (!state.pkiCas) {
+      commit('PKI_CAS_REQUEST')
+      return api.getPkiCas().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_CAS_UPDATED', items || [])
+        return state.pkiCas
+      })
+    } else {
+      return Promise.resolve(state.pkiCas)
+    }
+  },
+  resetPkiCas: ({ state, commit }) => {
+    if (state.pkiCas) {
+      commit('PKI_CAS_RESET')
+    }
+  },
+  getPkiProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiProfiles) {
+      return Promise.resolve(state.pkiProfiles)
+    }
+    if (!state.pkiProfiles) {
+      commit('PKI_PROFILES_REQUEST')
+      return api.getPkiProfiles().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_PROFILES_UPDATED', items || [])
+        return state.pkiProfiles
+      })
+    } else {
+      return Promise.resolve(state.pkiProfiles)
+    }
+  },
+  resetPkiProfiles: ({ state, commit }) => {
+    if (state.pkiProfiles) {
+      commit('PKI_PROFILES_RESET')
+    }
+  },
+  getPkiCerts: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiCerts) {
+      return Promise.resolve(state.pkiCerts)
+    }
+    if (!state.pkiCerts) {
+      commit('PKI_CERTS_REQUEST')
+      return api.getPkiCerts().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_CERTS_UPDATED', items || [])
+        return state.pkiCerts
+      })
+    } else {
+      return Promise.resolve(state.pkiCerts)
+    }
+  },
+  resetPkiCerts: ({ state, commit }) => {
+    if (state.pkiCerts) {
+      commit('PKI_CERTS_RESET')
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
       return Promise.resolve(state.pkiProviders)
@@ -1618,6 +1702,36 @@ const mutations = {
   MAINTENANCE_TASKS_UPDATED: (state, maintenanceTasks) => {
     state.maintenanceTasks = maintenanceTasks
     state.maintenanceTasksStatus = types.SUCCESS
+  },
+  PKI_CAS_REQUEST: (state) => {
+    state.pkiCasStatus = types.LOADING
+  },
+  PKI_CAS_UPDATED: (state, pkiCas) => {
+    state.pkiCas = pkiCas
+    state.pkiCasStatus = types.SUCCESS
+  },
+  PKI_CAS_RESET: (state) => {
+    state.pkiCas = false
+  },
+  PKI_PROFILES_REQUEST: (state) => {
+    state.pkiProfilesStatus = types.LOADING
+  },
+  PKI_PROFILES_UPDATED: (state, pkiProfiles) => {
+    state.pkiProfiles = pkiProfiles
+    state.pkiProfilesStatus = types.SUCCESS
+  },
+  PKI_PROFILES_RESET: (state) => {
+    state.pkiProfiles = false
+  },
+  PKI_CERTS_REQUEST: (state) => {
+    state.pkiCertsStatus = types.LOADING
+  },
+  PKI_CERTS_UPDATED: (state, pkiCerts) => {
+    state.pkiCerts = pkiCerts
+    state.pkiCertsStatus = types.SUCCESS
+  },
+  PKI_CERTS_RESET: (state) => {
+    state.pkiCerts = false
   },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING

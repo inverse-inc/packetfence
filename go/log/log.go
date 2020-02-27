@@ -16,6 +16,7 @@ import (
 const RequestUuidKey = "request-uuid"
 const ProcessPidKey = "pid"
 const LoggerKey = "logger"
+const LogLevel = "loglevel"
 
 type PfLogger = log.Logger
 
@@ -29,6 +30,7 @@ type LoggerStruct struct {
 	handler    log.Handler
 	inDebug    bool
 	processPid string
+	Level      string
 }
 
 // Set the ProcessName
@@ -43,6 +45,7 @@ func (l LoggerStruct) NewLogger() LoggerStruct {
 	new.handler = l.handler
 	new.inDebug = l.inDebug
 	new.processPid = l.processPid
+	new.Level = l.Level
 
 	return new
 }
@@ -65,6 +68,7 @@ func (l *LoggerStruct) SetHandler(handler log.Handler) {
 // This will Die/panic if the provided level is invalid
 func LoggerSetLevel(ctx context.Context, levelStr string) context.Context {
 	logger := loggerFromContext(ctx)
+	logger.Level = levelStr
 
 	levelStr = strings.ToLower(levelStr)
 
@@ -82,6 +86,12 @@ func LoggerSetLevel(ctx context.Context, levelStr string) context.Context {
 	logger.logger.SetHandler(leveledBackend)
 	ctx = context.WithValue(ctx, LoggerKey, logger)
 	return ctx
+}
+
+// Get the level of a logger from a context
+func LoggerGetLevel(ctx context.Context) string {
+	logger := loggerFromContext(ctx)
+	return logger.Level
 }
 
 // Add a handler to a logger in the context

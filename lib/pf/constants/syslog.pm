@@ -99,6 +99,7 @@ our @SyslogInfo = (
             '$programname == "pfqueue"',
             '$programname == "pfhttpd"',
             '$programname == "pfipset"',
+            '$programname == "pfpki"',
         ]
     },
     {

@@ -76,7 +76,6 @@ sub assign {
     }
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
-
     # return original status message
     return ( $STATUS::OK, $status_msg );
 }

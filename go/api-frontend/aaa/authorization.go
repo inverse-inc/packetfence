@@ -98,6 +98,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/pki_provider/", role: "PKI_PROVIDER"},
 	adminRoleMapping{prefix: configApiPrefix + "/pki_providers", role: "PKI_PROVIDER"},
 	adminRoleMapping{prefix: configApiPrefix + "/portal_module/", role: "PORTAL_MODULE"},
+	adminRoleMapping{prefix: configApiPrefix + "/pki/", role: "PKI"},
 	adminRoleMapping{prefix: configApiPrefix + "/portal_modules", role: "PORTAL_MODULE"},
 	adminRoleMapping{prefix: configApiPrefix + "/provisioning", role: "PROVISIONING"},
 	adminRoleMapping{prefix: configApiPrefix + "/provisionings/", role: "PROVISIONING"},

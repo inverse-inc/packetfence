@@ -1,6 +1,6 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
-    class="pf-form-password" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
+    class="pf-form-password" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus }">
     <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
     </template>
@@ -13,8 +13,8 @@
         :state="inputState"
         :disabled="disabled"
         @keyup.native="resetTest($event)"
-        @focus.native="focus = true"
-        @blur.native="focus = false"
+        @focus.native="isFocus = true"
+        @blur.native="isFocus = false"
       />
       <b-input-group-append>
         <b-button v-if="disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
@@ -128,7 +128,7 @@ export default {
   data () {
     return {
       showPassword: false,
-      focus: false,
+      isFocus: false,
       testResult: null,
       testMessage: null,
       isTesting: false,
@@ -175,6 +175,9 @@ export default {
     }
   },
   methods: {
+    focus () {
+      this.$refs.input.focus()
+    },
     startVisibility () {
       this.showPassword = true
     },
