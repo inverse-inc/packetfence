@@ -8,7 +8,6 @@
         <b-card-header>
           <h4 class="mb-0">
             {{ $t('Network Behavior Policy') }}
-            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_devices_registration" />
           </h4>
         </b-card-header>
       </template>
@@ -30,7 +29,6 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { config } from '../_config/networkBehaviorPolicy'
@@ -39,7 +37,6 @@ export default {
   name: 'network-behavior-policies-list',
   components: {
     pfButtonDelete,
-    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },

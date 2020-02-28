@@ -41,8 +41,6 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $data) = @_;
-    use Data::Dumper;print Dumper($data);
-    use Data::Dumper;print Dumper($data);
     my $real_id = $self->_formatSectionName($id);
     my $config = $self->cachedConfig;
     # Clear the section of any previous values

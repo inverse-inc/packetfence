@@ -11,16 +11,6 @@ import {
   validatorsFromMeta
 } from './'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import {
-  and,
-  not,
-  conditional,
-  hasNetworkBehaviorPolicies,
-  networkBehaviorPolicyExists
-} from '@/globals/pfValidators'
-import {
-  required
-} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -170,7 +160,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Whitelisted IPs'),
-          text: i18n.t('Which IPs (can be CIDR) to ignore when checking against the blacklisted IPs list'),
+          text: i18n.t('Comma delimited list of IP addresses (can be CIDR) to ignore when checking against the blacklisted IPs list'),
           cols: [
             {
               namespace: 'whitelisted_ips',
