@@ -209,7 +209,13 @@ sub do_sponsor_registration {
     $self->app->session->{email} = $email;
     $self->username($email);
 
-    $self->update_person_from_fields(additionnal_fields => {notes => $note});
+    # update sponsor field with forced_sponsor value
+    if (!defined($self->request_fields->{sponsor})) {
+        $self->update_person_from_fields(additionnal_fields => {notes => $note, sponsor => $sponsor});
+    }
+    else {
+        $self->update_person_from_fields(additionnal_fields => {notes => $note});
+    }
 
     $self->waiting_room();
 }
