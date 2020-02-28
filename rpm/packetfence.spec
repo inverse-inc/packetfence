@@ -706,7 +706,6 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl enable packetfence-iptables
-/bin/systemctl enable packetfence-tracking-config.service
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
 /bin/systemctl restart packetfence-httpd.admin
