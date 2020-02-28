@@ -71,3 +71,4 @@
     - role: packetfence_go
       tags: go
 
+- import_playbook: winservers.yml
