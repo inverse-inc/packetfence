@@ -209,7 +209,7 @@ sub do_sponsor_registration {
     $self->app->session->{email} = $email;
     $self->username($email);
 
-    $self->update_person_from_fields(additionnal_fields => {notes => $note});
+    $self->update_person_from_fields(additionnal_fields => {notes => $note, sponsor => $sponsor});
 
     $self->waiting_room();
 }
