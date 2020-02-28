@@ -37,6 +37,7 @@ Bug Fixes
 * Fixed logic to move mac to another port (Avaya)
 * Fix serialization of the switch when calling ReAssignVlan/desAssociate
 * Prevent double restart when setting the port admin status of an EX2300 Juniper switch
+* Sponsor field is missing on sponsored users when using forced sponsor (#5171)
 
 Version 9.3.0 released on 2020-01-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
