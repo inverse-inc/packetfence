@@ -1534,7 +1534,7 @@ export const viewFields = {
   sources: (form, meta = {}) => {
     return {
       label: i18n.t('Associated Sources'),
-      text: i18n.t('Sources that will be associated with this source (For the Sponsor)'),
+      text: i18n.t('Sources that will be associated with this source (For the Sponsor).\nWith no source specified, all internal and external sources will be used.'),
       cols: [
         {
           namespace: 'sources',
