@@ -4,6 +4,7 @@
 # In order to use different rulesets, please point the variable snort_rules,
 # defined below (in [defaults]), to your local file(s).
 #
+
 [defaults]
 priority=4
 max_enable=3
@@ -134,6 +135,12 @@ enabled=Y
 desc=Connection transport change
 trigger=internal::connection_type_change
 actions=log
+enabled=Y
+
+[1100020]
+desc=Wireless IPS
+trigger=internal::1100020
+actions=email_admin,log
 enabled=Y
 
 #
