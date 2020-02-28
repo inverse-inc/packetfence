@@ -337,19 +337,21 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 html: `<div class="alert alert-info">
                   ${i18n.t('The default weights are:')}<br/>
-                  <ul>
-                    <li><strong>DHCP fingerprint</strong> = 10</li>
-                    <li><strong>DHCP vendor</strong> = 10</li>
-                    <li><strong>Hostname</strong> = 3</li>
-                    <li><strong>OUI</strong> = 3</li>
-                    <li><strong>Destination hosts</strong> = 5</li>
-                    <li><strong>mDNS Services</strong> = 5</li>
-                    <li><strong>TCP SYN signatures</strong> = 10</li>
-                    <li><strong>TCP SYN ACK signatures</strong> = 10</li>
-                    <li><strong>UPnP server strings</strong> = 5</li>
-                    <li><strong>UPnP user-agents</strong> = 5</li>
-                    <li><strong>HTTP user-agents</strong> = 5</li>
-                  </ul>
+                  <table class="table table-responsive table-sm">
+                    <tbody>
+                      <tr><th>10</th><td>DHCP fingerprint</td></tr>
+                      <tr><th>10</th><td>DHCP vendor</td></tr>
+                      <tr><th> 3</th><td>Hostname</td></tr>
+                      <tr><th> 3</th><td>OUI</td></tr>
+                      <tr><th> 5</th><td>Destination hosts</td></tr>
+                      <tr><th> 5</th><td>mDNS Services</td></tr>
+                      <tr><th>10</th><td>TCP SYN signatures</td></tr>
+                      <tr><th>10</th><td>TCP SYN ACK signatures</td></tr>
+                      <tr><th> 5</th><td>UPnP server strings</td></tr>
+                      <tr><th> 5</th><td>UPnP user-agents</td></tr>
+                      <tr><th> 5</th><td>HTTP user-agents</td></tr>
+                    </tbody>
+                  </table>
                 </div>`
               }
             }
