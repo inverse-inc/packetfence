@@ -209,6 +209,7 @@ binary-arch: build install
 #	dh_python
 	dh_systemd_enable
 	dh_installinit --no-restart-on-upgrade
+	dh_installinit --name=packetfence-galera-autofix
 	dh_installinit --name=packetfence-haproxy-portal
 	dh_installinit --name=packetfence-haproxy-db
 	dh_installinit --name=packetfence-httpd.aaa

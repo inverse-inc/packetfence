@@ -388,6 +388,7 @@ done
 # systemd services
 %{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service %{buildroot}%{_unitdir}/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}%{_unitdir}/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-galera-autofix.service %{buildroot}%{_unitdir}/packetfence-galera-autofix.service
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service %{buildroot}%{_unitdir}/packetfence-tracking-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
@@ -807,6 +808,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp

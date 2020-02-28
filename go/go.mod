@@ -89,8 +89,10 @@ require (
 	github.com/russross/blackfriday v1.5.2
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/soheilhy/cmux v0.1.4 // indirect
+	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20200122045848-3419fae592fc // indirect
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
+	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	go.etcd.io/bbolt v1.3.3 // indirect
 	go.uber.org/zap v1.13.0 // indirect
 	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529

@@ -54,7 +54,7 @@ cd "$PFSRC/go"
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
-  for service in pfhttpd pfdhcp pfdns pfstats pfdetect;do
+  for service in pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix;do
       make $service
       mv $service $BINDST/
   done
