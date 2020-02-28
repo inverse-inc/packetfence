@@ -353,14 +353,15 @@ sub parse_dhcp_request {
     }
     my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
 
+    my %security_event_data;
     if ($self->pf_is_managing($client_ip)) {
-        my %security_event_data = (
+        %security_event_data = (
             'mac'   => $client_mac,
             'tid'   => 'new_dhcp_info_from_managed_network',
             'type'  => 'internal',
         );
     } else {
-        my %security_event_data = (
+        %security_event_data = (
             'mac'   => $client_mac,
             'tid'   => 'new_dhcp_info_from_production_network',
             'type'  => 'internal',
