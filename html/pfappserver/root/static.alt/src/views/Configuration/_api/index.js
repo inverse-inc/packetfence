@@ -812,7 +812,6 @@ export default {
   },
   deleteNetworkBehaviorPolicy: id => {
     return apiCall.delete(['config', 'network_behavior_policy', id])
-    })
   },
   /**
    * PKI
