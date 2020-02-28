@@ -15,7 +15,8 @@ const types = {
 const state = {
   cache: {}, // items details
   message: '',
-  itemStatus: ''
+  itemStatus: '',
+  policiesPromise: null
 }
 
 const getters = {
@@ -24,14 +25,17 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
+  all: ({ state }) => {
     const params = {
       sort: 'id',
       fields: ['id', 'description'].join(',')
     }
-    return api.networkBehaviorPolicies(params).then(response => {
-      return response.items
-    })
+    if (!state.policiesPromise) {
+      state.policiesPromise = api.networkBehaviorPolicies(params).then(response => {
+        return response.items
+      })
+    }
+    return state.policiesPromise
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
