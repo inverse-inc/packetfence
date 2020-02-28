@@ -840,8 +840,7 @@ sub setTaggedVlans {
     my @bits = split //, ("0" x 4096);
     foreach my $t (@vlans) {
         if ($t > 4096) {
-            $logger->warn("We do not support Tagged Vlans > 4096 for now on Cisco switches. Sorry... but we could! " .
-                      "interested in sponsoring the feature?");
+            $logger->warn("Tagged VLAN can't be greater than > 4096");
         } else {
             $bits[$t] = "1";
         }
