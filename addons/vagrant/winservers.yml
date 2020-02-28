@@ -58,6 +58,7 @@
       description: 'packetfence Domain Users Account'
       password: '{{ packetfence_domain_password }}'
       password_never_expires: yes
+      email: '{{ packetfence_domain_email }}'
       groups:
         - Domain Users
       state: present
