@@ -20,6 +20,8 @@ const (
 	seqnoReportingInterval       = time.Duration(10 * time.Second)
 	dbAvailableDetectionCooldown = time.Duration(1 * time.Minute)
 	bootAndRejoinClusterTimeout  = time.Duration(1 * time.Minute)
+
+	ChitChatPort = 4253
 )
 
 func main() {
@@ -35,7 +37,7 @@ func main() {
 
 func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 	log.LoggerWContext(ctx).Info("Started server to listen to sequence numbers from peers")
-	sAddr, err := net.ResolveUDPAddr("udp", ":4253")
+	sAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", ChitChatPort))
 	sharedutils.CheckError(err)
 	serv, err := net.ListenUDP("udp", sAddr)
 	defer serv.Close()
@@ -99,7 +101,7 @@ func seqnoReporting(ctx context.Context) {
 
 		pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
 		for _, server := range servers.Element {
-			conn, err := net.Dial("udp", server.ManagementIp+":4253")
+			conn, err := net.Dial("udp", fmt.Sprintf("%s:%d", server.ManagementIp, ChitChatPort))
 			if err != nil {
 				log.LoggerWContext(ctx).Warn("Unable to dial " + server.ManagementIp + ": " + err.Error())
 			}
