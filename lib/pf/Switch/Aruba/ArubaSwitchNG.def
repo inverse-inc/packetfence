@@ -7,7 +7,7 @@ radiusDisconnect = disconnect
 acceptVlan = <<EOT
 Tunnel-Medium-Type = 6
 Tunnel-Type = 13
-Tunnel-Private-Group-ID = $vlan
+Tunnel-Private-Group-Id = $vlan
 EOT
 
 acceptRole = <<EOT
