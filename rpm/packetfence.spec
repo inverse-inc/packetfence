@@ -848,6 +848,8 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
+%config(noreplace)      /usr/local/pf/conf/.gitignore
+                        /usr/local/pf/conf/.gitignore.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
 %config                 /usr/local/pf/conf/survey.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_cache.conf
