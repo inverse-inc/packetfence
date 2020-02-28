@@ -127,7 +127,7 @@ func GetLocalLiveSeqno(ctx context.Context) int {
 func GetLiveSeqno(ctx context.Context, host string) int {
 	ctx = log.AddToLogContext(ctx, "function", "GetLocalSeqno")
 	conf := DatabaseConfig(ctx)
-	db, err := db.ConnectDb(ctx, conf.User, conf.Pass, host, conf.Db)
+	db, err := db.ConnectDb(ctx, conf.Db)
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 		return DefaultSeqno
@@ -155,7 +155,7 @@ func GetLiveSeqno(ctx context.Context, host string) int {
 func IsDBAvailable(ctx context.Context, host string) bool {
 	ctx = log.AddToLogContext(ctx, "function", "IsDBAvailable")
 	conf := DatabaseConfig(ctx)
-	db, err := db.ConnectDb(ctx, conf.User, conf.Pass, host, conf.Db)
+	db, err := db.ConnectDb(ctx, conf.Db)
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 		return false
