@@ -31,6 +31,7 @@ Enhancements
 * Faster captive portal detection for Apple devices
 * Routes are now managed by the keepalived service
 * Parking security can now be trigger without limitation
+* Added a way to change the sql table used by pfconfig
 
 Bug Fixes
 +++++++++
