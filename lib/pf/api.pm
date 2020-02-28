@@ -163,16 +163,16 @@ sub radius_filter : Public {
 }
 
 sub radius_accounting : Public {
-    my ($class, %radius_request) = @_;
-
+    my ($class, $request) = @_;
+    my $return = $class->handle_accounting_metadata($request);
     my $radius = new pf::radius::custom();
-    my $return;
     eval {
-        $return = $radius->accounting(\%radius_request);
+        $return = $radius->accounting( $request, delete $request->{PF_HEADERS} // {} );
     };
     if ($@) {
         $logger->error("radius accounting failed with error: $@");
     }
+
     return $return;
 }
 
@@ -1455,7 +1455,6 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
     return $return;
 }
 
-
 sub handle_accounting_metadata : Public {
     my ($class, $RAD_REQUEST) = @_;
     $logger->debug("Entering handling of accounting metadata");
@@ -1472,7 +1471,7 @@ sub handle_accounting_metadata : Public {
         $client->notify("radius_update_locationlog", %$RAD_REQUEST);
     }
 
-    if ($acct_status_type != $ACCOUNTING::STOP){
+    if ($acct_status_type != $ACCOUNTING::STOP) {
         my $advanced = $pf::config::Config{advanced};
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
@@ -1496,7 +1495,7 @@ sub handle_accounting_metadata : Public {
         }
     }
 
-    if ($acct_status_type == $ACCOUNTING::STOP){
+    if ($acct_status_type == $ACCOUNTING::STOP) {
         my $profile_name = pf::Connection::ProfileFactory->get_profile_name($mac);
         if (pf::util::isenabled($pf::config::Profiles_Config{$profile_name}{unreg_on_acct_stop})) {
             $logger->info("Unregistering $mac on Accounting-Stop");
