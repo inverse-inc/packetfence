@@ -30,6 +30,7 @@ Enhancements
 * Better captive portal detection for Samsung devices
 * Faster captive portal detection for Apple devices
 * Routes are now managed by the keepalived service
+* Parking security can now be trigger without limitation
 
 Bug Fixes
 +++++++++
