@@ -34,6 +34,9 @@ sub import {
                         $FALSE
                     };
                 }
+            } elsif ($s =~ /^\?(.*)$/) {
+                my $n = $1;
+                push @supports, $n;
             } else {
                 *{"${package}::supports$s"} = \&support;
                 push @supports, $s;
