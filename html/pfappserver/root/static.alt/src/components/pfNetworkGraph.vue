@@ -324,7 +324,21 @@ export default {
     },
     options: {
       type: Object,
-      default: () => this.defaults
+      default: () => { return {
+        layout: 'radial',
+        palette: 'status',
+        legendPosition: 'bottom-right',
+        miniMapHeight: undefined,
+        miniMapWidth: undefined,
+        miniMapPosition: 'bottom-left',
+        minZoom: 0,
+        maxZoom: 4,
+        mouseWheelZoom: true,
+        padding: 25,
+        sort: 'last_seen',
+        order: 'ASC' // 'ASC' or 'DESC'
+      }
+    }
     },
     nodes: {
       type: Array,
