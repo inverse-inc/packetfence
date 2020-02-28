@@ -1109,6 +1109,13 @@ Next edit the pki providers (Configuration -> PKI Providers) and redefined the p
 And if you use oscp then change the url to use this one:
 http://127.0.0.1:22225/api/v1/pki/ocsp
 
+=== New MariaDB Galera recovery service ===
+
+This release adds a new service that will automatically attempt to recover broken Galera cluster members and can also perform a full recovery of a Galera cluster.
+These automated decisions may lead to potential data loss.
+If this is not acceptable for you disable the galera-autofix service in pf.conf or in "System Configuration->Services".
+More details and documentation is available in the "The galera-autofix service" section of the clustering guide.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.

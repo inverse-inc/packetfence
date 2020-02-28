@@ -20,6 +20,7 @@ New Features
 * CLI login to juniper switches
 * PacketFence pki service in golang
 * Support Aruba switchs using Aruba OS 16.10
+* Added service to correct broken Galera cluster members
 
 Enhancements
 ++++++++++++
