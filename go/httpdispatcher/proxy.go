@@ -532,7 +532,7 @@ func (p *Proxy) handleDetectionMechanismRegister(ctx context.Context, w http.Res
 		MAC, err := p.IP2Mac(ctx, ipAddress)
 
 		if err == nil {
-			if p.nodeStatus(ctx, MAC) && passThrough.checkDetectionMechanisms(ctx, fqdn) {
+			if p.nodeIsReg(ctx, MAC) && passThrough.checkDetectionMechanisms(ctx, fqdn) {
 				log.LoggerWContext(ctx).Info("Device register and match the portal detection mechanism for " + MAC)
 				p.reverse(ctx, w, r, r.Host)
 			}
@@ -541,7 +541,7 @@ func (p *Proxy) handleDetectionMechanismRegister(ctx context.Context, w http.Res
 }
 
 // nodeStatus search for status of the device
-func (p *Proxy) nodeStatus(ctx context.Context, mac string) bool {
+func (p *Proxy) nodeIsReg(ctx context.Context, mac string) bool {
 	status := false
 	var Status string
 	err := p.Nodedb.QueryRow(mac).Scan(&Status)
