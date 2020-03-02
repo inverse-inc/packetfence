@@ -495,6 +495,7 @@ github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6/go.mod h1:unv
 github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6/go.mod h1:unv1cVDLrlwXyLhg2b+QkK6rZ0GQ6DGbZOkGCfl10/M=
 github.com/inverse-inc/go-radius v0.0.0-20200130155649-ef3018b84628 h1:cZR335A3gsmQc5w2fGSo8lzAUhPXNRXPETp+H7iOBVg=
 github.com/inverse-inc/go-radius v0.0.0-20200130155649-ef3018b84628/go.mod h1:zEitMB62omLMul756WRnH7tIY1of7+k2cHNDQCerz2c=
+github.com/inverse-inc/go-radius v0.0.0-20200220182054-865ddefbbf43 h1:vCZKrirRXDrooVHM3PBK2elOKoFxcEJYkO4BSGf3fpw=
 github.com/inverse-inc/go-radius v0.0.0-20200220182054-865ddefbbf43/go.mod h1:zEitMB62omLMul756WRnH7tIY1of7+k2cHNDQCerz2c=
 github.com/inverse-inc/packetfence v0.0.0-20191015112529-47dcd5f95b62 h1:NnT9ApnVE34pJbucW6nxY+7a9NGW3a0irFYiiOJEo7A=
 github.com/inverse-inc/packetfence v0.0.0-20191021142437-789414441c4c h1:HDJDKSHaZfMhcbaWWHpEJ67pUUGlc+mqv1kSAhEUuB4=
