@@ -13,10 +13,18 @@ pf::services::manager::galera_autofix
 
 use strict;
 use warnings;
+use pf::cluster;
 use Moo;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'galera-autofix' } );
+
+
+sub isManaged {
+    my ($self) = @_;
+    return $cluster_enabled;
+}
+
 
 =head1 AUTHOR
 
