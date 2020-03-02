@@ -268,10 +268,10 @@ sub delete {
 
     my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
-
-    unless (node_delete($mac)) {
+    my ($deleted, $msg) = node_delete($mac);
+    unless ($deleted) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "The node can't be delete because it's still active.";
+        $status_msg = $msg;
     }
 
     return ($status, $status_msg);

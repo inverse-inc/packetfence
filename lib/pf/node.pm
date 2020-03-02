@@ -177,15 +177,14 @@ sub node_delete {
     $mac = clean_mac($mac);
 
     if ( !node_exist($mac) ) {
-        $logger->error("delete of non-existent node '$mac' failed");
-        return ($FALSE);
+        return ($FALSE, "delete of non-existent node '$mac' failed");
     }
 
     require pf::locationlog;
     my ($can_delete, $msg) = _can_delete($mac);
     if (!$can_delete) {
         $logger->warn($msg);
-        return ($FALSE);
+        return ($FALSE, $msg);
     }
 
     my %options = (
@@ -200,11 +199,11 @@ sub node_delete {
 
     my ($status, $count) = pf::dal::node->remove_items(%options);
     if (is_error($status)) {
-        return ($FALSE);
+        return ($FALSE, "Unable to delete '$mac' internal error");
     }
 
     $logger->info("node $mac deleted");
-    return ($TRUE);
+    return ($TRUE, '');
 }
 
 our %DEFAULT_NODE_VALUES = (
