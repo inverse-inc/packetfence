@@ -966,6 +966,7 @@ Remote MariaDB slave server
 
 In cluster layer3 configuration you can configure a remote MariaDB server in slave mode. This will allow the primary database to be replicated from the central DC to the remote site.
 In normal operation the remote server will use the main sites database. However, when the link is broken the remote server will fallback and use its own local database in read-only mode.
+`packetfence-haproxy-db` service is responsible to detect when link between DC2 and DC1 is down.
 
 For this configuration at least 3 servers are needed at the main site and at least 1 server is needed at the remote site.
 
@@ -1159,7 +1160,6 @@ At the end it you want to check the status of the slave server for debug purpose
 
  SHOW SLAVE STATUS;
 
-HAProxy daemon is responsible to detect when link between DC2 and DC1 is down.
 
 Advanced configuration
 ----------------------
