@@ -1034,6 +1034,16 @@ sub status_to_error_msg {
     return exists $STATUS_TO_MSG{$status} ? $STATUS_TO_MSG{$status} : "Server error";
 }
 
+sub can_remove {
+    my ($self) = @_;
+    my ($result, $msg) = pf::node::_can_delete($self->id);
+    if ($result) {
+        return (200, '');
+    }
+
+    return (422, $msg);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

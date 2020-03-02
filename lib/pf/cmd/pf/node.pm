@@ -273,19 +273,14 @@ handles 'pfcmd node delete' command
 sub action_delete {
     my ($self) = @_;
     my ($mac) = $self->action_args;
-    unless (node_exist($mac)) {
-        print STDERR "node '$mac' does not exist\n";
-        return $EXIT_FAILURE;
+    my ($deleted, $error) = node_delete($mac);
+    if ($deleted) {
+        return $EXIT_SUCCESS;
     }
-    my $r = node_delete($mac);
-    unless($r) {
-        my $error = "Cannot delete node $mac since there are some records in locationlog table "
-                    . "indicating that this node might still be connected and active on the network ";
-        print STDERR $error,"\n";
-        get_logger->error($error);
-        return $EXIT_FAILURE;
-    }
-    return $EXIT_SUCCESS;
+
+    print STDERR $error,"\n";
+    get_logger->error($error);
+    return $EXIT_FAILURE;
 }
 
 =head2 parse_delete
