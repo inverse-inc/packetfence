@@ -12,10 +12,11 @@ const (
 )
 
 type NetFlowBandwidthAccountingRec struct {
-	Ip         string
-	TimeBucket time.Time
-	InBytes    uint64
-	OutBytes   uint64
+	Ip            string
+	UniqueSession string
+	TimeBucket    time.Time
+	InBytes       uint64
+	OutBytes      uint64
 }
 
 func (rec *NetFlowBandwidthAccountingRec) ToSQLSelect() string {
@@ -23,7 +24,9 @@ func (rec *NetFlowBandwidthAccountingRec) ToSQLSelect() string {
 	sqlBytes := buffer[:0] // Use buffer as the backing of the slice
 	sqlBytes = append(sqlBytes, []byte(`SELECT _latin1"`)...)
 	sqlBytes = append(sqlBytes, []byte(rec.Ip)...)
-	sqlBytes = append(sqlBytes, []byte(`" as ip, `)...)
+	sqlBytes = append(sqlBytes, []byte(`" as ip, "`)...)
+	sqlBytes = append(sqlBytes, []byte(rec.UniqueSession)...)
+	sqlBytes = append(sqlBytes, []byte(`" as unique_session_id, `)...)
 	sqlBytes = strconv.AppendUint(sqlBytes, rec.InBytes, 10)
 	sqlBytes = append(sqlBytes, []byte(` as in_bytes_, `)...)
 	sqlBytes = strconv.AppendUint(sqlBytes, rec.OutBytes, 10)
@@ -39,28 +42,15 @@ func (array *NetFlowBandwidthAccountingRecs) AppendEmpty() {
 	*array = append(*array, NetFlowBandwidthAccountingRec{})
 }
 
-/*
-INSERT INTO bandwidth_accounting (tenant_id, mac, time_bucket, in_bytes, out_bytes)
-    SELECT * FROM (
-        SELECT time_bucket, tenant_id, mac, in_bytes_, out_bytes_ FROM (
-            SELECT
-                "1.2.3.4" as ip , 2 as in_bytes_, 3 as out_bytes_, '1975-06-11 23:50:00' as time_bucket
-            UNION ALL SELECT
-                "1.2.3.5" as ip , 2 as in_bytes_, 3 as out_bytes_, '1975-06-11 23:50:00' as time_bucket
-        ) as time_buckets INNER JOIN ip4log as ip4 ON time_buckets.ip = ip4.ip
-    ) as x
-ON DUPLICATE KEY UPDATE in_bytes = in_bytes + VALUES(in_bytes), out_bytes = out_bytes + VALUES(out_bytes);
-*/
-
 func (array NetFlowBandwidthAccountingRecs) ToSQL() string {
 	if len(array) == 0 {
 		return ""
 	}
 
 	sql :=
-		`INSERT INTO bandwidth_accounting (tenant_id, mac, time_bucket, in_bytes, out_bytes)
+		`INSERT INTO bandwidth_accounting (tenant_id, unique_session_id, mac, time_bucket, in_bytes, out_bytes)
     SELECT * FROM (
-        SELECT time_bucket, tenant_id, mac, in_bytes_, out_bytes_ FROM (
+        SELECT time_bucket, unique_session_id, tenant_id, mac, in_bytes_, out_bytes_ FROM (
             `
 	first := array[0]
 	sql += first.ToSQLSelect()
@@ -84,17 +74,17 @@ func (h *PfAcct) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
 }
 
 func (h *PfAcct) IpAddressAllowed(ip net.IP) bool {
-    if len(h.AllowedNetworks) == 0 {
-        return true
-    }
+	if len(h.AllowedNetworks) == 0 {
+		return true
+	}
 
-    for _, n := range h.AllowedNetworks {
-        if n.Contains(ip) {
-            return true
-        }
-    }
+	for _, n := range h.AllowedNetworks {
+		if n.Contains(ip) {
+			return true
+		}
+	}
 
-    return false
+	return false
 }
 
 func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Flow) NetFlowBandwidthAccountingRecs {
