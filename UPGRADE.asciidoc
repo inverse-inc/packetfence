@@ -1109,12 +1109,23 @@ Next edit the pki providers (Configuration -> PKI Providers) and redefined the p
 And if you use oscp then change the url to use this one:
 http://127.0.0.1:22225/api/v1/pki/ocsp
 
-=== New MariaDB Galera recovery service ===
+=== New MariaDB Galera recovery service
 
 This release adds a new service that will automatically attempt to recover broken Galera cluster members and can also perform a full recovery of a Galera cluster.
 These automated decisions may lead to potential data loss.
 If this is not acceptable for you disable the galera-autofix service in pf.conf or in "System Configuration->Services".
 More details and documentation is available in the "The galera-autofix service" section of the clustering guide.
+
+=== Removal of currently-at file and configurator display
+
+The file [filename]`/usr/local/pf/conf/currently-at` is no longer needed, it can be removed:
+
+[source,bash]
+----
+rm -rf /usr/local/pf/conf/currently-at
+----
+
+You also need to disable access to configurator by going in `_Configuration -> System configuration -> Main configuration -> Advanced_` menu
 
 === Database schema
 
@@ -1128,12 +1139,6 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
 ----
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence X.Y.Z):
-
-[source,bash]
-----
-cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
-----
 
 == Archived upgrade notes
 

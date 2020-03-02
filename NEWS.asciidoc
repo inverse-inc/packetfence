@@ -34,6 +34,7 @@ Enhancements
 * Routes are now managed by the keepalived service
 * Parking security can now be trigger without limitation
 * Added a way to change the sql table used by pfconfig
+* Showing the configurator is now configurable (#5121)
 
 Bug Fixes
 +++++++++
