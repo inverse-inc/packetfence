@@ -6,8 +6,9 @@ import (
 )
 
 func TestNetFlowV5ToBandwidthAccounting(t *testing.T) {
+	pfacct := &PfAcct{TimeDuration: DefaultTimeDuration}
 	flow := netflow5.NetFlow5{}
-	ba := NetFlowV5ToBandwidthAccounting(&flow.Header, flow.FlowArray())
+	ba := pfacct.NetFlowV5ToBandwidthAccounting(&flow.Header, flow.FlowArray())
 	_ = ba
 
 }
