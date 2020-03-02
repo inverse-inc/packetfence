@@ -79,20 +79,21 @@ func IpAddressAllowed(ip string) bool {
 }
 
 func (h *PfAcct) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
-	recs := NetFlowV5ToBandwidthAccounting(header, flows)
+	recs := h.NetFlowV5ToBandwidthAccounting(header, flows)
 	sql := recs.ToSQL()
 	if sql != "" {
 		h.Db.Exec(sql)
 	}
 }
 
-func NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Flow) NetFlowBandwidthAccountingRecs {
+func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Flow) NetFlowBandwidthAccountingRecs {
 	recs := NetFlowBandwidthAccountingRecs{}
 	lookup := map[string]int{}
 	index := 0
 	srcIndex := 0
 	dstIndex := 0
 	unixTime := time.Unix(int64(header.UnixSecs()), int64(header.UnixNsecs()))
+	unixTime = unixTime.Truncate(h.TimeDuration)
 	for _, flow := range flows {
 		srcIndex = -1
 		dstIndex = -1
@@ -134,10 +135,4 @@ func NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Fl
 	}
 
 	return recs
-}
-
-func HandleNetFlowV5(header *netflow5.Header, flows []netflow5.Flow) {
-	recs := NetFlowV5ToBandwidthAccounting(header, flows)
-	sql := recs.ToSQL()
-	_ = sql
 }
