@@ -1,16 +1,16 @@
 package jsonrpc2
 
 import (
+	"bytes"
 	"context"
-    "io/ioutil"
-    "bytes"
-    "net"
-	"time"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"io/ioutil"
+	"net"
 	"net/http"
+	"time"
 )
 
 var httpClient *http.Client = &http.Client{
@@ -44,20 +44,20 @@ type JsonRPC2Request struct {
 }
 
 type JsonRPC2Error struct {
-    Code int `json:"code"`
-    Message string `json:"message"`
-    Data    interface{} `json:"data,omitempty"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 func (e *JsonRPC2Error) Error() string {
-    return e.Message
+	return e.Message
 }
 
 type JsonRPC2Response struct {
-	JsonRPC  string      `json:"jsonrpc"`
-    Result   interface{} `json:"result,omitempty"`
-    Error    *JsonRPC2Error `json:"error,omitempty"`
-	Id       uint        `json:"id"`
+	JsonRPC string         `json:"jsonrpc"`
+	Result  interface{}    `json:"result,omitempty"`
+	Error   *JsonRPC2Error `json:"error,omitempty"`
+	Id      uint           `json:"id"`
 }
 
 func NewClientFromConfig(ctx context.Context) *Client {
@@ -96,28 +96,27 @@ func (c *Client) Call(method string, args interface{}, tenant_id int) (interface
 		Id:       c.Id,
 	}
 
-    r, err := c.buildRequest(&request)
-    if err != nil {
-        return nil, err
-    }
+	r, err := c.buildRequest(&request)
+	if err != nil {
+		return nil, err
+	}
 
 	resp, err := httpClient.Do(r)
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    
-    body, err := ioutil.ReadAll(resp.Body)
-    resp.Body.Close()
-    var response JsonRPC2Response
-    err = json.Unmarshal(body, &response)
-    if err != nil {
-        return nil, err
-    }
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	var response JsonRPC2Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
 
-    if response.Error != nil {
-        return nil, response.Error
-    }
+	if response.Error != nil {
+		return nil, response.Error
+	}
 
 	return response.Result, nil
 }
@@ -131,25 +130,25 @@ func (c *Client) Notify(method string, args interface{}, tenant_id int) error {
 		Id:       0,
 	}
 
-    r, err := c.buildRequest(&request)
-    if err != nil {
-        return err
-    }
+	r, err := c.buildRequest(&request)
+	if err != nil {
+		return err
+	}
 
 	resp, err := httpClient.Do(r)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    _, err = ioutil.ReadAll(resp.Body)
-    resp.Body.Close()
-    return nil
+	_, err = ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	return nil
 }
 
 func (c *Client) buildRequest(jr *JsonRPC2Request) (*http.Request, error) {
 	uri := fmt.Sprintf("%s://%s:%s", c.Proto, c.Host, c.Port)
 	var data []byte
-    var err error
+	var err error
 	if data, err = json.Marshal(jr); err != nil {
 		return nil, err
 	}
