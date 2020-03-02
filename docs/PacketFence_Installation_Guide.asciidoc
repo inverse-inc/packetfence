@@ -285,8 +285,6 @@ Once all services are started, you will automatically be redirected to the
 PacketFence's web admin interface. It is located at
 https://@ip_of_packetfence:1443/admin. Open that link and log in using the username/password specified in Step 5.
 
-PacketFence's configurator also creates the file `/usr/local/pf/conf/currently-at` to prevent new access to configurator.
-
 Connecting PacketFence to Microsoft Active Directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
