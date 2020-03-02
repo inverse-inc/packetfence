@@ -122,6 +122,7 @@ my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/sbin/pfdetect
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/addons/sourcefire/pfdetect.pl
+   /usr/local/pf/sbin/galera-autofix
 );
 
 sub get_all_perl_binaries {
