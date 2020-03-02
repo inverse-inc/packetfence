@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
 \! echo "Alter table radius_nas";
 ALTER TABLE radius_nas
   ADD COLUMN IF NOT EXISTS unique_session_attributes varchar(255),
-  ADD INDEX IF NOT EXISTS radius_nas_start_ip_end_time (start_ip, end_ip);
+  ADD INDEX IF NOT EXISTS radius_nas_start_ip_end_ip (start_ip, end_ip)
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
