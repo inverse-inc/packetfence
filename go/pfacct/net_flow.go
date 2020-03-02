@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/inverse-inc/packetfence/go/netflow5"
+	"net"
 	"strconv"
 	"time"
 )
@@ -74,16 +75,26 @@ ON DUPLICATE KEY UPDATE in_bytes = in_bytes + VALUES(in_bytes), out_bytes = out_
 	return sql
 }
 
-func IpAddressAllowed(ip string) bool {
-	return true
-}
-
 func (h *PfAcct) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
 	recs := h.NetFlowV5ToBandwidthAccounting(header, flows)
 	sql := recs.ToSQL()
 	if sql != "" {
 		h.Db.Exec(sql)
 	}
+}
+
+func (h *PfAcct) IpAddressAllowed(ip net.IP) bool {
+    if len(h.AllowedNetworks) == 0 {
+        return true
+    }
+
+    for _, n := range h.AllowedNetworks {
+        if n.Contains(ip) {
+            return true
+        }
+    }
+
+    return false
 }
 
 func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Flow) NetFlowBandwidthAccountingRecs {
@@ -98,20 +109,24 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 		srcIndex = -1
 		dstIndex = -1
 		var found bool
-		srcIp := flow.SrcIP().String()
-		if IpAddressAllowed(srcIp) {
-			if srcIndex, found = lookup[srcIp]; !found {
+		var srcIpStr, dstIpStr string
+		srcIP := flow.SrcIP()
+		if h.IpAddressAllowed(srcIP) {
+			srcIpStr = srcIP.String()
+			if srcIndex, found = lookup[srcIpStr]; !found {
 				recs.AppendEmpty()
-				lookup[srcIp] = index
+				lookup[srcIpStr] = index
 				srcIndex = index
 				index++
 			}
 		}
-		dstIp := flow.DstIP().String()
-		if IpAddressAllowed(dstIp) {
-			if dstIndex, found = lookup[dstIp]; !found {
+
+		dstIP := flow.DstIP()
+		if h.IpAddressAllowed(dstIP) {
+			dstIpStr := dstIP.String()
+			if dstIndex, found = lookup[dstIpStr]; !found {
 				recs.AppendEmpty()
-				lookup[dstIp] = index
+				lookup[dstIpStr] = index
 				dstIndex = index
 				index++
 			}
@@ -119,14 +134,14 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 
 		layer3Bytes := uint64(flow.DPkts())
 		if srcIndex != -1 {
-			recs[srcIndex].Ip = srcIp
+			recs[srcIndex].Ip = srcIpStr
 			recs[srcIndex].TimeBucket = unixTime
 			recs[srcIndex].InBytes = 0
 			recs[srcIndex].OutBytes += layer3Bytes
 		}
 
 		if dstIndex != -1 {
-			recs[dstIndex].Ip = dstIp
+			recs[dstIndex].Ip = dstIpStr
 			recs[dstIndex].TimeBucket = unixTime
 			recs[dstIndex].InBytes += layer3Bytes
 			recs[dstIndex].OutBytes = 0

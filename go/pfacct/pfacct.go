@@ -5,14 +5,16 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
+	"net"
 	"time"
 )
 
 const DefaultTimeDuration = 5 * time.Minute
 
 type PfAcct struct {
-	Db           *sql.DB
-	TimeDuration time.Duration
+	Db              *sql.DB
+	TimeDuration    time.Duration
+	AllowedNetworks []net.IPNet
 	RadiusStatements
 }
 
