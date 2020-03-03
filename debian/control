@@ -131,7 +131,7 @@ Depends: ${misc:Depends}, vlan,
 # used by bin/pftest
  libio-interactive-perl,
 # cluster
- haproxy (>= 1.8), keepalived (>= 1.4.3), arping,
+ haproxy (>= 1.8), keepalived (>= 2.0), arping,
 # monitoring
  fping, python-mysqldb,
 # EAP TLS
