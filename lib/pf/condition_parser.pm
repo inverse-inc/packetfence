@@ -396,6 +396,11 @@ our %OPS_WITH_VALUES = (
     'NOT' => 'not',
 );
 
+our %OBJ_OPS = (
+    and => '&&',
+    or  => '||',
+);
+
 our %OP_BINARY = (
 #    %OPS_WITH_VALUES
     "==" => 'equals',
@@ -407,6 +412,8 @@ our %OP_BINARY = (
     "<"  => 'lower',
     "<=" => 'lower_equals',
 );
+
+our %ROP_BINARY = map { $OP_BINARY{$_} => $_ } keys %OP_BINARY;
 
 sub ast_to_object {
     my ($ast) = @_;
@@ -428,6 +435,29 @@ sub ast_to_object {
         return undef;
     }
     return { op => "var" , field => $ast };
+}
+
+sub object_to_str {
+    my ($obj) = @_;
+    my $op = $obj->{op};
+    if (exists $OBJ_OPS{$op}) {
+        my $values = $obj->{values};
+        if ( @$values == 1 ) {
+            return object_to_str(@$values);
+        }
+
+        return join('', '(', join( $OBJ_OPS{$op}, map { object_to_str($_) } @$values ), ')' );
+    }
+
+    if (exists $ROP_BINARY{$op}) {
+        my $value = $obj->{value};
+        $value =~ s/(["\\])/\\$1/g;
+        return "$obj->{field} $ROP_BINARY{$op} \"$value\"";
+    }
+
+    my $value = $obj->{value};
+    $value =~ s/(["\\])/\\$1/g;
+    return "$op($obj->{field}, \"$value\")";
 }
 
 =head1 AUTHOR

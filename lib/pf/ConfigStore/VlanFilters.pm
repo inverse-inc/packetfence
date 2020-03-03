@@ -40,6 +40,8 @@ sub cleanupBeforeCommit {
         $item->{"action.$i"} = $action;
         $i++;
     }
+
+    $item->{condition} = pf::condition_parser::object_to_str($item->{condition});
     $self->flatten_list($item, $self->_fields_expanded);
     return ;
 }
