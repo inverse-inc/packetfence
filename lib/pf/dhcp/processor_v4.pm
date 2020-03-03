@@ -367,7 +367,7 @@ sub parse_dhcp_request {
             'type'  => 'internal',
         );
     }
-    $cache->set($client_mac, %security_event_data);
+    $cache->set($client_mac, \%security_event_data);
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
     # in which case we are not interested in detecting rogue DHCP
