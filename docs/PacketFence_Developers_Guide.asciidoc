@@ -43,6 +43,8 @@ The latest version of this guide is available at https://packetfence.org/documen
 
 These files are included in the package and release tarballs.
 
+include::developer/template_switches.asciidoc[]
+
 Documentation
 -------------
 
@@ -706,6 +708,7 @@ sub getRegisteredRole {
 As you can see, the function receives several parameters (such as the switch and full node details)
 which allow you to return the VLAN in a way that matches exactly your needs!
 
+
 SNMP
 ----
 
@@ -1061,7 +1064,6 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 * Add switch to the Network Devices Guide's switch chart
 * Add switch to the chart in `README.network-devices`
 
-include::developer/template_switches.asciidoc[]
 
 == PacketFence builds
 
