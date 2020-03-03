@@ -33,6 +33,14 @@ has_field 'condition' => (
     required => 1,
 );
 
+has_field 'status' => (
+   type => 'Toggle',
+   label => 'Enable Rule',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled'
+);
+
 has_field 'scopes' => (
     type     => 'Select',
     multiple => 1,
