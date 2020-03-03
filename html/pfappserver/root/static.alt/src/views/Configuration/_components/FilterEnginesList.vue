@@ -3,6 +3,9 @@
     <b-card no-body>
       <b-card-header>
         <h4 class="d-inline mb-0" v-t="'Filter Engines'"></h4>
+
+<pre>{{ JSON.stringify(collections, null, 2) }}</pre>
+
       </b-card-header>
       <b-card class="m-3" v-for="(collection, index) in collections" :key="index">
         <h4 class="mb-3">{{ collection.name }}</h4>
@@ -77,8 +80,8 @@ export default {
         }
       })
     },
-    sort (filterEngine, event) {
-/*
+    sort (_collection, event) {
+      const { collection, items } = _collection
       const { oldIndex, newIndex } = event // shifted, not swapped
       const tmp = items[oldIndex]
       if (oldIndex > newIndex) {
@@ -93,14 +96,10 @@ export default {
         }
       }
       items[newIndex] = tmp
-      this.sources = [ // rebuild sources
-        ...this.sources.filter(_item => !items.map(item => item.id).includes(_item.id)), // all but sorted items
-        ...items // sorted items
-      ]
-      this.$store.dispatch('$_sources/sortAuthenticationSources', items.map(item => item.id)).then(() => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Authentication sources resorted.') })
+// resort
+      this.$store.dispatch('$_filter_engines/sortFilterEngines', { collection, data: items.map(item => item.id) }).then(() => {
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('{name} resorted.', { name: this.$store.getters['$_filter_engines/collectionToName'](collection) } ) })
       })
-*/
     },
     remove () {
 
@@ -111,7 +110,6 @@ export default {
       this.$router.push({ name: 'cloneFilterEngine', params: { collection, id } })
     },
     view (_collection, item) {
-console.log('view', { _collection, item })
       const { collection } = _collection
       const { id } = item
       this.$router.push({ name: 'filter_engine', params: { collection, id } })
@@ -119,7 +117,7 @@ console.log('view', { _collection, item })
     enable (_collection, item) {
       const { collection } = _collection
       const { id } = item
-      return (value) => { // 'enabled'
+      return () => { // 'enabled'
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_filter_engines/enableFilterEngine', { collection, id }).then(() => {
             resolve('enabled')
@@ -132,7 +130,7 @@ console.log('view', { _collection, item })
     disable (_collection, item) {
       const { collection } = _collection
       const { id } = item
-      return (value) => { // 'disabled'
+      return () => { // 'disabled'
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_filter_engines/disableFilterEngine', { collection, id }).then(() => {
             resolve('disabled')

@@ -375,7 +375,7 @@ export default {
     })
   },
   sortFilterEngines: ({ collection, params }) => {
-    return apiCall.patch(['config', 'filter_engines', collection], params).then(response => {
+    return apiCall.patch(['config', 'filter_engines', collection, 'sort_items'], params).then(response => {
       return response.data
     })
   },

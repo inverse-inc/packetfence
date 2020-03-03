@@ -14,27 +14,27 @@ import { pfFieldType as fieldType } from '@/globals/pfField'
 export const columns = [
   {
     key: 'status',
-    label: i18n.t('Enabled'),
-    sortable: true,
+    label: i18n.t('Status'),
+    sortable: false,
     visible: true
   },
   {
     key: 'id',
     label: i18n.t('Name'),
     required: true,
-    sortable: true,
+    sortable: false,
     visible: true
   },
   {
     key: 'role',
     label: i18n.t('Role'),
-    sortable: true,
+    sortable: false,
     visible: true
   },
   {
     key: 'scopes',
     label: i18n.t('Scopes'),
-    sortable: true,
+    sortable: false,
     visible: true
   },
   {

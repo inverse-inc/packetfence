@@ -19,7 +19,7 @@
         <span v-else-if="isClone" v-html="$t('Clone Filter {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Filter') }}</span>
       </h4>
-      <b-badge class="ml-2" variant="secondary" v-t="collection"></b-badge>
+      <b-badge class="ml-2" variant="secondary">{{ collectionName }}</b-badge>
 
 <pre>{{ JSON.stringify(form, null, 2) }}</pre>
 
@@ -112,6 +112,9 @@ export default {
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
+    },
+    collectionName () {
+      return this.$store.getters['$_filter_engines/collectionToName'](this.collection)
     }
   },
   methods: {

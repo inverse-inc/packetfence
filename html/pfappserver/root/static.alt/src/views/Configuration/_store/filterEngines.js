@@ -20,7 +20,11 @@ const state = {
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
-  isLoading: state => state.itemStatus === types.LOADING
+  isLoading: state => state.itemStatus === types.LOADING,
+
+  collectionToName: state => collection => {
+    return state.cache[collection].name
+  }
 }
 
 const actions = {
@@ -39,18 +43,14 @@ const actions = {
   },
   getCollection: ({ state, commit, dispatch }, collection) => {
     if (state.cache[collection] && state.cache[collection].items) {
-      return Promise.resolve(state.cache[collection]).then(collection => {
-        const { items, ...remainder } = collection
-        return { ...remainder, ...{ items: Object.values(items) } }
-      })
+      return Promise.resolve(state.cache[collection]).then(collection => collection)
     }
     return dispatch('getCollections').then(() => {
       commit('COLLECTION_REQUEST')
       return api.filterEnginesCollection(collection).then(response => {
         const { items } = response
         commit('COLLECTION_REPLACED', { collection, items })
-        const { items: _items, ...remainder } = state.cache[collection]
-        return { ...remainder, ...{ items: Object.values(_items) } }
+        return state.cache[collection]
       }).catch((err) => {
         commit('COLLECTION_ERROR', err.response)
         throw err
@@ -146,12 +146,12 @@ console.log('deleteFilterEngine', { collection, id, response })
     const params = {
       items: data
     }
-    commit('ITEM_REQUEST', types.LOADING)
+    commit('COLLECTION_REQUEST', types.LOADING)
     return api.sortFilterEngines({ collection, params }).then(response => {
-      commit('ITEM_SUCCESS')
+      commit('COLLECTION_RESORTED', { collection, params })
       return response
     }).catch(err => {
-      commit('ITEM_ERROR', err.response)
+      commit('COLLECTION_ERROR', err.response)
       throw err
     })
   },
@@ -214,11 +214,15 @@ const mutations = {
     if (!(collection in state.cache)) {
       Vue.set(state.cache, collection, {})
     }
-    Vue.set(state.cache[collection], 'items', items.reduce((items, item) => {
-      const { id } = item
-      items[id] = item
-      return items
-    }, {}))
+    Vue.set(state.cache[collection], 'items', items)
+  },
+  COLLECTION_RESORTED: (state, { collection, params }) => {
+    state.itemStatus = types.SUCCESS
+    const { items: order } = params
+    let items = Object.values(state.cache[collection].items).sort((a, b) => {
+      return order.findIndex(i => i === a.id) - order.findIndex(i => i === b.id)
+    })
+    Vue.set(state.cache[collection], 'items', items)
   },
   COLLECTION_ERROR: (state, response) => {
     state.itemStatus = types.ERROR
