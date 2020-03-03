@@ -402,7 +402,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}%{_unitdir}/packetfence-pfperl-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service %{buildroot}%{_unitdir}/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service %{buildroot}%{_unitdir}/packetfence-pfbandwidthd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
@@ -1208,7 +1207,6 @@ fi
 %doc                    /usr/local/pf/README.md
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb

@@ -107,10 +107,6 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "pfdhcp"' ]
     },
     {
-        'name'       => 'pfbandwidthd.log',
-        'conditions' => [ '$programname == "pfbandwidthd"' ]
-    },
-    {
         'name'       => 'pfconfig.log',
         'conditions' => [ '$programname == "pfconfig"' ]
     },
