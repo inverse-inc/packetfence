@@ -154,6 +154,7 @@ EOT
 
 backend $cluster_ip-backend
         balance source
+        option httpchk GET /captive-portal HTTP/1.0\\r\\nUser-agent:\\ HAPROXY-load-balancing-check
         option httpclose
         option forwardfor
 EOT
