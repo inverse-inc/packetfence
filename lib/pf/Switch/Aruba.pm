@@ -75,7 +75,6 @@ sub description { 'Aruba Networks' }
 use pf::roles::custom;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::node qw(node_attributes);
 
 =head1 SUBROUTINES
 
@@ -533,7 +532,6 @@ sub radiusDisconnect {
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
-        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
