@@ -30,6 +30,7 @@ case "$1" in
         find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
         find $PACKETFENCE/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
+        chmod 2644 -R $PACKETFENCE/var/conf
         chmod 2775 -R $PACKETFENCE/logs
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
