@@ -37,6 +37,7 @@ Enhancements
 * Showing the configurator is now configurable (#5121)
 * Node deletion in consistent between the the API and pf::node::node_delete (#5088)
 * Allow vlan number greater than 1023 for floating devices.
+* Improved captive-portal health checks in monit (#5185)
 
 Bug Fixes
 +++++++++
