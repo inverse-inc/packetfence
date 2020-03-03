@@ -26,19 +26,28 @@ Name
 has_field 'field' => (
     type     => 'Text',
     label    => 'Field',
-    required => 1,
 );
 
 has_field 'value' => (
     type     => 'Text',
     label    => 'Value',
-    required => 1,
 );
 
 has_field 'op' => (
     type     => 'Select',
     label    => 'Value',
     required => 1,
+    options => [
+        map { { label => $_, value => $_}} qw(
+            and
+            or
+            contains
+            regex
+            starts_with
+            equals
+            not_equals
+        )
+    ],
 );
 
 has_field values => (
