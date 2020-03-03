@@ -263,20 +263,20 @@ sub _trigger_new_dhcp_security_event {
 
     my $apiclient = pf::client::getClient;
 
-    my %security_event_data = (
+    my $security_event_data = {
         'mac'   => $mac,
         'tid'   => 'new_dhcp_info',
         'type'  => 'internal',
-    );
+    };
 
-    $apiclient->notify('trigger_security_event', %security_event_data);
+    $apiclient->notify('trigger_security_event', %$security_event_data);
 
     my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
 
-    %security_event_data = $cache->get($mac);
+    $security_event_data = $cache->get($mac);
 
-    if (%security_event_data) {
-        $apiclient->notify('trigger_security_event', %security_event_data);
+    if ($security_event_data) {
+        $apiclient->notify('trigger_security_event', %$security_event_data);
         $cache->remove($mac);
     }
 }
