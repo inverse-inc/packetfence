@@ -15,7 +15,7 @@ fi
 netstat -nlp | grep $master_pid | grep :80 | awk '{ print $4 }' > $tmpfile
 
 while read host; do
-  if ! curl -m 10 -I "$host/captive-portal" | head -n 1 | grep "HTTP/1.1 200 OK" ; then
+  if ! curl -m 10 -I "$host/captive-portal" | head -n 1 | egrep "HTTP/1.1 (200|302)" ; then
     logger "$script_name Wrong return code for captive-portal on host $host"
     rm $tmpfile
     exit 1
