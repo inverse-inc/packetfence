@@ -154,6 +154,34 @@ console.log('deleteFilterEngine', { collection, id, response })
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  enableFilterEngine: ({ commit, dispatch }, { collection, id }) => {
+    return dispatch('getCollections').then(() => {
+      commit('ITEM_REQUEST')
+      const { [collection]: { resource } = {} } = state.cache
+      const data = { id, status: 'enabled' }
+      return api.updateFilterEngine({ resource, id, data }).then(response => {
+        commit('ITEM_ENABLED', { collection, id })
+        return response
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        throw err
+      })
+    })
+  },
+  disableFilterEngine: ({ commit, dispatch }, { collection, id }) => {
+    return dispatch('getCollections').then(() => {
+      commit('ITEM_REQUEST')
+      const { [collection]: { resource } = {} } = state.cache
+      const data = { id, status: 'disabled' }
+      return api.updateFilterEngine({ resource, id, data }).then(response => {
+        commit('ITEM_DISABLED', { collection, id })
+        return response
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        throw err
+      })
+    })
   }
 }
 
@@ -209,6 +237,14 @@ const mutations = {
       Vue.set(state.cache, collection, {})
     }
     Vue.set(state.cache[collection], id, item)
+  },
+  ITEM_ENABLED: (state, { collection, id }) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache[collection][id], 'status', 'enabled')
+  },
+  ITEM_DISABLED: (state, { collection, id }) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache[collection][id], 'status', 'disabled')
   },
   ITEM_SUCCESS: (state) => {
     state.itemStatus = types.SUCCESS

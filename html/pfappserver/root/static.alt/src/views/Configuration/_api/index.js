@@ -385,7 +385,7 @@ export default {
     })
   },
   updateFilterEngine: ({ resource, id, data }) => {
-    return apiCall.put(['config', 'filter_engines', resource, id], data).then(response => {
+    return apiCall.patch(['config', 'filter_engines', resource, id], data).then(response => {
       return response.data
     })
   },

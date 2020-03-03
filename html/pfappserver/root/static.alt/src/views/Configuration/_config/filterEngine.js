@@ -1,11 +1,15 @@
 /* eslint-disable camelcase */
 import i18n from '@/utils/locale'
+import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   attributesFromMeta,
   validatorsFromMeta
 } from './'
+import { pfFieldType as fieldType } from '@/globals/pfField'
 
 export const columns = [
   {
@@ -40,6 +44,14 @@ export const columns = [
   }
 ]
 
+const actionsFieldsFromMeta = (meta = {}) => {
+  const { actions: { item: { properties: { api_method: { allowed = [] } = {} } = {} } = {} } = {} } = meta
+  return allowed.map(allowed => {
+    const { text, value } = allowed
+    return { text, value, types: [fieldType.SUBSTRING] }
+  })
+}
+
 export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
@@ -66,6 +78,18 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Enabled'),
+          cols: [
+            {
+              namespace: 'status',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Role'),
           cols: [
             {
@@ -82,6 +106,29 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'scopes',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'scopes')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Actions'),
+          text: i18n.t('Specify actions when codition is met.'),
+          cols: [
+            {
+              namespace: 'actions',
+              component: pfFormFields,
+              attrs: {
+                buttonLabel: i18n.t('Add Action'),
+                sortable: false,
+                field: {
+                  component: pfFieldApiMethodParameters,
+                  attrs: {
+                    typeLabel: i18n.t('Select condition type'),
+                    valueLabel: i18n.t('Select condition value'),
+                    fields: actionsFieldsFromMeta(meta)
+                  }
+                },
+                invalidFeedback: i18n.t('Inline Conditions contain one or more errors.')
+              }
             }
           ]
         }

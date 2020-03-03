@@ -18,6 +18,17 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new filter.')">{{ $t('No filters defined') }}</pf-empty-table>
           </template>
+          <template v-slot:cell(status)="item">
+            <pf-form-range-toggle
+              v-model="item.status"
+              :values="{ checked: 'enabled', unchecked: 'disabled' }"
+              :icons="{ checked: 'check', unchecked: 'times' }"
+              :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :rightLabels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
+              :lazy="{ checked: enable(collection, item), unchecked: disable(collection, item) }"
+              @click.stop.prevent
+            />
+          </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Filter?')" @on-delete="remove(item)" reverse/>
@@ -33,6 +44,7 @@
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfTableSortable from '@/components/pfTableSortable'
 import { columns } from '../_config/filterEngine'
 
@@ -41,6 +53,7 @@ export default {
   components: {
     pfButtonDelete,
     pfEmptyTable,
+    pfFormRangeToggle,
     pfTableSortable
   },
   data () {
@@ -102,6 +115,32 @@ console.log('view', { _collection, item })
       const { collection } = _collection
       const { id } = item
       this.$router.push({ name: 'filter_engine', params: { collection, id } })
+    },
+    enable (_collection, item) {
+      const { collection } = _collection
+      const { id } = item
+      return (value) => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_filter_engines/enableFilterEngine', { collection, id }).then(() => {
+            resolve('enabled')
+          }).catch(() => {
+            reject() // reset
+          })
+        })
+      }
+    },
+    disable (_collection, item) {
+      const { collection } = _collection
+      const { id } = item
+      return (value) => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_filter_engines/disableFilterEngine', { collection, id }).then(() => {
+            resolve('disabled')
+          }).catch(() => {
+            reject() // reset
+          })
+        })
+      }
     }
   },
   created () {
