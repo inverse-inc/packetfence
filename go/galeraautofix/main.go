@@ -163,7 +163,7 @@ func handlePeersPingable(ctx context.Context, nodes *NodeList) bool {
 	peers := filterPeers(ctx, nodes)
 	for _, node := range peers {
 		if !node.Stats.Pingable {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Peer %s is not online currently. Will not attempt to perform sequence number based boot"))
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Peer %s is not online currently. Will not attempt to perform sequence number based boot", node.IP.String()))
 			return false
 		}
 	}
