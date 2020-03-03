@@ -1,133 +1,185 @@
 <template>
-  <b-card class="h-100" no-body>
-    <div class="card-body d-flex flex-column">
-      <!-- Loading progress indicator -->
-      <b-container class="my-5" v-if="isLoading && !filter">
-        <b-row class="justify-content-md-center text-secondary">
-          <b-col cols="12" md="auto">
-            <icon name="circle-notch" scale="1.5" spin></icon>
-          </b-col>
-        </b-row>
-      </b-container>
-      <div class="flex-grow-1 overflow-hidden border-top border-right border-bottom border-left" ref="editorContainer" v-else>
-        <ace-editor
-          v-model="filter"
-          :lang="mode"
-          :theme="theme"
-          :height="editorHeight"
-          :options="editorOptions"
-          @init="initEditor"
-        ></ace-editor>
-      </div>
-    </div>
-    <b-card-footer>
-      <pf-button-save :disabled="invalidForm" :isLoading="isLoading" @click="save()">
-        <template>{{ $t('Save') }}</template>
-      </pf-button-save>
-      <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
-    </b-card-footer>
-  </b-card>
+  <pf-config-view
+    :form-store-name="formStoreName"
+    :isLoading="isLoading"
+    :disabled="isLoading"
+    :isDeletable="isDeletable"
+    :isNew="isNew"
+    :isClone="isClone"
+    :view="view"
+    @close="close"
+    @create="create"
+    @save="save"
+    @remove="remove"
+  >
+    <template v-slot:header>
+      <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+      <h4 class="d-inline mb-0">
+        <span v-if="!isNew && !isClone" v-html="$t('Filter {id}', { id: $strong(id) })"></span>
+        <span v-else-if="isClone" v-html="$t('Clone Filter {id}', { id: $strong(id) })"></span>
+        <span v-else>{{ $t('New Filter') }}</span>
+      </h4>
+      <b-badge class="ml-2" variant="secondary" v-t="collection"></b-badge>
+
+<pre>{{ JSON.stringify(form, null, 2) }}</pre>
+
+    </template>
+    <template v-slot:footer>
+      <b-card-footer>
+        <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Filter?')" @on-delete="remove()"/>
+      </b-card-footer>
+    </template>
+  </pf-config-view>
 </template>
 
 <script>
-import aceEditor from 'vue2-ace-editor'
+import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonDelete from '@/components/pfButtonDelete'
+import {
+  defaultsFromMeta as defaults
+} from '../_config/'
+import {
+  view,
+  validators
+} from '../_config/filterEngine'
 
 export default {
   name: 'filter-engine-view',
   components: {
+    pfConfigView,
     pfButtonSave,
-    aceEditor
+    pfButtonDelete
   },
   props: {
-    id: {
+    formStoreName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
+    isNew: { // from router
+      type: Boolean,
+      default: false
+    },
+    isClone: { // from router
+      type: Boolean,
+      default: false
+    },
+    collection: { // from router
+      type: String,
+      default: null
+    },
+    id: { // from router
       type: String,
       default: null
     }
   },
-  data () {
-    return {
-      filter: '',
-      editor: null,
-      editorHeight: '0px',
-      editorOptions: {
-        enableLiveAutocompletion: true,
-        showPrintMargin: false,
-        tabSize: 4
-      },
-      parentNodes: []
-    }
-  },
   computed: {
-    isLoading () {
-      return this.$store.getters['$_filters/isLoading']
+    meta () {
+      return this.$store.getters[`${this.formStoreName}/$meta`]
+    },
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    view () {
+      return view(this.form, this.meta) // ../_config/filterEngine
     },
     invalidForm () {
-      return this.$store.getters['$_filters/isWaiting']
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
-    windowSize () {
-      return this.$store.getters['events/windowSize']
+    isLoading () {
+      return this.$store.getters['$_filter_engines/isLoading']
+    },
+    isDisabled () {
+      return this.invalidForm || this.isLoading
+    },
+    isDeletable () {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
+        return false
+      }
+      return true
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_filters/getFilter', this.id).then(filter => {
-        this.filter = filter
+      const { collection, id } = this
+      this.$store.dispatch('$_filter_engines/options', { collection, id }).then(options => {
+        const { meta = {} } = options
+        const { isNew, isClone } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
+        if (id) { // existing
+          this.$store.dispatch('$_filter_engines/getFilterEngine', { collection, id }).then(form => {
+            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+          })
+        } else { // new
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
+        }
+      })
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
+    },
+    close () {
+      this.$router.push({ name: 'filter_engines' })
+    },
+    clone () {
+      const { collection } = this
+      this.$router.push({ name: 'cloneFilterEngine', params: { collection } })
+    },
+    create () {
+      const { collection, actionKey, form: data, form: { id } = {} } = this
+      this.$store.dispatch('$_filter_engines/createFilterEngine', { collection, data }).then(() => {
+        if (!actionKey) {
+          this.$router.push({ name: 'filter_engines' })
+        } else {
+          this.$router.push({ name: 'filter_engine', params: { collection, id } })
+        }
       })
     },
     save () {
-      this.$store.dispatch('$_filters/updateFilter', { id: this.id, filter: this.filter }).then(() => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('{filterName} filter saved', { filterName: this.id.toUpperCase() }) })
+      const { collection, actionKey, isNew, isClone, form: data, form: { id } = {} } = this
+      this.$store.dispatch('$_filter_engines/updateFilterEngine', { collection, id, data }).then(() => {
+        if ((isNew && !actionKey) || (isClone && !actionKey) || (!isNew && !isClone && actionKey)) {
+          this.$router.push({ name: 'filter_engines' })
+        }
       })
     },
-    initEditor (instance) {
-      // Load ACE editor extensions
-      require('brace/ext/language_tools')
-      require('brace/ext/searchbox')
-      require('brace/mode/ini')
-      require('brace/theme/cobalt')
-      this.editor = instance
-      this.editor.setAutoScrollEditorIntoView(true)
-      this.$nextTick(() => {
-        this.resizeEditor()
+    remove () {
+      const { collection, id } = this
+      this.$store.dispatch('$_filter_engines/deleteFilterEngine', { collection, id }).then(() => {
+        this.close()
       })
-    },
-    resizeEditor () {
-      this.editorHeight = this.$refs.editorContainer.clientHeight + 'px'
-      this.editor.resize()
     }
   },
   created () {
     this.init()
   },
-  mounted () {
-    if (this.parentNodes.length === 0) {
-      // Find all parent DOM nodes
-      let parentNode = this.$el.parentNode
-      while (parentNode && 'classList' in parentNode) {
-        this.parentNodes.push(parentNode)
-        parentNode = parentNode.parentNode
-      }
-    }
-    // Force all parent nodes to take 100% of the window height
-    this.parentNodes.forEach(node => {
-      node.classList.add('h-100')
-    })
-  },
-  beforeDestroy () {
-    // Remove height constraint on all parent nodes
-    this.parentNodes.forEach(node => {
-      node.classList.remove('h-100')
-    })
-  },
   watch: {
-    windowSize: {
-      handler: function (a, b) {
-        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
-          this.resizeEditor()
-        }
-      },
-      deep: true
+    id: {
+      handler: function () {
+        this.init()
+      }
+    },
+    isClone: {
+      handler: function () {
+        this.init()
+      }
+    },
+    escapeKey (pressed) {
+      if (pressed) this.close()
     }
   }
 }

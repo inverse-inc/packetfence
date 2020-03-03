@@ -195,7 +195,7 @@ export default {
       }
     },
     hasValues () {
-      return (this.inputValue && 'values' in this.inputValue)
+      return (this.inputValue && 'values' in this.inputValue && this.inputValue.values)
     },
     actionKey () {
       return this.$store.getters['events/actionKey']

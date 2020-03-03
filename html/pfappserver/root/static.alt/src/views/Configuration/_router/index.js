@@ -9,7 +9,7 @@ import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import SelfServicesStore from '../_store/selfServices'
 import DomainsStore from '../_store/domains'
-import FiltersStore from '../_store/filters'
+import FilterEnginesStore from '../_store/filterEngines'
 import FingerbankStore from '../_store/fingerbank'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
@@ -86,7 +86,8 @@ const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '.
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
-const FilterEngineTabs = () => import(/* webpackChunkName: "Editor" */ '../_components/FilterEngineTabs')
+const FilterEnginesList = () => import(/* webpackChunkName: "Editor" */ '../_components/FilterEnginesList')
+const FilterEngineView = () => import(/* webpackChunkName: "Editor" */ '../_components/FilterEngineView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
@@ -155,8 +156,8 @@ const route = {
     if (!store.state.$_self_services) {
       store.registerModule('$_self_services', SelfServicesStore)
     }
-    if (!store.state.$_filters) {
-      store.registerModule('$_filters', FiltersStore)
+    if (!store.state.$_filter_engines) {
+      store.registerModule('$_filter_engines', FilterEnginesStore)
     }
     if (!store.state.$_fingerbank) {
       store.registerModule('$_fingerbank', FingerbankStore)
@@ -1436,10 +1437,46 @@ const route = {
       }
     },
     {
-      path: 'filters',
-      name: 'filters',
-      component: FilterEngineTabs,
+      path: 'filter_engines',
+      name: 'filter_engines',
+      component: FilterEnginesList,
       props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'filter_engines/:collection/new',
+      name: 'newFilterEngine',
+      component: FilterEngineView,
+      props: (route) => ({ formStoreName: 'formFilterEngines', collection: route.params.collection, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFilterEngines) { // Register store module only once
+          store.registerModule('formFilterEngines', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'filter_engines/:collection/:id',
+      name: 'filter_engine',
+      component: FilterEngineView,
+      props: (route) => ({ formStoreName: 'formFilterEngines', collection: route.params.collection, id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFilterEngines) { // Register store module only once
+          store.registerModule('formFilterEngines', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'filter_engines/:collection/:id/clone',
+      name: 'cloneFilterEngine',
+      component: FilterEngineView,
+      props: (route) => ({ formStoreName: 'formFilterEngines', collection: route.params.collection, id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formFilterEngines) { // Register store module only once
+          store.registerModule('formFilterEngines', FormStore)
+        }
+        next()
+      }
     },
     {
       path: 'billing_tiers',

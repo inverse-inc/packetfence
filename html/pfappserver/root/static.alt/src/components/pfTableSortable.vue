@@ -10,7 +10,7 @@
         {{ $t(field.label) }}
       </b-col>
     </b-row>
-    <b-row v-if="items.length === 0"
+    <b-row v-if="!items || items.length === 0"
       class="pf-table-sortable-empty justify-content-md-center"
     >
       <b-col cols="12" md="auto">
