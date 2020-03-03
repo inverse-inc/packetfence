@@ -38,6 +38,7 @@ Enhancements
 * Node deletion in consistent between the the API and pf::node::node_delete (#5088)
 * Allow vlan number greater than 1023 for floating devices.
 * Improved captive-portal health checks in monit (#5185)
+* Added radius disconnect for wired port on Aruba AP (#5016)
 
 Bug Fixes
 +++++++++
