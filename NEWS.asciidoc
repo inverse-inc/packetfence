@@ -36,6 +36,7 @@ Enhancements
 * Added a way to change the sql table used by pfconfig
 * Showing the configurator is now configurable (#5121)
 * Node deletion in consistent between the the API and pf::node::node_delete (#5088)
+* Allow vlan number greater than 1023 for floating devices.
 
 Bug Fixes
 +++++++++
