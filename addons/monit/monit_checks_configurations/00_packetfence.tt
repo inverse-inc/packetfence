@@ -78,6 +78,14 @@ CHECK PROCESS packetfence-httpd.portal MATCHING "pf/var/conf/httpd.conf.d/httpd.
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.portal stop"
     if 3 restarts within 10 cycles then alert
 
+check program monitoring-httpd.portal with path "/bin/bash /usr/local/pf/addons/monit/check-httpd.portal.sh"
+    group PacketFence
+    every 30 cycles    # every minute (if 1 cycle is 2 seconds)
+    start program = "/usr/local/pf/bin/pfcmd service httpd.portal restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service httpd.portal stop"
+    if status != 0 then restart
+    if 3 restarts within 10 cycles then alert
+
 CHECK PROCESS packetfence-httpd.webservices MATCHING "pf/var/conf/httpd.conf.d/httpd.webservices"
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service httpd.webservices restart" with timeout 60 seconds
