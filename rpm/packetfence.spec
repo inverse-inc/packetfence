@@ -100,6 +100,7 @@ requires: perl(Const::Fast)
 Requires: perl(Time::HiRes)
 # Required for inline mode.
 Requires: ipset = 6.38, ipset-symlink
+Requires: ipt-netflow >= 2.4, dkms-ipt-netflow >= 2.4
 Requires: sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
