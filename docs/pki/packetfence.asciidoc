@@ -3,7 +3,7 @@ ifdef::env-github[]
 :imagesdir: ../images
 endif::[]
 
-This section has been created to give a quick start to configure the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PacketFence PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
+This section has been created to give a quick start to configure the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
 
 Certificate Authority creation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -12,7 +12,7 @@ You will need to create a new certificate authority. Go to the PacketFence web a
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
-Here's an CA example:
+Here's a CA example:
 +++++++++++++++++++++
 
 image::packetfence-pki-ca_creation.png[scaledwidth="100%",alt="Certification authority creation"]
@@ -22,7 +22,7 @@ Once you have created the CA, you should see the Root CA certificate displayed a
 
 image::packetfence-pki-ca_created.png[scaledwidth="100%",alt="Certification authority config"]
 
-NOTE: Don't forget to add that Root CA certifiate to the radius configuration to authorize the EAP TLS authentications using the PacketFence PKI issued certificates.
+NOTE: Don't forget to add that Root CA certifiate to the radius configuration to authorize the EAP TLS authentications using the PKI issued certificates.
 
 Template creation
 ^^^^^^^^^^^^^^^^^
@@ -43,12 +43,12 @@ Key usage clientAuth: To use your certificate for a client authentication.
 
 Key usage serverAuth: If you want to install your certificate on a server.
 
-Clear text password when it emails the certificate to users:
+P12 mail password emailed to the users:
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 image::packetfence-pki-template_password_email.png[scaledwidth="100%",alt="Template configuration"]
 
-Certification creation
+Certificate creation
 ^^^^^^^^^^^^^^^^^^^^^^
 
 image::packetfence-pki-certificate_menu.png[scaledwidth="100%",alt="Certificate creation"]
