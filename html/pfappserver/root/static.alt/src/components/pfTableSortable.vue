@@ -1,8 +1,8 @@
 <template>
-  <div class="pf-table-sortable" :class="{ 'hover': hover, 'striped': striped }" @mouseleave="onMouseLeave()">
+  <div class="pf-table-sortable" :class="{ 'hover': hover, 'striped': striped }">
 
     <!-- head -->
-    <b-row class="pf-table-sortable-head" @mouseenter="onMouseLeave()" @mousemove="onMouseLeave()">
+    <b-row class="pf-table-sortable-head">
       <b-col cols="1">
         <icon name="sort" class="text-secondary"></icon>
       </b-col>
@@ -24,7 +24,6 @@
     <template v-else>
       <b-row v-for="(item, itemIndex) in notSortableItems" :key="itemIndex"
         class="pf-table-sortable-row"
-        @mouseenter="onMouseLeave()"
       >
         <b-col cols="1">
           {{ itemIndex + 1 }}
@@ -48,19 +47,14 @@
       >
         <b-row v-for="(item, itemIndex) in sortableItems" :key="itemIndex"
           class="pf-table-sortable-row"
-          @mouseenter="onMouseEnter(itemIndex)"
-          @mousemove="onMouseEnter(itemIndex)"
         >
           <b-col :class="{ 'draghandle': (sortableItems.length > 1) }" cols="1">
-            <template v-if="!disabled && hoverIndex === itemIndex && sortableItems.length > 1">
-              <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
-            </template>
-            <template v-else>
-              {{ notSortableItems.length + itemIndex + 1 }}
-            </template>
+            <icon v-if="!disabled && sortableItems.length > 1" class="draghandle-icon" name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+            <icon v-else class="draghandle-icon" name="lock"></icon>
+            <span class="draghandle-index">{{ notSortableItems.length + itemIndex + 1 }}</span>
           </b-col>
           <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
-            <slot :name="cell(field.key)" v-bind="item">{{ item[field.key] }}</slot>
+            <slot :name="cell(field.key)" v-bind="item">{{ formatted(item, field) }}</slot>
           </b-col>
         </b-row>
       </draggable>
@@ -109,7 +103,6 @@ export default {
   },
   data () {
     return {
-      hoverIndex: null, // row index onmouseover
       drag: false // true ondrag
     }
   },
@@ -131,13 +124,6 @@ export default {
     clickRow (item) {
       this.$emit('row-clicked', item)
     },
-    onMouseEnter (index) {
-      if (this.drag) return
-      this.hoverIndex = index
-    },
-    onMouseLeave () {
-      this.hoverIndex = null
-    },
     onDraggable (type, event) {
       switch (type) {
         case 'start':
@@ -148,6 +134,12 @@ export default {
           break
       }
       this.$emit(type, event)
+    },
+    formatted (item, field) {
+      if ('formatter' in field) {
+        return field.formatter(item)
+      }
+      return item[field.key]
     }
   }
 }
@@ -200,6 +192,14 @@ export default {
   .pf-table-sortable-row {
     border-top: 1px solid #dee2e6;
     cursor: pointer;
+    & > .draghandle .draghandle-icon,
+    &:hover > .draghandle .draghandle-index {
+      display: none;
+    }
+    & > .draghandle .draghandle-index,
+    &:hover > .draghandle .draghandle-icon {
+      display: inline;
+    }
   }
   .pf-table-sortable-empty,
   .pf-table-sortable-head,
