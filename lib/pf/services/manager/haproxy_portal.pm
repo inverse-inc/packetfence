@@ -156,7 +156,7 @@ backend $cluster_ip-backend
         balance source
         option httpchk GET /captive-portal HTTP/1.0\\r\\nUser-agent:\\ HAPROXY-load-balancing-check
         default-server inter 5s fall 3 rise 2
-	option httpclose
+        option httpclose
         option forwardfor
 EOT
             if($rate_limiting) {
