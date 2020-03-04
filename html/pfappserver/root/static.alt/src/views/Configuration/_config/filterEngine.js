@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import i18n from '@/utils/locale'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
+import pfFormBooleanFieldOpValue from '@/components/pfFormBooleanFieldOpValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
@@ -10,6 +11,7 @@ import {
   validatorsFromMeta
 } from './'
 import { pfFieldType as fieldType } from '@/globals/pfField'
+import { pfOperators } from '@/globals/pfOperators'
 
 export const columns = [
   {
@@ -51,6 +53,28 @@ const actionsFieldsFromMeta = (meta = {}) => {
   return allowed.map(allowed => {
     const { text, value } = allowed
     return { text, value, types: [fieldType.SUBSTRING] }
+  })
+}
+
+const valueOperatorsFromMeta = (meta = {}) => {
+  const { condition: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
+  return allowed.filter(allowed => {
+    const { requires = [] } = allowed
+    return requires.includes('value')
+  }).map(allowed => {
+    const { value } = allowed
+    return value
+  })
+}
+
+const valuesOperatorsFromMeta = (meta = {}) => {
+  const { condition: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
+  return allowed.filter(allowed => {
+    const { requires = [] } = allowed
+    return requires.includes('values')
+  }).map(allowed => {
+    const { value } = allowed
+    return value
   })
 }
 
@@ -112,8 +136,28 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Condition'),
+          text: i18n.t('Specify a condition to match.'),
+          cols: [
+            {
+              namespace: 'condition',
+              component: pfFormBooleanFieldOpValue,
+              attrs: {
+                valueOperators: valueOperatorsFromMeta(meta).map(value => {
+                  const { [value]: text = value } = pfOperators
+                  return { text, value }
+                }),
+                valuesOperators: valuesOperatorsFromMeta(meta).map(value => {
+                  const { [value]: text = value } = pfOperators
+                  return { text, value }
+                })
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Actions'),
-          text: i18n.t('Specify actions when codition is met.'),
+          text: i18n.t('Specify actions when condition is met.'),
           cols: [
             {
               namespace: 'actions',

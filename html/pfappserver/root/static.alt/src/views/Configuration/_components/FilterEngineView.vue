@@ -19,10 +19,10 @@
         <span v-else-if="isClone" v-html="$t('Clone Filter {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Filter') }}</span>
       </h4>
-      <b-badge class="ml-2" variant="secondary">{{ collectionName }}</b-badge>
 
 <pre>{{ JSON.stringify(form, null, 2) }}</pre>
 
+      <b-badge class="ml-2" variant="secondary">{{ collectionName }}</b-badge>
     </template>
     <template v-slot:footer>
       <b-card-footer>
