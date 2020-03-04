@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: 'Devices Included',
-          text: i18n.t('The list of Fingerbank devices that will be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the childs of the selected devices. Leaving this empty will have all devices impacted by this policy.'),
+          text: i18n.t('The list of Fingerbank devices that will be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the children of the selected devices. Leaving this empty will have all devices impacted by this policy.'),
           cols: [
             {
               namespace: 'devices_included',
@@ -133,7 +133,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: 'Devices Excluded',
-          text: i18n.t('The list of Fingerbank devices that should not be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the childs of the selected devices.'),
+          text: i18n.t('The list of Fingerbank devices that should not be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the children of the selected devices.'),
           cols: [
             {
               namespace: 'devices_excluded',
@@ -143,7 +143,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Watch blacklisted IPs'),
+          label: i18n.t('Monitor for blacklisted IPs'),
           text: i18n.t('Whether or not the policy should check if the endpoints are communicating with blacklisted IP addresses.'),
           cols: [
             {
