@@ -22,17 +22,14 @@ has_field 'type' =>
    type => 'Hidden',
   );
 
-has_field 'username' =>
+has_field 'password' =>
   (
-   type => 'Text',
-   label => 'Username',
-   required => 1,
-   messages => { required => 'Please specify the username for the server' },
+   type => 'Hidden',
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id type port username password categories networks cache_updates cache_timeout username_format default_realm) ],
+   render_list => [ qw(id type port categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 =head1 COPYRIGHT
