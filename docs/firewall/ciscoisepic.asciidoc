@@ -37,7 +37,7 @@ image::doc-ise-pic-syslog-provider.png[scaledwidth="100%",alt="Configure the sys
 
 Make sure your syslog header configuration matches this:
 
-image::doc-ise-pic-syslog-provider.png[scaledwidth="100%",alt="Configure the syslog header in ISE-PIC"]
+image::doc-ise-pic-syslog-header.png[scaledwidth="100%",alt="Configure the syslog header in ISE-PIC"]
 
 PacketFence configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
