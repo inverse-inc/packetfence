@@ -23,7 +23,8 @@ const getters = {
   isLoading: state => state.itemStatus === types.LOADING,
 
   collectionToName: state => collection => {
-    return state.cache[collection].name
+    const { cache: { [collection]: { name } = {} } = {} } = state
+    return name
   }
 }
 
@@ -42,7 +43,7 @@ const actions = {
     })
   },
   getCollection: ({ state, commit, dispatch }, collection) => {
-    if (state.cache[collection] && state.cache[collection].items) {
+    if (state.cache[collection] && 'items' in state.cache[collection]) {
       return Promise.resolve(state.cache[collection]).then(collection => collection)
     }
     return dispatch('getCollections').then(() => {
@@ -57,16 +58,31 @@ const actions = {
       })
     })
   },
+  sortCollection: ({ commit, dispatch }, { collection, data }) => {
+    return dispatch('getCollection', collection).then(() => {
+      const params = {
+        items: data
+      }
+      commit('COLLECTION_REQUEST', types.LOADING)
+      return api.sortFilterEngines({ collection, params }).then(response => {
+        commit('COLLECTION_RESORTED', { collection, params })
+        return response
+      }).catch(err => {
+        commit('COLLECTION_ERROR', err.response)
+        throw err
+      })
+    })
+  },
   getFilterEngine: ({ state, commit, dispatch }, { collection, id }) => {
-    if (state.cache[collection] && state.cache[collection][id]) {
-      return Promise.resolve(state.cache[collection][id]).then(filterEngine => filterEngine)
+    if (state.cache[collection] && state.cache[collection].items && state.cache[collection].items.filter(item => item.id === id).length > 0) {
+      return Promise.resolve(state.cache[collection].items.find(item => item.id === id)).then(filterEngine => filterEngine)
     }
-    return dispatch('getCollections').then(() => {
+    return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
       return api.filterEngine({ resource, id }).then(item => {
         commit('ITEM_REPLACED', { collection, id, item })
-        return state.cache[collection][id]
+        return state.cache[collection].items.find(item => item.id === id)
       }).catch((err) => {
         commit('ITEM_ERROR', err.response)
         throw err
@@ -75,7 +91,7 @@ const actions = {
   },
   options: ({ commit, dispatch }, { collection, id }) => {
     if (id) {
-      return dispatch('getCollections').then(() => {
+      return dispatch('getCollection', collection).then(() => {
         commit('ITEM_REQUEST')
         const { [collection]: { resource } = {} } = state.cache
         return api.filterEngineOptions({ resource, id }).then(response => {
@@ -97,29 +113,26 @@ const actions = {
       })
     }
   },
-  createFilterEngine: ({ commit }, { collection, data }) => {
-    commit('ITEM_REQUEST')
-    return api.createFilterEngine({ collection, data }).then(response => {
-
-console.log('createFilterEngine', { collection, data, response })
-
-      commit('ITEM_SUCCESS')
-      return response
-    }).catch((err) => {
-      commit('ITEM_ERROR', err.response)
-      throw err
+  createFilterEngine: ({ commit, dispatch }, { collection, data }) => {
+    return dispatch('getCollection', collection).then(() => {
+      commit('ITEM_REQUEST')
+      return api.createFilterEngine({ collection, data }).then(response => {
+        const { id } = data
+        commit('ITEM_CREATED', { collection, id, item: data })
+        return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
+      })
     })
   },
   updateFilterEngine: ({ commit, dispatch }, { collection, id, data }) => {
-    return dispatch('getCollections').then(() => {
+    return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
       return api.updateFilterEngine({ resource, id, data }).then(response => {
-
-console.log('updateFilterEngine', { collection, id, data, response })
-
-        commit('ITEM_SUCCESS')
-        return response
+        commit('ITEM_REPLACED', { collection, id, item: data })
+        return state.cache[collection].items.find(item => item.id === id)
       }).catch((err) => {
         commit('ITEM_ERROR', err.response)
         throw err
@@ -127,14 +140,11 @@ console.log('updateFilterEngine', { collection, id, data, response })
     })
   },
   deleteFilterEngine: ({ commit, dispatch }, { collection, id }) => {
-    return dispatch('getCollections').then(() => {
+    return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
       return api.deleteFilterEngine({ resource, id }).then(response => {
-
-console.log('deleteFilterEngine', { collection, id, response })
-
-        commit('ITEM_SUCCESS')
+        commit('ITEM_DESTROYED', { collection, id })
         return response
       }).catch((err) => {
         commit('ITEM_ERROR', err.response)
@@ -142,21 +152,8 @@ console.log('deleteFilterEngine', { collection, id, response })
       })
     })
   },
-  sortFilterEngines: ({ commit }, { collection, data }) => {
-    const params = {
-      items: data
-    }
-    commit('COLLECTION_REQUEST', types.LOADING)
-    return api.sortFilterEngines({ collection, params }).then(response => {
-      commit('COLLECTION_RESORTED', { collection, params })
-      return response
-    }).catch(err => {
-      commit('COLLECTION_ERROR', err.response)
-      throw err
-    })
-  },
   enableFilterEngine: ({ commit, dispatch }, { collection, id }) => {
-    return dispatch('getCollections').then(() => {
+    return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
       const data = { id, status: 'enabled' }
@@ -170,7 +167,7 @@ console.log('deleteFilterEngine', { collection, id, response })
     })
   },
   disableFilterEngine: ({ commit, dispatch }, { collection, id }) => {
-    return dispatch('getCollections').then(() => {
+    return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
       const data = { id, status: 'disabled' }
@@ -235,20 +232,54 @@ const mutations = {
     state.itemStatus = type || types.LOADING
     state.message = ''
   },
+  ITEM_CREATED: (state, { collection, item }) => {
+    state.itemStatus = types.SUCCESS
+    if (!(collection in state.cache)) {
+      Vue.set(state.cache, collection, {})
+    }
+    if (!('items' in state.cache[collection])) {
+      Vue.set(state.cache[collection], 'items', [])
+    }
+    Vue.set(state.cache[collection], 'items', [
+      ...state.cache[collection].items,
+      item
+    ])
+  },
   ITEM_REPLACED: (state, { collection, id, item }) => {
     state.itemStatus = types.SUCCESS
     if (!(collection in state.cache)) {
       Vue.set(state.cache, collection, {})
     }
-    Vue.set(state.cache[collection], id, item)
+    if (!('items' in state.cache[collection])) {
+      Vue.set(state.cache[collection], 'items', [])
+    }
+    Vue.set(state.cache[collection], 'items', state.cache[collection].items.map(_item => {
+      return (_item.id === id)
+        ? item
+        : _item
+    }))
+  },
+  ITEM_DESTROYED: (state, { collection, id }) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache[collection], 'items', state.cache[collection].items.filter(item => {
+      return (item.id !== id)
+    }))
   },
   ITEM_ENABLED: (state, { collection, id }) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache[collection][id], 'status', 'enabled')
+    Vue.set(state.cache[collection], 'items', state.cache[collection].items.map(item => {
+      return (item.id === id)
+        ? { ...item, ...{ status: 'enabled' } }
+        : item
+    }))
   },
   ITEM_DISABLED: (state, { collection, id }) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache[collection][id], 'status', 'disabled')
+    Vue.set(state.cache[collection], 'items', state.cache[collection].items.map(item => {
+      return (item.id === id)
+        ? { ...item, ...{ status: 'disabled' } }
+        : item
+    }))
   },
   ITEM_SUCCESS: (state) => {
     state.itemStatus = types.SUCCESS

@@ -126,12 +126,14 @@ export default {
         this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
         if (id) { // existing
           this.$store.dispatch('$_filter_engines/getFilterEngine', { collection, id }).then(form => {
-            form = JSON.parse(JSON.stringify(form)) // dereference
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            if (this.isClone) {
+              form = JSON.parse(JSON.stringify(form)) // dereference
+              form.id = `${form.id}-${this.$i18n.t('copy')}`
+            }
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         } else { // new
-          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
         }
       })
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)

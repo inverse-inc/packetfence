@@ -3,9 +3,6 @@
     <b-card no-body>
       <b-card-header>
         <h4 class="d-inline mb-0" v-t="'Filter Engines'"></h4>
-
-<pre>{{ JSON.stringify(collections, null, 2) }}</pre>
-
       </b-card-header>
       <b-card class="m-3" v-for="(collection, index) in collections" :key="index">
         <h4 class="mb-3">{{ collection.name }}</h4>
@@ -32,9 +29,12 @@
               @click.stop.prevent
             />
           </template>
+          <template v-slot:cell(scopes)="item">
+            <b-badge v-for="(scope, index) in item.scopes" :key="index" class="mr-1" variant="secondary">{{ scope }}</b-badge>
+          </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
-              <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Filter?')" @on-delete="remove(item)" reverse/>
+              <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Filter?')" @on-delete="remove(collection, item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(collection, item)">{{ $t('Clone') }}</b-button>
             </span>
           </template>
@@ -96,13 +96,14 @@ export default {
         }
       }
       items[newIndex] = tmp
-// resort
-      this.$store.dispatch('$_filter_engines/sortFilterEngines', { collection, data: items.map(item => item.id) }).then(() => {
+      this.$store.dispatch('$_filter_engines/sortCollection', { collection, data: items.map(item => item.id) }).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('{name} resorted.', { name: this.$store.getters['$_filter_engines/collectionToName'](collection) } ) })
       })
     },
-    remove () {
-
+    remove (_collection, item) {
+      const { collection } = _collection
+      const { id } = item
+      this.$store.dispatch('$_filter_engines/deleteFilterEngine', { collection, id })
     },
     clone (_collection, item) {
       const { collection } = _collection

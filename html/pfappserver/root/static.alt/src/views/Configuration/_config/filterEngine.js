@@ -15,27 +15,29 @@ export const columns = [
   {
     key: 'status',
     label: i18n.t('Status'),
-    sortable: false,
     visible: true
   },
   {
     key: 'id',
     label: i18n.t('Name'),
     required: true,
-    sortable: false,
     visible: true
   },
   {
     key: 'role',
     label: i18n.t('Role'),
-    sortable: false,
     visible: true
   },
   {
     key: 'scopes',
     label: i18n.t('Scopes'),
-    sortable: false,
-    visible: true
+    visible: true,
+    formatter: (value) => {
+      if (value && value.constructor === Array && value.length > 0) {
+        return value
+      }
+      return null // otherwise '[]' is displayed in cell
+    }
   },
   {
     key: 'buttons',
