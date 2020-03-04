@@ -44,7 +44,7 @@ Key usage clientAuth: To use your certificate for a client authentication.
 Key usage serverAuth: If you want to install your certificate on a server.
 
 P12 mail password emailed to the users:
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++
 
 image::packetfence-pki-template_password_email.png[scaledwidth="100%",alt="Template configuration"]
 
