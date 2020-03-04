@@ -38,14 +38,22 @@ has_field 'op' => (
     label    => 'Value',
     required => 1,
     options => [
-        map { { label => $_, value => $_}} qw(
-            and
-            or
-            contains
-            regex
-            starts_with
-            equals
-            not_equals
+        (
+            map { { label => $_, value => $_, requires => ['values']}} qw(
+                and
+                or
+                nor
+                nand
+            )
+        ),
+        (
+            map { { label => $_, value => $_, requires => [qw(value field)] } } qw(
+                contains
+                regex
+                starts_with
+                equals
+                not_equals
+            )
         )
     ],
 );
