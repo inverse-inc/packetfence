@@ -128,7 +128,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'devices_included',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'devices_included'),
-              validators: validatorsFromMeta(meta, 'devices_included', 'Device')
             }
           ]
         },
@@ -140,7 +139,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'devices_excluded',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'devices_excluded'),
-              validators: validatorsFromMeta(meta, 'devices_excluded', 'Device')
             }
           ]
         },
@@ -154,7 +152,6 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               },
-              validators: validatorsFromMeta(meta, 'watch_blacklisted_ips', 'Watch blacklisted IPs')
             }
           ]
         },
@@ -166,7 +163,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'whitelisted_ips',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'whitelisted_ips'),
-              validators: validatorsFromMeta(meta, 'whitelisted_ips', 'Whitelisted IPs')
             }
           ]
         },
@@ -194,7 +190,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'blacklisted_ip_hosts_threshold',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'blacklisted_ip_hosts_threshold'),
-              validators: validatorsFromMeta(meta, 'blacklisted_ip_hosts_threshold', 'Blacklisted IPs Threshold')
             }
           ]
         },
@@ -206,7 +201,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'blacklisted_ports',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'blacklisted_ports'),
-              validators: validatorsFromMeta(meta, 'blacklisted_ports', 'Blacklisted ports')
             }
           ]
         },
@@ -234,7 +228,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'watched_device_attributes',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'watched_device_attributes'),
-              validators: validatorsFromMeta(meta, 'watched_device_attributes', 'Watched Device Attributes')
             }
           ]
         },
@@ -246,7 +239,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'device_attributes_diff_score',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'device_attributes_diff_score'),
-              validators: validatorsFromMeta(meta, 'device_attributes_diff_score', 'Device attributes minimal score')
             }
           ]
         },
@@ -368,5 +360,13 @@ export const validators = (form = {}, meta = {}) => {
     isClone = false
   } = meta
   return {
+      devices_included: validatorsFromMeta(meta, 'devices_included', 'Device'),
+      devices_excluded: validatorsFromMeta(meta, 'devices_excluded', 'Device'),
+      watch_blacklisted_ips: validatorsFromMeta(meta, 'watch_blacklisted_ips', 'Watch blacklisted IPs'),
+      whitelisted_ips: validatorsFromMeta(meta, 'whitelisted_ips', 'Whitelisted IPs'),
+      blacklisted_ip_hosts_threshold: validatorsFromMeta(meta, 'blacklisted_ip_hosts_threshold', 'Blacklisted IPs Threshold'),
+      blacklisted_ports: validatorsFromMeta(meta, 'blacklisted_ports', 'Blacklisted ports'),
+      watched_device_attributes: validatorsFromMeta(meta, 'watched_device_attributes', 'Watched Device Attributes'),
+      device_attributes_diff_score: validatorsFromMeta(meta, 'device_attributes_diff_score', 'Device attributes minimal score')
   }
 }
