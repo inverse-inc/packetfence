@@ -13,14 +13,14 @@ https://www.cisco.com/c/en/us/td/docs/security/ise/2-6/pic_admin_guide/PIC_admin
 Syslog template
 ^^^^^^^^^^^^^^^
 
-Add a new Template and call it PacketFence.  Make it match the following:
+Add a new Template and call it `PacketFence`.  Make it match the following:
 
 image::doc-ise-pic-syslog-template.png[scaledwidth="100%",alt="Configure the syslog template in ISE-PIC"]
 
 [options="compact"]
-* The new mapping should be set to: assigned to session
-* The regular expression for the IP address is: Address <([^\s]+)>|address ([^\s]+)
-* The regular expression for the username is: User <([^\s]+)>
+* The new mapping should be set to: `assigned to session`
+* The regular expression for the IP address is: `Address <([^\s]+)>|address ([^\s]+)`
+* The regular expression for the username is: `User <([^\s]+)>`
 
 
 Syslog provider
