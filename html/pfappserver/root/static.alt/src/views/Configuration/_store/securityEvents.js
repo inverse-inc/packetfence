@@ -73,6 +73,7 @@ const actions = {
   createSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     if ('triggers' in data) { // recompose security event triggers
+      data = JSON.parse(JSON.stringify(data)) // dereference
       data.triggers = recomposeTriggers(data.triggers)
     }
     return api.createSecurityEvent(data).then(response => {
@@ -86,6 +87,7 @@ const actions = {
   updateSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     if ('triggers' in data) { // recompose security event triggers
+      data = JSON.parse(JSON.stringify(data)) // dereference
       data.triggers = recomposeTriggers(data.triggers)
     }
     return api.updateSecurityEvent(data).then(response => {
