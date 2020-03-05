@@ -89,6 +89,10 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "api-frontend"' ],
     },
     {
+        'name'       => 'pfacct.log',
+        'conditions' => [ '$programname == "pfacct"' ]
+    },
+    {
         'name'       => 'pfstats.log',
         'conditions' => [ '$programname == "pfstats"' ]
     },
