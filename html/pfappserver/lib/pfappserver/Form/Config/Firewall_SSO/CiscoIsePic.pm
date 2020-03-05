@@ -6,7 +6,7 @@ pfappserver::Form::Config::Firewall_SSO::CiscoIsePic - Web form for a firewall S
 
 =head1 DESCRIPTION
 
-Form definition to create or update a floating network device.
+Form definition to create or update a firewall SSO.
 
 =cut
 
