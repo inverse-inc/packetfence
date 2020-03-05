@@ -64,7 +64,7 @@ has_field 'op' => (
               starts_with
               ends_with
               equals
-              fingerbank::device_is_a
+              fingerbank_device_is_a
               date_is_before
               date_is_after)
         ),
