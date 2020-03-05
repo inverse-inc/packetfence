@@ -288,8 +288,8 @@ Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.1.5, fingerbank < 5.0.0
-Requires: fingerbank-collector >= 1.2.2, fingerbank-collector < 2.0.0
+Requires: fingerbank >= 4.2.0, fingerbank < 5.0.0
+Requires: fingerbank-collector >= 1.3.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
 %description
@@ -839,6 +839,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/self_service.conf
 %config                 /usr/local/pf/conf/self_service.conf.defaults
                         /usr/local/pf/conf/self_service.conf.example
+%config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
+                        /usr/local/pf/conf/network_behavior_policies.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example

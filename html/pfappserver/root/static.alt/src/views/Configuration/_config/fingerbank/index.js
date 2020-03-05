@@ -139,6 +139,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Network behavior analysis'),
+          text: i18n.t(`Whether or not the collector should perform network behavior analysis of the endpoints it sees.`),
+          cols: [
+            {
+              namespace: 'collector.network_behavior_analysis',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Query cache time in the collector'),
           text: i18n.t('Amount of minutes for which the collector API query results are cached.'),
           cols: [

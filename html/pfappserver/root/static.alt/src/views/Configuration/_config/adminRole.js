@@ -139,6 +139,15 @@ export const actions = [
     ]
   },
   {
+    group: 'Network Behavior Policies',
+    items: [
+      { text: 'Network Behavior Policies - Create', value: 'NETWORK_BEHAVIOR_POLICY_CREATE' },
+      { text: 'Network Behavior Policies - Delete', value: 'NETWORK_BEHAVIOR_POLICY_DELETE' },
+      { text: 'Network Behavior Policies - Read', value: 'NETWORK_BEHAVIOR_POLICY_READ' },
+      { text: 'Network Behavior Policies - Update', value: 'NETWORK_BEHAVIOR_POLICY_UPDATE' }
+    ]
+  },
+  {
     group: 'Self Service',
     items: [
       { text: 'Self Service - Create', value: 'SELF_SERVICE_CREATE' },

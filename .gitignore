@@ -152,6 +152,7 @@ conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/cluster.conf
 conf/domain.conf
+conf/network_behavior_policies.conf
 conf/haproxy-portal.conf
 conf/haproxy-db.conf
 conf/keepalived.conf
