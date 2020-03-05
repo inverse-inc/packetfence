@@ -375,7 +375,8 @@ export default {
     })
   },
   sortFilterEngines: ({ collection, params }) => {
-    return apiCall.patch(['config', 'filter_engines', collection, 'sort_items'], params).then(response => {
+    const patch = params.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](['config', 'filter_engines', collection, 'sort_items'], params).then(response => {
       return response.data
     })
   },
@@ -385,7 +386,8 @@ export default {
     })
   },
   updateFilterEngine: ({ resource, id, data }) => {
-    return apiCall.patch(['config', 'filter_engines', resource, id], data).then(response => {
+    const patch = data.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](['config', 'filter_engines', resource, id], data).then(response => {
       return response.data
     })
   },

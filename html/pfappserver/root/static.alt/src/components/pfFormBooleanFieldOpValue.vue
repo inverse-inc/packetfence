@@ -48,24 +48,6 @@ export default {
       type: Array,
       default: () => { return [] }
     }
-  },
-  computed: {
-    inputValue: {
-      get () {
-        if (this.formStoreName) {
-          return this.formStoreValue // use FormStore
-        } else {
-          return this.value // use native (v-model)
-        }
-      },
-      set (newValue = null) {
-        if (this.formStoreName) {
-          this.formStoreValue = newValue // use FormStore
-        } else {
-          this.$emit('input', newValue) // use native (v-model)
-        }
-      }
-    }
   }
 }
 </script>

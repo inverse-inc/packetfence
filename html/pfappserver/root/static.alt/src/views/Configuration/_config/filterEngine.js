@@ -12,6 +12,17 @@ import {
 } from './'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfOperators } from '@/globals/pfOperators'
+import {
+  and,
+  not,
+  conditional,
+  hasFilterEngines,
+  filterEngineExists
+} from '@/globals/pfValidators'
+
+const {
+  required
+} = require('vuelidate/lib/validators')
 
 export const columns = [
   {
@@ -186,13 +197,14 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   const {
     isNew = false,
-    isClone = false
+    isClone = false,
+    collection
   } = meta
   return {
     id: {
       ...validatorsFromMeta(meta, 'id', 'Name'),
       ...{
-        // [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
+        [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasFilterEngines(collection), filterEngineExists(collection)))
       }
     },
     role: validatorsFromMeta(meta, 'role', i18n.t('Role')),

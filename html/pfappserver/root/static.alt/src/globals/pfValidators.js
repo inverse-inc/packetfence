@@ -255,7 +255,7 @@ export const isValidUnregDateByAclUser = (dateFormat = 'YYYY-MM-DD', allowZero =
     // ignore empty or zero'd (0000-00-00...)
     if (!value || (value === dateFormat.replace(/[a-z]/gi, '0') && allowZero)) return true
     value = parse(format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat))
-    return store.dispatch('session/getAllowedUserUnregDate').then((response) => {
+    return store.dispatch('session/getAllowedUserUnregDate').then(response => {
       const { 0: unregDate } = response
       if (unregDate) {
         return compareAsc(parse(unregDate), value) >= 0
@@ -278,7 +278,7 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
 }
 
 export const hasAdminRoles = () => {
-  return store.dispatch('config/getAdminRoles').then((response) => {
+  return store.dispatch('config/getAdminRoles').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -286,7 +286,7 @@ export const hasAdminRoles = () => {
 }
 
 export const hasBillingTiers = () => {
-  return store.dispatch('config/getBillingTiers').then((response) => {
+  return store.dispatch('config/getBillingTiers').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -294,7 +294,7 @@ export const hasBillingTiers = () => {
 }
 
 export const hasConnectionProfiles = () => {
-  return store.dispatch('config/getConnectionProfiles').then((response) => {
+  return store.dispatch('config/getConnectionProfiles').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -302,7 +302,7 @@ export const hasConnectionProfiles = () => {
 }
 
 export const hasSelfServices = () => {
-  return store.dispatch('config/getSelfServices').then((response) => {
+  return store.dispatch('config/getSelfServices').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -310,15 +310,29 @@ export const hasSelfServices = () => {
 }
 
 export const hasDomains = () => {
-  return store.dispatch('config/getDomains').then((response) => {
+  return store.dispatch('config/getDomains').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
   })
 }
 
+export const hasFilterEngines = (collection) => {
+  return (0, _common.withParams)({
+    type: 'hasFilterEngines',
+    collection
+  }, function (value) {
+    if (!(0, _common.req)(value)) return true
+    return store.dispatch('config/getFilterEngines', collection).then(response => {
+      return (response.length > 0)
+    }).catch(() => {
+      return true
+    })
+  })
+}
+
 export const hasFirewalls = () => {
-  return store.dispatch('config/getFirewalls').then((response) => {
+  return store.dispatch('config/getFirewalls').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -326,7 +340,7 @@ export const hasFirewalls = () => {
 }
 
 export const hasFloatingDevices = () => {
-  return store.dispatch('config/getFloatingDevices').then((response) => {
+  return store.dispatch('config/getFloatingDevices').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -334,7 +348,7 @@ export const hasFloatingDevices = () => {
 }
 
 export const hasInterfaces = () => {
-  return store.dispatch('config/getInterfaces').then((response) => {
+  return store.dispatch('config/getInterfaces').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -342,7 +356,7 @@ export const hasInterfaces = () => {
 }
 
 export const hasLayer2Networks = () => {
-  return store.dispatch('config/getLayer2Networks').then((response) => {
+  return store.dispatch('config/getLayer2Networks').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -350,7 +364,7 @@ export const hasLayer2Networks = () => {
 }
 
 export const hasMaintenanceTasks = () => {
-  return store.dispatch('config/getMaintenanceTasks').then((response) => {
+  return store.dispatch('config/getMaintenanceTasks').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -358,7 +372,7 @@ export const hasMaintenanceTasks = () => {
 }
 
 export const hasPkiProviders = () => {
-  return store.dispatch('config/getPkiProviders').then((response) => {
+  return store.dispatch('config/getPkiProviders').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -366,7 +380,7 @@ export const hasPkiProviders = () => {
 }
 
 export const hasPortalModules = () => {
-  return store.dispatch('config/getPortalModules').then((response) => {
+  return store.dispatch('config/getPortalModules').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -374,7 +388,7 @@ export const hasPortalModules = () => {
 }
 
 export const hasProvisionings = () => {
-  return store.dispatch('config/getProvisionings').then((response) => {
+  return store.dispatch('config/getProvisionings').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -382,7 +396,7 @@ export const hasProvisionings = () => {
 }
 
 export const hasRealms = () => {
-  return store.dispatch('config/getRealms').then((response) => {
+  return store.dispatch('config/getRealms').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -390,7 +404,7 @@ export const hasRealms = () => {
 }
 
 export const hasRoles = () => {
-  return store.dispatch('config/getRoles').then((response) => {
+  return store.dispatch('config/getRoles').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -398,7 +412,7 @@ export const hasRoles = () => {
 }
 
 export const hasRoutedNetworks = () => {
-  return store.dispatch('config/getRoutedNetworks').then((response) => {
+  return store.dispatch('config/getRoutedNetworks').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -406,7 +420,7 @@ export const hasRoutedNetworks = () => {
 }
 
 export const hasScans = () => {
-  return store.dispatch('config/getScans').then((response) => {
+  return store.dispatch('config/getScans').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -414,7 +428,7 @@ export const hasScans = () => {
 }
 
 export const hasSecurityEvents = () => {
-  return store.dispatch('config/getSecurityEvents').then((response) => {
+  return store.dispatch('config/getSecurityEvents').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -422,7 +436,7 @@ export const hasSecurityEvents = () => {
 }
 
 export const hasSources = () => {
-  return store.dispatch('config/getSources').then((response) => {
+  return store.dispatch('config/getSources').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -430,7 +444,7 @@ export const hasSources = () => {
 }
 
 export const hasSwitches = () => {
-  return store.dispatch('config/getSwitches').then((response) => {
+  return store.dispatch('config/getSwitches').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -438,7 +452,7 @@ export const hasSwitches = () => {
 }
 
 export const hasSwitchGroups = () => {
-  return store.dispatch('config/getSwitchGroups').then((response) => {
+  return store.dispatch('config/getSwitchGroups').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -446,14 +460,14 @@ export const hasSwitchGroups = () => {
 }
 
 export const hasSwitchTemplates = () => {
-  return store.dispatch('config/getSwitchTemplates').then((response) => {
+  return store.dispatch('config/getSwitchTemplates').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
   })
 }
 export const hasSyslogForwarders = () => {
-  return store.dispatch('config/getSyslogForwarders').then((response) => {
+  return store.dispatch('config/getSyslogForwarders').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -461,7 +475,7 @@ export const hasSyslogForwarders = () => {
 }
 
 export const hasSyslogParsers = () => {
-  return store.dispatch('config/getSyslogParsers').then((response) => {
+  return store.dispatch('config/getSyslogParsers').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -469,7 +483,7 @@ export const hasSyslogParsers = () => {
 }
 
 export const hasTrafficShapingPolicies = () => {
-  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
+  return store.dispatch('config/getTrafficShapingPolicies').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -477,7 +491,7 @@ export const hasTrafficShapingPolicies = () => {
 }
 
 export const hasWmiRules = () => {
-  return store.dispatch('config/getWmiRules').then((response) => {
+  return store.dispatch('config/getWmiRules').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -485,7 +499,7 @@ export const hasWmiRules = () => {
 }
 
 export const hasWRIXLocations = () => {
-  return store.dispatch('config/getWrixLocations').then((response) => {
+  return store.dispatch('config/getWrixLocations').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -494,7 +508,7 @@ export const hasWRIXLocations = () => {
 
 export const adminRoleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getAdminRoles').then((response) => {
+  return store.dispatch('config/getAdminRoles').then(response => {
     return response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
@@ -503,7 +517,7 @@ export const adminRoleExists = (value) => {
 
 export const billingTierExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getBillingTiers').then((response) => {
+  return store.dispatch('config/getBillingTiers').then(response => {
     return response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
@@ -512,7 +526,7 @@ export const billingTierExists = (value) => {
 
 export const categoryIdNumberExists = (value) => {
   if (!value || !/^\d+$/.test(value)) return true
-  return store.dispatch('config/getRoles').then((response) => {
+  return store.dispatch('config/getRoles').then(response => {
     if (response.length === 0) return true
     else return response.filter(role => role.category_id === value).length > 0
   }).catch(() => {
@@ -522,7 +536,7 @@ export const categoryIdNumberExists = (value) => {
 
 export const categoryIdStringExists = (value) => {
   if (!value || /^\d+$/.test(value)) return true
-  return store.dispatch('config/getRoles').then((response) => {
+  return store.dispatch('config/getRoles').then(response => {
     if (response.length === 0) return true
     else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -532,7 +546,7 @@ export const categoryIdStringExists = (value) => {
 
 export const connectionProfileExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getConnectionProfiles').then((response) => {
+  return store.dispatch('config/getConnectionProfiles').then(response => {
     if (response.length === 0) return true
     else return response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -542,7 +556,7 @@ export const connectionProfileExists = (value) => {
 
 export const selfServiceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSelfServices').then((response) => {
+  return store.dispatch('config/getSelfServices').then(response => {
     if (response.length === 0) return true
     else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -552,7 +566,7 @@ export const selfServiceExists = (value) => {
 
 export const domainExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getDomains').then((response) => {
+  return store.dispatch('config/getDomains').then(response => {
     if (response.length === 0) return true
     else return response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -560,9 +574,24 @@ export const domainExists = (value) => {
   })
 }
 
+export const filterEngineExists = (collection) => {
+  return (0, _common.withParams)({
+    type: 'filterEngineExists',
+    collection
+  }, function (value) {
+    if (!(0, _common.req)(value)) return true
+    return store.dispatch('config/getFilterEngines', collection).then(response => {
+      if (response.length === 0) return true
+      return response.map(item => item.id.toLowerCase()).includes(value.toLowerCase())
+    }).catch(() => {
+      return true
+    })
+  })
+}
+
 export const firewallExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getFirewalls').then((response) => {
+  return store.dispatch('config/getFirewalls').then(response => {
     if (response.length === 0) return true
     else return response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -572,7 +601,7 @@ export const firewallExists = (value) => {
 
 export const floatingDeviceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getFloatingDevices').then((response) => {
+  return store.dispatch('config/getFloatingDevices').then(response => {
     if (response.length === 0) return true
     else return response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -582,7 +611,7 @@ export const floatingDeviceExists = (value) => {
 
 export const interfaceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getInterfaces').then((response) => {
+  return store.dispatch('config/getInterfaces').then(response => {
     if (response.length === 0) return true
     else return response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -596,7 +625,7 @@ export const interfaceVlanExists = (id) => {
     id
   }, function (value) {
     if (!(0, _common.req)(value)) return true
-    return store.dispatch('config/getInterfaces').then((response) => {
+    return store.dispatch('config/getInterfaces').then(response => {
       if (id.includes('.')) { // split dot-notation `iface.vlan` to `iface` only.
         id = id.split('.')[0]
       }
@@ -619,7 +648,7 @@ export const fingerbankCombinationExists = (value) => {
 
 export const layer2NetworkExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getLayer2Networks').then((response) => {
+  return store.dispatch('config/getLayer2Networks').then(response => {
     if (response.length === 0) return true
     else return response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -629,7 +658,7 @@ export const layer2NetworkExists = (value) => {
 
 export const maintenanceTaskExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getMaintenanceTasks').then((response) => {
+  return store.dispatch('config/getMaintenanceTasks').then(response => {
     if (response.length === 0) return true
     else return response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -654,7 +683,7 @@ export const nodeExists = (value) => {
 
 export const pkiProviderExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getPkiProviders').then((response) => {
+  return store.dispatch('config/getPkiProviders').then(response => {
     if (response.length === 0) return true
     else return response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -664,7 +693,7 @@ export const pkiProviderExists = (value) => {
 
 export const portalModuleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getPortalModules').then((response) => {
+  return store.dispatch('config/getPortalModules').then(response => {
     if (response.length === 0) return true
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -674,7 +703,7 @@ export const portalModuleExists = (value) => {
 
 export const provisioningExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getProvisionings').then((response) => {
+  return store.dispatch('config/getProvisionings').then(response => {
     if (response.length === 0) return true
     else return response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -684,7 +713,7 @@ export const provisioningExists = (value) => {
 
 export const realmExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getRealms').then((response) => {
+  return store.dispatch('config/getRealms').then(response => {
     if (response.length === 0) return true
     else return response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -694,7 +723,7 @@ export const realmExists = (value) => {
 
 export const roleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getRoles').then((response) => {
+  return store.dispatch('config/getRoles').then(response => {
     if (response.length === 0) return true
     else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -704,7 +733,7 @@ export const roleExists = (value) => {
 
 export const routedNetworkExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getRoutedNetworks').then((response) => {
+  return store.dispatch('config/getRoutedNetworks').then(response => {
     if (response.length === 0) return true
     else return response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -714,7 +743,7 @@ export const routedNetworkExists = (value) => {
 
 export const scanExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getScans').then((response) => {
+  return store.dispatch('config/getScans').then(response => {
     if (response.length === 0) return true
     else return response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -724,7 +753,7 @@ export const scanExists = (value) => {
 
 export const securityEventExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSecurityEvents').then((response) => {
+  return store.dispatch('config/getSecurityEvents').then(response => {
     if (response.length === 0) return true
     else return response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -734,7 +763,7 @@ export const securityEventExists = (value) => {
 
 export const sourceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSources').then((response) => {
+  return store.dispatch('config/getSources').then(response => {
     if (response.length === 0) return true
     else return response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -744,7 +773,7 @@ export const sourceExists = (value) => {
 
 export const switchExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSwitches').then((response) => {
+  return store.dispatch('config/getSwitches').then(response => {
     if (response.length === 0) return true
     else return response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -754,7 +783,7 @@ export const switchExists = (value) => {
 
 export const switchGroupExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSwitchGroups').then((response) => {
+  return store.dispatch('config/getSwitchGroups').then(response => {
     if (response.length === 0) return true
     else return response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -764,7 +793,7 @@ export const switchGroupExists = (value) => {
 
 export const switchTemplateExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSwitchTemplates').then((response) => {
+  return store.dispatch('config/getSwitchTemplates').then(response => {
     if (response.length === 0) return true
     else return response.filter(switchTemplate => switchTemplate.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -774,7 +803,7 @@ export const switchTemplateExists = (value) => {
 
 export const syslogForwarderExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSyslogForwarders').then((response) => {
+  return store.dispatch('config/getSyslogForwarders').then(response => {
     if (response.length === 0) return true
     else return response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -784,7 +813,7 @@ export const syslogForwarderExists = (value) => {
 
 export const syslogParserExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getSyslogParsers').then((response) => {
+  return store.dispatch('config/getSyslogParsers').then(response => {
     if (response.length === 0) return true
     else return response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -794,7 +823,7 @@ export const syslogParserExists = (value) => {
 
 export const trafficShapingPolicyExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
+  return store.dispatch('config/getTrafficShapingPolicies').then(response => {
     if (response.length === 0) return true
     else return response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -822,7 +851,7 @@ export const userNotExists = (value) => {
 
 export const wmiRuleExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getWmiRules').then((response) => {
+  return store.dispatch('config/getWmiRules').then(response => {
     if (response.length === 0) return true
     else return response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
@@ -832,7 +861,7 @@ export const wmiRuleExists = (value) => {
 
 export const WRIXLocationExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getWrixLocations').then((response) => {
+  return store.dispatch('config/getWrixLocations').then(response => {
     if (response.length === 0) return true
     else return response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {

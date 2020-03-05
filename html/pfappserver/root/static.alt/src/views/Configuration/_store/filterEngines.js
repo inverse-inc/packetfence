@@ -61,7 +61,8 @@ const actions = {
   sortCollection: ({ commit, dispatch }, { collection, data }) => {
     return dispatch('getCollection', collection).then(() => {
       const params = {
-        items: data
+        items: data,
+        quiet: true
       }
       commit('COLLECTION_REQUEST', types.LOADING)
       return api.sortFilterEngines({ collection, params }).then(response => {
@@ -156,7 +157,7 @@ const actions = {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
-      const data = { id, status: 'enabled' }
+      const data = { id, status: 'enabled', quiet: true }
       return api.updateFilterEngine({ resource, id, data }).then(response => {
         commit('ITEM_ENABLED', { collection, id })
         return response
@@ -170,7 +171,7 @@ const actions = {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
-      const data = { id, status: 'disabled' }
+      const data = { id, status: 'disabled', quiet: true }
       return api.updateFilterEngine({ resource, id, data }).then(response => {
         commit('ITEM_DISABLED', { collection, id })
         return response

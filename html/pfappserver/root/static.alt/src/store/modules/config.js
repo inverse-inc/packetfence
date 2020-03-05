@@ -1,4 +1,3 @@
-
 /**
  * "config" store module
  */
@@ -6,6 +5,14 @@ import apiCall from '@/utils/api'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
+
+const encodeURL = (url) => {
+  if (Array.isArray(url)) {
+    return url.map(segment => encodeURIComponent(segment.toString().replace('/', '~'))).join('/')
+  } else {
+    return url
+  }
+}
 
 const api = {
   getAdminRoles () {
@@ -97,6 +104,9 @@ const api = {
   },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
+  },
+  getFilterEngines (collection) {
+    return apiCall({ url: encodeURL(['config', 'filter_engines', collection]), method: 'get' })
   },
   getFirewalls () {
     return apiCall({ url: 'config/firewalls', method: 'get' })
@@ -241,6 +251,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     connectionProfilesStatus: '',
     domains: false,
     domainsStatus: '',
+    filterEngines: false,
+    filterEnginesStatus: '',
     firewalls: false,
     firewallsStatus: '',
     fixPermissionsStatus: '',
@@ -415,6 +427,9 @@ const getters = {
   },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
+  },
+  isLoadingFilterEngines: state => {
+    return state.filterEnginesStatus === types.LOADING
   },
   isLoadingFirewalls: state => {
     return state.firewallsStatus === types.LOADING
@@ -1020,6 +1035,20 @@ const actions = {
       return Promise.resolve(state.domains)
     }
   },
+  getFilterEngines: ({ state, getters, commit }, collection) => {
+    if (getters.isLoadingFilterEngines) {
+      return Promise.resolve(state.filterEngines[collection])
+    }
+    if (!state.filterEngines || !state.filterEngines[collection]) {
+      commit('FILTER_ENGINES_REQUEST')
+      return api.getFilterEngines(collection).then(response => {
+        commit('FILTER_ENGINES_UPDATED', { collection, filterEngines: response.data.items })
+        return state.filterEngines[collection]
+      })
+    } else {
+      return Promise.resolve(state.filterEngines[collection])
+    }
+  },
   getFirewalls: ({ state, getters, commit }) => {
     if (getters.isLoadingFirewalls) {
       return Promise.resolve(state.firewalls)
@@ -1580,6 +1609,16 @@ const mutations = {
   DOMAINS_UPDATED: (state, domains) => {
     state.domains = domains
     state.domainsStatus = types.SUCCESS
+  },
+  FILTER_ENGINES_REQUEST: (state) => {
+    state.filterEnginesStatus = types.LOADING
+  },
+  FILTER_ENGINES_UPDATED: (state, { collection, filterEngines}) => {
+    if (!state.filterEngines) {
+      state.filterEngines = {}
+    }
+    state.filterEngines[collection] = filterEngines
+    state.filterEnginesStatus = types.SUCCESS
   },
   FIREWALLS_REQUEST: (state) => {
     state.firewallsStatus = types.LOADING

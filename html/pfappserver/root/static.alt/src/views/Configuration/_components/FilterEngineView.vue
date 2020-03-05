@@ -19,9 +19,6 @@
         <span v-else-if="isClone" v-html="$t('Clone Filter {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Filter') }}</span>
       </h4>
-
-<pre>{{ JSON.stringify(form, null, 2) }}</pre>
-
       <b-badge class="ml-2" variant="secondary">{{ collectionName }}</b-badge>
     </template>
     <template v-slot:footer>
@@ -123,7 +120,7 @@ export default {
       this.$store.dispatch('$_filter_engines/options', { collection, id }).then(options => {
         const { meta = {} } = options
         const { isNew, isClone } = this
-        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, collection } })
         if (id) { // existing
           this.$store.dispatch('$_filter_engines/getFilterEngine', { collection, id }).then(form => {
             if (this.isClone) {

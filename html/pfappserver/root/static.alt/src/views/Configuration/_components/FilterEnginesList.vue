@@ -122,6 +122,7 @@ export default {
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_filter_engines/enableFilterEngine', { collection, id }).then(() => {
             resolve('enabled')
+            this.$store.dispatch('notification/info', { message: this.$i18n.t('{collection} <code>{id}</code> enabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
           }).catch(() => {
             reject() // reset
           })
@@ -135,6 +136,7 @@ export default {
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_filter_engines/disableFilterEngine', { collection, id }).then(() => {
             resolve('disabled')
+            this.$store.dispatch('notification/info', { message: this.$i18n.t('{collection} <code>{id}</code> disabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
           }).catch(() => {
             reject() // reset
           })
