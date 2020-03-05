@@ -34,7 +34,7 @@
         </b-row>
       </template>
       <template v-slot:buttonAdd v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newDevice', params: { scope: 'local' } }">{{ $t('New Device') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDevice', params: { scope: 'local' } }">{{ $t('New Device') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>
