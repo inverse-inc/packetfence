@@ -26,6 +26,7 @@
         <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -123,8 +124,8 @@ export default {
         this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, collection } })
         if (id) { // existing
           this.$store.dispatch('$_filter_engines/getFilterEngine', { collection, id }).then(form => {
+            form = JSON.parse(JSON.stringify(form)) // dereference
             if (this.isClone) {
-              form = JSON.parse(JSON.stringify(form)) // dereference
               form.id = `${form.id}-${this.$i18n.t('copy')}`
             }
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
