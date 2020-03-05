@@ -107,7 +107,7 @@ Vagrant.configure("2") do |config|
 
     # NETWORK INTERFACES
       # eth0 managed by vagrant provider in DHCP, remapped below
-      # link for eth1 --> mgmt_network (vlan 17)
+      # link for swp1 --> mgmt_network (vlan 17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:11",
             :libvirt__network_name => 'vagrant0',
@@ -175,8 +175,8 @@ rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
 delete_udev_directory
 
 device.vm.provision :shell , :inline => <<-udev_rule
-echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:01 --> eth1"
-echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:01", NAME="eth1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:01 --> swp1"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:01", NAME="swp1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
      device.vm.provision :shell , :inline => <<-udev_rule
 echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:02 --> swp2"
