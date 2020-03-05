@@ -26,7 +26,6 @@ Name
 has_field 'field' => (
     type     => 'Text',
     label    => 'Field',
-    default  => 'and',
 );
 
 has_field 'value' => (
@@ -53,6 +52,7 @@ has_field 'op' => (
     type     => 'Select',
     label    => 'Value',
     required => 1,
+    default  => 'and',
     options => [
         make_options( ['values'], qw(and or) ),
         make_options(
