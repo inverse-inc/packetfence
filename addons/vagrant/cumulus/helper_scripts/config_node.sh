@@ -43,37 +43,6 @@ cat << EOT > /etc/timezone
 Etc/UTC
 EOT
 
-# Apply Timezone Now
-# dpkg-reconfigure -f noninteractive tzdata
-
-# Write NTP Configuration
-cat << EOT > /etc/ntp.conf
-# /etc/ntp.conf, configuration for ntpd; see ntp.conf(5) for help
-
-driftfile /var/lib/ntp/ntp.drift
-
-statistics loopstats peerstats clockstats
-filegen loopstats file loopstats type day enable
-filegen peerstats file peerstats type day enable
-filegen clockstats file clockstats type day enable
-
-server 192.168.0.254 iburst
-
-# By default, exchange time with everybody, but don't allow configuration.
-restrict -4 default kod notrap nomodify nopeer noquery
-restrict -6 default kod notrap nomodify nopeer noquery
-
-# Local users may interrogate the ntp server more closely.
-restrict 127.0.0.1
-restrict ::1
-
-# Specify interfaces, don't listen on switch ports
-interface listen eth0
-EOT
-
-sudo systemctl enable ntp.service
-sudo systemctl start ntp.service
-
 # Once initial provisioning is done using vagrant management network
 # we apply new network configuration
 echo " ### Overwriting /etc/network/interfaces ###"
@@ -82,9 +51,15 @@ auto lo
 iface lo inet loopback
 
 auto eth0
-iface eth0
+iface eth0 inet static
     alias VLAN 17
     address 172.17.1.251/24
+
+auto eth1
+iface eth1 inet dhcp
+
+auto eth2
+iface eth2 inet dhcp
 
 EOT
 
