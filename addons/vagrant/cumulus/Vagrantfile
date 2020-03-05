@@ -273,7 +273,7 @@ vagrant_interface_rule
     
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision :shell , path: "./helper_scripts/config_server.sh"
+    device.vm.provision :shell , path: "./helper_scripts/config_node.sh"
 
 
     # Install Rules for the interface re-map
