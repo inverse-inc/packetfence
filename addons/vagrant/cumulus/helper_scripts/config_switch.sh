@@ -10,8 +10,8 @@ cat <<EOT > /etc/network/interfaces
 auto lo
 iface lo inet loopback
 
-auto eth0
-iface eth0 inet dhcp
+auto swp48
+iface swp48 inet dhcp
     alias Interface used by Vagrant
 
 # we bridge interfaces on VLAN17
