@@ -1620,6 +1620,9 @@ const mutations = {
     state.filterEngines[collection] = filterEngines
     state.filterEnginesStatus = types.SUCCESS
   },
+  FILTER_ENGINES_DELETED: (state) => {
+    state.filterEngines = false
+  },
   FIREWALLS_REQUEST: (state) => {
     state.firewallsStatus = types.LOADING
   },

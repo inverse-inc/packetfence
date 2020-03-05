@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import store from '@/store'
 
 const types = {
   LOADING: 'loading',
@@ -120,6 +121,7 @@ const actions = {
       return api.createFilterEngine({ collection, data }).then(response => {
         const { id } = data
         commit('ITEM_CREATED', { collection, id, item: data })
+        store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return response
       }).catch((err) => {
         commit('ITEM_ERROR', err.response)
@@ -133,6 +135,7 @@ const actions = {
       const { [collection]: { resource } = {} } = state.cache
       return api.updateFilterEngine({ resource, id, data }).then(response => {
         commit('ITEM_REPLACED', { collection, id, item: data })
+        store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return state.cache[collection].items.find(item => item.id === id)
       }).catch((err) => {
         commit('ITEM_ERROR', err.response)
@@ -146,6 +149,7 @@ const actions = {
       const { [collection]: { resource } = {} } = state.cache
       return api.deleteFilterEngine({ resource, id }).then(response => {
         commit('ITEM_DESTROYED', { collection, id })
+        store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return response
       }).catch((err) => {
         commit('ITEM_ERROR', err.response)
