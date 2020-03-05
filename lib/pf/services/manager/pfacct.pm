@@ -17,7 +17,7 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'pfdns' } );
+has '+name' => ( default => sub { 'pfacct' } );
 
 =head1 AUTHOR
 
