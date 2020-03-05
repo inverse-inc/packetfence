@@ -109,7 +109,7 @@ Vagrant.configure("2") do |config|
       # eth0 managed by vagrant provider in DHCP, remapped below
       # link for swp1 --> mgmt_network (vlan 17)
       device.vm.network "private_network",
-            :mac => "a0:00:00:00:00:11",
+            :mac => "a0:00:00:00:00:01",
             :libvirt__network_name => 'vagrant0',
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
