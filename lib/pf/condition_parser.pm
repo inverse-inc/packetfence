@@ -419,8 +419,20 @@ sub ast_to_object {
     my ($ast) = @_;
     if (ref $ast) {
         my $op = $ast->[0];
+        if (!exists $OPS_WITH_VALUES{$op}) {
+            return { op => 'and', values => [_ast_to_object($ast)]};
+        }
+    }
+
+    return _ast_to_object(@_);
+}
+
+sub _ast_to_object {
+    my ($ast) = @_;
+    if (ref $ast) {
+        my $op = $ast->[0];
         if (exists $OPS_WITH_VALUES{$op}) {
-            return { op => $OPS_WITH_VALUES{$op}, values => [map { ast_to_object($_) } @{$ast}[1..(@{$ast} - 1)] ] };
+            return { op => $OPS_WITH_VALUES{$op}, values => [map { _ast_to_object($_) } @{$ast}[1..(@{$ast} - 1)] ] };
         }
 
         if (exists $OP_BINARY{$op}) {
