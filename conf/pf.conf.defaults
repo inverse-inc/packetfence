@@ -411,6 +411,11 @@ radiusd=enabled
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 radiusd_binary=/usr/sbin/radiusd
 #
+# services.radiusd_acct
+#
+# Should freeadius handling accounting
+radiusd_acct=disabled
+#
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
@@ -596,6 +601,16 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/sbin/pfdns
+
+# services.pfacct
+#
+# Should pfacct be managed by PacketFence?
+pfacct=enabled
+#
+# services.pfacct_binary
+#
+# Location of the pfacct binary.
+pfacct_binary=/usr/local/pf/sbin/pfacct
 #
 # services.api-frontend
 #
