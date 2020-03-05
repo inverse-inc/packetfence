@@ -350,6 +350,11 @@ export default {
       return response.data
     })
   },
+  fingerbankCanUseNbaEndpoints: () => {
+    return apiCall.getQuiet(['fingerbank', 'can_use_nba_endpoints']).then(response => {
+      return response.data
+    })
+  },
   fingerbankGeneralSettings: params => {
     return apiCall.get(['config', 'fingerbank_settings'], { params }).then(response => {
       return response.data.items

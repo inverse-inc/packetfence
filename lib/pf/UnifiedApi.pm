@@ -1778,6 +1778,7 @@ sub setup_api_v1_fingerbank_routes {
     my ($self, $root) = @_;
     $root->register_sub_action({ action => "update_upstream_db", method => "POST"});
     $root->register_sub_action({ action => "account_info", method => "GET" });
+    $root->register_sub_action({ action => "can_use_nba_endpoints", method => "GET" });
     my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
     my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
     my $all_route = $root->any("/all")->to(scope => "All")->name( $root->name . ".All");

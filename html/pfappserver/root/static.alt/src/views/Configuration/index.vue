@@ -53,7 +53,6 @@ export default {
               items: [
                 { name: this.$i18n.t('General Settings'), path: '/configuration/fingerbank/general_settings' },
                 { name: this.$i18n.t('Device change detection'), path: '/configuration/fingerbank/device_change_detection' },
-                { name: this.$i18n.t('Network Behavior Policies'), path: '/configuration/fingerbank/network_behavior_policies' },
                 { name: this.$i18n.t('Combinations'), path: '/configuration/fingerbank/combinations' },
                 { name: this.$i18n.t('Devices'), path: '/configuration/fingerbank/devices' },
                 { name: this.$i18n.t('DHCP Fingerprints'), path: '/configuration/fingerbank/dhcp_fingerprints' },
@@ -64,6 +63,7 @@ export default {
                 { name: this.$i18n.t('User Agents'), path: '/configuration/fingerbank/user_agents' }
               ]
             },
+            { name: this.$i18n.t('Anomaly detection'), path: '/configuration/fingerbank/network_behavior_policies' },
             { name: this.$i18n.t('Scans'),
               items: [
                 { name: this.$i18n.t('Scan Engines'), path: '/configuration/scans/scan_engines' },

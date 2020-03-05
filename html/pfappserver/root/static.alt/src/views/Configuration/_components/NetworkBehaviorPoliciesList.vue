@@ -10,6 +10,12 @@
             {{ $t('Network Behavior Policy') }}
           </h4>
         </b-card-header>
+        
+        <b-card-header v-if="!canUseNbaEndpoints">
+          <template>
+          <div class="alert alert-warning">{{ $t(`Your Fingerbank account currently doesn't have access to the network behavior analysis API endpoints. Get in touch with info@inverse.ca for a quote. Without these API endpoints, you will not be able to use the anomaly detection feature.`) }}</div>
+          </template>
+        </b-card-header>
       </template>
       <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newNetworkBehaviorPolicy' }">{{ $t('New Network Behavior Policy') }}</b-button>
@@ -42,7 +48,8 @@ export default {
   },
   data () {
     return {
-      config: config(this)
+      config: config(this),
+      canUseNbaEndpoints: false,
     }
   },
   methods: {
@@ -54,7 +61,15 @@ export default {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
+    },
+    init () {
+      this.$store.dispatch('$_fingerbank/getCanUseNbaEndpoints').then(info => {
+        this.canUseNbaEndpoints = info["result"]
+      })
     }
+  },
+  created () {
+    this.init()
   }
 }
 </script>
