@@ -25,6 +25,7 @@ use pf::file_paths qw(
     $conf_dir
     $install_dir
 );
+use pf::config qw(%Config);
 use pf::services::manager::radiusd_child;
 use pf::SwitchFactory;
 use pf::util;
@@ -43,21 +44,24 @@ has '+name' => ( default => sub { 'radiusd' } );
 sub _build_radiusdManagers {
     my ($self) = @_;
 
-    my $listens = {};
+    my @listens = ();
     if ($cluster_enabled) {
         my $cluster_ip = pf::cluster::management_cluster_ip();
-        $listens->{load_balancer} = {};
+        push @listens, 'load_balancer';
     }
-    $listens->{auth} = {};
-    $listens->{acct} = {};
+
+    push @listens, 'auth';
+    if (isenabled($Config{services}{radiusd_acct})) {
+        push @listens, 'acct';
+    }
 
     # 'Eduroam' RADIUS instance manager
     if ( @{ pf::authentication::getAuthenticationSourcesByType('Eduroam') } ) {
-        $listens->{eduroam} = {};
+        push @listens, 'eduroam';
     }
 
     if ( @cli_switches > 0 ) {
-        $listens->{cli} = {};
+        push @listens, 'cli';
     }
 
     my @managers = map {
@@ -71,7 +75,7 @@ sub _build_radiusdManagers {
                 options      => $id,
             }
             )
-    } keys %$listens;
+    } @listens;
 
     return \@managers;
 }
