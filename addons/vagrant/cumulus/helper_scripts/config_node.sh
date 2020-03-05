@@ -55,11 +55,13 @@ iface eth0 inet static
     alias VLAN 17
     address 172.17.1.251/24
 
-auto eth1
+allow-hotplug eth1
 iface eth1 inet dhcp
+    alias dot1x port
 
-auto eth2
+allow-hotplug eth2
 iface eth2 inet dhcp
+    alias inline port
 
 EOT
 
