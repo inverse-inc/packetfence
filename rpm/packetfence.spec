@@ -431,6 +431,9 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
+# systemd modules
+%{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
+%{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
 
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
@@ -751,6 +754,8 @@ fi
 %attr(0644, root, root) /etc/systemd/system/packetfence-base.target
 %attr(0644, root, root) /etc/systemd/system/packetfence-cluster.target
 %attr(0644, root, root) /etc/systemd/system/packetfence*.slice
+%attr(0644, root, root) /etc/modules-load.d/packetfence.conf
+%attr(0644, root, root) /etc/modprobe.d/packetfence.conf
 
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.path
