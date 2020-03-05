@@ -33,7 +33,7 @@ export const dhcpList = [
 
 export const DHCPPoolTypes = [
   { value: 'memory', text: i18n.t('Memory Pool') },
-  { value: 'mysql', text: i18n.t('Mysql Pool') }
+  { value: 'mysql', text: i18n.t('MySQL Pool') }
 ]
 
 export const DHCPPoolTypesFormatter = (value) => {

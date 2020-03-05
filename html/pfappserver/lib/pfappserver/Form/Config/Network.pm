@@ -68,7 +68,7 @@ has_field 'pool_backend' =>
    required => 1,
    options => [
         { value => $pf::constants::dhcp::MEMORY_POOL, label => 'Memory Pool'},
-        { value => $pf::constants::dhcp::MYSQL_POOL, label => 'Mysql Pool'},
+        { value => $pf::constants::dhcp::MYSQL_POOL, label => 'MySQL Pool'},
    ],
    default => $pf::constants::dhcp::MEMORY_POOL,
   );
