@@ -364,7 +364,7 @@ sub test_valid_string {
         if ($err) {
             fail($msg);
         } else {
-            is_deeply(ast_to_object($ast), $object, "Object serialization worked for '$string'");
+            is_deeply(pf::condition_parser::_ast_to_object($ast), $object, "Object serialization worked for '$string'");
         }
     }
 }
