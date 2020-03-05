@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
-	_ "fmt"
+	"fmt"
+	"github.com/coreos/go-systemd/daemon"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 	"os"
 	"os/signal"
@@ -27,6 +29,15 @@ func main() {
 		w.Done()
 	}()
 
+	NotifySystemd("READY=1")
+	defer NotifySystemd("STOPPING=1")
 	processor.Start()
 	w.Wait()
+}
+
+func NotifySystemd(msg string) {
+	_, err := daemon.SdNotify(false, msg)
+	if err != nil {
+		log.LoggerWContext(context.Background(), fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
+	}
 }
