@@ -255,6 +255,11 @@ httpd_portal_modstatus=1444
 #
 # port to use for accessing the Unified API
 unifiedapi=9999
+#
+# ports.pfacct_netflow
+#
+# port for listening to netflow
+pfacct_netflow=2056
 
 [database]
 #

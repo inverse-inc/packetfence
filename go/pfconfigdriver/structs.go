@@ -105,6 +105,7 @@ type PfConfPorts struct {
 	AAA                  string `json:"aaa"`
 	HttpdPortalModStatus string `json:"httpd_portal_modstatus"`
 	UnifiedAPI           string `json:"unifiedapi"`
+	PFAcctNetflow        string `json:"pfacct_netflow"`
 }
 
 type PfConfFencing struct {
