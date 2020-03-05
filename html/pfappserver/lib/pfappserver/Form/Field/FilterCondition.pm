@@ -26,6 +26,7 @@ Name
 has_field 'field' => (
     type     => 'Text',
     label    => 'Field',
+    default  => 'and',
 );
 
 has_field 'value' => (
@@ -33,33 +34,65 @@ has_field 'value' => (
     label    => 'Value',
 );
 
+
 has_field 'op' => (
     type     => 'Select',
     label    => 'Value',
     required => 1,
-    options => [
+    options  => [
         (
-            map { { label => $_, value => $_, requires => ['values']}} qw(
-                and
-                or
-                nor
-                nand
-            )
+            map {
+                (
+                    { label => $_, value => $_, requires => ['values'] },
+                    {
+                        label    => "not_$_",
+                        value    => "not_$_",
+                        requires => ['values']
+                    }
+                  )
+            } qw( and or )
         ),
         (
-            map { { label => $_, value => $_, requires => [qw(value field)] } } qw(
-                contains
-                regex
-                starts_with
-                equals
-                not_equals
-            )
+            map {
+                (
+                    { label => $_, value => $_, requires => [qw(value field)] },
+                    {
+                        label    => "not_$_",
+                        value    => "not_$_",
+                        requires => [qw(value field)]
+                    }
+                  )
+              } qw(
+              contains
+              includes
+              defined
+              regex
+              starts_with
+              ends_with
+              equals
+              fingerbank::device_is_a
+              date_is_before
+              date_is_after
+              )
+        ),
+        (
+            map {
+                (
+                    { label => $_, value => $_, requires => [qw(value)] },
+                    {
+                        label    => "not_$_",
+                        value    => "not_$_",
+                        requires => [qw(value)]
+                    }
+                  )
+              } qw( time_period)
         )
     ],
 );
 
 has_field values => (
     type => 'Repeatable',
+    default_method => sub { [] },
 );
 
 has_field 'values.contains' => (
