@@ -35,34 +35,28 @@ has_field 'value' => (
 );
 
 
+sub make_options {
+    my ($requires, @ops) = @_;
+    return map {
+        (
+            { label => $_, value => $_, requires => $requires },
+            {
+                label    => "not_$_",
+                value    => "not_$_",
+                requires => $requires,
+            }
+          )
+    } @ops;
+}
+
 has_field 'op' => (
     type     => 'Select',
     label    => 'Value',
     required => 1,
-    options  => [
-        (
-            map {
-                (
-                    { label => $_, value => $_, requires => ['values'] },
-                    {
-                        label    => "not_$_",
-                        value    => "not_$_",
-                        requires => ['values']
-                    }
-                  )
-            } qw( and or )
-        ),
-        (
-            map {
-                (
-                    { label => $_, value => $_, requires => [qw(value field)] },
-                    {
-                        label    => "not_$_",
-                        value    => "not_$_",
-                        requires => [qw(value field)]
-                    }
-                  )
-              } qw(
+    options => [
+        make_options( ['values'], qw(and or) ),
+        make_options(
+            [qw(value field)], qw(
               contains
               includes
               defined
@@ -72,22 +66,10 @@ has_field 'op' => (
               equals
               fingerbank::device_is_a
               date_is_before
-              date_is_after
-              )
+              date_is_after)
         ),
-        (
-            map {
-                (
-                    { label => $_, value => $_, requires => [qw(value)] },
-                    {
-                        label    => "not_$_",
-                        value    => "not_$_",
-                        requires => [qw(value)]
-                    }
-                  )
-              } qw( time_period)
-        )
-    ],
+        make_options( [qw(value)], qw(time_period) )
+      ],
 );
 
 has_field values => (
