@@ -13,6 +13,8 @@ import (
 )
 
 func main() {
+	log.SetProcessName("pfacct")
+
 	pfacct := NewPfAcct()
 	w := sync.WaitGroup{}
 	rs := pfacct.radiusListen(&w)
