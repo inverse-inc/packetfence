@@ -38,7 +38,7 @@ const actions = {
     return api.filterEnginesCollections().then(response => {
       commit('COLLECTIONS_REPLACED', response.items)
       return Object.values(state.cache)
-    }).catch((err) => {
+    }).catch(err => {
       commit('COLLECTIONS_ERROR', err.response)
       throw err
     })
@@ -53,7 +53,7 @@ const actions = {
         const { items } = response
         commit('COLLECTION_REPLACED', { collection, items })
         return state.cache[collection]
-      }).catch((err) => {
+      }).catch(err => {
         commit('COLLECTION_ERROR', err.response)
         throw err
       })
@@ -85,7 +85,7 @@ const actions = {
       return api.filterEngine({ resource, id }).then(item => {
         commit('ITEM_REPLACED', { collection, id, item })
         return state.cache[collection].items.find(item => item.id === id)
-      }).catch((err) => {
+      }).catch(err => {
         commit('ITEM_ERROR', err.response)
         throw err
       })
@@ -99,7 +99,7 @@ const actions = {
         return api.filterEngineOptions({ resource, id }).then(response => {
           commit('ITEM_SUCCESS')
           return response
-        }).catch((err) => {
+        }).catch(err => {
           commit('ITEM_ERROR', err.response)
           throw err
         })
@@ -109,7 +109,7 @@ const actions = {
       return api.filterEnginesOptions(collection).then(response => {
         commit('ITEM_SUCCESS')
         return response
-      }).catch((err) => {
+      }).catch(err => {
         commit('ITEM_ERROR', err.response)
         throw err
       })
@@ -123,7 +123,7 @@ const actions = {
         commit('ITEM_CREATED', { collection, id, item: data })
         store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return response
-      }).catch((err) => {
+      }).catch(err => {
         commit('ITEM_ERROR', err.response)
         throw err
       })
@@ -137,7 +137,7 @@ const actions = {
         commit('ITEM_REPLACED', { collection, id, item: data })
         store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return state.cache[collection].items.find(item => item.id === id)
-      }).catch((err) => {
+      }).catch(err => {
         commit('ITEM_ERROR', err.response)
         throw err
       })
@@ -151,7 +151,7 @@ const actions = {
         commit('ITEM_DESTROYED', { collection, id })
         store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return response
-      }).catch((err) => {
+      }).catch(err => {
         commit('ITEM_ERROR', err.response)
         throw err
       })
@@ -183,6 +183,22 @@ const actions = {
         commit('ITEM_ERROR', err.response)
         throw err
       })
+    })
+  },
+  stringifyCondition: ({ commit }, json) => {
+    return api.flattenCondition({ condition: json }).then(response => {
+      const { item: { condition_string } = {} } = response
+      return condition_string
+    }).catch(err => {
+      throw err
+    })
+  },
+  parseCondition: ({ commit }, string) => {
+    return api.parseCondition({ condition: string }).then(response => {
+      const { item: { condition } = {} } = response
+      return condition
+    }).catch(err => {
+      throw err
     })
   }
 }
