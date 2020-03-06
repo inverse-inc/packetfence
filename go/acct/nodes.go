@@ -213,28 +213,3 @@ func (n *Nodes) GetBucket(tenantId int, mac mac.Mac, sessionID SessionID, timeBu
 	n.lock.RUnlock()
 	return node.GetBucket(sessionID, timeBucket)
 }
-
-func (b *BandwidthBuckets) Add(sessionID SessionID, timeBucket time.Time, in, out int64) {
-	key := TimeBucketKey{SessionID: sessionID, TimeBucket: timeBucket.UnixNano()}
-	b.lock.Lock()
-	bb := b.Buckets[key]
-	bb.InBytes += in
-	bb.OutBytes += out
-	b.Buckets[key] = bb
-	b.lock.Unlock()
-}
-
-func (b *BandwidthBuckets) Update(sessionID SessionID, timeBucket time.Time, in, out int64) {
-	key := TimeBucketKey{SessionID: sessionID, TimeBucket: timeBucket.UnixNano()}
-	bb := BandwidthBucket{InBytes: in, OutBytes: out}
-	b.lock.Lock()
-	for k, v := range b.Buckets {
-		if k.SessionID != key.SessionID || k.TimeBucket == key.TimeBucket {
-			continue
-		}
-		bb.InBytes -= v.InBytes
-		bb.OutBytes -= v.OutBytes
-	}
-	b.Buckets[key] = bb
-	b.lock.Unlock()
-}
