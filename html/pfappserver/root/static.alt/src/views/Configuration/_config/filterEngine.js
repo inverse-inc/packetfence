@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 import i18n from '@/utils/locale'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
-import pfFormBooleanFieldOpValue from '@/components/pfFormBooleanFieldOpValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
+import pfFormFilterEngineCondition from '@/components/pfFormFilterEngineCondition'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
@@ -152,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'condition',
-              component: pfFormBooleanFieldOpValue,
+              component: pfFormFilterEngineCondition,
               attrs: {
                 valueOperators: valueOperatorsFromMeta(meta).map(value => {
                   const { [value]: text = value } = pfOperators
