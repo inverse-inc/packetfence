@@ -90,7 +90,6 @@ func (h *PfAcct) IpAddressAllowed(ip net.IP) bool {
 func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows []netflow5.Flow) NetFlowBandwidthAccountingRecs {
 	recs := NetFlowBandwidthAccountingRecs{}
 	lookup := map[string]int{}
-	index := 0
 	srcIndex := 0
 	dstIndex := 0
 	unixTime := time.Unix(int64(header.UnixSecs()), int64(header.UnixNsecs()))
@@ -99,15 +98,15 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 		srcIndex = -1
 		dstIndex = -1
 		var found bool
-		var srcIpStr, dstIpStr string
 		srcIP := flow.SrcIP()
 		if h.IpAddressAllowed(srcIP) {
-			srcIpStr = srcIP.String()
+			srcIpStr := srcIP.String()
 			if srcIndex, found = lookup[srcIpStr]; !found {
+				srcIndex = len(recs)
 				recs.AppendEmpty()
-				lookup[srcIpStr] = index
-				srcIndex = index
-				index++
+				lookup[srcIpStr] = srcIndex
+				recs[srcIndex].Ip = srcIpStr
+				recs[srcIndex].TimeBucket = unixTime
 			}
 		}
 
@@ -115,26 +114,21 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 		if h.IpAddressAllowed(dstIP) {
 			dstIpStr := dstIP.String()
 			if dstIndex, found = lookup[dstIpStr]; !found {
+				dstIndex = len(recs)
 				recs.AppendEmpty()
-				lookup[dstIpStr] = index
-				dstIndex = index
-				index++
+				lookup[dstIpStr] = dstIndex
+				recs[dstIndex].Ip = dstIpStr
+				recs[dstIndex].TimeBucket = unixTime
 			}
 		}
 
-		layer3Bytes := uint64(flow.DPkts())
+		layer3Bytes := uint64(flow.DOctets())
 		if srcIndex != -1 {
-			recs[srcIndex].Ip = srcIpStr
-			recs[srcIndex].TimeBucket = unixTime
-			recs[srcIndex].InBytes = 0
 			recs[srcIndex].OutBytes += layer3Bytes
 		}
 
 		if dstIndex != -1 {
-			recs[dstIndex].Ip = dstIpStr
-			recs[dstIndex].TimeBucket = unixTime
 			recs[dstIndex].InBytes += layer3Bytes
-			recs[dstIndex].OutBytes = 0
 		}
 
 	}
