@@ -1,24 +1,26 @@
 <template>
-  <pf-form-boolean :form-store-name="formStoreName" :form-namespace="formNamespace">
-    <template v-slot:op="{ formStoreName, formNamespace }">
+  <pf-form-boolean :form-store-name="formStoreName" :form-namespace="formNamespace" :disabled="disabled">
+    <template v-slot:op="{ formStoreName, formNamespace, disabled }">
       <pf-form-chosen
         :form-store-name="formStoreName"
         :form-namespace="formNamespace + '.op'"
         :options="valuesOperators"
         :allow-empty="false"
+        :disabled="disabled"
         class="m-1"
       />
     </template>
-    <template v-slot:value="{ formStoreName, formNamespace }">
-      <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1"/>
+    <template v-slot:value="{ formStoreName, formNamespace, disabled }">
+      <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1" :disabled="disabled"/>
       <pf-form-chosen
         :form-store-name="formStoreName"
         :form-namespace="formNamespace + '.op'"
         :options="valueOperators"
         :allow-empty="false"
+        :disabled="disabled"
         class="m-1"
       />
-      <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1"/>
+      <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1" :disabled="disabled"/>
     </template>
   </pf-form-boolean>
 </template>
@@ -47,6 +49,10 @@ export default {
     valuesOperators: {
       type: Array,
       default: () => { return [] }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   }
 }

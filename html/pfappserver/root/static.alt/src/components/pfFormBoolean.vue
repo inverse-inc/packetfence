@@ -13,15 +13,15 @@
         @mouseout="highlight = false"
         class="m-0"
       >
-        <span v-if="!isRoot" class="drag-handle">
+        <span v-if="!isRoot" class="drag-handle" :class="{ 'text-secondary': disabled }">
           <icon name="grip-vertical"></icon>
         </span>
-        <slot name="op" v-bind="{ op, formStoreName, formNamespace }"></slot>
+        <slot name="op" v-bind="{ op, formStoreName, formNamespace, disabled }"></slot>
       </span>
       <span class="menu"
         @mouseover="actionKey && $refs.menu.show(true)"
       >
-        <b-dropdown no-caret lazy right variant="transparent" ref="menu">
+        <b-dropdown no-caret lazy right variant="transparent" ref="menu" :disabled="disabled">
           <template v-slot:button-content>
             <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
           </template>
@@ -56,24 +56,24 @@
       <template v-for="(value, index) in valuesPlusOne">
 
         <!-- drag/drop placeholder -->
-        <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-target"
+        <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-target" :disabled="disabled"
           v-model="eventBus.cache.value" :formStoreName="eventBus.cache.formStoreName" :formNamespace="eventBus.cache.formNamespace"
           @dragOver="dragOver(index, $event)"
           @dropValuePrev="dropValueNext(index - 1, $event)"
           @dropValueNext="dropValuePrev(index + 1, $event)"
         >
           <!-- proxy `op` slot -->
-          <template v-slot:op="{ op, formStoreName, formNamespace }">
-            <slot name="op" v-bind="{ op, formStoreName, formNamespace }"></slot>
+          <template v-slot:op="{ op, formStoreName, formNamespace, disabled }">
+            <slot name="op" v-bind="{ op, formStoreName, formNamespace, disabled }"></slot>
           </template>
           <!-- proxy `value` slot -->
-          <template v-slot:value="{ value, formStoreName, formNamespace }">
-            <slot name="value" v-bind="{ value, formStoreName, formNamespace }"></slot>
+          <template v-slot:value="{ value, formStoreName, formNamespace, disabled }">
+            <slot name="value" v-bind="{ value, formStoreName, formNamespace, disabled }"></slot>
           </template>
         </pf-form-boolean>
 
         <!-- recurse -->
-        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="index" :isRoot="false" :eventBus="eventBus" :class="{ 'drag-source': index === sourceIndex }"
+        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="index" :isRoot="false" :eventBus="eventBus" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
           @addOperator="addOperator(index)"
           @cloneOperator="cloneOperator(index)"
           @deleteOperator="deleteOperator(index)"
@@ -88,26 +88,26 @@
           @dropValueNext="dropValueNext(index)"
         >
           <!-- proxy `op` slot -->
-          <template v-slot:op="{ op, formStoreName, formNamespace }">
-            <slot name="op" v-bind="{ op, formStoreName, formNamespace }"></slot>
+          <template v-slot:op="{ op, formStoreName, formNamespace, disabled }">
+            <slot name="op" v-bind="{ op, formStoreName, formNamespace, disabled }"></slot>
           </template>
           <!-- proxy `value` slot -->
-          <template v-slot:value="{ value, formStoreName, formNamespace }">
-            <slot name="value" v-bind="{ value, formStoreName, formNamespace }"></slot>
+          <template v-slot:value="{ value, formStoreName, formNamespace, disabled }">
+            <slot name="value" v-bind="{ value, formStoreName, formNamespace, disabled }"></slot>
           </template>
         </pf-form-boolean>
       </template>
     </div>
 
     <div v-else class="pf-form-boolean-value">
-      <span class="drag-handle">
+      <span class="drag-handle" :class="{ 'text-secondary': disabled }">
         <icon name="grip-vertical"></icon>
       </span>
-      <slot name="value" v-bind="{ value, formStoreName, formNamespace }"></slot>
+      <slot name="value" v-bind="{ value, formStoreName, formNamespace, disabled }"></slot>
       <span class="menu"
         @mouseover.stop.prevent="actionKey && $refs.menu.show(true)"
       >
-        <b-dropdown no-caret lazy right variant="transparent" ref="menu">
+        <b-dropdown no-caret lazy right variant="transparent" ref="menu" :disabled="disabled">
           <template v-slot:button-content>
             <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
           </template>
@@ -175,6 +175,10 @@ export default {
           }
         }
       })
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -306,6 +310,8 @@ export default {
       this.eventBus.$emit('drag-end')
     },
     dragOver (index, event) { // @target
+      const { disabled } = this
+      if (disabled) return
       event.preventDefault() // always allow drop
       let { target } = event
       target = target.closest('.pf-form-boolean')
