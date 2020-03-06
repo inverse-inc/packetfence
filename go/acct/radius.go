@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
@@ -41,7 +40,7 @@ func (h *PfAcct) HandleAccountingRequest(w radius.ResponseWriter, r *radius.Requ
 		panic("SwitchInfo: not found")
 	}
 	switchInfo := iSwitchInfo.(*SwitchInfo)
-	go h.handleAccountingRequest(r, switchInfo)
+	h.handleAccountingRequest(r, switchInfo)
 }
 
 func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
