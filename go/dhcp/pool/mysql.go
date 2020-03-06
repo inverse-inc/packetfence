@@ -195,6 +195,7 @@ func (dp *Mysql) GetFreeIPIndex(mac string) (uint64, string, error) {
 	if count == 1 {
 		query = "SELECT @tmp_index"
 		rows, err := tx.Query(query)
+		defer rows.Close()
 		if err != nil {
 			tx.Commit()
 			return 0, FreeMac, err2
