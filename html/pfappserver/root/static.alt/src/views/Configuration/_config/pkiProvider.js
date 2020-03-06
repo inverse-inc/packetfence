@@ -179,8 +179,8 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki'].includes(providerType),
-          label: i18n.t('Profile'),
-          text: i18n.t('Profile used for the generation of certificate.'),
+          label: i18n.t('Template'),
+          text: i18n.t('Template used for the generation of certificate.'),
           cols: [
             {
               namespace: 'profile',

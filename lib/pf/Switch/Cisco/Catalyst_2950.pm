@@ -837,25 +837,32 @@ sub setTaggedVlans {
     my $OID_vlanTrunkPortVlansEnabled3k = '1.3.6.1.4.1.9.9.46.1.6.1.1.18';
     my $OID_vlanTrunkPortVlansEnabled4k = '1.3.6.1.4.1.9.9.46.1.6.1.1.19';
 
-    my @bits = split //, ("0" x 1024);
+    my @bits = split //, ("0" x 4096);
     foreach my $t (@vlans) {
-        if ($t > 1024) {
-            $logger->warn("We do not support Tagged Vlans > 1024 for now on Cisco switches. Sorry... but we could! " .
-                      "interested in sponsoring the feature?");
+        if ($t > 4096) {
+            $logger->warn("Tagged VLAN can't be greater than > 4096");
         } else {
             $bits[$t] = "1";
         }
     }
+
+    my $split;
+    my $loop = 0;
+    while (my @next_n = splice @bits, 0, 1024) {
+        $split->{$loop} = pack("B*",join ('', @next_n));
+        $loop++;
+    }
+
     my $bitString = join ('', @bits);
 
     my $taggedVlanMembers = pack("B*", $bitString);
 
     $logger->trace("SNMP set_request for OID_vlanTrunkPortVlansEnabled: $OID_vlanTrunkPortVlansEnabled");
     my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
-            "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $taggedVlanMembers,
-            "$OID_vlanTrunkPortVlansEnabled2k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024),
-            "$OID_vlanTrunkPortVlansEnabled3k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024),
-            "$OID_vlanTrunkPortVlansEnabled4k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024) ] );
+            "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $split->{0},
+            "$OID_vlanTrunkPortVlansEnabled2k.$ifIndex", Net::SNMP::OCTET_STRING, $split->{1},
+            "$OID_vlanTrunkPortVlansEnabled3k.$ifIndex", Net::SNMP::OCTET_STRING, $split->{2},
+            "$OID_vlanTrunkPortVlansEnabled4k.$ifIndex", Net::SNMP::OCTET_STRING, $split->{3} ] );
     return defined($result);
 }
 

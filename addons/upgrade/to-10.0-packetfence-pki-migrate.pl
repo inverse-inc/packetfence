@@ -80,7 +80,7 @@ sub ca {
     while (my $hash = $sth->fetchrow_hashref()) {
         $cas->{$hash->{id}} = $hash;
 
-	my $pf_stmt = $pf_dbh->prepare($sql);
+        my $pf_stmt = $pf_dbh->prepare($sql);
         if($pf_stmt->execute($hash->{'id'},$hash->{'cn'},$hash->{'mail'},$hash->{'organisation'},$hash->{'country'},$hash->{'state'},$hash->{'locality'},$hash->{'key_type'}, $hash->{'key_size'},$digest{$hash->{'digest'}},$hash->{'key_usage'},$hash->{'extended_key_usage'},$hash->{'days'},$hash->{'ca_key'},$hash->{'ca_cert'},$hash->{'issuerKeyHashsha1'})){
             print "CA inserted successfully\n";
         }

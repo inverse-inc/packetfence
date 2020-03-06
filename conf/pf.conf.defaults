@@ -356,6 +356,11 @@ pfipset=enabled
 # Should pfpki be managed by PacketFence?
 pfpki=enabled
 #
+# services.galera-autofix
+#
+# Should galera-autofix be managed by PacketFence?
+galera-autofix=enabled
+#
 # services.pfdhcp
 #
 # Should pfdhcp be managed by PacketFence?
@@ -902,6 +907,11 @@ statsd_listen_port = 8125
 #
 # Execution timeout for pfperl-api
 pfperl_api_timeout = 600
+
+# advanced.configurator
+#
+# Enable the Configurator and the Configurator API
+configurator = enabled
 
 [provisioning]
 #

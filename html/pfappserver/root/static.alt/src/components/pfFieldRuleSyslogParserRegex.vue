@@ -98,7 +98,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => { return this.default }
+      default: () => { return { name: null, regex: null, actions: [], last_if_match: 'disabled', ip_mac_translation: 'enabled' } }
     },
     actions: {
       type: Object,

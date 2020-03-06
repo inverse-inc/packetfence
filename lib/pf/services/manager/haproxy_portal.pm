@@ -82,7 +82,7 @@ sub generateConfig {
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check
+        server $back_ip $back_ip:80 check inter 30s
 EOT
             }
 
@@ -98,7 +98,7 @@ EOT
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check
+        server $back_ip $back_ip:80 check inter 30s
 EOT
             }
 
@@ -154,6 +154,8 @@ EOT
 
 backend $cluster_ip-backend
         balance source
+        option httpchk GET /captive-portal HTTP/1.0\\r\\nUser-agent:\\ HAPROXY-load-balancing-check
+        default-server inter 5s fall 3 rise 2
         option httpclose
         option forwardfor
 EOT

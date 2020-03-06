@@ -156,6 +156,16 @@ sub node_view_reg_pid {
     return;
 }
 
+sub _can_delete {
+    my ($mac) = @_;
+    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
+        my $msg = "$mac has an open locationlog entry. Node deletion prohibited";
+        return ($FALSE, $msg);
+    }
+
+    return ($TRUE,'');
+}
+
 #
 # delete and return 1
 #
@@ -167,16 +177,16 @@ sub node_delete {
     $mac = clean_mac($mac);
 
     if ( !node_exist($mac) ) {
-        $logger->error("delete of non-existent node '$mac' failed");
-        return (0);
+        return ($FALSE, "delete of non-existent node '$mac' failed");
     }
 
     require pf::locationlog;
-    # TODO that limitation is arbitrary at best, we need to resolve that.
-    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
-        $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
-        return (0);
+    my ($can_delete, $msg) = _can_delete($mac);
+    if (!$can_delete) {
+        $logger->warn($msg);
+        return ($FALSE, $msg);
     }
+
     my %options = (
         -where => {
             mac => $mac,
@@ -189,10 +199,11 @@ sub node_delete {
 
     my ($status, $count) = pf::dal::node->remove_items(%options);
     if (is_error($status)) {
-        return (0);
+        return ($FALSE, "Unable to delete '$mac' internal error");
     }
+
     $logger->info("node $mac deleted");
-    return (1);
+    return ($TRUE, '');
 }
 
 our %DEFAULT_NODE_VALUES = (

@@ -29,17 +29,8 @@ use Test::NoWarnings;
 use pf::config::builder::template_switches;
 use pf::IniFiles;
 use pf::mini_template;
-my $supports = [
-    qw(
-      RadiusDynamicVlanAssignment
-      WiredMacAuth
-      WiredDot1x
-      WirelessMacAuth
-      WirelessDot1x
-      RadiusVoip
-      RoleBasedEnforcement
-      )
-];
+use pf::constants::template_switch qw(@SUPPORTS);
+my $supports = [ sort @SUPPORTS ];
 
 my $builder = pf::config::builder::template_switches->new;
 

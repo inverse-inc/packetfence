@@ -19,7 +19,6 @@ cp ../pf-pkg/conf/pf.conf conf/
 cp ../pf-pkg/conf/pfconfig.conf conf/
 # to keep iptables rule for vagrant management
 cp ../pf-pkg/conf/iptables.conf conf/
-make conf/currently-at
 
 log_section "Build docs"
 make html/pfappserver/root/static/doc

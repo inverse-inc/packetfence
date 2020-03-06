@@ -1,0 +1,5 @@
+---
+domain_setup__domain_name: '{{ dns_domain }}'
+domain_setup__safe_mode_password: VagrantPass1
+domain_setup__username: vagrant-domain
+domain_setup__password: VagrantPass1

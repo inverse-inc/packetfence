@@ -39,7 +39,15 @@ BEGIN {
     );
 }
 
-use Test::More tests => 3;
+{
+    package m3;
+    use base qw(m1);
+    use pf::SwitchSupports qw(
+        ?RadiusDynamicVlanAssignment
+    );
+}
+
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
@@ -47,6 +55,14 @@ use Test::NoWarnings;
 is_deeply([m1->supports()], [qw(VPN)], "");
 
 is_deeply([m2->supports()], [qw(RadiusDynamicVlanAssignment VPN)], "");
+
+is_deeply([m3->supports()], [qw(RadiusDynamicVlanAssignment VPN)], "");
+
+ok(exists &m1::supportsVPN, "m1->supportsVPN exists");
+
+ok(exists &m2::supportsRadiusDynamicVlanAssignment, "m2->supportsRadiusDynamicVlanAssignment exists");
+
+ok(!exists &m3::supportsRadiusDynamicVlanAssignment, "m3->supportsRadiusDynamicVlanAssignment does not exists");
 
 =head1 AUTHOR
 

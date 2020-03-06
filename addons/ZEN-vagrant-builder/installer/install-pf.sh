@@ -11,6 +11,9 @@ yum localinstall http://inverse.ca/downloads/PacketFence/CentOS7/x86_64/RPMS/pac
 # Update the release to be sure we run its latest version
 yum update packetfence-release --enablerepo=packetfence -y
 
+# Utils installation
+yum install ntpd -y
+
 # PacketFence installation
 yum install perl -y
 yum install --enablerepo=$PFREPO $PFPACKAGE -y

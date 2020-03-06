@@ -30,6 +30,8 @@ case "$1" in
         find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
         find $PACKETFENCE/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
+        find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;
+        find $PACKETFENCE/var/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/logs
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
@@ -140,7 +142,6 @@ case "$1" in
         systemctl enable packetfence-config
         systemctl disable packetfence-iptables
         systemctl enable packetfence-httpd.admin
-        systemctl enable packetfence-tracking-config.service
         systemctl enable packetfence-tracking-config.path
         systemctl daemon-reload
         systemctl isolate packetfence-base.target

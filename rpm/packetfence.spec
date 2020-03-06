@@ -288,8 +288,8 @@ Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.1.5, fingerbank < 5.0.0
-Requires: fingerbank-collector >= 1.2.2, fingerbank-collector < 2.0.0
+Requires: fingerbank >= 4.2.0, fingerbank < 5.0.0
+Requires: fingerbank-collector >= 1.3.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
 %description
@@ -388,6 +388,7 @@ done
 # systemd services
 %{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service %{buildroot}%{_unitdir}/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}%{_unitdir}/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-galera-autofix.service %{buildroot}%{_unitdir}/packetfence-galera-autofix.service
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service %{buildroot}%{_unitdir}/packetfence-tracking-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
@@ -705,7 +706,6 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl enable packetfence-iptables
-/bin/systemctl enable packetfence-tracking-config.service
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
 /bin/systemctl restart packetfence-httpd.admin
@@ -807,6 +807,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
@@ -838,6 +839,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/self_service.conf
 %config                 /usr/local/pf/conf/self_service.conf.defaults
                         /usr/local/pf/conf/self_service.conf.example
+%config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
+                        /usr/local/pf/conf/network_behavior_policies.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example
@@ -847,6 +850,8 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
+%config(noreplace)      /usr/local/pf/conf/.gitignore
+                        /usr/local/pf/conf/.gitignore.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
 %config                 /usr/local/pf/conf/survey.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_cache.conf

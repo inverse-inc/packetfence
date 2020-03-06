@@ -334,6 +334,12 @@ sub update_upstream_db {
     $self->render(status => 200, json => { message => "Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status"});
 }
 
+sub can_use_nba_endpoints {
+    my ($self) = @_;
+    my $result = fingerbank::API->new_from_config->can_use_nba_endpoints;
+    $self->render(status => 200, json => { result => \$result});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

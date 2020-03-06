@@ -102,7 +102,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => { return this.default }
+      default: () => { return { type: null, value: null } }
     },
     typeLabel: {
       type: String

@@ -19,6 +19,9 @@ New Features
 * Added a new Meru controller module that supports RADIUS RFC3576 (RADIUS Disconnect)
 * CLI login to juniper switches
 * PacketFence pki service in golang
+* Support Aruba switchs using Aruba OS 16.10
+* Added service to correct broken Galera cluster members
+* Added support for anomaly detection through Fingerbank
 
 Enhancements
 ++++++++++++
@@ -30,12 +33,21 @@ Enhancements
 * Better captive portal detection for Samsung devices
 * Faster captive portal detection for Apple devices
 * Routes are now managed by the keepalived service
+* Parking security can now be trigger without limitation
+* Added a way to change the sql table used by pfconfig
+* Showing the configurator is now configurable (#5121)
+* Node deletion in consistent between the the API and pf::node::node_delete (#5088)
+* Allow vlan number greater than 1023 for floating devices.
+* Improved captive-portal health checks in monit (#5185)
+* Added radius disconnect for wired port on Aruba AP (#5016)
 
 Bug Fixes
 +++++++++
 * Fixed logic to move mac to another port (Avaya)
 * Fix serialization of the switch when calling ReAssignVlan/desAssociate
 * Prevent double restart when setting the port admin status of an EX2300 Juniper switch
+* Sponsor field is missing on sponsored users when using forced sponsor (#5171)
+* Some DHCP info triggers use outdated Fingerbank data (#5106)
 
 Version 9.3.0 released on 2020-01-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

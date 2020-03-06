@@ -94,6 +94,8 @@ export const attributesFromMeta = (meta = {}, key = null) => {
         const f = optionsSearchFunction(allowedLookup)
         if (!query) {
           switch (key) {
+            case 'devices_included': // include common os choices
+            case 'devices_excluded': // include common os choices
             case 'oses': // include common os choices
               return [...new Set(
                 [

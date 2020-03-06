@@ -19,8 +19,8 @@ $default_ini->{fallback_used} = 1;
 $default_ini->AddSection('__GENERAL__');
 $default_ini->SetSectionComment(
     '__GENERAL__',
-    "Do not edit file",
-    "Changes will be lost on upgrade",
+    "Do not edit file.",
+    "Changes will be lost on upgrade.",
 );
 my $builder = pf::config::builder::template_switches->new;
 # Traverse desired filesystems
@@ -31,6 +31,13 @@ my $SPACES = ' ';
 for my $file (sort @files) {
     print " processing $file \n";
     my $name = pf::util::template_switch::fileNameToModuleName($def_dir, $file);
+    my $module = $file;
+    $module =~ s/\.def$/.pm/;
+    if (-e $module) {
+        print STDERR "Error: $module exists\n";
+        next;
+    }
+
     my $ini = pf::IniFiles->new( -file => $file, -fallback => $name);
     unless ($ini) {
         print STDERR "Error loading file '$file'\n";

@@ -653,7 +653,7 @@ type=acct_cleanup
 # description
 #
 # The description of task to perform
-description=Controls the cleanup of the accounting tables (raddact and radacct_log). Entries older than the window will be removed from the table.
+description=Controls the cleanup of the accounting tables (radacct and radacct_log). Entries older than the window will be removed from the table.
 #
 # status
 #

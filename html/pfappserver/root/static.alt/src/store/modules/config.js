@@ -122,6 +122,9 @@ const api = {
   getPkiCerts () {
     return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
   },
+  getNetworkBehaviorPolicies () {
+    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -261,6 +264,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     layer2NetworksStatus: '',
     maintenanceTasks: false,
     maintenanceTasksStatus: '',
+    networkBehaviorPolicies: false,
+    networkBehaviorPoliciesStatus: '',
     pkiCas: false,
     pkiCasStatus: '',
     pkiProfiles: false,
@@ -448,6 +453,9 @@ const getters = {
   },
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
+  },
+  isLoadingNetworkBehaviorPolicies: state => {
+    return state.networkBehaviorPoliciesStatus === types.LOADING
   },
   isLoadingPkiCas: state => {
     return state.pkiCasStatus === types.LOADING
@@ -1114,6 +1122,20 @@ const actions = {
       return Promise.resolve(state.maintenanceTasks)
     }
   },
+  getNetworkBehaviorPolicies: ({ state, getters, commit }) => {
+    if (getters.isLoadingNetworkBehaviorPolicies) {
+      return Promise.resolve(state.networkBehaviorPolicies)
+    }
+    if (!state.networkBehaviorPolicies) {
+      commit('NETWORK_BEHAVIOR_POLICIES_REQUEST')
+      return api.getNetworkBehaviorPolicies().then(response => {
+        commit('NETWORK_BEHAVIOR_POLICIES_UPDATED', response.data.items)
+        return state.networkBehaviorPolicies
+      })
+    } else {
+      return Promise.resolve(state.networkBehaviorPolicies)
+    }
+  },
   getPkiCas: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiCas) {
       return Promise.resolve(state.pkiCas)
@@ -1702,6 +1724,14 @@ const mutations = {
   MAINTENANCE_TASKS_UPDATED: (state, maintenanceTasks) => {
     state.maintenanceTasks = maintenanceTasks
     state.maintenanceTasksStatus = types.SUCCESS
+  },
+  NETWORK_BEHAVIOR_POLICIES_REQUEST: (state) => {
+    state.networkBehaviorPoliciesStatus = types.LOADING
+  },
+  NETWORK_BEHAVIOR_POLICIES_UPDATED: (state, networkBehaviorPolicies) => {
+    state.networkBehaviorPolicies
+      = networkBehaviorPolicies
+    state.networkBehaviorPoliciesStatus = types.SUCCESS
   },
   PKI_CAS_REQUEST: (state) => {
     state.pkiCasStatus = types.LOADING

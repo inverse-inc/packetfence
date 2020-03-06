@@ -18,6 +18,11 @@ const state = {
     message: '',
     status: ''
   },
+  canUseNbaEndpoints: {
+    cache: false,
+    message: '',
+    status: ''
+  },
   generalSettings: {
     cache: false,
     message: '',
@@ -78,6 +83,9 @@ const getters = {
   isAccountInfoWaiting: state => [types.LOADING, types.DELETING].includes(state.accountInfo.status),
   isAccountInfoLoading: state => state.accountInfo.status === types.LOADING,
 
+  isCanUseNbaEndpointsWaiting: state => [types.LOADING, types.DELETING].includes(state.canUseNbaEndpoints.status),
+  isCanUseNbaEndpointsLoading: state => state.canUseNbaEndpoints.status === types.LOADING,
+
   isGeneralSettingsWaiting: state => [types.LOADING, types.DELETING].includes(state.generalSettings.status),
   isGeneralSettingsLoading: state => state.generalSettings.status === types.LOADING,
 
@@ -122,6 +130,19 @@ const actions = {
       return info
     }).catch(err => {
       commit('ACCOUNT_INFO_ERROR', err.response)
+      throw err
+    })
+  },
+  getCanUseNbaEndpoints: ({ state, commit }) => {
+    if (state.canUseNbaEndpoints.cache) {
+      return Promise.resolve(state.canUseNbaEndpoints.cache).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('CAN_USE_NBA_ENDPOINTS_REQUEST')
+    return api.fingerbankCanUseNbaEndpoints().then(info => {
+      commit('CAN_USE_NBA_ENDPOINTS_REPLACED', info)
+      return info
+    }).catch(err => {
+      commit('CAN_USE_NBA_ENDPOINTS_ERROR', err.response)
       throw err
     })
   },
@@ -628,6 +649,20 @@ const mutations = {
     state.accountInfo.status = types.ERROR
     if (response && response.data) {
       state.accountInfo.message = response.data.message
+    }
+  },
+  CAN_USE_NBA_ENDPOINTS_REQUEST: (state, type) => {
+    state.canUseNbaEndpoints.status = type || types.LOADING
+    state.canUseNbaEndpoints.message = ''
+  },
+  CAN_USE_NBA_ENDPOINTS_REPLACED: (state, data) => {
+    state.canUseNbaEndpoints.status = types.SUCCESS
+    Vue.set(state.canUseNbaEndpoints, 'cache', JSON.parse(JSON.stringify(data)))
+  },
+  CAN_USE_NBA_ENDPOINTS_ERROR: (state, response) => {
+    state.canUseNbaEndpoints.status = types.ERROR
+    if (response && response.data) {
+      state.canUseNbaEndpoints.message = response.data.message
     }
   },
   GENERAL_SETTINGS_SUCCESS: (state) => {
