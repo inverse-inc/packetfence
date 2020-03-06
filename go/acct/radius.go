@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	radius "github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
