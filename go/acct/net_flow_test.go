@@ -49,7 +49,7 @@ func TestNetFlowBandwidthAccountingRecsToSQLSelect(t *testing.T) {
 
 	expectedSQL := `INSERT INTO bandwidth_accounting (tenant_id, unique_session_id, mac, time_bucket, in_bytes, out_bytes)
     SELECT * FROM (
-        SELECT time_bucket, unique_session_id, tenant_id, mac, in_bytes_, out_bytes_ FROM (
+        SELECT tenant_id, unique_session_id, mac, time_bucket, in_bytes_, out_bytes_ FROM (
             SELECT _latin1"1.2.3.4" as ip, "session1" as unique_session_id, 1000 as in_bytes_, 1000 as out_bytes_, "2009-11-10 23:00:00" as time_bucket
             UNION ALL SELECT _latin1"1.2.3.5" as ip, "session2" as unique_session_id, 1000 as in_bytes_, 1000 as out_bytes_, "2009-11-10 23:00:00" as time_bucket
             UNION ALL SELECT _latin1"1.2.3.6" as ip, "session3" as unique_session_id, 1000 as in_bytes_, 1000 as out_bytes_, "2009-11-10 23:00:00" as time_bucket
