@@ -34,30 +34,10 @@ export const routedNetworkListFormatter = (value) => {
   return routedNetworkList.find(type => type.value === value).text
 }
 
-export const dhcpList = [
-  { value: '1', text: i18n.t('Random') },
-  { value: '2', text: i18n.t('Oldest Released') }
-]
-
-export const dhcpListFormatter = (value) => {
-  if (value === null || value === '') return null
-  return dhcpList.find(type => type.value === value).text
-}
-
 export const htmlNote = `<div class="alert alert-warning">
   <strong>${i18n.t('Note')}</strong>
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
 </div>`
-
-export const DHCPPoolTypes = [
-  { value: 'memory', text: i18n.t('Memory Pool') },
-  { value: 'mysql', text: i18n.t('MySQL Pool') }
-]
-
-export const DHCPPoolTypesFormatter = (value) => {
-  if (value === null || value === '') return null
-  return DHCPPoolTypes.find(type => type.value === value).text
-}
 
 export const columns = [
   {
@@ -106,7 +86,6 @@ export const columns = [
     label: i18n.t('Backend'),
     sortable: false,
     visible: true,
-    formatter: DHCPPoolTypesFormatter
   }
 ]
 
@@ -239,11 +218,10 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'algorithm',
               component: pfFormChosen,
               attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to choose the algorithm'),
-                trackBy: 'value',
-                label: 'text',
-                options: dhcpList
+                ...attributesFromMeta(meta, 'algorithm'),
+                ...{
+                  disabled: (fake_mac_enabled === '1')
+                }
               }
             }
           ]
@@ -255,11 +233,10 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'pool_backend',
               component: pfFormChosen,
               attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Select a backend'),
-                trackBy: 'value',
-                label: 'text',
-                options: DHCPPoolTypes
+                ...attributesFromMeta(meta, 'pool_backend'),
+                ...{
+                  disabled: (fake_mac_enabled === '1')
+                }
               }
             }
           ]
