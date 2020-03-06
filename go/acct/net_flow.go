@@ -107,6 +107,7 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 				lookup[srcIpStr] = srcIndex
 				recs[srcIndex].Ip = srcIpStr
 				recs[srcIndex].TimeBucket = unixTime
+				recs[srcIndex].UniqueSession = "NETFLOW-" + srcIpStr
 			}
 		}
 
