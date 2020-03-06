@@ -33,7 +33,7 @@ sub parse_condition {
 
     my ($ast, $err) = parse_condition_string($condition);
     if ($err) {
-        return $self->render_error(422, "Cannot parser error", $err);
+        return $self->render_error(422, "Cannot parse condition", [$err]);
     }
 
     $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
