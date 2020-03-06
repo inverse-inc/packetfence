@@ -17,6 +17,7 @@ use warnings;
 use NetAddr::IP;
 use pf::util;
 use pf::constants::config qw(%NET_INLINE_TYPES);
+use pf::constants::dhcp;
 
 use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Network;
@@ -45,6 +46,9 @@ sub build {
 
     foreach my $network ( keys %{$self->{networks}} ) {
         $ConfigNetwork{$network} = $self->{networks}{$network};
+        if ($ConfigNetwork{$network}{'pool_backend'} && $ConfigNetwork{$network}{'pool_backend'} eq "") {
+            $ConfigNetwork{$network}{'pool_backend'} = $pf::constants::dhcp::MEMORY_POOL;
+        }
         foreach my $interface (@{$self->{interfaces}{'internal_nets'} // [] }) {
             my $ipe = $interface->tag("vip") || $interface->tag("ip");
             my $net_addr = NetAddr::IP->new($ipe,$interface->mask());
