@@ -19,19 +19,27 @@ type TimeBucketKey struct {
 }
 
 type Session struct {
+	lock        sync.RWMutex
 	LastUpdated time.Time
 	Buckets     map[int64]BandwidthBucket
 }
 
+func NewSession() *Session {
+	return &Session{Buckets: make(map[int64]BandwidthBucket)}
+}
+
 func (s *Session) Add(timeBucket time.Time, in, out int64) {
+	s.lock.Lock()
 	key := timeBucket.UnixNano()
 	b := s.Buckets[key]
 	b.InBytes += in
 	b.OutBytes += out
 	s.Buckets[key] = b
+	s.lock.Unlock()
 }
 
 func (s *Session) Update(timeBucket time.Time, in, out int64) {
+	s.lock.Lock()
 	key := timeBucket.UnixNano()
 	bb := BandwidthBucket{InBytes: in, OutBytes: out}
 	for k, v := range s.Buckets {
@@ -53,6 +61,35 @@ func (s *Session) Update(timeBucket time.Time, in, out int64) {
 	if bb.InBytes > 0 || bb.OutBytes > 0 {
 		s.Buckets[key] = bb
 	}
+	s.lock.Unlock()
+}
+
+type Sessions struct {
+	lock     sync.RWMutex
+	Sessions map[SessionID]*Session
+}
+
+func NewSessions() *Sessions {
+	return &Sessions{Sessions: make(map[SessionID]*Session)}
+}
+
+func (s *Sessions) getOrAdd(id SessionID) *Session {
+	var item *Session
+	var found bool
+	s.lock.RLock()
+	if item, found = s.Sessions[id]; !found {
+		s.lock.RUnlock()
+		s.lock.Lock()
+		// Recheck if exist if not found add
+		if item, found = s.Sessions[id]; !found {
+			item = NewSession()
+			s.Sessions[id] = item
+		}
+		s.lock.Unlock()
+	} else {
+		s.lock.RUnlock()
+	}
+	return item
 }
 
 type BandwidthBucket struct {
