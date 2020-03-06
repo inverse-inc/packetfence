@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/coreos/go-systemd/daemon"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
+
+	"github.com/coreos/go-systemd/daemon"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 )
 
 func main() {
@@ -31,7 +33,19 @@ func main() {
 		w.Done()
 	}()
 
-	NotifySystemd("READY=1")
+	daemon.SdNotify(false, "READY=1")
+
+	go func() {
+		interval, err := daemon.SdWatchdogEnabled(false)
+		if err != nil || interval == 0 {
+			return
+		}
+		for {
+			daemon.SdNotify(false, "WATCHDOG=1")
+			time.Sleep(interval / 3)
+		}
+	}()
+
 	defer NotifySystemd("STOPPING=1")
 	processor.Start()
 	w.Wait()
