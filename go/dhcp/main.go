@@ -268,7 +268,7 @@ func (I *Interface) runUnicast(ctx context.Context, jobs chan job) {
 }
 
 // ServeDHCP function is the main function that will deal with the dhcp packet
-func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) (answer Answer) {
+func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr, srvIP net.IP) (answer Answer) {
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
@@ -341,9 +341,9 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	if len(handler.ip) == 0 {
 		return answer
 	}
-	// Do we have the vip ?
+	// Do we have the vip or does the backend support cluster mode ?
 
-	if VIP[I.Name] {
+	if VIP[I.Name] || handler.available.Listen() {
 
 		defer recoverName(options)
 
@@ -497,7 +497,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					}
 				}
 				// Layer 3 Test
-				pingreply := sharedutils.Ping(dhcp.IPAdd(handler.start, free).String(), 1)
+				pingreply := sharedutils.Ping(setOptionServerIdentifier(srvIP, handler.ip).To4(), dhcp.IPAdd(handler.start, free), I.Name, 1)
 				if pingreply || inarp {
 					// Found in the arp cache or able to ping it
 					ipaddr := dhcp.IPAdd(handler.start, free)
@@ -566,7 +566,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			reject := AddPffilterDevicesOptions(info, GlobalOptions)
 			if reject != nil {
 				log.LoggerWContext(ctx).Info("DHCPNAK on to " + clientMac)
-				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 				return answer
 			}
 
@@ -584,8 +584,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			}
 
 			log.LoggerWContext(ctx).Info("DHCPOFFER on " + answer.IP.String() + " to " + clientMac + " (" + clientHostname + ")")
-
-			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip.To4(), answer.IP, leaseDuration,
+			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, setOptionServerIdentifier(srvIP, handler.ip).To4(), answer.IP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
 			return answer
@@ -602,8 +601,8 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 			// In the event of a DHCPREQUEST, we do not reply if we're not the server ID in the request
 			serverIDBytes := options[dhcp.OptionServerIdentifier]
-			if len(serverIDBytes) == 4 {
-				serverID := net.IPv4(serverIDBytes[0], serverIDBytes[1], serverIDBytes[2], serverIDBytes[3])
+			serverID := net.IPv4(serverIDBytes[0], serverIDBytes[1], serverIDBytes[2], serverIDBytes[3])
+			if !serverID.Equal(setOptionServerIdentifier(srvIP, handler.ip).To4()) {
 				if !serverID.Equal(handler.ip.To4()) {
 					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverID, handler.ip.To4()))
 					return Answer{}
@@ -693,11 +692,11 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					reject := AddPffilterDevicesOptions(info, GlobalOptions)
 					if reject != nil {
 						log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
-						answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+						answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 						return answer
 					}
 
-					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,
+					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, setOptionServerIdentifier(srvIP, handler.ip).To4(), reqIP, leaseDuration,
 						GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 					var cacheDuration time.Duration
 					if leaseDuration < time.Duration(60)*time.Second {
@@ -709,6 +708,11 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					// Update Global Caches
 					GlobalIPCache.Set(reqIP.String(), p.CHAddr().String(), cacheDuration)
 					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), cacheDuration)
+					// Update ip4log from pfdhcp. Commented for now.
+					// err := MysqlUpdateIP4Log(p.CHAddr().String(), reqIP.String(), cacheDuration)
+					// if err != nil {
+					// 	log.LoggerWContext(ctx).Info(err.Error())
+					// }
 					// Update the cache
 					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")
 
@@ -717,7 +721,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 				} else {
 					log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
-					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 				}
 				return answer
 			}
@@ -814,8 +818,8 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		}
 
-		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak " + sharedutils.ByteToString(p.XId()))
-		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " NAK " + sharedutils.ByteToString(p.XId()))
+		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 		return answer
 	}
 	return answer

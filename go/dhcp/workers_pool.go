@@ -15,12 +15,13 @@ type job struct {
 	Int        *Interface
 	handler    Handler
 	clientAddr net.Addr //remote client ip
+	srvAddr    net.IP
 	localCtx   context.Context
 }
 
 func doWork(id int, element job) {
 	var ans Answer
-	if ans = element.handler.ServeDHCP(element.localCtx, element.DHCPpacket, element.msgType, element.clientAddr); ans.D != nil {
+	if ans = element.handler.ServeDHCP(element.localCtx, element.DHCPpacket, element.msgType, element.clientAddr, element.srvAddr); ans.D != nil {
 		ipStr, portStr, _ := net.SplitHostPort(element.clientAddr.String())
 		if !(element.DHCPpacket.GIAddr().Equal(net.IPv4zero) && net.ParseIP(ipStr).Equal(net.IPv4zero)) {
 			dstPort, _ := strconv.Atoi(portStr)
