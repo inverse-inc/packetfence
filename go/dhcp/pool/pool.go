@@ -66,10 +66,12 @@ type DHCPPool struct {
 	statsd    *statsd.Client
 }
 
+// Timing struct
 type Timing struct {
 	timing statsd.Timing
 }
 
+// NewTiming struct
 func (dp *DHCPPool) NewTiming() *Timing {
 	if dp.statsd == nil {
 		return nil
@@ -78,6 +80,7 @@ func (dp *DHCPPool) NewTiming() *Timing {
 	return &Timing{timing: dp.statsd.NewTiming()}
 }
 
+// Send function to add pfdhcp prefix
 func (t *Timing) Send(name string) {
 	if t == nil {
 		return

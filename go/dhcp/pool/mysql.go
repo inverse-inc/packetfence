@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"sync"
 
+	//Import mysql as _
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/log"
 	"gopkg.in/alexcesaro/statsd.v2"
