@@ -31,6 +31,10 @@ func (n *Node) UpdateTimeBucket(sessionID SessionID, timeBucket time.Time, in, o
 	s.Update(timeBucket, in, out)
 }
 
+func (n *Node) RemoveSession(sessionID SessionID) *Session {
+	return n.Sessions.RemoveSession(sessionID)
+}
+
 func NewNode() *Node {
 	return &Node{Sessions: NewSessions()}
 }
@@ -125,6 +129,21 @@ func (s *Sessions) getOrAdd(id SessionID) *Session {
 	return item
 }
 
+func (s *Sessions) RemoveSession(id SessionID) *Session {
+	var item *Session
+	var found bool
+	s.lock.Lock()
+	if item, found = s.Sessions[id]; found {
+		delete(s.Sessions, id)
+	}
+	s.lock.Unlock()
+	if item != nil {
+		item.lock.Lock() // Sync any changes before returning
+		item.lock.Unlock()
+	}
+	return item
+}
+
 func (s *Sessions) Add(sessionID SessionID, timeBucket time.Time, in, out int64) {
 	item := s.getOrAdd(sessionID)
 	item.Add(timeBucket, in, out)
@@ -212,4 +231,16 @@ func (n *Nodes) GetBucket(tenantId int, mac mac.Mac, sessionID SessionID, timeBu
 	}
 	n.lock.RUnlock()
 	return node.GetBucket(sessionID, timeBucket)
+}
+
+func (n *Nodes) RemoveSession(tenantId int, mac mac.Mac, sessionID SessionID) *Session {
+	var item *Node
+	var found bool
+	key := NodeKey{TenantId: tenantId, Mac: mac}
+	n.lock.RLock() //First try to get a read Only lock
+	if item, found = n.Nodes[key]; !found {
+		return nil
+	}
+
+	return item.RemoveSession(sessionID)
 }
