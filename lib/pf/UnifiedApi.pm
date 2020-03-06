@@ -1862,10 +1862,10 @@ sub setup_api_v1_config_filter_engines_routes {
             controller => 'Config::FilterEngines'
         }
     );
-    $filter_engines_root->register_sub_action(
+    $filter_engines_root->register_sub_actions(
         {
             method     => 'POST',
-            action     => 'parse_condition',
+            actions    => [qw(parse_condition flatten_condition)],
             controller => 'Config::FilterEngines'
         }
     );

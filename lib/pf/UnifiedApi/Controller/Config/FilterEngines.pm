@@ -39,6 +39,27 @@ sub parse_condition {
     $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
 }
 
+sub flatten_condition {
+    my ($self) = @_;
+    my ($error, $item) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $condition = $item->{condition};
+    if (!defined $condition) {
+        return $self->render_error(422, "No condition found");
+    }
+
+    if (!ref $condition) {
+        return $self->render_error(422, "Condition must be a object");
+    }
+
+    my $string = pf::condition_parser::object_to_str($condition);
+
+    $self->render(json => { item => {condition_string => $string, condition => $condition } });
+}
+
 =head2 engines
 
 engines
