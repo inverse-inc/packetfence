@@ -55,3 +55,41 @@ Tunnel-Medium-Type  = 6
 Tunnel-Type = 13
 Tunnel-Private-Group-Id = $switch._voiceVlan
 EOT
+
+[Ruckus::ZoneDirector]
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Type = 13
+Tunnel-Medium-Type = 6
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=
+disconnect= <<EOT
+Acct-Session-Id = ${last_accounting.acctsessionid}
+User-Name = ${last_accounting.username}
+EOT
+description=Ruckus ZoneDirector
+voip=
+radiusDisconnect=disconnect
+reject=
+coa=
+
+[Ruckus::SmartZone]
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Type = 13
+Tunnel-Medium-Type = 6
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+description=Ruckus SmartZone
+voip=
+radiusDisconnect=disconnect
+reject=
+coa=
