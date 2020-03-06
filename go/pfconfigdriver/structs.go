@@ -336,7 +336,7 @@ type RessourseNetworkConf struct {
 	IpAssigned               string    `json:"ip_assigned"`
 	Interface                Interface `json:"interface"`
 	PortalFQDN               string    `json:"portal_fqdn"`
-	PoolBackendd             string    `json:"pool_backend"`
+	PoolBackend              string    `json:"pool_backend"`
 	Algorithm                string    `json:"algorithm"`
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
 }
