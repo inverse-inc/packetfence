@@ -247,7 +247,10 @@ const mutations = {
     }
     Vue.set(state.cache[collection], 'items', [
       ...state.cache[collection].items,
-      item
+      {
+        ...item,
+        ...{ not_deletable: false, not_sortable: false }
+      }
     ])
   },
   ITEM_REPLACED: (state, { collection, id, item }) => {
