@@ -48,10 +48,12 @@
         <b-row v-for="(item, itemIndex) in sortableItems" :key="itemIndex"
           class="pf-table-sortable-row"
         >
-          <b-col :class="{ 'draghandle': (sortableItems.length > 1) }" cols="1">
-            <icon v-if="!disabled && sortableItems.length > 1" class="draghandle-icon" name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
-            <icon v-else class="draghandle-icon" name="lock"></icon>
-            <span class="draghandle-index">{{ notSortableItems.length + itemIndex + 1 }}</span>
+          <b-col :class="{ 'draghandle': (!disabled && sortableItems.length > 1 && !item.not_sortable) }" cols="1">
+            <icon v-if="disabled || sortableItems.length == 1 || item.not_sortable" name="lock"></icon>
+            <template v-else>
+              <icon class="draghandle-icon" name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+              <span class="draghandle-index">{{ notSortableItems.length + itemIndex + 1 }}</span>
+            </template>
           </b-col>
           <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
             <slot :name="cell(field.key)" v-bind="item">{{ formatted(item, field) }}</slot>
