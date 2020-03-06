@@ -38,8 +38,10 @@ func (rec *NetFlowBandwidthAccountingRec) ToSQLSelect() string {
 
 type NetFlowBandwidthAccountingRecs []NetFlowBandwidthAccountingRec
 
-func (array *NetFlowBandwidthAccountingRecs) AppendEmpty() {
-	*array = append(*array, NetFlowBandwidthAccountingRec{})
+func (array *NetFlowBandwidthAccountingRecs) Append(ip string, TimeBucket time.Time) int {
+	index := len(*array)
+	*array = append(*array, NetFlowBandwidthAccountingRec{Ip: ip, TimeBucket: TimeBucket, UniqueSession: "NETFLOW-" + ip})
+	return index
 }
 
 func (array NetFlowBandwidthAccountingRecs) ToSQL() string {
@@ -102,12 +104,8 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 		if h.IpAddressAllowed(srcIP) {
 			srcIpStr := srcIP.String()
 			if srcIndex, found = lookup[srcIpStr]; !found {
-				srcIndex = len(recs)
-				recs.AppendEmpty()
+				srcIndex = recs.Append(srcIpStr, unixTime)
 				lookup[srcIpStr] = srcIndex
-				recs[srcIndex].Ip = srcIpStr
-				recs[srcIndex].TimeBucket = unixTime
-				recs[srcIndex].UniqueSession = "NETFLOW-" + srcIpStr
 			}
 		}
 
@@ -115,11 +113,8 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 		if h.IpAddressAllowed(dstIP) {
 			dstIpStr := dstIP.String()
 			if dstIndex, found = lookup[dstIpStr]; !found {
-				dstIndex = len(recs)
-				recs.AppendEmpty()
+				dstIndex = recs.Append(dstIpStr, unixTime)
 				lookup[dstIpStr] = dstIndex
-				recs[dstIndex].Ip = dstIpStr
-				recs[dstIndex].TimeBucket = unixTime
 			}
 		}
 
