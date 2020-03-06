@@ -19,8 +19,40 @@ type TimeBucketKey struct {
 }
 
 type Session struct {
-    LastUpdated time.Time
+	LastUpdated time.Time
+	Buckets     map[int64]BandwidthBucket
+}
 
+func (s *Session) Add(timeBucket time.Time, in, out int64) {
+	key := timeBucket.UnixNano()
+	b := s.Buckets[key]
+	b.InBytes += in
+	b.OutBytes += out
+	s.Buckets[key] = b
+}
+
+func (s *Session) Update(timeBucket time.Time, in, out int64) {
+	key := timeBucket.UnixNano()
+	bb := BandwidthBucket{InBytes: in, OutBytes: out}
+	for k, v := range s.Buckets {
+		if k == key {
+			continue
+		}
+		bb.InBytes -= v.InBytes
+		bb.OutBytes -= v.OutBytes
+	}
+
+	if bb.InBytes < 0 {
+		bb.InBytes = 0
+	}
+
+	if bb.OutBytes < 0 {
+		bb.OutBytes = 0
+	}
+
+	if bb.InBytes > 0 || bb.OutBytes > 0 {
+		s.Buckets[key] = bb
+	}
 }
 
 type BandwidthBucket struct {
@@ -31,6 +63,10 @@ type BandwidthBucket struct {
 type BandwidthBuckets struct {
 	lock    sync.RWMutex
 	Buckets map[TimeBucketKey]BandwidthBucket
+}
+
+func NewBandwidthBuckets() *BandwidthBuckets {
+	return &BandwidthBuckets{Buckets: make(map[TimeBucketKey]BandwidthBucket)}
 }
 
 type Buckets struct {
@@ -59,14 +95,14 @@ func (b *Buckets) getOrAdd(tenantId int, mac mac.Mac, sessionID SessionID, timeB
 		b.lock.Lock()
 		// Recheck if exist if not found add
 		if bb, found = b.BandwidthBuckets[key]; !found {
-			bb = &BandwidthBuckets{Buckets: make(map[TimeBucketKey]BandwidthBucket)}
+			bb = NewBandwidthBuckets()
 			b.BandwidthBuckets[key] = bb
 		}
 		b.lock.Unlock()
 	} else {
 		b.lock.RUnlock()
 	}
-    return bb
+	return bb
 }
 
 func (b *Buckets) GetBucket(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time) (BandwidthBucket, bool) {
@@ -76,18 +112,18 @@ func (b *Buckets) GetBucket(tenantId int, mac mac.Mac, sessionID SessionID, time
 	b.lock.RLock() //First try to get a read Only lock
 	if bb, found = b.BandwidthBuckets[key]; !found {
 		b.lock.RUnlock()
-        return BandwidthBucket{}, false
-    }
-    b.lock.RUnlock()
-    return bb.GetBucket(sessionID, timeBucket)
+		return BandwidthBucket{}, false
+	}
+	b.lock.RUnlock()
+	return bb.GetBucket(sessionID, timeBucket)
 }
 
 func (b *BandwidthBuckets) GetBucket(sessionID SessionID, timeBucket time.Time) (BandwidthBucket, bool) {
-        key := TimeBucketKey{SessionID: sessionID, TimeBucket: timeBucket.UnixNano()}
-        b.lock.RLock()
-        defer b.lock.RUnlock()
-        bk, found := b.Buckets[key]
-        return bk, found
+	key := TimeBucketKey{SessionID: sessionID, TimeBucket: timeBucket.UnixNano()}
+	b.lock.RLock()
+	defer b.lock.RUnlock()
+	bk, found := b.Buckets[key]
+	return bk, found
 }
 
 func (b *BandwidthBuckets) Add(sessionID SessionID, timeBucket time.Time, in, out int64) {
