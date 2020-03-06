@@ -10,7 +10,7 @@ func TestBucketAdd(t *testing.T) {
     b := NewBuckets()
     now := time.Now()
     mac, _ := mac.NewFromString("00:22:33:44:55:11")
-    session := Session([16]byte{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+    session := SessionID([16]byte{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
     b.Add(1, mac, session, now, 10, 100 )
     b.Add(1, mac, session, now, 10, 100 )
     totals, _ := b.GetBucket(1, mac, session, now)

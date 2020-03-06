@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Session [16]byte
+type SessionID [16]byte
 
 type BucketKey struct {
 	TenantId int
@@ -14,13 +14,18 @@ type BucketKey struct {
 }
 
 type TimeBucketKey struct {
-	SessionID  Session
+	SessionID  SessionID
 	TimeBucket int64
 }
 
+type Session struct {
+    LastUpdated time.Time
+
+}
+
 type BandwidthBucket struct {
-	InBytes  uint64
-	OutBytes uint64
+	InBytes  int64
+	OutBytes int64
 }
 
 type BandwidthBuckets struct {
@@ -33,17 +38,17 @@ type Buckets struct {
 	BandwidthBuckets map[BucketKey]*BandwidthBuckets
 }
 
-func (b *Buckets) Add(tenantId int, mac mac.Mac, sessionID Session, timeBucket time.Time, in, out uint64) {
+func (b *Buckets) Add(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time, in, out int64) {
 	bb := b.getOrAdd(tenantId, mac, sessionID, timeBucket)
 	bb.Add(sessionID, timeBucket, in, out)
 }
 
-func (b *Buckets) Update(tenantId int, mac mac.Mac, sessionID Session, timeBucket time.Time, in, out uint64) {
+func (b *Buckets) Update(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time, in, out int64) {
 	bb := b.getOrAdd(tenantId, mac, sessionID, timeBucket)
 	bb.Update(sessionID, timeBucket, in, out)
 }
 
-func (b *Buckets) getOrAdd(tenantId int, mac mac.Mac, sessionID Session, timeBucket time.Time) *BandwidthBuckets {
+func (b *Buckets) getOrAdd(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time) *BandwidthBuckets {
 	var bb *BandwidthBuckets
 	var found bool
 	key := BucketKey{TenantId: tenantId, Mac: mac}
@@ -64,7 +69,7 @@ func (b *Buckets) getOrAdd(tenantId int, mac mac.Mac, sessionID Session, timeBuc
     return bb
 }
 
-func (b *Buckets) GetBucket(tenantId int, mac mac.Mac, sessionID Session, timeBucket time.Time) (BandwidthBucket, bool) {
+func (b *Buckets) GetBucket(tenantId int, mac mac.Mac, sessionID SessionID, timeBucket time.Time) (BandwidthBucket, bool) {
 	var bb *BandwidthBuckets
 	var found bool
 	key := BucketKey{TenantId: tenantId, Mac: mac}
@@ -77,7 +82,7 @@ func (b *Buckets) GetBucket(tenantId int, mac mac.Mac, sessionID Session, timeBu
     return bb.GetBucket(sessionID, timeBucket)
 }
 
-func (b *BandwidthBuckets) GetBucket(sessionID Session, timeBucket time.Time) (BandwidthBucket, bool) {
+func (b *BandwidthBuckets) GetBucket(sessionID SessionID, timeBucket time.Time) (BandwidthBucket, bool) {
         key := TimeBucketKey{SessionID: sessionID, TimeBucket: timeBucket.UnixNano()}
         b.lock.RLock()
         defer b.lock.RUnlock()
@@ -85,7 +90,7 @@ func (b *BandwidthBuckets) GetBucket(sessionID Session, timeBucket time.Time) (B
         return bk, found
 }
 
-func (b *BandwidthBuckets) Add(sessionID Session, timeBucket time.Time, in, out uint64) {
+func (b *BandwidthBuckets) Add(sessionID SessionID, timeBucket time.Time, in, out int64) {
 	key := TimeBucketKey{SessionID: sessionID, TimeBucket: timeBucket.UnixNano()}
 	b.lock.Lock()
 	bb := b.Buckets[key]
@@ -95,7 +100,7 @@ func (b *BandwidthBuckets) Add(sessionID Session, timeBucket time.Time, in, out 
 	b.lock.Unlock()
 }
 
-func (b *BandwidthBuckets) Update(sessionID Session, timeBucket time.Time, in, out uint64) {
+func (b *BandwidthBuckets) Update(sessionID SessionID, timeBucket time.Time, in, out int64) {
 	key := TimeBucketKey{SessionID: sessionID, TimeBucket: timeBucket.UnixNano()}
 	bb := BandwidthBucket{InBytes: in, OutBytes: out}
 	b.lock.Lock()
