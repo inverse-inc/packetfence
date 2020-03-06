@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
 	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -259,13 +260,55 @@ func (dp *Mysql) Capacity() uint64 {
 
 // GetIssues Compare what we have in the cache with what we have in the pool
 func (dp *Mysql) GetIssues(macs []string) ([]string, map[uint64]string) {
+	dp.DHCPPool.lock.RLock()
+	defer dp.DHCPPool.lock.RUnlock()
 	t := dp.DHCPPool.NewTiming()
 	defer dp.DHCPPool.timeTrack(t, "GetIssues")
+
+	var found bool
+	found = false
 	var inPoolNotInCache []string
 	var duplicateInPool map[uint64]string
 	duplicateInPool = make(map[uint64]string)
 
-	// TODO
+	var count int
+	var saveindex uint64
+	for i := uint64(0); i < dp.DHCPPool.capacity; i++ {
+		if dp.DHCPPool.free[i] {
+			continue
+		}
+		for _, mac := range macs {
+			if dp.DHCPPool.mac[i] == mac {
+				found = true
+			}
+		}
+		if !found {
+			inPoolNotInCache = append(inPoolNotInCache, dp.DHCPPool.mac[i]+", "+strconv.Itoa(int(i)))
+		}
+	}
+	for _, mac := range macs {
+		count = 0
+		saveindex = 0
+
+		for i := uint64(0); i < dp.DHCPPool.capacity; i++ {
+			if dp.DHCPPool.free[i] {
+				continue
+			}
+			if dp.DHCPPool.mac[i] == mac {
+				if count == 0 {
+					saveindex = i
+				}
+				if count == 1 {
+					duplicateInPool[saveindex] = mac
+					duplicateInPool[i] = mac
+				} else if count > 1 {
+					duplicateInPool[i] = mac
+				}
+				count++
+			}
+		}
+	}
+
 	return inPoolNotInCache, duplicateInPool
 }
 
