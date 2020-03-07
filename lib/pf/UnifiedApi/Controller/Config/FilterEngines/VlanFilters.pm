@@ -23,6 +23,11 @@ has 'primary_key' => 'vlan_filter_id';
 
 use pf::ConfigStore::VlanFilters;
 use pfappserver::Form::Config::FilterEngines::VlanFilter;
+
+sub is_sortable {
+    my ($self, $cs, $id, $item) = @_;
+    return ($cs->is_section_in_import($id)) ? $self->json_true : $self->SUPER::is_sortable($cs, $id, $item);
+}
  
 =head1 AUTHOR
 
