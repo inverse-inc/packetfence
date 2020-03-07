@@ -41,6 +41,14 @@ has_field 'status' => (
    default => 'enabled'
 );
 
+has_field 'run_actions' => (
+   type => 'Toggle',
+   label => 'Run Actions',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled'
+);
+
 has_field 'scopes' => (
     type     => 'Select',
     multiple => 1,
