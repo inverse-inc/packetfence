@@ -344,10 +344,15 @@ sub cleanup_item {
     $form->process($self->form_process_parameters_for_cleanup($item));
     $item = $form->value;
     $item->{not_deletable} = $cs->is_section_in_import($id) ? $self->json_true : $self->json_false;
-    my $default_section = $cs->default_section;
-    $item->{not_sortable} = (defined($cs->default_section) && $id eq $default_section) ? $self->json_true : $self->json_false;
+    $item->{not_sortable} = $self->is_sortable($cs, $id, $item);
     $item->{id} = $id;
     return $item;
+}
+
+sub is_sortable {
+    my ($self, $cs, $id, $item) = @_;
+    my $default_section = $cs->default_section;
+    return (defined($cs->default_section) && $id eq $default_section) ? $self->json_true : $self->json_false;
 }
 
 sub create {
