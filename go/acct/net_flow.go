@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/inverse-inc/packetfence/go/netflow5"
+	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 	"net"
 	"strconv"
 	"time"
@@ -130,4 +131,10 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 	}
 
 	return recs
+}
+
+func (h *PfAcct) netflowProcessor() *processor.Processor {
+	return &processor.Processor{
+		Handler: h,
+	}
 }
