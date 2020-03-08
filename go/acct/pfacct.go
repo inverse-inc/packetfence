@@ -18,6 +18,7 @@ type PfAcct struct {
 	TimeDuration    time.Duration
 	AllowedNetworks []net.IPNet
 	NetFlowPort     string
+	AllNetworks     bool
 }
 
 func NewPfAcct() *PfAcct {

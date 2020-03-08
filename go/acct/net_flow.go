@@ -79,7 +79,7 @@ func (h *PfAcct) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
 }
 
 func (h *PfAcct) IpAddressAllowed(ip net.IP) bool {
-	if len(h.AllowedNetworks) == 0 {
+	if h.AllNetworks || len(h.AllowedNetworks) == 0 {
 		return true
 	}
 
