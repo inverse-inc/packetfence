@@ -13,10 +13,11 @@ import (
 const DefaultTimeDuration = 5 * time.Minute
 
 type PfAcct struct {
+	RadiusStatements
 	Db              *sql.DB
 	TimeDuration    time.Duration
 	AllowedNetworks []net.IPNet
-	RadiusStatements
+	NetFlowPort     string
 }
 
 func NewPfAcct() *PfAcct {
@@ -48,4 +49,8 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 		network.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 		pfAcct.AllowedNetworks = append(pfAcct.AllowedNetworks, network)
 	}
+
+	var ports pfconfigdriver.PfConfPorts
+	pfconfigdriver.FetchDecodeSocket(ctx, &ports)
+	pfAcct.NetFlowPort = ports.PFAcctNetflow
 }

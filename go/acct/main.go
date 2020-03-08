@@ -19,7 +19,7 @@ func main() {
 	pfacct := NewPfAcct()
 	w := sync.WaitGroup{}
 	rs := pfacct.radiusListen(&w)
-	processor := pfacct.netflowProcessor()
+	processor, _ := pfacct.netflowProcessor()
 	w.Add(1)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

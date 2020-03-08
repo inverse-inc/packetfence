@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/netflow5"
 	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 	"net"
@@ -133,8 +135,17 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 	return recs
 }
 
-func (h *PfAcct) netflowProcessor() *processor.Processor {
+func (h *PfAcct) netflowProcessor() (*processor.Processor, error) {
+	addr := "127.0.0.1:" + h.NetFlowPort
+	conn, err := net.ListenPacket("udp", addr)
+	if err != nil {
+		return nil, err
+	}
+
+	log.LoggerWContext(context.Background()).Info("Starting listening to netflow at '" + addr + "'")
+
 	return &processor.Processor{
 		Handler: h,
-	}
+		Conn:    conn,
+	}, nil
 }
