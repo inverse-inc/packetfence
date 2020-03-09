@@ -106,7 +106,7 @@ require (
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.2
-	layeh.com/radius v0.0.0-20180123164351-38e2cda15058 // indirect
+	layeh.com/radius v0.0.0-20180123164351-38e2cda15058
 	sigs.k8s.io/yaml v1.1.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.0.0-20190322163127-6e380ad96778
 )
