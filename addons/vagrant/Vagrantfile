@@ -42,7 +42,7 @@ Vagrant.configure("2") do |config|
         # only from our expected subnet. Allow traffic between guests. Deny
         # all other inbound. Deny all other outbound.
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks[0],
+                       :libvirt__network_name => networks[0]['name'],
                        :ip => details['mgmt_ip'],
                        :netmask => details['mgmt_netmask'],
                        :libvirt__dhcp_enabled => false,
@@ -52,27 +52,26 @@ Vagrant.configure("2") do |config|
         # libvirt__forward_mode: "none" mean:
         # Allow traffic between guests. Deny inbound. Deny outbound.
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks[1],
+                       :libvirt__network_name => networks[1]['name'],
+                       :ip => networks[1]['subnet'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => "none",
+                       :libvirt__forward_mode => 'none',
                        auto_config: false
 
         # isolation
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks[2],
-                       :ip => details['iso_ip'],
-                       :netmask => details['iso_netmask'],
+                       :libvirt__network_name => networks[2]['name'],
+                       :ip => networks[2]['subnet'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => "none",
+                       :libvirt__forward_mode => 'none',
                        auto_config: false
 
         # inline
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks[3],
-                       :ip => details['inline_ip'],
-                       :netmask => details['inline_netmask'],
+                       :libvirt__network_name => networks[3]['name'],
+                       :ip => networks[3]['subnet'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => "nat",
+                       :libvirt__forward_mode => 'nat',
                        auto_config: false
 
         srv.vm.provider "libvirt" do |v|
@@ -160,9 +159,11 @@ Vagrant.configure("2") do |config|
       # only from our expected subnet. Allow traffic between guests. Deny
       # all other inbound. Deny all other outbound.
       srv.vm.network "private_network",
-                     :libvirt__network_name => networks[0],
+                     :libvirt__network_name => networks[0]['name'],
                      :ip => details['mgmt_ip'],
-                     :netmask => details['mgmt_netmask']
+                     :netmask => details['mgmt_netmask'],
+                     :libvirt__dhcp_enabled => false,
+                     :libvirt__forward_mode => 'route'
 
       srv.vm.provider "libvirt" do |v|
         v.random_hostname = true

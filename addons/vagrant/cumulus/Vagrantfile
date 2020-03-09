@@ -114,22 +114,34 @@ Vagrant.configure("2") do |config|
       # link for swp1 --> mgmt_network (vlan 17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:01",
-            :libvirt__network_name => networks[0],
+            :libvirt__network_name => networks[0]['name'],
+            :ip => networks[0]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => 'route',
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:02",
-            :libvirt__network_name => networks[1],
+            :libvirt__network_name => networks[1]['name'],
+            :ip => networks[1]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => 'none',
             auto_config: false
       # link for swp3 --> iso_network (vlan 3)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:03",
-            :libvirt__network_name => networks[2],
+            :libvirt__network_name => networks[2]['name'],
+            :ip => networks[2]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => 'none',
             auto_config: false      
       # link for swp6 --> inline_network (vlan 6)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:06",
-            :libvirt__network_name => networks[3],
+            :libvirt__network_name => networks[3]['name'],
+            :ip => networks[3]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => 'nat',
             auto_config: false
       # link for swp11 --> node01:eth0
       device.vm.network "private_network",

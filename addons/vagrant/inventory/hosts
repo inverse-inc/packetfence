@@ -8,19 +8,19 @@ all:
       hosts:
         switch01:
           # IP used by helper_scripts, not Vagrant
-          mgmt_ip: 172.17.1.201
+          mgmt_ip: 172.17.17.201
           ansible_host: "{{ mgmt_ip }}"
     nodes:
       hosts:
         node01:
           # IP used by helper_scripts, not Vagrant
-          mgmt_ip: 172.17.1.251
+          mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
     winservers:
       hosts:
         ad:
           box: jborean93/WindowsServer2016
-          mgmt_ip: 172.17.1.100
+          mgmt_ip: 172.17.17.100
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 1
@@ -45,28 +45,28 @@ all:
           hosts:
             pfcen7dev:
               box: centos/7
-              mgmt_ip: 172.17.1.10
+              mgmt_ip: 172.17.17.10
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfcen8dev:
               box: centos/8
-              mgmt_ip: 172.17.1.11
+              mgmt_ip: 172.17.17.11
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfdeb9dev:
               box: debian/stretch64
-              mgmt_ip: 172.17.1.12
+              mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
             pfdeb10dev:
               box: debian/buster64
-              mgmt_ip: 172.17.1.13
+              mgmt_ip: 172.17.17.13
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
@@ -76,28 +76,28 @@ all:
           hosts:
             pfcen7stable:
               box: centos/7
-              mgmt_ip: 172.17.1.14
+              mgmt_ip: 172.17.17.14
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfcen8stable:
               box: centos/8
-              mgmt_ip: 172.17.1.15
+              mgmt_ip: 172.17.17.15
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfdeb9stable:
               box: debian/stretch64
-              mgmt_ip: 172.17.1.16
+              mgmt_ip: 172.17.17.16
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
             pfdeb10stable:
               box: debian/buster64
-              mgmt_ip: 172.17.1.17
+              mgmt_ip: 172.17.17.17
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
@@ -107,28 +107,28 @@ all:
           hosts:
             pfcen7night:
               box: centos/7
-              mgmt_ip: 172.17.1.18
+              mgmt_ip: 172.17.17.18
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfcen8night:
               box: centos/8
-              mgmt_ip: 172.17.1.19
+              mgmt_ip: 172.17.17.19
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfdeb9night:
               box: debian/stretch64
-              mgmt_ip: 172.17.1.20
+              mgmt_ip: 172.17.17.20
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
             pfdeb10night:
               box: debian/buster64
-              mgmt_ip: 172.17.1.21
+              mgmt_ip: 172.17.17.21
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
@@ -137,8 +137,17 @@ all:
   vars:
     tz: Etc/UTC
     networks:
-      - 'mgmt'
-      - 'registration'
-      - 'isolation'
-      - 'inline'
+      - name: 'mgmt'
+        subnet: '172.17.17.0/24'
+
+      - name: 'registration'
+        subnet: '172.17.2.0/24'
+
+      - name: 'isolation'
+        subnet: '172.17.3.0/24'
+
+      - name: 'inline'
+        subnet: '172.17.6.0/24'
+
+
       
