@@ -53,10 +53,9 @@ Vagrant.configure("2") do |config|
         # Allow traffic between guests. Deny inbound. Deny outbound.
         srv.vm.network "private_network",
                        :libvirt__network_name => networks[1],
-                       :ip => details['reg_ip'],
-                       :netmask => details['reg_netmask'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => "none"
+                       :libvirt__forward_mode => "none",
+                       auto_config: false
 
         # isolation
         srv.vm.network "private_network",
@@ -64,7 +63,8 @@ Vagrant.configure("2") do |config|
                        :ip => details['iso_ip'],
                        :netmask => details['iso_netmask'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => "none"
+                       :libvirt__forward_mode => "none",
+                       auto_config: false
 
         # inline
         srv.vm.network "private_network",
@@ -72,7 +72,8 @@ Vagrant.configure("2") do |config|
                        :ip => details['inline_ip'],
                        :netmask => details['inline_netmask'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => "nat"
+                       :libvirt__forward_mode => "nat",
+                       auto_config: false
 
         srv.vm.provider "libvirt" do |v|
           v.random_hostname = true
