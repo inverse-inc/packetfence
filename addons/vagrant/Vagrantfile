@@ -149,3 +149,7 @@ Vagrant.configure("2") do |config|
     end
   end
 end
+
+# include switch(s) and supplicant(s) from Cumulus Vagrantfile
+cumulus_vagrantfile = File.expand_path('cumulus/Vagrantfile')
+load cumulus_vagrantfile if File.exists?(cumulus_vagrantfile)
