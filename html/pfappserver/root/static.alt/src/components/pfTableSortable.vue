@@ -29,7 +29,7 @@
           {{ itemIndex + 1 }}
         </b-col>
         <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
-          <slot :name="cell(field.key)" v-bind="item">{{ item[field.key] }}</slot>
+          <slot :name="cell(field.key)" v-bind="item">{{ formatted(item, field) }}</slot>
         </b-col>
       </b-row>
       <draggable
