@@ -68,9 +68,37 @@ To do so, the preferred way is using the `perldoc` command as follows:
 
 ==== Titles
 
-We use `=` tags for section titles (headings), see
-link:https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#section-titles[AsciiDoc
-Syntax Quick Reference] for examples.
+We use Asciidoctor tags for section titles (headings) in place of AsciiDoc
+tags, see table below for equivalence:
+
+
+.Compatibility between AsciiDoc and Asciidoctor syntax for section titles
+// l means literal
+[cols="d,l,d"]
+|===
+|Level |AsciiDoc syntax (old) |Asciidoctor syntax (new)
+
+|Level 0 (Document title)
+|=====
+|`=`
+
+|Level 1
+|-----
+|`==`
+
+|Level 2
+|~~~~~
+|`===`
+
+|Level 3
+|^^^^^
+|`====`
+
+|Level 4
+|+++++
+|`=====`
+|===
+
 
 ==== Inter-document cross references
 
