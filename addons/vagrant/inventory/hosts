@@ -4,6 +4,18 @@
 # also use as a Ansible inventory file to provision VMs
 all:
   children:
+    cumulus:
+      hosts:
+        switch01:
+          # IP used by helper_scripts, not Vagrant
+          mgmt_ip: 172.17.1.201
+          ansible_host: "{{ mgmt_ip }}"
+    nodes:
+      hosts:
+        node01:
+          # IP used by helper_scripts, not Vagrant
+          mgmt_ip: 172.17.1.251
+          ansible_host: "{{ mgmt_ip }}"
     winservers:
       hosts:
         ad:
