@@ -16,6 +16,7 @@ import FloatingDevicesStore from '../_store/floatingDevices'
 import InterfacesStore from '../_store/interfaces'
 import Layer2NetworksStore from '../_store/layer2Networks'
 import MaintenanceTasksStore from '../_store/maintenanceTasks'
+import NetworkBehaviorPoliciesStore from '../_store/networkBehaviorPolicies'
 import PkisStore from '../_store/pkis'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
@@ -53,6 +54,8 @@ const ConnectionProfileFileView = () => import(/* webpackChunkName: "Editor" */ 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
+const NetworkBehaviorPoliciesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPoliciesList')
+const NetworkBehaviorPolicyView = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPolicyView')
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDeviceView')
 const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
@@ -179,6 +182,9 @@ const route = {
     }
     if (!store.state.$_maintenance_tasks) {
       store.registerModule('$_maintenance_tasks', MaintenanceTasksStore)
+    }
+    if (!store.state.$_network_behavior_policies) {
+      store.registerModule('$_network_behavior_policies', NetworkBehaviorPoliciesStore)
     }
     if (!store.state.$_pkis) {
       store.registerModule('$_pkis', PkisStore)
@@ -630,6 +636,52 @@ const route = {
       name: 'fingerbankDeviceChangeDetection',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
+    },
+    {
+      path: 'fingerbank/network_behavior_policies',
+      name: 'network_behavior_policies',
+      component: NetworkBehaviorPoliciesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'network_behavior_policies/new',
+      name: 'newNetworkBehaviorPolicy',
+      component: NetworkBehaviorPolicyView,
+      props: () => ({ formStoreName: 'formNetworkBehaviorPolicy', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
+          store.registerModule('formNetworkBehaviorPolicy', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'network_behavior_policy/:id',
+      name: 'network_behavior_policy',
+      component: NetworkBehaviorPolicyView,
+      props: (route) => ({ formStoreName: 'formNetworkBehaviorPolicy', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
+          store.registerModule('formNetworkBehaviorPolicy', FormStore)
+        }
+        store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'network_behavior_policy/:id/clone',
+      name: 'cloneNetworkBehaviorPolicy',
+      component: NetworkBehaviorPolicyView,
+      props: (route) => ({ formStoreName: 'formNetworkBehaviorPolicy', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
+          store.registerModule('formNetworkBehaviorPolicy', FormStore)
+        }
+        store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/combinations',

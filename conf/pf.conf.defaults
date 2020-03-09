@@ -255,6 +255,11 @@ httpd_portal_modstatus=1444
 #
 # port to use for accessing the Unified API
 unifiedapi=9999
+#
+# ports.pfacct_netflow
+#
+# port for listening to netflow
+pfacct_netflow=2056
 
 [database]
 #
@@ -410,6 +415,11 @@ radiusd=enabled
 # 
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 radiusd_binary=/usr/sbin/radiusd
+#
+# services.radiusd_acct
+#
+# Should freeradius handling accounting
+radiusd_acct=disabled
 #
 # services.iptables
 #
@@ -596,6 +606,16 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/sbin/pfdns
+
+# services.pfacct
+#
+# Should pfacct be managed by PacketFence?
+pfacct=enabled
+#
+# services.pfacct_binary
+#
+# Location of the pfacct binary.
+pfacct_binary=/usr/local/pf/sbin/pfacct
 #
 # services.api-frontend
 #

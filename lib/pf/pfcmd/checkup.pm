@@ -639,7 +639,7 @@ sub is_config_documented {
                   || ($section =~ /^(services|interface|nessus_category_policy|nessus_scan_by_fingerprint)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
-            next if ( $item =~ /^temporary_/i );
+            next if ( $item =~ /^temporary_/i ) || ("$section.$item" eq "webservices.jsonrpcclient_args");
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
                 add_problem( $WARN,
                     "unknown configuration parameter $section.$item ".

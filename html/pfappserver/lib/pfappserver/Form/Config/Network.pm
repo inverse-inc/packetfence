@@ -61,7 +61,18 @@ has_field 'algorithm' =>
    ],
    default => $pf::constants::dhcp::RANDOM_ALGORITHM,
   );
-has_field 'ip_reserved' =>
+has_field 'pool_backend' =>
+  (
+   type => 'Select',
+   label => 'DHCP Pool Backend Type',
+   required => 1,
+   options => [
+        { value => $pf::constants::dhcp::MEMORY_POOL, label => 'Memory Pool'},
+        { value => $pf::constants::dhcp::MYSQL_POOL, label => 'MySQL Pool'},
+   ],
+   default => $pf::constants::dhcp::MEMORY_POOL,
+  );
+ has_field 'ip_reserved' =>
   (
    type => 'TextArea',
    label => 'IP Addresses reserved',
@@ -105,6 +116,15 @@ has_field 'portal_fqdn' =>
    tags => { after_element => \&help,
              help => 'Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server' },
   );
+
+has_field 'netflow_accounting_enabled' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   label => 'Enable Net Flow Accounting'
+   );
 
 =head2 validate
 

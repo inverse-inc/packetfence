@@ -616,8 +616,10 @@ CREATE TABLE radius_nas (
   start_ip INT UNSIGNED DEFAULT 0,
   end_ip INT UNSIGNED DEFAULT 0,
   range_length INT DEFAULT 0,
+  unique_session_attributes varchar(255),
   PRIMARY KEY nasname (nasname),
-  KEY id (id)
+  KEY id (id),
+  INDEX radius_nas_start_ip_end_ip (start_ip, end_ip)
 ) ENGINE=InnoDB;
 
 -- Adding RADIUS accounting table
@@ -1365,6 +1367,23 @@ CREATE TABLE `admin_api_audit_log` (
 
 
 --
+-- Table structure for table `dhcppool`
+--
+
+CREATE TABLE dhcppool (
+  id                    int(11) unsigned NOT NULL auto_increment,
+  pool_name             varchar(30) NOT NULL,
+  idx                   int(11) NOT NULL,
+  mac                   VARCHAR(30) NOT NULL,
+  free                  BOOLEAN NOT NULL default '1',
+  released              DATETIME(6) NULL default NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY dhcppool_poolname_idx (pool_name, idx),
+  KEY mac (mac),
+  KEY released (released)
+) ENGINE=InnoDB;
+
+--
 -- Table structure for table `pki_cas`
 --
 
@@ -1510,6 +1529,22 @@ CREATE TABLE `pki_revoked_certs` (
   KEY `organisation` (`organisation`),
   KEY `revoked` (`revoked`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `bandwidth_accounting`
+--
+
+CREATE TABLE bandwidth_accounting (
+    tenant_id INT,
+    mac char(17) NOT NULL,
+    unique_session_id char(32),
+    time_bucket DATETIME NOT NULL,
+    in_bytes BIGINT UNSIGNED NOT NULL,
+    out_bytes BIGINT UNSIGNED NOT NULL,
+    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    PRIMARY KEY (tenant_id, unique_session_id, mac, time_bucket),
+    KEY bandwidth_accounting_time_bucket (time_bucket)
+);
 
 --
 -- Updating to current version

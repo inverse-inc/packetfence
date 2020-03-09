@@ -27,7 +27,7 @@ type DHCPHandler struct {
 	leaseDuration time.Duration // Lease period
 	hwcache       *cache.Cache
 	xid           *cache.Cache
-	available     *pool.DHCPPool // DHCPPool keeps track of the available IPs in the pool
+	available     pool.Backend // DHCPPool keeps track of the available IPs in the pool
 	layer2        bool
 	role          string
 	ipReserved    string
@@ -112,6 +112,7 @@ func (d *Interfaces) readConfig() {
 		ethIf.listenPort = bootpServer
 
 		adresses, _ := eth.Addrs()
+
 		for _, adresse := range adresses {
 
 			var NetIP *net.IPNet
@@ -132,20 +133,20 @@ func (d *Interfaces) readConfig() {
 			}
 
 			ethIf.layer2 = append(ethIf.layer2, NetIP)
-
 			for _, key := range keyConfNet.Keys {
 				var ConfNet pfconfigdriver.RessourseNetworkConf
 				ConfNet.PfconfigHashNS = key
-
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
 				if ConfNet.Dhcpd == "disabled" {
 					continue
 				}
+
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
 						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
 						continue
 					}
+
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
@@ -231,7 +232,7 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
 							algorithm, _ := strconv.Atoi(ConfNet.Algorithm)
 							// Initialize dhcp pool
-							available := pool.NewDHCPPool(ctx, uint64(dhcp.IPRange(ip, ips)), algorithm, StatsdClient)
+							available, _ := pool.Create(ctx, ConfNet.PoolBackend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase)
 
 							DHCPScope.available = available
 
@@ -295,7 +296,8 @@ func (d *Interfaces) readConfig() {
 						algorithm, _ := strconv.Atoi(ConfNet.Algorithm)
 
 						// Initialize dhcp pool
-						available := pool.NewDHCPPool(ctx, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), algorithm, StatsdClient)
+						available, _ := pool.Create(ctx, ConfNet.PoolBackend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase)
+
 						DHCPScope.available = available
 
 						// Initialize hardware cache

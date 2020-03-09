@@ -34,16 +34,6 @@ export const routedNetworkListFormatter = (value) => {
   return routedNetworkList.find(type => type.value === value).text
 }
 
-export const dhcpList = [
-  { value: '1', text: i18n.t('Random') },
-  { value: '2', text: i18n.t('Oldest Released') }
-]
-
-export const dhcpListFormatter = (value) => {
-  if (value === null || value === '') return null
-  return dhcpList.find(type => type.value === value).text
-}
-
 export const htmlNote = `<div class="alert alert-warning">
   <strong>${i18n.t('Note')}</strong>
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
@@ -90,6 +80,12 @@ export const columns = [
     key: 'buttons',
     label: '',
     locked: true
+  },
+  {
+    key: 'pool_backend',
+    label: i18n.t('Backend'),
+    sortable: false,
+    visible: true,
   }
 ]
 
@@ -222,11 +218,25 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'algorithm',
               component: pfFormChosen,
               attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to choose the algorithm'),
-                trackBy: 'value',
-                label: 'text',
-                options: dhcpList
+                ...attributesFromMeta(meta, 'algorithm'),
+                ...{
+                  disabled: (fake_mac_enabled === '1')
+                }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCP Pool Backend Type'),
+          cols: [
+            {
+              namespace: 'pool_backend',
+              component: pfFormChosen,
+              attrs: {
+                ...attributesFromMeta(meta, 'pool_backend'),
+                ...{
+                  disabled: (fake_mac_enabled === '1')
+                }
               }
             }
           ]
@@ -436,6 +446,7 @@ export const validators = (form = {}, meta = {}) => {
     },
     type: validatorsFromMeta(meta, 'type', i18n.t('Type')),
     algorithm: validatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm')),
+    pool_backend: validatorsFromMeta(meta, 'pool_backend', i18n.t('DHCP Pool Backend Type')),
     dhcp_start: {
       ...validatorsFromMeta(meta, 'dhcp_start', 'IP'),
       ...{

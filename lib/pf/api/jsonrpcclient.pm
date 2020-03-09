@@ -84,7 +84,7 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 =cut
 
-has id => (is => 'rw', default => sub {0} );
+has id => (is => 'rw', default => 0 );
 
 =head2 method
 
@@ -93,7 +93,7 @@ has id => (is => 'rw', default => sub {0} );
 
 =cut
 
-has method => (is => 'rw', default => sub {"post"} );
+has method => (is => 'rw', default => "post" );
 
 =head2 connect_timeout_ms
 
@@ -101,7 +101,7 @@ Curl connection timeout in milli seconds
 
 =cut
 
-has connect_timeout_ms => (is => 'rw', default => sub {0}) ;
+has connect_timeout_ms => (is => 'rw', default => 0) ;
 
 =head2 timeout_ms
 
@@ -109,7 +109,7 @@ Curl transfer timeout in milli seconds
 
 =cut
 
-has timeout_ms => (is => 'rw', default => sub {0} ) ;
+has timeout_ms => (is => 'rw', default => 0 ) ;
 
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
@@ -283,6 +283,17 @@ sub _build_jsonrpc_data {
     return $JSON->encode({method => $function, jsonrpc => '2.0', params => $args, tenant_id => pf::dal->get_tenant(), (defined $id ? (id => $id) : ()) });
 }
 
+sub BUILDARGS {
+    my ($class, @args) = @_;
+    my %args = (
+        %{$Config{'webservices'}{jsonrpcclient_args}},
+        (
+            @args == 1 ? (%{$args[0]}) : @args
+        )
+    );
+
+    return \%args;
+}
 
 =head1 AUTHOR
 

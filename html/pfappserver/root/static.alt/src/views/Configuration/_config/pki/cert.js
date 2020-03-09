@@ -42,7 +42,7 @@ export const columns = [
   },
   {
     key: 'profile_name',
-    label: i18n.t('Profile'),
+    label: i18n.t('Template'),
     sortable: true,
     visible: true
   },
@@ -89,12 +89,12 @@ export const fields = [
   },
   {
     value: 'profile_id',
-    text: i18n.t('Profile Identifier'),
+    text: i18n.t('Template Identifier'),
     types: [conditionType.SUBSTRING]
   },
   {
     value: 'profile_name',
-    text: i18n.t('Profile Name'),
+    text: i18n.t('Template Name'),
     types: [conditionType.SUBSTRING]
   },
   {
@@ -116,7 +116,7 @@ export const config = () => {
     rowClickRoute (item) {
       return { name: 'pkiCert', params: { id: item.ID } }
     },
-    searchPlaceholder: i18n.t('Search by identifier, certificate authority, profile, common name or email'),
+    searchPlaceholder: i18n.t('Search by identifier, certificate authority, template, common name or email'),
     searchableOptions: {
       searchApiEndpoint: 'pki/certs',
       defaultSortKeys: ['id'],
@@ -204,8 +204,8 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Certificate Profile'),
-          text: i18n.t('Certificate profile used for this certificate.'),
+          label: i18n.t('Certificate Template'),
+          text: i18n.t('Certificate template used for this certificate.'),
           cols: [
             {
               namespace: 'profile_id',
@@ -330,7 +330,7 @@ export const validators = (form = {}, meta = {}) => {
   } = meta
   return {
     profile_id: {
-      [i18n.t('Profile required.')]: required
+      [i18n.t('Template required.')]: required
     },
     cn: {
       [i18n.t('Common Name required.')]: required,

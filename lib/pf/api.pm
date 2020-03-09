@@ -76,9 +76,10 @@ use pf::constants::api;
 use pf::constants::realm;
 use DateTime::Format::MySQL;
 
+my $logger = pf::log::get_logger();
+
 sub event_add : Public {
     my ($class, %postdata) = @_;
-    my $logger = pf::log::get_logger();
     my $events = $postdata{'events'};
     my $srcip = pf::util::clean_ip($postdata{'srcip'});
     my $dstip = pf::util::clean_ip($postdata{'dstip'});
@@ -133,7 +134,6 @@ sub echo : Public {
 
 sub radius_authorize : Public {
     my ($class, %radius_request) = @_;
-    my $logger = pf::log::get_logger();
 
     my $radius = new pf::radius::custom();
     my $return;
@@ -149,7 +149,6 @@ sub radius_authorize : Public {
 
 sub radius_filter : Public {
     my ($class, $scope, %radius_request) = @_;
-    my $logger = pf::log::get_logger();
 
     my $radius = new pf::radius::custom();
     my $return;
@@ -164,23 +163,21 @@ sub radius_filter : Public {
 }
 
 sub radius_accounting : Public {
-    my ($class, %radius_request) = @_;
-    my $logger = pf::log::get_logger();
-
+    my ($class, $request) = @_;
+    my $return = $class->handle_accounting_metadata($request);
     my $radius = new pf::radius::custom();
-    my $return;
     eval {
-        $return = $radius->accounting(\%radius_request);
+        $return = $radius->accounting( $request, delete $request->{PF_HEADERS} // {} );
     };
     if ($@) {
         $logger->error("radius accounting failed with error: $@");
     }
+
     return $return;
 }
 
 sub radius_update_locationlog : Public {
     my ($class, %radius_request) = @_;
-    my $logger = pf::log::get_logger();
 
     my $radius = new pf::radius::custom();
     my $return;
@@ -201,7 +198,6 @@ Return RADIUS attributes to allow switch's CLI access
 
 sub radius_switch_access : Public {
     my ($class, %radius_request) = @_;
-    my $logger = pf::log::get_logger();
 
     my $radius = new pf::radius::custom();
     my $return;
@@ -227,7 +223,6 @@ sub update_ip4log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
 
     $postdata{'oldip'}  = pf::ip4log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
     $postdata{'oldmac'} = pf::ip4log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
@@ -255,7 +250,6 @@ sub update_ip6log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
 
     $postdata{'oldip'}  = pf::ip6log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
     $postdata{'oldmac'} = pf::ip6log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
@@ -277,7 +271,6 @@ sub update_ip6log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
 
 sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
     my ($class, %postdata) = @_;
-    my $logger = pf::log::get_logger();
     my @require = qw(pid);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
@@ -297,28 +290,24 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
 
 sub synchronize_locationlog : Public {
     my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid ,$stripped_user_name, $realm, $role) = @_;
-    my $logger = pf::log::get_logger();
 
     return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role));
 }
 
 sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
-    my $logger = pf::log::get_logger();
 
     return (pf::ip4log::open($ip, $mac, $lease_length));
 }
 
 sub close_iplog : Public {
     my ( $class, $ip ) = @_;
-    my $logger = pf::log::get_logger();
 
     return (pf::ip4log::close($ip));
 }
 
 sub ipset_node_update : Public {
     my ( $class, $oldip, $srcip, $srcmac ) = @_;
-    my $logger = pf::log::get_logger();
 
     return(pf::ipset->update_node($oldip, $srcip, $srcmac));
 }
@@ -338,7 +327,6 @@ sub ReAssignVlan : Public : Fork {
     my @found = grep {exists $postdata->{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
 
     if ( not defined( $postdata->{'connection_type'} )) {
         $logger->error("Connection type is unknown. Could not reassign VLAN.");
@@ -400,7 +388,6 @@ sub desAssociate : Public : Fork {
     my @found = grep {exists $postdata->{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
 
     my $switch = pf::SwitchFactory->instantiate($postdata->{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata->{'mac'})});
     unless ($switch) {
@@ -439,7 +426,6 @@ sub firewall : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
 
     # verify if firewall rule is ok
     my $inline = new pf::inline::custom();
@@ -450,7 +436,6 @@ sub firewall : Public {
 # Handle connection types $WIRED_SNMP_TRAPS
 sub _reassignSNMPConnections {
     my ( $switch, $mac, $ifIndex, $connection_type ) = @_;
-    my $logger = pf::log::get_logger();
     # find open non VOIP entries in locationlog. Fail if none found.
     my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP( $switch->{_id}, $ifIndex );
     unless ( (@locationlog) && ( scalar(@locationlog) > 0 ) && ( $locationlog[0]->{'mac'} ne '' ) ) {
@@ -562,7 +547,6 @@ Release all security_events for a node
 
 sub release_all_security_events : Public:AllowedAsAction($mac){
     my ($class, $mac) = @_;
-    my $logger = pf::log::get_logger;
     $mac = pf::util::clean_mac($mac);
     die "Missing MAC address" unless($mac);
     my $closed_security_event = 0;
@@ -686,7 +670,6 @@ sub node_information : Public {
 
 sub notify_configfile_changed : Public {
     my ($class, %postdata) = @_;
-    my $logger = pf::log::get_logger;
     my @require = qw(server conf_file);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require, \@found);
@@ -783,7 +766,6 @@ sub expire_cluster : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require, \@found);
 
-    my $logger = pf::log::get_logger;
 
     $postdata{light} = 0;
     expire($class, %postdata);
@@ -841,7 +823,6 @@ sub expire_cluster : Public {
 
 sub expire : Public {
     my ($class, %postdata ) = @_;
-    my $logger = pf::log::get_logger;
     my @require = qw(namespace light);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require, \@found);
@@ -868,7 +849,6 @@ sub add_person : Public :AllowedAsAction(pid, $pid) {
     my @require = qw(pid);
     my @found = grep {exists $params{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
-    my $logger = pf::log::get_logger();
     my $pid    = delete $params{pid};
     my $sendmail = delete $params{sendmail};
     if(pf::person::person_exist($pid)) {
@@ -929,7 +909,6 @@ View a person entry
 
 sub view_person : Public {
     my ($class,$pid) = @_;
-    my $logger = pf::log::get_logger();
     unless(pf::person::person_exist($pid)) {
         my $msg = "person $pid does not exist\n";
         $logger->error($msg);
@@ -956,7 +935,6 @@ sub modify_person : Public :AllowedAsAction(pid, $pid) {
     my @found = grep {exists $params{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
     my $pid = delete $params{pid};
-    my $logger = pf::log::get_logger();
     unless(pf::person::person_exist($pid)) {
         my $msg = "person $pid does not exist\n";
         $logger->error($msg);
@@ -995,7 +973,6 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
     return unless pf::util::validate_argv(\@require,  \@found);
 
     return unless scalar keys %pf::config::ConfigScan;
-    my $logger = pf::log::get_logger();
     my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
     my @scanners = $profile->findScans($postdata{'mac'});
     my ($added, $current_scan);
@@ -1109,7 +1086,6 @@ sub close_security_event :Public :AllowedAsAction(mac, $mac, security_event_id ,
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
 
     if(defined($postdata{force}) && $postdata{force}) {
         return pf::security_event::security_event_force_close($postdata{'mac'}, $postdata{'security_event_id'})
@@ -1137,7 +1113,6 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
     my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
     my $node_info = pf::node::node_view($postdata{'mac'});
     # We try this although the realm is not mandatory in case it proves to be useful in the future
@@ -1209,7 +1184,7 @@ sub fingerbank_update_component : Public : Fork {
 
     if(defined($postdata{'fork_to_queue'}) && $postdata{'fork_to_queue'}) {
         delete $postdata{'fork_to_queue'};
-        pf::log::get_logger->info("Sending fingerbank component update to local queue.");
+        $logger->info("Sending fingerbank component update to local queue.");
         pf::api::queue->new->notify('fingerbank_update_component', %postdata);
         return (200, "Sent to local queue");
     }
@@ -1251,7 +1226,6 @@ Will try to trigger a security_event with the trigger internal::hostname_change
 
 sub detect_computername_change : Public {
     my ( $class, $mac, $new_computername ) = @_;
-    my $logger = pf::log::get_logger;
     my $node_attributes = pf::node::node_attributes($mac);
 
     if(defined($node_attributes->{computername}) && $node_attributes->{computername}){
@@ -1277,7 +1251,6 @@ Will try to trigger a security_event with the trigger internal::connection_type_
 
 sub detect_connection_type_transport_change : Public {
     my ($class, $mac, $current_connection) = @_;
-    my $logger = pf::log::get_logger;
 
     my $locationlog = pf::locationlog::locationlog_view_open_mac($mac);
     if($locationlog) {
@@ -1310,7 +1283,6 @@ sub reevaluate_access : Public :AllowedAsAction(mac, $mac, reason, $reason) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
 
-    my $logger = pf::log::get_logger();
 
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
@@ -1366,6 +1338,20 @@ sub rest_ping :Public :RestPath(/rest/ping){
     return "pong - ".$args->{message};
 }
 
+sub fingerbank_nba_webhook :Public :RestPath(/fingerbank/nba/webhook){
+    my ($class, $args, $headers) = @_;
+    if($args->{data}->{type} ne "events") {
+        die "Unsupported webhook type\n";
+    }
+
+    my $mac = pf::util::clean_mac($args->{mac});
+    for my $event (@{$args->{data}->{events}}) {
+        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event), 'type' => "internal" } );
+        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event)."_".$args->{data}->{policy}, 'type' => "internal" } );
+    }
+    return "ok";
+}
+
 =head2 radius_rest_authorize
 
 RADIUS authorize method that uses REST
@@ -1375,7 +1361,6 @@ RADIUS authorize method that uses REST
 sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
-    my $logger = pf::log::get_logger();
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
@@ -1409,7 +1394,6 @@ RADIUS filter method that uses REST
 sub radius_rest_filter :Public :RestPath(/radius/rest/filter) {
     my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
-    my $logger = pf::log::get_logger();
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
@@ -1432,7 +1416,6 @@ RADIUS switch authorize method that uses REST
 sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) {
     my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
-    my $logger = pf::log::get_logger();
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
@@ -1453,15 +1436,14 @@ RADIUS accounting method that uses REST
 sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
     my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
-    my $logger = pf::log::get_logger();
 
-    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+    my $remapped_radius_request = pf::radius::rest::format_request($radius_request);
 
-    my $return = $class->handle_accounting_metadata(%remapped_radius_request);
+    my $return = $class->handle_accounting_metadata($remapped_radius_request);
 
     my $radius = new pf::radius::custom();
     eval {
-        $return = $radius->accounting(\%remapped_radius_request, $headers);
+        $return = $radius->accounting($remapped_radius_request, $headers);
     };
     if ($@) {
         $logger->error("radius accounting failed with error: $@");
@@ -1473,53 +1455,55 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
     return $return;
 }
 
-
 sub handle_accounting_metadata : Public {
-    my ($class, %RAD_REQUEST) = @_;
-    my $logger = pf::log::get_logger();
+    my ($class, $RAD_REQUEST) = @_;
     $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
 
     my $return = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ];
-    my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::START) {
+    my $mac = pf::util::clean_mac($RAD_REQUEST->{'Calling-Station-Id'});
+    my $acct_status_type = $RAD_REQUEST->{'Acct-Status-Type'};
+    if ($acct_status_type == $ACCOUNTING::START) {
         #
         # Updating location log in on initial ('Start') accounting run.
         #
         $logger->info("Updating locationlog from accounting request");
-        $client->notify("radius_update_locationlog", %RAD_REQUEST);
-
+        $client->notify("radius_update_locationlog", %$RAD_REQUEST);
     }
 
-    if ($RAD_REQUEST{'Acct-Status-Type'} != $ACCOUNTING::STOP){
+    if ($acct_status_type != $ACCOUNTING::STOP) {
+        my $advanced = $pf::config::Config{advanced};
         # Tracking IP address.
-        if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
+        my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
+        if ($framed_ip && pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
             $logger->info("Updating iplog from accounting request");
-            $client->notify("update_ip4log", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+            $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
         }
         else {
-            pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
+            $logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
         
-        if(pf::util::isenabled($pf::config::Config{advanced}{scan_on_accounting}) && $RAD_REQUEST{"Framed-IP-Address"}) {
+        if ($framed_ip && pf::util::isenabled($advanced->{scan_on_accounting})) {
             my $node = pf::node::node_attributes($mac);
             if($node->{status} eq $pf::constants::node::STATUS_REGISTERED) {
                 $logger->debug("Will trigger scan engines for this device based on the data in the accounting packet");
-                $client->notify("trigger_scan", mac => $mac, ip => $RAD_REQUEST{"Framed-IP-Address"}, net_type => "management");
+                $client->notify("trigger_scan", mac => $mac, ip => $framed_ip, net_type => "management");
             }
         }
         else {
-            pf::log::get_logger->debug("Not handling scan engines because we're not configured to do so on accounting packets or the IP address (Framed-IP-Address) is missing from the packet.");
+            $logger->debug("Not handling scan engines because we're not configured to do so on accounting packets or the IP address (Framed-IP-Address) is missing from the packet.");
         }
     }
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
-        if (pf::Connection::ProfileFactory->instantiate($mac)->unregOnAcctStop()) {
-            pf::log::get_logger->info("Unregistering $mac on Accounting-Stop");
+
+    if ($acct_status_type == $ACCOUNTING::STOP) {
+        my $profile_name = pf::Connection::ProfileFactory->get_profile_name($mac);
+        if (pf::util::isenabled($pf::config::Profiles_Config{$profile_name}{unreg_on_acct_stop})) {
+            $logger->info("Unregistering $mac on Accounting-Stop");
             $client->notify("deregister_node", mac => $mac);
         }
     }
-    $client->notify("firewallsso_accounting", %RAD_REQUEST);
 
+    $client->notify("firewallsso_accounting", %$RAD_REQUEST);
     return $return;
 }
 
@@ -1531,7 +1515,6 @@ Update the firewall sso based on radius accounting
 
 sub firewallsso_accounting : Public {
     my ($class, %RAD_REQUEST) = @_;
-    my $logger = pf::log::get_logger();
     if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && pf::util::isenabled($pf::config::Config{advanced}{sso_on_accounting})) {
         my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
         my $node = pf::node::node_attributes($mac);
@@ -1626,7 +1609,6 @@ Clear a namespace in the CHI cache
 sub chi_cache_clear : Public {
     my ($class, $namespace) = @_;
     my $cache = pf::CHI->new( namespace => $namespace );
-    pf::log::get_logger->info("Clearing CHI cache for namespace $namespace");
     return $cache->clear();
 }
 
@@ -1638,7 +1620,6 @@ Call enableMABFloating in the local queue
 
 sub enableMABFloatingInQueue : Public {
     my ( $class, %postdata ) = @_;
-    my $logger = pf::log::get_logger;
 
     my $client = pf::api::queue->new(queue => 'general');
     $client->notify( 'enableMABFloating', %postdata );
@@ -1652,7 +1633,6 @@ Call disableMABFloating in the local queue
 
 sub disableMABFloatingInQueue : Public {
     my ( $class, %postdata ) = @_;
-    my $logger = pf::log::get_logger;
 
     my $client = pf::api::queue->new(queue => 'general');
     $client->notify( 'disableMABFloating', %postdata );
@@ -1666,7 +1646,6 @@ Enable the MAB floating device mode on a switch port
 
 sub enableMABFloating : Public {
     my ( $class, %postdata ) = @_;
-    my $logger = pf::log::get_logger;
 
     my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
     unless ($switch) {
@@ -1684,7 +1663,6 @@ Disable the MAB floating device mode on a switch port
 
 sub disableMABFloating : Public {
     my ( $class, %postdata ) = @_;
-    my $logger = pf::log::get_logger;
 
     my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
     unless ($switch) {
@@ -1717,7 +1695,7 @@ sub populate_ntlm_cache : Public {
     
     my ($result, $msg) = pf::domain::ntlm_cache::populate_ntlm_redis_cache($domain);
     unless($result) {
-        pf::log::get_logger->error("Couldn't update NTLM cache for domain $domain: $msg");
+        $logger->error("Couldn't update NTLM cache for domain $domain: $msg");
         pf::config::util::pfmailer(( subject => "Failed to build NTLM cache for domain $domain", message => "Failure to build the NTLM cache due to '$msg'. Please check server side logs for more details." ));
     }
 }
@@ -1732,7 +1710,7 @@ sub cache_user_ntlm {
     my ($class, $domain, $username) = @_;
 
     my ($result, $msg) = pf::domain::ntlm_cache::cache_user($domain, $username);
-    pf::log::get_logger->error("Couldn't cache user: '$msg'") unless($result);
+    $logger->error("Couldn't cache user: '$msg'") unless($result);
 
     return $result;
 }
@@ -1760,7 +1738,6 @@ sub update_role_configuration : Public :AllowedAsAction(role, $role) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
     my $role = delete $postdata{'role'};
 
     my $tc_cs = pf::ConfigStore::TrafficShaping->new;
@@ -1797,7 +1774,6 @@ sub role_detail : Public :AllowedAsAction(role, $role) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
 
     my $role_cs = pf::ConfigStore::Roles->new;
     my $tc_cs = pf::ConfigStore::TrafficShaping->new;

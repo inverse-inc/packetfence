@@ -275,6 +275,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
     $self->setup_api_v1_config_maintenance_tasks_routes($root);
+    $self->setup_api_v1_config_network_behavior_policies_routes($root);
     $self->setup_api_v1_config_misc_routes($root);
     $self->setup_api_v1_config_interfaces_routes($root);
     $self->setup_api_v1_config_l2_networks_routes($root);
@@ -982,6 +983,26 @@ sub setup_api_v1_config_maintenance_tasks_routes {
         "/maintenance_task/#maintenance_task_id",
         "api.v1.Config.MaintenanceTasks"
       );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_network_behavior_policies_routes
+
+ setup_api_v1_config_network_behavior_policies_routes
+
+=cut
+
+sub setup_api_v1_config_network_behavior_policies_routes{
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::NetworkBehaviorPolicies",
+        "/network_behavior_policies",
+        "/network_behavior_policy/#network_behavior_policy_id",
+        "api.v1.Config.NetworkBehaviorPolicies"
+    );
 
     return ($collection_route, $resource_route);
 }
@@ -1757,6 +1778,7 @@ sub setup_api_v1_fingerbank_routes {
     my ($self, $root) = @_;
     $root->register_sub_action({ action => "update_upstream_db", method => "POST"});
     $root->register_sub_action({ action => "account_info", method => "GET" });
+    $root->register_sub_action({ action => "can_use_nba_endpoints", method => "GET" });
     my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
     my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
     my $all_route = $root->any("/all")->to(scope => "All")->name( $root->name . ".All");

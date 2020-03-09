@@ -56,6 +56,7 @@ func ReturnURI(ctx context.Context, dbName ...string) string {
 			host = "/var/lib/mysql/mysql.sock"
 		}
 	}
+
 	var DBName string
 	if len(dbName) > 0 {
 		DBName = dbName[0]

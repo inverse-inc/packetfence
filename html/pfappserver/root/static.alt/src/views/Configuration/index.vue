@@ -63,6 +63,7 @@ export default {
                 { name: this.$i18n.t('User Agents'), path: '/configuration/fingerbank/user_agents' }
               ]
             },
+            { name: this.$i18n.t('Network Anomaly Detection'), path: '/configuration/fingerbank/network_behavior_policies' },
             { name: this.$i18n.t('Scans'),
               items: [
                 { name: this.$i18n.t('Scan Engines'), path: '/configuration/scans/scan_engines' },

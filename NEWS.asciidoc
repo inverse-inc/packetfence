@@ -21,6 +21,8 @@ New Features
 * PacketFence pki service in golang
 * Support Aruba switchs using Aruba OS 16.10
 * Added service to correct broken Galera cluster members
+* Added support for anomaly detection through Fingerbank
+* Support for MySQL as dhcp pool backend and provide active/active dhcp support
 
 Enhancements
 ++++++++++++

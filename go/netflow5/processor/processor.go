@@ -27,6 +27,24 @@ func (f FlowHandlerFunc) HandleFlow(header *netflow5.Header, i int, flow *netflo
 	f(header, i, flow)
 }
 
+type FlowsHandler interface {
+	HandleFlows(header *netflow5.Header, flows []netflow5.Flow)
+}
+
+type FlowsHandlerFunc func(header *netflow5.Header, flows []netflow5.Flow)
+
+func (f FlowsHandlerFunc) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
+	f(header, flows)
+}
+
+func FlowToFlowsHandler(h FlowHandler) FlowsHandler {
+	return FlowsHandlerFunc(func(header *netflow5.Header, flows []netflow5.Flow) {
+		for i, flow := range flows {
+			h.HandleFlow(header, i, &flow)
+		}
+	})
+}
+
 // Processor the processor for netflow 5 flows
 type Processor struct {
 	// Conn a net.PacketConn.
@@ -34,7 +52,7 @@ type Processor struct {
 	Conn net.PacketConn
 	// Handler a FlowHandler function to handle the netflow5 flows
 	// Required.
-	Handler FlowHandler
+	Handler FlowsHandler
 	// Workers the number of worker to work on the queue
 	// Default : The number of runtime.GOMAXPROCS
 	Workers int
@@ -91,17 +109,14 @@ func (p *Processor) setDefaults() {
 	p.dispatcher = bytesdispatcher.NewDispatcher(p.Workers, p.Backlog, bytesHandlerForNetFlow5Handler(p.Handler), p.byteArrayPool)
 }
 
-func bytesHandlerForNetFlow5Handler(h FlowHandler) bytesdispatcher.BytesHandler {
+func bytesHandlerForNetFlow5Handler(h FlowsHandler) bytesdispatcher.BytesHandler {
 	return bytesdispatcher.BytesHandlerFunc(
 		func(buffer []byte) {
 			var data *netflow5.NetFlow5
 			data = (*netflow5.NetFlow5)(unsafe.Pointer(&buffer[0]))
 			header := &data.Header
 			if header.Version() == 5 {
-				count := header.Length()
-				for i := 0; i < int(count); i++ {
-					h.HandleFlow(header, i, &data.Flows[i])
-				}
+				h.HandleFlows(header, data.FlowArray())
 			}
 		},
 	)

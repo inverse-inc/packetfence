@@ -3,4 +3,5 @@ pfdns
 pfdhcp
 pfstats
 pfdetect
+pfacct
 Caddyfile

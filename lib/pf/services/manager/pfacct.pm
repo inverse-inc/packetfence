@@ -1,25 +1,23 @@
-package pf::services::manager::pfbandwidthd;
+package pf::services::manager::pfacct;
+
 =head1 NAME
 
-pf::services::manager::pfbandwidthd add documentation
-
-=cut
+pf::services::manager::pfacct -
 
 =head1 DESCRIPTION
 
-pf::services::manager::pfbandwidthd
+pf::services::manager::pfacct
 
 =cut
 
 use strict;
 use warnings;
+use pf::util;
 use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'pfbandwidthd' } );
-
-sub _cmdLine { my $self = shift; $self->executable ; }
+has '+name' => ( default => sub { 'pfacct' } );
 
 =head1 AUTHOR
 
@@ -49,4 +47,3 @@ USA.
 =cut
 
 1;
-
