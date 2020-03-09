@@ -395,13 +395,17 @@ export default {
     return apiCall.delete(['config', 'filter_engines', resource, id])
   },
   flattenCondition: (data) => {
-    return apiCall.post('config/filter_engines/flatten_condition', data).then(response => {
+    return apiCall.postQuiet('config/filter_engines/flatten_condition', data).then(response => {
       return response.data
+    }).catch(err => {
+      throw err
     })
   },
   parseCondition: (data) => {
-    return apiCall.post('config/filter_engines/parse_condition', data).then(response => {
+    return apiCall.postQuiet('config/filter_engines/parse_condition', data).then(response => {
       return response.data
+    }).catch(err => {
+      throw err
     })
   },
 

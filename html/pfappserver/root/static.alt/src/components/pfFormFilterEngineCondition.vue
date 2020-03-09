@@ -5,13 +5,15 @@
       :values="{checked: true, unchecked: false}"
       :rightLabels="{checked: $t('Advanced Mode'), unchecked: $t('Basic Mode')}"
       :disabled="disabled"
-      class="text-nowrap mb-3"
+      class="text-nowrap mb-3 small"
     />
 
     <!-- Advanced Mode -->
     <pf-form-textarea v-if="advancedMode" ref="advancedCondition"
       v-model="advancedCondition"
       :disabled="disabled"
+      :state="(advancedError) ? false : null"
+      :invalidFeedback="advancedError"
       rows="3" max-rows="10"
     />
 
@@ -55,6 +57,23 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import pfMixinForm from '@/components/pfMixinForm'
 import { createDebouncer } from 'promised-debounce'
 
+const highlightError = (error, offset, length = 15) => {
+  let start = Math.max(0, offset - Math.floor(length / 2) - 1)
+  let end = Math.min(start + length, error.length)
+  start -= Math.max(0, length + start - end)
+  let chr = ''
+  let string = ''
+  for (let i = start; i < end; i++) {
+    if (i >= 0 && i < error.length) {
+      chr = (error[i] === ' ') ? '\u00a0' : error[i]
+      string += (i === offset)
+        ? `<span class="bg-danger text-white">${chr}</span>`
+        : error[i]
+    }
+  }
+  return `${(start > 0) ? '...' : ''}${string}${(end < error.length) ? '...' : ''}`
+}
+
 export default {
   name: 'pf-form-filter-engine-condition',
   components: {
@@ -84,7 +103,8 @@ export default {
   data () {
     return {
       advancedMode: false,
-      advancedCondition: null
+      advancedCondition: null,
+      advancedError: false
     }
   },
   computed: {
@@ -105,8 +125,9 @@ export default {
       handler: function (advancedMode) {
         if (advancedMode) {
           this.$nextTick(() => {
-            const { $refs: { advancedCondition: { focus = () => {} } = {} } = {} } = this
+            const { $refs: { advancedCondition: { focus = () => {}, select = () => {} } = {} } = {} } = this
             focus()
+            select()
           })
         }
       }
@@ -120,7 +141,16 @@ export default {
           this.$debouncer({
             handler: () => {
               this.$store.dispatch('$_filter_engines/parseCondition', string).then(condition => {
+                this.advancedError = false
                 this.basicCondition = condition
+              }).catch(err => {
+                const { response: { data: { errors: { 0: { highlighted_error, offset } = {} } = {} } = {} } = {} } = err
+                const { 0: error = '' } = highlighted_error.split('\n')
+                if (error) {
+                  this.advancedError = `${error}: <code class="text-secondary font-weight-bold">\u00a0${highlightError(string, offset)}\u00a0</code>`
+                } else {
+                  this.advancedError = false
+                }
               })
             },
             time: 1000 // 1 second

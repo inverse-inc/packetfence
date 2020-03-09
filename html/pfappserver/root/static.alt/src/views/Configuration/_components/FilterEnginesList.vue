@@ -82,21 +82,22 @@ export default {
     },
     sort (_collection, event) {
       const { collection, items } = _collection
+      let data = items.map(item => item.id)
       const { oldIndex, newIndex } = event // shifted, not swapped
-      const tmp = items[oldIndex]
+      const tmp = data[oldIndex]
       if (oldIndex > newIndex) {
         // shift down (not swapped)
         for (let i = oldIndex; i > newIndex; i--) {
-          items[i] = items[i - 1]
+          data[i] = data[i - 1]
         }
       } else {
         // shift up (not swapped)
         for (let i = oldIndex; i < newIndex; i++) {
-          items[i] = items[i + 1]
+          data[i] = data[i + 1]
         }
       }
-      items[newIndex] = tmp
-      this.$store.dispatch('$_filter_engines/sortCollection', { collection, data: items.map(item => item.id) }).then(() => {
+      data[newIndex] = tmp
+      this.$store.dispatch('$_filter_engines/sortCollection', { collection, data }).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('{name} resorted.', { name: this.$store.getters['$_filter_engines/collectionToName'](collection) } ) })
       })
     },
