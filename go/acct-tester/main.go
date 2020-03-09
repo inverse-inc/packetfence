@@ -64,12 +64,13 @@ func loadTest(nodesCount, minInterimPerNode, maxInterimPerNode int) {
 	runEndpointAccts(eas)
 }
 
-func sendAccountingPacket(t rfc2866.AcctStatusType, mac string, ip net.IP, inBytes int, outBytes int) {
+func sendAccountingPacket(t rfc2866.AcctStatusType, mac string, ip net.IP, inBytes int, outBytes int, sessionTime int) {
 	p := radius.New(radius.CodeAccountingRequest, []byte(*secret))
 	rfc2866.AcctStatusType_Add(p, t)
 	rfc2866.AcctSessionID_AddString(p, *sessionIdPrefix+mac)
 	rfc2866.AcctInputOctets_Add(p, rfc2866.AcctInputOctets(inBytes))
 	rfc2866.AcctOutputOctets_Add(p, rfc2866.AcctOutputOctets(outBytes))
+	rfc2866.AcctSessionTime_Add(p, rfc2866.AcctSessionTime(sessionTime))
 	rfc2865.UserName_AddString(p, "UserOF-"+mac)
 	rfc2865.CalledStationID_AddString(p, *calledStationId)
 	rfc2865.FramedIPAddress_Add(p, ip)
@@ -113,8 +114,8 @@ func runEndpointAccts(eas []endpointAcct) {
 			}
 			inBytes := i * ea.inBytesPerSession
 			outBytes := i * ea.outBytesPerSession
-			fmt.Printf("Send accounting %s (%d): ip:%s, mac:%s, inbytes:%d, outbytes:%d \n", strt, t, ea.ip, ea.mac, inBytes, outBytes)
-			sendAccountingPacket(t, ea.mac, ea.ip, inBytes, outBytes)
+			fmt.Printf("Send accounting %s (%d): ip:%s, mac:%s, inbytes:%d, outbytes:%d, time:%d \n", strt, t, ea.ip, ea.mac, inBytes, outBytes, i)
+			sendAccountingPacket(t, ea.mac, ea.ip, inBytes, outBytes, i)
 		}
 	}
 }
