@@ -84,6 +84,10 @@ echo "### Rebooting Device to Apply Remap..."
 nohup bash -c 'sleep 10; shutdown now -r "Rebooting to Remap Interfaces"' &
 SCRIPT
 
+# Read YAML file with box details
+inventory = YAML.load_file('inventory/hosts')
+networks = inventory['all']['vars']['networks']
+
 Vagrant.configure("2") do |config|
 
   wbid = 1
@@ -110,25 +114,23 @@ Vagrant.configure("2") do |config|
       # link for swp1 --> mgmt_network (vlan 17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:01",
-            :libvirt__network_name => 'vagrant0',
+            :libvirt__network_name => networks[0],
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:02",
-            :libvirt__network_name => 'vagrant2',
+            :libvirt__network_name => networks[1],
             auto_config: false
       # link for swp3 --> iso_network (vlan 3)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:03",
-            :libvirt__network_name => 'vagrant5',
+            :libvirt__network_name => networks[2],
             auto_config: false      
       # link for swp6 --> inline_network (vlan 6)
-      # device.vm.network "private_network",
-      #       :mac => "44:38:39:00:00:06",
-      #       #:libvirt__dhcp_enabled => false,
-      #       :libvirt__forward_mode => 'route',
-      #       :libvirt__iface_name => 'swp6',
-      #       auto_config: false
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:06",
+            :libvirt__network_name => networks[3],
+            auto_config: false
       # link for swp11 --> node01:eth0
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:11",

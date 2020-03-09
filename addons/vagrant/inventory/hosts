@@ -172,3 +172,9 @@ all:
 
   vars:
     tz: Etc/UTC
+    networks:
+      - 'mgmt'
+      - 'reg'
+      - 'iso'
+      - 'inline'
+      
