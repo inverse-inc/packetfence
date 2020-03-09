@@ -3,15 +3,13 @@ ifdef::env-github[]
 :imagesdir: ../images
 endif::[]
 
-Preliminary steps
-^^^^^^^^^^^^^^^^^
+==== Preliminary steps
 
 First, attach ISE-PIC to Active Directory and set it up as an Identity Provider as described here:
 https://www.cisco.com/c/en/us/td/docs/security/ise/2-6/pic_admin_guide/PIC_admin26/PIC_admin26_chapter_010.html
 
 
-Syslog template
-^^^^^^^^^^^^^^^
+==== Syslog template
 
 Add a new Template and call it `PacketFence`.  Make it match the following:
 
@@ -23,8 +21,7 @@ image::doc-ise-pic-syslog-template.png[scaledwidth="100%",alt="Configure the sys
 * The regular expression for the username is: `User <([^\s]+)>`
 
 
-Syslog provider
-^^^^^^^^^^^^^^^
+==== Syslog provider
 
 To add PacketFence as an identity provider, hover over "Providers" and click "Syslog Providers.", then click "Add".
 
@@ -39,8 +36,7 @@ Make sure your syslog header configuration matches this:
 
 image::doc-ise-pic-syslog-header.png[scaledwidth="100%",alt="Configure the syslog header in ISE-PIC"]
 
-PacketFence configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^
+==== PacketFence configuration
 
 Add a Cisco ISE-PIC firewall SSO entry in "Configuration->Integration->Firewall SSO"
 
