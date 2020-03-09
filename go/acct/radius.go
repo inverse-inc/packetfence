@@ -135,7 +135,7 @@ const (
 )
 
 func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, context.Context, error) {
-	ip := remoteAddr.String()
+	ip := remoteAddr.(*net.UDPAddr).IP.String()
 	var err error
 	var macStr string
 	err = checkPacket(raw)
@@ -203,7 +203,6 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 				v := dictionary.VendorByNumber(radiusDictionary.Vendors, uint(id))
 				if v == nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("Unknown vendor id: %d", id))
-					fmt.Printf("Problems\n")
 					continue
 				}
 
