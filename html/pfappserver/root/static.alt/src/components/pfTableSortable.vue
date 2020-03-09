@@ -127,6 +127,13 @@ export default {
       this.$emit('row-clicked', item)
     },
     onDraggable (type, event) {
+      if (type === 'end') { // increment indexes past not_sortable
+        let { oldIndex, newIndex } = event
+        const shift = this.items.filter(item => 'not_sortable' in item && item.not_sortable).length
+        oldIndex += shift
+        newIndex += shift
+        event = { ...event, oldIndex, newIndex }
+      }
       switch (type) {
         case 'start':
           this.drag = true
