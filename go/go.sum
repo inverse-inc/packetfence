@@ -312,6 +312,7 @@ github.com/go-stack/stack v1.8.0 h1:5SgMzNM5HxrEjV0ww2lTmX6E2Izsfxas4+YHWRs3Lsk=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
+github.com/go-test/deep v1.0.5/go.mod h1:QV8Hv/iy04NyLBxAdO9njL0iVPN1S4d/A3NVv1V36o8=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
@@ -497,6 +498,8 @@ github.com/inverse-inc/go-radius v0.0.0-20200130155649-ef3018b84628 h1:cZR335A3g
 github.com/inverse-inc/go-radius v0.0.0-20200130155649-ef3018b84628/go.mod h1:zEitMB62omLMul756WRnH7tIY1of7+k2cHNDQCerz2c=
 github.com/inverse-inc/go-radius v0.0.0-20200220182054-865ddefbbf43 h1:vCZKrirRXDrooVHM3PBK2elOKoFxcEJYkO4BSGf3fpw=
 github.com/inverse-inc/go-radius v0.0.0-20200220182054-865ddefbbf43/go.mod h1:zEitMB62omLMul756WRnH7tIY1of7+k2cHNDQCerz2c=
+github.com/inverse-inc/go-radius v0.0.0-20200309183831-1e3e11166311 h1:B6rWGJIBHp6GapcYkgOhEo9cKZmtFYdUR1KltygJFEQ=
+github.com/inverse-inc/go-radius v0.0.0-20200309183831-1e3e11166311/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
 github.com/inverse-inc/packetfence v0.0.0-20191015112529-47dcd5f95b62 h1:NnT9ApnVE34pJbucW6nxY+7a9NGW3a0irFYiiOJEo7A=
 github.com/inverse-inc/packetfence v0.0.0-20191021142437-789414441c4c h1:HDJDKSHaZfMhcbaWWHpEJ67pUUGlc+mqv1kSAhEUuB4=
 github.com/inverse-inc/packetfence/go v0.0.0-20191015112529-47dcd5f95b62 h1:6Wv3UDrVX5Z5KrvHwr/nHmKxW3b6F45SL71MhxvDxO4=
