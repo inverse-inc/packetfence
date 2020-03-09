@@ -68,7 +68,7 @@ Go to *'Configuration' -> 'Firewall SSO' -> 'Add Firewall' -> 'Checkpoint' *.
 * *Port*: 1813
 * *Roles*: add the roles that you want to do SSO with
 
-image::doc-checkpoint-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the Checkpoint SSO in PacketFence"]
+image::doc-checkpoint-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the Checkpoint SSO in PacketFence"]
 
 Verification
 ^^^^^^^^^^^^
