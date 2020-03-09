@@ -19,6 +19,7 @@ type PfAcct struct {
 	AllowedNetworks []net.IPNet
 	NetFlowPort     string
 	AllNetworks     bool
+	Management      pfconfigdriver.ManagementNetwork
 }
 
 func NewPfAcct() *PfAcct {
@@ -54,4 +55,5 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	var ports pfconfigdriver.PfConfPorts
 	pfconfigdriver.FetchDecodeSocket(ctx, &ports)
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfAcct.Management)
 }
