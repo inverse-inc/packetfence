@@ -17,6 +17,7 @@ import (
 var host = flag.String("host", "127.0.0.1", "The host to send the packets to")
 var port = flag.String("port", "1813", "The port to send the packets to")
 var secret = flag.String("secret", "secret", "The RADIUS secret to use")
+var nasIpAddress = flag.String("nas-ip-address", "127.0.0.1", "The NAS-IP-Address to use in the packet")
 var calledStationId = flag.String("called-station-id", "02:00:00:00:00:01", "The Called-Station-Id to use")
 
 var nodesCount = flag.Int("lt-nodes-count", 1, "The amount of nodes to use while load-testing")
@@ -103,6 +104,7 @@ func sendAccountingPacket(pi pktinfo) {
 	rfc2865.CalledStationID_AddString(p, *calledStationId)
 	rfc2865.FramedIPAddress_Add(p, ip)
 	rfc2865.CallingStationID_AddString(p, mac)
+	rfc2865.NASIPAddress_Add(p, net.ParseIP(*nasIpAddress))
 
 	client := &radius.Client{}
 	// Use the background context since we don't want the lib to use our context
@@ -154,11 +156,14 @@ func runWorkers() {
 		workChans[i] = make(chan pktinfo, 100)
 		go func(i int) {
 			wg.Add(1)
+			// Sleep a bit to give time to jobs to populate
+			time.Sleep(1 * time.Second)
 			for {
 				select {
 				case pkt := <-workChans[i]:
 					sendAccountingPacket(pkt)
 				default:
+					fmt.Println("Worker", i, "is done")
 					wg.Done()
 					return
 				}
@@ -172,8 +177,6 @@ func main() {
 	workChans = make([]chan pktinfo, *concurrency)
 	runWorkers()
 	loadTest(*nodesCount, *minInterimPerNode, *maxInterimPerNode)
-	// Sleep a bit to give time to jobs to populate
-	time.Sleep(10 * time.Millisecond)
 
 	wg.Wait()
 }
