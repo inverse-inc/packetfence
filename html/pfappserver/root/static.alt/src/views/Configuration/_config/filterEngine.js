@@ -121,7 +121,9 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'status',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'enabled', unchecked: 'disabled' }
+                values: { checked: 'enabled', unchecked: 'disabled' },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--success)', unchecked: 'var(--danger)' }
               }
             }
           ]
@@ -167,6 +169,20 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Peform Actions'),
+          text: i18n.t('Enable to perform the following actions when the condition is met. Otherwise only the role is applied.'),
+          cols: [
+            {
+              namespace: 'run_actions',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          if: form.run_actions === 'enabled',
           label: i18n.t('Actions'),
           text: i18n.t('Specify actions when condition is met.'),
           cols: [
