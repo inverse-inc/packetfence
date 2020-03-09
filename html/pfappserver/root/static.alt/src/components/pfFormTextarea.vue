@@ -2,7 +2,7 @@
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
     class="pf-form-textarea" :class="{ 'mb-0': !columnLabel }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> <span v-html="inputInvalidFeedback"></span>
     </template>
     <b-input-group v-if="placeholder && placeholderHtml" v-html="getPlaceholderHtml" class="mb-1 d-block"></b-input-group>
     <b-input-group>
@@ -89,6 +89,12 @@ export default {
   methods: {
     focus () {
       this.$refs.input.focus()
+    },
+    select (start, end) {
+      const { inputValue = '' } = this
+      start = start || 0
+      end = end || (inputValue||'').length
+      this.$refs.input.select(start, end)
     }
   }
 }
