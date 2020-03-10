@@ -57,7 +57,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	in_bytes += giga_in_bytes << 32
 	timestamp := rfc2869.EventTimestamp_Get(r.Packet)
 	timestamp = timestamp.Truncate(h.TimeDuration)
-	h.InsertBandwidthAccounting(
+	err := h.InsertBandwidthAccounting(
 		switchInfo.TenantId,
 		mac.String(),
 		h.accountingUniqueSessionId(r),
@@ -65,6 +65,9 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		in_bytes,
 		out_bytes,
 	)
+	if err != nil {
+		logError(err.Error())
+	}
 	h.sendRadiusAccounting(r)
 }
 
@@ -90,7 +93,7 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 	}
 	client := jsonrpc2.NewAAAClientFromConfig(r.Context())
 	if _, err := client.Call("radius_accounting", attr, 1); err != nil {
-		log.LoggerWContext(r.Context()).Error(err.Error())
+		logError(err.Error())
 	}
 }
 
@@ -140,11 +143,13 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	var macStr string
 	err = checkPacket(raw)
 	if err != nil {
+		logError("RADIUSSecret: " + err.Error())
 		return nil, nil, err
 	}
 
 	attrs, err := radius.ParseAttributes(raw[20:])
 	if err != nil {
+		logError("RADIUSSecret: " + err.Error())
 		return nil, nil, err
 	}
 
@@ -162,6 +167,7 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 
 	switchInfo, err := h.SwitchLookup(macStr, ip)
 	if err != nil {
+		logError("RADIUSSecret: Switch not found" + err.Error())
 		return nil, nil, err
 	}
 
@@ -200,7 +206,7 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 					continue
 				}
 
-				v := dictionary.VendorByNumber(radiusDictionary.Vendors, uint(id))
+				v := radiusDictionary.GetVendorByNumber(uint(id))
 				if v == nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("Unknown vendor id: %d", id))
 					continue
@@ -219,11 +225,12 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 				}
 			}
 		} else {
-			a := dictionary.AttributeByOID(radiusDictionary.Attributes, []int{int(i)})
+			a := radiusDictionary.GetAttributeByOID([]int{int(i)})
 			if a == nil {
 				log.LoggerWContext(ctx).Error(fmt.Sprintf("Unknown Attribute: %d", int(i)))
 				continue
 			}
+
 			addAttributeToMap(attributes, a, attr[0])
 		}
 	}
@@ -246,6 +253,11 @@ func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribu
 		if err == nil {
 			item = i
 		}
+	case dictionary.AttributeIPAddr:
+		i, err := radius.IPAddr(attr)
+		if err == nil {
+			item = i.String()
+		}
 	}
 
 	if item != nil {
@@ -259,7 +271,21 @@ func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribu
 		} else {
 			attributes[da.Name] = item
 		}
+	} else {
+		logWarn(fmt.Sprintf("Not handled %s\n", da.Name))
 	}
+}
+
+func logError(msg string) {
+	log.LoggerWContext(context.Background()).Error(msg)
+}
+
+func logWarn(msg string) {
+	log.LoggerWContext(context.Background()).Warn(msg)
+}
+
+func logInfo(msg string) {
+	log.LoggerWContext(context.Background()).Info(msg)
 }
 
 type RadiusStatements struct {
@@ -287,7 +313,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	rs.insertBandwidthAccounting, err = db.Prepare(`
         INSERT INTO bandwidth_accounting (tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes)
         SELECT ? as tenant_id, ? as mac, ? as unique_session_id, ? as time_bucket, in_bytes, out_bytes FROM (
-            SELECT 100 - IFNULL(SUM(in_bytes), 0) as in_bytes, 1000 - IFNULL(SUM(out_bytes), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND unique_session_id = ? AND time_bucket = ?
+            SELECT ? - IFNULL(SUM(in_bytes), 0) as in_bytes, ? - IFNULL(SUM(out_bytes), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND unique_session_id = ? AND time_bucket != ?
         ) as x
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes);
     `)

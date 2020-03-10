@@ -50,7 +50,7 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
-	github.com/inverse-inc/go-radius v0.0.0-20200220182054-865ddefbbf43
+	github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.11
 	github.com/jonboulle/clockwork v0.1.0 // indirect
