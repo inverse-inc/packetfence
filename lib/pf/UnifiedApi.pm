@@ -881,6 +881,21 @@ sub setup_api_v1_config_bases_routes {
     );
 
     $collection_route->register_sub_action({ action => 'test_smtp', method => 'POST'});
+
+    my $database_route = $root->any("/base/database")->name("api.v1.Config.Bases");
+    $database_route
+      ->any(["POST"] => "/test")
+      ->to("Config::Bases#database_test")
+      ->name("api.v1.Config.Bases.database_test");
+    $database_route
+      ->any(["POST"] => "/secure_installation")
+      ->to("Config::Bases#database_secure_installation")
+      ->name("api.v1.Config.Bases.database_secure_installation");
+    $database_route
+      ->any(["POST"] => "/assign")
+      ->to("Config::Bases#database_assign")
+      ->name("api.v1.Config.Bases.database_assign");
+
     return ($collection_route, $resource_route);
 }
 

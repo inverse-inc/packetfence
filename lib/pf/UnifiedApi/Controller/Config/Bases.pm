@@ -26,6 +26,9 @@ use pf::ConfigStore::Pf;
 use pf::config;
 use pf::util;
 use pfappserver::Form::Config::Pf;
+use pf::I18N::pfappserver;
+use pf::error qw(is_error);
+use pf::ConfigStore::Pf;
 
 sub form_parameters {
     my ($self, $item) = @_;
@@ -47,6 +50,70 @@ sub items {
 
 sub cached_form {
     undef;
+}
+
+sub database_model {
+    require pfappserver::Model::DB;
+    return pfappserver::Model::DB->new;
+}
+
+sub database_test {
+    my ($self) = @_;
+    my $json = $self->get_json;
+    unless($json) {
+        $self->render(json => {message => "Unable to parse JSON payload"}, status => 400);
+        return;
+    }
+    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username}, $json->{password});
+    $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+}
+
+sub database_secure_installation {
+    my ($self) = @_;
+    my $json = $self->get_json;
+    unless($json) {
+        $self->render(json => {message => "Unable to parse JSON payload"}, status => 400);
+        return;
+    }
+
+    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username}, $json->{password});
+    if(is_error($status)) {
+        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+        return;
+    }
+
+    ($status, $status_msg) = $self->database_model->secureInstallation($json->{username}, $json->{password});
+    $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+}
+
+sub database_assign {
+    my ($self) = @_;
+    my $json = $self->get_json;
+    unless($json) {
+        $self->render(json => {message => "Unable to parse JSON payload"}, status => 400);
+        return;
+    }
+
+    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{root_username}, $json->{root_password});
+    if(is_error($status)) {
+        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+        return;
+    }
+
+    ($status, $status_msg) = $self->database_model->assign($json->{database}, $json->{pf_username}, $json->{pf_password});
+    if(is_error($status)) {
+        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+        return;
+    }
+
+    require pfappserver::Model::Config::Pfconfig;
+    pfappserver::Model::Config::Pfconfig->new->update_mysql_credentials($json->{pf_username}, $json->{pf_password});
+
+    my $pf_cs = pf::ConfigStore::Pf->new;
+    $pf_cs->update("database", {user => $json->{pf_username}, pass => $json->{pf_password}});
+    $pf_cs->commit();
+
+    $self->render(json => {message => "Granted rights to user and adjusted the configuration"}, status => 200);
 }
 
 sub test_smtp {
