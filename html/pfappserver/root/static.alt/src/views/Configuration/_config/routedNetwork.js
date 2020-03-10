@@ -86,6 +86,12 @@ export const columns = [
     label: i18n.t('Backend'),
     sortable: false,
     visible: true,
+  },
+  {
+    key: 'netflow_accounting_enabled',
+    label: i18n.t('Netfow Accounting Enabled'),
+    sortable: true,
+    visible: true
   }
 ]
 
@@ -178,6 +184,24 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          if: form.type === 'inlinel3',
+          label: i18n.t('Netflow Accounting Enabled'),
+          text: i18n.t('Enable Netflow on this network to enable accounting.'),
+          cols: [
+            {
+              namespace: 'netflow_accounting_enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                ...attributesFromMeta(meta, 'netflow_accounting_enabled'),
+                ...{
+                  disabled: (fake_mac_enabled === '1'),
+                  values: { checked: 'enabled', unchecked: 'disabled' }
+                }
               }
             }
           ]
