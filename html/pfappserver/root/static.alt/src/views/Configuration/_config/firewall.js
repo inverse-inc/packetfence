@@ -164,7 +164,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'JSONRPC', 'LightSpeedRocket', 'SmoothWall'].includes(firewallType),
+          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'JSONRPC', 'LightSpeedRocket', 'SmoothWall', 'CiscoIsePic'].includes(firewallType),
           label: i18n.t('Port of the service'),
           text: i18n.t('If you use an alternative port, please specify.'),
           cols: [

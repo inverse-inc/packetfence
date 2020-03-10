@@ -35,6 +35,7 @@ Readonly::Scalar our $FIREWALL_TYPES => [
     "LightSpeedRocket",
     "SmoothWall",
     "FamilyZone",
+    "CiscoIsePic",
 ];
 
 =head1 AUTHOR

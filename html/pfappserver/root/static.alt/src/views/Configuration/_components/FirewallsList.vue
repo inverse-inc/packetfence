@@ -13,15 +13,16 @@
         <b-dropdown :text="$t('New Firewall')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'BarracudaNG' } }">BarracudaNG</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'Checkpoint' } }">Checkpoint</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'CiscoIsePic' } }">Cisco ISE-PIC</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'FamilyZone' } }">FamilyZone</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'FortiGate' } }">FortiGate</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'Iboss' } }">Iboss</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'JuniperSRX' } }">JuniperSRX</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'PaloAlto' } }">PaloAlto</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'WatchGuard' } }">WatchGuard</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'JSONRPC' } }">JSONRPC</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'JuniperSRX' } }">JuniperSRX</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'LightSpeedRocket' } }">LightSpeedRocket</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'PaloAlto' } }">PaloAlto</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'SmoothWall' } }">SmoothWall</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'WatchGuard' } }">WatchGuard</b-dropdown-item>
         </b-dropdown>
       </template>
       <template v-slot:emptySearch="state">

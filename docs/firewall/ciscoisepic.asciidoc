@@ -1,0 +1,51 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
+==== Preliminary steps
+
+First, attach ISE-PIC to Active Directory and set it up as an Identity Provider as described here:
+https://www.cisco.com/c/en/us/td/docs/security/ise/2-6/pic_admin_guide/PIC_admin26/PIC_admin26_chapter_010.html
+
+
+==== Syslog template
+
+Add a new Template and call it `PacketFence`.  Make it match the following:
+
+image::doc-ise-pic-syslog-template.png[scaledwidth="100%",alt="Configure the syslog template in ISE-PIC"]
+
+[options="compact"]
+* The new mapping should be set to: `assigned to session`
+* The regular expression for the IP address is: `Address <([^\s]+)>|address ([^\s]+)`
+* The regular expression for the username is: `User <([^\s]+)>`
+
+
+==== Syslog provider
+
+To add PacketFence as an identity provider, hover over "Providers" and click "Syslog Providers.", then click "Add".
+
+Then add each of your PacketFence servers as Syslog providers using the syslog template you created above. 
+In the case of a cluster, add each member management IP and the management virtual IP.
+
+NOTE: In your DNS servers, make sure the FQDN and reverse lookup entries match your PacketFence server FQDN.
+
+image::doc-ise-pic-syslog-provider.png[scaledwidth="100%",alt="Configure the syslog provider in ISE-PIC"]
+
+Make sure your syslog header configuration matches this:
+
+image::doc-ise-pic-syslog-header.png[scaledwidth="100%",alt="Configure the syslog header in ISE-PIC"]
+
+==== PacketFence configuration
+
+Add a Cisco ISE-PIC firewall SSO entry in "Configuration->Integration->Firewall SSO"
+
+image::doc-ise-pic-pf-configuration.png[scaledwidth="100%",alt="Configure ISE-PIC in PacketFence"]
+
+[options="compact"]
+* *Hostname or IP Address*: IP of your Cisco ISE-PIC instance
+* *Port*: 40514
+* *Roles*: add the roles that you want to do SSO with
+
+You should then see User Sessions populating under “Live Logs” in ISE-PIC. The source should say "syslog"
+
