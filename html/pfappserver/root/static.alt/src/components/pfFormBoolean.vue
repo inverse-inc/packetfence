@@ -9,7 +9,7 @@
 
     <div v-if="hasValues" class="pf-form-boolean-op">
       <span
-        @mouseover.stop.prevent="highlight = true"
+        @mouseover.stop.prevent="highlight = (sourceIndex !== false) ? false : true"
         @mouseout="highlight = false"
         class="m-0"
       >
@@ -57,10 +57,8 @@
 
         <!-- drag/drop placeholder -->
         <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-target" :disabled="disabled"
-          v-model="eventBus.cache.value" :formStoreName="eventBus.cache.formStoreName" :formNamespace="eventBus.cache.formNamespace"
+          v-model="eventBus.data.value" :formStoreName="eventBus.data.formStoreName" :formNamespace="eventBus.data.formNamespace"
           @dragOver="dragOver(index, $event)"
-          @dropValuePrev="dropValueNext(index - 1, $event)"
-          @dropValueNext="dropValuePrev(index + 1, $event)"
         >
           <!-- proxy `op` slot -->
           <template v-slot:op="{ op, formStoreName, formNamespace, disabled }">
@@ -84,8 +82,6 @@
           @dragStart="dragStart(index, $event)"
           @dragOver="dragOver(index, $event)"
           @dragEnd="dragEnd(index, $event)"
-          @dropValuePrev="dropValuePrev(index)"
-          @dropValueNext="dropValueNext(index)"
         >
           <!-- proxy `op` slot -->
           <template v-slot:op="{ op, formStoreName, formNamespace, disabled }">
@@ -136,13 +132,13 @@ import pfMixinForm from '@/components/pfMixinForm'
  *    previous: within triangle @top-left (returns true)
  *    next: within triangle @bottom-right (returns false)
  */
-const isMouseOverPrevious = (event) => {
-  const { target, pageX: x, pageY: y } = event
+const isMouseOverNext = (event) => {
+  const { target, x, y } = event
   const { width, height, top, left } = target.closest('.pf-form-boolean').getBoundingClientRect()
   const ar = width / height
   const dx = x - left
   const dy = height - dx / ar
-  return (y - top < dy) // true: previous, false: next
+  return (y - top > dy) // false: previous, true: next
 }
 
 export default {
@@ -171,7 +167,7 @@ export default {
       default: new Vue({
         data () {
           return {
-            cache: false
+            data: {}
           }
         }
       })
@@ -209,11 +205,12 @@ export default {
       return op || null
     },
     values () {
-      const { inputValue: { values } = {} } = this
-      return values || []
+      const { inputValue: { values = [] } = {} } = this
+      return values
     },
     valuesPlusOne () {
-      return [ ...this.values, null ] // +1 stub for extra placeholder @ end
+      let { values } = this
+      return [ ...((values.constructor === Array) ? values : []), null ] // +1 stub for extra placeholder @ end
     }
   },
   methods: {
@@ -239,7 +236,7 @@ export default {
     },
     deleteValue (index) {
       const { inputValue: { values } = {} } = this
-      if (index in values) {
+      if (values && index in values) {
         this.$set(this.inputValue, 'values', [...values.slice(0, index), ...values.slice(index + 1)])
       }
     },
@@ -270,110 +267,75 @@ export default {
       this.$set(this.inputValue, 'values', [])
     },
     dragStart (index, event) { // @source
-      const { target: source, clientX: x, clientY: y } = event
-      if (!document.elementFromPoint(x, y).closest('.drag-handle, .pf-form-boolean').classList.contains('drag-handle')) { // not a handle
-        event.preventDefault() // cancel drag
-        return
-      }
-      this.sourceIndex = index
-      this.eventBus.$once('drag-end', () => {
-        this.sourceIndex = false
-        if (this.targetIndex === false) {
-          this.eventBus.$off('drag-end')
+        const { target: sourceElement, clientX: x, clientY: y } = event
+        if (!document.elementFromPoint(x, y).closest('.drag-handle, .pf-form-boolean').classList.contains('drag-handle')) { // not a handle
+          event.preventDefault() // cancel drag
+          return
         }
-      })
-      const { inputValue, formStoreName, formNamespace, actionKey: clone } = this
-      let { values: { [index]: value } = {} } = inputValue
-      try { // dereference
-        value = JSON.parse(JSON.stringify(value))
-      } catch (err) {
-        value = (value && Object.keys(value).length > 0)
-          ? Object.assign({}, value)
-          : null
-      }
-      new Promise((resolve, reject) => {
-        this.eventBus.cache = { source, clone, value, resolve, reject, formStoreName, formNamespace: `${formNamespace}.values.${index}` }
-      }).then(({ index: dropIndex }) => { // drop success
-        if (!clone) { // delete old value
-          if (this.targetIndex !== false && dropIndex < index) { // drag/drop from/to same parent (previous only)
-            index++
-          }
-          this.deleteValue(index)
-        }
-        this.eventBus.$emit('drag-end') // finished, cleanup handlers
-      }).catch(() => { // drop cancelled
-        // noop
-      })
-      this.$store.dispatch('events/onKeyUp') // fix: unable to detect actionKey keyup while dragging
+        this.sourceIndex = index
+        const { value, formStoreName, formNamespace } = this
+        this.$set(this.eventBus, 'data', {
+          clone: this.actionKey,
+          source: this,
+          sourceElement,
+          value,
+          formStoreName,
+          formNamespace: `${formNamespace}.values.${index}`
+        })
     },
     dragEnd () { // @source
-      this.eventBus.$emit('drag-end')
+      this.$nextTick(() => {
+        const { eventBus: { data: { source, target } = {} } = {} } = this
+        if (source) {
+          this.$set(source, 'sourceIndex', false)
+        }
+        if (target) {
+          this.$set(target, 'targetIndex', false)
+        }
+      })
     },
     dragOver (index, event) { // @target
-      const { disabled } = this
-      if (disabled) return
+      if (this.disabled) return
       event.preventDefault() // always allow drop
-      let { target } = event
-      target = target.closest('.pf-form-boolean')
-      if (target.classList.contains('drag-target')) return // ignore placeholder
-      if (target.classList.contains('root')) return // ignore root children
-      const { eventBus: { cache: { source, clone } = {} } = {} } = this
-      if (source) {
-        if (source.isSameNode(target)) return // ignore self
-        if (source.contains(target)) return // ignore child nodes
-        // @target is valid
-        switch (isMouseOverPrevious(event)) { // determine index from mouse position over @target
-          case true: // @target previous
-            if (!clone && target.previousElementSibling && target.previousElementSibling.isSameNode(source)) { // ignore self
-              return
-            }
-            this.targetIndex = index
-            break
-          case false: // @target next
-            if (!clone && target.nextElementSibling && target.nextElementSibling.isSameNode(source)) { // ignore self
-              return
-            }
-            this.targetIndex = index + 1
-            break
+      const isNext = isMouseOverNext(event) // determine mouse position over @target
+      let targetElement = event.target.closest('.pf-form-boolean')
+      if (targetElement.classList.contains('drag-target')) return // ignore placeholder
+      if (targetElement.classList.contains('root')) return // ignore root
+      const { eventBus: { data: { clone, sourceElement, target } = {} } = {} } = this
+      if (!clone) {
+        if (sourceElement.contains(targetElement)) return // ignore self, ignore children
+        const { previousElementSibling, nextElementSibling } = targetElement
+        if (
+          (!isNext && previousElementSibling && previousElementSibling.isSameNode(sourceElement))
+          ||
+          (isNext && nextElementSibling && nextElementSibling.isSameNode(sourceElement))
+        ) return // ignore sibling previousElement@next and nextElement@previous
+      }
+      // @target is a valid drop target
+      if (isNext) {
+        index += 1 // shift after following
+      }
+      if (this.targetIndex !== index) {
+        if (target) {
+          this.$set(target, 'targetIndex', false)
         }
-        this.eventBus.$emit('drag-over', { target }) // emit for previous iteration
-        if (this.targetIndex !== false) { // listeners for next iteration
-          this.eventBus.$on('drag-over', ({ target }) => {
-            const { 0: { childNodes = [] } = {} } = this.$el.getElementsByClassName('pf-form-boolean-values')
-            if (Array.from(childNodes).indexOf(target) === -1) { // target is not an immediate child
-              this.eventBus.$off('drag-over')
-              this.targetIndex = false
-            }
-          })
-          this.eventBus.$once('drag-end', () => {
-            const { eventBus: { cache: { reject = () => {} } = {} } = {} } = this
-            reject()
-            this.targetIndex = false
-            this.$set(this.eventBus, 'cache', false)
-            if (this.sourceIndex !== false) {
-              this.eventBus.$off('drag-end')
-            }
-          })
-        }
+        this.targetIndex = index
+        this.$set(this.eventBus.data, 'target', this)
       }
     },
-    dragDrop (event) { // @target
-      if (isMouseOverPrevious(event)) { // previous
-        this.$emit('dropValuePrev')
-      } else { // next
-        this.$emit('dropValueNext')
+    dragDrop () { // @anywhere
+      let { eventBus: { data: { clone, source, source: { sourceIndex } = {}, target, target: { targetIndex } = {} } = {} } = {} } = this
+      let value = JSON.parse(JSON.stringify(source.inputValue.values[sourceIndex]))
+      target.addValue(targetIndex, value)
+      if (!clone) {
+        if (source.$el.isSameNode(target.$el)) { // same parent
+          if (targetIndex <= sourceIndex) { // target is before source
+            sourceIndex += 1 // increment index to include new value
+          }
+        }
+        source.deleteValue(sourceIndex) // delete old value
       }
-    },
-    dropValuePrev (index) {
-      this.dropValue(index)
-    },
-    dropValueNext (index) {
-      this.dropValue(index + 1)
-    },
-    dropValue (index) {
-      const { eventBus: { cache: { value, resolve = () => {} } = {} } = {} } = this
-      this.addValue(index, value)
-      resolve({ index })
+      this.dragEnd()
     }
   },
   watch: {
