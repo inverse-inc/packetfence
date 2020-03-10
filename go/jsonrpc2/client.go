@@ -18,6 +18,9 @@ var httpClient *http.Client = &http.Client{
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 1 * time.Second,
 		Dial:                dialTimeout,
+		MaxIdleConns:        10,
+		IdleConnTimeout:     2 * time.Minute,
+		DisableCompression:  true,
 	},
 }
 

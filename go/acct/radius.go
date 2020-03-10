@@ -17,7 +17,6 @@ import (
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/mac"
 )
@@ -45,8 +44,6 @@ func (h *PfAcct) HandleAccountingRequest(w radius.ResponseWriter, r *radius.Requ
 }
 
 func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
-	//Acct-Output-Gigawords
-
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, _ := mac.NewFromString(callingStation)
 	in_bytes := int64(rfc2866.AcctInputOctets_Get(r.Packet))
@@ -66,7 +63,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		out_bytes,
 	)
 	if err != nil {
-		logError(err.Error())
+		logError(r.Context(), err.Error())
 	}
 	h.sendRadiusAccounting(r)
 }
@@ -86,14 +83,15 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) string {
 }
 
 func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
-	attr := packetToMap(r.Context(), r.Packet)
+	ctx := r.Context()
+	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
 		"X-FreeRADIUS-Server":  "packetfence",
 		"X-FreeRADIUS-Section": "accounting",
 	}
-	client := jsonrpc2.NewAAAClientFromConfig(r.Context())
-	if _, err := client.Call("radius_accounting", attr, 1); err != nil {
-		logError(err.Error())
+
+	if _, err := h.AAAClient.Call("radius_accounting", attr, 1); err != nil {
+		logError(ctx, err.Error())
 	}
 }
 
@@ -143,13 +141,13 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	var macStr string
 	err = checkPacket(raw)
 	if err != nil {
-		logError("RADIUSSecret: " + err.Error())
+		logError(ctx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
 	attrs, err := radius.ParseAttributes(raw[20:])
 	if err != nil {
-		logError("RADIUSSecret: " + err.Error())
+		logError(ctx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
@@ -167,11 +165,11 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 
 	switchInfo, err := h.SwitchLookup(macStr, ip)
 	if err != nil {
-		logError("RADIUSSecret: Switch not found" + err.Error())
+		logError(ctx, "RADIUSSecret: Switch not found"+err.Error())
 		return nil, nil, err
 	}
 
-	return []byte(switchInfo.Secret), context.WithValue(ctx, switchInfoKey, switchInfo), nil
+	return []byte(switchInfo.Secret), log.LoggerNewContext(context.WithValue(ctx, switchInfoKey, switchInfo)), nil
 }
 
 type Error string
@@ -220,7 +218,7 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 						continue
 					}
 
-					addAttributeToMap(attributes, a, radius.Attribute(data))
+					addAttributeToMap(ctx, attributes, a, radius.Attribute(data))
 					vsa = vsa[int(vsaLen):]
 				}
 			}
@@ -231,14 +229,14 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 				continue
 			}
 
-			addAttributeToMap(attributes, a, attr[0])
+			addAttributeToMap(ctx, attributes, a, attr[0])
 		}
 	}
 
 	return attributes
 }
 
-func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribute, attr radius.Attribute) {
+func addAttributeToMap(ctx context.Context, attributes map[string]interface{}, da *dictionary.Attribute, attr radius.Attribute) {
 	var item interface{} = nil
 	switch da.Type {
 	case dictionary.AttributeString:
@@ -258,6 +256,11 @@ func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribu
 		if err == nil {
 			item = i.String()
 		}
+	case dictionary.AttributeDate:
+		i, err := radius.Date(attr)
+		if err == nil {
+			item = i.String()
+		}
 	}
 
 	if item != nil {
@@ -272,20 +275,20 @@ func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribu
 			attributes[da.Name] = item
 		}
 	} else {
-		logWarn(fmt.Sprintf("Not handled %s\n", da.Name))
+		logWarn(ctx, fmt.Sprintf("Not handled %s\n", da.Name))
 	}
 }
 
-func logError(msg string) {
-	log.LoggerWContext(context.Background()).Error(msg)
+func logError(ctx context.Context, msg string) {
+	log.LoggerWContext(ctx).Error(msg)
 }
 
-func logWarn(msg string) {
-	log.LoggerWContext(context.Background()).Warn(msg)
+func logWarn(ctx context.Context, msg string) {
+	log.LoggerWContext(ctx).Warn(msg)
 }
 
-func logInfo(msg string) {
-	log.LoggerWContext(context.Background()).Info(msg)
+func logInfo(ctx context.Context, msg string) {
+	log.LoggerWContext(ctx).Info(msg)
 }
 
 type RadiusStatements struct {

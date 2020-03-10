@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net"
 	"time"
@@ -20,6 +21,7 @@ type PfAcct struct {
 	NetFlowPort     string
 	AllNetworks     bool
 	Management      pfconfigdriver.ManagementNetwork
+	AAAClient       *jsonrpc2.Client
 }
 
 func NewPfAcct() *PfAcct {
@@ -32,6 +34,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct := &PfAcct{Db: db, TimeDuration: DefaultTimeDuration}
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 	pfAcct.SetupConfig(ctx)
+	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	return pfAcct
 }
 
