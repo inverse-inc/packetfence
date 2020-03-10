@@ -199,7 +199,6 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 ...attributesFromMeta(meta, 'netflow_accounting_enabled'),
                 ...{
-                  disabled: (fake_mac_enabled === '1'),
                   values: { checked: 'enabled', unchecked: 'disabled' }
                 }
               }
