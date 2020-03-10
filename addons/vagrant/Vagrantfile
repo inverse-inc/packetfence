@@ -10,12 +10,17 @@ networks = inventory['all']['vars']['networks']
 
 Vagrant.configure("2") do |config|
 
-  ## Global settings for config
+  ### Global settings for all VMS
+
   # disable synced folders
   config.vm.synced_folder ".", "/vagrant", disabled: true
   
   # use same private key on all machines
   config.ssh.insert_key = false
+
+  config.vm.provider "libvirt" do |vm|
+    vm.random_hostname = true
+  end
 
   # common Ansible provisionner for all hosts
   # filtering is done using 'hosts' directive in site.yml
@@ -75,7 +80,6 @@ Vagrant.configure("2") do |config|
                        auto_config: false
 
         srv.vm.provider "libvirt" do |v|
-          v.random_hostname = true
           v.cpus = details['cpus']
           v.memory = details['memory']
         end

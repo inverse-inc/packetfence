@@ -10,18 +10,49 @@ cat <<EOT > /etc/network/interfaces
 auto lo
 iface lo inet loopback
 
-auto swp48
-iface swp48 inet dhcp
-    alias Interface used by Vagrant
+auto bridge
+iface bridge
+    bridge-vlan-aware yes
+    bridge-ports swp1 swp2 swp3 swp6 swp11 swp12 swp13 swp48
+    bridge-vids 2 3 6 17 100
+    bridge-pvid 1
 
-# we bridge interfaces on VLAN17
-# to use for Ansible provisioning
-auto bridge1
-iface bridge1
-    alias Untagged Bridge VLAN 17
-    bridge-ports swp1 swp11
-    hwaddress a0:00:00:00:00:11
-    address 172.17.1.201/24
+auto swp1
+iface swp1
+    bridge-access 17
+
+auto swp2
+iface swp2
+    bridge-access 2
+
+auto swp3
+iface swp3
+    bridge-access 3
+
+auto swp6
+iface swp6
+    bridge-access 6
+
+auto swp11
+iface swp11
+    bridge-access 17
+
+auto swp13
+iface swp13
+    bridge-access 6
+
+auto swp48
+iface swp48
+    bridge-access 100
+
+auto bridge.17
+iface bridge.17
+    alias Management
+    address 172.17.17.201/24
+
+auto bridge.100
+iface bridge.100 inet dhcp
+    alias Internet (used by Vagrant)
     
 EOT
 
