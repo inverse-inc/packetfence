@@ -19,6 +19,8 @@ use pfappserver::Model::Enforcement;
 use pfappserver::Form::Interface::Create;
 use pf::UnifiedApi::Controller::Config;
 use pf::error qw(is_success);
+use Sys::Hostname;
+use pf::util;
 
 sub model {
     require pfappserver::Model::Config::System;
@@ -42,6 +44,30 @@ sub put_gateway {
     }
     else {
         $self->render(json => {message => "Missing the gateway in the request payload"}, status => 422)
+    }
+}
+
+sub get_hostname {
+    my ($self) = @_;
+    $self->render(json => {item => hostname}, status => 200);
+}
+
+sub put_hostname {
+    my ($self) = @_;
+    my $hostname = $self->get_json ? $self->get_json->{hostname} : undef;
+    if($hostname) {
+        pf_run("hostnamectl set-hostname $hostname");
+        my $new_hostname = pf_run("hostname");
+        chomp($new_hostname);
+        if($new_hostname eq $hostname) {
+            $self->render(json => {message => "Changed hostname to: $hostname"}, status => 200);
+        }
+        else {
+            $self->render(json => {message => "Failed to change hostname to: $hostname"}, status => 500);
+        }
+    }
+    else {
+        $self->render(json => {message => "Missing the hostname in the request payload"}, status => 422)
     }
 }
 
