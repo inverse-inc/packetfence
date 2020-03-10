@@ -294,6 +294,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_syslog_forwarders_routes($root);
     $self->setup_api_v1_config_syslog_parsers_routes($root);
     $self->setup_api_v1_config_template_switches_routes($root);
+    $self->setup_api_v1_config_system_routes($root);
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
     $self->setup_api_v1_config_wmi_rules_routes($root);
     return;
@@ -1898,6 +1899,29 @@ sub setup_api_v1_config_wmi_rules_routes {
     );
 
     return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_system_routes
+
+setup_api_v1_config_system_routes 
+
+=cut
+
+sub setup_api_v1_config_system_routes {
+    my ($self, $root) = @_;
+    $root->any( ['GET'] => "/system/gateway" )
+      ->to(controller => "Config::System", action => "get_gateway")
+      ->name("api.v1.System.Gateway.get_gateway");
+    $root->any( ['PUT'] => "/system/gateway" )
+      ->to(controller => "Config::System", action => "put_gateway")
+      ->name("api.v1.System.Gateway.put_gateway");
+    
+    $root->any( ['GET'] => "/system/hostname" )
+      ->to(controller => "Config::System", action => "get_hostname")
+      ->name("api.v1.System.Gateway.get_hostname");
+    $root->any( ['PUT'] => "/system/hostname" )
+      ->to(controller => "Config::System", action => "put_hostname")
+      ->name("api.v1.System.Gateway.put_hostname");
 }
 
 =head2 setup_api_v1_system_summary_route
