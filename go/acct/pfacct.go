@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"database/sql"
+	"net"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"net"
-	"time"
 )
 
-const DefaultTimeDuration = 5 * time.Minute
+const DefaultTimeDuration = 1 * time.Minute
 
 type PfAcct struct {
 	RadiusStatements
