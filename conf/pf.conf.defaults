@@ -421,6 +421,11 @@ radiusd_binary=/usr/sbin/radiusd
 # Should freeradius handling accounting
 radiusd_acct=disabled
 #
+# services.radiusd_auth
+#
+# Should freeradius handling authentication
+radiusd_auth=enabled
+#
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
