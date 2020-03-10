@@ -315,9 +315,11 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 
 	rs.insertBandwidthAccounting, err = db.Prepare(`
         INSERT INTO bandwidth_accounting (tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes)
-        SELECT ? as tenant_id, ? as mac, ? as unique_session_id, ? as time_bucket, in_bytes, out_bytes FROM (
-            SELECT ? - IFNULL(SUM(in_bytes), 0) as in_bytes, ? - IFNULL(SUM(out_bytes), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND unique_session_id = ? AND time_bucket != ?
-        ) as x
+        SELECT * FROM (
+            SELECT ? as tenant_id, ? as mac, ? as unique_session_id, ? as time_bucket, in_bytes, out_bytes FROM (
+                SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) as in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND unique_session_id = ? AND time_bucket != ?
+            ) as x
+        ) as y WHERE in_bytes > 0 || out_bytes > 0
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes);
     `)
 
