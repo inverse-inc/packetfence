@@ -500,6 +500,12 @@ github.com/inverse-inc/go-radius v0.0.0-20200220182054-865ddefbbf43 h1:vCZKrirRX
 github.com/inverse-inc/go-radius v0.0.0-20200220182054-865ddefbbf43/go.mod h1:zEitMB62omLMul756WRnH7tIY1of7+k2cHNDQCerz2c=
 github.com/inverse-inc/go-radius v0.0.0-20200309183831-1e3e11166311 h1:B6rWGJIBHp6GapcYkgOhEo9cKZmtFYdUR1KltygJFEQ=
 github.com/inverse-inc/go-radius v0.0.0-20200309183831-1e3e11166311/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
+github.com/inverse-inc/go-radius v0.0.0-20200309185721-235292f16a9a h1:ebKYP2v1AmW/DHRZsdJG8bRL3ngEFvjPw5s/IrvBrmU=
+github.com/inverse-inc/go-radius v0.0.0-20200309185721-235292f16a9a/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
+github.com/inverse-inc/go-radius v0.0.0-20200310002528-94fa1441e81d h1:8E/1Oeb7TkyWYTL1wDxNqxoTEecth2Z/D659UammS9I=
+github.com/inverse-inc/go-radius v0.0.0-20200310002528-94fa1441e81d/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
+github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5 h1:A4sgdqWVg7Lb8vMw7YWMoBcMb1aE7kKDQIc4PZW248c=
+github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
 github.com/inverse-inc/packetfence v0.0.0-20191015112529-47dcd5f95b62 h1:NnT9ApnVE34pJbucW6nxY+7a9NGW3a0irFYiiOJEo7A=
 github.com/inverse-inc/packetfence v0.0.0-20191021142437-789414441c4c h1:HDJDKSHaZfMhcbaWWHpEJ67pUUGlc+mqv1kSAhEUuB4=
 github.com/inverse-inc/packetfence/go v0.0.0-20191015112529-47dcd5f95b62 h1:6Wv3UDrVX5Z5KrvHwr/nHmKxW3b6F45SL71MhxvDxO4=
