@@ -230,6 +230,18 @@ vagrant_interface_rule
     #   (may or may not perform a reboot depending on platform)
     device.vm.provision :shell , :inline => $script
 
+
+    # Override common provisionner in master Vagrantfile
+    # to run **after** shell provisioning
+    device.vm.provision "ansible", type: 'ansible' do |ansible|
+      ansible.playbook = "site.yml"
+      ansible.config_file = "ansible.cfg"
+      ansible.inventory_path = "inventory"
+      ansible.galaxy_role_file = "requirements.yml"
+      # only for debug
+      ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
+
   end
   
 #   ##### DEFINE VM for node01 #####
@@ -318,5 +330,16 @@ vagrant_interface_rule
     # Run Any Platform Specific Code and Apply the interface Re-map
     #   (may or may not perform a reboot depending on platform)
     device.vm.provision :shell , :inline => $script
+
+    # Override common provisionner in master Vagrantfile
+    # to run **after** shell provisioning
+    device.vm.provision "ansible", type: 'ansible' do |ansible|
+      ansible.playbook = "site.yml"
+      ansible.config_file = "ansible.cfg"
+      ansible.inventory_path = "inventory"
+      ansible.galaxy_role_file = "requirements.yml"
+      # only for debug
+      ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
   end
 end
