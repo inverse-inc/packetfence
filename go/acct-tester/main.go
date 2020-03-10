@@ -9,9 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"layeh.com/radius"
-	"layeh.com/radius/rfc2865"
-	"layeh.com/radius/rfc2866"
+	radius "github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2865"
+	"github.com/inverse-inc/go-radius/rfc2866"
+	"github.com/inverse-inc/go-radius/rfc2869"
 )
 
 var host = flag.String("host", "127.0.0.1", "The host to send the packets to")
@@ -105,6 +106,7 @@ func sendAccountingPacket(pi pktinfo) {
 	rfc2865.FramedIPAddress_Add(p, ip)
 	rfc2865.CallingStationID_AddString(p, mac)
 	rfc2865.NASIPAddress_Add(p, net.ParseIP(*nasIpAddress))
+	rfc2869.EventTimestamp_Add(p, time.Now())
 
 	client := &radius.Client{}
 	// Use the background context since we don't want the lib to use our context
@@ -154,8 +156,8 @@ func runWorkers() {
 
 	for i := 0; i < *concurrency; i++ {
 		workChans[i] = make(chan pktinfo, 100)
+		wg.Add(1)
 		go func(i int) {
-			wg.Add(1)
 			// Sleep a bit to give time to jobs to populate
 			time.Sleep(1 * time.Second)
 			for {
