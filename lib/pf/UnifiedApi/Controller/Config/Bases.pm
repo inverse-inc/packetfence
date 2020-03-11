@@ -86,11 +86,17 @@ sub database_secure_installation {
     $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
 }
 
-sub database_schema {
+sub database_create {
     my ($self) = @_;
     my $json = $self->get_json;
     unless($json) {
         $self->render(json => {message => "Unable to parse JSON payload"}, status => 400);
+        return;
+    }
+
+    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username}, $json->{password});
+    if(is_error($status)) {
+        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
         return;
     }
 
@@ -106,6 +112,14 @@ sub database_schema {
         return;
     }
 
+    require pfappserver::Model::Config::Pfconfig;
+    pfappserver::Model::Config::Pfconfig->new->update_db_name($json->{database});
+
+    my $pf_cs = pf::ConfigStore::Pf->new;
+    $pf_cs->update("database", {db => $json->{database}});
+    $pf_cs->commit();
+    
+    $self->render(json => {message => "Created database and loaded the schema"}, status => 200);
 }
 
 sub database_assign {

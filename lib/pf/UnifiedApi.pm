@@ -892,9 +892,9 @@ sub setup_api_v1_config_bases_routes {
       ->to("Config::Bases#database_secure_installation")
       ->name("api.v1.Config.Bases.database_secure_installation");
     $database_route
-      ->any(["POST"] => "/schema")
-      ->to("Config::Bases#database_schema")
-      ->name("api.v1.Config.Bases.database_schema");
+      ->any(["POST"] => "/create")
+      ->to("Config::Bases#database_create")
+      ->name("api.v1.Config.Bases.database_create");
     $database_route
       ->any(["POST"] => "/assign")
       ->to("Config::Bases#database_assign")
