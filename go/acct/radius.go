@@ -100,7 +100,7 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 		}
 		if ok {
 			if ok, err = h.IsNodeTimeBalanceZero(switchInfo.TenantId, mac); ok {
-				if err := h.AAAClient.Notify("trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
 					logError(ctx, "IsNodeTimeBalanceZero: "+err.Error())
 				}
 			}
@@ -112,7 +112,7 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 			return
 		}
 		if ok {
-			if err := h.AAAClient.Notify("trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
 				logError(ctx, "Notify trigger_security_event: "+err.Error())
 			}
 		}
@@ -141,7 +141,7 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 		"X-FreeRADIUS-Section": "accounting",
 	}
 
-	if _, err := h.AAAClient.Call("radius_accounting", attr, 1); err != nil {
+	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, 1); err != nil {
 		logError(ctx, err.Error())
 	}
 }
