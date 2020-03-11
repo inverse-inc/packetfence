@@ -1,0 +1,19 @@
+---
+- name: configure wpasupplicant on nodes to test 802.1X
+  hosts: nodes
+  become: true
+  gather_facts: no
+  
+  collections:
+    - inverse_inc.packetfence
+
+  pre_tasks:
+  - name: wait node reboot before provisioning (20s)
+    wait_for:
+      timeout: 20
+    delegate_to: localhost
+    become: false
+    tags: wait
+
+  roles:
+    - role: wpasupplicant

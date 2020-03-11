@@ -1,0 +1,19 @@
+---
+- name: configure hostapd on Cumulus Linux
+  hosts: cumulus
+  become: true
+  gather_facts: no
+  
+  collections:
+    - inverse_inc.cumulus
+
+  pre_tasks:
+  - name: wait switch reboot before provisioning (20s)
+    wait_for:
+      timeout: 20
+    delegate_to: localhost
+    become: false
+    tags: wait
+
+  roles:
+    - role: hostapd

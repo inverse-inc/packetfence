@@ -71,4 +71,7 @@
     - role: packetfence_go
       tags: go
 
+# no sub directory for ansible to find roles under roles/ directory
 - import_playbook: winservers.yml
+- import_playbook: cumulus.yml
+- import_playbook: nodes.yml

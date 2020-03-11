@@ -20,7 +20,8 @@ echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
   apt-get update -qy
-  apt-get install lldpd ntp ntpdate -qy
+  # additional stuff for Ansible management
+  apt-get install lldpd ntp ntpdate wpasupplicant python-apt -qy
   echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf 
 fi
 
@@ -29,8 +30,8 @@ cat << EOT > /etc/timezone
 Etc/UTC
 EOT
 
-# Once initial provisioning is done using vagrant management network
-# we apply new network configuration
+# Once initial provisioning is done, we apply new network configuration
+# Internet connection is lost, only management using VLAN17 is possible
 echo " ### Overwriting /etc/network/interfaces ###"
 cat <<EOT > /etc/network/interfaces
 auto lo
