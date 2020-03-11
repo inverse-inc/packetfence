@@ -14,7 +14,7 @@
         class="m-0"
       >
         <span v-if="!isRoot" class="drag-handle" :class="{ 'text-secondary': disabled }">
-          <icon name="grip-vertical"></icon>
+          <icon name="grip-vertical" :class="{ 'text-primary': actionKey }"></icon>
         </span>
         <slot name="op" v-bind="{ op, formStoreName, formNamespace, disabled }"></slot>
       </span>
@@ -57,7 +57,7 @@
 
         <!-- drag/drop placeholder -->
         <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-target" :disabled="disabled"
-          v-model="eventBus.data.value" :formStoreName="eventBus.data.formStoreName" :formNamespace="eventBus.data.formNamespace"
+          v-model="dataBus.data.value" :formStoreName="dataBus.data.formStoreName" :formNamespace="dataBus.data.formNamespace"
           @dragOver="dragOver(index, $event)"
         >
           <!-- proxy `op` slot -->
@@ -71,7 +71,7 @@
         </pf-form-boolean>
 
         <!-- recurse -->
-        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="index" :isRoot="false" :eventBus="eventBus" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
+        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="JSON.stringify(value)" :isRoot="false" :dataBus="dataBus" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
           @addOperator="addOperator(index)"
           @cloneOperator="cloneOperator(index)"
           @deleteOperator="deleteOperator(index)"
@@ -97,7 +97,7 @@
 
     <div v-else class="pf-form-boolean-value">
       <span class="drag-handle" :class="{ 'text-secondary': disabled }">
-        <icon name="grip-vertical"></icon>
+        <icon name="grip-vertical" :class="{ 'text-primary': actionKey }"></icon>
       </span>
       <slot name="value" v-bind="{ value, formStoreName, formNamespace, disabled }"></slot>
       <span class="menu"
@@ -124,7 +124,7 @@
 </template>
 
 <script>
-import Vue from 'vue' // eventBus
+import Vue from 'vue' // dataBus
 import pfMixinForm from '@/components/pfMixinForm'
 
 /*  CSS flex-box layout can stack elements either vertical (above/below) or horizontal (left/right)
@@ -162,7 +162,7 @@ export default {
       type: Boolean,
       default: true
     },
-    eventBus: { // singleton event bus shared /w all recursive children
+    dataBus: { // singleton data bus shared /w all recursive children
       type: Object,
       default: new Vue({
         data () {
@@ -195,7 +195,8 @@ export default {
       }
     },
     hasValues () {
-      return (this.inputValue && 'values' in this.inputValue && this.inputValue.values)
+      const { inputValue: { values } = {} } = this
+      return values && values.constructor === Array
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -219,7 +220,7 @@ export default {
       return { value, formStoreName, formNamespace: `${formNamespace}.values.${index}` }
     },
     addValue (index, newValue = {}) {
-      const { inputValue: { values } = {} } = this
+      let { inputValue: { values } = {}, sourceIndex } = this
       this.$set(this.inputValue, 'values', [...values.slice(0, index), newValue, ...values.slice(index)])
     },
     cloneValue (index) {
@@ -273,19 +274,34 @@ export default {
           return
         }
         this.sourceIndex = index
-        const { value, formStoreName, formNamespace } = this
-        this.$set(this.eventBus, 'data', {
-          clone: this.actionKey,
-          source: this,
-          sourceElement,
-          value,
-          formStoreName,
-          formNamespace: `${formNamespace}.values.${index}`
+        const { actionKey: clone, formStoreName, formNamespace, value } = this
+        new Promise((resolve) => {
+          this.$set(this.dataBus, 'data', {
+            clone,
+            source: this,
+            sourceElement,
+            formStoreName,
+            formNamespace: `${formNamespace}.values.${index}`,
+            value,
+            resolve
+          })
+        }).then(target => {
+          if (!clone) {
+            if (this.$el.isSameNode(target.$el)) { // same parent
+              if (target.targetIndex <= this.sourceIndex) { // target is before source
+                this.sourceIndex += 1 // increment index to include new value
+              }
+            }
+            this.deleteValue(this.sourceIndex) // delete old value
+          }
+        }).finally(() => {
+          this.dragEnd()
         })
+        this.$store.dispatch('events/onKeyUp') // fix: unable to detect actionKey keyup while dragging
     },
     dragEnd () { // @source
       this.$nextTick(() => {
-        const { eventBus: { data: { source, target } = {} } = {} } = this
+        const { dataBus: { data: { source, target } = {} } = {} } = this
         if (source) {
           this.$set(source, 'sourceIndex', false)
         }
@@ -301,7 +317,7 @@ export default {
       let targetElement = event.target.closest('.pf-form-boolean')
       if (targetElement.classList.contains('drag-target')) return // ignore placeholder
       if (targetElement.classList.contains('root')) return // ignore root
-      const { eventBus: { data: { clone, sourceElement, target } = {} } = {} } = this
+      const { dataBus: { data: { clone, sourceElement, target } = {} } = {} } = this
       if (!clone) {
         if (sourceElement.contains(targetElement)) return // ignore self, ignore children
         const { previousElementSibling, nextElementSibling } = targetElement
@@ -320,22 +336,14 @@ export default {
           this.$set(target, 'targetIndex', false)
         }
         this.targetIndex = index
-        this.$set(this.eventBus.data, 'target', this)
+        this.$set(this.dataBus.data, 'target', this)
       }
     },
     dragDrop () { // @anywhere
-      let { eventBus: { data: { clone, source, source: { sourceIndex } = {}, target, target: { targetIndex } = {} } = {} } = {} } = this
+      let { dataBus: { data: { source, source: { sourceIndex } = {}, target, target: { targetIndex } = {}, resolve } = {} } = {} } = this
       let value = JSON.parse(JSON.stringify(source.inputValue.values[sourceIndex]))
-      target.addValue(targetIndex, value)
-      if (!clone) {
-        if (source.$el.isSameNode(target.$el)) { // same parent
-          if (targetIndex <= sourceIndex) { // target is before source
-            sourceIndex += 1 // increment index to include new value
-          }
-        }
-        source.deleteValue(sourceIndex) // delete old value
-      }
-      this.dragEnd()
+      target.addValue(targetIndex, value) // add new value
+      resolve(target)
     }
   },
   watch: {
