@@ -178,7 +178,11 @@ sub startService {
     if($checkupManagers && @$checkupManagers) {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
-            _doStart($manager);
+            if ($manager->isManaged()) {
+                _doStart($manager);
+            } else {
+                _doUpdateSystemd($manager, $TRUE);
+            }
         }
     }
     return $EXIT_SUCCESS;
@@ -291,8 +295,9 @@ sub _doUpdateSystemd {
             $color =  $COLORS->{error};
         }
     }
-
-    print $manager->name, "|${color}${command}$COLORS->{reset}\n" if $show;
+    my $service = "packetfence-".$manager->name;
+    $service .= (" " x (50 - length($service)));
+    print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
 }
 
 sub getIptablesTechnique {
