@@ -295,7 +295,7 @@ sub _doUpdateSystemd {
             $color =  $COLORS->{error};
         }
     }
-    my $service = "packetfence-".$manager->name;
+    my $service = "packetfence-".$manager->name.".service";
     $service .= (" " x (50 - length($service)));
     print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
 }
