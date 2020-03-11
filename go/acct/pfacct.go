@@ -55,7 +55,9 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 		pfAcct.AllowedNetworks = append(pfAcct.AllowedNetworks, network)
 	}
 
-	keyConfAdvanced := pfconfigdriver.PfConfAdvanced{PfconfigNS: "config::Pf", PfconfigHostnameOverlay: "yes"}
+	keyConfAdvanced := pfconfigdriver.PfConfAdvanced{}
+	keyConfAdvanced.PfconfigNS = "config::Pf"
+	keyConfAdvanced.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
 	pfAcct.AllNetworks = keyConfAdvanced.NetFlowOnAllNetworks == "enabled"
 	var ports pfconfigdriver.PfConfPorts

@@ -21,6 +21,10 @@ import (
 	"github.com/inverse-inc/packetfence/go/mac"
 )
 
+const TRIGGER_TYPE_ACCOUNTING = "accounting"
+const ACCOUNTING_POLICY_BANDWIDTH = "BandwidthExpired"
+const ACCOUNTING_POLICY_TIME = "TimeExpired"
+
 var radiusDictionary *dictionary.Dictionary
 
 func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
@@ -53,6 +57,9 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
 	timestamp := rfc2869.EventTimestamp_Get(r.Packet)
+    if timestamp.IsZero() {
+        timestamp = time.Now()
+    }
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	err := h.InsertBandwidthAccounting(
 		switchInfo.TenantId,
@@ -292,7 +299,12 @@ func logInfo(ctx context.Context, msg string) {
 }
 
 type RadiusStatements struct {
-	switchLookup, insertBandwidthAccounting *sql.Stmt
+	switchLookup              *sql.Stmt
+	insertBandwidthAccounting *sql.Stmt
+	softNodeTimeBalanceUpdate *sql.Stmt
+	nodeTimeBalanceSubtract   *sql.Stmt
+	nodeTimeBalance           *sql.Stmt
+	isNodeTimeBalanceZero     *sql.Stmt
 }
 
 func (rs *RadiusStatements) Setup(db *sql.DB) {
@@ -326,6 +338,56 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	if err != nil {
 		panic(err)
 	}
+
+	rs.softNodeTimeBalanceUpdate, err = db.Prepare(`
+        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance - ? <= 0;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+
+	rs.nodeTimeBalanceSubtract, err = db.Prepare(`
+        UPDATE node set time_balance = GREATEST(time_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
+    `)
+
+	rs.nodeTimeBalance, err = db.Prepare(`
+        SELECT time_balance FROM node WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
+    `)
+
+	rs.isNodeTimeBalanceZero, err = db.Prepare(`
+        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND time_balance = 0;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (rs *RadiusStatements) SoftNodeTimeBalanceUpdate(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.softNodeTimeBalanceUpdate.Exec(tenant_id, mac.String(), balance)
+	if err != nil {
+		return false, err
+	}
+
+	if count, err := result.RowsAffected(); count <= 0 || err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (rs *RadiusStatements) NodeTimeBalanceSubtract(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.nodeTimeBalanceSubtract.Exec(balance, tenant_id, mac.String())
+	if err != nil {
+		return false, err
+	}
+
+	if count, err := result.RowsAffected(); count <= 0 || err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 type SwitchInfo struct {

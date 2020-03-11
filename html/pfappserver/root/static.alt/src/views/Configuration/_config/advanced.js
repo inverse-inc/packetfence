@@ -363,6 +363,7 @@ export const validators = (form = {}, meta = {}) => {
     pfperl_api_processes: validatorsFromMeta(meta, 'pfperl_api_processes', i18n.t('Processes')),
     pfperl_api_timeout: validatorsFromMeta(meta, 'pfperl_api_timeout', i18n.t('Timeout')),
     timing_stats_level: validatorsFromMeta(meta, 'timing_stats_level', i18n.t('Level')),
-    source_to_send_sms_when_creating_users: validatorsFromMeta(meta, 'source_to_send_sms_when_creating_users', i18n.t('Source'))
+    source_to_send_sms_when_creating_users: validatorsFromMeta(meta, 'source_to_send_sms_when_creating_users', i18n.t('Source')),
+    netflow_on_all_networks: validatorsFromMeta(meta, 'netflow_on_all_networks', i18n.t('NetFlow On All Networks'))
   }
 }
