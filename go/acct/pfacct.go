@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -23,16 +24,19 @@ type PfAcct struct {
 	AllNetworks     bool
 	Management      pfconfigdriver.ManagementNetwork
 	AAAClient       *jsonrpc2.Client
+	LoggerCtx       context.Context
 }
 
 func NewPfAcct() *PfAcct {
 	var ctx = context.Background()
+	ctx = log.LoggerNewContext(ctx)
 	db, err := db.DbFromConfig(ctx)
 	if err != nil {
 		return nil
 	}
 
 	pfAcct := &PfAcct{Db: db, TimeDuration: DefaultTimeDuration}
+	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 	pfAcct.SetupConfig(ctx)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)

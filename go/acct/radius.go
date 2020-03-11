@@ -48,6 +48,12 @@ func (h *PfAcct) HandleAccountingRequest(w radius.ResponseWriter, r *radius.Requ
 }
 
 func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
+	status := rfc2866.AcctStatusType_Get(r.Packet)
+	if status > rfc2866.AcctStatusType_Value_InterimUpdate {
+		logInfo(r.Context(), fmt.Sprintf("Accounting status of %s ignored", status.String()))
+		return
+	}
+
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, _ := mac.NewFromString(callingStation)
 	in_bytes := int64(rfc2866.AcctInputOctets_Get(r.Packet))
@@ -70,9 +76,47 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		out_bytes,
 	)
 	if err != nil {
-		logError(r.Context(), err.Error())
+		logError(r.Context(), "InsertBandwidthAccounting: "+err.Error())
 	}
 	h.sendRadiusAccounting(r)
+	h.handleTimeBalance(r, switchInfo)
+}
+
+func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
+	timebalance := int64(rfc2866.AcctSessionTime_Get(r.Packet))
+	if timebalance == 0 {
+		return
+	}
+	ctx := r.Context()
+
+	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
+	mac, _ := mac.NewFromString(callingStation)
+	status := rfc2866.AcctStatusType_Get(r.Packet)
+	if status == rfc2866.AcctStatusType_Value_Stop {
+		ok, err := h.NodeTimeBalanceSubtract(switchInfo.TenantId, mac, timebalance)
+		if err != nil {
+			logError(ctx, "NodeTimeBalanceSubtract: "+err.Error())
+			return
+		}
+		if ok {
+			if ok, err = h.IsNodeTimeBalanceZero(switchInfo.TenantId, mac); ok {
+				if err := h.AAAClient.Notify("trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+					logError(ctx, "IsNodeTimeBalanceZero: "+err.Error())
+				}
+			}
+		}
+	} else {
+		ok, err := h.SoftNodeTimeBalanceUpdate(switchInfo.TenantId, mac, timebalance)
+		if err != nil {
+			logError(ctx, "SoftNodeTimeBalanceUpdate: "+err.Error())
+			return
+		}
+		if ok {
+			if err := h.AAAClient.Notify("trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+				logError(ctx, "Notify trigger_security_event: "+err.Error())
+			}
+		}
+	}
 }
 
 func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) string {
@@ -148,13 +192,13 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	var macStr string
 	err = checkPacket(raw)
 	if err != nil {
-		logError(ctx, "RADIUSSecret: "+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
 	attrs, err := radius.ParseAttributes(raw[20:])
 	if err != nil {
-		logError(ctx, "RADIUSSecret: "+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
@@ -172,11 +216,11 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 
 	switchInfo, err := h.SwitchLookup(macStr, ip)
 	if err != nil {
-		logError(ctx, "RADIUSSecret: Switch not found"+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: Switch not found"+err.Error())
 		return nil, nil, err
 	}
 
-	return []byte(switchInfo.Secret), log.LoggerNewContext(context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
 }
 
 type Error string
@@ -362,6 +406,12 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (rs *RadiusStatements) IsNodeTimeBalanceZero(tenant_id int, mac mac.Mac) (bool, error) {
+	found := 0
+	err := rs.isNodeTimeBalanceZero.QueryRow(tenant_id, mac).Scan(&found)
+	return found == 1, err
 }
 
 func (rs *RadiusStatements) SoftNodeTimeBalanceUpdate(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
