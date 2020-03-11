@@ -170,7 +170,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Peform Actions'),
-          text: i18n.t('Enable to perform the following actions when the condition is met. Otherwise only the role is applied.'),
+          text: i18n.t('Enable to perform the following actions. Disable to only apply the role.'),
           cols: [
             {
               namespace: 'run_actions',
@@ -200,7 +200,7 @@ export const view = (form = {}, meta = {}) => {
                     fields: actionsFieldsFromMeta(meta)
                   }
                 },
-                invalidFeedback: i18n.t('Inline Conditions contain one or more errors.')
+                invalidFeedback: i18n.t('Actions contain one or more errors.')
               }
             }
           ]
