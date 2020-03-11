@@ -8,6 +8,7 @@ EOT
 voip=Egress-VLAN-Name = 1${switch._voiceRole}
 acceptRole=
 coa=
+snmpDisconnect=enabled
 disconnect=
 description=Standard HP Switch
 reject=Reply-Message = This node is not allowed to use this service
