@@ -76,7 +76,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		out_bytes,
 	)
 	if err != nil {
-		logError(r.Context(), "InsertBandwidthAccounting: " + err.Error())
+		logError(r.Context(), "InsertBandwidthAccounting: "+err.Error())
 	}
 	h.sendRadiusAccounting(r)
 	h.handleTimeBalance(r, switchInfo)
@@ -95,25 +95,25 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 	if status == rfc2866.AcctStatusType_Value_Stop {
 		ok, err := h.NodeTimeBalanceSubtract(switchInfo.TenantId, mac, timebalance)
 		if err != nil {
-			logError(ctx, "NodeTimeBalanceSubtract: " + err.Error())
+			logError(ctx, "NodeTimeBalanceSubtract: "+err.Error())
 			return
 		}
 		if ok {
 			if ok, err = h.IsNodeTimeBalanceZero(switchInfo.TenantId, mac); ok {
 				if err := h.AAAClient.Notify("trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
-					logError(ctx, "IsNodeTimeBalanceZero: " + err.Error())
+					logError(ctx, "IsNodeTimeBalanceZero: "+err.Error())
 				}
 			}
 		}
 	} else {
 		ok, err := h.SoftNodeTimeBalanceUpdate(switchInfo.TenantId, mac, timebalance)
 		if err != nil {
-			logError(ctx, "SoftNodeTimeBalanceUpdate: " + err.Error())
+			logError(ctx, "SoftNodeTimeBalanceUpdate: "+err.Error())
 			return
 		}
 		if ok {
 			if err := h.AAAClient.Notify("trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
-				logError(ctx, "Notify trigger_security_event: " + err.Error())
+				logError(ctx, "Notify trigger_security_event: "+err.Error())
 			}
 		}
 	}
@@ -141,7 +141,7 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 		"X-FreeRADIUS-Section": "accounting",
 	}
 
-	if err := h.AAAClient.Notify("radius_accounting", attr, 1); err != nil {
+	if _, err := h.AAAClient.Call("radius_accounting", attr, 1); err != nil {
 		logError(ctx, err.Error())
 	}
 }
@@ -192,13 +192,13 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	var macStr string
 	err = checkPacket(raw)
 	if err != nil {
-		logError(ctx, "RADIUSSecret: "+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
 	attrs, err := radius.ParseAttributes(raw[20:])
 	if err != nil {
-		logError(ctx, "RADIUSSecret: "+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
@@ -216,11 +216,11 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 
 	switchInfo, err := h.SwitchLookup(macStr, ip)
 	if err != nil {
-		logError(ctx, "RADIUSSecret: Switch not found"+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: Switch not found"+err.Error())
 		return nil, nil, err
 	}
 
-	return []byte(switchInfo.Secret), log.LoggerNewContext(context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
 }
 
 type Error string
