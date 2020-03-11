@@ -24,6 +24,7 @@ type PfAcct struct {
 	Management      pfconfigdriver.ManagementNetwork
 	AAAClient       *jsonrpc2.Client
 	LoggerCtx       context.Context
+	Dispatcher      *Dispatcher
 }
 
 func NewPfAcct() *PfAcct {
@@ -39,6 +40,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 	pfAcct.SetupConfig(ctx)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
+	//pfAcct.Dispatcher = NewDispatcher(16, 128)
 	return pfAcct
 }
 
