@@ -421,6 +421,11 @@ radiusd_binary=/usr/sbin/radiusd
 # Should freeradius handling accounting
 radiusd_acct=disabled
 #
+# services.radiusd_auth
+#
+# Should freeradius handling authentication
+radiusd_auth=enabled
+#
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
@@ -932,6 +937,11 @@ pfperl_api_timeout = 600
 #
 # Enable the Configurator and the Configurator API
 configurator = enabled
+
+# advanced.netflow_on_all_networks
+#
+# Listen to netflow on all networks
+netflow_on_all_network = disabled
 
 [provisioning]
 #

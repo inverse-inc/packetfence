@@ -494,6 +494,7 @@ type PfConfAdvanced struct {
 	LdapAttributes                   []string `json:"ldap_attributes"`
 	ApiInactivityTimeout             int      `json:"api_inactivity_timeout"`
 	ApiMaxExpiration                 int      `json:"api_max_expiration"`
+	NetFlowOnAllNetworks             string   `json:"netflow_on_all_networks"`
 }
 
 type PfConfDns struct {

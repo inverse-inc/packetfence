@@ -114,6 +114,7 @@ and return all the normal files under
 
 my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfcmd
+   /usr/local/pf/sbin/pfacct
    /usr/local/pf/sbin/pfhttpd
    /usr/local/pf/sbin/pfdns
    /usr/local/pf/sbin/pfdhcp

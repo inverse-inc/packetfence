@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -21,6 +22,7 @@ type PfAcct struct {
 	NetFlowPort     string
 	AllNetworks     bool
 	Management      pfconfigdriver.ManagementNetwork
+	AAAClient       *jsonrpc2.Client
 }
 
 func NewPfAcct() *PfAcct {
@@ -33,6 +35,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct := &PfAcct{Db: db, TimeDuration: DefaultTimeDuration}
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 	pfAcct.SetupConfig(ctx)
+	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	return pfAcct
 }
 
@@ -53,6 +56,11 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 		pfAcct.AllowedNetworks = append(pfAcct.AllowedNetworks, network)
 	}
 
+	keyConfAdvanced := pfconfigdriver.PfConfAdvanced{}
+	keyConfAdvanced.PfconfigNS = "config::Pf"
+	keyConfAdvanced.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
+	pfAcct.AllNetworks = keyConfAdvanced.NetFlowOnAllNetworks == "enabled"
 	var ports pfconfigdriver.PfConfPorts
 	pfconfigdriver.FetchDecodeSocket(ctx, &ports)
 	pfAcct.NetFlowPort = ports.PFAcctNetflow

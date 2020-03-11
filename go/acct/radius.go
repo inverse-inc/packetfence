@@ -17,10 +17,13 @@ import (
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/mac"
 )
+
+const TRIGGER_TYPE_ACCOUNTING = "accounting"
+const ACCOUNTING_POLICY_BANDWIDTH = "BandwidthExpired"
+const ACCOUNTING_POLICY_TIME = "TimeExpired"
 
 var radiusDictionary *dictionary.Dictionary
 
@@ -45,8 +48,6 @@ func (h *PfAcct) HandleAccountingRequest(w radius.ResponseWriter, r *radius.Requ
 }
 
 func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
-	//Acct-Output-Gigawords
-
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, _ := mac.NewFromString(callingStation)
 	in_bytes := int64(rfc2866.AcctInputOctets_Get(r.Packet))
@@ -56,6 +57,9 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
 	timestamp := rfc2869.EventTimestamp_Get(r.Packet)
+	if timestamp.IsZero() {
+		timestamp = time.Now()
+	}
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	err := h.InsertBandwidthAccounting(
 		switchInfo.TenantId,
@@ -66,7 +70,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		out_bytes,
 	)
 	if err != nil {
-		logError(err.Error())
+		logError(r.Context(), err.Error())
 	}
 	h.sendRadiusAccounting(r)
 }
@@ -86,14 +90,15 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) string {
 }
 
 func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
-	attr := packetToMap(r.Context(), r.Packet)
+	ctx := r.Context()
+	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
 		"X-FreeRADIUS-Server":  "packetfence",
 		"X-FreeRADIUS-Section": "accounting",
 	}
-	client := jsonrpc2.NewAAAClientFromConfig(r.Context())
-	if _, err := client.Call("radius_accounting", attr, 1); err != nil {
-		logError(err.Error())
+
+	if _, err := h.AAAClient.Call("radius_accounting", attr, 1); err != nil {
+		logError(ctx, err.Error())
 	}
 }
 
@@ -143,13 +148,13 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	var macStr string
 	err = checkPacket(raw)
 	if err != nil {
-		logError("RADIUSSecret: " + err.Error())
+		logError(ctx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
 	attrs, err := radius.ParseAttributes(raw[20:])
 	if err != nil {
-		logError("RADIUSSecret: " + err.Error())
+		logError(ctx, "RADIUSSecret: "+err.Error())
 		return nil, nil, err
 	}
 
@@ -167,11 +172,11 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 
 	switchInfo, err := h.SwitchLookup(macStr, ip)
 	if err != nil {
-		logError("RADIUSSecret: Switch not found" + err.Error())
+		logError(ctx, "RADIUSSecret: Switch not found"+err.Error())
 		return nil, nil, err
 	}
 
-	return []byte(switchInfo.Secret), context.WithValue(ctx, switchInfoKey, switchInfo), nil
+	return []byte(switchInfo.Secret), log.LoggerNewContext(context.WithValue(ctx, switchInfoKey, switchInfo)), nil
 }
 
 type Error string
@@ -220,7 +225,7 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 						continue
 					}
 
-					addAttributeToMap(attributes, a, radius.Attribute(data))
+					addAttributeToMap(ctx, attributes, a, radius.Attribute(data))
 					vsa = vsa[int(vsaLen):]
 				}
 			}
@@ -231,14 +236,14 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 				continue
 			}
 
-			addAttributeToMap(attributes, a, attr[0])
+			addAttributeToMap(ctx, attributes, a, attr[0])
 		}
 	}
 
 	return attributes
 }
 
-func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribute, attr radius.Attribute) {
+func addAttributeToMap(ctx context.Context, attributes map[string]interface{}, da *dictionary.Attribute, attr radius.Attribute) {
 	var item interface{} = nil
 	switch da.Type {
 	case dictionary.AttributeString:
@@ -258,6 +263,11 @@ func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribu
 		if err == nil {
 			item = i.String()
 		}
+	case dictionary.AttributeDate:
+		i, err := radius.Date(attr)
+		if err == nil {
+			item = i.String()
+		}
 	}
 
 	if item != nil {
@@ -272,24 +282,29 @@ func addAttributeToMap(attributes map[string]interface{}, da *dictionary.Attribu
 			attributes[da.Name] = item
 		}
 	} else {
-		logWarn(fmt.Sprintf("Not handled %s\n", da.Name))
+		logWarn(ctx, fmt.Sprintf("Not handled %s\n", da.Name))
 	}
 }
 
-func logError(msg string) {
-	log.LoggerWContext(context.Background()).Error(msg)
+func logError(ctx context.Context, msg string) {
+	log.LoggerWContext(ctx).Error(msg)
 }
 
-func logWarn(msg string) {
-	log.LoggerWContext(context.Background()).Warn(msg)
+func logWarn(ctx context.Context, msg string) {
+	log.LoggerWContext(ctx).Warn(msg)
 }
 
-func logInfo(msg string) {
-	log.LoggerWContext(context.Background()).Info(msg)
+func logInfo(ctx context.Context, msg string) {
+	log.LoggerWContext(ctx).Info(msg)
 }
 
 type RadiusStatements struct {
-	switchLookup, insertBandwidthAccounting *sql.Stmt
+	switchLookup              *sql.Stmt
+	insertBandwidthAccounting *sql.Stmt
+	softNodeTimeBalanceUpdate *sql.Stmt
+	nodeTimeBalanceSubtract   *sql.Stmt
+	nodeTimeBalance           *sql.Stmt
+	isNodeTimeBalanceZero     *sql.Stmt
 }
 
 func (rs *RadiusStatements) Setup(db *sql.DB) {
@@ -312,15 +327,67 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 
 	rs.insertBandwidthAccounting, err = db.Prepare(`
         INSERT INTO bandwidth_accounting (tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes)
-        SELECT ? as tenant_id, ? as mac, ? as unique_session_id, ? as time_bucket, in_bytes, out_bytes FROM (
-            SELECT ? - IFNULL(SUM(in_bytes), 0) as in_bytes, ? - IFNULL(SUM(out_bytes), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND unique_session_id = ? AND time_bucket != ?
-        ) as x
+        SELECT * FROM (
+            SELECT ? as tenant_id, ? as mac, ? as unique_session_id, ? as time_bucket, in_bytes, out_bytes FROM (
+                SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) as in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND unique_session_id = ? AND time_bucket != ?
+            ) as x
+        ) as y WHERE in_bytes > 0 || out_bytes > 0
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes);
     `)
 
 	if err != nil {
 		panic(err)
 	}
+
+	rs.softNodeTimeBalanceUpdate, err = db.Prepare(`
+        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance - ? <= 0;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+
+	rs.nodeTimeBalanceSubtract, err = db.Prepare(`
+        UPDATE node set time_balance = GREATEST(time_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
+    `)
+
+	rs.nodeTimeBalance, err = db.Prepare(`
+        SELECT time_balance FROM node WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
+    `)
+
+	rs.isNodeTimeBalanceZero, err = db.Prepare(`
+        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND time_balance = 0;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (rs *RadiusStatements) SoftNodeTimeBalanceUpdate(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.softNodeTimeBalanceUpdate.Exec(tenant_id, mac.String(), balance)
+	if err != nil {
+		return false, err
+	}
+
+	if count, err := result.RowsAffected(); count <= 0 || err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (rs *RadiusStatements) NodeTimeBalanceSubtract(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.nodeTimeBalanceSubtract.Exec(balance, tenant_id, mac.String())
+	if err != nil {
+		return false, err
+	}
+
+	if count, err := result.RowsAffected(); count <= 0 || err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 type SwitchInfo struct {

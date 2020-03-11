@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/netflow5"
-	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/netflow5"
+	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 )
 
 const (
@@ -79,7 +80,7 @@ func (h *PfAcct) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
 }
 
 func (h *PfAcct) IpAddressAllowed(ip net.IP) bool {
-	if h.AllNetworks || len(h.AllowedNetworks) == 0 {
+	if h.AllNetworks {
 		return true
 	}
 
