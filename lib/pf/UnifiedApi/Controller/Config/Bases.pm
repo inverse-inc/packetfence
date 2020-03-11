@@ -86,6 +86,28 @@ sub database_secure_installation {
     $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
 }
 
+sub database_schema {
+    my ($self) = @_;
+    my $json = $self->get_json;
+    unless($json) {
+        $self->render(json => {message => "Unable to parse JSON payload"}, status => 400);
+        return;
+    }
+
+    ($status, $status_msg) = $self->database_model->create($json->{database}, $json->{username}, $json->{password});
+    if(is_error($status)) {
+        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+        return;
+    }
+
+    ($status, $status_msg) = $self->database_model->schema($json->{database}, $json->{username}, $json->{password});
+    if(is_error($status)) {
+        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+        return;
+    }
+
+}
+
 sub database_assign {
     my ($self) = @_;
     my $json = $self->get_json;
