@@ -938,10 +938,10 @@ pfperl_api_timeout = 600
 # Enable the Configurator and the Configurator API
 configurator = enabled
 
-# advanced.newflow_on_all_networks
+# advanced.netflow_on_all_networks
 #
 # Listen to netflow on all networks
-newflow_on_all_network = disabled
+netflow_on_all_network = disabled
 
 [provisioning]
 #
