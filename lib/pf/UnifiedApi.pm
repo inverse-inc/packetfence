@@ -146,8 +146,8 @@ sub setup_api_v1_routes {
     my ($self, $api_v1_route) = @_;
     $self->setup_api_v1_crud_routes($api_v1_route);
     $self->setup_api_v1_config_routes($api_v1_route->any("/config")->name("api.v1.Config"));
-    $self->setup_api_v1_configurator_routes($api_v1_route->under("/configurator/config")->to(controller => "Configurator", action => "allowed")->name("api.v1.Configurator"));
-    $self->setup_api_v1_fingerbank_routes($api_v1_route->any("/fingerbank")->to(controller => 'Fingerbank')->name("api.v1.Fingerbank"));
+    $self->setup_api_v1_configurator_routes($api_v1_route->under("/configurator")->to(controller => "Configurator", action => "allowed")->name("api.v1.Configurator"));
+    $self->setup_api_v1_fingerbank_routes($api_v1_route);
     $self->setup_api_v1_reports_routes($api_v1_route->any("/reports")->name("api.v1.Reports"));
     $self->setup_api_v1_dynamic_reports_routes($api_v1_route);
     $self->setup_api_v1_current_user_routes($api_v1_route);
@@ -1846,12 +1846,14 @@ setup_api_v1_fingerbank_routes
 
 sub setup_api_v1_fingerbank_routes {
     my ($self, $root) = @_;
-    $root->register_sub_action({ action => "update_upstream_db", method => "POST"});
-    $root->register_sub_action({ action => "account_info", method => "GET" });
-    $root->register_sub_action({ action => "can_use_nba_endpoints", method => "GET" });
-    my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
-    my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
-    my $all_route = $root->any("/all")->to(scope => "All")->name( $root->name . ".All");
+    my $route = $root->any("/fingerbank")->to(controller => 'Fingerbank')->name("api.v1.Fingerbank");
+
+    $route->register_sub_action({ action => "update_upstream_db", method => "POST"});
+    $route->register_sub_action({ action => "account_info", method => "GET" });
+    $route->register_sub_action({ action => "can_use_nba_endpoints", method => "GET" });
+    my $upstream = $route->any("/upstream")->to(scope => "Upstream")->name( $route->name . ".Upstream");
+    my $local_route = $route->any("/local")->to(scope => "Local")->name( $route->name . ".Local");
+    my $all_route = $route->any("/all")->to(scope => "All")->name( $route->name . ".All");
     $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Combinations", "/combinations", "/combination/#combination_id");
     $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Devices", "/devices", "/device/#device_id");
     $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Enterprises", "/dhcp6_enterprises", "/dhcp6_enterprise/#dhcp6_enterprise_id");
@@ -1981,10 +1983,17 @@ setup_api_v1_configurator_routes
 
 sub setup_api_v1_configurator_routes {
     my ($self, $root) = @_;
-    $self->setup_api_v1_config_interfaces_routes($root);
-    $self->setup_api_v1_config_bases_routes($root);
-    $self->setup_api_v1_config_fingerbank_settings_routes($root);
+    my $config = $root->under("/config");
+    $self->setup_api_v1_config_bases_routes($config);
+    $self->setup_api_v1_config_fingerbank_settings_routes($config);
+    $self->setup_api_v1_config_interfaces_routes($config);
+    $self->setup_api_v1_config_system_routes($config);
+
+    $self->setup_api_v1_fingerbank_routes($root);
     $self->setup_api_v1_services_routes($root);
+    $self->setup_api_v1_system_services_routes($root);
+    $self->setup_api_v1_users_routes($root);
+
     return;
 }
 
