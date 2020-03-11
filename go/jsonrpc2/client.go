@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"io/ioutil"
 	"net"
@@ -104,7 +105,10 @@ func (c *Client) Call(ctx context.Context, method string, args interface{}, tena
 		return nil, err
 	}
 
+	start := time.Now()
 	resp, err := httpClient.Do(r)
+	elapsed := time.Now().Sub(start)
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("jsonrpc2.Call took %v for %s", elapsed, method))
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +142,10 @@ func (c *Client) Notify(ctx context.Context, method string, args interface{}, te
 		return err
 	}
 
+	start := time.Now()
 	resp, err := httpClient.Do(r)
+	elapsed := time.Now().Sub(start)
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("jsonrpc2.Notify took %v for %s", elapsed, method))
 	if err != nil {
 		return err
 	}
