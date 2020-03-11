@@ -5025,11 +5025,11 @@ image::ACL.png[scaledwidth="100%",alt="ACL"]
 * Then the last step is to configure the WLC in PacketFence.
 Role by Web Auth URL
 
-image::WLC_PACKETFENCE.png[scaledwidth="100%",alt="ACL"]
+image::wlc_packetfence.png[scaledwidth="100%",alt="ACL"]
 
 Role definition
 
-image::WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
+image::wlc_packetfence2.png[scaledwidth="100%",alt="ACL"]
 
 Wireless LAN Controller (WLC) IPSK
 ++++++++++++++++++++++++++++++++++
@@ -5380,9 +5380,9 @@ image::Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 
 Your configuration for the tab "Roles" in PacketFence will look like the following:
 
-image::Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
+image::meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
-image::Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
+image::meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
 
 URL in registration field should be in the form: 'http://<your_captive_portal_ip>/Meraki::MR_v2'
 
@@ -5393,7 +5393,7 @@ This section will cover how to configure the Meraki WiFI controller to use with 
 
 In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs matching roles.
 
-image::Meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
+image::meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
 Switch MS220-8
 ++++++++++++++
