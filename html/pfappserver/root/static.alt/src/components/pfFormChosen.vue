@@ -259,7 +259,9 @@ export default {
     },
     onSearchChange (query) {
       if (this.optionsSearchFunction) {
-        if (query && query.constructor === Array) return // not a user defined query
+        if (query && query.constructor === Array) { // not a user defined query
+          query = ''
+        }
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
         }
@@ -267,9 +269,8 @@ export default {
         this.$debouncer({
           handler: () => {
             Promise.resolve(this.optionsSearchFunction(this, query, SEARCH_BY_TEXT)).then(options => {
-              this.loading = false
               this.options = options
-            }).catch(() => {
+            }).finally(() => {
               this.loading = false
             })
           },
