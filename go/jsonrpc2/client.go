@@ -18,14 +18,14 @@ var httpClient *http.Client = &http.Client{
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 1 * time.Second,
 		Dial:                dialTimeout,
-		MaxIdleConns:        10,
+		MaxIdleConns:        100,
 		IdleConnTimeout:     2 * time.Minute,
 		DisableCompression:  true,
 	},
 }
 
 func dialTimeout(network, addr string) (net.Conn, error) {
-	return net.DialTimeout(network, addr, 1*time.Second)
+	return net.DialTimeout(network, addr, 10*time.Second)
 }
 
 type Client struct {
@@ -89,7 +89,7 @@ func NewAAAClientFromConfig(ctx context.Context) *Client {
 	}
 }
 
-func (c *Client) Call(method string, args interface{}, tenant_id int) (interface{}, error) {
+func (c *Client) Call(ctx context.Context, method string, args interface{}, tenant_id int) (interface{}, error) {
 	c.Id++
 	request := JsonRPC2Request{
 		Method:   method,
@@ -124,7 +124,7 @@ func (c *Client) Call(method string, args interface{}, tenant_id int) (interface
 	return response.Result, nil
 }
 
-func (c *Client) Notify(method string, args interface{}, tenant_id int) error {
+func (c *Client) Notify(ctx context.Context, method string, args interface{}, tenant_id int) error {
 	request := JsonRPC2Request{
 		Method:   method,
 		JsonRPC:  "2.0",
