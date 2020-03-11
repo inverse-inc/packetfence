@@ -15,10 +15,15 @@ import (
 
 func main() {
 	log.SetProcessName("pfacct")
+	increaseFileLimit()
 
 	pfacct := NewPfAcct()
 	w := sync.WaitGroup{}
 	rs := pfacct.radiusListen(&w)
+    /*
+	dispatcher := pfacct.Dispatcher
+	dispatcher.Run()
+    */
 	processor, _ := pfacct.netflowProcessor()
 	w.Add(1)
 	c := make(chan os.Signal, 1)
@@ -29,6 +34,7 @@ func main() {
 		if processor != nil {
 			processor.Stop()
 		}
+		// dispatcher.Stop()
 		w.Done()
 	}()
 
@@ -57,4 +63,23 @@ func NotifySystemd(msg string) {
 	if err != nil {
 		log.LoggerWContext(context.Background(), fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
 	}
+}
+
+func increaseFileLimit() {
+	var rLimit syscall.Rlimit
+	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+	if err != nil {
+		log.LoggerWContext(context.Background()).Error("Error Getting Rlimit: " + err.Error())
+	}
+
+	if rLimit.Cur < rLimit.Max {
+		rLimit.Cur = rLimit.Max
+		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+		if err != nil {
+			log.LoggerWContext(context.Background()).Warn("Error Setting Rlimit:" + err.Error())
+		}
+	}
+
+	err = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+	log.LoggerWContext(context.Background()).Info(fmt.Sprintf("File descriptor limit is: %d", rLimit.Cur))
 }
