@@ -36,15 +36,17 @@ func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
 
 func (h *PfAcct) HandleAccountingRequest(w radius.ResponseWriter, r *radius.Request) {
 	outPacket := r.Response(radius.CodeAccountingResponse)
-	rfc2865.ReplyMessage_SetString(outPacket, "Accounting ok")
-	w.Write(outPacket)
+	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
 	ctx := r.Context()
 	iSwitchInfo := ctx.Value(switchInfoKey)
 	if iSwitchInfo == nil {
 		panic("SwitchInfo: not found")
 	}
+
 	switchInfo := iSwitchInfo.(*SwitchInfo)
-	go h.handleAccountingRequest(r, switchInfo)
+	h.handleAccountingRequest(r, switchInfo)
+	//	h.Dispatcher.SubmitJob(Work(func() { h.handleAccountingRequest(r, switchInfo) }))
+	w.Write(outPacket)
 }
 
 func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
