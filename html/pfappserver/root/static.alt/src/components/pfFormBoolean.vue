@@ -26,7 +26,6 @@
             <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
           </template>
           <b-dropdown-group v-if="!isRoot">
-            <b-dropdown-header>{{ $t('Operator') }}</b-dropdown-header>
             <b-dropdown-item @click="$emit('cloneOperator'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="copy" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
@@ -35,7 +34,6 @@
             </b-dropdown-item>
           </b-dropdown-group>
           <b-dropdown-group>
-            <b-dropdown-header>{{ $t('Collection') }}</b-dropdown-header>
             <b-dropdown-item @click="addOperator(values.length + 1); (actionKey && $nextTick(() => $refs.menu.show(true)))">
               <icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Operator') }}
             </b-dropdown-item>
@@ -52,6 +50,7 @@
 
     <div v-if="hasValues" class="pf-form-boolean-values"
       @mousemove="highlight = false"
+      @dragover.stop="dragOver(0, $event)"
     >
       <template v-for="(value, index) in valuesPlusOne">
 
@@ -318,18 +317,20 @@ export default {
       if (targetElement.classList.contains('drag-target')) return // ignore placeholder
       if (targetElement.classList.contains('root')) return // ignore root
       const { dataBus: { data: { clone, sourceElement, target } = {} } = {} } = this
-      if (!clone) {
-        if (sourceElement.contains(targetElement)) return // ignore self, ignore children
-        const { previousElementSibling, nextElementSibling } = targetElement
-        if (
-          (!isNext && previousElementSibling && previousElementSibling.isSameNode(sourceElement))
-          ||
-          (isNext && nextElementSibling && nextElementSibling.isSameNode(sourceElement))
-        ) return // ignore sibling previousElement@next and nextElement@previous
-      }
-      // @target is a valid drop target
-      if (isNext) {
-        index += 1 // shift after following
+      if (this.values.length > 0) { // has values (not empty)
+        if (!clone) {
+          if (sourceElement.contains(targetElement)) return // ignore self, ignore children
+          const { previousElementSibling, nextElementSibling } = targetElement
+          if (
+            (!isNext && previousElementSibling && previousElementSibling.isSameNode(sourceElement))
+            ||
+            (isNext && nextElementSibling && nextElementSibling.isSameNode(sourceElement))
+          ) return // ignore sibling previousElement@next and nextElement@previous
+        }
+        // @target is a valid drop target
+        if (isNext) {
+          index += 1 // shift after following
+        }
       }
       if (this.targetIndex !== index) {
         if (target) {
