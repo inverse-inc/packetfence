@@ -230,8 +230,9 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     in_bytes BIGINT UNSIGNED NOT NULL,
     out_bytes BIGINT UNSIGNED NOT NULL,
     total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    processed BOOLEAN DEFAULT 0,
     PRIMARY KEY (tenant_id, unique_session_id, mac, time_bucket),
-    KEY bandwidth_accounting_time_bucket (time_bucket)
+    KEY bandwidth_accounting_time_bucket_processed (time_bucket, processed)
 );
 
 \! echo "Alter table radius_nas";
