@@ -57,9 +57,9 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
 	timestamp := rfc2869.EventTimestamp_Get(r.Packet)
-    if timestamp.IsZero() {
-        timestamp = time.Now()
-    }
+	if timestamp.IsZero() {
+		timestamp = time.Now()
+	}
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	err := h.InsertBandwidthAccounting(
 		switchInfo.TenantId,
