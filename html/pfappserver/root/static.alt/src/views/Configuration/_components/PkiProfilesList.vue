@@ -22,9 +22,9 @@
         <router-link :to="{ name: 'pkiCa', params: { id: item.ca_id } }">{{ item.ca_name }}</router-link>
       </template>
       <template v-slot:cell(buttons)="item">
-        <span class="float-right text-nowrap">
+        <span class="float-right">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'newPkiCert', params: { profile_id: item.ID } }">{{ $t('New Certificate') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1 text-nowrap" :to="{ name: 'newPkiCert', params: { profile_id: item.ID } }">{{ $t('New Certificate') }}</b-button>
         </span>
       </template>
     </pf-config-list>
