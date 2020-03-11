@@ -168,6 +168,17 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('SNMP Disconnect'),
+          text: i18n.t(`Use SNMP instead of RADIUS to perform access reevaluation. This will perform an SNMP up/down on the port using the standard MIB.`),
+          cols: [
+            {
+              namespace: 'snmpDisconnect',
+              component: pfFormRangeToggle,
+              attrs: attributesFromMeta(meta, 'snmpDisconnect')
+            }
+          ]
+        },
+        {
           label: i18n.t('Accept VLAN Scope'),
           cols: [
             {

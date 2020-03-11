@@ -34,6 +34,13 @@ has_field 'description' => (
     required => 1,
 );
 
+has_field 'snmpDisconnect' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+);
+
 has_field 'radiusDisconnect' => (
     type    => 'Select',
     label   => 'RADIUS Disconnect Method',
