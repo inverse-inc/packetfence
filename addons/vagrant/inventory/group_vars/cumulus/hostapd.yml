@@ -1,0 +1,14 @@
+---
+# to get management IP of current PF server up in test environment
+packetfence_server_name: '{{ lookup("env", "PF_SRV_NAME") }}'
+
+# lookup in Ansible inventory
+packetfence_server_mgmt_ip: '{{ hostvars[packetfence_server_name]["mgmt_ip"] }}'
+  
+hostapd__auth_server_addr: '{{ packetfence_server_mgmt_ip }}'
+hostapd__auth_server_shared_secret: 'testing123'
+hostapd__acct_server_addr: '{{ packetfence_server_mgmt_ip }}'
+hostapd__acct_server_shared_secret: 'testing123'
+hostapd__radius_das_client: '{{ packetfence_server_mgmt_ip }} testing123'
+hostapd__radius_das_require_event_timestamp: '0'
+hostapd__radius_das_require_message_authenticator: '0'

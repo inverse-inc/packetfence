@@ -1,0 +1,3 @@
+---
+wpasupplicant__eap_peap_mschapv2_identity: "{{ hostvars['ad']['packetfence_domain_account'] }}"
+wpasupplicant__eap_peap_mschapv2_password: "{{ hostvars['ad']['packetfence_domain_password'] }}"
