@@ -16,5 +16,5 @@ EOT
 voip= <<EOT
 Tunnel-Medium-Type  = 6
 Tunnel-Type = 13
-Tunnel-Private-Group-Id = $switch._voiceVlan
+Cisco-AVPair = device-traffic-class=voice
 EOT
