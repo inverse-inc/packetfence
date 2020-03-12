@@ -19,10 +19,9 @@ import {
   hasFilterEngines,
   filterEngineExists
 } from '@/globals/pfValidators'
-
-const {
+import {
   required
-} = require('vuelidate/lib/validators')
+} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -33,6 +32,12 @@ export const columns = [
   {
     key: 'id',
     label: i18n.t('Name'),
+    required: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
     required: true,
     visible: true
   },
@@ -111,6 +116,15 @@ export const view = (form = {}, meta = {}) => {
                   disabled: (!isNew && !isClone)
                 }
               }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Description'),
+          cols: [
+            {
+              namespace: 'description',
+              component: pfFormInput
             }
           ]
         },
@@ -222,6 +236,9 @@ export const validators = (form = {}, meta = {}) => {
       ...{
         [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasFilterEngines(collection), filterEngineExists(collection)))
       }
+    },
+    description: {
+      [i18n.t('Description required.')]: required
     },
     role: validatorsFromMeta(meta, 'role', i18n.t('Role')),
     scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes'))
