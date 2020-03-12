@@ -15,50 +15,15 @@ use warnings;
 use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
-extends 'pfappserver::Base::Form';
+extends 'pfappserver::Form::Config::FilterEngines';
 with qw(
     pfappserver::Base::Form::Role::Help
     pfappserver::Base::Form::Role::AllowedOptions
     pfappserver::Role::Form::RolesAttribute
 );
 
-has_field 'id' => (
-    type     => 'Text',
-    label    => 'Rule Name',
-    required => 1,
-);
-
-has_field 'description' => (
-    type     => 'Text',
-    required => 1,
-);
-
-has_field 'condition' => (
-    type => 'FilterCondition',
-    required => 1,
-);
-
-has_field 'status' => (
-   type => 'Toggle',
-   label => 'Enable Rule',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled'
-);
-
-has_field 'run_actions' => (
-   type => 'Toggle',
-   label => 'Run Actions',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled'
-);
-
-has_field 'scopes' => (
-    type     => 'Select',
-    multiple => 1,
-    options  => [
-        map { { value => $_, label => $_ } }
+sub scopes {
+    return map { { value => $_, label => $_ } }
           qw(
           RegistrationRole
           RegisteredRole
@@ -67,13 +32,20 @@ has_field 'scopes' => (
           AutoRegister
           NodeInfoForAutoReg
           IsPhone
-          )
-    ]
-);
+          );
+}
 
 has_field 'role' => (
     type     => 'Select',
     options_method => \&options_role,
+);
+
+has_field 'run_actions' => (
+   type => 'Toggle',
+   label => 'Run Actions',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled'
 );
 
 =head2 actions
