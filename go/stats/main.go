@@ -362,6 +362,18 @@ func main() {
 		}
 	}()
 
+	// Initialize Radius Graph
+	go func() {
+
+		for {
+			t := StatsdClient.NewTiming()
+			time.Sleep(time.Millisecond * 10)
+			t.Send("ntlm_auth.time")
+			time.Sleep(time.Minute * 10)
+
+		}
+	}()
+
 	go func() {
 		var files []string
 
