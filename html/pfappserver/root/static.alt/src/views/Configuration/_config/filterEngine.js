@@ -67,8 +67,8 @@ export const columns = [
 const actionsFieldsFromMeta = (meta = {}) => {
   const { actions: { item: { properties: { api_method: { allowed = [] } = {} } = {} } = {} } = {} } = meta
   return allowed.map(allowed => {
-    const { text, value } = allowed
-    return { text, value, types: [fieldType.SUBSTRING] }
+    const { text, value, sibling } = allowed
+    return { text, value, sibling, types: [fieldType.SUBSTRING] }
   })
 }
 
