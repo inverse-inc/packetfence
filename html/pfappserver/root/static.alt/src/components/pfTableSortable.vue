@@ -25,8 +25,9 @@
       <b-row v-for="(item, itemIndex) in notSortableItems" :key="itemIndex"
         class="pf-table-sortable-row"
       >
-        <b-col cols="1">
-          {{ itemIndex + 1 }}
+        <b-col class="draghandle" cols="1">
+          <icon class="draghandle-icon" name="lock"></icon>
+          <span class="draghandle-index">{{ itemIndex + 1 }}</span>
         </b-col>
         <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
           <slot :name="cell(field.key)" v-bind="item">{{ formatted(item, field) }}</slot>
@@ -48,10 +49,10 @@
         <b-row v-for="(item, itemIndex) in sortableItems" :key="itemIndex"
           class="pf-table-sortable-row"
         >
-          <b-col :class="{ 'draghandle': (!disabled && sortableItems.length > 1 && !item.not_sortable) }" cols="1">
-            <icon v-if="disabled || sortableItems.length == 1 || item.not_sortable" name="lock"></icon>
+          <b-col class="draghandle" cols="1">
+            <icon v-if="disabled" name="lock"></icon>
             <template v-else>
-              <icon class="draghandle-icon" name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+              <icon class="draghandle-icon" :name="(sortableItems.length == 1 || item.not_sortable) ? 'lock' : 'th'" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
               <span class="draghandle-index">{{ notSortableItems.length + itemIndex + 1 }}</span>
             </template>
           </b-col>
@@ -201,12 +202,12 @@ export default {
   .pf-table-sortable-row {
     border-top: 1px solid #dee2e6;
     cursor: pointer;
-    & > .draghandle .draghandle-icon,
-    &:hover > .draghandle .draghandle-index {
+    & .draghandle-icon,
+    &:hover .draghandle-index {
       display: none;
     }
-    & > .draghandle .draghandle-index,
-    &:hover > .draghandle .draghandle-icon {
+    & .draghandle-index,
+    &:hover .draghandle-icon {
       display: inline;
     }
   }
