@@ -110,20 +110,6 @@ EOT
 acceptRole=Filter-ID = $role
 disconnect=Calling-Station-Id = $mac
 
-[Mist]
-description=Mist AP Template chite
-acceptVlan= <<EOT
-Tunnel-Medium-Type  = 6
-Tunnel-Type = 13
-Tunnel-Private-Group-ID = $vlan
-EOT
-acceptRole=Filter-Id = $role
-radiusDisconnect=disconnect
-disconnect= <<EOT
-Calling-Station-Id = ${macToEUI48($mac)}
-Acct-Terminate-Cause = Admin-Reset
-EOT
-
 [PacketFence::Standard]
 # Do not edit.
 # Any changes will be lost on upgrade.
@@ -183,13 +169,3 @@ voip=
 radiusDisconnect=disconnect
 reject=Reply-Message = This node is not allowed to use this service
 coa=
-
-[RuckusT]
-description=Ruckus Template chite
-acceptVlan= <<EOT
-Tunnel-Medium-Type  = 6
-Tunnel-Type = 13
-Tunnel-Private-Group-ID = $vlan
-EOT
-radiusDisconnect=disconnect
-disconnect=Calling-Station-Id = ${macToEUI48($mac)}
