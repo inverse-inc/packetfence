@@ -451,6 +451,14 @@ sub _ast_to_object {
 
 sub object_to_str {
     my ($obj) = @_;
+    my $str = _object_to_str($obj);
+    $str =~ s/^\(//;
+    $str =~ s/\)$//;
+    return $str;
+}
+
+sub _object_to_str {
+    my ($obj) = @_;
     my $op = $obj->{op};
     if (exists $OBJ_OPS{$op}) {
         my $values = $obj->{values};
@@ -458,7 +466,7 @@ sub object_to_str {
             return object_to_str(@$values);
         }
 
-        return join('', '(', join( $OBJ_OPS{$op}, map { object_to_str($_) } @$values ), ')' );
+        return join('', '(', join( " $OBJ_OPS{$op} ", map { object_to_str($_) } @$values ), ')' );
     }
 
     if (exists $ROP_BINARY{$op}) {
