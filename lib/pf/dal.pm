@@ -887,6 +887,10 @@ sub merge {
 
 sub set_tenant {
     my ($class, $tenant_id) = @_;
+    if ($tenant_id == pf::config::tenant::get_tenant()) {
+        return $TRUE
+    }
+
     if(!defined($tenant_id)) {
         get_logger->info("Undefined tenant ID specified, ignoring it and keeping current tenant");
         return $FALSE;
