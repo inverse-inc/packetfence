@@ -406,7 +406,7 @@ pages:
 ########################################
 test_pkg_dev_and_release_centos_7:
   variables:
-    VM_NAME: pfcen7dev
+    VM_NAMES: pfcen7dev
   extends:
     - .test_job
     - .test_script
@@ -415,7 +415,7 @@ test_pkg_dev_and_release_centos_7:
 
 test_pkg_nigthly_centos_7:
   variables:
-    VM_NAME: pfcen7dev
+    VM_NAMES: pfcen7dev ad switch01 node01
   extends:
     - .test_job
     - .test_script
@@ -423,7 +423,7 @@ test_pkg_nigthly_centos_7:
 
 test_pkg_dev_and_release_debian_stretch:
   variables:
-    VM_NAME: pfdeb9dev
+    VM_NAMES: pfdeb9dev
     PERL_UNIT_TESTS: 'no'
   extends:
     - .test_job
@@ -433,7 +433,7 @@ test_pkg_dev_and_release_debian_stretch:
 
 test_pkg_nightly_debian_stretch:
   variables:
-    VM_NAME: pfdeb9dev
+    VM_NAMES: pfdeb9dev ad switch01 node01
     PERL_UNIT_TESTS: 'no'
   extends:
     - .test_job

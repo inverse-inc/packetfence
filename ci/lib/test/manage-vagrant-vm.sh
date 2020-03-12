@@ -25,7 +25,7 @@ delete_dir_if_exists() {
 }
 
 setup() {
-    declare -p ANSIBLE_SKIP_TAGS VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VM_NAME
+    declare -p ANSIBLE_SKIP_TAGS VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VM_NAMES
     declare -p CI_COMMIT_TAG
     declare -p LOCAL_COLLECTIONS
     
@@ -42,26 +42,28 @@ setup() {
     cd ${VAGRANT_DIR}
 
     # always try to upgrade box before start
-    vagrant box update ${VM_NAME}
-    vagrant up ${VM_NAME} --destroy-on-error
+    vagrant box update ${VM_NAMES}
+    vagrant up ${VM_NAMES} --destroy-on-error --no-parallel
 
-    vagrant halt ${VM_NAME}
+    vagrant halt ${VM_NAMES}
 }
 
 teardown() {
     delete_dir_if_exists ${VAGRANT_DIR}/roles
     delete_dir_if_exists ${VAGRANT_DIR}/collections
 
-    if [ -z "${VM_NAME}" ]; then
+    if [ -z "${VM_NAMES}" ]; then
         # destroy all VM
         # using "|| true" as a workaround to unusual behavior
         # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
         ( cd $VAGRANT_DIR ; vagrant destroy -f || true )
+        delete_dir_if_exists ${VAGRANT_DIR}/.vagrant
     else
-        ( cd $VAGRANT_DIR ; vagrant destroy -f ${VM_NAME} )
+        ( cd $VAGRANT_DIR ; vagrant destroy -f ${VM_NAMES} )
+        for vm in ${VM_NAMES}; do
+            delete_dir_if_exists ${VAGRANT_DIR}/.vagrant/machines/${vm}
+        done
     fi
-
-    delete_dir_if_exists ${VAGRANT_DIR}/.vagrant
 }
 
 case $1 in

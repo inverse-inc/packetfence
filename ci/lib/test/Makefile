@@ -22,36 +22,36 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 .PHONY: test
 test: clean
 	CI_COMMIT_TAG=$(CI_COMMIT_TAG) \
-	VM_NAME=$(VM_NAME) \
+	VM_NAMES=$(VM_NAMES) \
 	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
 	GOLANG_UNIT_TESTS=$(GOLANG_UNIT_TESTS) \
 	./manage-vagrant-vm.sh setup
 
 .PHONY: clean
 clean:
-	VM_NAME=$(VM_NAME) \
+	VM_NAMES=$(VM_NAMES) \
 	./manage-vagrant-vm.sh teardown
 
 ### Targets used for local tests
 # test
 .PHONY: test-pfcen7dev-dev
 test-pfcen7dev-dev:
-	make VM_NAME=pfcen7dev test
+	make VM_NAMES=pfcen7dev test
 
 .PHONY: test-pfdeb9dev-dev
 test-pfdeb9dev-dev:
-	make VM_NAME=pfdeb9dev \
+	make VM_NAMES=pfdeb9dev \
 	PERL_UNIT_TESTS=no \
 	test
 
 .PHONY: test-pfcen7dev-release
 test-pfcen7dev-release:
-	make VM_NAME=pfcen7dev CI_COMMIT_TAG=vX.Y.Z test
+	make VM_NAMES=pfcen7dev CI_COMMIT_TAG=vX.Y.Z test
 
 .PHONY: test-pfdeb9dev-release
 test-pfdeb9dev-release:
 	make CI_COMMIT_TAG=vX.Y.Z \
-	VM_NAME=pfdeb9dev \
+	VM_NAMES=pfdeb9dev \
 	PERL_UNIT_TESTS=no \
 	test
 
