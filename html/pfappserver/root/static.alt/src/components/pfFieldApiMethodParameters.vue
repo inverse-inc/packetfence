@@ -159,9 +159,9 @@ export default {
   watch: {
     localApiMethod: {
       handler: function () {
-        const { field: { sibling: { api_parameters: { placeholder: _default = null } = {} } = {} } = {} } = this
+        const { field: { sibling: { api_parameters: { default: apiParametersDefault = null } = {} } = {} } = {} } = this
         if (!this.drag) { // don't set or focus when being dragged
-          this.$set(this.formStoreValue, 'api_parameters', _default) // clear parameters
+          this.$set(this.formStoreValue, 'api_parameters', apiParametersDefault) // clear parameters
           this.$nextTick(() => {
             this.focusApiParameters()
           })
