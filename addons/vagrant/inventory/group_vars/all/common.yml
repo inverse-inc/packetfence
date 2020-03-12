@@ -1,3 +1,12 @@
 ---
 # common variables to be available for all VM and also for Venom
 dns_domain: 'example.lan'
+
+# to get management IP of current PF server up in test environment
+vm_names: '{{ lookup("env", "VM_NAMES") }}'
+
+# get first item from VM_NAMES environment variable (separated by space)
+packetfence_server_name: '{{ vm_names.split() | first }}'
+
+# lookup in Ansible inventory
+packetfence_server_mgmt_ip: '{{ hostvars[packetfence_server_name]["mgmt_ip"] }}'
