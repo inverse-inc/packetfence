@@ -254,7 +254,9 @@ const conditionValidator = (meta = {}, condition = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   const {
-    condition
+    run_actions,
+    condition = {},
+    actions = []
   } = form
   const {
     isNew = false,
@@ -273,6 +275,22 @@ export const validators = (form = {}, meta = {}) => {
     },
     role: validatorsFromMeta(meta, 'role', i18n.t('Role')),
     scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes')),
-    condition: conditionValidator(meta, condition)
+    condition: conditionValidator(meta, condition),
+    actions: {
+      ...{
+        [i18n.t('Actions required.')]: conditional(run_actions !== 'enabled' || actions.length > 0)
+      },
+      ...(actions || []).map((action) => {
+        return {
+          api_method: {
+            [i18n.t('Method required.')]: required,
+            [i18n.t('Duplicate method.')]: conditional(value => !value || actions.filter(action => action && action.api_method === value).length === 1)
+          },
+          api_parameters: {
+            [i18n.t('Parameter required.')]: required
+          }
+        }
+      })
+    }
   }
 }
