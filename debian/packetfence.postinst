@@ -124,7 +124,6 @@ case "$1" in
         sysctl -p /etc/sysctl.d/99-ip_forward.conf
  
         #Starting PacketFence.
-        echo "Starting PacketFence Administration GUI..."
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         # Start packetfence web administration
@@ -157,7 +156,6 @@ case "$1" in
             echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
         else
             echo "Starting PacketFence Administration GUI..."
-            set -e
             /bin/systemctl start packetfence-httpd.admin
         fi
         systemctl enable packetfence-iptables
