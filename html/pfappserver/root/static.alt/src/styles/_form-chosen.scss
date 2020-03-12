@@ -98,6 +98,8 @@
     background-color: transparent;
     color: $input-color;
     font-size: $font-size-base;
+    white-space: nowrap;
+    overflow: hidden;
     &::placeholder {
       color: $input-placeholder-color;
     }
@@ -172,6 +174,10 @@
   &.is-invalid {
     .multiselect__tags {
       border-color: $form-feedback-invalid-color;
+    }
+    .multiselect__select:before {
+      color: $form-feedback-invalid-color;
+      border-color: $form-feedback-invalid-color transparent transparent;
     }
   }
 }

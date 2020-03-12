@@ -7,12 +7,11 @@
     @drop.stop="dragDrop($event)"
   >
 
-    <div v-if="hasValues" class="pf-form-boolean-op">
-      <span
-        @mouseover.stop.prevent="highlight = (sourceIndex !== false) ? false : true"
-        @mouseout="highlight = false"
-        class="m-0"
-      >
+    <div v-if="hasValues" class="pf-form-boolean-op"
+      @mouseover.stop.prevent="highlight = (sourceIndex !== false) ? false : true"
+      @mouseout="highlight = false"
+    >
+      <span class="m-0">
         <span v-if="!isRoot" class="drag-handle" :class="{ 'text-secondary': disabled }">
           <icon name="grip-vertical" :class="{ 'text-primary': actionKey }"></icon>
         </span>
@@ -26,22 +25,22 @@
             <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
           </template>
           <b-dropdown-group v-if="!isRoot">
-            <b-dropdown-item @click="$emit('cloneOperator'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
-              <icon name="copy" class="mr-1"></icon> {{ $t('Clone') }}
+            <b-dropdown-item @click="$emit('cloneOperator'); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+              <icon name="clone" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
             <b-dropdown-item @click="$emit('deleteOperator'); highlight = false;">
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
             </b-dropdown-item>
           </b-dropdown-group>
           <b-dropdown-group>
-            <b-dropdown-item @click="addOperator(values.length + 1); (actionKey && $nextTick(() => $refs.menu.show(true)))">
-              <icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Operator') }}
+            <b-dropdown-item @click="addOperator(values.length + 1); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+              <icon name="grip-horizontal" class="mr-1"></icon> {{ $t('Add Operator') }}
             </b-dropdown-item>
-            <b-dropdown-item @click="addValue(values.length + 1); (actionKey && $nextTick(() => $refs.menu.show(true)))">
-              <icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Value') }}
+            <b-dropdown-item @click="addValue(values.length + 1); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+              <icon name="ellipsis-h" class="mr-1"></icon> {{ $t('Add Value') }}
             </b-dropdown-item>
-            <b-dropdown-item @click="truncate(); (actionKey && $nextTick(() => $refs.menu.show(true)))">
-              <icon name="times-circle" class="mr-1"></icon> {{ $t('Truncate') }}
+            <b-dropdown-item @click="truncate(); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+              <icon name="cut" class="mr-1"></icon> {{ $t('Truncate') }}
             </b-dropdown-item>
           </b-dropdown-group>
         </b-dropdown>
@@ -107,9 +106,8 @@
             <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
           </template>
           <b-dropdown-group>
-            <b-dropdown-header>{{ $t('Value') }}</b-dropdown-header>
-            <b-dropdown-item @click="$emit('cloneValue'); (actionKey && $nextTick(() => $refs.menu.show(true)))">
-              <icon name="copy" class="mr-1"></icon> {{ $t('Clone') }}
+            <b-dropdown-item @click="$emit('cloneValue'); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+              <icon name="clone" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
             <b-dropdown-item @click="$emit('deleteValue'); highlight = false;">
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
@@ -299,15 +297,13 @@ export default {
         this.$store.dispatch('events/onKeyUp') // fix: unable to detect actionKey keyup while dragging
     },
     dragEnd () { // @source
-      this.$nextTick(() => {
-        const { dataBus: { data: { source, target } = {} } = {} } = this
-        if (source) {
-          this.$set(source, 'sourceIndex', false)
-        }
-        if (target) {
-          this.$set(target, 'targetIndex', false)
-        }
-      })
+      const { dataBus: { data: { source, target } = {} } = {} } = this
+      if (source) {
+        this.$set(source, 'sourceIndex', false)
+      }
+      if (target) {
+        this.$set(target, 'targetIndex', false)
+      }
     },
     dragOver (index, event) { // @target
       if (this.disabled) return
@@ -372,9 +368,12 @@ export default {
       border-color: var(--primary);
       background-color: var(--primary);
       color: var(--light);
+      .invalid-feedback,
       .menu .dropdown > .btn {
         color: var(--light);
       }
+      .form-control.is-invalid,
+      .pf-form-chosen.is-invalid .multiselect__tags,
       .pf-form-boolean-values {
         border-color: var(--light);
       }
@@ -414,9 +413,6 @@ export default {
       border-style: solid;
       border-width: 0 .25rem;
       padding: 0 .25rem;
-      &:drop-hover {
-        outline: 1px solid var(--primary);
-      }
     }
 
     .pf-form-boolean-value {

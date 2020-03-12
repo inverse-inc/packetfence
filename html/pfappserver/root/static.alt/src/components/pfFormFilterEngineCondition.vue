@@ -8,43 +8,52 @@
       class="text-nowrap mb-3 small"
     />
 
-    <!-- Advanced Mode -->
-    <pf-form-textarea v-if="advancedMode" ref="advancedCondition"
-      v-model="advancedCondition"
-      :disabled="disabled"
-      :state="(advancedError) ? false : null"
-      :invalidFeedback="advancedError"
-      rows="3" max-rows="10"
-    />
-
-    <!-- Basic Mode -->
-    <pf-form-boolean v-else
-      :form-store-name="formStoreName" :form-namespace="formNamespace" :disabled="disabled"
-    >
-      <template v-slot:op="{ formStoreName, formNamespace, disabled }">
-        <pf-form-chosen
-          :form-store-name="formStoreName"
-          :form-namespace="formNamespace + '.op'"
-          :options="valuesOperators"
-          :allow-empty="false"
-          :disabled="disabled"
-          class="m-1"
-        />
+    <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputStateIfInvalidFeedback"
+      class="pf-form-filter-engine-condition" :class="{ 'mb-0': !columnLabel }">
+      <template v-slot:invalid-feedback>
+        {{ invalidFeedback }}
       </template>
-      <template v-slot:value="{ formStoreName, formNamespace, disabled }">
-        <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1" :disabled="disabled"/>
-        <pf-form-chosen
-          :form-store-name="formStoreName"
-          :form-namespace="formNamespace + '.op'"
-          :options="valueOperators"
-          :allow-empty="false"
-          :disabled="disabled"
-          class="m-1"
-        />
-        <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1" :disabled="disabled"/>
-      </template>
-    </pf-form-boolean>
+      <b-input-group class="pf-form-filter-engine-condition-input-group p-1">
 
+        <!-- Advanced Mode -->
+        <pf-form-textarea v-if="advancedMode" ref="advancedCondition"
+          v-model="advancedCondition"
+          :disabled="disabled"
+          :state="(advancedError) ? false : null"
+          :invalidFeedback="advancedError"
+          class="w-100" rows="3" max-rows="10"
+        />
+
+        <!-- Basic Mode -->
+        <pf-form-boolean v-else
+          :form-store-name="formStoreName" :form-namespace="formNamespace" :disabled="disabled"
+        >
+          <template v-slot:op="{ formStoreName, formNamespace, disabled }">
+            <pf-form-chosen
+              :form-store-name="formStoreName"
+              :form-namespace="formNamespace + '.op'"
+              :options="valuesOperators"
+              :allow-empty="false"
+              :disabled="disabled"
+              class="m-1"
+            />
+          </template>
+          <template v-slot:value="{ formStoreName, formNamespace, disabled }">
+            <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1" :disabled="disabled"/>
+            <pf-form-chosen
+              :form-store-name="formStoreName"
+              :form-namespace="formNamespace + '.op'"
+              :options="valueOperators"
+              :allow-empty="false"
+              :disabled="disabled"
+              class="m-1"
+            />
+            <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1" :disabled="disabled"/>
+          </template>
+        </pf-form-boolean>
+
+      </b-input-group>
+    </b-form-group>
   </div>
 </template>
 
@@ -141,8 +150,8 @@ export default {
           this.$debouncer({
             handler: () => {
               this.$store.dispatch('$_filter_engines/parseCondition', string).then(condition => {
-                this.advancedError = false
                 this.basicCondition = condition
+                this.advancedError = false
               }).catch(err => {
                 const { response: { data: { errors: { 0: { highlighted_error, offset } = {} } = {} } = {} } = {} } = err
                 const { 0: error = '' } = highlighted_error.split('\n')
@@ -168,6 +177,7 @@ export default {
             handler: () => {
               this.$store.dispatch('$_filter_engines/stringifyCondition', json).then(condition => {
                 this.advancedCondition = condition
+                this.advancedError = false
               })
             },
             time: 1000 // 1 second
@@ -179,3 +189,28 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.pf-form-filter-engine-condition {
+  .pf-form-filter-engine-condition-input-group {
+    border: 1px solid transparent;
+    @include border-radius($border-radius);
+    @include transition($custom-forms-transition);
+    outline: 0;
+  }
+  &.is-focus {
+    > [role="group"] > .pf-form-filter-engine-condition-input-group,
+    > .form-row > [role="group"] > .pf-form-filter-engine-condition-input-group {
+      border-color: $input-focus-border-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
+    }
+  }
+  &.is-invalid {
+    > [role="group"] > .pf-form-filter-engine-condition-input-group,
+    > .form-row > [role="group"] > .pf-form-filter-engine-condition-input-group {
+      border-color: $form-feedback-invalid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+    }
+  }
+}
+</style>

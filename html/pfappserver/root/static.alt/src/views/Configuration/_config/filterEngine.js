@@ -177,7 +177,8 @@ export const view = (form = {}, meta = {}) => {
                 valuesOperators: valuesOperatorsFromMeta(meta).map(value => {
                   const { [value]: text = value } = pfOperators
                   return { text, value }
-                })
+                }),
+                invalidFeedback: i18n.t('Condition contains one or more errors.')
               }
             }
           ]
@@ -224,7 +225,37 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
+const conditionValidator = (meta = {}, condition = {}) => {
+  const { field, op, value, values } = condition
+  if (values && values.constructor === Array) { // op
+    return {
+      op: {
+        [i18n.t('Operator required.')]: required,
+        [i18n.t('Minimum 2 values required.')]: conditional(values.length >= 2)
+      },
+      values: {
+        ...(values || []).map(value => conditionValidator(meta, value))
+      }
+    }
+  } else { // value
+    return {
+      field: {
+        [i18n.t('Field required.')]: required
+      },
+      op: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  }
+}
+
 export const validators = (form = {}, meta = {}) => {
+  const {
+    condition
+  } = form
   const {
     isNew = false,
     isClone = false,
@@ -241,6 +272,7 @@ export const validators = (form = {}, meta = {}) => {
       [i18n.t('Description required.')]: required
     },
     role: validatorsFromMeta(meta, 'role', i18n.t('Role')),
-    scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes'))
+    scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes')),
+    condition: conditionValidator(meta, condition)
   }
 }
