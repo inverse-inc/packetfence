@@ -21,14 +21,16 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 
 ### Targets used in pipeline
 .PHONY: test
-test: clean
+#test: clean
+test:
 	CI_COMMIT_TAG=$(CI_COMMIT_TAG) \
 	VM_NAMES="$(VM_NAMES)" \
 	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
 	GOLANG_UNIT_TESTS=$(GOLANG_UNIT_TESTS) \
 	./manage-vagrant-vm.sh setup
 	INTEGRATION_TESTS=$(INTEGRATION_TESTS) \
-	vagrant provision --provision-with="run-integration-tests"
+	VM_NAMES="$(VM_NAMES)" \
+	./manage-vagrant-vm.sh run $(firstword "$(VM_NAMES)")
 
 .PHONY: clean
 clean:

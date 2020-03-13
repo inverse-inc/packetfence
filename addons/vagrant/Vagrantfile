@@ -142,12 +142,12 @@ Vagrant.configure("2") do |config|
         config.reset = true
       end
 
-      # INTEGRATION_TESTS should run when all VM are started (post-provisionning)
       srv.vm.provision "run-unit-tests", type: "shell" do |config|
         config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
           PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'] || "yes",
           GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'] || "yes",
+          # INTEGRATION_TESTS should run when all VM are started (post-provisionning)
           INTEGRATION_TESTS: "no"
         }
       end
