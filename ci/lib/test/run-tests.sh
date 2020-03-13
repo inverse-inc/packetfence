@@ -4,12 +4,14 @@ set -o nounset -o pipefail -o errexit
 SRC_DIR=${SRC_DIR:-/src}
 PF_DIR=${PF_DIR:-/usr/local/pf}
 GO_DIR=${GO_DIR:-"$PF_DIR/go"}
+VENOM_DIR=${VENOM_DIR:-/usr/local/pf/t/venom}
 PERL_UNIT_TESTS=${PERL_UNIT_TESTS:-no}
 GOLANG_UNIT_TESTS=${GOLANG_UNIT_TESTS:-no}
+INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
 
 # display environment
 env | grep 'PF_'
-declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS
+declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS INTEGRATION_TESTS
 
 # Copy 't' dir from sources to /usr/local/pf/t
 # /usr/local/pf is hardcoded everywhere in 't'
@@ -34,4 +36,11 @@ if [ "$GOLANG_UNIT_TESTS" = "yes" ]; then
     make -C ${GO_DIR} test
 else
     echo "Golang unit tests disabled"
+fi
+
+if [ "$INTEGRATION_TESTS" = "yes" ]; then
+    echo "Running integration tests"
+    make -C ${VENOM_DIR} test
+else
+    echo "Integration tests disabled"
 fi

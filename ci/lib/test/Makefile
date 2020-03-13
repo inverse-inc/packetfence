@@ -6,6 +6,7 @@ include ../../../config.mk
 SHELL=/bin/bash
 PERL_UNIT_TESTS=yes
 GOLANG_UNIT_TESTS=yes
+INTEGRATION_TESTS=yes
 
 #==============================================================================
 # Targets
@@ -22,14 +23,16 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 .PHONY: test
 test: clean
 	CI_COMMIT_TAG=$(CI_COMMIT_TAG) \
-	VM_NAMES=$(VM_NAMES) \
+	VM_NAMES="$(VM_NAMES)" \
 	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
 	GOLANG_UNIT_TESTS=$(GOLANG_UNIT_TESTS) \
 	./manage-vagrant-vm.sh setup
+	INTEGRATION_TESTS=$(INTEGRATION_TESTS) \
+	vagrant provision --provision-with="run-integration-tests"
 
 .PHONY: clean
 clean:
-	VM_NAMES=$(VM_NAMES) \
+	VM_NAMES="$(VM_NAMES)" \
 	./manage-vagrant-vm.sh teardown
 
 ### Targets used for local tests
