@@ -108,7 +108,7 @@ func (c *Client) Call(ctx context.Context, method string, args interface{}, tena
 	start := time.Now()
 	resp, err := httpClient.Do(r)
 	elapsed := time.Now().Sub(start)
-	log.LoggerWContext(ctx).Info(fmt.Sprintf("jsonrpc2.Call took %v for %s", elapsed, method))
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("jsonrpc2.Call took %v for %s", elapsed, method))
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (c *Client) Notify(ctx context.Context, method string, args interface{}, te
 	start := time.Now()
 	resp, err := httpClient.Do(r)
 	elapsed := time.Now().Sub(start)
-	log.LoggerWContext(ctx).Info(fmt.Sprintf("jsonrpc2.Notify took %v for %s", elapsed, method))
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("jsonrpc2.Notify took %v for %s", elapsed, method))
 	if err != nil {
 		return err
 	}
