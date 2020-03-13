@@ -27,7 +27,7 @@
       >
         <b-col class="draghandle" cols="1">
           <icon class="draghandle-icon" name="lock"></icon>
-          <span class="draghandle-index">{{ itemIndex + 1 }}</span>
+          <span class="draghandle-index font-weight-bold">{{ itemIndex + 1 }}</span>
         </b-col>
         <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
           <slot :name="cell(field.key)" v-bind="item">{{ formatted(item, field) }}</slot>
