@@ -1239,6 +1239,8 @@ include::../addons/vagrant/inventory/group_vars/winservers/domain_account.yml[]
 
 include::tests/README.asciidoc[]
 
+include::integration_tests/README.asciidoc[]
+
 
 == Contributing
 
