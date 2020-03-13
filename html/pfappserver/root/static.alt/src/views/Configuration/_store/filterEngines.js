@@ -22,7 +22,7 @@ const state = {
 
 const getters = {
   isLoadingCollections: state => state.collectionsStatus === types.LOADING,
-  isLoadingCollection: state => collection => !(collection in state.cache) || !('items' in state.cache.collection),
+  isLoadingCollection: state => collection => !(collection in state.cache) || !('items' in state.cache[collection]),
 
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
   isLoading: state => state.collectionsStatus === types.LOADING || state.itemStatus === types.LOADING,

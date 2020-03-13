@@ -16,10 +16,10 @@
       </b-container>
     </b-card>
     <b-card v-else class="m-3" v-for="(collection, index) in collections" :key="index">
-      <h4 class="mb-3">{{ collection.name }}</h4>
+      <h4 class="mb-3">{{ (collection && collection.name) ? collection.name : '...' }}</h4>
       <b-button class="mb-3" variant="outline-primary" :to="{ name: 'newFilterEngine', params: collection }">{{ $t('New Filter') }}</b-button>
       <pf-table-sortable
-        :items="collection.items"
+        :items="(collection && collection.items) ? collection.items : []"
         :fields="columns"
         @row-clicked="view(collection, $event)"
         hover
@@ -80,8 +80,9 @@ export default {
       return this.$store.getters['$_filter_engines/isLoadingCollections']
     },
     isLoadingCollection () {
-      return (collection) => {
-        return this.$store.getters['$_filter_engines/isLoadingCollection'](collection)
+      return (_collection = {}) => {
+        const { collection } = _collection
+        return !collection || this.$store.getters['$_filter_engines/isLoadingCollection'](collection)
       }
     },
     isLoading () {
