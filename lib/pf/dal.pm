@@ -1294,6 +1294,29 @@ sub make_dal_finder {
     };
 }
 
+sub make_sql_executor {
+    my ($class_or_ref, $sql, @bind_names, %bind_pos) = @_;
+    return sub {
+        my ($proto, $args) = @_;
+        my @bind;
+        for my $n (@bind_names) {
+            my $indexes = $bind_pos{$n};
+            my $val;
+            if ($n eq 'tenant_id') {
+                my $val = $proto->get_tenant();
+            } else {
+                $val = exists $args->{$n} ? $args->{$n} : undef;
+            }
+
+            for my $i (@$indexes) {
+                $bind[$i] = $val;
+            }
+        }
+
+        return $proto->db_execute($sql, @bind);
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
