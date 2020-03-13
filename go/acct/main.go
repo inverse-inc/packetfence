@@ -20,10 +20,10 @@ func main() {
 	pfacct := NewPfAcct()
 	w := sync.WaitGroup{}
 	rs := pfacct.radiusListen(&w)
-    /*
-	dispatcher := pfacct.Dispatcher
-	dispatcher.Run()
-    */
+	/*
+		dispatcher := pfacct.Dispatcher
+		dispatcher.Run()
+	*/
 	processor, _ := pfacct.netflowProcessor()
 	w.Add(1)
 	c := make(chan os.Signal, 1)
