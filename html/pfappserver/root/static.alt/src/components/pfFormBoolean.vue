@@ -360,9 +360,16 @@ export default {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    border-radius: 0.5rem;
+    border-radius: .5rem;
     transition: background-color .3s ease-out,
       border-color .3s ease-out;
+
+    & .pf-form-boolean {
+      border-radius: .25rem;
+      border-color: var(--light);
+      border-style: solid;
+      border-width: 0px 1px 1px 0px;
+    }
 
     &.highlight {
       border-color: var(--primary);
@@ -409,7 +416,7 @@ export default {
 
       /* curly brackets */
       border-color: var(--secondary);
-      border-radius: 0.5rem;
+      border-radius: .5rem;
       border-style: solid;
       border-width: 0 .25rem;
       padding: 0 .25rem;
