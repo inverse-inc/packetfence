@@ -71,6 +71,9 @@
     - role: packetfence_go
       tags: go
 
+    - role: venom
+      tags: venom
+
 # no sub directory for ansible to find roles under roles/ directory
 - import_playbook: winservers.yml
 - import_playbook: cumulus.yml
