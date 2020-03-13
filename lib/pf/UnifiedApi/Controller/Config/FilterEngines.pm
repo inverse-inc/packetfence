@@ -68,7 +68,22 @@ engines
 
 sub engines {
     my ($self) = @_;
-    $self->render(json => { items => [{ collection => "vlan_filters", resource => "vlan_filter", name => "VLAN Filters" }] });
+    $self->render(
+        json => {
+            items => [
+                {
+                    collection => "vlan_filters",
+                    resource   => "vlan_filter",
+                    name       => "VLAN Filters"
+                },
+                {
+                    collection => "dhcp_filters",
+                    resource   => "dhcp_filter",
+                    name       => "DHCP Filters"
+                },
+            ]
+        }
+    );
 }
 
 =head1 AUTHOR
