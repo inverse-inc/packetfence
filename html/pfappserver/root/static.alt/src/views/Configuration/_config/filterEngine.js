@@ -276,16 +276,22 @@ export const validators = (form = {}, meta = {}) => {
     },
     role: {
       ...validatorsFromMeta(meta, 'role', i18n.t('Role')),
-      ...{
-        [i18n.t('Role required.')]: required
-      }
+      ...((run_actions === 'disabled' && !role)
+        ? {
+          [i18n.t('Role required.')]: required
+        }
+        : {}
+      )
     },
     scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes')),
     condition: conditionValidator(meta, condition),
     actions: {
-      ...{
-        [i18n.t('Actions required.')]: conditional(run_actions !== 'enabled' || actions.length > 0)
-      },
+      ...((run_actions === 'enabled' && (!actions || actions.length === 0))
+        ? {
+          [i18n.t('Actions required.')]: required
+        }
+        : {}
+      ),
       ...(actions || []).map((action) => {
         return {
           api_method: {
