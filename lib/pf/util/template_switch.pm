@@ -13,6 +13,7 @@ pf::util::template_switch
 use strict;
 use warnings;
 use File::Find ();
+use Module::Loaded qw(mark_as_loaded is_loaded);
 
 sub getDefFiles {
     my ($def_dir) = @_;
@@ -40,6 +41,19 @@ sub fileNameToModuleName {
     $name =~ s/\//::/g;
     $name =~ s/\.def$//;
     return $name;
+}
+
+sub createFakeTemplateModule {
+    my ($class) = @_;
+    if (is_loaded($class)) {
+        return;
+    }
+
+    require pf::Switch::Template;
+    no strict "refs";
+    my $ref = \*{$class};
+    *{"${class}::ISA"} = ["pf::Switch::Template"];
+    mark_as_loaded($class);
 }
 
 =head1 AUTHOR
@@ -70,4 +84,3 @@ USA.
 =cut
 
 1;
-
