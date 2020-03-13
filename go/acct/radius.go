@@ -218,7 +218,7 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 
 	switchInfo, err := h.SwitchLookup(macStr, ip)
 	if err != nil {
-		logError(h.LoggerCtx, "RADIUSSecret: Switch '" + ip +"' not found :"+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: Switch '"+ip+"' not found :"+err.Error())
 		return nil, nil, err
 	}
 
@@ -283,6 +283,12 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 			}
 
 			addAttributeToMap(ctx, attributes, a, attr[0])
+		}
+	}
+
+	if val, found := attributes["Calling-Station-Id"]; found {
+		if mac, err := mac.NewFromString(val); err == nil {
+			attributes["Calling-Station-Id"] = mac.String()
 		}
 	}
 
