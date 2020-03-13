@@ -33,6 +33,7 @@ cleanupBeforeCommit
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
     $self->flatten_to_ordered_array($item, 'answers', 'answer');
+    $self->flatten_to_ordered_array($item, 'actions', 'action');
     $item->{condition} = pf::condition_parser::object_to_str($item->{condition});
     $self->flatten_list($item, $self->_fields_expanded);
     return ;
@@ -41,6 +42,7 @@ sub cleanupBeforeCommit {
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
     $self->expand_ordered_array($item, 'answers', 'answer');
+    $self->expand_ordered_array($item, 'actions', 'action');
     $self->expand_list($item, $self->_fields_expanded);
     my ($ast, $err) = parse_condition_string($item->{condition});
     $item->{condition} = ast_to_object($ast);

@@ -48,6 +48,28 @@ has_field 'answers.contains' => (
     pfappserver::Form::Field::DynamicList::child_options(),
 );
 
+=head2 actions
+
+The list of action
+
+=cut
+
+has_field 'actions' => (
+    'type' => 'DynamicList',
+);
+
+=head2 actions.contains
+
+The definition for the list of actions
+
+=cut
+
+has_field 'actions.contains' => (
+    type  => 'ApiAction',
+    label => 'Action',
+    pfappserver::Form::Field::DynamicList::child_options(),
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
