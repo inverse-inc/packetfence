@@ -274,16 +274,6 @@ export const validators = (form = {}, meta = {}) => {
     description: {
       [i18n.t('Description required.')]: required
     },
-    role: {
-      ...validatorsFromMeta(meta, 'role', i18n.t('Role')),
-      ...((run_actions === 'disabled' && !role)
-        ? {
-          [i18n.t('Role required.')]: required
-        }
-        : {}
-      )
-    },
-    scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes')),
     condition: conditionValidator(meta, condition),
     actions: {
       ...((run_actions === 'enabled' && (!actions || actions.length === 0))
@@ -303,6 +293,16 @@ export const validators = (form = {}, meta = {}) => {
           }
         }
       })
-    }
+    },
+    role: {
+      ...validatorsFromMeta(meta, 'role', i18n.t('Role')),
+      ...((run_actions === 'disabled' && !role)
+        ? {
+          [i18n.t('Role required.')]: required
+        }
+        : {}
+      )
+    },
+    scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes'))
   }
 }

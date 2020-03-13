@@ -1,47 +1,57 @@
 <template>
-  <div>
-    <b-card no-body>
-      <b-card-header>
-        <h4 class="d-inline mb-0" v-t="'Filter Engines'"></h4>
-      </b-card-header>
-      <b-card class="m-3" v-for="(collection, index) in collections" :key="index">
-        <h4 class="mb-3">{{ collection.name }}</h4>
-        <b-button class="mb-3" variant="outline-primary" :to="{ name: 'newFilterEngine', params: collection }">{{ $t('New Filter') }}</b-button>
-        <pf-table-sortable
-          :items="collection.items"
-          :fields="columns"
-          @row-clicked="view(collection, $event)"
-          hover
-          striped
-          @end="sort(collection, $event)"
-        >
-          <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new filter.')">{{ $t('No filters defined') }}</pf-empty-table>
-          </template>
-          <template v-slot:cell(status)="item">
-            <pf-form-range-toggle
-              v-model="item.status"
-              :values="{ checked: 'enabled', unchecked: 'disabled' }"
-              :icons="{ checked: 'check', unchecked: 'times' }"
-              :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-              :rightLabels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-              :lazy="{ checked: enable(collection, item), unchecked: disable(collection, item) }"
-              @click.stop.prevent
-            />
-          </template>
-          <template v-slot:cell(scopes)="item">
-            <b-badge v-for="(scope, index) in item.scopes" :key="index" class="mr-1" variant="secondary">{{ scope }}</b-badge>
-          </template>
-          <template v-slot:cell(buttons)="item">
-            <span class="float-right text-nowrap">
-              <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Filter?')" @on-delete="remove(collection, item)" reverse/>
-              <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(collection, item)">{{ $t('Clone') }}</b-button>
-            </span>
-          </template>
-        </pf-table-sortable>
-      </b-card>
+  <b-card no-body>
+    <b-card-header>
+      <h4 class="d-inline mb-0" v-t="'Filter Engines'"></h4>
+    </b-card-header>
+    <b-card v-if="isLoadingCollections">
+      <b-container class="my-5">
+          <b-row class="justify-content-md-center text-secondary">
+              <b-col cols="12" md="auto">
+                <b-media>
+                  <template v-slot:aside><icon name="circle-notch" scale="2" spin></icon></template>
+                  <h4>{{ $t('Loading Filter Engines') }}</h4>
+                </b-media>
+              </b-col>
+          </b-row>
+      </b-container>
     </b-card>
-  </div>
+    <b-card v-else class="m-3" v-for="(collection, index) in collections" :key="index">
+      <h4 class="mb-3">{{ collection.name }}</h4>
+      <b-button class="mb-3" variant="outline-primary" :to="{ name: 'newFilterEngine', params: collection }">{{ $t('New Filter') }}</b-button>
+      <pf-table-sortable
+        :items="collection.items"
+        :fields="columns"
+        @row-clicked="view(collection, $event)"
+        hover
+        striped
+        @end="sort(collection, $event)"
+      >
+        <template v-slot:empty>
+          <pf-empty-table :isLoading="isLoadingCollection(collection)" :text="$t('Click the button to define a new filter.')">{{ $t('No filters defined') }}</pf-empty-table>
+        </template>
+        <template v-slot:cell(status)="item">
+          <pf-form-range-toggle
+            v-model="item.status"
+            :values="{ checked: 'enabled', unchecked: 'disabled' }"
+            :icons="{ checked: 'check', unchecked: 'times' }"
+            :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+            :rightLabels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
+            :lazy="{ checked: enable(collection, item), unchecked: disable(collection, item) }"
+            @click.stop.prevent
+          />
+        </template>
+        <template v-slot:cell(scopes)="item">
+          <b-badge v-for="(scope, index) in item.scopes" :key="index" class="mr-1" variant="secondary">{{ scope }}</b-badge>
+        </template>
+        <template v-slot:cell(buttons)="item">
+          <span class="float-right text-nowrap">
+            <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Filter?')" @on-delete="remove(collection, item)" reverse/>
+            <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(collection, item)">{{ $t('Clone') }}</b-button>
+          </span>
+        </template>
+      </pf-table-sortable>
+    </b-card>
+  </b-card>
 </template>
 
 <script>
@@ -66,6 +76,14 @@ export default {
     }
   },
   computed: {
+    isLoadingCollections () {
+      return this.$store.getters['$_filter_engines/isLoadingCollections']
+    },
+    isLoadingCollection () {
+      return (collection) => {
+        return this.$store.getters['$_filter_engines/isLoadingCollection'](collection)
+      }
+    },
     isLoading () {
       return this.$store.getters['$_filter_engines/isLoading']
     }

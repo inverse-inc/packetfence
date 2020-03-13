@@ -16,12 +16,16 @@ const types = {
 const state = {
   cache: false, // item details
   message: '',
-  itemStatus: ''
+  itemStatus: '',
+  collectionsStatus: ''
 }
 
 const getters = {
+  isLoadingCollections: state => state.collectionsStatus === types.LOADING,
+  isLoadingCollection: state => collection => !(collection in state.cache) || !('items' in state.cache.collection),
+
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
-  isLoading: state => state.itemStatus === types.LOADING,
+  isLoading: state => state.collectionsStatus === types.LOADING || state.itemStatus === types.LOADING,
 
   collectionToName: state => collection => {
     const { cache: { [collection]: { name } = {} } = {} } = state
@@ -205,11 +209,11 @@ const actions = {
 
 const mutations = {
   COLLECTIONS_REQUEST: (state, type) => {
-    state.itemStatus = type || types.LOADING
+    state.collectionsStatus = type || types.LOADING
     state.message = ''
   },
   COLLECTIONS_REPLACED: (state, items) => {
-    state.itemStatus = types.SUCCESS
+    state.collectionsStatus = types.SUCCESS
     Vue.set(state, 'cache', items.reduce((items, item) => {
       const { collection } = item
       items[collection] = item
@@ -217,7 +221,7 @@ const mutations = {
     }, {}))
   },
   COLLECTIONS_ERROR: (state, response) => {
-    state.itemStatus = types.ERROR
+    state.collectionsStatus = types.ERROR
     if (response && response.data) {
       state.message = response.data.message
     }
