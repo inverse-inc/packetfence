@@ -15,7 +15,6 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($vlan_filters_config_file $vlan_filters_config_default_file);
-use Sort::Naturally qw(nsort);
 use pf::condition_parser qw(parse_condition_string ast_to_object);
 use namespace::autoclean;
 extends 'pf::ConfigStore';
@@ -34,13 +33,7 @@ cleanupBeforeCommit
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    my $actions = $item->{actions} // [];
-    my $i = 0;
-    for my $action (@$actions) {
-        $item->{"action.$i"} = $action;
-        $i++;
-    }
-
+    $self->flatten_to_ordered_array($item, 'actions', 'action');
     $item->{condition} = pf::condition_parser::object_to_str($item->{condition});
     $self->flatten_list($item, $self->_fields_expanded);
     return ;
@@ -48,8 +41,7 @@ sub cleanupBeforeCommit {
 
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
-    my @action_keys = nsort grep {/^action\.\d+$/} keys %$item;
-    $item->{actions} = [delete @$item{@action_keys}];
+    $self->expand_ordered_array($item, 'actions', 'action');
     $self->expand_list($item, $self->_fields_expanded);
     my ($ast, $err) = parse_condition_string($item->{condition});
     $item->{condition} = ast_to_object($ast);
