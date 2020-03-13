@@ -59,6 +59,28 @@ radiusDisconnect=disconnect
 reject=Reply-Message = This node is not allowed to use this service
 coa=
 
+[Brocade::Switch]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Brocade Standard Switch
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+voip= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $switch._voiceVlan
+EOT
+
 [Cisco::Switch]
 # Do not edit.
 # Any changes will be lost on upgrade.
@@ -107,7 +129,7 @@ Tunnel-Medium-Type  = 6
 Tunnel-Type = 13
 Tunnel-Private-Group-Id = $vlan
 EOT
-acceptRole=Airespace-ACL-Name = $role
+acceptRole=Filter-Id = $role
 reject=Reply-Message = This node is not allowed to use this service
 disconnect= <<EOT
 Calling-Station-Id = ${macToEUI48($mac)}
