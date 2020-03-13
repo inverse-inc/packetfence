@@ -39,16 +39,18 @@
             />
           </template>
           <template v-slot:value="{ formStoreName, formNamespace, disabled }">
-            <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1" :disabled="disabled"/>
-            <pf-form-chosen
-              :form-store-name="formStoreName"
-              :form-namespace="formNamespace + '.op'"
-              :options="valueOperators"
-              :allow-empty="false"
-              :disabled="disabled"
-              class="m-1"
-            />
-            <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1" :disabled="disabled"/>
+            <div class="pf-form-filter-engine-condition-value">
+              <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1" :disabled="disabled"/>
+              <pf-form-chosen
+                :form-store-name="formStoreName"
+                :form-namespace="formNamespace + '.op'"
+                :options="valueOperators"
+                :allow-empty="false"
+                :disabled="disabled"
+                class="m-1"
+              />
+              <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1" :disabled="disabled"/>
+            </div>
           </template>
         </pf-form-boolean>
 
@@ -210,6 +212,14 @@ export default {
     > .form-row > [role="group"] > .pf-form-filter-engine-condition-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+    }
+  }
+  .pf-form-filter-engine-condition-value {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    & > * {
+      align-items: stretch;
     }
   }
 }
