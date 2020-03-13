@@ -37,6 +37,10 @@ func (m *Mac) String() string {
 	})
 }
 
+func (m *Mac) IsZero() bool {
+	return *m == Zero
+}
+
 func (m *Mac) Decimal() string {
 	var _buff [24]byte
 	buff := _buff[:0]

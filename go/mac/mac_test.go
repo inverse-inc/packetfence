@@ -9,6 +9,10 @@ func TestStringify(t *testing.T) {
 		t.Errorf("Zero stringify")
 	}
 
+	if !Zero.IsZero() {
+		t.Errorf("Zero is not zero")
+	}
+
 	newFromBytesTests := []struct {
 		err    error
 		bytes  []byte
@@ -34,7 +38,7 @@ func TestStringify(t *testing.T) {
 		fromStr, macStr, decimalStr string
 	}{
 		{nil, "1122.3344.5566", "11:22:33:44:55:66", "17.34.51.68.85.102"},
-		{nil, "a00000000009", "a0:00:00:00:00:09", "10.0.0.0.0.9"},
+		{nil, "a00000000009", "a0:00:00:00:00:09", "160.0.0.0.0.9"},
 		{nil, "1122.3344.5566:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102"},
 		{nil, "112.233.445.566", "11:22:33:44:55:66", "17.34.51.68.85.102"},
 		{nil, "112.233.445.566:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102"},
