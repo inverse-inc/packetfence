@@ -15,7 +15,7 @@
 You can meet these prerequisites by starting a `pf*dev` Vagrant virtual
 machine using instructions in <<_virtual_environment_initial_setup>> section.
 
-Inside `pf*dev` virtual machines, PacketFence's sources will be available under [filename]`/src` to access [filename]`t` directory.
+Inside `pf*dev` virtual machines, [filename]`t` directory  will be available under [filename]`/src/t`.
 
 ==== Running all unit tests
 
@@ -24,7 +24,7 @@ want to run them again, execute following command:
 
 [source,bash]
 ----
-vagrant provision --provision-with=run-tests VM_NAME
+vagrant provision --provision-with=run-unit-tests VM_NAME
 ----
 
 This will upload [filename]`run-tests.sh` script on virtual machine to
@@ -37,7 +37,7 @@ machine:
 ----
 
 IMPORTANT: Don't forget to run a `vagrant rsync VM_NAME` to upload latest
-changes made in PF sources to [filename]`/src` directory.
+changes made in PF sources to [filename]`/src/t` directory.
 
 ==== Running Perl unit tests
 
@@ -46,7 +46,7 @@ If you want to run only Perl unit tests, disable Golang unit tests using
 
 [source,bash]
 ----
-GOLANG_UNIT_TESTS=no vagrant provision --provision-with=run-tests VM_NAME
+GOLANG_UNIT_TESTS=no vagrant provision --provision-with=run-unit-tests VM_NAME
 ----
 
 ==== Running Golang unit tests
@@ -56,7 +56,7 @@ If you want to run only Golang unit tests, disable Perl unit tests using
 
 [source,bash]
 ----
-PERL_UNIT_TESTS=no vagrant provision --provision-with=run-tests VM_NAME
+PERL_UNIT_TESTS=no vagrant provision --provision-with=run-unit-tests VM_NAME
 ----
 
 You can get more details on Golang unit tests in <<_running_the_tests,Golang section>>.
