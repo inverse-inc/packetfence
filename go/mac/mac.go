@@ -72,7 +72,7 @@ func hex4tob(h byte) byte {
 	switch {
 	default:
 		return 255
-	case '0' <= h && h < '9':
+	case '0' <= h && h <= '9':
 		return h - '0'
 	case 'a' <= h && h <= 'f':
 		return h - 'a' + 10
