@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	radius "github.com/inverse-inc/go-radius"
@@ -20,7 +21,7 @@ var port = flag.String("port", "1813", "The port to send the packets to")
 var secret = flag.String("secret", "secret", "The RADIUS secret to use")
 var nasIpAddress = flag.String("nas-ip-address", "127.0.0.1", "The NAS-IP-Address to use in the packet")
 var calledStationId = flag.String("called-station-id", "02:00:00:00:00:01", "The Called-Station-Id to use")
-var nasPort = flag.Uint("nas-port", 20, "The Nas Port");
+var nasPort = flag.Uint("nas-port", 20, "The Nas Port")
 
 var nodesCount = flag.Int("lt-nodes-count", 1, "The amount of nodes to use while load-testing")
 var minInterimPerNode = flag.Int("lt-min-interim-per-node", 0, "The minimal amount of interim updates per node while load-testing")
@@ -32,6 +33,7 @@ var concurrency = flag.Int("lt-concurrency", 1, "The amount of concurrent reques
 
 var workChans []chan pktinfo
 
+var loadedChans uint64
 var wg = &sync.WaitGroup{}
 
 type pktinfo struct {
@@ -84,6 +86,7 @@ func loadTest(nodesCount, minInterimPerNode, maxInterimPerNode int) {
 	}
 
 	runEndpointAccts(eas)
+	atomic.AddUint64(&loadedChans, 1)
 }
 
 func sendAccountingPacket(pi pktinfo) {
@@ -167,9 +170,14 @@ func runWorkers() {
 				case pkt := <-workChans[i]:
 					sendAccountingPacket(pkt)
 				default:
-					fmt.Println("Worker", i, "is done")
-					wg.Done()
-					return
+					if atomic.LoadUint64(&loadedChans) != 0 {
+						fmt.Println("Worker", i, "is done")
+						wg.Done()
+						return
+					} else {
+						fmt.Println("Worker", i, "is done but more jobs are coming. Will wait.")
+						time.Sleep(100 * time.Millisecond)
+					}
 				}
 			}
 		}(i)
