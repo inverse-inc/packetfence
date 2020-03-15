@@ -1887,6 +1887,15 @@ sub setup_api_v1_config_filter_engines_routes {
         "api.v1.Config.FilterEngines.DHCP"
       );
 
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::DNSFilters",
+        "/dns_filters",
+        "/dns_filter/#dns_filter_id",
+        "api.v1.Config.FilterEngines.DNS"
+      );
+
     return ($collection_route, $resource_route);
 }
 
