@@ -8,7 +8,7 @@ pf::UnifiedApi::Controller::Config::FilterEngines::DHCPFilters -
 
 =head1 DESCRIPTION
 
-Configure vlan filters
+Configure dhcp filters
 
 =cut
 
