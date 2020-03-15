@@ -25,12 +25,12 @@ has '+deflate_value_method'=> ( default => sub { \&deflate } );
 has '+widget_wrapper' => (default => 'Bootstrap');
 has '+do_label' => (default => 1 );
 
-has_field option => (
+has_field type => (
     type => 'Select',
     do_label => 0,
     required => 1,
     widget_wrapper => 'None',
-    options_method => \&options_option,
+    options_method => \&options_type,
     element_class => ['input-medium'],
     localize_labels => 1,
 );
@@ -46,7 +46,7 @@ has_field value => (
 sub parse_dhcp_answer {
     my ($value) = @_;
     my %hash;
-    @hash{qw(option value)} = split(/\s*,\s*/, $value, 2);
+    @hash{qw(type value)} = split(/\s*,\s*/, $value, 2);
     return \%hash;
 }
 
@@ -74,12 +74,12 @@ deflate the api method spec hash to a string
 
 sub deflate {
     my ($self, $value) = @_;
-    return join(",", $value->{option}, $value->{value});
+    return join(",", $value->{type}, $value->{value});
 }
 
-=head2 options_api_method
+=head2 options_type
 
-Provide a list of api methods
+Provide a list DHCP option types
 
 =cut
 
@@ -168,7 +168,7 @@ my %options = (
     OptionClasslessRouteFormat                       => 121,
 );
 
-sub options_option {
+sub options_type {
     my ($self) = @_;
     return map {
         {
