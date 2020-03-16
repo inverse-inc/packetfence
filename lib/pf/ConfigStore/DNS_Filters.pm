@@ -17,6 +17,7 @@ use warnings;
 use Moo;
 use pf::file_paths qw($dns_filters_config_file);
 extends 'pf::ConfigStore';
+use pf::condition_parser qw(parse_condition_string ast_to_object);
 
 sub configFile { $dns_filters_config_file };
 
