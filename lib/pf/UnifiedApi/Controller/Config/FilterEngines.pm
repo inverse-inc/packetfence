@@ -81,6 +81,16 @@ sub engines {
                     resource   => "dhcp_filter",
                     name       => "DHCP Filters"
                 },
+                {
+                    collection => "dns_filters",
+                    resource   => "dns_filter",
+                    name       => "DNS Filters"
+                },
+                {
+                    collection => "radius_filters",
+                    resource   => "radius_filter",
+                    name       => "RADIUS Filters"
+                },
             ]
         }
     );
