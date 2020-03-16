@@ -92,6 +92,7 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_filter_engines/getCollections').then(collections => {
+        collections = collections.sort((a, b) => a.name.localeCompare(b.name)) // sort by name
         for (let i = 0; i < collections.length; i++) {
           this.$store.dispatch('$_filter_engines/getCollection', collections[i].collection).then(collection => {
             this.$set(this.collections, i, collection)
@@ -144,6 +145,7 @@ export default {
             resolve('enabled')
             this.$store.dispatch('notification/info', { message: this.$i18n.t('{collection} <code>{id}</code> enabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
           }).catch(() => {
+            this.$store.dispatch('notification/danger', { message: this.$i18n.t('{collection} <code>{id}</code> could not be enabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
             reject() // reset
           })
         })
@@ -158,6 +160,7 @@ export default {
             resolve('disabled')
             this.$store.dispatch('notification/info', { message: this.$i18n.t('{collection} <code>{id}</code> disabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
           }).catch(() => {
+            this.$store.dispatch('notification/danger', { message: this.$i18n.t('{collection} <code>{id}</code> could not be disabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
             reject() // reset
           })
         })
