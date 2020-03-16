@@ -1905,6 +1905,15 @@ sub setup_api_v1_config_filter_engines_routes {
         "api.v1.Config.FilterEngines.RADIUS"
       );
 
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::SwitchFilters",
+        "/switch_filters",
+        "/switch_filter/#switch_filter_id",
+        "api.v1.Config.FilterEngines.Switch"
+      );
+
     return ($collection_route, $resource_route);
 }
 

@@ -21,6 +21,31 @@ sub configFile { $switch_filters_config_file };
 
 sub pfconfigNamespace {'config::SwitchFilters'}
 
+=head2 cleanupBeforeCommit
+
+cleanupBeforeCommit
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $item) = @_;
+    $self->flatten_to_ordered_array($item, 'params', 'param');
+    $item->{condition} = pf::condition_parser::object_to_str($item->{condition});
+    $self->flatten_list($item, $self->_fields_expanded);
+    return ;
+}
+
+sub cleanupAfterRead {
+    my ($self, $id, $item, $idKey) = @_;
+    $self->expand_ordered_array($item, 'params', 'param');
+    $self->expand_list($item, $self->_fields_expanded);
+    my ($ast, $err) = parse_condition_string($item->{condition});
+    if (!$err) {
+        $item->{condition} = ast_to_object($ast);
+    }
+    return;
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
