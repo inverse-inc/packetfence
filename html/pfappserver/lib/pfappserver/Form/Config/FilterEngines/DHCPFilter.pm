@@ -26,6 +26,14 @@ sub scopes {
     return map { { value => $_, label => $_ } } qw(Discover Request);
 }
 
+has_field 'run_actions' => (
+   type => 'Toggle',
+   label => 'Run Actions',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled'
+);
+
 =head2 answers
 
 The list of answers
