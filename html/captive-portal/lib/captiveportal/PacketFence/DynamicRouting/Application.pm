@@ -53,6 +53,8 @@ has 'template_output' => (is => 'rw');
 
 has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
 
+has 'response_headers' => (is => 'rw', default => sub{{}});
+
 has 'title' => (is => 'rw', isa => 'Str|ArrayRef');
 
 # to cache the cache objects
@@ -141,6 +143,9 @@ sub process_fingerbank {
             user_agents => {$self->current_user_agent => $TRUE},
         });
     }
+
+    $self->response_headers->{'Accept-CH'} = "ua, platform, arch, model, mobile";
+    $self->response_headers->{'Accept-CH-Lifetime'} = "300";
 
     my $client = pf::api::queue->new(queue => 'general');
     $client->notify('fingerbank_process', $self->current_mac);

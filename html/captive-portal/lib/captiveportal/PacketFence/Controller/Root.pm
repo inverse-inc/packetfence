@@ -171,6 +171,9 @@ sub dynamic_application :Private {
         $c->response->header('Expire', '10');
         $c->response->body($application->template_output);
         $c->response->status($application->response_code);
+        while(my ($header, $value) = each %{$application->response_headers}) {
+            $c->response->header($header, $value);
+        }
     }
     $c->detach;
 }
