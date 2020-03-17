@@ -493,16 +493,23 @@ export const validatorFields = {
     }
   },
   condition: (form, meta = {}) => {
-    const validator = (meta = {}, condition = {}) => {
+    const validator = (meta = {}, condition = {}, level = 0) => {
       const { field, op, value, values } = condition
       if (values && values.constructor === Array) { // op
         return {
           op: {
-            [i18n.t('Operator required.')]: required,
-            [i18n.t('Minimum 2 values required.')]: conditional(values.length >= 2)
+            ...{
+              [i18n.t('Operator required.')]: required
+            },
+            ...((level > 0) // require 2 values when not @ root condition
+              ? {
+                [i18n.t('Minimum 2 values required.')]: conditional(values.length >= 2)
+              }
+              : {}
+            )
           },
           values: {
-            ...(values || []).map(value => validator(meta, value))
+            ...(values || []).map(value => validator(meta, value, ++level))
           }
         }
       } else { // value
