@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"sync"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -40,7 +41,7 @@ func main() {
 	var startAt time.Time
 	if *startDate != "" {
 		var err error
-		startAt, err = time.Parse("2006-01-02 15:04:05", *startDate)
+		startAt, err = time.ParseInLocation("2006-01-02 15:04:05", *startDate, time.Local)
 		sharedutils.CheckError(err)
 	} else {
 		startAt = time.Now()
@@ -54,18 +55,23 @@ func main() {
 
 	concurrencyChan := make(chan int, *concurrency)
 
+	wg := sync.WaitGroup{}
+
 	// start at a00000000001
 	startMac := 175921860444161
 	for i := 0; i < *endpointsCount; i++ {
 		mac := sharedutils.CleanMac(fmt.Sprintf("%x", startMac+i))
 		for j := 0; j < rowsPerEndpoint; j++ {
 			concurrencyChan <- 1
-			go func() {
+			go func(j int) {
+				wg.Add(1)
+				defer wg.Done()
 				_, err := insertBandwidthAccounting.Exec(mac, uuid.New().String(), startAt.Add(time.Duration(j)*time.Duration(*bucketSize)*time.Second), 1, 1, 2)
 				sharedutils.CheckError(err)
 				<-concurrencyChan
-			}()
+			}(j)
 		}
 	}
 
+	wg.Wait()
 }
