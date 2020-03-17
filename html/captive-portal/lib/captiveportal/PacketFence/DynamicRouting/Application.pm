@@ -147,6 +147,13 @@ sub process_fingerbank {
     $self->response_headers->{'Accept-CH'} = "ua, platform, arch, model, mobile";
     $self->response_headers->{'Accept-CH-Lifetime'} = "300";
 
+    for my $ch (qw(sec-ch-ua sec-ch-ua-platform sec-ch-ua-model sec-ch-ua-arch)) {
+        my $val = $self->request->header($ch);
+        if(defined($val)) {
+            get_logger->info("Received client hint header '$ch' => '$val'");
+        }
+    }
+
     my $client = pf::api::queue->new(queue => 'general');
     $client->notify('fingerbank_process', $self->current_mac);
 }
