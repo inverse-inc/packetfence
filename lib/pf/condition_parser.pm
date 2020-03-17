@@ -94,6 +94,9 @@ If an invalid string is passed then the array will be undef and $msg will have h
 
 sub parse_condition_string {
     local $_ = shift;
+    if (!defined $_) {
+        return (undef, { message => "conditiom cannot be undefined", condition => undef });
+    }
     pos() = 0;
     #Reduce whitespace
     /\G\s*/gc;
@@ -417,13 +420,6 @@ our %ROP_BINARY = map { $OP_BINARY{$_} => $_ } keys %OP_BINARY;
 
 sub ast_to_object {
     my ($ast) = @_;
-    if (ref $ast) {
-        my $op = $ast->[0];
-        if (!exists $OPS_WITH_VALUES{$op}) {
-            return { op => 'and', values => [_ast_to_object($ast)]};
-        }
-    }
-
     return _ast_to_object(@_);
 }
 
