@@ -46,6 +46,9 @@ use pf::config qw(
     $local_secret
     @radius_ints
     %ConfigAuthenticationLdap
+    %ConfigSSL
+    %ConfigTLS
+    %ConfigOCSP
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
@@ -115,6 +118,7 @@ sub _generateConfig {
     $self->generate_radiusd_eduroamconf($tt);
     $self->generate_radiusd_ldap($tt);
     $self->generate_radiusd_mschap($tt);
+    $self->generate_radiusd_tls($tt);
 }
 
 
@@ -1158,6 +1162,22 @@ sub generate_radiusd_mschap {
     parse_template( \%tags, "$conf_dir/radiusd/mschap.conf", "$install_dir/raddb/mods-enabled/mschap" );
 
 }
+
+=head2 generate_radiusd_tls
+
+Generates the tls configuration
+
+=cut
+
+sub generate_radiusd_tls {
+    my ($self, $tt) = @_;
+    my %tags;
+    $tags{'template'}    = "$conf_dir/radiusd/eaptls.conf";
+
+    parse_template( \%tags, "$conf_dir/radiusd/eaptls.conf", "$install_dir/raddb/mods-enabled/eaptls" );
+
+}
+
 
 =head1 AUTHOR
 
