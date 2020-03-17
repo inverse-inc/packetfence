@@ -15,7 +15,8 @@ const types = {
 const state = {
   cache: {},
   message: '',
-  status: ''
+  status: '',
+  interfaces: []
 }
 
 const getters = {
@@ -28,6 +29,7 @@ const actions = {
     commit('INTERFACE_REQUEST')
     return api.interfaces().then(response => {
       commit('INTERFACE_SUCCESS')
+      commit('INTERFACES_REPLACED', response.items)
       return response.items
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
@@ -97,10 +99,12 @@ const actions = {
       throw err
     })
   }
-
 }
 
 const mutations = {
+  INTERFACES_REPLACED: (state, interfaces) => {
+    state.interfaces = interfaces
+  },
   INTERFACE_REQUEST: (state, type) => {
     state.status = type || types.LOADING
     state.message = ''
@@ -108,6 +112,12 @@ const mutations = {
   INTERFACE_REPLACED: (state, data) => {
     state.status = types.SUCCESS
     Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    const i = state.interfaces.findIndex(i => {
+      return i.id == data.id
+    })
+    if (i >= 0) {
+      Vue.set(state.interfaces[i], 'type', data.type)
+    }
   },
   INTERFACE_DESTROYED: (state, id) => {
     state.status = types.SUCCESS
