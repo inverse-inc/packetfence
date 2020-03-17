@@ -109,11 +109,12 @@ const actions = {
       throw err
     })
   },
-  updateAdvanced: ({ commit }, data) => {
+  updateAdvanced: ({ commit, dispatch }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'advanced'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
+      dispatch('session/updateConfiguratorState', data.configurator, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
