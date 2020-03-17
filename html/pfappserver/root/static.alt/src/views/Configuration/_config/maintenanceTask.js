@@ -344,7 +344,7 @@ export const viewFields = {
   voip: (form = {}, meta = {}) => {
     return {
       label: i18n.t('VoIP'),
-      text: i18n.t('Whether or not the VoIP devices should be cleaned by this maintenance task.'),
+      text: i18n.t('Whether or not the VoIP devices should be handled by this maintenance task.'),
       cols: [
         {
           namespace: 'voip',
