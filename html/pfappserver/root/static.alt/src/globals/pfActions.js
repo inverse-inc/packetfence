@@ -148,6 +148,22 @@ export const pfActions = {
     text: i18n.t('on_success'),
     types: [fieldType.ROOT_PORTAL_MODULE]
   },
+  mark_as_sponsor: {
+    value: 'mark_as_sponsor',
+    text: i18n.t('Mark as sponsor'),
+    types: [fieldType.HIDDEN],
+    staticValue: '1'
+  },
+  no_action: {
+    value: 'no_action',
+    text: i18n.t('Do not perform an action'),
+    types: [fieldType.NONE]
+  },
+  role_from_source: {
+    value: 'role_from_source',
+    text: i18n.t('Set role from the authentication source'),
+    types: [fieldType.NONE]
+  },
   set_access_duration: {
     value: 'set_access_duration',
     text: i18n.t('Access duration'),
@@ -181,22 +197,6 @@ export const pfActions = {
       [i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
       [i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
     }
-  },
-  mark_as_sponsor: {
-    value: 'mark_as_sponsor',
-    text: i18n.t('Mark as sponsor'),
-    types: [fieldType.HIDDEN],
-    staticValue: '1'
-  },
-  no_action: {
-    value: 'no_action',
-    text: i18n.t('Do not perform an action'),
-    types: [fieldType.NONE]
-  },
-  role_from_source: {
-    value: 'role_from_source',
-    text: i18n.t('Set role from the authentication source'),
-    types: [fieldType.NONE]
   },
   set_role: {
     value: 'set_role',

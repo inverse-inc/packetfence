@@ -96,8 +96,8 @@ const actions = {
     })
   },
   options: ({ commit, dispatch }, { collection, id }) => {
-    if (id) {
-      return dispatch('getCollection', collection).then(() => {
+    return dispatch('getCollection', collection).then(() => {
+      if (id) {
         commit('ITEM_REQUEST')
         const { [collection]: { resource } = {} } = state.cache
         return api.filterEngineOptions({ resource, id }).then(response => {
@@ -107,17 +107,17 @@ const actions = {
           commit('ITEM_ERROR', err.response)
           throw err
         })
-      })
-    } else {
-      commit('ITEM_REQUEST')
-      return api.filterEnginesOptions(collection).then(response => {
-        commit('ITEM_SUCCESS')
-        return response
-      }).catch(err => {
-        commit('ITEM_ERROR', err.response)
-        throw err
-      })
-    }
+      } else {
+        commit('ITEM_REQUEST')
+        return api.filterEnginesOptions(collection).then(response => {
+          commit('ITEM_SUCCESS')
+          return response
+        }).catch(err => {
+          commit('ITEM_ERROR', err.response)
+          throw err
+        })
+      }
+    })
   },
   createFilterEngine: ({ commit, dispatch }, { collection, data }) => {
     return dispatch('getCollection', collection).then(() => {
