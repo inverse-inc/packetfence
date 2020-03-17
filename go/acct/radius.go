@@ -287,7 +287,7 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 	}
 
 	if val, found := attributes["Calling-Station-Id"]; found {
-		if mac, err := mac.NewFromString(val); err == nil {
+		if mac, err := mac.NewFromString(val.(string)); err == nil {
 			attributes["Calling-Station-Id"] = mac.String()
 		}
 	}
