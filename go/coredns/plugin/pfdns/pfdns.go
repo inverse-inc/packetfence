@@ -50,7 +50,7 @@ type pfdns struct {
 	FqdnIsolationPort   map[*regexp.Regexp][]string
 	FqdnDomainPort      map[*regexp.Regexp][]string
 	Network             map[*net.IPNet]net.IP
-	NetworkType         map[*net.IPNet]pfconfigdriver.NetworkConf
+	NetworkType         map[*net.IPNet]*pfconfigdriver.NetworkConf
 	DNSFilter           *cache.Cache
 	IpsetCache          *cache.Cache
 	apiClient           *unifiedapiclient.Client
@@ -260,7 +260,6 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	// DNS Filter code
 	var Type string
-
 	for k, v := range pf.NetworkType {
 		switch v.Type {
 		case "inlinel2":
@@ -370,13 +369,17 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		var returnedIP []byte
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
-				if pf.NetworkType[k].NextHop != "" {
-					returnedIP = append([]byte(nil), v.To4()...)
-				} else {
-					returnedIP = append([]byte(nil), []byte{192, 0, 2, 1}...)
+				for w, x := range pf.NetworkType {
+					if k.String() == w.String() {
+						if x.NextHop != "" {
+							returnedIP = append([]byte(nil), v.To4()...)
+						} else {
+							returnedIP = append([]byte(nil), []byte{192, 0, 2, 1}...)
+						}
+						rr.(*dns.A).A = returnedIP
+						break
+					}
 				}
-				rr.(*dns.A).A = returnedIP
-				break
 			} else {
 				rr.(*dns.A).A = pf.RedirectIP.To4()
 			}
@@ -501,7 +504,7 @@ func (pf *pfdns) WebservicesInit() error {
 func (pf *pfdns) detectType() error {
 	var ctx = context.Background()
 	var NetIndex net.IPNet
-	pf.NetworkType = make(map[*net.IPNet]pfconfigdriver.NetworkConf)
+	pf.NetworkType = make(map[*net.IPNet]*pfconfigdriver.NetworkConf)
 
 	var interfaces pfconfigdriver.ListenInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
@@ -534,16 +537,17 @@ func (pf *pfdns) detectType() error {
 				var ConfNet pfconfigdriver.NetworkConf
 				ConfNet.PfconfigHashNS = key
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 					NetIndex.IP = net.ParseIP(key)
 					Index := NetIndex
-					pf.NetworkType[&Index] = ConfNet
+					pf.NetworkType[&Index] = &ConfNet
 				}
 				if ConfNet.RegNetwork != "" {
 					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
 					if NetIP.Contains(IP2) {
-						pf.NetworkType[NetIP2] = ConfNet
+						pf.NetworkType[NetIP2] = &ConfNet
 					}
 				}
 			}
