@@ -28,12 +28,10 @@ const route = {
       component: Dashboard,
       props: { storeName: '$_status' },
       beforeEnter: (to, from, next) => {
-        Promise.all([
-          store.dispatch('config/getSources'),
-          store.dispatch('$_status/allCharts')
-        ]).finally(() => {
-          next()
-        })
+        store.dispatch('config/getSources')
+        store.dispatch('$_status/getCluster').then(() => {
+          store.dispatch('$_status/allCharts').finally(() => next())
+        }).catch(() => next())
       },
       meta: {
         can: 'read reports',
