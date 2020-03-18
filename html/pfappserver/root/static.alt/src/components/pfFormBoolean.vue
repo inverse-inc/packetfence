@@ -391,7 +391,10 @@ export default {
     .pf-form-boolean-value {
       display: flex;
       align-items: stretch;
-      user-select: none; /* disable highlighting on drag */
+      user-select: none; /* disable user selection on drag */
+      input, select, textarea {
+        user-select: initial; /* override user selection on input elements */
+      }
     }
 
     .pf-form-boolean-op {
