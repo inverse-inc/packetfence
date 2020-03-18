@@ -10,3 +10,10 @@
     // Default of bootstrap is to vertically align to the top
     vertical-align: middle;
 }
+
+.table td {
+  a.btn {
+    // allow selection of links within tables
+    user-select: initial;
+  }
+}
