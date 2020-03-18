@@ -160,12 +160,14 @@ sub build_child {
         $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
     }
 
-    unless ($Config{general}{timezone}) {
+    if ($Config{general}{timezone}) {
+        set_timezone($Config{general}{timezone});
+    }
+    else {
         my $tz = DateTime::TimeZone->new(name => 'local')->name();
         $logger->info("No timezone defined, using $tz");
         $Config{general}{timezone} = $tz;
     }
-    set_timezone($Config{general}{timezone});
 
     return \%Config;
 }
