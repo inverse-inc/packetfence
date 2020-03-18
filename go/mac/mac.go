@@ -165,6 +165,10 @@ error:
 	return ErrInvalidFormat
 }
 
+func (m Mac) NodeId(tenant_id uint16) uint64 {
+	return (uint64(tenant_id) << 48) | (uint64(m[0]) << 40) | (uint64(m[1]) << 32) | (uint64(m[2]) << 24) | (uint64(m[3]) << 16) | (uint64(m[4]) << 8) | uint64(m[5])
+}
+
 // NewFromString parses string
 func NewFromString(s string) (Mac, error) {
 	m := Mac{}
