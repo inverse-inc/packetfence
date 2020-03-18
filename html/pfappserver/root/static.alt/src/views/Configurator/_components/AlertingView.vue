@@ -9,6 +9,9 @@
     <template v-slot:header>
       <h4 class="mb-0">
         <span>{{ $t('Alerting') }}</span>
+        <div class="float-right">
+          <pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle>
+        </div>
       </h4>
     </template>
   </pf-config-view>
@@ -16,15 +19,17 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
+import pfFormToggle from '@/components/pfFormToggle'
 import {
   view,
   validators
-} from '@/views/Configuration/_config/alerting'
+} from '../_config/alerting'
 
 export default {
   name: 'alerting-view',
   components: {
-    pfConfigView
+    pfConfigView,
+    pfFormToggle
   },
   props: {
     formStoreName: {
@@ -43,29 +48,41 @@ export default {
     view () {
       return view(this.form, this.meta) // ../_config/alerting
     },
-    invalidForm () {
-      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
-    },
     isLoading () {
       return this.$store.getters['$_bases/isLoading']
     },
-    isDisabled () {
-      return this.invalidForm || this.isLoading
+    advancedMode: { // mutating this property will re-evaluate view() and validators()
+      get () {
+        const { meta: { advancedMode = false } = {} } = this
+        return advancedMode
+      },
+      set (newValue) {
+        this.$set(this.meta.alerting, 'advancedMode', newValue)
+      }
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_bases/optionsAlerting').then(options => {
-        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
+      this.$store.dispatch('$_bases/optionsAlerting').then(({ meta }) => {
+        this.$store.dispatch(`${this.formStoreName}/appendMeta`, { alerting: { properties: meta } })
       })
       this.$store.dispatch('$_bases/getAlerting').then(form => {
         form.test_emailaddr = form.emailaddr // copy recipients into SMTP test
-        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+        this.$store.dispatch(`${this.formStoreName}/appendForm`, { alerting: form })
       })
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
+      this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
     },
     save () {
-      this.$store.dispatch('$_bases/updateAlerting', this.form)
+      return this.$store.dispatch('$_bases/updateAlerting', Object.assign({ quiet: true }, this.form.alerting)).catch(error => {
+        // Only show a notification in case of a failure
+        const { response: { data: { message = '' } = {} } = {} } = error
+        this.$store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: message,
+          message: this.$i18n.t('An error occured while updating the alerting configuration.')
+        })
+        throw error
+      })
     }
   },
   created () {

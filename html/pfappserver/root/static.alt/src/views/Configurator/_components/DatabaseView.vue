@@ -8,7 +8,7 @@
   >
     <template v-slot:header>
       <h4 class="mb-0">
-        <span>{{ $t('Database General') }}</span>
+        <span>{{ $t('Database') }}</span>
       </h4>
     </template>
   </pf-config-view>
@@ -19,7 +19,7 @@ import pfConfigView from '@/components/pfConfigView'
 import {
   view,
   validators
-} from '@/views/Configuration/_config/database'
+} from '../_config/database'
 
 export default {
   name: 'database-view',
@@ -43,28 +43,31 @@ export default {
     view () {
       return view(this.form, this.meta) // ../_config/database
     },
-    invalidForm () {
-      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
-    },
     isLoading () {
       return this.$store.getters['$_bases/isLoading']
-    },
-    isDisabled () {
-      return this.invalidForm || this.isLoading
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_bases/optionsDatabase').then(options => {
-        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
+      this.$store.dispatch('$_bases/optionsDatabase').then(({ meta }) => {
+        this.$store.dispatch(`${this.formStoreName}/appendMeta`, { database: { properties: meta } })
+        this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
       })
       this.$store.dispatch('$_bases/getDatabase').then(form => {
-        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+        this.$store.dispatch(`${this.formStoreName}/appendForm`, { database: form })
       })
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     save () {
-      this.$store.dispatch('$_bases/updateDatabase', this.form)
+      return this.$store.dispatch('$_bases/updateDatabase', Object.assign({ quiet: true }, this.form.database)).catch(error => {
+        // Only show a notification in case of a failure
+        const { response: { data: { message = '' } = {} } = {} } = error
+        this.$store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: message,
+          message: this.$i18n.t('An error occured while updating the database configuration.')
+        })
+        throw error
+      })
     }
   },
   created () {

@@ -55,11 +55,21 @@ export default {
           $form () { return state.$form }
         },
         validations () {
-          return {
-            $form: (state.$validations.$form.constructor === Function)
-              ? state.$validations.$form(state.$form, state.$meta)
-              : state.$validations.$form
+          let $form = state.$validations.$form
+          switch (state.$validations.$form.constructor) {
+            case Function:
+              $form = state.$validations.$form(state.$form, state.$meta)
+              break
+            case Array:
+              $form = state.$validations.$form.reduce((combinedValidations, validations) => {
+                const currentValidations = (validations.constructor === Function)
+                  ? validations(state.$form, state.$meta)
+                  : validations
+                return Object.assign(combinedValidations, currentValidations)
+              }, {})
+              break
           }
+          return { $form: $form }
         }
       })
     },
@@ -147,6 +157,10 @@ export default {
         })
       })
     },
+    appendOptions: ({ state, dispatch }, options) => { // shortcut for setMeta
+      const { meta } = options
+      return dispatch('setMeta', { ...state.$meta, ...meta })
+    },
     clearMeta: ({ commit }) => {
       commit('SET_META_SUCCESS', {})
     },
@@ -161,6 +175,9 @@ export default {
           reject(err)
         })
       })
+    },
+    appendMeta: ({ state, commit }, meta) => {
+      commit('SET_META_SUCCESS', { ...state.$meta, ...meta })
     },
     clearForm: ({ commit }) => {
       commit('SET_FORM_SUCCESS', {})
@@ -177,6 +194,9 @@ export default {
         })
       })
     },
+    appendForm: ({ state, commit }, form) => {
+      commit('SET_FORM_SUCCESS', { ...state.$form, ...form })
+    },
     clearFormValidations: ({ commit }) => {
       commit('SET_FORM_VALIDATIONS_SUCCESS', {})
     },
@@ -191,6 +211,13 @@ export default {
           reject(err)
         })
       })
+    },
+    appendFormValidations: ({ state, commit }, validations) => {
+      if (state.$validations.$form.constructor !== Array) {
+        commit('SET_FORM_VALIDATIONS_SUCCESS', [validations])
+      } else {
+        commit('SET_FORM_VALIDATIONS_SUCCESS', [ ...state.$validations.$form, validations ])
+      }
     }
   },
   mutations: { // state

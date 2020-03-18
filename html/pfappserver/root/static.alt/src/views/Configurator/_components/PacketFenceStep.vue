@@ -1,10 +1,14 @@
 <template>
   <base-step
     :name="$t('Configure PacketFence')"
-    icon="cogs">
-    <database-view form-store-name="formDatabase" />
-    <general-view form-store-name="formGeneral" />
-    <alerting-view form-store-name="formAlerting" />
+    icon="cogs"
+    :invalid-step="invalidStep"
+    :is-loading="isLoading"
+    @next="save">
+    <database-view form-store-name="formPacketFence" ref="database" />
+    <general-view class="mt-3" form-store-name="formPacketFence" ref="general" />
+    <alerting-view class="mt-3" form-store-name="formPacketFence" ref="alerting" />
+    <administrator-view class="mt-3" form-store-name="formPacketFence" ref="administrator" />
   </base-step>
 </template>
 
@@ -14,6 +18,7 @@ import BaseStep from './BaseStep'
 import DatabaseView from './DatabaseView'
 import GeneralView from './GeneralView'
 import AlertingView from './AlertingView'
+import AdministratorView from './AdministratorView'
 
 export default {
   name: 'packetfence-step',
@@ -21,17 +26,33 @@ export default {
     BaseStep,
     DatabaseView,
     GeneralView,
-    AlertingView
+    AlertingView,
+    AdministratorView
   },
-  beforeMount () {
-    if (!this.$store.state.formDatabase) { // Register store module only once
-      this.$store.registerModule('formDatabase', FormStore)
+  data () {
+    return {
+      isLoading: false
     }
-    if (!this.$store.state.formGeneral) { // Register store module only once
-      this.$store.registerModule('formGeneral', FormStore)
+  },
+  computed: {
+    invalidStep () {
+      return this.$store.getters['formPacketFence/$formInvalid']
     }
-    if (!this.$store.state.formAlerting) { // Register store module only once
-      this.$store.registerModule('formAlerting', FormStore)
+  },
+  methods: {
+    save (nextRouteName) {
+      const { database, general, alerting, administrator } = this.$refs
+      this.isLoading = true
+      Promise.all([
+        database.save(),
+        general.save(),
+        alerting.save(),
+        administrator.save()
+      ]).then(() => {
+        this.$router.push({ name: nextRouteName })
+      }).finally(() => {
+        this.isLoading = false
+      })
     }
   }
 }

@@ -1,23 +1,35 @@
 <template>
-  <b-row>
-    <b-col cols="12" md="4" xl="3" class="pf-sidebar d-print-none">
-      <sidebar :step="step" :name="name" :icon="icon"/>
-    </b-col>
-    <b-col cols="12" md="8" xl="9" class="mt-3 mb-3">
-      <slot></slot>
-      <b-container class="p-3">
-        <b-row align-v="center">
-          <b-col v-if="previousRouteName">
-            <b-link :to="{ name: previousRouteName }"><icon class="mr-1" name="chevron-left"></icon> {{ $t('Previous') }}</b-link>
-          </b-col>
-          <b-col class="text-right" v-if="nextRouteName">
-            <b-button variant="primary" :to="{ name: nextRouteName }">{{ $t('Next Step') }} <icon class="ml-1" name="chevron-right"></icon></b-button>
-          </b-col>
+  <b-container fluid>
+    <b-row>
+      <b-col cols="12" md="4" xl="3" class="pf-sidebar">
+        <sidebar
+          :step="step"
+          :next-route-name="nextRouteName"
+          :previous-route-name="previousRouteName"
+          :name="name"
+          :icon="icon"
+          :invalid-step="invalidStep"
+          :is-loading="isLoading"/>
+      </b-col>
+      <b-col cols="12" md="8" xl="9" class="mt-3 mb-3">
+        <slot></slot>
+        <b-container class="p-3" fluid>
+          <b-row align-v="center" v-if="!disableNavigation">
+            <b-col v-if="previousRouteName">
+              <b-link :to="{ name: previousRouteName }"><icon class="mr-1" name="chevron-left"></icon> {{ $t('Previous') }}</b-link>
+            </b-col>
+            <b-col class="text-right" v-if="nextRouteName">
+              <b-button :disabled="invalidStep || isLoading" variant="primary" @click="next">
+                <slot name="buttonNext">{{ $t('Next Step') }} <icon class="ml-1" name="chevron-right"></icon></slot>
+              </b-button>
+              <div class="d-block invalid-feedback" v-if="invalidFeedback" v-text="invalidFeedback"></div>
+            </b-col>
+          </b-row>
           <slot name="footer"></slot>
-        </b-row>
-      </b-container>
-    </b-col>
-  </b-row>
+        </b-container>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -42,7 +54,22 @@ export default {
     },
     icon: {
       type: String
-    }
+    },
+    disableNavigation: {
+      type: Boolean,
+      default: false
+    },
+    invalidStep: {
+      type: Boolean,
+      default: false
+    },
+    invalidFeedback: {
+      type: String
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
+    },
   },
   methods: {
     init () {
@@ -71,6 +98,9 @@ export default {
         }
         return false
       })
+    },
+    next () {
+      this.$emit('next', this.nextRouteName)
     }
   },
   created () {
