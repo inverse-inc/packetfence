@@ -381,7 +381,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
         INSERT INTO bandwidth_accounting (tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes)
         SELECT * FROM (
             SELECT ? as tenant_id, ? as mac, ? as unique_session_id, ? as time_bucket, in_bytes, out_bytes FROM (
-                SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) as in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND unique_session_id = ? AND time_bucket != ?
+                SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) as in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) as out_bytes FROM bandwidth_accounting WHERE tenant_id = ? AND mac = ? AND unique_session_id = ? AND time_bucket != ?
             ) as x
         ) as y WHERE in_bytes > 0 || out_bytes > 0
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes);
@@ -465,7 +465,7 @@ func (rs *RadiusStatements) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
 }
 
 func (rs *RadiusStatements) InsertBandwidthAccounting(tenant_id int, mac string, unique_session string, bucket time.Time, in_bytes int64, out_bytes int64) error {
-	_, err := rs.insertBandwidthAccounting.Exec(tenant_id, mac, unique_session, bucket, in_bytes, out_bytes, tenant_id, unique_session, bucket)
+	_, err := rs.insertBandwidthAccounting.Exec(tenant_id, mac, unique_session, bucket, in_bytes, out_bytes, tenant_id, mac, unique_session, bucket)
 	return err
 }
 
