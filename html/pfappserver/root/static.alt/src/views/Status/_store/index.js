@@ -20,13 +20,14 @@ const types = {
 }
 
 const state = {
-  allCharts: [],
+  allCharts: {},
   allChartsStatus: '',
   charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
   alarmsStatus: '',
   alarms: {},
   services: [],
   servicesStatus: '',
+  clusterPromise: null,
   cluster: null,
   clusterStatus: '',
   clusterServices: [],
@@ -56,23 +57,43 @@ const getters = {
   isServicesStarting: state => state.servicesStatus === types.STARTING,
   isServicesRestarting: state => state.servicesStatus === types.RESTARTING,
   blacklistedServices: () => blacklistedServices,
-  isClusterServicesLoading: state => state.clusterServicesStatus === types.LOADING
+  isClusterServicesLoading: state => state.clusterServicesStatus === types.LOADING,
+  clusterIPs: state => state.cluster.map(server => server.management_ip ),
+  uniqueCharts: state => {
+    let charts = [].concat(...Object.values(state.allCharts))
+    // Remove duplicates
+    for (let i = 0; i < charts.length; ++i) {
+      for (let j = i + 1; j < charts.length; ++j) {
+          if (charts[i].id === charts[j].id)
+          charts.splice(j--, 1);
+      }
+    }
+    return charts
+  },
+  hostsForChart: state => id => {
+    return Object.keys(state.allCharts).filter(ip => {
+      return state.allCharts[ip].find(chart => chart.id === id)
+    })
+  }
 }
 
 const actions = {
-  allCharts: ({ state, commit }) => {
+  allCharts: ({ state, getters, commit }) => {
     if (state.allCharts.length > 0) {
       return Promise.resolve(state.allCharts)
     }
     if (state.allChartsStatus !== types.LOADING) {
       commit('ALL_CHARTS_REQUEST')
-      return api.charts().then(charts => {
-        commit('ALL_CHARTS_UPDATED', charts)
-      }).catch(err => {
-        commit('ALL_CHARTS_ERROR')
-        commit('session/CHARTS_ERROR', err.response, { root: true })
-        throw err
-      })
+      // Assume getCluster has been dispatched
+      return Promise.all(getters.clusterIPs.map(ip => {
+        return api.charts(ip).then(charts => {
+          commit('ALL_CHARTS_UPDATED', { [ip]: charts })
+        }).catch(err => {
+          commit('ALL_CHARTS_ERROR')
+          commit('session/CHARTS_ERROR', err.response, { root: true })
+          throw err
+        })
+      }))
     }
   },
   getChart: ({ commit }, id) => {
@@ -324,16 +345,12 @@ const actions = {
     })
   },
   getCluster: ({ state, dispatch, commit }) => {
-    if (state.cluster) {
-      return state.cluster
-    }
-    if (state.clusterStatus !== types.LOADING) {
-      commit('CLUSTER_REQUEST')
-      return api.cluster().then(servers => {
+    if (!state.clusterPromise) {
+      const clusterPromise = api.cluster().then(servers => {
         if (servers.length) {
           commit('CLUSTER_UPDATED', servers)
         } else {
-          dispatch('system/getSummary', null, { root: true }).then(summary => {
+          return dispatch('system/getSummary', null, { root: true }).then(summary => {
             const server = [{ host: summary.hostname, management_ip: '127.0.0.1' }]
             commit('CLUSTER_UPDATED', server)
           })
@@ -342,8 +359,9 @@ const actions = {
         commit('CLUSTER_ERROR')
         throw err
       })
+      commit('CLUSTER_REQUEST', clusterPromise)
     }
-    throw new Error('$_status/getCluster: another task is already in progress')
+    return state.clusterPromise
   },
   getClusterServices: ({ state, commit }) => {
     if (state.clusterServicesStatus !== types.LOADING) {
@@ -353,6 +371,7 @@ const actions = {
           commit('CLUSTER_SERVICES_UPDATED', server)
         }).catch(() => {
           // Ignore error -- don't let Promise.all immediately rejects with an error
+          commit('CLUSTER_SERVICES_UPDATED', { host: 'crap', services: [] })
         })
       })).then(() => {
         commit('CLUSTER_SERVICES_UPDATED')
@@ -366,12 +385,13 @@ const mutations = {
     state.allChartsStatus = types.LOADING
   },
   ALL_CHARTS_UPDATED: (state, charts) => {
+    const [ first ] = Object.keys(charts)
     state.allChartsStatus = types.SUCCESS
-    state.allCharts = charts
+    Vue.set(state.allCharts, first, charts[first])
   },
   ALL_CHARTS_ERROR: (state) => {
     state.allChartsStatus = types.ERROR
-    state.allCharts = []
+    state.allCharts = {}
   },
   CHARTS_UPDATED: (state, chart) => {
     if (state.charts.filter(c => c.id === chart.id).length) {
@@ -469,8 +489,9 @@ const mutations = {
     data.status.loading = false
     Vue.set(state.services, data.index, Object.assign(state.services[data.index], data.status))
   },
-  CLUSTER_REQUEST: (state) => {
+  CLUSTER_REQUEST: (state, clusterPromise) => {
     state.clusterStatus = types.LOADING
+    state.clusterPromise = clusterPromise
   },
   CLUSTER_UPDATED: (state, servers) => {
     state.clusterStatus = types.SUCCESS
@@ -478,6 +499,7 @@ const mutations = {
   },
   CLUSTER_ERROR: (state) => {
     state.clusterServicesStatus = types.ERROR
+    state.clusterPromise = null
   },
   CLUSTER_SERVICES_REQUEST: (state) => {
     state.clusterServicesStatus = types.LOADING
