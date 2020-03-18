@@ -19,7 +19,9 @@ import {
 
 export const view = (form = {}, meta = {}) => {
   const {
-    advancedMode = false
+    alerting: {
+      advancedMode = false
+    } = {}
   } = meta
   return [
     {
@@ -33,7 +35,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'alerting.emailaddr',
               component: pfFormTextarea,
               attrs: {
-                ...attributesFromMeta(meta, 'emailaddr'),
+                ...attributesFromMeta(meta, 'alerting.emailaddr'),
                 ...{
                   rows: 3
                 }
@@ -49,7 +51,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'alerting.fromaddr',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'fromaddr')
+              attrs: attributesFromMeta(meta, 'alerting.fromaddr')
             }
           ]
         },
@@ -61,7 +63,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'alerting.smtpserver',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'smtpserver')
+              attrs: attributesFromMeta(meta, 'alerting.smtpserver')
             }
           ]
         },
@@ -73,7 +75,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'alerting.smtp_encryption',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'smtp_encryption')
+              attrs: attributesFromMeta(meta, 'alerting.smtp_encryption')
             }
           ]
         },
@@ -85,7 +87,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'alerting.smtp_port',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'smtp_port')
+              attrs: attributesFromMeta(meta, 'alerting.smtp_port')
             }
           ]
         },
@@ -97,7 +99,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'alerting.smtp_username',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'smtp_username')
+              attrs: attributesFromMeta(meta, 'alerting.smtp_username')
             }
           ]
         },
@@ -109,7 +111,7 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'alerting.smtp_password',
               component: pfFormPassword,
-              attrs: attributesFromMeta(meta, 'smtp_password')
+              attrs: attributesFromMeta(meta, 'alerting.smtp_password')
             }
           ]
         },
@@ -136,7 +138,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'alerting.smtp_timeout',
               component: pfFormInput,
               attrs: {
-                ...attributesFromMeta(meta, 'smtp_timeout'),
+                ...attributesFromMeta(meta, 'alerting.smtp_timeout'),
                 ...{
                   type: 'number',
                   step: 1
@@ -173,29 +175,29 @@ export const validators = (form = {}, meta = {}) => {
   return {
     alerting: {
       emailaddr: {
-        ...validatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses')),
+        ...validatorsFromMeta(meta, 'alerting.emailaddr', i18n.t('Email Addresses')),
         ...{
           [i18n.t('Invalid email address.')]: emailsCsv
         }
       },
       fromaddr: {
-        ...validatorsFromMeta(meta, 'fromaddr', i18n.t('Email')),
+        ...validatorsFromMeta(meta, 'alerting.fromaddr', i18n.t('Email')),
         ...{
           [i18n.t('Invalid email address.')]: email
         }
       },
-      smtpserver: validatorsFromMeta(meta, 'smtpserver', i18n.t('Server')),
-      subjectprefix: validatorsFromMeta(meta, 'subjectprefix', i18n.t('Prefix')),
-      smtp_encryption: validatorsFromMeta(meta, 'smtp_encryption', i18n.t('Encryption')),
+      smtpserver: validatorsFromMeta(meta, 'alerting.smtpserver', i18n.t('Server')),
+      // subjectprefix: validatorsFromMeta(meta, 'alerting.subjectprefix', i18n.t('Prefix')),
+      smtp_encryption: validatorsFromMeta(meta, 'alerting.smtp_encryption', i18n.t('Encryption')),
       smtp_port: {
-        ...validatorsFromMeta(meta, 'smtp_port', i18n.t('Port')),
+        ...validatorsFromMeta(meta, 'alerting.smtp_port', i18n.t('Port')),
         ...{
           [i18n.t('Invalid port.')]: isPort
         }
       },
-      smtp_username: validatorsFromMeta(meta, 'smtp_username', i18n.t('Username')),
-      smtp_password: validatorsFromMeta(meta, 'smtp_password', i18n.t('Password')),
-      smtp_timeout: validatorsFromMeta(meta, 'smtp_timeout', i18n.t('Timeout')),
+      smtp_username: validatorsFromMeta(meta, 'alerting.smtp_username', i18n.t('Username')),
+      smtp_password: validatorsFromMeta(meta, 'alerting.smtp_password', i18n.t('Password')),
+      smtp_timeout: validatorsFromMeta(meta, 'alerting.smtp_timeout', i18n.t('Timeout')),
       test_emailaddr: {
         [i18n.t('Invalid email address.')]: emailsCsv
       }

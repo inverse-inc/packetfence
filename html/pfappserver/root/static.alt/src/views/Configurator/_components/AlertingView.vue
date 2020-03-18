@@ -53,7 +53,7 @@ export default {
     },
     advancedMode: { // mutating this property will re-evaluate view() and validators()
       get () {
-        const { meta: { advancedMode = false } = {} } = this
+        const { meta: { alerting: { advancedMode = false } = {} } = {} } = this
         return advancedMode
       },
       set (newValue) {
