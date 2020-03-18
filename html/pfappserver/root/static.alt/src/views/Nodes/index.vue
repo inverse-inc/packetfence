@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import network from '@/utils/network'
 import pfSidebar from '@/components/pfSidebar'
 
 export default {
@@ -22,6 +23,11 @@ export default {
       type: String,
       default: null,
       required: true
+    }
+  },
+  data () {
+    return {
+      switchGroupsMembers: []
     }
   },
   computed: {
@@ -64,17 +70,17 @@ export default {
         {
           name: this.$i18n.t('Switch Groups'),
           collapsable: true,
-          items: this.switchGroups.map(switchGroup => {
+          items: this.switchGroupsMembers.map(switchGroup => {
             return {
-              name: switchGroup.group || this.$i18n.t('Default'),
+              name: switchGroup.id || this.$i18n.t('Default'),
               collapsable: true,
-              items: switchGroup.switches.filter(sw => sw.id !== 'default').map(sw => {
+              items: switchGroup.members.map(switchGroupMember => {
                 return {
-                  name: sw.id,
-                  caption: sw.description,
+                  name: switchGroupMember.id,
+                  caption: switchGroupMember.description,
                   path: {
                     name: 'search',
-                    query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: this.getIpFromCIDR(sw.id) }] }] }) }
+                    query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: network.cidrToIpv4(switchGroupMember.id) }] }] }) }
                   }
                 }
               })
@@ -86,23 +92,21 @@ export default {
     },
     roles () {
       return this.$store.state.config.roles
-    },
-    switches () {
-      return this.$store.state.config.switches
-    },
-    switchGroups () {
-      return this.$store.getters['config/groupedSwitches']
-    }
-  },
-  methods: {
-    getIpFromCIDR (cidr) {
-      return cidr.split('/', 1)[0] || cidr
     }
   },
   created () {
     this.$store.dispatch('config/getRoles')
     if (this.$can('read', 'switches')) {
-      this.$store.dispatch('config/getSwitches')
+      this.$store.dispatch('config/getSwitchGroups').then(switchGroups => {
+        switchGroups.map((switchGroup, index) => {
+          let { id, description, members = [] } = switchGroup
+          members = members.map(member => {
+            const { id, description } = member
+            return { id, description }
+          })
+          this.$set(this.switchGroupsMembers, index, { id, description, members })
+        })
+      })
     }
   }
 }

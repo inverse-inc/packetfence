@@ -161,6 +161,9 @@ const api = {
   getSwitchGroups () {
     return apiCall({ url: 'config/switch_groups', method: 'get' })
   },
+  getSwitchGroupMembers (id) {
+    return apiCall({ url: `config/switch_group/${id}/members`, method: 'get' })
+  },
   getSwitchTemplates () {
     return apiCall({ url: 'config/template_switches', method: 'get' })
   },
@@ -335,16 +338,6 @@ const helpers = {
       sortedSecurityEvents.push(securityEvents[id])
     }
     return sortedSecurityEvents
-  },
-  groupSwitches: (switches) => {
-    let ret = []
-    if (switches) {
-      let groups = [...new Set(switches.map(sw => sw.group))]
-      groups.forEach(function (group) {
-        ret.push({ group: group, switches: switches.filter(sw => sw.group === group) })
-      })
-    }
-    return ret
   }
 }
 
@@ -613,9 +606,6 @@ const getters = {
   },
   sortedSecurityEvents: state => {
     return helpers.sortSecurityEvents(state.securityEvents)
-  },
-  groupedSwitches: state => {
-    return helpers.groupSwitches(state.switches)
   }
 }
 
@@ -1364,8 +1354,22 @@ const actions = {
     if (!state.switchGroups) {
       commit('SWITCH_GROUPS_REQUEST')
       return api.getSwitchGroups().then(response => {
-        commit('SWITCH_GROUPS_UPDATED', response.data.items)
-        return state.switchGroups
+        const { data: { items: switchGroups = [] } = {} } = response
+        let promises = []
+        switchGroups.map((switchGroup, index) => {
+          const { id } = switchGroup
+          promises.push(api.getSwitchGroupMembers(id).then(response => {
+            const { data: { items: members = [] } = {} } = response
+            switchGroups[index].members = members
+          }))
+        })
+        return Promise.all(promises.map(p => p.catch(e => e))).then(() => {
+          commit('SWITCH_GROUPS_UPDATED', switchGroups)
+          return state.switchGroups
+        }).catch(err => {
+          commit('SWITCH_GROUPS_ERROR', err)
+          throw err
+        })
       }).catch((err) => {
         commit('SWITCH_GROUPS_ERROR', err)
         throw err
