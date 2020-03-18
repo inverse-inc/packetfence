@@ -100,11 +100,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Provider_Identifier',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -113,11 +109,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_Identifier',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -126,11 +118,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Service_Provider_Brand',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         }
@@ -144,11 +132,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_Type',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -157,11 +141,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Sub_Location_Type',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -170,11 +150,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'English_Location_Name',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -183,11 +159,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_Address1',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -196,10 +168,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_Address2',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -208,11 +177,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'English_Location_City',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -221,11 +186,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_Zip_Postal_Code',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -234,11 +195,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_State_Province_Name',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -247,11 +204,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_Country_Name',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -260,11 +213,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_Phone_Number',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -273,10 +222,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Location_URL',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -285,10 +231,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Coverage_Area',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         }
@@ -302,10 +245,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'SSID_Open_Auth',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -326,10 +266,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'WEP_Key',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -338,10 +275,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'WEP_Key_Entry_Method',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -350,10 +284,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'WEP_Key_Size',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -362,10 +293,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'SSID_1X',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -422,10 +350,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Client_Support',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -434,10 +359,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'MAC_Address',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         }
@@ -860,10 +782,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Open_Monday',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -872,10 +791,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Open_Tuesday',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -884,10 +800,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Open_Wednesday',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -896,10 +809,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Open_Thursday',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -908,10 +818,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Open_Friday',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -920,10 +827,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Open_Saturday',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -932,10 +836,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Open_Sunday',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         }
@@ -949,10 +850,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Longitude',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -961,10 +859,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'Latitude',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              component: pfFormInput
             }
           ]
         }
