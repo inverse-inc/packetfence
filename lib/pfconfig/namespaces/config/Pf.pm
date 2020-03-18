@@ -165,8 +165,21 @@ sub build_child {
         $logger->info("No timezone defined, using $tz");
         $Config{general}{timezone} = $tz;
     }
+    set_timezone($Config{general}{timezone});
 
     return \%Config;
+}
+
+sub set_timezone {
+    my ($tz) = @_;
+    my $lt = readlink("/etc/localtime"); 
+    $lt =~ s/..\/usr\/share\/zoneinfo\///g;
+    if($lt ne $tz) {
+        my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";
+        print STDERR $msg;
+        get_logger->warn($msg);
+        system("sudo timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
+    }
 }
 
 =head1 AUTHOR
