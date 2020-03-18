@@ -282,11 +282,14 @@ export const viewFields = {
   merge_answer: (form, meta = {}) => {
     return {
       label: i18n.t('Merge Answer'),
+      text: i18n.t('Enable to merge the following answers with the original RADIUS answers.'),
       cols: [
         {
           namespace: 'merge_answer',
-          component: pfFormInput,
-          attrs: attributesFromMeta(meta, 'merge_answer')
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'yes', unchecked: 'no' }
+          }
         }
       ]
     }
@@ -419,8 +422,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.description(form, meta),
             viewFields.status(form, meta),
             viewFields.condition(form, meta),
-            viewFields.answersRadiusAttributes(form, meta),
             viewFields.merge_answer(form, meta),
+            viewFields.answersRadiusAttributes(form, meta),
             viewFields.scopes(form, meta),
             viewFields.radius_status(form, meta)
           ]
