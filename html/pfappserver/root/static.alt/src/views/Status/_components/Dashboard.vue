@@ -765,7 +765,7 @@ export default {
       }
     },
     pingNetdata () {
-      const [firstChart] = this.$store.state[this.storeName].allCharts
+      const [firstChart] = this.$store.getters[`${this.storeName}/uniqueCharts`]
       if (firstChart) {
         // We have a list of charts; check if the first one is still available.
         // In case of an error, the interceptor will set CHART_ERROR
@@ -826,7 +826,7 @@ export default {
     },
     moduleCharts (module) {
       let charts = []
-      for (var chart of this.$store.state[this.storeName].allCharts) {
+      for (var chart of this.$store.getters[`${this.storeName}/uniqueCharts`]) {
         if ((chart.module && chart.module === module) || (!chart.module && module === 'other')) {
           charts.push(chart)
         }
@@ -834,7 +834,7 @@ export default {
       return charts
     },
     chartDimensions (chart) {
-      const definition = this.$store.state[this.storeName].allCharts.find(o => o.id === chart)
+      const definition = this.$store.getters[`${this.storeName}/uniqueCharts`].find(o => o.id === chart)
       if (definition) {
         const { dimensions } = definition
         return Object.values(dimensions).map(dimension => dimension.name)
@@ -842,16 +842,20 @@ export default {
       return []
     },
     chartHosts (chart) {
-      const { mode, params = {} } = chart
+      const { metric, mode, params = {} } = chart
       let hosts = []
       if (mode === modes.COMBINED) {
         // Cluster data is aggregated into one chart
-        hosts = [this.cluster.map(server => `/netdata/${server.management_ip}`).join(',')]
-        params['friendly-host-names'] = this.cluster.map(server => `/netdata/${server.management_ip}=${server.host}`).join(',')
+        hosts = [this.$store.getters[`${this.storeName}/hostsForChart`](metric).map(host => `/netdata/${host}`).join(',')]
+        params['friendly-host-names'] = this.cluster.filter(server => {
+          return this.$store.getters[`${this.storeName}/hostsForChart`](metric).includes(server.management_ip)
+        }).map(server => {
+          return `/netdata/${server.management_ip}=${server.host}`
+        }).join(',')
         chart.params = params
       } else if (mode === modes.SINGLE) {
         // Each cluster member has a chart
-        hosts = this.cluster.map(server => `/netdata/${server.management_ip}`)
+        hosts = this.$store.getters[`${this.storeName}/hostsForChart`](metric).map(host => `/netdata/${host}`)
       } else if (mode === modes.LOCAL) {
         // Only check localhost
         hosts = ['/netdata/127.0.0.1']
@@ -859,7 +863,7 @@ export default {
       return hosts
     },
     chartIsValid (chart) {
-      return !!this.$store.state[this.storeName].allCharts.find(c => c.id === chart.metric)
+      return !!this.$store.getters[`${this.storeName}/uniqueCharts`].find(c => c.id === chart.metric)
     },
     cols (count, siblings) {
       return siblings === 1 ? 12 : (count || 6)
@@ -868,7 +872,7 @@ export default {
       return palettes[index % palettes.length]
     },
     addChart (options) {
-      let definition = this.$store.state[this.storeName].allCharts.find(c => c.id === options.id)
+      let definition = this.$store.getters[`${this.storeName}/uniqueCharts`].find(c => c.id === options.id)
       let chart = Object.assign(definition, options)
       this.$store.dispatch(`${this.storeName}/addChart`, chart)
       this.initNetdata()
