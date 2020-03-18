@@ -318,7 +318,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Accounting timebucket size'),
-          text: i18n.t('Accounting timebucket size.'),
+          text: i18n.t('Accounting timebucket size. Changing this requires to restart pfacct.'),
           cols: [
             {
               namespace: 'accounting_timebucket_size.interval',
