@@ -297,7 +297,13 @@ sub _parse_fact {
 
     #Check if it is a not expression !
     if (/\G\s*!/gc) {
-        return ['NOT' ,_parse_fact()];
+        my $fact = _parse_fact();
+        if (ref $fact) {
+            if ($fact->[0] eq 'NOT') {
+                return $fact->[1];
+            }
+        }
+        return ['NOT', $fact];
     }
 
     #Check if it is a sub expression ()
@@ -396,12 +402,16 @@ sub highlight_error {
 our %OPS_WITH_VALUES = (
     'AND' => 'and',
     'OR' => 'or',
-    'NOT' => 'not',
 );
 
 our %OBJ_OPS = (
     and => '&&',
     or  => '||',
+);
+
+our %OBJ_NOT_OPS = (
+    not_and => '&&',
+    not_or  => '||',
 );
 
 our %OP_BINARY = (
@@ -415,6 +425,7 @@ our %OP_BINARY = (
     "<"  => 'lower',
     "<=" => 'lower_equals',
 );
+
 
 our %ROP_BINARY = map { $OP_BINARY{$_} => $_ } keys %OP_BINARY;
 
@@ -438,6 +449,14 @@ sub _ast_to_object {
         if ($op eq 'FUNC') {
             my ($f, $args) = @{$ast}[1,2];
             return { op => $f, field => $args->[0], value => $args->[1] };
+        }
+
+        if ($op eq 'NOT') {
+            my $sub = $ast->[1];
+            my $sub_op = $sub->[0];
+            if (exists $OPS_WITH_VALUES{$sub_op}) {
+                return { op => "not_$OPS_WITH_VALUES{$sub_op}", values => [map { _ast_to_object($_) } @{$sub}[1..(@{$sub} - 1)] ] };
+            }
         }
 
         return undef;
@@ -464,6 +483,11 @@ sub _object_to_str {
         }
 
         return join('', '(', join( " $OBJ_OPS{$op} ", map { _object_to_str($_) } @$values ), ')' );
+    }
+
+    if (exists $OBJ_NOT_OPS{$op}) {
+        my $values = $obj->{values};
+        return join('', '!(', join( " $OBJ_NOT_OPS{$op} ", map { _object_to_str($_) } @$values ), ')' );
     }
 
     if (exists $ROP_BINARY{$op}) {

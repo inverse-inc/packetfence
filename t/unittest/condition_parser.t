@@ -16,7 +16,7 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
-our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT);
+our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT, @OBJECT_TO_STR_TESTS);
 
 BEGIN {
     #include test libs
@@ -216,7 +216,7 @@ BEGIN {
         [ '((a))',          'a' ],
         [ '( ( a ) )     ', 'a' ],
         [ '!a', [ 'NOT', 'a' ] ],
-        [ '!!a', [ 'NOT', [ 'NOT', 'a' ] ] ],
+        [ '!!a', 'a' ],
         [ '!(a && b)', [ 'NOT', [ 'AND', 'a', 'b' ] ] ],
         [ 'a == b', [ '==', 'a', 'b' ] ],
         [ 'a.x', 'a.x' ],
@@ -240,6 +240,25 @@ BEGIN {
             [ 'AND', [ '==', 'a', 'b' ], [ '==', 'c', 'd' ] ],
             {
                 op => "and",
+                values => [
+                    {
+                        op => "equals",
+                        field => "a",
+                        value => "b"
+                    },
+                    {
+                        op => "equals",
+                        field => "c",
+                        value => "d"
+                    }
+                ]
+            }
+        ],
+        [
+            '!(a == "b" && c == "d")',
+            ['NOT', [ 'AND', [ '==', 'a', 'b' ], [ '==', 'c', 'd' ] ]],
+            {
+                op => "not_and",
                 values => [
                     {
                         op => "equals",
@@ -327,7 +346,28 @@ BEGIN {
         'F(',
     );
 
-    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS);
+    @OBJECT_TO_STR_TESTS = (
+        [
+            {
+                op     => "not_and",
+                values => [
+                    {
+                        op    => "equals",
+                        field => "a",
+                        value => "b"
+                    },
+                    {
+                        op    => "equals",
+                        field => "c",
+                        value => "d"
+                    }
+                ]
+            },
+            '!(a == "b" && c == "d")',
+        ],
+    );
+
+    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS) + (scalar @OBJECT_TO_STR_TESTS);
 }
 
 use Test::More tests => $TEST_COUNT;
@@ -366,6 +406,17 @@ sub test_valid_string {
         } else {
             is_deeply(pf::condition_parser::_ast_to_object($ast), $object, "Object serialization worked for '$string'");
         }
+    }
+}
+
+{
+    for my $test (@OBJECT_TO_STR_TESTS) {
+        my $expected = $test->[1];
+        is(
+            pf::condition_parser::object_to_str($test->[0]),
+            $expected,
+            "Check object to string '$expected'",
+        );
     }
 }
 
