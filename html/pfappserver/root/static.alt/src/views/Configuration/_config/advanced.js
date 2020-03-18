@@ -315,6 +315,22 @@ export const view = (form = {}, meta = {}) => {
               }
             }
           ]
+        },
+        {
+          label: i18n.t('Accounting timebucket size'),
+          text: i18n.t('Accounting timebucket size.'),
+          cols: [
+            {
+              namespace: 'accounting_timebucket_size.interval',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'accounting_timebucket_size.interval')
+            },
+            {
+              namespace: 'accounting_timebucket_size.unit',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'accounting_timebucket_size.unit')
+            }
+          ]
         }
       ]
     }
@@ -324,7 +340,8 @@ export const view = (form = {}, meta = {}) => {
 export const validators = (form = {}, meta = {}) => {
   const {
     api_inactivity_timeout = { unit: null, interval: null },
-    api_max_expiration = { unit: null, interval: null }
+    api_max_expiration = { unit: null, interval: null },
+    accounting_timebucket_size = { unit: null, interval: null },
   } = form
   return {
     language: validatorsFromMeta(meta, 'language', i18n.t('Language')),
@@ -364,6 +381,20 @@ export const validators = (form = {}, meta = {}) => {
     pfperl_api_timeout: validatorsFromMeta(meta, 'pfperl_api_timeout', i18n.t('Timeout')),
     timing_stats_level: validatorsFromMeta(meta, 'timing_stats_level', i18n.t('Level')),
     source_to_send_sms_when_creating_users: validatorsFromMeta(meta, 'source_to_send_sms_when_creating_users', i18n.t('Source')),
-    netflow_on_all_networks: validatorsFromMeta(meta, 'netflow_on_all_networks', i18n.t('NetFlow On All Networks'))
+    netflow_on_all_networks: validatorsFromMeta(meta, 'netflow_on_all_networks', i18n.t('NetFlow On All Networks')),
+    accounting_timebucket_size: {
+      interval: {
+        ...validatorsFromMeta(meta, 'accounting_timebucket_size.interval', i18n.t('Interval')),
+        ...{
+          [i18n.t('Interval required.')]: requiredIf(() => accounting_timebucket_size.unit !== null)
+        }
+      },
+      unit: {
+        ...validatorsFromMeta(meta, 'accounting_timebucket_size.unit', i18n.t('Unit')),
+        ...{
+          [i18n.t('Unit required.')]: requiredIf(() => accounting_timebucket_size.interval !== null)
+        }
+      }
+    }
   }
 }

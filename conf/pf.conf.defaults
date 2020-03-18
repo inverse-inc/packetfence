@@ -943,6 +943,11 @@ configurator = enabled
 # Listen to netflow on all networks
 netflow_on_all_network = disabled
 
+# advanced.accounting_timebucket_size
+#
+# Accounting timebucket size
+accounting_timebucket_size = 5m
+
 [provisioning]
 #
 # provisioning.autoconfig
