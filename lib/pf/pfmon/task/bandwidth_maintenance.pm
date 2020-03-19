@@ -1,36 +1,37 @@
-package pf::pfmon::task::radius_audit_log_cleanup;
+package pf::pfmon::task::bandwidth_maintenance;
 
 =head1 NAME
 
-pf::pfmon::task::radius_audit_log_cleanup - class for pfmon task radius audit log cleanup
+pf::pfmon::task::bandwidth_maintenance - class for pfmon task inline accounting maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::radius_audit_log_cleanup
+pf::pfmon::task::bandwidth_maintenance
 
 =cut
 
 use strict;
 use warnings;
+use pf::bandwidth_accounting qw(bandwidth_maintenance);
+use pf::config qw(%Config);
+use pf::util qw(isenabled);
 use Moose;
-use pf::radius_audit_log;
 extends qw(pf::pfmon::task);
 
 has 'batch' => ( is => 'rw');
-has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 
-run the radius audit log cleanup task
+run the inline accounting maintenance task
 
 =cut
 
 sub run {
     my ($self) = @_;
-    my $window = $self->window;
-    radius_audit_log_cleanup($window, $self->batch, $self->timeout) if $window;
+    bandwidth_maintenance($self->batch, $self->timeout);
 }
 
 =head1 AUTHOR

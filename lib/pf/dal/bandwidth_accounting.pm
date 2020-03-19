@@ -1,40 +1,25 @@
-package pf::pfmon::task::radius_audit_log_cleanup;
+package pf::dal::bandwidth_accounting;
 
 =head1 NAME
 
-pf::pfmon::task::radius_audit_log_cleanup - class for pfmon task radius audit log cleanup
+pf::dal::bandwidth_accounting - pf::dal module to override for the table bandwidth_accounting
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::radius_audit_log_cleanup
+pf::dal::bandwidth_accounting
+
+pf::dal implementation for the table bandwidth_accounting
 
 =cut
 
 use strict;
 use warnings;
-use Moose;
-use pf::radius_audit_log;
-extends qw(pf::pfmon::task);
 
-has 'batch' => ( is => 'rw');
-has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
-
-=head2 run
-
-run the radius audit log cleanup task
-
-=cut
-
-sub run {
-    my ($self) = @_;
-    my $window = $self->window;
-    radius_audit_log_cleanup($window, $self->batch, $self->timeout) if $window;
-}
+use base qw(pf::dal::_bandwidth_accounting);
 
 =head1 AUTHOR
-
 
 Inverse inc. <info@inverse.ca>
 

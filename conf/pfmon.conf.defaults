@@ -717,3 +717,34 @@ timeout=10s
 # How long to keep a admin_api_audit_log entry before deleting it
 window=6M
 
+[bandwidth_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=bandwidth_maintenance
+#
+# description
+#
+# The description of task to perform
+description=Controls the aggreation of the bandwidth accounting records.
+#
+# status
+#
+# If the task radius_audit_log_cleanup is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the radius audit log cleanup pfmon task
+interval=60s
+#
+# batch
+#
+# How many radius_audit_log_cleanup entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a radius_audit_log_cleanup job can run
+timeout=10s

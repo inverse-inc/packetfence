@@ -1,16 +1,16 @@
-package pf::dal::_admin_api_audit_log;
+package pf::dal::_bandwidth_accounting;
 
 =head1 NAME
 
-pf::dal::_admin_api_audit_log - pf::dal implementation for the table admin_api_audit_log
+pf::dal::_bandwidth_accounting - pf::dal implementation for the table bandwidth_accounting
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_admin_api_audit_log
+pf::dal::_bandwidth_accounting
 
-pf::dal implementation for the table admin_api_audit_log
+pf::dal implementation for the table bandwidth_accounting
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_admin_api_audit_log is auto generated any change to this file will be lost
-### Instead change in the pf::dal::admin_api_audit_log module
+### pf::dal::_bandwidth_accounting is auto generated any change to this file will be lost
+### Instead change in the pf::dal::bandwidth_accounting module
 ###
 
 use base qw(pf::dal);
@@ -36,120 +36,95 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        id
         tenant_id
-        created_at
-        user_name
-        action
-        object_id
-        url
-        method
-        request
-        status
+        mac
+        unique_session_id
+        time_bucket
+        in_bytes
+        out_bytes
+        total_bytes
     );
 
     %DEFAULTS = (
-        tenant_id => '1',
-        created_at => 'CURRENT_TIMESTAMP(6)',
-        user_name => undef,
-        action => undef,
-        object_id => undef,
-        url => undef,
-        method => undef,
-        request => undef,
-        status => '',
+        tenant_id => '',
+        mac => '',
+        unique_session_id => '',
+        time_bucket => '',
+        in_bytes => '',
+        out_bytes => '',
+        total_bytes => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
         tenant_id
-        created_at
-        user_name
-        action
-        object_id
-        url
-        method
-        request
-        status
+        mac
+        unique_session_id
+        time_bucket
+        in_bytes
+        out_bytes
+        total_bytes
     );
 
     %FIELDS_META = (
-        id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
         tenant_id => {
             type => 'INT',
             is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        mac => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        unique_session_id => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        time_bucket => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        in_bytes => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        created_at => {
-            type => 'TIMESTAMP',
+        out_bytes => {
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        user_name => {
-            type => 'VARCHAR',
+        total_bytes => {
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
-        },
-        action => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        object_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        url => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        method => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        request => {
-            type => 'MEDIUMTEXT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        status => {
-            type => 'SMALLINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
         },
     );
 
     @PRIMARY_KEYS = qw(
-        id
+        tenant_id
+        mac
+        time_bucket
+        unique_session_id
     );
 
     @COLUMN_NAMES = qw(
-        admin_api_audit_log.id
-        admin_api_audit_log.tenant_id
-        admin_api_audit_log.created_at
-        admin_api_audit_log.user_name
-        admin_api_audit_log.action
-        admin_api_audit_log.object_id
-        admin_api_audit_log.url
-        admin_api_audit_log.method
-        admin_api_audit_log.request
-        admin_api_audit_log.status
+        bandwidth_accounting.tenant_id
+        bandwidth_accounting.mac
+        bandwidth_accounting.unique_session_id
+        bandwidth_accounting.time_bucket
+        bandwidth_accounting.in_bytes
+        bandwidth_accounting.out_bytes
+        bandwidth_accounting.total_bytes
     );
 
 }
@@ -160,7 +135,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of admin_api_audit_log
+The default values of bandwidth_accounting
 
 =cut
 
@@ -170,7 +145,7 @@ sub _defaults {
 
 =head2 table_field_names
 
-Field names of admin_api_audit_log
+Field names of bandwidth_accounting
 
 =cut
 
@@ -180,7 +155,7 @@ sub table_field_names {
 
 =head2 primary_keys
 
-The primary keys of admin_api_audit_log
+The primary keys of bandwidth_accounting
 
 =cut
 
@@ -194,11 +169,11 @@ The table name
 
 =cut
 
-sub table { "admin_api_audit_log" }
+sub table { "bandwidth_accounting" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `admin_api_audit_log` WHERE $where;";
+    "SELECT * FROM `bandwidth_accounting` WHERE $where;";
 };
 
 =head2 find_columns
@@ -213,7 +188,7 @@ sub find_columns {
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row admin_api_audit_log
+The precalculated sql to find a single row bandwidth_accounting
 
 =cut
 
@@ -223,7 +198,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for admin_api_audit_log
+The updateable fields for bandwidth_accounting
 
 =cut
 
@@ -233,7 +208,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for admin_api_audit_log
+The insertable fields for bandwidth_accounting
 
 =cut
 
@@ -243,7 +218,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for admin_api_audit_log
+Get the meta data for bandwidth_accounting
 
 =cut
 
