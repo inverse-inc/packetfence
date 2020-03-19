@@ -175,6 +175,10 @@ EOT
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
 
+    my $config_file = "passthrough_admin.lua";
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process("$conf_dir/$config_file.tt", $vars, "$generated_conf_dir/$config_file") or die $tt->error();
+
     return 1;
 }
 

@@ -924,6 +924,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/networks.conf
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
+%config                 /usr/local/pf/conf/passthrough_admin.lua.tt
 %config                 /usr/local/pf/conf/passthrough.lua.tt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
