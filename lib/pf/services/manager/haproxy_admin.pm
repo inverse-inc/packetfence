@@ -24,8 +24,6 @@ use pf::cluster;
 use pf::config qw(
     %Config
     $OS
-    @listen_ints
-    @dhcplistener_ints
     $management_network
     @portal_ints
     @internal_nets
@@ -53,7 +51,6 @@ sub generateConfig {
 
     my %tags;
     $tags{'template'} = $self->haproxy_config_template;
-    $tags{'http'} = '';
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
     $tags{'bind-process'} = '';
@@ -63,10 +60,6 @@ sub generateConfig {
     } else {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
-    my $cluster_ip;
-    my $ip_cluster;
-    my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
-    my @portal_ip;
 
     my $mgmt_int = $management_network->tag('int');
     my $mgmt_cfg = $Config{"interface $mgmt_int"};
@@ -75,6 +68,12 @@ sub generateConfig {
     my $mgmt_cluster_ip = pf::cluster::cluster_ip($mgmt_int) || $mgmt_cfg->{'vip'} || $mgmt_cfg->{'ip'};
     my @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
     push @mgmt_backend_ip, '127.0.0.1' if !@mgmt_backend_ip;
+
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+
 
     my $portal_preview_ip = portal_preview_ip();
     my $mgmt_backend_ip_config;

@@ -371,6 +371,16 @@ pfdhcp=enabled
 # Location of the pfdhcp binary.
 pfdhcp_binary=/usr/local/pf/sbin/pfdhcp
 #
+# services.haproxy-admin
+#
+# Should haproxy-admin be started?
+haproxy-admin=enabled
+#
+# services.haproxy-admin_binary
+#
+# Location of the haproxy-admin binary. Only necessary to change if you are not running the RPMed version.
+haproxy-admin_binary=/usr/sbin/haproxy
+#
 # services.haproxy-portal
 #
 # Should haproxy-portal be started?

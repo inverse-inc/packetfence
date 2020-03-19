@@ -392,6 +392,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}%{_unitdir}/packetfence-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-galera-autofix.service %{buildroot}%{_unitdir}/packetfence-galera-autofix.service
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service %{buildroot}%{_unitdir}/packetfence-tracking-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-admin.service %{buildroot}%{_unitdir}/packetfence-haproxy-admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
@@ -705,7 +706,6 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
 /bin/systemctl isolate packetfence-base
-/bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
@@ -713,7 +713,6 @@ if [ -n "$CI" ]; then
     echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
 else
     echo "Starting PacketFence Administration GUI..."
-    /bin/systemctl restart packetfence-httpd.admin
 fi
 
 
@@ -1012,6 +1011,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/vlan_filters.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/haproxy-admin.conf
+                        /usr/local/pf/conf/haproxy-admin.conf.example
 %config(noreplace)      /usr/local/pf/conf/haproxy-db.conf
                         /usr/local/pf/conf/haproxy-db.conf.example
 %config(noreplace)      /usr/local/pf/conf/haproxy-portal.conf
