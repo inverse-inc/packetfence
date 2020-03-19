@@ -147,7 +147,7 @@ frontend admin-https-$mgmt_cluster_ip
         http-request lua.admin
         use_backend %[var(req.action)]
         default_backend $mgmt_cluster_ip-admin
-        http-request redirect location /admin/alt if { lua.redirect 1 }
+        http-request redirect location /admin/alt/index if { lua.redirect 1 }
 
 backend $mgmt_cluster_ip-admin
         balance source
