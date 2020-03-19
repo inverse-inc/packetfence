@@ -41,6 +41,7 @@ use pfappserver::Form::Config::PortalModule::Authentication::Email;
 use pfappserver::Form::Config::PortalModule::Authentication::Login;
 use pfappserver::Form::Config::PortalModule::Authentication::Null;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth;
+use pfappserver::Form::Config::PortalModule::Authentication::POTD;
 use pfappserver::Form::Config::PortalModule::Authentication::Password;
 use pfappserver::Form::Config::PortalModule::Authentication::SAML;
 use pfappserver::Form::Config::PortalModule::Authentication::SMS;
@@ -76,6 +77,7 @@ our %TYPES_TO_FORMS = (
         Authentication::Login
         Authentication::Null
         Authentication::OAuth
+        Authentication::POTD
         Authentication::Password
         Authentication::SAML
         Authentication::SMS
