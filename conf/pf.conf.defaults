@@ -439,7 +439,7 @@ pfbandwidthd=disabled
 # services.httpd_admin
 #
 # Should httpd.admin be started?
-httpd_admin=enabled
+httpd_admin=disabled
 #
 # services.httpd_portal
 #
