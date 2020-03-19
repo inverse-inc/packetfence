@@ -75,6 +75,7 @@ has_field merge_answer => (
     type            => 'Toggle',
     checkbox_value  => 'yes',
     unchecked_value => 'no',
+    default => 'no',
 );
 
 =head1 AUTHOR
