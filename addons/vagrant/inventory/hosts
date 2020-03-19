@@ -49,28 +49,28 @@ all:
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
-              memory: 6144
+              memory: 4096
             pfcen8dev:
               box: centos/8
               mgmt_ip: 172.17.17.11
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
-              memory: 6144
+              memory: 4096
             pfdeb9dev:
               box: debian/stretch64
               mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
-              memory: 8192
+              memory: 4096
             pfdeb10dev:
               box: debian/buster64
               mgmt_ip: 172.17.17.13
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
-              memory: 8192
+              memory: 4096
 
         stable:
           hosts:
