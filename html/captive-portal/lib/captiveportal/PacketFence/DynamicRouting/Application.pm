@@ -147,11 +147,19 @@ sub process_fingerbank {
     $self->response_headers->{'Accept-CH'} = "ua, platform, arch, model, mobile";
     $self->response_headers->{'Accept-CH-Lifetime'} = "300";
 
-    for my $ch (qw(sec-ch-ua sec-ch-ua-platform sec-ch-ua-model sec-ch-ua-arch)) {
-        my $val = $self->request->header($ch);
-        if(defined($val)) {
-            get_logger->info("Received client hint header '$ch' => '$val'");
+    if(defined($self->request->header("sec-ch-ua"))) {
+        my $chua = $self->request->header("sec-ch-ua");
+        my $info = {};
+        for my $ch (qw(sec-ch-ua-platform sec-ch-ua-model sec-ch-ua-arch)) {
+            my $val = $self->request->header($ch);
+            if(defined($val)) {
+                get_logger->debug("Received client hint header '$ch' => '$val'");
+                $info->{$ch} = $val;
+            }
         }
+        pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
+            client_hints => {$chua => $info}, 
+        });
     }
 
     my $client = pf::api::queue->new(queue => 'general');
