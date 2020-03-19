@@ -1090,6 +1090,14 @@ cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Timezone ===
+
+The timezone set in pf.conf will be set on the operating system every time PacketFence reloads its configuration.
+For this reason, you should review the timezone setting in the general section of pf.conf (System Configuration -> General Configuration in the admin).
+If its empty, PacketFence will use the timezone that is already set on the server and you don't have anything to do.
+Otherwise, it will set the timezone in this setting on the operating system layer for consistency which may modify the timezone setting of your operating system.
+In this case you should ensure that you reboot the server after completing all the steps of the upgrade so that the services start with the right timezone.
+
 === Tracking configuration service enabled by default
 
 `packetfence-tracking-config` service is now enabled by default. It means that all
