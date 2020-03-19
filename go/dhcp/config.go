@@ -103,6 +103,7 @@ func (d *Interfaces) readConfig() {
 			log.LoggerWContext(ctx).Error("Cannot find interface " + v + " on the system")
 			continue
 		}
+		var backend string
 
 		var ethIf Interface
 
@@ -233,8 +234,13 @@ func (d *Interfaces) readConfig() {
 							// Default value for algorithm
 							algorithm := 1
 							algorithm, _ = strconv.Atoi(ConfNet.Algorithm)
+							if ConfNet.PoolBackend == "" {
+								backend = "memory"
+							} else {
+								backend = ConfNet.PoolBackend
+							}
 							// Initialize dhcp pool
-							available, _ := pool.Create(ctx, ConfNet.PoolBackend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase)
+							available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase)
 
 							DHCPScope.available = available
 
@@ -297,9 +303,13 @@ func (d *Interfaces) readConfig() {
 						// Default value for algorithm
 						algorithm := 1
 						algorithm, _ = strconv.Atoi(ConfNet.Algorithm)
-
+						if ConfNet.PoolBackend == "" {
+							backend = "memory"
+						} else {
+							backend = ConfNet.PoolBackend
+						}
 						// Initialize dhcp pool
-						available, _ := pool.Create(ctx, ConfNet.PoolBackend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase)
+						available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase)
 
 						DHCPScope.available = available
 
