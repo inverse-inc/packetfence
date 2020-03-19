@@ -457,6 +457,8 @@ sub _ast_to_object {
             if (exists $OPS_WITH_VALUES{$sub_op}) {
                 return { op => "not_$OPS_WITH_VALUES{$sub_op}", values => [map { _ast_to_object($_) } @{$sub}[1..(@{$sub} - 1)] ] };
             }
+
+            return { op => "not", values => [ _ast_to_object($sub) ]};
         }
 
         return undef;

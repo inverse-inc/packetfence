@@ -273,6 +273,20 @@ BEGIN {
                 ]
             }
         ],
+        [
+            '!(a == "b")',
+            ['NOT', [ '==', 'a', 'b' ], ],
+            {
+                op => "not",
+                values => [
+                    {
+                        op => "equals",
+                        field => "a",
+                        value => "b"
+                    },
+                ]
+            }
+        ],
         [ 'a == ""', [ '==', 'a', '' ] ],
         [
             'a == b && c == d',
@@ -364,6 +378,32 @@ BEGIN {
                 ]
             },
             '!(a == "b" && c == "d")',
+        ],
+        [
+            {
+                op     => "not_and",
+                values => [
+                    {
+                        op    => "equals",
+                        field => "c",
+                        value => "d"
+                    }
+                ]
+            },
+            '!(c == "d")',
+        ],
+        [
+            {
+                op     => "not_and",
+                values => [
+                    {
+                        op    => "contains",
+                        field => "c",
+                        value => "d"
+                    }
+                ]
+            },
+            '!(contains(c, "d"))',
         ],
     );
 
