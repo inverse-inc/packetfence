@@ -82,6 +82,7 @@ BEGIN {
 use pf::config qw(%connection_type_explained);
 use pf::db;
 use pf::util;
+use pf::config::tenant;
 use pf::config::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -281,58 +282,96 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_osclassbandwidth_sql'} = get_db_handle()->prepare(qq[
-        SELECT IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
-            ROUND(
-                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-                    INNER JOIN node n ON n.mac = radacct.callingstationid
-                    WHERE timestamp BETWEEN ? AND ?
-                )*100,1
-            ) AS percent
-        FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-            INNER JOIN node n ON n.mac = radacct.callingstationid
-        WHERE timestamp BETWEEN ? AND ?
+      SELECT
+        IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
+        in_bytes AS bytes_in,
+        out_bytes AS bytes_out,
+        in_bytes + out_bytes AS bytes,
+        ROUND(in_bytes / total_in * 100, 2) AS percent_in,
+        ROUND(out_bytes / total_out * 100, 2) AS percent_out,
+        ROUND((in_bytes + out_bytes) / (total_in + total_out) * 100, 2) AS percent
+      FROM (
+        SELECT
+          SUM(in_bytes) AS total_in,
+          SUM(out_bytes) AS total_out
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= ?
+          AND time_bucket <= ?
+      ) `totals`
+      LEFT OUTER JOIN (
+        SELECT
+          device_class,
+          SUM(in_bytes) AS in_bytes,
+          SUM(out_bytes) AS out_bytes
+        FROM bandwidth_accounting
+        LEFT JOIN node USING (tenant_id, mac)
+        WHERE tenant_id = ?
+          AND time_bucket >= ?
+          AND time_bucket <= ?
         GROUP BY device_class
-        ORDER BY percent DESC;
+      ) `node` ON 1=1
+      ORDER BY bytes DESC;
     ]);
 
     $report_statements->{'report_osclassbandwidth_all_sql'} = get_db_handle()->prepare(qq [
-        SELECT IFNULL(device_class, 'Unknown Fingerprint') as dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
-            ROUND(
-                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-                    INNER JOIN node n ON n.mac = radacct.callingstationid
-                )*100,1
-            ) AS percent
-        FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-            INNER JOIN node n ON n.mac = radacct.callingstationid
+      SELECT
+        IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
+        in_bytes AS bytes_in,
+        out_bytes AS bytes_out,
+        in_bytes + out_bytes AS bytes,
+        ROUND(in_bytes / total_in * 100, 2) AS percent_in,
+        ROUND(out_bytes / total_out * 100, 2) AS percent_out,
+        ROUND((in_bytes + out_bytes) / (total_in + total_out) * 100, 2) AS percent
+      FROM (
+        SELECT
+          SUM(in_bytes) AS total_in,
+          SUM(out_bytes) AS total_out
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+      ) `totals`
+      LEFT OUTER JOIN (
+        SELECT
+          device_class,
+          SUM(in_bytes) AS in_bytes,
+          SUM(out_bytes) AS out_bytes
+        FROM bandwidth_accounting
+        LEFT JOIN node USING (tenant_id, mac)
+        WHERE tenant_id = ?
         GROUP BY device_class
-        ORDER BY percent DESC;
+      ) `node` ON 1=1
+      ORDER BY bytes DESC;
     ]);
 
     $report_statements->{'report_osclassbandwidth_with_range_sql'} = get_db_handle()->prepare(qq[
-        SELECT IFNULL(device_class, 'Unknown Fingerprint') as dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
-            ROUND(
-                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-                    INNER JOIN node n ON n.mac = radacct.callingstationid
-                    WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-                )*100,1
-            ) AS percent
-        FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-            INNER JOIN node n ON n.mac = radacct.callingstationid
-        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+      SELECT
+        IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
+        in_bytes AS bytes_in,
+        out_bytes AS bytes_out,
+        in_bytes + out_bytes AS bytes,
+        ROUND(in_bytes / total_in * 100, 2) AS percent_in,
+        ROUND(out_bytes / total_out * 100, 2) AS percent_out,
+        ROUND((in_bytes + out_bytes) / (total_in + total_out) * 100, 2) AS percent
+      FROM (
+        SELECT
+          SUM(in_bytes) AS total_in,
+          SUM(out_bytes) AS total_out
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+      ) `totals`
+      LEFT OUTER JOIN (
+        SELECT
+          device_class,
+          SUM(in_bytes) AS in_bytes,
+          SUM(out_bytes) AS out_bytes
+        FROM bandwidth_accounting
+        LEFT JOIN node USING (tenant_id, mac)
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
         GROUP BY device_class
-        ORDER BY percent DESC;
+      ) `node` ON 1=1
+      ORDER BY bytes DESC;
     ]);
 
     $report_statements->{'report_nodebandwidth_sql'} = get_db_handle()->prepare(qq [
@@ -978,34 +1017,42 @@ Sub that supports a range from now til $range window.
 
 sub _report_osclassbandwidth_with_range {
     my ($range) = @_;
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $range, $range);
-    my $totalbwoctets = 0;
+    my $tenant = pf::config::tenant::get_tenant();
+
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $tenant, $range, $tenant, $range);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
     foreach my $record (@data) {
-        $totalbwoctets += $record->{'accttotaloctets'};
+        $total_bytes += $record->{'bytes'};
+        $total_bytes_in += $record->{'bytes_in'};
+        $total_bytes_out += $record->{'bytes_out'};
         $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
         push @return_data, $record;
     }
-    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", bytes => $total_bytes, bytes_in => $total_bytes_in, bytes_out => $total_bytes_out };
     return (@return_data);
 }
 
 sub report_osclassbandwidth {
     my ($start, $end) = @_;
+    my $tenant = pf::config::tenant::get_tenant();
 
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $start, $end, $start, $end);
-    my $totalbwoctets = 0;
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
     foreach my $record (@data) {
-        $totalbwoctets += $record->{'accttotaloctets'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        $total_bytes += $record->{'bytes'};
+        $total_bytes_in += $record->{'bytes_in'};
+        $total_bytes_out += $record->{'bytes_out'};
         push @return_data, $record;
     }
-    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", bytes => $total_bytes, bytes_in => $total_bytes_in, bytes_out => $total_bytes_out };
     return (@return_data);
 }
 
@@ -1016,17 +1063,22 @@ Reporting - OS Class bandwidth usage - All time
 =cut
 
 sub report_osclassbandwidth_all {
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_all_sql');
-    my $totalbwoctets = 0;
+    my $tenant = pf::config::tenant::get_tenant();
+
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_all_sql', $tenant, $tenant);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
     foreach my $record (@data) {
-        $totalbwoctets += $record->{'accttotaloctets'};
+        $total_bytes += $record->{'bytes'};
+        $total_bytes_in += $record->{'bytes_in'};
+        $total_bytes_out += $record->{'bytes_out'};
         $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
         push @return_data, $record;
     }
-    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", bytes => $total_bytes, bytes_in => $total_bytes_in, bytes_out => $total_bytes_out };
     return (@return_data);
 }
 

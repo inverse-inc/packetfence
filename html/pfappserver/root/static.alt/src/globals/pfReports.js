@@ -1,3 +1,4 @@
+import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 import store from '@/store'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
@@ -158,6 +159,37 @@ export const pfReportColumns = () => {
       sortable: true,
       visible: true
     },
+bytes: {
+  key: 'bytes',
+  label: i18n.t('Bytes Total'),
+  class: 'text-nowrap',
+  sortable: true,
+  visible: true,
+  formatter: (value) => {
+    return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+  }
+},
+bytes_in: {
+  key: 'bytes_in',
+  label: i18n.t('Bytes In'),
+  class: 'text-nowrap',
+  sortable: true,
+  visible: true,
+  formatter: (value) => {
+    return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+  }
+},
+bytes_out: {
+  key: 'bytes_out',
+  label: i18n.t('Bytes Out'),
+  class: 'text-nowrap',
+  sortable: true,
+  visible: true,
+  formatter: (value) => {
+    return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+  }
+},
+
     callingstationid: {
       key: 'callingstationid',
       label: i18n.t('Calling Station ID'),
@@ -894,8 +926,9 @@ export const pfReportCategories = () => [
         ],
         columns: [
           pfReportColumns().dhcp_fingerprint,
-          pfReportColumns().accttotal,
-          pfReportColumns().accttotaloctets,
+          pfReportColumns().bytes_in,
+          pfReportColumns().bytes_out,
+          pfReportColumns().bytes,
           pfReportColumns().percent
         ],
         chart: {
@@ -905,7 +938,7 @@ export const pfReportCategories = () => [
           },
           values: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
+            return items.map(item => item.bytes)
           },
           options: pfReportChartOptions.pie,
           layout: pfReportChartLayout.pie
