@@ -7,6 +7,7 @@ SHELL=/bin/bash
 PERL_UNIT_TESTS=yes
 GOLANG_UNIT_TESTS=yes
 INTEGRATION_TESTS=yes
+CI=1
 
 #==============================================================================
 # Targets
@@ -21,8 +22,9 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 
 ### Targets used in pipeline
 .PHONY: test
-#test: clean
+test: clean
 test:
+	CI=$(CI) \
 	CI_COMMIT_TAG=$(CI_COMMIT_TAG) \
 	VM_NAMES="$(VM_NAMES)" \
 	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
