@@ -156,6 +156,7 @@ case "$1" in
             echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
         else
             echo "Starting PacketFence Administration GUI..."
+            /bin/systemctl start packetfence-httpd.admin_dispatcher
             /bin/systemctl start packetfence-haproxy-admin
         fi
         systemctl enable packetfence-iptables

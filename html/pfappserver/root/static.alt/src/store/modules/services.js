@@ -83,7 +83,8 @@ export const blacklistedServices = [ // prevent start|stop|restart control on th
   'httpd.admin',
   'pf',
   'pfperl-api',
-  'haproxy-admin'
+  'haproxy-admin',
+  'httpd.admin_dispatcher'
 ]
 
 // Default values
