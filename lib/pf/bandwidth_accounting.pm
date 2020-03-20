@@ -16,7 +16,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(bandwidth_maintenance);
 use pf::dal::bandwidth_accounting;
 use pf::dal::node;
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::log;
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
