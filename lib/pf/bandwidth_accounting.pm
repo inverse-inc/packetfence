@@ -103,10 +103,38 @@ sub call_process_bandwidth_accounting {
 
 sub call_bandwidth_aggregation_hourly {
     my ($batch) = @_;
-    my $sql = "CALL bandwidth_aggregation('hourly', SUBDATE(NOW(), INTERVAL 2 HOUR), ?);";
-    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $batch);
+    my $sql = "CALL bandwidth_aggregation(SUBDATE(NOW(), INTERVAL ? HOUR), ?);";
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 2, $batch);
     if (is_error($status)) {
         $logger->error("Error calling bandwidth_aggregation");
+        return 0;
+    } else {
+        my ($count) = $sth->fetchrow_array();
+        $sth->finish;
+        return $count;
+    }
+}
+
+sub call_bandwidth_aggregation_history_daily {
+    my ($batch) = @_;
+    my $sql = "CALL bandwidth_aggregation_history('daily', SUBDATE(NOW(), INTERVAL ? DAY), ?);";
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 2, $batch);
+    if (is_error($status)) {
+        $logger->error("Error calling bandwidth_aggregation_history");
+        return 0;
+    } else {
+        my ($count) = $sth->fetchrow_array();
+        $sth->finish;
+        return $count;
+    }
+}
+
+sub call_bandwidth_aggregation_history_montly {
+    my ($batch) = @_;
+    my $sql = "CALL bandwidth_aggregation_history('monthly', SUBDATE(NOW(), INTERVAL ? MONTH), ?);";
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 2, $batch);
+    if (is_error($status)) {
+        $logger->error("Error calling bandwidth_aggregation_history");
         return 0;
     } else {
         my ($count) = $sth->fetchrow_array();
