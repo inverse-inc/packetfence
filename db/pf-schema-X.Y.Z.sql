@@ -1639,13 +1639,8 @@ BEGIN
             LEFT JOIN node USING(tenant_id, mac)
             SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0);
 
-        UPDATE bandwidth_accounting 
-        SET processed = 1
-        WHERE
-            to_process.mac = bandwidth_accounting.mac AND
-            to_process.tenant_id = bandwidth_accounting.tenant_id AND
-            to_process.time_bucket = bandwidth_accounting.time_bucket AND
-            to_process.unique_session_id = bandwidth_accounting.unique_session_id;
+        UPDATE to_process LEFT JOIN bandwidth_accounting USING(mac, tenant_id, time_bucket, unique_session_id)
+        SET processed = 1;
 
         COMMIT;
     END IF;
