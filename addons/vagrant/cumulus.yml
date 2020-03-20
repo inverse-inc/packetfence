@@ -17,3 +17,5 @@
 
   roles:
     - role: hostapd
+      # to avoid a failure when VM_NAMES is not defined
+      when: lookup("env", "VM_NAMES")
