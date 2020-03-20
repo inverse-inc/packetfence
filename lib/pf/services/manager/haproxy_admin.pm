@@ -171,6 +171,8 @@ backend $mgmt_cluster_ip-portal
 
 EOT
     } else {
+        $tags{'management_ip'} = '127.0.0.1';
+
         $tags{'http_admin'} .= <<"EOT";
 backend api
         balance source
