@@ -6,6 +6,11 @@ echo "#################################"
 sudo su
 
 # Config for OOB Switch
+
+# Warning: bridge and sub bridge interfaces will inherit MAC address
+# from *first* port in bridge.
+# Consequently, swp48 is used here to make DHCP lease obtained from libvirt
+# still working after interfaces remap and reboot.
 cat <<EOT > /etc/network/interfaces
 auto lo
 iface lo inet loopback
@@ -13,7 +18,7 @@ iface lo inet loopback
 auto bridge
 iface bridge
     bridge-vlan-aware yes
-    bridge-ports swp1 swp2 swp3 swp6 swp11 swp12 swp13 swp48
+    bridge-ports swp48 swp1 swp2 swp3 swp6 swp11 swp12 swp13
     bridge-vids 2 3 6 17 100
     bridge-pvid 1
 
