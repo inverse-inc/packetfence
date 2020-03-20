@@ -28,16 +28,11 @@ vagrant provision --provision-with=run-unit-tests VM_NAME
 ----
 
 This will upload [filename]`run-tests.sh` script on virtual machine to
-run it. If you prefer, you can also run this script directly inside your virtual
-machine:
+run it.
 
-[source,bash]
-----
-/src/ci/lib/test/run-tests.sh
-----
-
-IMPORTANT: Don't forget to run a `vagrant rsync VM_NAME` to upload latest
-changes made in PF sources to [filename]`/src/t` directory.
+IMPORTANT: Don't forget to run a `vagrant rsync VM_NAME` before running unit
+tests again if you modify [filename]`t` directory on your host. This will upload latest
+changes made to [filename]`/src/t` directory in `VM_NAME`.
 
 ==== Running Perl unit tests
 
