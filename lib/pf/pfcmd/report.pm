@@ -295,13 +295,31 @@ sub report_db_prepare {
         SUM(in_bytes) AS bytes_in,
         SUM(out_bytes) AS bytes_out,
         SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM bandwidth_accounting
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+      ) `total`
       LEFT JOIN node USING (tenant_id, mac)
-      WHERE tenant_id = ?
-        AND time_bucket >= ?
-        AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
       GROUP BY device_class
-      ORDER BY bytes DESC;
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
     $report_statements->{'report_osclassbandwidth_with_range_sql'} = get_db_handle()->prepare(qq[
@@ -310,13 +328,31 @@ sub report_db_prepare {
         SUM(in_bytes) AS bytes_in,
         SUM(out_bytes) AS bytes_out,
         SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM bandwidth_accounting
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+      ) `total`
       LEFT JOIN node USING (tenant_id, mac)
-      WHERE tenant_id = ?
-        AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-        AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
       GROUP BY device_class
-      ORDER BY bytes DESC;
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
     $report_statements->{'report_nodebandwidth_sql'} = get_db_handle()->prepare(qq [
@@ -325,10 +361,25 @@ sub report_db_prepare {
         SUM(in_bytes) AS bytes_in,
         SUM(out_bytes) AS bytes_out,
         SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM bandwidth_accounting
-      WHERE tenant_id = ?
-        AND time_bucket >= ?
-        AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
+      FROM (
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
+        UNION ALL
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+      ) `total`
       GROUP BY mac
       ORDER BY bytes DESC
       LIMIT 25;
@@ -340,10 +391,25 @@ sub report_db_prepare {
         SUM(in_bytes) AS bytes_in,
         SUM(out_bytes) AS bytes_out,
         SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM bandwidth_accounting
-      WHERE tenant_id = ?
-        AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-        AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
+      FROM (
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        UNION ALL
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
+      ) `total`
       GROUP BY mac
       ORDER BY bytes DESC
       LIMIT 25;
@@ -355,12 +421,28 @@ sub report_db_prepare {
         SUM(in_bytes) AS bytes_in,
         SUM(out_bytes) AS bytes_out,
         SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM bandwidth_accounting
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+      ) `total`
       LEFT JOIN node USING (tenant_id, mac)
-      WHERE tenant_id = ?
-        AND time_bucket >= ?
-        AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
-        AND pid IS NOT NULL
       GROUP BY pid
       ORDER BY bytes DESC
       LIMIT 25;
@@ -372,12 +454,28 @@ sub report_db_prepare {
         SUM(in_bytes) AS bytes_in,
         SUM(out_bytes) AS bytes_out,
         SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM bandwidth_accounting
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+      ) `total`
       LEFT JOIN node USING (tenant_id, mac)
-      WHERE tenant_id = ?
-        AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-        AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
-        AND pid IS NOT NULL
       GROUP BY pid
       ORDER BY bytes DESC
       LIMIT 25;
@@ -969,7 +1067,7 @@ sub report_osclassbandwidth {
     my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $tenant, $start, $end, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1011,7 +1109,7 @@ sub _report_osclassbandwidth_with_range {
     my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $tenant, $range, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1101,7 +1199,7 @@ sub report_nodebandwidth {
     my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql', $tenant, $start, $end, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1143,7 +1241,7 @@ sub _report_nodebandwidth_with_range {
     my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1233,7 +1331,7 @@ sub report_userbandwidth {
     my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_sql', $tenant, $start, $end, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1275,7 +1373,7 @@ sub _report_userbandwidth_with_range {
     my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
