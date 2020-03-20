@@ -79,7 +79,7 @@ BEGIN {
     );
 }
 
-use pf::config qw(%connection_type_explained);
+use pf::config qw(%connection_type_explained %Config);
 use pf::db;
 use pf::util;
 use pf::config::tenant;
@@ -1018,6 +1018,8 @@ Sub that supports a range from now til $range window.
 sub _report_osclassbandwidth_with_range {
     my ($range) = @_;
     my $tenant = pf::config::tenant::get_tenant();
+
+    my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
     my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $tenant, $range, $tenant, $range);
     my $total_bytes = 0;
