@@ -29,6 +29,8 @@ sub bandwidth_maintenance {
     process_bandwidth_accounting($batch, $time_limit);
     trigger_bandwidth($batch, $time_limit);
     bandwidth_aggregation_hourly($batch, $time_limit);
+    bandwidth_aggregation_history_daily($batch, $time_limit);
+    bandwidth_aggregation_history_monthly($batch, $time_limit);
     bandwidth_accounting_history_cleanup($history_window, $history_batch, $history_timeout);
 }
 
@@ -69,7 +71,37 @@ sub bandwidth_aggregation_hourly {
         last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
     }
 
-    $logger->info("deleted $rows_deleted for bandwidth_maintenance ($start_time $end_time) ");
+    $logger->info("aggregated $rows_deleted for bandwidth_aggregation_hourly ($start_time $end_time) ");
+}
+
+sub bandwidth_aggregation_history_daily {
+    my ($batch, $time_limit) = @_;
+    my $start_time = time;
+    my $end_time;
+    my $rows_deleted = 0;
+    while (1) {
+        my $rows = call_bandwidth_aggregation_history_daily($batch);
+        $end_time = time;
+        $rows_deleted+=$rows if $rows > 0;
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
+    }
+
+    $logger->info("aggregated $rows_deleted for bandwidth_aggregation_daily ($start_time $end_time) ");
+}
+
+sub bandwidth_aggregation_history_monthly {
+    my ($batch, $time_limit) = @_;
+    my $start_time = time;
+    my $end_time;
+    my $rows_deleted = 0;
+    while (1) {
+        my $rows = call_bandwidth_aggregation_history_monthly($batch);
+        $end_time = time;
+        $rows_deleted+=$rows if $rows > 0;
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
+    }
+
+    $logger->info("aggregated $rows_deleted for bandwidth_aggregation_monthly ($start_time $end_time) ");
 }
 
 sub process_bandwidth_accounting {
@@ -84,7 +116,7 @@ sub process_bandwidth_accounting {
         last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
     }
 
-    $logger->info("deleted $rows_deleted for process_bandwidth_accounting ($start_time $end_time) ");
+    $logger->info("processed $rows_deleted for process_bandwidth_accounting ($start_time $end_time) ");
 }
 
 sub call_process_bandwidth_accounting {
@@ -118,7 +150,7 @@ sub call_bandwidth_aggregation_hourly {
 sub call_bandwidth_aggregation_history_daily {
     my ($batch) = @_;
     my $sql = "CALL bandwidth_aggregation_history('daily', SUBDATE(NOW(), INTERVAL ? DAY), ?);";
-    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 2, $batch);
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 1, $batch);
     if (is_error($status)) {
         $logger->error("Error calling bandwidth_aggregation_history");
         return 0;
@@ -129,10 +161,10 @@ sub call_bandwidth_aggregation_history_daily {
     }
 }
 
-sub call_bandwidth_aggregation_history_montly {
+sub call_bandwidth_aggregation_history_monthly {
     my ($batch) = @_;
     my $sql = "CALL bandwidth_aggregation_history('monthly', SUBDATE(NOW(), INTERVAL ? MONTH), ?);";
-    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 2, $batch);
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 1, $batch);
     if (is_error($status)) {
         $logger->error("Error calling bandwidth_aggregation_history");
         return 0;
