@@ -15,6 +15,7 @@ use warnings;
 use Exporter qw(import);
 our @EXPORT_OK = qw(bandwidth_maintenance);
 use pf::dal::bandwidth_accounting;
+use pf::dal::bandwidth_accounting_history;
 use pf::dal::node;
 use pf::error qw(is_error is_success);
 use pf::log;
@@ -24,10 +25,11 @@ use pf::config::security_event;
 my $logger = get_logger();
 
 sub bandwidth_maintenance {
-    my ($batch, $time_limit) = @_;
+    my ($batch, $time_limit, $history_batch, $history_timeout, $history_window) = @_;
     process_bandwidth_accounting($batch, $time_limit);
     trigger_bandwidth($batch, $time_limit);
     bandwidth_aggregation_hourly($batch, $time_limit);
+    bandwidth_accounting_history_cleanup($history_window, $history_batch, $history_timeout);
 }
 
 sub trigger_bandwidth {
@@ -111,6 +113,35 @@ sub call_bandwidth_aggregation_hourly {
         $sth->finish;
         return $count;
     }
+}
+
+=head2 bandwidth_accounting_history_cleanup
+
+bandwidth_accounting_history_cleanup
+
+=cut
+
+sub bandwidth_accounting_history_cleanup {
+    my ($window_seconds, $batch, $time_limit) = @_;
+    if ($window_seconds eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
+    }
+
+    my $now = pf::dal->now();
+    my ($status, $rows) = pf::dal::bandwidth_accounting_history->batch_remove(
+        {
+            -where => {
+                time_bucket => {
+                    "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+                },
+            },
+            -limit => $batch,
+        },
+        $time_limit
+    );
+
+    return $rows;
 }
 
 =head1 AUTHOR

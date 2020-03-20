@@ -34,7 +34,13 @@ run the inline accounting maintenance task
 
 sub run {
     my ($self) = @_;
-    bandwidth_maintenance($self->batch, $self->timeout);
+    bandwidth_maintenance(
+        $self->batch,
+        $self->timeout,
+        $self->history_batch,
+        $self->history_timeout,
+        $self->history_window,
+    );
 }
 
 =head1 AUTHOR
