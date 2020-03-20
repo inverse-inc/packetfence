@@ -20,6 +20,7 @@ extends qw(pf::pfmon::task);
 
 has 'batch' => ( is => 'rw');
 has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 
