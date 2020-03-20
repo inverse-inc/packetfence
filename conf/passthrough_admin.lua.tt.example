@@ -1,3 +1,11 @@
+-- Update host on the fly
+
+core.register_action("change_host", { 'http-req'}, function(txn)
+   if txn.sf:req_fhdr("Host") == nil then
+       txn.set_var(txn,"req.host","[% fqdn %]") -- Update host on the fly
+   end
+end)
+
 local function isempty(s)
   return s == nil or s == ''
 end

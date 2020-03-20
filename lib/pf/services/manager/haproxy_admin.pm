@@ -184,7 +184,7 @@ backend api
 frontend admin-https-0.0.0.0
         bind 0.0.0.0:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
-        reqadd X-Forwarded-Proto:\ https
+        reqadd X-Forwarded-Proto:\\ https
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
