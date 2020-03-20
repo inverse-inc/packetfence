@@ -41,5 +41,11 @@ defaults
 	timeout client 50000
 	timeout server 50000
 
+backend static
+    option httpclose
+    option http_proxy
+    option forwardfor
+    http-request set-uri http://127.0.0.1:8891%[path]?%[query]
+
 %%http_admin%%
 

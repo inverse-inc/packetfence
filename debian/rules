@@ -217,6 +217,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
 	dh_installinit --name=packetfence-httpd.dispatcher
+	dh_installinit --name=packetfence-httpd.admin_dispatcher
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.proxy
 	dh_installinit --name=packetfence-httpd.webservices

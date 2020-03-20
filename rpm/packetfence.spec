@@ -414,6 +414,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}%{_unitdir}/packetfence-pfqueue.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin_dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.admin_dispatcher.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service %{buildroot}%{_unitdir}/packetfence-radiusd-acct.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service %{buildroot}%{_unitdir}/packetfence-radiusd-auth.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service %{buildroot}%{_unitdir}/packetfence-radiusd-cli.service
@@ -1049,6 +1050,7 @@ fi
 %dir                    /usr/local/pf/conf/caddy-services
 %config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
+%config                 /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
                         /usr/local/pf/conf/monitoring/netdata.conf.example

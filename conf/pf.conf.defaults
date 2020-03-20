@@ -466,6 +466,11 @@ httpd_collector=disabled
 # Should httpd.dispatcher be started?
 httpd_dispatcher=enabled
 #
+# services.httpd_admin_dispatcher
+#
+# Should httpd.admin_dispatcher be started?
+httpd_admin_dispatcher=enabled
+#
 # services.httpd_aaa
 #
 # Should httpd.aaa be started?
