@@ -156,11 +156,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 test: () => {
-                  return store.dispatch('$_bases/testSmtp', form).then(response => {
-                    return response
-                  }).catch(err => {
-                    throw err
-                  })
+                  return store.dispatch('$_bases/testSmtp', { quiet: true, ...form.alerting })
                 }
               }
             }
