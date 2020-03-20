@@ -872,6 +872,39 @@ const actions = {
       throw err
     })
   },
+  secureDatabase: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.secureDatabase(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  createDatabase: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.createDatabase(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  assignDatabase: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.assignDatabase(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  testDatabase: ({ commit }, data) => {
+    return api.testDatabase(data)
+  },
   testSmtp: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.testSmtp(data).then(response => {

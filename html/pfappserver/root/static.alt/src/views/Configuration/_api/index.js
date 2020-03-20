@@ -115,8 +115,21 @@ export default {
       return response.data
     })
   },
+  secureDatabase: data => {
+    return apiCall.postQuiet('config/base/database/secure_installation', data)
+  },
+  createDatabase: data => {
+    return apiCall.postQuiet('config/base/database/create', data)
+  },
+  assignDatabase: data => {
+    return apiCall.postQuiet('config/base/database/assign', data)
+  },
+  testDatabase: data => {
+    return apiCall.postQuiet('config/base/database/test', data)
+  },
   testSmtp: data => {
-    return apiCall.post(['config', 'bases', 'test_smtp'], data).then(response => {
+    const post = data.quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['config', 'bases', 'test_smtp'], data).then(response => {
       return response.data
     })
   },
