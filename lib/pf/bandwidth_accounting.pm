@@ -27,7 +27,7 @@ sub bandwidth_maintenance {
     my ($batch, $time_limit) = @_;
     process_bandwidth_accounting($batch, $time_limit);
     trigger_bandwidth($batch, $time_limit);
-    bandwidth_aggreation_hourly($batch, $time_limit);
+    bandwidth_aggregation_hourly($batch, $time_limit);
 }
 
 sub trigger_bandwidth {
@@ -55,13 +55,13 @@ sub trigger_bandwidth {
     }
 }
 
-sub bandwidth_aggreation_hourly {
+sub bandwidth_aggregation_hourly {
     my ($batch, $time_limit) = @_;
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
     while (1) {
-        my $rows = call_bandwidth_aggreation_hourly($batch);
+        my $rows = call_bandwidth_aggregation_hourly($batch);
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
@@ -99,12 +99,12 @@ sub call_process_bandwidth_accounting {
     }
 }
 
-sub call_bandwidth_aggreation_hourly {
+sub call_bandwidth_aggregation_hourly {
     my ($batch) = @_;
-    my $sql = "CALL bandwidth_aggreation('hourly', SUBDATE(NOW(), INTERVAL 2 HOUR), ?);";
+    my $sql = "CALL bandwidth_aggregation('hourly', SUBDATE(NOW(), INTERVAL 2 HOUR), ?);";
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $batch);
     if (is_error($status)) {
-        $logger->error("Error calling bandwidth_aggreation");
+        $logger->error("Error calling bandwidth_aggregation");
         return 0;
     } else {
         my ($count) = $sth->fetchrow_array();

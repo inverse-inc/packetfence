@@ -230,6 +230,7 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     in_bytes BIGINT UNSIGNED NOT NULL,
     out_bytes BIGINT UNSIGNED NOT NULL,
     total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    processed BOOLEAN NOT NULL DEFAULT 0,
     PRIMARY KEY (tenant_id, mac, time_bucket, unique_session_id),
     KEY bandwidth_aggregate_buckets (time_bucket, tenant_id, mac, unique_session_id, in_bytes, out_bytes)
 );
@@ -238,6 +239,115 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
 ALTER TABLE radius_nas
   ADD COLUMN IF NOT EXISTS unique_session_attributes varchar(255),
   ADD INDEX IF NOT EXISTS radius_nas_start_ip_end_ip (start_ip, end_ip);
+
+--
+-- Table structure for table `bandwidth_accounting_history`
+--
+
+CREATE TABLE bandwidth_accounting_history (
+    tenant_id INT,
+    mac char(17) NOT NULL,
+    time_bucket DATETIME NOT NULL,
+    in_bytes BIGINT UNSIGNED NOT NULL,
+    out_bytes BIGINT UNSIGNED NOT NULL,
+    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    PRIMARY KEY (tenant_id, mac, time_bucket),
+    KEY bandwidth_aggregate_buckets (time_bucket, tenant_id, mac, in_bytes, out_bytes )
+);
+
+DROP PROCEDURE IF EXISTS `bandwidth_aggregation`;
+DELIMITER /
+CREATE PROCEDURE `bandwidth_aggregation` (
+  IN `p_bucket_size` varchar(255),
+  IN `p_end_bucket` datetime,
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+
+    SET @end_bucket= p_end_bucket, @batch = p_batch;
+    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting LIMIT 0');
+    PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
+    EXECUTE create_table_to_delete;
+    DEALLOCATE PREPARE create_table_to_delete;
+    SET @date_trunc = CASE p_bucket_size 
+        WHEN 'daily' THEN 'DATE(time_bucket)' 
+        WHEN 'monthly' THEN 'DATE(time_bucket)' 
+        ELSE 'DATE_ADD(DATE(time_bucket), INTERVAL HOUR(time_bucket) HOUR)'
+    END;
+    PREPARE insert_into_to_delete FROM  'INSERT INTO to_delete SELECT tenant_id, mac, DATE_ADD(DATE(time_bucket), INTERVAL HOUR(time_bucket) HOUR) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting WHERE time_bucket <= ? AND processed = 1 LIMIT ?';
+
+
+    START TRANSACTION;
+    EXECUTE insert_into_to_delete using @end_bucket, @batch;
+    SELECT COUNT(*) INTO @count FROM to_delete;
+    IF @count > 0 THEN
+
+        INSERT INTO bandwidth_accounting_history
+        (tenant_id, mac, time_bucket, in_bytes, out_bytes)
+         SELECT
+             tenant_id,
+             mac,
+             new_time_bucket,
+             sum(in_bytes) AS in_bytes,
+             sum(out_bytes) AS out_bytes
+            FROM to_delete
+            GROUP BY tenant_id, mac, new_time_bucket
+            ON DUPLICATE KEY UPDATE
+                in_bytes = in_bytes + VALUES(in_bytes),
+                out_bytes = out_bytes + VALUES(out_bytes)
+            ;
+
+        DELETE bandwidth_accounting
+            FROM to_delete INNER JOIN bandwidth_accounting
+            WHERE
+                to_delete.tenant_id = bandwidth_accounting.tenant_id AND
+                to_delete.mac = bandwidth_accounting.mac AND
+                to_delete.time_bucket = bandwidth_accounting.time_bucket AND
+                to_delete.unique_session_id = bandwidth_accounting.unique_session_id;
+    END IF;
+    COMMIT;
+
+    DROP TABLE to_delete;
+    DEALLOCATE PREPARE insert_into_to_delete;
+    SELECT @count AS aggreated;
+END /
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `process_bandwidth_accounting`;
+DELIMITER /
+CREATE PROCEDURE `process_bandwidth_accounting` (
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+    SET @batch = p_batch;
+    CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting LIMIT 0;
+    START TRANSACTION;
+    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting WHERE processed = 0 LIMIT ?';
+    EXECUTE insert_into_to_process USING @batch;
+    DEALLOCATE PREPARE insert_into_to_process;
+    SELECT COUNT(*) INTO @count FROM to_process;
+    IF @count > 0 THEN
+        UPDATE 
+            (SELECT node.tenant_id as tenant_id, node.mac as mac, SUM(total_bytes) AS total_bytes FROM node LEFT JOIN to_process USING (tenant_id, mac) GROUP BY tenant_id, mac) AS x 
+            LEFT JOIN node USING(tenant_id, mac)
+            SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0);
+
+        UPDATE bandwidth_accounting 
+        SET processed = 1
+        WHERE
+            to_process.mac = bandwidth_accounting.mac AND
+            to_process.tenant_id = bandwidth_accounting.tenant_id AND
+            to_process.time_bucket = bandwidth_accounting.time_bucket AND
+            to_process.unique_session_id = bandwidth_accounting.unique_session_id;
+
+        COMMIT;
+    END IF;
+
+    DROP TABLE to_process;
+    SELECT @count;
+END/
+
+DELIMITER ;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));

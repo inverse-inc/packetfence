@@ -1562,9 +1562,9 @@ CREATE TABLE bandwidth_accounting_history (
     KEY bandwidth_aggregate_buckets (time_bucket, tenant_id, mac, in_bytes, out_bytes )
 );
 
-DROP PROCEDURE IF EXISTS `bandwidth_aggreation`;
+DROP PROCEDURE IF EXISTS `bandwidth_aggregation`;
 DELIMITER /
-CREATE PROCEDURE `bandwidth_aggreation` (
+CREATE PROCEDURE `bandwidth_aggregation` (
   IN `p_bucket_size` varchar(255),
   IN `p_end_bucket` datetime,
   IN `p_batch` int(11) unsigned
@@ -1618,6 +1618,42 @@ BEGIN
     DEALLOCATE PREPARE insert_into_to_delete;
     SELECT @count AS aggreated;
 END /
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `process_bandwidth_accounting`;
+DELIMITER /
+CREATE PROCEDURE `process_bandwidth_accounting` (
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+    SET @batch = p_batch;
+    CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting LIMIT 0;
+    START TRANSACTION;
+    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting WHERE processed = 0 LIMIT ?';
+    EXECUTE insert_into_to_process USING @batch;
+    DEALLOCATE PREPARE insert_into_to_process;
+    SELECT COUNT(*) INTO @count FROM to_process;
+    IF @count > 0 THEN
+        UPDATE 
+            (SELECT node.tenant_id as tenant_id, node.mac as mac, SUM(total_bytes) AS total_bytes FROM node LEFT JOIN to_process USING (tenant_id, mac) GROUP BY tenant_id, mac) AS x 
+            LEFT JOIN node USING(tenant_id, mac)
+            SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0);
+
+        UPDATE bandwidth_accounting 
+        SET processed = 1
+        WHERE
+            to_process.mac = bandwidth_accounting.mac AND
+            to_process.tenant_id = bandwidth_accounting.tenant_id AND
+            to_process.time_bucket = bandwidth_accounting.time_bucket AND
+            to_process.unique_session_id = bandwidth_accounting.unique_session_id;
+
+        COMMIT;
+    END IF;
+
+    DROP TABLE to_process;
+    SELECT @count;
+END/
+
 DELIMITER ;
 
 --
