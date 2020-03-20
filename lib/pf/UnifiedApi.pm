@@ -1601,13 +1601,13 @@ sub setup_api_v1_reports_routes {
       ->to("Reports#ssid_active")
       ->name("api.v1.Reports.ssid_active");
     $root
-      ->any(['GET'] => "/osclassbandwidth")
-      ->to("Reports#osclassbandwidth_all")
-      ->name("api.v1.Reports.osclassbandwidth_all");
-    $root
       ->any(['GET'] => "/osclassbandwidth/#start/#end")
       ->to("Reports#osclassbandwidth_range")
       ->name("api.v1.Reports.osclassbandwidth_range");
+    $root
+      ->any(['GET'] => "/osclassbandwidth/hour")
+      ->to("Reports#osclassbandwidth_hour")
+      ->name("api.v1.Reports.osclassbandwidth_hour");
     $root
       ->any(['GET'] => "/osclassbandwidth/day")
       ->to("Reports#osclassbandwidth_day")
@@ -1625,21 +1625,53 @@ sub setup_api_v1_reports_routes {
       ->to("Reports#osclassbandwidth_year")
       ->name("api.v1.Reports.osclassbandwidth_year");
     $root
-      ->any(['GET'] => "/nodebandwidth")
-      ->to("Reports#nodebandwidth_all")
-      ->name("api.v1.Reports.nodebandwidth_all");
-    $root
       ->any(['GET'] => "/nodebandwidth/#start/#end")
       ->to("Reports#nodebandwidth_range")
       ->name("api.v1.Reports.nodebandwidth_range");
     $root
-      ->any(['GET'] => "/userbandwidth")
-      ->to("Reports#userbandwidth_all")
-      ->name("api.v1.Reports.userbandwidth_all");
+      ->any(['GET'] => "/nodebandwidth/hour")
+      ->to("Reports#nodebandwidth_hour")
+      ->name("api.v1.Reports.nodebandwidth_hour");
+    $root
+      ->any(['GET'] => "/nodebandwidth/day")
+      ->to("Reports#nodebandwidth_day")
+      ->name("api.v1.Reports.nodebandwidth_day");
+    $root
+      ->any(['GET'] => "/nodebandwidth/week")
+      ->to("Reports#nodebandwidth_week")
+      ->name("api.v1.Reports.nodebandwidth_week");
+    $root
+      ->any(['GET'] => "/nodebandwidth/month")
+      ->to("Reports#nodebandwidth_month")
+      ->name("api.v1.Reports.nodebandwidth_month");
+    $root
+      ->any(['GET'] => "/nodebandwidth/year")
+      ->to("Reports#nodebandwidth_year")
+      ->name("api.v1.Reports.nodebandwidth_year");
     $root
       ->any(['GET'] => "/userbandwidth/#start/#end")
       ->to("Reports#userbandwidth_range")
       ->name("api.v1.Reports.userbandwidth_range");
+    $root
+      ->any(['GET'] => "/userbandwidth/hour")
+      ->to("Reports#userbandwidth_hour")
+      ->name("api.v1.Reports.userbandwidth_hour");
+    $root
+      ->any(['GET'] => "/userbandwidth/day")
+      ->to("Reports#userbandwidth_day")
+      ->name("api.v1.Reports.userbandwidth_day");
+    $root
+      ->any(['GET'] => "/userbandwidth/week")
+      ->to("Reports#userbandwidth_week")
+      ->name("api.v1.Reports.userbandwidth_week");
+    $root
+      ->any(['GET'] => "/userbandwidth/month")
+      ->to("Reports#userbandwidth_month")
+      ->name("api.v1.Reports.userbandwidth_month");
+    $root
+      ->any(['GET'] => "/userbandwidth/year")
+      ->to("Reports#userbandwidth_year")
+      ->name("api.v1.Reports.userbandwidth_year");
     $root
       ->any(['GET'] => "/topauthenticationfailures/mac/#start/#end")
       ->to("Reports#topauthenticationfailures_by_mac")

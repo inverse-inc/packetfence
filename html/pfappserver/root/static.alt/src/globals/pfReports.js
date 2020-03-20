@@ -159,37 +159,36 @@ export const pfReportColumns = () => {
       sortable: true,
       visible: true
     },
-bytes: {
-  key: 'bytes',
-  label: i18n.t('Bytes Total'),
-  class: 'text-nowrap',
-  sortable: true,
-  visible: true,
-  formatter: (value) => {
-    return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
-  }
-},
-bytes_in: {
-  key: 'bytes_in',
-  label: i18n.t('Bytes In'),
-  class: 'text-nowrap',
-  sortable: true,
-  visible: true,
-  formatter: (value) => {
-    return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
-  }
-},
-bytes_out: {
-  key: 'bytes_out',
-  label: i18n.t('Bytes Out'),
-  class: 'text-nowrap',
-  sortable: true,
-  visible: true,
-  formatter: (value) => {
-    return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
-  }
-},
-
+    bytes: {
+      key: 'bytes',
+      label: i18n.t('Bytes Total'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: (value) => {
+        return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+      }
+    },
+    bytes_in: {
+      key: 'bytes_in',
+      label: i18n.t('Bytes In'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: (value) => {
+        return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+      }
+    },
+    bytes_out: {
+      key: 'bytes_out',
+      label: i18n.t('Bytes Out'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: (value) => {
+        return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+      }
+    },
     callingstationid: {
       key: 'callingstationid',
       label: i18n.t('Calling Station ID'),
@@ -409,7 +408,21 @@ bytes_out: {
     },
     percent: {
       key: 'percent',
-      label: i18n.t('Percent'),
+      label: i18n.t('Percent Total'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    percent_in: {
+      key: 'percent_in',
+      label: i18n.t('Percent In'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    percent_out: {
+      key: 'percent_out',
+      label: i18n.t('Percent Out'),
       class: 'text-nowrap',
       sortable: true,
       visible: true
@@ -535,9 +548,7 @@ export const pfReportCategories = () => [
           {
             name: i18n.t('All'),
             path: 'os',
-            range: {
-              optional: true
-            }
+            range: true
           },
           {
             name: i18n.t('Active'),
@@ -802,9 +813,7 @@ export const pfReportCategories = () => [
           {
             name: i18n.t('All'),
             path: 'connectiontype',
-            range: {
-              optional: true
-            }
+            range: true
           },
           {
             name: i18n.t('Active'),
@@ -865,9 +874,7 @@ export const pfReportCategories = () => [
           {
             name: i18n.t('All'),
             path: 'ssid',
-            range: {
-              optional: true
-            }
+            range: true
           },
           {
             name: i18n.t('Active'),
@@ -901,11 +908,8 @@ export const pfReportCategories = () => [
         name: i18n.t('Operating System Bandwidth'),
         tabs: [
           {
-            name: i18n.t('All'),
-            path: 'osclassbandwidth',
-            range: {
-              optional: true
-            }
+            name: i18n.t('Hour'),
+            path: 'osclassbandwidth/hour'
           },
           {
             name: i18n.t('Day'),
@@ -922,12 +926,19 @@ export const pfReportCategories = () => [
           {
             name: i18n.t('Year'),
             path: 'osclassbandwidth/year'
+          },
+          {
+            name: i18n.t('Custom'),
+            path: 'osclassbandwidth',
+            range: true
           }
         ],
         columns: [
           pfReportColumns().dhcp_fingerprint,
           pfReportColumns().bytes_in,
+          pfReportColumns().percent_in,
           pfReportColumns().bytes_out,
+          pfReportColumns().percent_out,
           pfReportColumns().bytes,
           pfReportColumns().percent
         ],
@@ -948,31 +959,48 @@ export const pfReportCategories = () => [
         name: i18n.t('Node Bandwidth'),
         tabs: [
           {
-            name: i18n.t('All'),
+            name: i18n.t('Hour'),
+            path: 'nodebandwidth/hour'
+          },
+          {
+            name: i18n.t('Day'),
+            path: 'nodebandwidth/day'
+          },
+          {
+            name: i18n.t('Week'),
+            path: 'nodebandwidth/week'
+          },
+          {
+            name: i18n.t('Month'),
+            path: 'nodebandwidth/month'
+          },
+          {
+            name: i18n.t('Year'),
+            path: 'nodebandwidth/year'
+          },
+          {
+            name: i18n.t('Custom'),
             path: 'nodebandwidth',
-            range: {
-              optional: true
-            }
+            range: true
           }
         ],
         columns: [
-          pfReportColumns().callingstationid,
-          pfReportColumns().acctinput,
-          pfReportColumns().acctinputoctets,
-          pfReportColumns().acctoutput,
-          pfReportColumns().acctoutputoctets,
-          pfReportColumns().accttotal,
-          pfReportColumns().accttotaloctets,
+          pfReportColumns().mac,
+          pfReportColumns().bytes_in,
+          pfReportColumns().percent_in,
+          pfReportColumns().bytes_out,
+          pfReportColumns().percent_out,
+          pfReportColumns().bytes,
           pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.callingstationid)
+            return items.map(item => item.mac)
           },
           values: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
+            return items.map(item => item.bytes)
           },
           options: pfReportChartOptions.pie,
           layout: pfReportChartLayout.pie
@@ -982,21 +1010,38 @@ export const pfReportCategories = () => [
         name: i18n.t('User Bandwidth'),
         tabs: [
           {
-            name: i18n.t('All'),
+            name: i18n.t('Day'),
+            path: 'userbandwidth/hour'
+          },
+          {
+            name: i18n.t('Day'),
+            path: 'userbandwidth/day'
+          },
+          {
+            name: i18n.t('Week'),
+            path: 'userbandwidth/week'
+          },
+          {
+            name: i18n.t('Month'),
+            path: 'userbandwidth/month'
+          },
+          {
+            name: i18n.t('Year'),
+            path: 'userbandwidth/year'
+          },
+          {
+            name: i18n.t('Custom'),
             path: 'userbandwidth',
-            range: {
-              optional: true
-            }
+            range: true
           }
         ],
         columns: [
           pfReportColumns().pid,
-          pfReportColumns().acctinput,
-          pfReportColumns().acctinputoctets,
-          pfReportColumns().acctoutput,
-          pfReportColumns().acctoutputoctets,
-          pfReportColumns().accttotal,
-          pfReportColumns().accttotaloctets,
+          pfReportColumns().bytes_in,
+          pfReportColumns().percent_in,
+          pfReportColumns().bytes_out,
+          pfReportColumns().percent_out,
+          pfReportColumns().bytes,
           pfReportColumns().percent
         ],
         chart: {
@@ -1006,7 +1051,7 @@ export const pfReportCategories = () => [
           },
           values: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
+            return items.map(item => item.bytes)
           },
           options: pfReportChartOptions.pie,
           layout: pfReportChartLayout.pie
@@ -1023,23 +1068,17 @@ export const pfReportCategories = () => [
           {
             name: i18n.t('by MAC'),
             path: 'topauthenticationfailures/mac',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
             name: i18n.t('by SSID'),
             path: 'topauthenticationfailures/ssid',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
             name: i18n.t('by Username'),
             path: 'topauthenticationfailures/username',
-            range: {
-              required: true
-            }
+            range: true
           }
         ],
         columns: [
@@ -1067,30 +1106,22 @@ export const pfReportCategories = () => [
           {
             name: i18n.t('by MAC'),
             path: 'topauthenticationsuccesses/mac',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
             name: i18n.t('by SSID'),
             path: 'topauthenticationsuccesses/ssid',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
             name: i18n.t('by Username'),
             path: 'topauthenticationsuccesses/username',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
             name: i18n.t('by Computername'),
             path: 'topauthenticationsuccesses/computername',
-            range: {
-              required: true
-            }
+            range: true
           }
         ],
         columns: [
