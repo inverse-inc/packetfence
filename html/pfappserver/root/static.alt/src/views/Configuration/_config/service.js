@@ -63,7 +63,7 @@ export const view = (form = {}, meta = {}) => {
             }
           ]
         },
-	{
+        {
           label: 'haproxy-db',
           text: i18n.t(`Should haproxy-db be started? Keep enabled unless you know what you're doing.`),
           cols: [
@@ -121,6 +121,19 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'httpd_collector',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: 'httpd.admin_dispatcher',
+          text: i18n.t(`Should httpd.admin_dispatcher be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'httpd_admin_dispatcher',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }

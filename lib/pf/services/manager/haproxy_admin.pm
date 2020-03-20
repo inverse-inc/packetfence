@@ -30,10 +30,8 @@ use pf::config qw(
 );
 use pf::file_paths qw(
     $generated_conf_dir
-    $install_dir
     $conf_dir
     $var_dir
-    $captiveportal_templates_path
 );
 
 has '+name' => (default => sub { 'haproxy-admin' } );
@@ -194,7 +192,6 @@ frontend admin-https-0.0.0.0
 
 EOT
     }
-        $tags{captiveportal_templates_path} = $captiveportal_templates_path;
         parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
 
     my $config_file = "passthrough_admin.lua";
