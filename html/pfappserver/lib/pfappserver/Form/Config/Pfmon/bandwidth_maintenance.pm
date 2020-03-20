@@ -30,6 +30,27 @@ has_field 'timeout' => (
              help => \&timeout_help_text },
 );
 
+has_field 'history_batch' => (
+    type => 'PosInteger',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&batch_help_text },
+);
+
+has_field 'history_timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
+
+has_field 'history_window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
+
 =head2 default_type
 
 default value of type
@@ -42,7 +63,7 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval batch timeout)],
+    render_list => [qw(type status interval batch timeout history_batch history_timeout)],
   );
 
 

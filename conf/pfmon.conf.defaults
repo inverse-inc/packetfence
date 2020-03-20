@@ -731,20 +731,35 @@ description=Controls the aggreation of the bandwidth accounting records.
 #
 # status
 #
-# If the task radius_audit_log_cleanup is enabled
+# If the task bandwidth_maintenance is enabled
 status=enabled
 #
 # interval
 #
-# At which interval to run the radius audit log cleanup pfmon task
+# At which interval to run the bandwidth maintenance cleanup pfmon task
 interval=60s
 #
 # batch
 #
-# How many radius_audit_log_cleanup entries to clean up in one run
+# How many bandwidth_accounting entries to clean up in one run
 batch=100
 #
 # timeout
 #
-# How long a radius_audit_log_cleanup job can run
+# How long a bandwidth_accounting job can run
 timeout=10s
+#
+# history_batch
+#
+# How many bandwidth_accounting_history entries to clean up in one run
+history_batch=100
+#
+# history_timeout
+#
+# How long a bandwidth_accounting_history job can run
+history_timeout=10s
+#
+# history_window
+#
+# How long to keep a bandwidth_accounting_history entry before deleting it
+history_timeout=2D
