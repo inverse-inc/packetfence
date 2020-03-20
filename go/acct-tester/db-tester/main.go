@@ -48,7 +48,7 @@ func main() {
 	}
 
 	db := connectDB()
-	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting VALUES(1, ?, ?, ?, ?, ?, ?)`)
+	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting VALUES(1, ?, ?, ?, ?, ?, ?, 0)`)
 	sharedutils.CheckError(err)
 
 	rowsPerEndpoint := *rows / *endpointsCount
