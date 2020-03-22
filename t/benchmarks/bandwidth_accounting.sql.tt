@@ -1,6 +1,8 @@
 [%- DEFAULT
 batch = 1000;
-total_nodes = 5000 -%]
+total_nodes = 5000;
+days_back = 0
+-%]
 TRUNCATE bandwidth_accounting;
 [% SET
 cur = 1;
@@ -24,7 +26,7 @@ SELECT
     time_bucket,
     100 in_bytes,
     100 out_bytes
-    FROM seq_[% cur %]_to_[% next %] JOIN (select CURDATE() + INTERVAL(seq) MINUTE AS time_bucket FROM seq_0_to_1435_step_5) AS x;
+    FROM seq_[% cur %]_to_[% next %] JOIN (select CURDATE() + INTERVAL(s1.seq) MINUTE - INTERVAL(s2.seq) DAY AS time_bucket FROM seq_0_to_1435_step_5 as s1 JOIN seq_0_to_[% days_back %] as s2) AS x;
 [% SET next = next + batch -%]
 [% SET cur = cur + batch -%]
 [% END -%]
