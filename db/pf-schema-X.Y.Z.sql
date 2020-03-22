@@ -1535,7 +1535,7 @@ CREATE TABLE `pki_revoked_certs` (
 --
 
 CREATE TABLE bandwidth_accounting (
-    tenant_id INT,
+    tenant_id INT NOT NULL,
     mac char(17) NOT NULL,
     unique_session_id char(32) NOT NULL,
     time_bucket DATETIME NOT NULL,
@@ -1552,7 +1552,7 @@ CREATE TABLE bandwidth_accounting (
 --
 
 CREATE TABLE bandwidth_accounting_history (
-    tenant_id INT,
+    tenant_id INT NOT NULL,
     mac char(17) NOT NULL,
     time_bucket DATETIME NOT NULL,
     in_bytes BIGINT UNSIGNED NOT NULL,
