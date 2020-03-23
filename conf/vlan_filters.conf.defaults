@@ -12,6 +12,6 @@
 
 [pf_deauth_from_wireless_secure]
 condition=connection_type == "Wireless-802.11-NoEAP" && node_info.last_connection_type == "Ethernet-EAP" && node_info.status == "reg" && node_info.autoreg == "yes"
-scope = RegisteredRole
+scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
 role = registration
