@@ -18,10 +18,12 @@
             <b-col v-if="previousRouteName">
               <b-link :to="{ name: previousRouteName }"><icon class="mr-1" name="chevron-left"></icon> {{ $t('Previous') }}</b-link>
             </b-col>
-            <b-col class="text-right" v-if="nextRouteName">
-              <b-button :disabled="invalidStep || isLoading" variant="primary" @click="next">
-                <slot name="buttonNext">{{ $t('Next Step') }} <icon class="ml-1" name="chevron-right"></icon></slot>
-              </b-button>
+            <b-col class="text-right">
+              <slot name="button-next">
+                <b-button v-if="nextRouteName" :disabled="invalidStep || isLoading" variant="primary" @click="next">
+                  {{ $t('Next Step') }} <icon class="ml-1" name="chevron-right"></icon>
+                </b-button>
+              </slot>
               <div class="d-block invalid-feedback" v-if="invalidFeedback" v-text="invalidFeedback"></div>
             </b-col>
           </b-row>
