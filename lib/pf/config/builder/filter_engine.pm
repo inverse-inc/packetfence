@@ -1,8 +1,8 @@
-package pf::config::builder::filter_engines;
+package pf::config::builder::filter_engine;
 
 =head1 NAME
 
-pf::config::builder::filter_engines - Scoped Filter Engines builder
+pf::config::builder::filter_engine - Scoped Filter Engines builder
 
 =cut
 
@@ -18,6 +18,9 @@ use pf::log;
 use List::MoreUtils qw(uniq);
 use pf::factory::condition::access_filter;
 use pf::filter;
+use pf::util qw(expand_ordered_array);
+use pf::action_spec;
+use pf::factory::condition;
 use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
 use base qw(pf::config::builder);
@@ -34,7 +37,6 @@ sub cleanupBuildData {
         $buildData->{entries}{$scope} =
           pf::filter_engine->new( { filters => $filters } );
     }
-
 }
 
 =head2 buildEntry
@@ -55,9 +57,17 @@ sub buildEntry {
     my $scopes = $entry->{scopes};
     unless (defined $scopes) {
         $self->_error($buildData, $id, "Error building rule", "no scopes defined");
+        return;
     }
     $entry->{scopes} = $scopes = [split(/\s*,\s*/, $scopes)];
     $entry->{id} = $id;
+    expand_ordered_array($entry, 'actions', 'action');
+    $entry->{actions} = [
+        map {
+            my ( $err, $spec ) = pf::action_spec::parse_action_spec($_);
+            $err ? () : ($spec)
+        } @{ $entry->{actions} }
+    ];
     $self->buildFilter($buildData, $conditions, $entry);
     return undef;
 }
@@ -98,9 +108,31 @@ sub buildFilter {
 
 }
 
-our %SUB_CONDITIONS = (
+our %LOGICAL_OPS = (
     AND => 'pf::condition::all',
     OR  => 'pf::condition::any'
+);
+
+our %BINARY_OP = (
+    "==" => 'pf::condition::equals',
+    "!=" => 'pf::condition::not_equals',
+    "=~" => 'pf::condition::regex',
+    "!~" => 'pf::condition::regex_not',
+    ">"  => 'pf::condition::greater',
+    ">=" => 'pf::condition::greater_equals',
+    "<"  => 'pf::condition::lower',
+    "<=" => 'pf::condition::lower_equals',
+);
+
+our %FUNC_OPS = (
+    'includes'               => 'pf::condition::includes',
+    'contains'               => 'pf::condition::matches',
+    'not_contains'           => 'pf::condition::not_matches',
+    'defined'                => 'pf::condition::is_defined',
+    'not_defined'            => 'pf::condition::not_defined',
+    'date_is_before'         => 'pf::condition::date_before',
+    'date_is_after'          => 'pf::condition::date_after',
+    'fingerbank_device_is_a' => 'pf::condition::fingerbank::device_is_a',
 );
 
 =head2 buildCondition
@@ -122,11 +154,20 @@ sub buildCondition {
             );
         }
 
-        if (exists $SUB_CONDITIONS{$op}) {
+        if (exists $LOGICAL_OPS{$op}) {
             if (@rest == 1) {
                 return $self->buildCondition( $build_data, @rest);
             }
-            return $SUB_CONDITIONS{$op}->new({conditions => [map { $self->buildCondition($build_data, $_) } @rest]});
+            return $LOGICAL_OPS{$op}->new({conditions => [map { $self->buildCondition($build_data, $_) } @rest]});
+        }
+
+        if (exists $BINARY_OP{$op}) {
+            my ($key, $val) = @rest;
+            my $sub_condition = $BINARY_OP{$op}->new(value => $val);
+            return pf::condition::key->new({
+                key => $key,
+                condition => $sub_condition,
+            });
         }
 
         if ($op eq 'FUNC') {

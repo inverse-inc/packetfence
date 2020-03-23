@@ -22,97 +22,134 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::factory::condition;
-use pf::condition_parser qw(parse_condition_string);
+use pf::config::builder::filter_engine;
+my $builder = pf::config::builder::filter_engine->new;
 
-my $condition_str = 'a == "bob" && b == "bobby"';
+{
 
-my $condition = pf::condition::all->new(
-    {
-        conditions => [
-            pf::condition::key->new({
-                key => 'a',
-                condition => pf::condition::equals->new({
-                    value => 'bob'
-                })
-            }),
-            pf::condition::key->new({
-                key => 'b',
-                condition => pf::condition::equals->new({
-                    value => 'bobby'
-                })
-            }),
-        ]
-    },
-);
+    my $conf = <<'CONF';
+[pf_deauth_from_wireless_secure]
+condition=bob == "bob"
+scopes = RegisteredRole
+action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+role = registration
+CONF
 
-our %LOGICAL_OPS = (
-    'AND' => 'pf::condition::all',
-    'OR'  => 'pf::condition::any',
-);
-
-our %CMP_OP = (
-    '=='  => 'pf::condition::equals',
-    '!='  => 'pf::condition::not_equals',
-    '=~'  => 'pf::condition::regex',
-    '!~'  => 'pf::condition::regex_not',
-);
-
-sub buildCondition {
-    my ($str) = @_;
-    my ($ast, $err) = parse_condition_string($str);
-    if ($err) {
-        die $err->{highlighted_error};
-    }
-    return _buildCondition($ast);
-}
-
-sub _buildCondition {
-    my ($ast) = @_;
-    if (ref $ast) {
-        my ($op, @rest) = @$ast;
-        if (exists $LOGICAL_OPS{$op}) {
-            if (@rest == 1) {
-                return _buildCondition(@rest);
-            }
-
-            return $LOGICAL_OPS{$op}->new({conditions => [map { _buildCondition($_) } @rest  ] });
-        }
-
-        if (exists $CMP_OP{$op}) {
-            my ($key, $val) = @rest;
-            my $sub_condition =  $CMP_OP{$op}->new({value => $val}) ;
-            return pf::condition::key->new( {key => $key, condition => $sub_condition });
-        }
-        
-        die "op '$op' not defined";
-    }
-    die "condition '$ast' not defined";
-}
-
-is_deeply( buildCondition($condition_str), $condition );
-is_deeply(
-    buildCondition('a.b != "b"'),
-    pf::condition::key->new(
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
         {
-            key       => 'a',
-            condition => pf::condition::key->new(
-                    {
-                        key       => 'b',
-                        condition => pf::condition::not_equals->new(
+            RegisteredRole => pf::filter_engine->new(
+                {
+                    filters => [
+                        pf::filter->new(
                             {
-                                value => 'b'
+                                'condition' => bless(
+                                    {
+                                        'condition' => bless(
+                                            {
+                                                'value' => 'bob'
+                                            },
+                                            'pf::condition::equals'
+                                        ),
+                                        'key' => 'bob'
+                                    },
+                                    'pf::condition::key'
+                                ),
+                                answer => {
+                                    condition => 'bob == "bob"',
+                                    scopes  => ['RegisteredRole'],
+                                    id      => 'pf_deauth_from_wireless_secure',
+                                    role    => 'registration',
+                                    actions => [
+                                        {
+                                            api_method => 'modify_node',
+                                            api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        },
+                                    ],
+                                },
                             }
                         )
-                    }
-                )
-        }
-    )
-);
+                    ],
+                }
+            )
+        },
+        "Build simple condition filter"
+    );
+}
+
+{
+
+    my $conf = <<'CONF';
+[pf_deauth_from_wireless_secure]
+condition=bob.jones == "bob"
+scopes = RegisteredRole
+action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+role = registration
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            RegisteredRole => pf::filter_engine->new(
+                {
+                    filters => [
+                        pf::filter->new(
+                            {
+                                'condition' => bless(
+                                {
+                                    key => 'bob',
+                                    'condition' => bless(
+                                        {
+                                            'condition' => bless(
+                                                {
+                                                    'value' => 'bob'
+                                                },
+                                                'pf::condition::equals'
+                                            ),
+                                            'key' => 'jones'
+                                        },
+                                        'pf::condition::key'
+                                    ),
+                                },
+                                'pf::condition::key'
+                                ),
+                                answer => {
+                                    condition => 'bob.jones == "bob"',
+                                    scopes  => ['RegisteredRole'],
+                                    id      => 'pf_deauth_from_wireless_secure',
+                                    role    => 'registration',
+                                    actions => [
+                                        {
+                                            api_method => 'modify_node',
+                                            api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                        },
+                                    ],
+                                },
+                            }
+                        )
+                    ],
+                }
+            )
+        },
+        "Build simple condition filter with nested key"
+    );
+}
+
+sub build_from_conf {
+    my ($builder, $conf) = @_;
+    my $ini = pf::IniFiles->new(-file => \$conf);
+    return $builder->build($ini);
+}
+
 
 =head1 AUTHOR
 
