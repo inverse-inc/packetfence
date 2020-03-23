@@ -7,7 +7,7 @@ SHELL=/bin/bash
 PERL_UNIT_TESTS=yes
 GOLANG_UNIT_TESTS=yes
 INTEGRATION_TESTS=yes
-CI=1
+CI=true
 
 #==============================================================================
 # Targets
