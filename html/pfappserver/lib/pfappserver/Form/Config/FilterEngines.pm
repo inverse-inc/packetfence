@@ -48,6 +48,7 @@ has_field 'scopes' => (
     type     => 'Select',
     multiple => 1,
     options_method => \&option_scopes,
+    required => 1,
 );
 
 sub option_scopes {
