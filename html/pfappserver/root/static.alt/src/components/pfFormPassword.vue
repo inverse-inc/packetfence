@@ -18,11 +18,46 @@
       />
       <b-input-group-append>
         <b-button v-if="disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
-        <b-button v-else-if="generate"
-          class="input-group-text" variant="light"
-          :id="uuid"
-          :aria-label="$t('Generate password')" :title="$t('Generate password')"
-          ><icon name="random"></icon></b-button>
+        <template v-else-if="generate">
+          <b-button
+            class="input-group-text" variant="light"
+            :id="uuid"
+            :aria-label="$t('Generate password')" :title="$t('Generate password')"
+            ><icon name="random"></icon></b-button>
+          <b-popover
+            triggers="focus blur click"
+            placement="bottom"
+            :target="uuid"
+            :title="$t('Generate password')"
+            :show.sync="showGenerator"
+            @shown="showingGenerator = true"
+            @hidden="showingGenerator = false">
+            <div ref="generator">
+              <b-form-row>
+                <b-col><b-form-input v-model="options.pwlength" type="range" min="6" max="32"></b-form-input></b-col>
+                <b-col>{{ $t('{count} characters', { count: options.pwlength }) }}</b-col>
+              </b-form-row>
+              <b-form-row>
+                <b-col><b-form-checkbox v-model="options.upper">ABC</b-form-checkbox></b-col>
+                <b-col><b-form-checkbox v-model="options.lower">abc</b-form-checkbox></b-col>
+              </b-form-row>
+              <b-form-row>
+                <b-col><b-form-checkbox v-model="options.digits">123</b-form-checkbox></b-col>
+                <b-col><b-form-checkbox v-model="options.special">!@#</b-form-checkbox></b-col>
+              </b-form-row>
+              <b-form-row>
+                <b-col><b-form-checkbox v-model="options.brackets">({&lt;</b-form-checkbox></b-col>
+                <b-col><b-form-checkbox v-model="options.high">äæ±</b-form-checkbox></b-col>
+              </b-form-row>
+              <b-form-row>
+                <b-col><b-form-checkbox v-model="options.ambiguous">0Oo</b-form-checkbox></b-col>
+              </b-form-row>
+              <b-form-row>
+                <b-col class="text-right"><b-button variant="primary" size="sm" @click="generatePassword()" @mouseover="startVisibility()" @mousemove="startVisibility()" @mouseout="stopVisibility()">{{ $t('Generate') }}</b-button></b-col>
+              </b-form-row>
+            </div>
+          </b-popover>
+        </template>
         <b-button-group v-else-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
@@ -47,39 +82,6 @@
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
-    <b-popover
-      triggers="focus blur click"
-      placement="bottom"
-      :target="uuid"
-      :title="$t('Generate password')"
-      :show.sync="showGenerator"
-      @shown="showingGenerator = true"
-      @hidden="showingGenerator = false">
-      <div ref="generator">
-        <b-form-row>
-          <b-col><b-form-input v-model="options.pwlength" type="range" min="6" max="32"></b-form-input></b-col>
-          <b-col>{{ $t('{count} characters', { count: options.pwlength }) }}</b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col><b-form-checkbox v-model="options.upper">ABC</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="options.lower">abc</b-form-checkbox></b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col><b-form-checkbox v-model="options.digits">123</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="options.special">!@#</b-form-checkbox></b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col><b-form-checkbox v-model="options.brackets">({&lt;</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="options.high">äæ±</b-form-checkbox></b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col><b-form-checkbox v-model="options.ambiguous">0Oo</b-form-checkbox></b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col class="text-right"><b-button variant="primary" size="sm" @click="generatePassword()" @mouseover="startVisibility()" @mousemove="startVisibility()" @mouseout="stopVisibility()">{{ $t('Generate') }}</b-button></b-col>
-        </b-form-row>
-      </div>
-    </b-popover>
   </b-form-group>
 </template>
 
