@@ -174,10 +174,11 @@ sub buildCondition {
             return $self->buildFuncCondition($build_data, @rest);
         }
 
-        return $self->buildBinaryCondition($build_data, @rest);
+
+        die "op '$op' not handled';"
     }
 
-    die "condition '$ast' defined\n";
+    die "condition '$ast' not defined\n";
 }
 
 =head1 AUTHOR
