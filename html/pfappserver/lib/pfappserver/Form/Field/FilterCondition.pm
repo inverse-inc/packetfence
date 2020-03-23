@@ -37,14 +37,17 @@ has_field 'value' => (
 sub make_options {
     my ($requires, @ops) = @_;
     return map {
+        { label => $_, value => $_, requires => $requires },
+    } @ops;
+}
+
+sub make_options_with_not {
+    my ($requires, @ops) = @_;
+    return map {
         (
             { label => $_, value => $_, requires => $requires },
-            {
-                label    => "not_$_",
-                value    => "not_$_",
-                requires => $requires,
-            }
-          )
+            { label => "not_$_", value => "not_$_", requires => $requires },
+        )
     } @ops;
 }
 
@@ -54,21 +57,21 @@ has_field 'op' => (
     required => 1,
     default  => 'and',
     options => [
-        make_options( ['values'], qw(and or) ),
-        make_options(
+        make_options( ['values'], qw(and or not_and not_or) ),
+        make_options_with_not(
             [qw(value field)], qw(
               contains
-              includes
-              defined
-              regex
+              equals
               starts_with
               ends_with
-              equals
+              regex
+              includes
+              defined
               fingerbank_device_is_a
               date_is_before
               date_is_after)
         ),
-        make_options( [qw(value)], qw(time_period) )
+        make_options( [qw(value)], qw(time_period not_time_period) )
       ],
 );
 
