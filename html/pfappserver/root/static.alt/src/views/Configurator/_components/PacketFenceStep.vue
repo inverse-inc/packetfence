@@ -3,6 +3,7 @@
     :name="$t('Configure PacketFence')"
     icon="cogs"
     :invalid-step="invalidStep"
+    :invalid-feedback="invalidFeedback"
     :is-loading="isLoading"
     @next="save">
     <database-view form-store-name="formPacketFence" ref="database" />
@@ -13,7 +14,6 @@
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
 import BaseStep from './BaseStep'
 import DatabaseView from './DatabaseView'
 import GeneralView from './GeneralView'
@@ -37,6 +37,12 @@ export default {
   computed: {
     invalidStep () {
       return this.$store.getters['formPacketFence/$formInvalid']
+    },
+    invalidFeedback () {
+      return [
+        this.$store.getters['formPacketFence/$feedbackNS']('database.database_exists'),
+        this.$store.getters['formPacketFence/$feedbackNS']('database.user_is_valid')
+      ].join(' ')
     }
   },
   methods: {
