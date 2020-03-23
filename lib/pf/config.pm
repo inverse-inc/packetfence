@@ -174,12 +174,8 @@ our (
     %ConfigAuthenticationLdap,
 # Radius sources
     %ConfigAuthenticationRadius,
-# SSL configuration
-    %ConfigSSL,
 # TLS configuration
     %ConfigTLS,
-# OCSP configuration
-    %ConfigOCSP
 );
 
 BEGIN {
@@ -244,9 +240,7 @@ BEGIN {
         %ConfigSelfService
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
-        %ConfigSSL
         %ConfigTLS
-        %ConfigOCSP
     );
 }
 
@@ -327,11 +321,7 @@ tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authenticatio
 
 tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
 
-tie %ConfigSSL, 'pfconfig::cached_hash', 'config::Ssl';
-
-tie %ConfigTLS, 'pfconfig::cached_hash', 'config::Tls';
-
-tie %ConfigOCSP, 'pfconfig::cached_hash', 'config::Ocsp';
+tie %ConfigTLS, 'pfconfig::cached_hash', 'resource::tls_config';
 
 
 $thread = 0;

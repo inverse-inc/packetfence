@@ -46,9 +46,7 @@ use pf::config qw(
     $local_secret
     @radius_ints
     %ConfigAuthenticationLdap
-    %ConfigSSL
     %ConfigTLS
-    %ConfigOCSP
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
@@ -1172,10 +1170,10 @@ Generates the tls configuration
 sub generate_radiusd_tls {
     my ($self, $tt) = @_;
     my %tags;
-    $tags{'template'}    = "$conf_dir/radiusd/eaptls.conf";
 
-    parse_template( \%tags, "$conf_dir/radiusd/eaptls.conf", "$install_dir/raddb/mods-enabled/eaptls" );
+     $tags{'items'} =  \%ConfigTLS;
 
+    $tt->process("$conf_dir/radiusd/eaptls.conf", \%tags, "$install_dir/raddb/mods-enabled/eaptls" ) or die $tt->error();
 }
 
 
