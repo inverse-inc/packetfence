@@ -66,10 +66,11 @@ teardown() {
     delete_dir_if_exists ${VAGRANT_DIR}/collections
 
     log_subsection "Halt and destroy virtual machine(s)"
+    # using "|| true" as a workaround to unusual behavior
+    # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
+
+    # shutdown and destroy all VM
     if [ -z "${VM_NAMES}" ]; then
-        # shutdown and destroy all VM
-        # using "|| true" as a workaround to unusual behavior
-        # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
         ( cd $VAGRANT_DIR ; \
           vagrant halt ; \
           vagrant destroy -f || true )
@@ -77,7 +78,7 @@ teardown() {
     else
         ( cd $VAGRANT_DIR ; \
           vagrant halt ${VM_NAMES} ; \
-          vagrant destroy -f ${VM_NAMES} )
+          vagrant destroy -f ${VM_NAMES} || true )
         for vm in ${VM_NAMES}; do
             delete_dir_if_exists ${VAGRANT_DIR}/.vagrant/machines/${vm}
         done
