@@ -47,6 +47,10 @@ sub cleanupAfterRead {
     return;
 }
 
+sub _fields_expanded {
+    qw(scopes)
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
