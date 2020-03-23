@@ -65,7 +65,7 @@
         </b-button-group>
         <b-button-group v-if="!disabled" rel="prefixButtonGroup">
           <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="!allowTest" tabindex="-1">
-            {{ $t('Test') }}
+            {{ testLabel || $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
             <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
@@ -113,6 +113,10 @@ export default {
     test: {
       type: Function,
       default: null
+    },
+    testLabel: {
+      type: String,
+      default: null,
     },
     isLoading: {
       type: Boolean,
