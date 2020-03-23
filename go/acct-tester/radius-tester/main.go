@@ -115,11 +115,11 @@ func sendAccountingPacket(pi pktinfo) {
 
 	client := &radius.Client{}
 	// Use the background context since we don't want the lib to use our context
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(1*time.Second))
 	defer cancel()
 	_, err := client.Exchange(ctx, p, *host+":"+*port)
 	if err != nil {
-		fmt.Printf("Couldn't sent the RADIUS packet due to: %s \n", err)
+		fmt.Printf("%s: Couldn't sent the RADIUS packet due to: %s \n", time.Now(), err)
 	}
 }
 
