@@ -30,12 +30,15 @@ use pf::file_paths qw($var_dir);
 use pf::constants;
 use pf::util;
 use pf::node;
+use pf::util::radius qw(perform_disconnect);
 use pf::config qw(
     %connection_type_to_str
     $MAC
     $SSID
     $WEBAUTH_WIRELESS
 );
+use pf::locationlog;
+use Try::Tiny;
 use JSON::MaybeXS;
 
 # The port to reach the Unifi controller API
@@ -91,7 +94,7 @@ Override the Switch method so that the controller IP is inserted as the switch_i
 sub synchronize_locationlog {
     my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
     # Set the switch IP to the controller IP so that the locationlog entry has the proper switch_ip entry
-    $self->{_ip} = $self->{_controllerIp};
+    $self->{_ip} = $self->{_controllerIp} if defined($self->{_controllerIp});
     $self->SUPER::synchronize_locationlog($ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
 }
 
@@ -138,6 +141,7 @@ sub deauthTechniques {
     my $default = $SNMP::HTTP;
     my %tech = (
         $SNMP::HTTP  => '_deauthenticateMacWithHTTP',
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -243,6 +247,161 @@ sub _deauthenticateMacWithHTTP {
     }
 
     $logger->info("Switched status on the Unifi controller using command $command");
+}
+
+
+=item populateMACIP
+
+Fetch all the AP on the controller and cache it
+
+=cut
+
+
+sub populateMACIP {
+    my ( $self) = @_;
+    my $logger = $self->logger;
+
+    my $cache = $self->cache_distributed;
+
+    my $controllerIp = $self->{_controllerIp};
+    my $transport = lc($self->{_wsTransport});
+    my $username = $self->{_wsUser};
+    my $password = $self->{_wsPwd};
+
+    my $ua = LWP::UserAgent->new();
+    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
+    $ua->ssl_opts(verify_hostname => 0);
+    $ua->timeout(10);
+
+
+    my $base_url = "$transport://$controllerIp:$UNIFI_API_PORT";
+
+    my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
+
+    unless($response->is_success) {
+        $logger->error("Can't login on the Unifi controller: ".$response->status_line);
+        return;
+    }
+
+    $response = $ua->get("$base_url/api/self/sites");
+
+    unless($response->is_success) {
+        $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+        return;
+    }
+
+    $response = $ua->get("$base_url/api/self/sites");
+
+    my $json_data = decode_json($response->decoded_content());
+
+    foreach my $entry (@{$json_data->{'data'}}) {
+        $response = $ua->get("$base_url/api/s/$entry->{'name'}/stat/device/");
+        unless($response->is_success) {
+            $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+            return;
+        }
+        my $json_data_ap = decode_json($response->decoded_content());
+        foreach my $AP (@{$json_data_ap->{'data'}}) {
+            $cache->compute("Ubiquiti-" . $AP->{'mac'} , sub { return $AP->{'ip'} } );
+        }
+    }
+}
+
+
+=item deauthenticateMacDefault
+
+De-authenticate a MAC address from wireless network (including 802.1x).
+New implementation using RADIUS Disconnect-Request.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac);
+}
+
+=item radiusDisconnect
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+Optionally you can provide other attributes as an hashref.
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
+=cut
+
+# TODO consider whether we should handle retries or not?
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = $self->logger;
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS Disconnect-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating $mac");
+
+    # Where should we send the RADIUS Disconnect-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+
+    my $response;
+    try {
+        my $locationlog = locationlog_view_open_mac($mac);
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+        };
+
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+        my $nasID = $locationlog->{'switch_mac'};
+        $nasID =~ s/://g;
+        # Standard Attributes
+        my $attributes_ref = {
+            'Calling-Station-Id' => $mac,
+            'NAS-Identifier' => $nasID,
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        $response = perform_disconnect($connection_info, $attributes_ref);
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
 }
 
 

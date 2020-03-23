@@ -717,7 +717,7 @@ timeout=10s
 # How long to keep a admin_api_audit_log entry before deleting it
 window=6M
 
-[bandwidth_maintenance]
+bandwidth_maintenance]
 #
 # type
 #
@@ -805,3 +805,25 @@ timeout=10s
 #
 # How long to keep a session open
 window=24h
+
+[ubiquiti_ap_mac_to_ip]
+#
+# type
+#
+# The type of task to perform
+type=ubiquiti_ap_mac_to_ip
+#
+# description
+#
+# The description of task to perform
+description=Cache MAC/IP couple for Ubiquiti AP
+#
+# status
+#
+# If the task ubiquiti_ap_mac_to_ip is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the ubiquiti_ap_mac_to_ip pfmon task
+interval=12h
