@@ -202,6 +202,8 @@ Requires: perl(Catalyst::Plugin::Authentication)
 Requires: perl(Catalyst::Authentication::Credential::HTTP)
 Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
+Requires: perl(Catalyst::Plugin::SmartURI)
+Requires: perl(URI::SmartURI)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
 Requires: perl(SQL::Abstract::More) >= 1.28
@@ -390,6 +392,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}%{_unitdir}/packetfence-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-galera-autofix.service %{buildroot}%{_unitdir}/packetfence-galera-autofix.service
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service %{buildroot}%{_unitdir}/packetfence-tracking-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-admin.service %{buildroot}%{_unitdir}/packetfence-haproxy-admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
@@ -411,6 +414,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}%{_unitdir}/packetfence-pfqueue.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin_dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.admin_dispatcher.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service %{buildroot}%{_unitdir}/packetfence-radiusd-acct.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service %{buildroot}%{_unitdir}/packetfence-radiusd-auth.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service %{buildroot}%{_unitdir}/packetfence-radiusd-cli.service
@@ -703,7 +707,8 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
 /bin/systemctl isolate packetfence-base
-/bin/systemctl enable packetfence-httpd.admin
+/bin/systemctl enable packetfence-httpd.admin_dispatcher
+/bin/systemctl enable packetfence-haproxy-admin
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
@@ -711,7 +716,8 @@ if [ -n "$CI" ]; then
     echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
 else
     echo "Starting PacketFence Administration GUI..."
-    /bin/systemctl restart packetfence-httpd.admin
+    /bin/systemctl restart packetfence-httpd.admin_dispatcher
+    /bin/systemctl restart packetfence-haproxy-admin
 fi
 
 
@@ -923,6 +929,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/networks.conf
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
+%config                 /usr/local/pf/conf/passthrough_admin.lua.tt
 %config                 /usr/local/pf/conf/passthrough.lua.tt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
@@ -1010,6 +1017,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/vlan_filters.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/haproxy-admin.conf
+                        /usr/local/pf/conf/haproxy-admin.conf.example
 %config(noreplace)      /usr/local/pf/conf/haproxy-db.conf
                         /usr/local/pf/conf/haproxy-db.conf.example
 %config(noreplace)      /usr/local/pf/conf/haproxy-portal.conf
@@ -1043,6 +1052,7 @@ fi
 %dir                    /usr/local/pf/conf/caddy-services
 %config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
+%config                 /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
                         /usr/local/pf/conf/monitoring/netdata.conf.example

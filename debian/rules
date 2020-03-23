@@ -210,12 +210,14 @@ binary-arch: build install
 	dh_systemd_enable
 	dh_installinit --no-restart-on-upgrade
 	dh_installinit --name=packetfence-galera-autofix
+	dh_installinit --name=packetfence-haproxy-admin
 	dh_installinit --name=packetfence-haproxy-portal
 	dh_installinit --name=packetfence-haproxy-db
 	dh_installinit --name=packetfence-httpd.aaa
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
 	dh_installinit --name=packetfence-httpd.dispatcher
+	dh_installinit --name=packetfence-httpd.admin_dispatcher
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.proxy
 	dh_installinit --name=packetfence-httpd.webservices

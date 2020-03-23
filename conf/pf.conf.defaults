@@ -371,6 +371,16 @@ pfdhcp=enabled
 # Location of the pfdhcp binary.
 pfdhcp_binary=/usr/local/pf/sbin/pfdhcp
 #
+# services.haproxy-admin
+#
+# Should haproxy-admin be started?
+haproxy-admin=enabled
+#
+# services.haproxy-admin_binary
+#
+# Location of the haproxy-admin binary. Only necessary to change if you are not running the RPMed version.
+haproxy-admin_binary=/usr/sbin/haproxy
+#
 # services.haproxy-portal
 #
 # Should haproxy-portal be started?
@@ -429,7 +439,7 @@ pfbandwidthd=disabled
 # services.httpd_admin
 #
 # Should httpd.admin be started?
-httpd_admin=enabled
+httpd_admin=disabled
 #
 # services.httpd_portal
 #
@@ -455,6 +465,11 @@ httpd_collector=disabled
 #
 # Should httpd.dispatcher be started?
 httpd_dispatcher=enabled
+#
+# services.httpd_admin_dispatcher
+#
+# Should httpd.admin_dispatcher be started?
+httpd_admin_dispatcher=enabled
 #
 # services.httpd_aaa
 #

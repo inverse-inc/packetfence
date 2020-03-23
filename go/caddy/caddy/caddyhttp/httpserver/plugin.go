@@ -728,6 +728,7 @@ var directives = []string{
 	"pfipset",
 	"pfpki",
 	"httpdispatcher",
+	"httpdportalpreview",
 }
 
 const (

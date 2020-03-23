@@ -29,6 +29,7 @@ use Catalyst qw/
     Session::State::Cookie
     StackTrace
     Unicode::Encoding
+    SmartURI
 /;
 
 use Try::Tiny;
@@ -164,6 +165,11 @@ __PACKAGE__->config(
            }
         }
        }
+     },
+
+     'Plugin::SmartURI' => {
+        disposition => 'relative',
+        uri_class   =>  'URI::SmartURI',
      },
 );
 

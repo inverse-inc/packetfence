@@ -1,0 +1,16 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence HTTP Admin Dispatcher
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-haproxy-admin.service
+
+[Service]
+Type=notify
+LimitNOFILE=8192
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf -log-name httpd.admin_dispatcher
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

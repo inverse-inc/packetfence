@@ -1,36 +1,29 @@
-package pf::UnifiedApi::Controller::Cluster;
+package pf::services::manager::httpd_admin_dispatcher;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Cluster -
+pf::services::manager::httpd_admin_dispatcher
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Cluster
+pf::services::manager::httpd_admin_dispatcher
 
 =cut
 
 use strict;
 use warnings;
-use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pf::cluster;
+use Moo;
 
-sub config {
-    my ($self) = @_;
-    $self->render(json => { item => \%ConfigCluster });
-}
+extends 'pf::services::manager';
 
-sub servers {
-    my ($self) = @_;
-    my @servers = pf::cluster::config_enabled_servers;
-    $self->render(json => { items => \@servers });
-}
+has '+name' => (default => sub { 'httpd.admin_dispatcher' } );
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -56,3 +49,4 @@ USA.
 =cut
 
 1;
+

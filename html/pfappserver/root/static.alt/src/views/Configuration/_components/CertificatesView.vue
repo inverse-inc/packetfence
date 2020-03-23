@@ -25,7 +25,7 @@
               <h4 class="alert-heading" v-t="'Warning'"></h4>
               <p>
                 {{ $t('Some services must be restarted to load the new certificate.') }}
-                <span v-if="id === 'http'" v-html="$t('The {service} service needs to be restarted from the command-line.', { service: $strong('httpd.admin') })"></span>
+                <span v-if="id === 'http'" v-html="$t('The {service} service needs to be restarted from the command-line.', { service: $strong('haproxy-admin') })"></span>
               </p>
               <pf-button-service class="mr-1" v-for="service in services[id]" :key="service" :service="service" restart start stop></pf-button-service>
             </b-alert>
@@ -103,7 +103,7 @@
               <h4 class="alert-heading" v-t="'Warning'"></h4>
               <p>
                 {{ $t('Some services must be restarted to load the new certificate.') }}
-                <span v-if="id === 'http'" v-html="$t('The {service} service needs to be restarted from the command-line.', { service: $strong('httpd.admin') })"></span>
+                <span v-if="id === 'http'" v-html="$t('The {service} service needs to be restarted from the command-line.', { service: $strong('haproxy-admin') })"></span>
               </p>
               <pf-button-service class="mr-1" v-for="service in services[id]" :key="service" :service="service" restart start stop></pf-button-service>
             </b-alert>
@@ -222,7 +222,7 @@ export default {
       letsEncryptState: '',
       letsEncryptMsg: '',
       initCerts: ['http', 'radius'],
-      services: { 'http': ['haproxy-portal', 'httpd.admin'], 'radius': ['radiusd-acct', 'radiusd-auth'] },
+      services: { 'http': ['haproxy-portal', 'httpd.admin', 'haproxy-admin'], 'radius': ['radiusd-acct', 'radiusd-auth'] },
       sortedCerts: [],
       editMode: {},
       isModified: {},
