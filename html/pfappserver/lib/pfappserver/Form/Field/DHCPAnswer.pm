@@ -173,7 +173,7 @@ sub options_type {
     return map {
         {
             value   => $options{$_},
-            label   => $_,
+            label   => "$_($options{$_})",
         }
     } sort keys %options
 }
