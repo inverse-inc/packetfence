@@ -6,7 +6,7 @@ import ConfiguratorView from '../'
 import BasesStore from '@/views/Configuration/_store/bases'
 import InterfacesStore from '@/views/Configuration/_store/interfaces'
 import FingerbankStore from '@/views/Configuration/_store/fingerbank'
-import StatusStore from '@/views/Status/_store'
+// import StatusStore from '@/views/Status/_store'
 import UsersStore from '@/views/Users/_store'
 
 const InterfacesList = () => import(/* webpackChunkName: "Configurator" */ '../_components/InterfacesList')
@@ -21,6 +21,14 @@ const route = {
   name: 'configurator',
   redirect: '/configurator/network/interfaces',
   component: ConfiguratorView,
+  beforeEnter: (to, from, next) => {
+    // Force initial visit to start with the first step
+    if (!['configurator-network', 'configurator-interfaces'].includes(to.name)) {
+      next({ name: 'configurator-network'})
+    } else {
+      next()
+    }
+  },
   children: [
     {
       path: 'network',
@@ -116,9 +124,12 @@ const route = {
       name: 'configurator-status',
       component: StatusStep,
       beforeEnter: (to, from, next) => {
-        if (!store.state.$_status) {
-          store.registerModule('$_status', StatusStore) // required by ServicesView
+        if (!store.state.$_bases) {
+          store.registerModule('$_bases', BasesStore) // required by GeneralView
         }
+        // if (!store.state.$_status) {
+        //   store.registerModule('$_status', StatusStore) // required by ServicesView
+        // }
         next()
       }
     }
