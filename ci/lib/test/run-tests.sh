@@ -13,6 +13,7 @@ INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
 env | grep 'PF_'
 declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS INTEGRATION_TESTS
 
+### Common steps for all tests
 # Copy 't' dir from sources to /usr/local/pf/t
 # /usr/local/pf is hardcoded everywhere in 't'
 cp -a ${SRC_DIR}/t ${PF_DIR}

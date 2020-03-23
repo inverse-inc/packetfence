@@ -132,12 +132,12 @@ Vagrant.configure("2") do |config|
         config.reset = true
       end
 
-      srv.vm.provision "run-unit-tests", type: "shell" do |config|
+      srv.vm.provision "run-unit-tests", type: "shell", run: "never" do |config|
         config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
-          PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'] || "yes",
-          GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'] || "yes",
-          # INTEGRATION_TESTS should run when all VM are started (post-provisionning)
+          PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'],
+          GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'],
+          # INTEGRATION_TESTS should run only when INT_TEST_VM_NAMES have booted
           INTEGRATION_TESTS: "no"
         }
       end
@@ -146,7 +146,9 @@ Vagrant.configure("2") do |config|
       srv.vm.provision "run-integration-tests", type: "shell", run: "never" do |config|
         config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
-          INTEGRATION_TESTS: ENV['INTEGRATION_TESTS'] || "yes"
+          PERL_UNIT_TESTS: "no",
+          GOLANG_UNIT_TESTS: "no",
+          INTEGRATION_TESTS: ENV['INTEGRATION_TESTS']
         }
       end
     end
