@@ -1,7 +1,7 @@
 <template>
   <pf-config-view
     :form-store-name="formStoreName"
-    :isLoading="isLoading"
+    :is-loading="isLoading"
     :disabled="isLoading"
     :view="view"
     @save="save"
@@ -43,31 +43,29 @@ export default {
     view () {
       return view(this.form, this.meta) // ../_config/general
     },
-    invalidForm () {
-      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
-    },
     isLoading () {
       return this.$store.getters['$_fingerbank/isGeneralSettingsLoading']
-    },
-    isDisabled () {
-      return this.invalidForm || this.isLoading
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_fingerbank/getAccountInfo').then(info => {
-        this.accountInfo = info
+      this.$store.dispatch('$_fingerbank/optionsGeneralSettings').then(options => {
+        this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
+        this.$store.dispatch('$_fingerbank/getGeneralSettings').then(form => {
+          const {
+            upstream: {
+              api_key = null
+            }
+          } = form
+          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+          if (api_key) {
+            this.$store.dispatch('$_fingerbank/getAccountInfo').then(account => {
+              this.$store.dispatch(`${this.formStoreName}/appendMeta`, { account })
+            })
+          }
+        })
       })
-    //   this.$store.dispatch('$_fingerbank/optionsGeneralSettings').then(options => {
-    //     this.$store.dispatch(`${this.formStoreName}/setOptions`, options)
-    //   })
-      this.$store.dispatch('$_fingerbank/getGeneralSettings').then(form => {
-        this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-      })
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
-    },
-    save () {
-      return this.$store.dispatch('$_fingerbank/setGeneralSettings', this.form)
     }
   },
   created () {

@@ -190,14 +190,12 @@ const actions = {
       let refactored = { ...data[id], ...{ id } }
       promises.push(api.fingerbankUpdateGeneralSetting(id, refactored))
     })
-    return new Promise((resolve, reject) => {
-      Promise.all(promises.map(p => p.catch(e => e))).then(response => {
-        commit('GENERAL_SETTINGS_REPLACED', data)
-        return response
-      }).catch(err => {
-        commit('GENERAL_SETTINGS_ERROR', err.response)
-        throw err
-      })
+    return Promise.all(promises).then(response => {
+      commit('GENERAL_SETTINGS_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('GENERAL_SETTINGS_ERROR', err.response)
+      throw err
     })
   },
   combinations: ({ state, commit }) => {

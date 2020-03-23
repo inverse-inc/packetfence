@@ -1,8 +1,10 @@
 <template>
   <base-step
     :name="$t('Fingerbank on-boarding')"
-    icon="fingerprint">
-    <fingerbank-view form-store-name="formFingerbank" />
+    icon="fingerprint"
+    :is-loading="isLoading"
+    @next="save">
+    <fingerbank-view form-store-name="formFingerbank" ref="fingerbank" />
   </base-step>
 </template>
 
@@ -15,6 +17,16 @@ export default {
   components: {
     BaseStep,
     FingerbankView
+  },
+  data () {
+    return {
+      isLoading: false
+    }
+  },
+  methods: {
+    save (nextRouteName) {
+      this.$router.push({ name: nextRouteName })
+    }
   }
 }
 </script>
