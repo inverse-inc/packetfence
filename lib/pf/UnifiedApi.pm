@@ -1802,7 +1802,7 @@ sub setup_api_v1_services_routes {
     $collection_route->register_sub_actions({actions => [qw(status_all)], method => 'GET'});
     my $resource_route = $root->under("/service/#service_id")->to("Services#resource")->name("api.v1.Config.Services.resource");
     $self->add_subroutes($resource_route, "Services", "GET", qw(status));
-    $self->add_subroutes($resource_route, "Services", "POST", qw(start stop restart enable disable));
+    $self->add_subroutes($resource_route, "Services", "POST", qw(start stop restart enable disable update_systemd));
     
     my $cs_collection_route = $collection_route->any("/cluster_statuses")->to(controller => "Services::ClusterStatuses")->name("api.v1.Config.Services.ClusterStatuses");
     $cs_collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
