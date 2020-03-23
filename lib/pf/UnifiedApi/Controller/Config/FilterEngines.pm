@@ -91,6 +91,11 @@ sub engines {
                     resource   => "radius_filter",
                     name       => "RADIUS Filters"
                 },
+                {
+                    collection => "switch_filters",
+                    resource   => "switch_filter",
+                    name       => "Switch Filters"
+                },
             ]
         }
     );
