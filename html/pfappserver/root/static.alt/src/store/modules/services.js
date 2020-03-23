@@ -80,7 +80,6 @@ const types = {
 
 export const blacklistedServices = [ // prevent start|stop|restart control on these services
   'api-frontend',
-  'httpd.admin',
   'pf',
   'pfperl-api',
   'haproxy-admin',
