@@ -19,6 +19,8 @@ use pf::log;
 use Readonly;
 use pf::accounting_events_history;
 use pf::config::pfmon qw(%ConfigPfmon);
+use pf::config::tenant;
+use pf::error qw(is_success);
 
 use constant ACCOUNTING => 'accounting';
 
@@ -276,36 +278,13 @@ sub node_accounting_view_all {
     ));
 }
 
-=item _node_accounting_bw
-
-_node_accounting_bw
-
-=cut
-
-sub _node_accounting_bw {
-    return _db_item (
-        -columns => [
-            'SUM(radacct_log.acctinputoctets)|acctinput',
-            'SUM(radacct_log.acctoutputoctets)|acctoutput',
-            'SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)|accttotal'
-        ],
-        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"],
-        @_,
-    );
-}
-
 =item node_accounting_daily_bw - view bandwidth tranferred today for a node, returns an array of hashrefs
 
 =cut
 
 sub node_accounting_daily_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => {
-            callingstationid => $mac,
-            timestamp => { ">=" => \"CURRENT_DATE()" },
-        },
-    );
+    return node_accounting_bw($mac, 'daily');
 }
 
 =item node_accounting_weekly_bw - view bandwidth tranferred this week for a node, returns an array of hashrefs
@@ -314,9 +293,7 @@ sub node_accounting_daily_bw {
 
 sub node_accounting_weekly_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => [-and => [\"YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE())", {callingstationid => $mac}]],
-    );
+    return node_accounting_bw($mac, 'weekly');
 }
 
 =item node_accounting_monthly_bw - view bandwidth tranferred this month for a node, returns an array of hashrefs
@@ -325,9 +302,7 @@ sub node_accounting_weekly_bw {
 
 sub node_accounting_monthly_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => [-and => [\"MONTH(timestamp) = MONTH(CURRENT_DATE())", {callingstationid => $mac}]],
-    );
+    return node_accounting_bw($mac, 'monthly');
 }
 
 =item node_accounting_yearly_bw - view bandwidth tranferred this year for a node, returns an array of hashrefs
@@ -336,9 +311,7 @@ sub node_accounting_monthly_bw {
 
 sub node_accounting_yearly_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => [-and => [\"YEAR(timestamp) = YEAR(CURRENT_DATE())", {callingstationid => $mac}]],
-    );
+    return node_accounting_bw($mac, 'monthly');
 }
 
 sub _node_accounting_time {
@@ -554,35 +527,67 @@ my %direction_field = (
 sub node_acct_maintenance_bw {
     my ($direction, $interval, $releaseDate, $bytes) = @_;
     my $field = $direction_field{$direction};
+    my $date = $grouping_dates{$interval};
     my $sql = <<"SQL";
-    select tenant_id, mac FROM (
-        SELECT time_bucket, tenant_id, mac, $field FROM bandwidth_accounting WHERE time_bucket >= ?
-        UNION ALL SELECT time_bucket, tenant_id, mac, $field FROM bandwidth_accounting_history WHERE time_bucket >= ?
-    ) AS X GROUP BY $grouping_dates{$interval}, tenant_id, mac HAVING SUM($field) > ?;
+    select tenant_id, mac, SUM($field) as $field FROM (
+        SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? GROUP BY $date, tenant_id, mac
+        UNION ALL SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? GROUP BY $date, tenant_id, mac
+    ) AS X GROUP BY time_bucket, tenant_id, mac HAVING SUM($field) >= ?;
 SQL
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $releaseDate, $bytes);
     if (is_success($status)) {
         my $tbl_ary_ref = $sth->fetchall_arrayref({});
+        $sth->finish();
         return @$tbl_ary_ref;
-    } else {
     }
+
+    return;
 }
 
 sub node_acct_maintenance_bw_exists {
     my ($tenant_id, $mac, $direction, $interval, $releaseDate, $bytes) = @_;
     my $field = $direction_field{$direction};
+    my $date = $grouping_dates{$interval};
     my $sql = <<"SQL";
     select tenant_id, mac FROM (
-        SELECT time_bucket, tenant_id, mac, $field FROM bandwidth_accounting WHERE time_bucket >= ? AND tenant_id = ? AND mac = ?
-        UNION ALL SELECT time_bucket, tenant_id, mac, $field FROM bandwidth_accounting_history WHERE time_bucket >= ? AND tenant_id = ? AND mac = ?
-    ) AS X GROUP BY $grouping_dates{$interval} HAVING SUM($field) > ?;
+        SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? AND tenant_id = ? AND mac = ? GROUP BY $date, tenant_id, mac
+        UNION ALL SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? AND tenant_id = ? AND mac = ? GROUP BY $date, tenant_id, mac
+    ) AS X GROUP BY time_bucket HAVING SUM($field) >= ?;
 SQL
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $tenant_id, $mac, $releaseDate, $tenant_id, $mac, $bytes);
     if (is_success($status)) {
         my $tbl_ary_ref = $sth->fetchall_arrayref({});
+        $sth->finish();
         return @$tbl_ary_ref;
-    } else {
     }
+
+    return;
+}
+
+my %mac_grouping_dates = (
+    daily   => 'CURDATE()',
+    weekly  => 'DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)',
+    monthly => 'DATE_ADD(CURDATE(),INTERVAL -DAY(CURDATE())+1 DAY)',
+    yearly  => 'DATE_ADD(CURDATE(),INTERVAL -DAYOFYEAR(CURDATE())+1 DAY)',
+);
+
+sub node_accounting_bw {
+    my ($mac, $interval) = @_;
+    my $tenant_id = pf::config::tenant::get_tenant();
+    my $date = $mac_grouping_dates{$interval};
+    my $sql = <<"SQL";
+    select SUM(in_bytes) AS acctinput, SUM(out_bytes) AS acctoutput, SUM(total_bytes) AS accttotal FROM (
+        SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting WHERE time_bucket >= $date AND tenant_id = ? AND mac = ?
+        UNION SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting_history WHERE time_bucket >= $date AND tenant_id = ? AND mac = ?
+    ) AS X;
+SQL
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $tenant_id, $mac, $tenant_id, $mac);
+    if (is_success($status)) {
+        my $tbl_ary_ref = $sth->fetchall_arrayref({});
+        return @$tbl_ary_ref;
+    }
+
+    return
 }
 
 =back
