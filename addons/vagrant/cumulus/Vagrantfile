@@ -116,7 +116,7 @@ Vagrant.configure("2") do |config|
             :libvirt__network_name => networks[0]['name'],
             :ip => networks[0]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => 'route',
+            :libvirt__forward_mode => networks[0]['forward_mode'],
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
       device.vm.network "private_network",
@@ -124,7 +124,7 @@ Vagrant.configure("2") do |config|
             :libvirt__network_name => networks[1]['name'],
             :ip => networks[1]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => 'none',
+            :libvirt__forward_mode => networks[1]['forward_mode'],
             auto_config: false
       # link for swp3 --> iso_network (vlan 3)
       device.vm.network "private_network",
@@ -132,7 +132,7 @@ Vagrant.configure("2") do |config|
             :libvirt__network_name => networks[2]['name'],
             :ip => networks[2]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => 'none',
+            :libvirt__forward_mode => networks[2]['forward_mode'],
             auto_config: false      
       # link for swp6 --> inline_network (vlan 6)
       device.vm.network "private_network",
@@ -140,7 +140,7 @@ Vagrant.configure("2") do |config|
             :libvirt__network_name => networks[3]['name'],
             :ip => networks[3]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => 'nat',
+            :libvirt__forward_mode => networks[3]['forward_mode'],
             auto_config: false
       # link for swp11 --> node01:eth0
       device.vm.network "private_network",

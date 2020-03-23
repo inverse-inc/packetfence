@@ -139,15 +139,19 @@ all:
     networks:
       - name: 'mgmt'
         subnet: '172.17.17.0/24'
+        forward_mode: 'route'
 
       - name: 'registration'
         subnet: '172.17.2.0/24'
+        forward_mode: 'nat'
 
       - name: 'isolation'
         subnet: '172.17.3.0/24'
+        forward_mode: 'nat'
 
       - name: 'inline'
         subnet: '172.17.6.0/24'
+        forward_mode: 'nat'
 
 
       
