@@ -43,6 +43,7 @@ Enhancements
 * Improved captive-portal health checks in monit (#5185)
 * Added radius disconnect for wired port on Aruba AP (#5016)
 * Switch templates can now use SNMP up/down to perform access reevaluation (#5197)
+* Haproxy server the admin gui, httpd.admin disabled by default
 
 Bug Fixes
 +++++++++
