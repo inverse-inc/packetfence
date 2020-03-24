@@ -15,7 +15,6 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($vlan_filters_config_file $vlan_filters_config_default_file);
-use pf::condition_parser qw(parse_condition_string ast_to_object);
 use namespace::autoclean;
 extends 'pf::ConfigStore::FilterEngine';
 
@@ -26,14 +25,6 @@ sub importConfigFile { $vlan_filters_config_default_file };
 sub pfconfigNamespace {'config::VlanFilters'}
 
 sub ordered_arrays { ['actions',  'action'] }
-
-=head2 _fields_expanded
-
-=cut
-
-sub _fields_expanded {
-    return qw(scopes);
-}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

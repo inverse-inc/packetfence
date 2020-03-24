@@ -17,45 +17,13 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($dhcp_filters_config_file);
-extends 'pf::ConfigStore';
-use pf::condition_parser qw(parse_condition_string ast_to_object);
+extends 'pf::ConfigStore::FilterEngine';
 
 sub configFile { $dhcp_filters_config_file };
 
 sub pfconfigNamespace {'config::DhcpFilters'}
 
-=head2 cleanupBeforeCommit
-
-cleanupBeforeCommit
-
-=cut
-
-sub cleanupBeforeCommit {
-    my ($self, $id, $item) = @_;
-    $self->flatten_to_ordered_array($item, 'answers', 'answer');
-    $self->flatten_to_ordered_array($item, 'actions', 'action');
-    $item->{condition} = pf::condition_parser::object_to_str($item->{condition});
-    $self->flatten_list($item, $self->_fields_expanded);
-    return ;
-}
-
-sub cleanupAfterRead {
-    my ($self, $id, $item, $idKey) = @_;
-    $self->expand_ordered_array($item, 'answers', 'answer');
-    $self->expand_ordered_array($item, 'actions', 'action');
-    $self->expand_list($item, $self->_fields_expanded);
-    my ($ast, $err) = parse_condition_string($item->{condition});
-    $item->{condition} = ast_to_object($ast);
-    return;
-}
-
-=head2 _fields_expanded
-
-=cut
-
-sub _fields_expanded {
-    return qw(scopes);
-}
+sub ordered_arrays { ( [ 'actions', 'action' ], [ 'answers', 'answer' ] ) }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
