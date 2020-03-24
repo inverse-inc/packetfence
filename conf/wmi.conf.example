@@ -95,7 +95,8 @@ namespace=ROOT\SecurityCenter2
 action=[antispyware]
 on_tab=1
 
-# Detect an active TCP port
+# Detect if TCP port 25 is activate (SMTP)
+# This example can be used for all TCP ports, change the value by the ports you want, example: value = ^(143|465|587)$
 [ActiveTCP]
 request=select LocalPort from MSFT_NetTCPConnection
 namespace=ROOT\StandardCIMV2
@@ -103,7 +104,7 @@ action= <<EOT
 [ActivePort]
 attribute = LocalPort
 operator = regex
-value = ^(.*)$
+value = ^(25)$
 
 [1:!ActivePort]
 action=trigger_security_event
@@ -111,7 +112,8 @@ action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
 on_tab=0
 
-# Detect an active UDP port
+# Detect if UDP ports 137,138,139 are activate (NetBIOS)
+# This example can be used for all UDP ports, change the value by the ports you want, example for SNMP: value = ^(161|162)$
 [ActiveUDP]
 request=select LocalPort from MSFT_NetUDPEndpoint
 namespace=ROOT\StandardCIMV2
@@ -119,7 +121,7 @@ action= <<EOT
 [ActivePort]
 attribute = LocalPort
 operator = regex
-value = ^(.*)$
+value = ^(137|138|139)$
 
 [1:!ActivePort]
 action=trigger_security_event
