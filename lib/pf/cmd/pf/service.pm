@@ -31,6 +31,7 @@ Services managed by PacketFence:
   iptables               | PacketFence firewall rules
   keepalived             | Virtual IP management
   netdata                | Monitoring service
+  pfacct                 | Netflow and Radius Accounting service
   pf                     | all services that should be running based on your config
   pfbandwidthd           | A pf service to monitor bandwidth usages
   pfdetect               | PF snort alert parser
@@ -180,7 +181,11 @@ sub startService {
     if($checkupManagers && @$checkupManagers) {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
-            _doStart($manager);
+            if ($manager->isManaged()) {
+                _doStart($manager);
+            } else {
+                _doUpdateSystemd($manager, $TRUE);
+            }
         }
     }
     return $EXIT_SUCCESS;
@@ -293,8 +298,9 @@ sub _doUpdateSystemd {
             $color =  $COLORS->{error};
         }
     }
-
-    print $manager->name, "|${color}${command}$COLORS->{reset}\n" if $show;
+    my $service = "packetfence-".$manager->name.".service";
+    $service .= (" " x (50 - length($service)));
+    print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
 }
 
 sub getIptablesTechnique {

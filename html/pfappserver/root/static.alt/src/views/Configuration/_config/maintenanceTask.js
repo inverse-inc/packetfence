@@ -373,6 +373,55 @@ export const viewFields = {
         }
       ]
     }
+  },
+  history_batch: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('History Batch'),
+      text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
+      cols: [
+        {
+          namespace: 'history_batch',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'history_batch')
+        }
+      ]
+    }
+  },
+  history_timeout: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('History Timeout'),
+      text: i18n.t('Maximum amount of time this task can run.'),
+      cols: [
+        {
+          namespace: 'history_timeout.interval',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'history_timeout.interval')
+        },
+        {
+          namespace: 'history_timeout.unit',
+          component: pfFormChosen,
+          attrs: attributesFromMeta(meta, 'history_timeout.unit')
+        }
+      ]
+    }
+  },
+  history_window: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('History Window'),
+      text: i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.'),
+      cols: [
+        {
+          namespace: 'history_window.interval',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'history_window.interval')
+        },
+        {
+          namespace: 'history_window.unit',
+          component: pfFormChosen,
+          attrs: attributesFromMeta(meta, 'history_window.unit')
+        }
+      ]
+    }
   }
 }
 
@@ -696,6 +745,23 @@ export const view = (form = {}, meta = {}) => {
             viewFields.description(form, meta),
             viewFields.status(form, meta),
             viewFields.interval(form, meta)
+          ]
+        }
+      ]
+    case 'bandwidth_maintenance':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.status(form, meta),
+            viewFields.interval(form, meta),
+            viewFields.batch(form, meta),
+            viewFields.timeout(form, meta),
+            viewFields.history_batch(form, meta),
+            viewFields.history_timeout(form, meta),
+            viewFields.history_window(form, meta)
           ]
         }
       ]

@@ -4,6 +4,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   attributesFromMeta,
   validatorsFromMeta
@@ -74,12 +75,19 @@ export const columns = [
     label: i18n.t('Portal FQDN'),
     sortable: true,
     visible: true
-  }
+  },
+  {
+    key: 'netflow_accounting_enabled',
+    label: i18n.t('Netfow Accounting Enabled'),
+    sortable: true,
+    visible: true
+  },
 ]
 
 export const view = (form = {}, meta = {}) => {
   const {
-    fake_mac_enabled
+    fake_mac_enabled,
+    type
   } = form
   const {
     isNew = false
@@ -238,6 +246,23 @@ export const view = (form = {}, meta = {}) => {
                 ...attributesFromMeta(meta, 'portal_fqdn'),
                 ...{
                   disabled: (fake_mac_enabled === '1')
+                }
+              }
+            }
+          ]
+        },
+        {
+          if: type === 'inlinel2',
+          label: i18n.t('Netflow Accounting Enabled'),
+          text: i18n.t('Enable Netflow on this network to enable accounting.'),
+          cols: [
+            {
+              namespace: 'netflow_accounting_enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                ...attributesFromMeta(meta, 'netflow_accounting_enabled'),
+                ...{
+                  values: { checked: 'enabled', unchecked: 'disabled' }
                 }
               }
             }

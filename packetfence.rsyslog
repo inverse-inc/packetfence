@@ -90,6 +90,10 @@ if $syslogtag contains "portal_catalyst" then -/usr/local/pf/logs/httpd.portal.c
 if $programname == "pfconfig" then -/usr/local/pf/logs/pfconfig.log
 & stop
 
+# PFACCT
+if $programname == "pfacct" then -/usr/local/pf/logs/pfacct.log
+& stop
+
 # PFDNS
 if $programname == "pfdns" then -/usr/local/pf/logs/pfdns.log
 & stop

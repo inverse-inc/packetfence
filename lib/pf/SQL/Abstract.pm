@@ -21,11 +21,27 @@ use mro 'c3'; # implements next::method
 
 use Params::Validate  qw/validate SCALAR SCALARREF CODEREF ARRAYREF HASHREF
                                   UNDEF  BOOLEAN/;
+use Scalar::Util      qw/blessed reftype/;
 use Carp;                                  
 
 BEGIN {
     *puke = \&SQL::Abstract::puke;
     *_called_with_named_args = \&SQL::Abstract::More::_called_with_named_args;
+}
+
+#----------------------------------------------------------------------
+# utility function : cheap version of Scalar::Does (too heavy to be included)
+#----------------------------------------------------------------------
+my %meth_for = (
+  ARRAY => '@{}',
+  HASH  => '%{}',
+ );
+
+sub does ($$) {
+  my ($data, $type) = @_;
+  my $reft = reftype $data;
+  return defined $reft && $reft eq $type
+      || blessed $data && overload::Method($data, $meth_for{$type});
 }
 
 use namespace::clean;
@@ -163,8 +179,37 @@ sub update {
   return ($sql, @bind);
 }
 
+sub merge_conditions {
+  my $self = shift;
+  my %merged;
 
- 
+  foreach my $cond (@_) {
+    if    (does($cond, 'HASH'))  {
+      foreach my $col (sort keys %$cond) {
+        my $curr = $cond->{$col};
+        if (exists $merged{$col}) {
+            my $prev = $merged{$col};
+            if (defined $prev && defined $curr && !ref $prev && !ref $curr && ($prev eq $curr)) {
+                next;
+            } else {
+                $merged{$col} = $prev ? [-and => $prev, $curr] : $curr;
+            }
+        } else {
+            $merged{$col} = $curr;
+        }
+      }
+    }
+    elsif (does($cond, 'ARRAY')) {
+      $merged{-nest} = $merged{-nest} ? {-and => [$merged{-nest}, $cond]}
+                                      : $cond;
+    }
+    elsif ($cond) {
+      $merged{$cond} = \"";
+    }
+  }
+  return \%merged;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -193,4 +238,3 @@ USA.
 =cut
 
 1;
-

@@ -41,9 +41,15 @@ tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Pro
 
 sub instantiate {
     my ( $self, $mac_or_node_obj, $options ) = @_;
+    my $profile_name = $self->get_profile_name($mac_or_node_obj, $options);
+    return $self->_from_profile($profile_name);
+}
+
+sub get_profile_name {
+    my ( $self, $mac_or_node_obj, $options ) = @_;
     $options ||= {};
     if (defined($options->{'portal'})) {
-        return $self->_from_profile($options->{'portal'});
+        return $options->{'portal'};
     }
     my $node_info;
     if (ref($mac_or_node_obj)) {
@@ -54,14 +60,9 @@ sub instantiate {
     }
 
     $options->{last_ip} //= pf::ip4log::mac2ip($node_info->{mac});
-
     $node_info = {%$node_info, %$options};
-
-    my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
-    my $instance = $self->_from_profile($profile_name);
-    return $instance;
+    return $PROFILE_FILTER_ENGINE->match_first($node_info);
 }
-
 
 =head2 _from_profile
 

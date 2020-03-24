@@ -31,15 +31,23 @@ BEGIN {
         report_db_prepare
 
         report_osclassbandwidth
-        report_osclassbandwidth_all
+        report_osclassbandwidth_hour
         report_osclassbandwidth_day
         report_osclassbandwidth_week
         report_osclassbandwidth_month
         report_osclassbandwidth_year
         report_nodebandwidth
-        report_nodebandwidth_all
+        report_nodebandwidth_hour
+        report_nodebandwidth_day
+        report_nodebandwidth_week
+        report_nodebandwidth_month
+        report_nodebandwidth_year
         report_userbandwidth
-        report_userbandwidth_all
+        report_userbandwidth_hour
+        report_userbandwidth_day
+        report_userbandwidth_week
+        report_userbandwidth_month
+        report_userbandwidth_year
         report_topsponsor_all
         report_os
         report_os_all
@@ -79,9 +87,10 @@ BEGIN {
     );
 }
 
-use pf::config qw(%connection_type_explained);
+use pf::config qw(%connection_type_explained %Config);
 use pf::db;
 use pf::util;
+use pf::config::tenant;
 use pf::config::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -281,116 +290,195 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_osclassbandwidth_sql'} = get_db_handle()->prepare(qq[
-        SELECT IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
-            ROUND(
-                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-                    INNER JOIN node n ON n.mac = radacct.callingstationid
-                    WHERE timestamp BETWEEN ? AND ?
-                )*100,1
-            ) AS percent
-        FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-            INNER JOIN node n ON n.mac = radacct.callingstationid
-        WHERE timestamp BETWEEN ? AND ?
-        GROUP BY device_class
-        ORDER BY percent DESC;
-    ]);
-
-    $report_statements->{'report_osclassbandwidth_all_sql'} = get_db_handle()->prepare(qq [
-        SELECT IFNULL(device_class, 'Unknown Fingerprint') as dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
-            ROUND(
-                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-                    INNER JOIN node n ON n.mac = radacct.callingstationid
-                )*100,1
-            ) AS percent
-        FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-            INNER JOIN node n ON n.mac = radacct.callingstationid
-        GROUP BY device_class
-        ORDER BY percent DESC;
+      SELECT
+        IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(in_bytes) + SUM(out_bytes) AS bytes
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+      ) `total`
+      LEFT JOIN node USING (tenant_id, mac)
+      GROUP BY device_class
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
     $report_statements->{'report_osclassbandwidth_with_range_sql'} = get_db_handle()->prepare(qq[
-        SELECT IFNULL(device_class, 'Unknown Fingerprint') as dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
-            ROUND(
-                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-                    INNER JOIN node n ON n.mac = radacct.callingstationid
-                    WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-                )*100,1
-            ) AS percent
-        FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-            INNER JOIN node n ON n.mac = radacct.callingstationid
-        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-        GROUP BY device_class
-        ORDER BY percent DESC;
+      SELECT
+        IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(in_bytes) + SUM(out_bytes) AS bytes
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+      ) `total`
+      LEFT JOIN node USING (tenant_id, mac)
+      GROUP BY device_class
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
     $report_statements->{'report_nodebandwidth_sql'} = get_db_handle()->prepare(qq [
-        SELECT radacct.callingstationid as callingstationid,
-            SUM(radacct_log.acctinputoctets) AS acctinputoctets,
-            SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
-        FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-        WHERE radacct_log.timestamp BETWEEN ? AND ?
-        GROUP BY radacct.callingstationid
-        HAVING radacct.callingstationid IS NOT NULL
-          AND  radacct.callingstationid != ''
-        ORDER BY accttotaloctets DESC
-        LIMIT 25;
+      SELECT
+        mac,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(in_bytes) + SUM(out_bytes) AS bytes
+      FROM (
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
+        UNION ALL
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+      ) `total`
+      GROUP BY mac
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
-    $report_statements->{'report_nodebandwidth_all_sql'} = get_db_handle()->prepare(qq [
-        SELECT radacct.callingstationid as callingstationid,
-            SUM(radacct_log.acctinputoctets) AS acctinputoctets,
-            SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
-        FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-        GROUP BY radacct.callingstationid
-        HAVING radacct.callingstationid IS NOT NULL
-          AND  radacct.callingstationid != ''
-        ORDER BY accttotaloctets DESC
-        LIMIT 25;
+    $report_statements->{'report_nodebandwidth_with_range_sql'} = get_db_handle()->prepare(qq [
+      SELECT
+        mac,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(in_bytes) + SUM(out_bytes) AS bytes
+      FROM (
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        UNION ALL
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
+      ) `total`
+      GROUP BY mac
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
     $report_statements->{'report_userbandwidth_sql'} = get_db_handle()->prepare(qq [
-        SELECT node.pid as pid,
-            SUM(radacct_log.acctinputoctets) AS acctinputoctets,
-            SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
-        FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-        LEFT JOIN node ON node.mac = radacct.callingstationid
-        WHERE radacct_log.timestamp BETWEEN ? AND ?
-          AND node.pid IS NOT NULL
-        GROUP BY node.pid
-        ORDER BY accttotaloctets DESC
-        LIMIT 25;
+      SELECT
+        pid,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(in_bytes) + SUM(out_bytes) AS bytes
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+      ) `total`
+      LEFT JOIN node USING (tenant_id, mac)
+      GROUP BY pid
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
-    $report_statements->{'report_userbandwidth_all_sql'} = get_db_handle()->prepare(qq [
-        SELECT node.pid as pid,
-            SUM(radacct_log.acctinputoctets) AS acctinputoctets,
-            SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
-        FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
-        LEFT JOIN node ON node.mac = radacct.callingstationid
-        WHERE node.pid IS NOT NULL
-        GROUP BY node.pid
-        ORDER BY accttotaloctets DESC
-        LIMIT 25;
+    $report_statements->{'report_userbandwidth_with_range_sql'} = get_db_handle()->prepare(qq [
+      SELECT
+        pid,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(in_bytes) + SUM(out_bytes) AS bytes
+      FROM (
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+        UNION ALL
+        SELECT
+          tenant_id,
+          mac,
+          in_bytes,
+          out_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = ?
+          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
+      ) `total`
+      LEFT JOIN node USING (tenant_id, mac)
+      GROUP BY pid
+      ORDER BY bytes DESC
+      LIMIT 25;
     ]);
 
     $report_statements->{'report_topsponsor_sql'} = get_db_handle()->prepare(qq [
@@ -968,6 +1056,46 @@ sub report_ssid_active {
     return (@return_data);
 }
 
+=item report_osclassbandwidth
+
+Reporting - OS Class bandwidth usage for a specific period
+
+=cut
+
+sub report_osclassbandwidth {
+    my ($start, $end) = @_;
+    my $tenant = pf::config::tenant::get_tenant();
+    my $bucket_size = $Config{advanced}{accounting_timebucket_size};
+
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $total_bytes += $record->{'bytes'};
+        $total_bytes_in += $record->{'bytes_in'};
+        $total_bytes_out += $record->{'bytes_out'};
+    }
+    foreach my $record (@data) {
+        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
+        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
+        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
+        push @return_data, $record;
+    }
+    push @return_data, {
+      'dhcp_fingerprint' => "Total",
+      'bytes' => $total_bytes,
+      'bytes_in' => $total_bytes_in,
+      'bytes_out' => $total_bytes_out,
+      'percent' => "100",
+      'percent_in' =>"100",
+      'percent_out' =>"100"
+    };
+    return (@return_data);
+}
+
 =item _report_osclassbandwidth_with_range
 
 Reporting - OS Class bandwidth usage
@@ -978,56 +1106,46 @@ Sub that supports a range from now til $range window.
 
 sub _report_osclassbandwidth_with_range {
     my ($range) = @_;
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $range, $range);
-    my $totalbwoctets = 0;
+    my $tenant = pf::config::tenant::get_tenant();
+    my $bucket_size = $Config{advanced}{accounting_timebucket_size};
+
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
     foreach my $record (@data) {
-        $totalbwoctets += $record->{'accttotaloctets'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
-        push @return_data, $record;
+        $total_bytes += $record->{'bytes'};
+        $total_bytes_in += $record->{'bytes_in'};
+        $total_bytes_out += $record->{'bytes_out'};
     }
-    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
-    return (@return_data);
-}
-
-sub report_osclassbandwidth {
-    my ($start, $end) = @_;
-
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $start, $end, $start, $end);
-    my $totalbwoctets = 0;
-    my @return_data;
-
     foreach my $record (@data) {
-        $totalbwoctets += $record->{'accttotaloctets'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
+        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
+        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
         push @return_data, $record;
     }
-    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
+    push @return_data, {
+      'dhcp_fingerprint' => "Total",
+      'bytes' => $total_bytes,
+      'bytes_in' => $total_bytes_in,
+      'bytes_out' => $total_bytes_out,
+      'percent' => "100",
+      'percent_in' =>"100",
+      'percent_out' =>"100"
+    };
     return (@return_data);
 }
 
-=item report_osclassbandwidth_all
+=item report_osclassbandwidth_hour
 
-Reporting - OS Class bandwidth usage - All time
+Reporting - OS Class bandwidth usage for the last hour
 
 =cut
 
-sub report_osclassbandwidth_all {
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_all_sql');
-    my $totalbwoctets = 0;
-    my @return_data;
-
-    foreach my $record (@data) {
-        $totalbwoctets += $record->{'accttotaloctets'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
-        push @return_data, $record;
-    }
-    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
-    return (@return_data);
+sub report_osclassbandwidth_hour {
+    return _report_osclassbandwidth_with_range(60 * 60);
 }
 
 =item report_osclassbandwidth_day
@@ -1078,92 +1196,128 @@ Reporting - Node bandwidth usage for a specific period
 
 sub report_nodebandwidth {
     my ($start, $end) = @_;
+    my $tenant = pf::config::tenant::get_tenant();
+    my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql', $start, $end);
-    my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
-    # loop in the data once the calculate the totals
     foreach my $record (@data) {
-        $totalbw{'inoctets'} += $record->{'acctinputoctets'};
-        $totalbw{'outoctets'} += $record->{'acctoutputoctets'};
-        $totalbw{'bothoctets'} += $record->{'accttotaloctets'};
+      $total_bytes += $record->{'bytes'};
+      $total_bytes_in += $record->{'bytes_in'};
+      $total_bytes_out += $record->{'bytes_out'};
     }
-
-    # loop on it again to assign the values
     foreach my $record (@data) {
-        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotaloctets'} / $totalbw{'bothoctets'} ) * 100 );
-        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinputoctets'});
-        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutputoctets'});
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
+        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
+        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
         push @return_data, $record;
     }
-
-    # convert to human friendly format
-    foreach my $direction (keys %totalbw) {
-        my $direction_pretty = $direction;
-        $direction_pretty =~ s/octets$//;
-        $totalbw{$direction_pretty} = pf::util::pretty_bandwidth($totalbw{$direction});
-    }
-
     push @return_data, {
-        'callingstationid' => "Total",
-        'acctinputoctets' => $totalbw{'inoctets'},
-        'acctoutputoctets' => $totalbw{'outoctets'},
-        'accttotaloctets' => $totalbw{'bothoctets'},
-        'acctinput' => $totalbw{'in'},
-        'acctoutput' => $totalbw{'out'},
-        'accttotal' => $totalbw{'both'},
-        'percent' => "100",
+      'mac' => "Total",
+      'bytes' => $total_bytes,
+      'bytes_in' => $total_bytes_in,
+      'bytes_out' => $total_bytes_out,
+      'percent' => "100",
+      'percent_in' =>"100",
+      'percent_out' =>"100"
     };
     return (@return_data);
 }
 
-=item report_nodebandwidth_all
+=item _report_nodebandwidth_with_range
 
-Reporting - Node bandwidth usage for the top 25 consumers
+Reporting - Node bandwidth usage
+
+Sub that supports a range from now til $range window.
 
 =cut
 
-sub report_nodebandwidth_all {
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_all_sql');
-    my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
+sub _report_nodebandwidth_with_range {
+    my ($range) = @_;
+    my $tenant = pf::config::tenant::get_tenant();
+    my $bucket_size = $Config{advanced}{accounting_timebucket_size};
+
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
-    # loop in the data once the calculate the totals
     foreach my $record (@data) {
-        $totalbw{'inoctets'} += $record->{'acctinputoctets'};
-        $totalbw{'outoctets'} += $record->{'acctoutputoctets'};
-        $totalbw{'bothoctets'} += $record->{'accttotaloctets'};
+        $total_bytes += $record->{'bytes'};
+        $total_bytes_in += $record->{'bytes_in'};
+        $total_bytes_out += $record->{'bytes_out'};
     }
-
-    # loop on it again to assign the values
     foreach my $record (@data) {
-        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotaloctets'} / $totalbw{'bothoctets'} ) * 100 );
-        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinputoctets'});
-        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutputoctets'});
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
+        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
+        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
         push @return_data, $record;
     }
-
-    # convert to human friendly format
-    foreach my $direction (keys %totalbw) {
-        my $direction_pretty = $direction;
-        $direction_pretty =~ s/octets$//;
-        $totalbw{$direction_pretty} = pf::util::pretty_bandwidth($totalbw{$direction});
-    }
-
     push @return_data, {
-        'callingstationid' => "Total",
-        'acctinputoctets' => $totalbw{'inoctets'},
-        'acctoutputoctets' => $totalbw{'outoctets'},
-        'accttotaloctets' => $totalbw{'bothoctets'},
-        'acctinput' => $totalbw{'in'},
-        'acctoutput' => $totalbw{'out'},
-        'accttotal' => $totalbw{'both'},
-        'percent' => "100",
+      'mac' => "Total",
+      'bytes' => $total_bytes,
+      'bytes_in' => $total_bytes_in,
+      'bytes_out' => $total_bytes_out,
+      'percent' => "100",
+      'percent_in' =>"100",
+      'percent_out' =>"100"
     };
     return (@return_data);
+}
+
+=item report_nodebandwidth_hour
+
+Reporting - Node bandwidth usage for the last hour
+
+=cut
+
+sub report_nodebandwidth_hour {
+    return _report_nodebandwidth_with_range(60 * 60);
+}
+
+=item report_nodebandwidth_day
+
+Reporting - Node bandwidth usage for the last 24 hours
+
+=cut
+
+sub report_nodebandwidth_day {
+    return _report_nodebandwidth_with_range(24 * 60 * 60);
+}
+
+=item report_nodebandwidth_week
+
+Reporting - Node bandwidth usage for the last week
+
+=cut
+
+sub report_nodebandwidth_week {
+    return _report_nodebandwidth_with_range(7 * 24 * 60 * 60);
+}
+
+=item report_nodebandwidth_month
+
+Reporting - Node bandwidth usage for the last month
+
+=cut
+
+sub report_nodebandwidth_month {
+    return _report_nodebandwidth_with_range(30 * 7 * 24 * 60 * 60);
+}
+
+=item report_nodebandwidth_year
+
+Reporting - Node bandwidth usage for the last year
+
+=cut
+
+sub report_nodebandwidth_year {
+    return _report_nodebandwidth_with_range(365 * 7 * 24 * 60 * 60);
 }
 
 =item report_userbandwidth
@@ -1174,92 +1328,128 @@ Reporting - User bandwidth usage for a specific period
 
 sub report_userbandwidth {
     my ($start, $end) = @_;
+    my $tenant = pf::config::tenant::get_tenant();
+    my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_sql', $start, $end);
-    my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
+    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
-    # loop in the data once the calculate the totals
     foreach my $record (@data) {
-        $totalbw{'inoctets'} += $record->{'acctinputoctets'};
-        $totalbw{'outoctets'} += $record->{'acctoutputoctets'};
-        $totalbw{'bothoctets'} += $record->{'accttotaloctets'};
+      $total_bytes += $record->{'bytes'};
+      $total_bytes_in += $record->{'bytes_in'};
+      $total_bytes_out += $record->{'bytes_out'};
     }
-
-    # loop on it again to assign the values
     foreach my $record (@data) {
-        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotaloctets'} / $totalbw{'bothoctets'} ) * 100 );
-        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinputoctets'});
-        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutputoctets'});
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
+        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
+        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
         push @return_data, $record;
     }
-
-    # convert to human friendly format
-    foreach my $direction (keys %totalbw) {
-        my $direction_pretty = $direction;
-        $direction_pretty =~ s/octets$//;
-        $totalbw{$direction_pretty} = pf::util::pretty_bandwidth($totalbw{$direction});
-    }
-
     push @return_data, {
-        'pid' => "Total",
-        'acctinputoctets' => $totalbw{'inoctets'},
-        'acctoutputoctets' => $totalbw{'outoctets'},
-        'accttotaloctets' => $totalbw{'bothoctets'},
-        'acctinput' => $totalbw{'in'},
-        'acctoutput' => $totalbw{'out'},
-        'accttotal' => $totalbw{'both'},
-        'percent' => "100",
+      'pid' => "Total",
+      'bytes' => $total_bytes,
+      'bytes_in' => $total_bytes_in,
+      'bytes_out' => $total_bytes_out,
+      'percent' => "100",
+      'percent_in' =>"100",
+      'percent_out' =>"100"
     };
     return (@return_data);
 }
 
-=item report_userbandwidth_all
+=item _report_userbandwidth_with_range
 
-Reporting - User bandwidth usage for the top 25 consumers
+Reporting - User bandwidth usage
+
+Sub that supports a range from now til $range window.
 
 =cut
 
-sub report_userbandwidth_all {
-    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_all_sql');
-    my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
+sub _report_userbandwidth_with_range {
+    my ($range) = @_;
+    my $tenant = pf::config::tenant::get_tenant();
+    my $bucket_size = $Config{advanced}{accounting_timebucket_size};
+
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
+    my $total_bytes = 0;
+    my $total_bytes_in = 0;
+    my $total_bytes_out = 0;
     my @return_data;
 
-    # loop in the data once the calculate the totals
     foreach my $record (@data) {
-        $totalbw{'inoctets'} += $record->{'acctinputoctets'};
-        $totalbw{'outoctets'} += $record->{'acctoutputoctets'};
-        $totalbw{'bothoctets'} += $record->{'accttotaloctets'};
+        $total_bytes += $record->{'bytes'};
+        $total_bytes_in += $record->{'bytes_in'};
+        $total_bytes_out += $record->{'bytes_out'};
     }
-
-    # loop on it again to assign the values
     foreach my $record (@data) {
-        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotaloctets'} / $totalbw{'bothoctets'} ) * 100 );
-        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinputoctets'});
-        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutputoctets'});
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
+        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
+        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
         push @return_data, $record;
     }
-
-    # convert to human friendly format
-    foreach my $direction (keys %totalbw) {
-        my $direction_pretty = $direction;
-        $direction_pretty =~ s/octets$//;
-        $totalbw{$direction_pretty} = pf::util::pretty_bandwidth($totalbw{$direction});
-    }
-
     push @return_data, {
-        'pid' => "Total",
-        'acctinputoctets' => $totalbw{'inoctets'},
-        'acctoutputoctets' => $totalbw{'outoctets'},
-        'accttotaloctets' => $totalbw{'bothoctets'},
-        'acctinput' => $totalbw{'in'},
-        'acctoutput' => $totalbw{'out'},
-        'accttotal' => $totalbw{'both'},
-        'percent' => "100",
+      'pid' => "Total",
+      'bytes' => $total_bytes,
+      'bytes_in' => $total_bytes_in,
+      'bytes_out' => $total_bytes_out,
+      'percent' => "100",
+      'percent_in' =>"100",
+      'percent_out' =>"100"
     };
     return (@return_data);
+}
+
+=item report_userbandwidth_hour
+
+Reporting - User bandwidth usage for the last hour
+
+=cut
+
+sub report_userbandwidth_hour {
+    return _report_userbandwidth_with_range(60 * 60);
+}
+
+=item report_userbandwidth_day
+
+Reporting - User bandwidth usage for the last 24 hours
+
+=cut
+
+sub report_userbandwidth_day {
+    return _report_userbandwidth_with_range(24 * 60 * 60);
+}
+
+=item report_userbandwidth_week
+
+Reporting - User bandwidth usage for the last week
+
+=cut
+
+sub report_userbandwidth_week {
+    return _report_userbandwidth_with_range(7 * 24 * 60 * 60);
+}
+
+=item report_userbandwidth_month
+
+Reporting - User bandwidth usage for the last month
+
+=cut
+
+sub report_userbandwidth_month {
+    return _report_userbandwidth_with_range(30 * 7 * 24 * 60 * 60);
+}
+
+=item report_userbandwidth_year
+
+Reporting - User bandwidth usage for the last year
+
+=cut
+
+sub report_userbandwidth_year {
+    return _report_userbandwidth_with_range(365 * 7 * 24 * 60 * 60);
 }
 
 =item _report_topauthenticationfailures_by_mac

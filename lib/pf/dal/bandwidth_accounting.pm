@@ -1,25 +1,23 @@
-package pf::services::manager::pfbandwidthd;
+package pf::dal::bandwidth_accounting;
+
 =head1 NAME
 
-pf::services::manager::pfbandwidthd add documentation
+pf::dal::bandwidth_accounting - pf::dal module to override for the table bandwidth_accounting
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::pfbandwidthd
+pf::dal::bandwidth_accounting
+
+pf::dal implementation for the table bandwidth_accounting
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
 
-extends 'pf::services::manager';
-
-has '+name' => ( default => sub { 'pfbandwidthd' } );
-
-sub _cmdLine { my $self = shift; $self->executable ; }
+use base qw(pf::dal::_bandwidth_accounting);
 
 =head1 AUTHOR
 
@@ -49,4 +47,3 @@ USA.
 =cut
 
 1;
-

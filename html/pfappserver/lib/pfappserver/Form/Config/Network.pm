@@ -117,6 +117,15 @@ has_field 'portal_fqdn' =>
              help => 'Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server' },
   );
 
+has_field 'netflow_accounting_enabled' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   label => 'Enable Net Flow Accounting'
+   );
+
 =head2 validate
 
 Make sure the ending DHCP IP address is after the starting DHCP IP address.

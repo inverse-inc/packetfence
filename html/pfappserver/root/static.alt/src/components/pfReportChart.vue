@@ -141,6 +141,9 @@ export default {
           labels = zip.map(zip => zip[1])
         }
       }
+      if (values.length === 1 && !values[0]) {
+        values[0] = 100
+      }
       let options = this.report.chart.options
       if (!options.marker) options.marker = {}
       options.marker = Object.assign(options.marker, { colors: colors })
