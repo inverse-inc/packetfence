@@ -94,6 +94,44 @@ sub logger {
     return get_logger( ref($proto) || $proto );
 }
 
+=head2 dispatchActions
+
+dispatch the array of actions
+
+=cut
+
+sub dispatchActions {
+    my ($self, $rule, $args) = @_;
+    my $apiclient = $self->api_client();
+    for my $action (@{$rule->{actions}//[]}) {
+        my $param = $self->evalParamAction($action->{'api_parameters'}, $args);
+        $apiclient->notify($action->{'api_method'}, %{$param});
+    }
+}
+
+sub api_client {
+    return pf::api::jsonrpcclient->new;
+}
+
+=head2 evalParam
+
+evaluate action parameters
+
+=cut
+
+sub evalParamAction {
+    my ($self, $action_param, $args) = @_;
+    my @params = split(/\s*,\s*/, $action_param);
+    my $return = {};
+    foreach my $param (@params) {
+        $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
+        $param =~ s/^\s+|\s+$//g;
+        my @param_unit = split(/\s*=\s*/, $param);
+        $return = {%$return, @param_unit};
+    }
+    return $return;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
