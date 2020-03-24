@@ -94,8 +94,22 @@ Override the Switch method so that the controller IP is inserted as the switch_i
 sub synchronize_locationlog {
     my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
     # Set the switch IP to the controller IP so that the locationlog entry has the proper switch_ip entry
-    $self->{_ip} = $self->{_controllerIp} if defined($self->{_controllerIp});
+    $self->{_ip} = $self->returnSwitchIP($self->{_switchMac});
     $self->SUPER::synchronize_locationlog($ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
+}
+
+=head2 returnSwitchIP
+
+return the SwitchIP
+
+=cut
+
+sub returnSwitchIP {
+    my ($self, $mac) = @_;
+    if (my $ip = $self->getMACIP($mac)) {
+        return $ip;
+    }
+    return $self->{_controllerIp};
 }
 
 =head2 parseExternalPortalRequest
@@ -117,6 +131,8 @@ sub parseExternalPortalRequest {
 
     %params = (
         switch_id               => $req->param('ap'),
+        switch_mac              => $req->param('ap'),
+        switch_ip               => $self->returnSwitchIP($req->param('ap')),
         client_mac              => clean_mac($req->param('id')),
         client_ip               => $client_ip,
         ssid                    => $req->param('ssid'),
@@ -249,6 +265,25 @@ sub _deauthenticateMacWithHTTP {
     $logger->info("Switched status on the Unifi controller using command $command");
 }
 
+=item getMACIP
+
+get IP associated to a AP MAC
+
+=cut
+
+
+sub getMACIP {
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
+
+    my $cache = $self->cache_distributed;
+
+    my $result = $cache->get($mac);
+
+    return $result if defined($result);
+
+    return $FALSE;
+}
 
 =item populateMACIP
 
@@ -258,7 +293,7 @@ Fetch all the AP on the controller and cache it
 
 
 sub populateMACIP {
-    my ( $self) = @_;
+    my ($self) = @_;
     my $logger = $self->logger;
 
     my $cache = $self->cache_distributed;
