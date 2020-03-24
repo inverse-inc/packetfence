@@ -48,9 +48,7 @@ sub filterRule {
     my $logger = $self->logger;
     if(defined $rule) {
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
-        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
-            $self->dispatchAction($rule, $args);
-        }
+        $self->dispatchActions($rule, $args);
         my $answer = $rule->{answer};
         if (defined $answer && $answer ne '') {
             my %results = %$rule;

@@ -28,9 +28,7 @@ tie our %VlanFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::VlanSco
 sub filterRule {
     my ($self, $rule, $args) = @_;
     if(defined $rule) {
-        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
-            $self->dispatchActions($rule, $args);
-        }
+        $self->dispatchActions($rule, $args);
         my $scope = $rule->{scope};
         if (defined($rule->{'role'}) && $rule->{'role'} ne '') {
             my $role = $rule->{'role'};
@@ -53,25 +51,6 @@ sub getEngineForScope {
         return $VlanFilterEngineScopes{$scope};
     }
     return undef;
-}
-
-=head2 dispatchActions
-
-dispatch the array of actions
-
-=cut
-
-sub dispatchActions {
-    my ($self, $rule, $args) = @_;
-    my $apiclient = api_client();
-    for my $action (@{$rule->{actions}//[]}) {
-        my $param = $self->evalParamAction($action->{'api_parameters'}, $args);
-        $apiclient->notify($action->{'api_method'}, %{$param});
-    }
-}
-
-sub api_client {
-    return pf::api::jsonrpcclient->new;
 }
 
 =head2 dispatchAction
