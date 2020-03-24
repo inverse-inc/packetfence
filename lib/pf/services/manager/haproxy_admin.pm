@@ -138,7 +138,7 @@ frontend admin-https-$mgmt_cluster_ip
         bind $mgmt_cluster_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
         reqadd X-Forwarded-Proto:\\ https
-	http-request lua.change_host
+        http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.admin
