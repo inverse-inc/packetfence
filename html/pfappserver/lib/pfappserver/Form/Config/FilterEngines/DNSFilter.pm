@@ -23,7 +23,7 @@ with qw(
 );
 
 sub scopes {
-    return map { { value => $_, label => $_ } } qw(Discover Request);
+    return map { { value => $_, label => $_ } } qw(Discover Request registration isolation inline dnsenforcement);
 }
 
 has_field answer => (
