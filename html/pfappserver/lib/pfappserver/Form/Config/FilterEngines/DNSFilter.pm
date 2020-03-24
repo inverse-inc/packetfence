@@ -53,13 +53,6 @@ my %rcodes = (
     BADTRUNC => "Bad Truncation",
 );
 
-has_field rcode => (
-    type => 'Select',
-    options => [
-        map { { label => $rcodes{$_}, value => $_} } keys %rcodes
-    ],
-);
-
 my %ADDITIONAL_FIELD_OPTIONS = (
     %pfappserver::Form::Config::FilterEngines::ADDITIONAL_FIELD_OPTIONS
 );
