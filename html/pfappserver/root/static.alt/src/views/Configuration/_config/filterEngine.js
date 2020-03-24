@@ -127,7 +127,6 @@ export const viewFields = {
   },
   actions: (form, meta = {}) => {
     return {
-      if: form.run_actions === 'enabled',
       label: i18n.t('Actions'),
       text: i18n.t('Specify actions when condition is met.'),
       cols: [
@@ -365,6 +364,9 @@ export const viewFields = {
 
 export const view = (form = {}, meta = {}) => {
   const {
+    run_actions
+  } = form
+  const {
     isNew = false,
     isClone = false,
     collection = null
@@ -380,7 +382,10 @@ export const view = (form = {}, meta = {}) => {
             viewFields.status(form, meta),
             viewFields.condition(form, meta),
             viewFields.run_actions(form, meta),
-            viewFields.actions(form, meta),
+            ...((run_actions === 'enabled')
+              ? [viewFields.actions(form, meta)]
+              : []
+            ),
             viewFields.answers(form, meta),
             viewFields.scopes(form, meta)
           ]
@@ -409,6 +414,10 @@ export const view = (form = {}, meta = {}) => {
             viewFields.description(form, meta),
             viewFields.status(form, meta),
             viewFields.condition(form, meta),
+            ...((run_actions === 'enabled')
+              ? [viewFields.actions(form, meta)]
+              : []
+            ),
             viewFields.merge_answer(form, meta),
             viewFields.answersRadiusAttributes(form, meta),
             viewFields.scopes(form, meta),
@@ -425,6 +434,11 @@ export const view = (form = {}, meta = {}) => {
             viewFields.description(form, meta),
             viewFields.status(form, meta),
             viewFields.condition(form, meta),
+            viewFields.run_actions(form, meta),
+            ...((run_actions === 'enabled')
+              ? [viewFields.actions(form, meta)]
+              : []
+            ),
             viewFields.role(form, meta),
             viewFields.scopes(form, meta)
           ]
@@ -460,12 +474,7 @@ export const validatorFields = {
     const { actions = [], run_actions } = form
     return {
       actions: {
-        ...((run_actions === 'enabled' && (!actions || actions.length === 0))
-          ? {
-            [i18n.t('Actions required.')]: required
-          }
-          : {}
-        ),
+        ...validatorsFromMeta(meta, 'actions', i18n.t('Actions')),
         ...(actions || []).map((action) => {
           return {
             api_method: {
@@ -551,14 +560,22 @@ export const validatorFields = {
 }
 
 export const validators = (form = {}, meta = {}) => {
-  const { collection = null } = meta
+  const {
+    run_actions
+  } = form
+  const {
+    collection = null
+  } = meta
   switch (collection) {
     case 'dhcp_filters':
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
         ...validatorFields.condition(form, meta),
-        ...validatorFields.actions(form, meta),
+        ...((run_actions === 'enabled')
+          ? validatorFields.actions(form, meta)
+          : {}
+        ),
         ...validatorFields.scopes(form, meta)
       }
     case 'dns_filters':
@@ -573,6 +590,10 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
         ...validatorFields.condition(form, meta),
+        ...((run_actions === 'enabled')
+          ? validatorFields.actions(form, meta)
+          : {}
+        ),
         ...validatorFields.scopes(form, meta)
       }
     case 'vlan_filters':
@@ -580,6 +601,10 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
         ...validatorFields.condition(form, meta),
+        ...((run_actions === 'enabled')
+          ? validatorFields.actions(form, meta)
+          : {}
+        ),
         ...validatorFields.role(form, meta),
         ...validatorFields.scopes(form, meta)
       }
