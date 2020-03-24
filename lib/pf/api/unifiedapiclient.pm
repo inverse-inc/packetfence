@@ -208,7 +208,7 @@ sub call {
             get_logger->info("Request to $path is unauthorized, will perform a login");
             $self->connection($self->curl);
             $self->login();
-            return $self->call(@params, 1);
+            return $self->call($method,$path,$args,1);
         }
         else {
             $response = decode_json($response_body);
@@ -219,8 +219,7 @@ sub call {
         if(!$retrying) {
             get_logger->warn("Failed communicating with API, will retry. Failure was: ".$msg);
             $self->connection($self->curl);
-            $self->login();
-            $self->call(@params, 1);
+            $self->call($method,$path,$args,1);
         }
         else {
             die $msg;

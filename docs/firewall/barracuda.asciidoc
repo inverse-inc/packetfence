@@ -15,7 +15,7 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> Barracuda
 * *Port*: 22
 * *Roles*: add the roles that you want to do SSO
 
-image::doc-barracuda-cfg_SSO_pf.png[scaledwidth="100%",alt="Create the SSO agent in Barracuda"]
+image::doc-barracuda-cfg_sso_pf.png[scaledwidth="100%",alt="Create the SSO agent in Barracuda"]
 
 Step 2: Verification
 ^^^^^^^^^^^^^^^^^^^^

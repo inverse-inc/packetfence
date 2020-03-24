@@ -142,7 +142,7 @@ export default {
       get () {
         if (this.formStoreValue === null) {
           // eslint-disable-next-line
-          this.formStoreValue = this.default // set default
+          this.formStoreValue = JSON.parse(JSON.stringify(this.default)) // set default
         }
         return this.formStoreValue // use FormStore
       },

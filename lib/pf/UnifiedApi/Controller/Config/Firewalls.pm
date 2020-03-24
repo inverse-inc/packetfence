@@ -34,6 +34,7 @@ use pfappserver::Form::Config::Firewall_SSO::JuniperSRX;
 use pfappserver::Form::Config::Firewall_SSO::LightSpeedRocket;
 use pfappserver::Form::Config::Firewall_SSO::SmoothWall;
 use pfappserver::Form::Config::Firewall_SSO::FamilyZone;
+use pfappserver::Form::Config::Firewall_SSO::CiscoIsePic;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Firewall_SSO::$_" } qw(
@@ -48,6 +49,7 @@ our %TYPES_TO_FORMS = (
       LightSpeedRocket
       SmoothWall
       FamilyZone
+      CiscoIsePic
     )
 );
 

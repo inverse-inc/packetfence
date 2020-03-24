@@ -825,6 +825,7 @@ sub switch_access {
         stripped_user_name => $stripped_user_name,
         realm => $realm,
         username => $user_name,
+        user_name => $user_name,
         radius_request => $radius_request,
         switch_group => $switch->{_group},
         switch_id => $switch->{_id},

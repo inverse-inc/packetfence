@@ -18,11 +18,14 @@
         @focus.native="isFocus = true"
         @blur.native="isFocus = false"
       ></b-form-input>
-      <b-input-group-append>
-        <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
-          <b-button v-for="(prefix, index) in prefixesInRange" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)" tabindex="-1">{{ $t(prefix.label + units.label) }}</b-button>
-        </b-button-group>
-      </b-input-group-append>
+      <b-dropdown size="sm" v-if="prefixes.length > 0" variant="light">
+        <template v-slot:button-content>
+          <span class="mr-1">{{ currentPrefix.label  + units.label }}</span>
+        </template>
+        <template v-for="(prefix, index) in prefixesInRange">
+          <b-dropdown-item-button :key="index" :active="currentPrefix.label === prefix.label" @click="changeMultiplier(index)">{{ $t(prefix.label + units.label) }}</b-dropdown-item-button>
+        </template>
+      </b-dropdown>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
@@ -71,7 +74,7 @@ export default {
     },
     max: {
       type: Number,
-      default: 4294967295 // Number.MAX_SAFE_INTEGER
+      default: 16 * Math.pow(1024, 6) // 16XB
     }
   },
   data () {
@@ -153,6 +156,9 @@ export default {
         }
       }
     },
+    currentPrefix () {
+      return this.prefixes.find(prefix => prefix.selected)
+    },
     prefixesInRange () {
       return this.prefixes.filter(prefix => prefix.multiplier <= this.max)
     },
@@ -203,11 +209,14 @@ export default {
     focus () {
       this.$refs.input.focus()
     },
-    changeMultiplier (event, newIndex) {
+    changeMultiplier (newIndex) {
       if (+this.inputValue !== 0) {
         const curIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
         const factor = this.prefixes[newIndex].multiplier / this.prefixes[curIndex].multiplier
         this.inputValue *= factor
+      } else {
+        this.prefixes.find(prefix => prefix.selected).selected = false
+        this.prefixes[newIndex].selected = true
       }
     },
     unSelectPrefix () {
@@ -254,14 +263,5 @@ export default {
     border: 1px solid $form-feedback-invalid-color;
     box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
   }
-}
-
-/**
- * Add btn-primary color(s) on hover
- */
-.btn-group[rel=prefixButtonGroup] button:hover {
-  background-color: $input-btn-hover-bg-color;
-  color: $input-btn-hover-text-color;
-  border-color: $input-btn-hover-bg-color;
 }
 </style>

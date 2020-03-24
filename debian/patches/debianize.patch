@@ -38,10 +38,10 @@ index d3a3cd9b63..fe284fcaa2 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index e22c34aeba..122714f6be 100644
+index 65be470a9b..bdb3013098 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -399,7 +399,7 @@ radiusd=enabled
+@@ -419,7 +419,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -50,7 +50,7 @@ index e22c34aeba..122714f6be 100644
  #
  # services.iptables
  #
-@@ -459,7 +459,7 @@ httpd_proxy=enabled
+@@ -484,7 +484,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -59,7 +59,7 @@ index e22c34aeba..122714f6be 100644
  #
  # services.snmptrapd
  #
-@@ -557,7 +557,7 @@ openssl_binary=/usr/bin/openssl
+@@ -582,7 +582,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -68,7 +68,7 @@ index e22c34aeba..122714f6be 100644
  #
  # services.netdata
  #
-@@ -575,8 +575,8 @@ tc=enabled
+@@ -600,8 +600,8 @@ tc=enabled
  #
  # services.tc_binary
  #
@@ -79,6 +79,19 @@ index e22c34aeba..122714f6be 100644
  # services.pfdns
  #
  # Should pfdns be managed by PacketFence?
+diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
+index 102b0cfb37..aa1c524696 100644
+--- a/conf/systemd/packetfence-haproxy-admin.service
++++ b/conf/systemd/packetfence-haproxy-admin.service
+@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-pfperl-api.
+ Type=notify
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_admin' -e 'pf::services::manager::haproxy_admin->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_admin' -e 'pf::services::manager::haproxy_admin->new()->generateConfig()'
+ ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-admin.conf -p /usr/local/pf/var/run/haproxy-admin.pid
+ ExecReload=/bin/kill -USR2 $MAINPID
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
 index e153b95087..714ffe04bc 100644
 --- a/conf/systemd/packetfence-haproxy-db.service

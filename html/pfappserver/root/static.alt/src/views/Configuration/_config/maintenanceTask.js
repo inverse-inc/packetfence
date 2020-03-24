@@ -341,6 +341,21 @@ export const viewFields = {
       ]
     }
   },
+  voip: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('VoIP'),
+      text: i18n.t('Whether or not the VoIP devices should be handled by this maintenance task.'),
+      cols: [
+        {
+          namespace: 'voip',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
   window: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Window'),
@@ -570,7 +585,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.status(form, meta),
             viewFields.interval(form, meta),
             viewFields.unreg_window(form, meta),
-            viewFields.delete_window(form, meta)
+            viewFields.delete_window(form, meta),
+            viewFields.voip(form, meta)
           ]
         }
       ]

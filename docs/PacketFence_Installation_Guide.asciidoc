@@ -3475,6 +3475,11 @@ Checkpoint
 
 include::firewall/checkpoint.asciidoc[]
 
+Cisco ISE-PIC
+~~~~~~~~~~~~~
+
+include::firewall/ciscoisepic.asciidoc[]
+
 FortiGate
 ~~~~~~~~~
 

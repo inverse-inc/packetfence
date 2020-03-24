@@ -123,7 +123,25 @@ sub perform_dynauth {
     # TODO deal with attribute merging
     foreach my $attr (keys %$attributes) {
         next unless defined $attributes->{$attr};
-        $radius_request->set_attr($attr, $attributes->{$attr});
+    
+        if($dictionary->attr_num($attr)) {
+            $radius_request->set_attr($attr, $attributes->{$attr});
+        }
+        else {
+            for my $vendor (keys %{$dictionary->{vendors}}) {
+                if($dictionary->vsattr_num($dictionary->{vendors}->{$vendor}, $attr)) {
+                    if(ref($attributes->{$attr}) eq "ARRAY") {
+                        for my $val (@{$attributes->{$attr}}) {
+                            $radius_request->set_vsattr($vendor, $attr, $val);
+                        }
+                    }
+                    else {
+                        $radius_request->set_vsattr($vendor, $attr, $attributes->{$attr});
+                    }
+                }
+            }
+        }
+
     }
 
     # Warning: untested

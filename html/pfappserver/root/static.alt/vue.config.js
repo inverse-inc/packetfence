@@ -1,7 +1,7 @@
 module.exports = {
-  publicPath: '/static/alt',
+  publicPath: '/admin/alt',
   outputDir: 'dist',
-  indexPath: '../../admin/v-index.tt',
+  indexPath: 'index.html',
   css: {
     sourceMap: process.env.VUE_APP_DEBUG === 'true',
     extract: process.env.VUE_APP_DEBUG !== 'true',

@@ -25,7 +25,7 @@
         <router-link :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
       </template>
       <template v-slot:cell(buttons)="item">
-        <span class="float-right text-nowrap">
+        <span class="float-right">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
           <pf-button-pki-cert-download size="sm" variant="outline-primary" class="mr-1"
             :disabled="isLoading" :cert="item" :download="download"

@@ -420,7 +420,12 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub wiredeauthTechniques {
     my ($self, $method, $connection_type) = @_;
-    return $SNMP::RADIUS, 'deauthenticateMacRadius';
+    if(isenabled($self->{_template}->{snmpDisconnect})) {
+        return $SNMP::SNMP, 'handleReAssignVlanTrapForWiredMacAuth';
+    }
+    else {
+        return $SNMP::RADIUS, 'deauthenticateMacRadius';
+    }
 }
 
 =head2 deauthenticateMacRadius

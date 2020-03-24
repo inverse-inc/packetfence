@@ -245,12 +245,12 @@ sub generate_filter_if_src_to_chain {
             $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $chain\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $chain\n";
             if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
-                $rules_forward .= "-A FORWARD --in-interface $dev --jump $chain\n";
-                $rules_forward .= "-A FORWARD --out-interface $dev --jump $chain\n";
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
             if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
-                $rules_forward .= "-A FORWARD --in-interface $dev --jump $chain\n";
-                $rules_forward .= "-A FORWARD --out-interface $dev --jump $chain\n";
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
             }
 
         # inline enforcement

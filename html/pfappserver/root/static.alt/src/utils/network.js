@@ -1,4 +1,7 @@
 const network = {
+  cidrToIpv4 (cidr) {
+    return cidr.split('/', 1)[0] || cidr
+  },
   connectionTypeToAttributes (connectionType) {
     const cType = String(connectionType)
     let attributes = {

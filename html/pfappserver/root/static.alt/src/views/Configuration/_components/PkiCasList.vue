@@ -16,12 +16,10 @@
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No certificate authorities found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
-        <span class="float-right text-nowrap">
+        <span class="float-right">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clipboard(item)">
-            <icon class="mr-1" name="clipboard-list"></icon> {{ $t('Copy Certificate') }}
-          </b-button>
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'newPkiProfile', params: { ca_id: item.ID } }">{{ $t('New Profile') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1 text-nowrap" @click.stop.prevent="clipboard(item)">{{ $t('Copy Certificate') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1 text-nowrap" :to="{ name: 'newPkiProfile', params: { ca_id: item.ID } }">{{ $t('New Profile') }}</b-button>
         </span>
       </template>
     </pf-config-list>

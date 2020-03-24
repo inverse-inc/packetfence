@@ -33,6 +33,7 @@
         v-bind="$attrs"
         :config="flatpickrConfig"
         :state="inputState"
+        @input="onInput($event)"
         @on-change="onChange($event)"
         @focus.native="onFocus($event)"
         @blur.native="onBlur($event)"
@@ -211,10 +212,14 @@ export default {
     },
     onChange (event) {
       const { 0: newDatetime } = event
+      const now = (new Date()).getTime()
       const { options: { datetimeFormat } = {} } = this
-      if (newDatetime === undefined || !isValid(parse(newDatetime, datetimeFormat))) {
+      if (newDatetime === undefined || !isValid(parse(newDatetime, datetimeFormat))) { // invalid format
         this.inputValue = null
         this.close()
+      } else if (now > newDatetime.getTime() && now - newDatetime.getTime() < 1E3) { // flatpickr is attempting to set current date/time
+        this.inputValue = null
+        this.clear()
       } else {
         let formattedDatetime = format(newDatetime, datetimeFormat)
         if (this.inputValue !== formattedDatetime) {
@@ -222,8 +227,20 @@ export default {
         }
       }
     },
+    onInput (event) {
+      if (this.inputValue && !event) { // had value && empty new value
+        this.inputValue = null
+        this.close()
+      }
+    },
     open () {
       this.flatpickrElement.open()
+    },
+    close () {
+      this.flatpickrElement.close()
+    },
+    clear () {
+      this.flatpickrElement.clear()
     },
     convertFormat (format = 'YYYY-MM-DD HH:ii:ss') {
       // converts 'datefns' format to 'flatpickr' format

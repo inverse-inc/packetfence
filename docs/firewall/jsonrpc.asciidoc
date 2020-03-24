@@ -34,4 +34,4 @@ Go to *'Configuration' -> 'Integration' -> 'Firewall SSO' -> 'Add Firewall' -> '
 * *Port of the service*: 9090
 * *Roles*: Add the roles that you want to do SSO with
 
-image::doc-jsonrpc-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the JSON-RPC SSO in PacketFence"]
+image::doc-jsonrpc-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the JSON-RPC SSO in PacketFence"]

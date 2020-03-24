@@ -610,9 +610,6 @@ func getRevokedByID(pfpki *Handler) http.Handler {
 func manageAnswer(Information Info, Error Errors, pfpki *Handler, res http.ResponseWriter, req *http.Request) {
 	var err error
 
-	// Set the default Content-Type
-	Information.ContentType = "application/json; charset=UTF-8"
-
 	if Error.Status != 0 {
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		res.WriteHeader(http.StatusOK)
@@ -638,6 +635,7 @@ func manageAnswer(Information Info, Error Errors, pfpki *Handler, res http.Respo
 		io.Copy(res, bytes.NewReader(Information.Raw))
 
 	default:
+		Information.ContentType = "application/json; charset=UTF-8"
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		res.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(res).Encode(&Information); err != nil {

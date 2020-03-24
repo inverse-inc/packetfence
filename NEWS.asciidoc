@@ -23,6 +23,7 @@ New Features
 * Added service to correct broken Galera cluster members
 * Added support for anomaly detection through Fingerbank
 * Support for MySQL as dhcp pool backend and provide active/active dhcp support
+* Add single-sign-on support for Cisco ISE-PIC
 
 Enhancements
 ++++++++++++
@@ -41,6 +42,8 @@ Enhancements
 * Allow vlan number greater than 1023 for floating devices.
 * Improved captive-portal health checks in monit (#5185)
 * Added radius disconnect for wired port on Aruba AP (#5016)
+* Switch templates can now use SNMP up/down to perform access reevaluation (#5197)
+* Haproxy server the admin gui, httpd.admin disabled by default
 
 Bug Fixes
 +++++++++
@@ -49,6 +52,7 @@ Bug Fixes
 * Prevent double restart when setting the port admin status of an EX2300 Juniper switch
 * Sponsor field is missing on sponsored users when using forced sponsor (#5171)
 * Some DHCP info triggers use outdated Fingerbank data (#5106)
+* Issue with the timezone in the admin not being honored on the system (#5205)
 
 Version 9.3.0 released on 2020-01-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
