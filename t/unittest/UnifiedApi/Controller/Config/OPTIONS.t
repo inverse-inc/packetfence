@@ -144,225 +144,324 @@ $t->options_ok("/api/v1/config/provisionings?type=mobileconfig")
 $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
   ->json_is(
     {
-        meta => {
-            id => {
-                default        => undef,
-                pattern        => {
-                    message =>
+meta => {
+    id => {
+        default => undef,
+        pattern => {
+            message =>
 "The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores.",
-                    regex => "^[a-zA-Z0-9][a-zA-Z0-9._-]*\$"
-                },
-                placeholder => undef,
-                required    => $true,
-                type        => "string"
-            },
-            path => {
-                default        => undef,
-                placeholder    => undef,
-                required       => $true,
-                type           => "string"
-            },
-            rules => {
-                default => undef,
-                item    => {
-                    default     => undef,
-                    placeholder => undef,
-                    properties  => {
-                        actions => {
-                            default => undef,
-                            item    => {
+            regex => "^[a-zA-Z0-9][a-zA-Z0-9._-]*\$"
+        },
+        placeholder => undef,
+        required    => $true,
+        type        => "string"
+    },
+    path => {
+        default     => undef,
+        placeholder => undef,
+        required    => $true,
+        type        => "string"
+    },
+    rules => {
+        default => undef,
+        item    => {
+            default     => undef,
+            placeholder => undef,
+            properties  => {
+                actions => {
+                    default => undef,
+                    item    => {
+                        default     => undef,
+                        placeholder => undef,
+                        properties  => {
+                            api_method => {
+                                allowed => [
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "pid, \$pid"
+                                            }
+                                        },
+                                        text  => "Create new user account",
+                                        value => "add_person"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+"mac, \$mac, security_event_id , SECURITY_EVENT_ID"
+                                            }
+                                        },
+                                        text  => "Close security event",
+                                        value => "close_security_event"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "ip, \$ip"
+                                            }
+                                        },
+                                        text  => "Deregister node by IP",
+                                        value => "deregister_node_ip"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+"mac, \$mac, username, \$username"
+                                            }
+                                        },
+                                        text  => "Register node by MAC",
+                                        value => "dynamic_register_node"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "mac, \$mac"
+                                            }
+                                        },
+                                        text  => "Modify node by MAC",
+                                        value => "modify_node"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "pid, \$pid"
+                                            }
+                                        },
+                                        text  => "Modify existing user",
+                                        value => "modify_person"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+                                                  "mac, \$mac, reason, \$reason"
+                                            }
+                                        },
+                                        text  => "Reevaluate access by MAC",
+                                        value => "reevaluate_access"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+                                                  "mac, \$mac, pid, \$pid"
+                                            }
+                                        },
+                                        text  => "Register a new node by PID",
+                                        value => "register_node"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+                                                  "ip, \$ip, pid, \$pid"
+                                            }
+                                        },
+                                        text  => "Register node by IP",
+                                        value => "register_node_ip"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "\$mac"
+                                            }
+                                        },
+                                        text =>
+"Release all security events for node by MAC",
+                                        value => "release_all_security_events"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "role, \$role"
+                                            }
+                                        },
+                                        text  => "role_detail",
+                                        value => "role_detail"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+"\$ip, mac, \$mac, net_type, TYPE"
+                                            }
+                                        },
+                                        text  => "Launch a scan for the device",
+                                        value => "trigger_scan"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+"mac, \$mac, tid, TYPEID, type, TYPE"
+                                            }
+                                        },
+                                        text  => "Trigger a security event",
+                                        value => "trigger_security_event"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "pid, \$pid"
+                                            }
+                                        },
+                                        text  => "Deregister node by PID",
+                                        value => "unreg_node_for_pid"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+                                                  "mac, \$mac, ip, \$ip"
+                                            }
+                                        },
+                                        text  => "Update ip4log by IP and MAC",
+                                        value => "update_ip4log"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default =>
+                                                  "mac, \$mac, ip, \$ip"
+                                            }
+                                        },
+                                        text  => "Update ip6log by IP and MAC",
+                                        value => "update_ip6log"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => "role, \$role"
+                                            }
+                                        },
+                                        text  => "Update role configuration",
+                                        value => "update_role_configuration"
+                                    }
+                                ],
                                 default     => undef,
                                 placeholder => undef,
-                                properties  => {
-                                    api_method => {
-                                        allowed => [
-                                            {
-                                                text => "Create new user account",
-                                                value => "add_person"
-                                            },
-                                            {
-                                                text  => "Close security event",
-                                                value => "close_security_event"
-                                            },
-                                            {
-                                                text => "Deregister node by IP",
-                                                value => "deregister_node_ip"
-                                            },
-                                            {
-                                                text  => "Register node by MAC",
-                                                value => "dynamic_register_node"
-                                            },
-                                            {
-                                                text  => "Modify node by MAC",
-                                                value => "modify_node"
-                                            },
-                                            {
-                                                text  => "Modify existing user",
-                                                value => "modify_person"
-                                            },
-                                            {
-                                                text => "Reevaluate access by MAC",
-                                                value => "reevaluate_access"
-                                            },
-                                            {
-                                                text => "Register a new node by PID",
-                                                value => "register_node"
-                                            },
-                                            {
-                                                text  => "Register node by IP",
-                                                value => "register_node_ip"
-                                            },
-                                            {
-                                                text => "Release all security events for node by MAC",
-                                                value => "release_all_security_events"
-                                            },
-                                            {
-                                                text  => "role_detail",
-                                                value => "role_detail"
-                                            },
-                                            {
-                                                text => "Launch a scan for the device",
-                                                value => "trigger_scan"
-                                            },
-                                            {
-                                                text => "Trigger a security event",
-                                                value => "trigger_security_event"
-                                            },
-                                            {
-                                                text => "Deregister node by PID",
-                                                value => "unreg_node_for_pid"
-                                            },
-                                            {
-                                                text => "Update ip4log by IP and MAC",
-                                                value => "update_ip4log"
-                                            },
-                                            {
-                                                text => "Update ip6log by IP and MAC",
-                                                value => "update_ip6log"
-                                            },
-                                            {
-                                                text => "Update role configuration",
-                                                value => "update_role_configuration"
-                                            }
-                                        ],
-                                        default     => undef,
-                                        placeholder => undef,
-                                        required    => $true,
-                                        type        => "string"
-                                    },
-                                    api_parameters => {
-                                        default     => undef,
-                                        placeholder => undef,
-                                        required    => $true,
-                                        type        => "string"
-                                    }
-                                },
-                                required => $false,
-                                type     => "object"
+                                required    => $true,
+                                type        => "string"
                             },
-                            placeholder => undef,
-                            required    => $false,
-                            type        => "array"
+                            api_parameters => {
+                                default     => undef,
+                                placeholder => undef,
+                                required    => $true,
+                                type        => "string"
+                            }
                         },
-                        ip_mac_translation => {
-                            default     => "enabled",
+                        required => $false,
+                        type => "object"
+                    },
+                    placeholder => undef,
+                    required => $false,
+                    type => "array"
+                },
+                ip_mac_translation => {
+                    default     => "enabled",
+                    placeholder => undef,
+                    required => $false,
+                    type => "string"
+                },
+                last_if_match => {
+                    default     => undef,
+                    placeholder => undef,
+                    required => $false,
+                    type => "string"
+                },
+                name => {
+                    default     => undef,
+                    placeholder => undef,
+                    required    => $true,
+                    type        => "string"
+                },
+                rate_limit => {
+                    default => {
+                        interval => 0,
+                        unit     => "s"
+                    },
+                    placeholder => undef,
+                    properties  => {
+                        interval => {
+                            default     => 0,
+                            min_value   => 0,
                             placeholder => undef,
-                            required    => $false,
-                            type        => "string"
+                            required =>
+                              $false,
+                            type => "integer"
                         },
-                        last_if_match => {
-                            default     => undef,
-                            placeholder => undef,
-                            required    => $false,
-                            type        => "string"
-                        },
-                        name => {
-                            default     => undef,
-                            placeholder => undef,
-                            required    => $true,
-                            type        => "string"
-                        },
-                        rate_limit => {
-                            default => {
-                                interval => 0,
-                                unit     => 's',
-                            },
-                            placeholder => undef,
-                            properties  => {
-                                interval => {
-                                    default     => 0,
-                                    min_value   => 0,
-                                    placeholder => undef,
-                                    required    => $false,
-                                    type        => "integer"
+                        unit => {
+                            allowed => [
+                                {
+                                    text  => "seconds",
+                                    value => "s"
                                 },
-                                unit => {
-                                    allowed => [
-                                        {
-                                            text  => "seconds",
-                                            value => "s"
-                                        },
-                                        {
-                                            text  => "minutes",
-                                            value => "m"
-                                        },
-                                        {
-                                            text  => "hours",
-                                            value => "h"
-                                        },
-                                        {
-                                            text  => "days",
-                                            value => "D"
-                                        },
-                                        {
-                                            text  => "weeks",
-                                            value => "W"
-                                        },
-                                        {
-                                            text  => "months",
-                                            value => "M"
-                                        },
-                                        {
-                                            text  => "years",
-                                            value => "Y"
-                                        }
-                                    ],
-                                    default     => 's',
-                                    placeholder => undef,
-                                    required    => $false,
-                                    type        => "string"
+                                {
+                                    text  => "minutes",
+                                    value => "m"
+                                },
+                                {
+                                    text  => "hours",
+                                    value => "h"
+                                },
+                                {
+                                    text  => "days",
+                                    value => "D"
+                                },
+                                {
+                                    text  => "weeks",
+                                    value => "W"
+                                },
+                                {
+                                    text  => "months",
+                                    value => "M"
+                                },
+                                {
+                                    text  => "years",
+                                    value => "Y"
                                 }
-                            },
-                            required => $false,
-                            type     => "object"
-                        },
-                        regex => {
-                            default     => undef,
+                            ],
+                            default     => "s",
                             placeholder => undef,
-                            required    => $true,
-                            type        => "string"
+                            required => $false,
+                            type => "string"
                         }
                     },
                     required => $false,
-                    type     => "object"
+                    type => "object"
                 },
-                placeholder => undef,
-                required    => $false,
-                type        => "array"
-              },
-            status => {
-                default        => "enabled",
-                placeholder    => undef,
-                required       => $false,
-                type           => "string"
+                regex => {
+                    default     => undef,
+                    placeholder => undef,
+                    required    => $true,
+                    type        => "string"
+                }
             },
-            type => {
-                default        => "regex",
-                placeholder    => undef,
-                required       => $true,
-                type           => "string"
-            }
+            required =>
+              $false,
+            type => "object"
         },
+        placeholder => undef,
+        required =>
+          $false,
+        type => "array"
+    },
+    status => {
+        default     => "enabled",
+        placeholder => undef,
+        required =>
+          $false,
+        type => "string"
+    },
+    type => {
+        default     => "regex",
+        placeholder => undef,
+        required    => $true,
+        type        => "string"
+    }
+  },
         status => 200
     }
   );
