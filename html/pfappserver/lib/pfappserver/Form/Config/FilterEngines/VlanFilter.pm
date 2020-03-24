@@ -15,6 +15,7 @@ use warnings;
 use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
+use pf::constants::config qw(%connection_type);
 extends 'pfappserver::Form::Config::FilterEngines';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -85,6 +86,109 @@ sub options_role {
     );
 }
 
+my %ADDITIONAL_FIELD_OPTIONS = (
+    connection_type => {
+        siblings => {
+            value => {
+                allowed_values => [ map { { text => $_, value => $connection_type{$_} } } keys %connection_type ],
+            },
+        },
+    },
+);
+
+sub _additional_field_options {
+    return \%ADDITIONAL_FIELD_OPTIONS;
+}
+
+sub options_field_names {
+    qw(
+      node_info.autoreg
+      node_info.status
+      node_info.bypass_vlan
+      node_info.bandwidth_balance
+      node_info.regdate
+      node_info.bypass_role
+      node_info.device_class
+      node_info.device_type
+      node_info.device_version
+      node_info.device_score
+      node_info.pid
+      node_info.machine_account
+      node_info.category
+      node_info.mac
+      node_info.last_arp
+      node_info.lastskip
+      node_info.last_dhcp
+      node_info.user_agent
+      node_info.computername
+      node_info.dhcp_fingerprint
+      node_info.detect_date
+      node_info.voip
+      node_info.notes
+      node_info.time_balance
+      node_info.sessionid
+      node_info.dhcp_vendor
+      node_info.unregdate
+      fingerbank_info.device_name
+      fingerbank_info.device_fq
+      fingerbank_info.device_hierarchy_names
+      fingerbank_info.device_hierarchy_ids
+      fingerbank_info.score
+      fingerbank_info.version
+      fingerbank_info.mobile
+      switch._switchIp
+      switch._ip
+      switch._portalURL
+      switch._switchMac
+      switch._ip
+      ifIndex
+      mac
+      connection_type
+      user_name
+      ssid
+      time
+      owner.pid
+      owner.firstname
+      owner.lastname
+      owner.email
+      owner.telephone
+      owner.company
+      owner.address
+      owner.notes
+      owner.sponsor
+      owner.anniversary
+      owner.birthday
+      owner.gender
+      owner.lang
+      owner.nickname
+      owner.cell_phone
+      owner.work_phone
+      owner.title
+      owner.building_number
+      owner.apartment_number
+      owner.room_number
+      owner.custom_field_1
+      owner.custom_field_2
+      owner.custom_field_3
+      owner.custom_field_4
+      owner.custom_field_5
+      owner.custom_field_6
+      owner.custom_field_7
+      owner.custom_field_8
+      owner.custom_field_9
+      owner.portal
+      owner.source
+      owner.nodes
+      owner.password
+      owner.valid_from
+      owner.expiration
+      owner.access_duration
+      owner.access_level
+      owner.can_sponsor
+      owner.unregdate
+      owner.category
+    );
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
