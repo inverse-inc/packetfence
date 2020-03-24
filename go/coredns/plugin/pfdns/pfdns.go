@@ -367,6 +367,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 
 		var returnedIP []byte
+		found = false
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
 				for w, x := range pf.NetworkType {
@@ -377,17 +378,20 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 							returnedIP = append([]byte(nil), []byte{192, 0, 2, 1}...)
 						}
 						rr.(*dns.A).A = returnedIP
+						found = true
 						break
 					}
 				}
 			} else {
+				if found {
+					break
+				}
 				rr.(*dns.A).A = pf.RedirectIP.To4()
 			}
 		}
 		if rr.(*dns.A).A == nil {
 			pf.detectVIP()
 		}
-
 	case 2:
 		rr = new(dns.AAAA)
 		var found bool
