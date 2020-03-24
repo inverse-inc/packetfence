@@ -11,6 +11,8 @@
     </template>
     <template v-slot:buttonAdd>
       <b-button variant="outline-primary" :to="{ name: 'newRealm' }">{{ $t('New Realm') }}</b-button>
+        <pf-button-service class="ml-1" service="radiusd-acct" restart start stop></pf-button-service>
+        <pf-button-service class="ml-1" service="radiusd-auth" restart start stop></pf-button-service>
     </template>
     <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No realms found') }}</pf-empty-table>
@@ -46,6 +48,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonService from '@/components/pfButtonService'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
@@ -55,6 +58,7 @@ export default {
   name: 'realms-list',
   components: {
     pfButtonDelete,
+    pfButtonService,
     pfButtonHelp,
     pfConfigList,
     pfEmptyTable
