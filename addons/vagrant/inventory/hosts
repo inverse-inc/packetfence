@@ -7,13 +7,13 @@ all:
     cumulus:
       hosts:
         switch01:
-          # IP used by helper_scripts, not Vagrant
+          # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.201
           ansible_host: "{{ mgmt_ip }}"
     nodes:
       hosts:
         node01:
-          # IP used by helper_scripts, not Vagrant
+          # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
     winservers:
