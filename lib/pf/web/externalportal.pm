@@ -126,6 +126,8 @@ sub handle {
     my %params = (
         session_id              => undef,   # External portal session ID when working by session ID flow
         switch_id               => undef,   # Switch ID
+        switch_mac              => undef,   # Switch MAC
+        switch_ip               => undef,   # Switch IP
         client_mac              => undef,   # Client (endpoint) MAC address
         client_ip               => undef,   # Client (endpoint) IP address
         ssid                    => undef,   # SSID connecting to
@@ -156,7 +158,9 @@ sub handle {
         return $FALSE;
     }
 
-    my $switch = pf::SwitchFactory->instantiate($params{'switch_id'});
+
+    my $switch = pf::SwitchFactory->instantiate(\%params);
+
 
     unless ( ref($switch) ) {
         $logger->error("Unable to instantiate switch object using switch_id '" . $params{'switch_id'} . "'");
