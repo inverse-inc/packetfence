@@ -13,9 +13,9 @@ pfappserver::Form::Config::FilterEngines::VlanFilter
 use strict;
 use warnings;
 use pfappserver::Form::Field::DynamicList;
+use pfappserver::Form::Config::FilterEngines;
 use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
-use pf::constants::config qw(%connection_type);
 extends 'pfappserver::Form::Config::FilterEngines';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -87,13 +87,7 @@ sub options_role {
 }
 
 my %ADDITIONAL_FIELD_OPTIONS = (
-    connection_type => {
-        siblings => {
-            value => {
-                allowed_values => [ map { { text => $_, value => $connection_type{$_} } } keys %connection_type ],
-            },
-        },
-    },
+    %pfappserver::Form::Config::FilterEngines::ADDITIONAL_FIELD_OPTIONS
 );
 
 sub _additional_field_options {

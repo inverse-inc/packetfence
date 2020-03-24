@@ -15,6 +15,7 @@ use warnings;
 use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
+use pf::constants::config qw(%connection_type);
 extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -49,6 +50,16 @@ has_field 'scopes' => (
     multiple => 1,
     options_method => \&option_scopes,
     required => 1,
+);
+
+our %ADDITIONAL_FIELD_OPTIONS = (
+    connection_type => {
+        siblings => {
+            value => {
+                allowed_values => [ map { { text => $_, value => $connection_type{$_} } } keys %connection_type ],
+            },
+        },
+    },
 );
 
 sub option_scopes {
