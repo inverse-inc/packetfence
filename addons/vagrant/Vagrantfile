@@ -132,6 +132,7 @@ Vagrant.configure("2") do |config|
         config.reset = true
       end
 
+      # shell provisioner to run by hand
       srv.vm.provision "run-unit-tests", type: "shell", run: "never" do |config|
         config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
@@ -142,7 +143,7 @@ Vagrant.configure("2") do |config|
         }
       end
 
-      # run INTEGRATION_TESTS by hand
+      # shell provisioner to run by hand
       srv.vm.provision "run-integration-tests", type: "shell", run: "never" do |config|
         config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
