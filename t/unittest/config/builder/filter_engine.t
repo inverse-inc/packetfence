@@ -65,7 +65,7 @@ CONF
                                 answer => {
                                     condition => 'bob == "bob"',
                                     scopes  => ['RegisteredRole'],
-                                    id      => 'pf_deauth_from_wireless_secure',
+                                    _rule   => 'pf_deauth_from_wireless_secure',
                                     role    => 'registration',
                                     actions => [
                                         {
@@ -152,7 +152,7 @@ CONF
                                 answer => {
                                     condition => 'bob.jones == "bob" && bob.jone == "no"',
                                     scopes    => ['RegisteredRole'],
-                                    id      => 'pf_deauth_from_wireless_secure',
+                                    _rule     => 'pf_deauth_from_wireless_secure',
                                     role    => 'registration',
                                     actions => [
                                         {
@@ -206,7 +206,7 @@ CONF
                             answer => {
                                 condition => 'bob.jones == "bob"',
                                 scopes    => ['RegisteredRole'],
-                                id      => 'pf_deauth_from_wireless_secure',
+                                _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
                                 actions => [
                                     {
@@ -256,7 +256,7 @@ CONF
                             answer => {
                                 condition => 'not_date_is_before(bob.jones, "bob")',
                                 scopes    => ['RegisteredRole'],
-                                id      => 'pf_deauth_from_wireless_secure',
+                                _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
                                 actions => [
                                     {
@@ -308,7 +308,7 @@ CONF
                             answer => {
                                 condition => 'contains(bob.jones, "bob")',
                                 scopes    => ['RegisteredRole'],
-                                id      => 'pf_deauth_from_wireless_secure',
+                                _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
                                 actions => [
                                     {
