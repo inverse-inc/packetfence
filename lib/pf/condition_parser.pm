@@ -298,11 +298,6 @@ sub _parse_fact {
     #Check if it is a not expression !
     if (/\G\s*!/gc) {
         my $fact = _parse_fact();
-        if (ref $fact) {
-            if ($fact->[0] eq 'NOT') {
-                return $fact->[1];
-            }
-        }
         return ['NOT', $fact];
     }
 
