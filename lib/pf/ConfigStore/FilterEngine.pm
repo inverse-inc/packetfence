@@ -34,12 +34,14 @@ sub cleanupBeforeCommit {
     }
 
     my $top_op = $item->{condition}{op};
-    $item->{top_op} = undef;
     if ($top_op eq 'and' || $top_op eq 'or' || $top_op eq 'not_and' || $top_op eq 'not_or') {
         if (@{$item->{condition}{values}} == 1) {
             $item->{top_op} = $top_op;
         }
+    } else {
+        $item->{top_op} = undef;
     }
+
     $item->{condition} = pf::condition_parser::object_to_str($item->{condition});
     $self->flatten_list($item, $self->_fields_expanded);
     return ;
@@ -59,13 +61,13 @@ sub expandCondition {
     my $condition = ast_to_object($ast);
     my $top_op = delete $item->{top_op};
     if ($top_op) {
-        if ($top_op eq 'and' || $top_op eq 'or') {
-            $condition = { op => $top_op, values => [$condition]};
-        } elsif ($top_op eq 'not_and' || $top_op eq 'not_or') {
+        if ($top_op eq 'not_and' || $top_op eq 'not_or') {
             my $op = $condition->{op};
-            if ($op eq 'not') {
+            if ($op eq 'not' ) {
                 $condition->{op} = $top_op;
             }
+        } else {
+            $condition = { op => $top_op, values => [$condition]};
         }
     }
 
