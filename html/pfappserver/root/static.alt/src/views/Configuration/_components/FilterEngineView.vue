@@ -154,11 +154,19 @@ export default {
       })
     },
     save () {
-      const { collection, actionKey, isNew, isClone, form: data, form: { id } = {} } = this
-      this.$store.dispatch('$_filter_engines/updateFilterEngine', { collection, id, data }).then(() => {
-        if ((isNew && !actionKey) || (isClone && !actionKey) || (!isNew && !isClone && actionKey)) {
-          this.$router.push({ name: 'filter_engines' })
-        }
+      const { form: { condition } = {} } = this
+      this.$store.dispatch('$_filter_engines/stringifyCondition', condition).then(conditionString => {
+        this.$store.dispatch('$_filter_engines/parseCondition', conditionString).then(conditionObject => {
+          if (conditionString !== condition) {
+            this.$store.dispatch('notification/danger', { message: this.$i18n.t('The filter condition has been automatically reduced.') })
+          }
+          const { collection, actionKey, isNew, isClone, form: data, form: { id } = {} } = this
+          this.$store.dispatch('$_filter_engines/updateFilterEngine', { collection, id, data }).then(() => {
+            if ((isNew && !actionKey) || (isClone && !actionKey) || (!isNew && !isClone && actionKey)) {
+              this.$router.push({ name: 'filter_engines' })
+            }
+          })
+        })
       })
     },
     remove () {
