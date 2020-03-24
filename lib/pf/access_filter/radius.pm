@@ -61,20 +61,18 @@ sub handleAnswerInRule {
     my $status = $RADIUS::RLM_MODULE_OK;
     if (defined $rule) {
         $radius_reply = {'Reply-Message' => "Request processed by PacketFence"};
-        my $i = 1;
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
-        while (1) {
-            if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
-                my @answer = $rule->{"answer$i"} =~ /([.0-9a-zA-Z_:-]*)\s*=>\s*(.*)/;
+        for my $a (@{$rule->{answers} // []}) {
+            if (defined $a && $a ne '') {
+                my @answer = $a =~ /([.0-9a-zA-Z_:-]*)\s*=>\s*(.*)/;
                 $args->{'session_id'} = setSession($args) if ($answer[1] =~ /\$session_id/);
                 evalAnswer(\@answer,$args,\$radius_reply);
-            } else {
-                last;
             }
-            $i++;
         }
-        if (defined($rule->{'status'}) && $rule->{'status'} ne '') {
-            $status = '$RADIUS::'.$rule->{'status'};
+
+        my $radius_status = $rule->{'radius_status'};
+        if (defined($radius_status) && $radius_status ne '') {
+            $status = '$RADIUS::'.$radius_status;
             $status = eval($status);
         }
         if (defined($rule->{'merge_answer'}) && !(isenabled($rule->{'merge_answer'}))) {
