@@ -52,7 +52,6 @@
     # inject environment variables here to not conflict with install
     - role: environment
       tags: env
-      when: lookup("env", "PERL_UNIT_TESTS") == 'yes'
 
     - role: packetfence_go
       tags: go

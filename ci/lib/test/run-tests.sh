@@ -9,8 +9,6 @@ PERL_UNIT_TESTS=${PERL_UNIT_TESTS:-no}
 GOLANG_UNIT_TESTS=${GOLANG_UNIT_TESTS:-no}
 INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
 
-# display environment
-env | grep 'PF_'
 declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS INTEGRATION_TESTS
 
 ### Common steps for all tests
@@ -25,6 +23,9 @@ mysql -uroot < ${PF_DIR}/t/db/smoke_test.sql;
 if [ "$PERL_UNIT_TESTS" = "yes" ]; then
     echo "Running Perl unit tests"
 
+    declare -p PF_TEST_MGMT_INT
+    declare -p PF_TEST_MGMT_IP
+    declare -p PF_TEST_MGMT_MASK
     # Makefile is always part of packetfence package
     # use for post-install tasks
     make -C ${PF_DIR} test
