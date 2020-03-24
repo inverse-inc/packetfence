@@ -288,7 +288,7 @@ export const validators = (form, meta = {}) => {
       port: validatorsFromMeta(meta, 'database.port', i18n.t('Port')),
       db: validatorsFromMeta(meta, 'database.db', i18n.t('Database')),
       user: {
-        [i18n.t('Database username required')]: or(conditional(setUserPassword === false), required),
+        [i18n.t('Database username required.')]: or(conditional(setUserPassword === false), required),
         ...validatorsFromMeta(meta, 'database.user', i18n.t('User'))
       },
       pass: validatorsFromMeta(meta, 'database.pass', i18n.t('Password')),

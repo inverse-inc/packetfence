@@ -66,14 +66,14 @@ const api = {
     })
   },
   updateSystemd: name => {
-    return apiCall.post(`service/${name}/update_systemd`)
+    return apiCall.post(['service', name, 'update_systemd'])
   },
   restartSystemService: name => {
-    return apiCall.post(`system_service/${name}/restart`)
+    return apiCall.post(['system_service', name, 'restart'])
   },
   startSystemService: name => {
-    return apiCall.post(`system_service/${name}/start`).then(response => {
-      const { data: { start } } = response
+    return apiCall.post(['system_service', name, 'start']).then(response => {
+      const { data: { start = 0 } } = response
       if (parseInt(start) > 0) {
         return response.data
       } else {
@@ -82,8 +82,8 @@ const api = {
     })
   },
   stopSystemService: name => {
-    return apiCall.post(`system_service/${name}/stop`).then(response => {
-      const { data: { stop } } = response
+    return apiCall.post(['system_service', name, 'top']).then(response => {
+      const { data: { stop = 0 } } = response
       if (parseInt(stop) > 0) {
         return response.data
       } else {

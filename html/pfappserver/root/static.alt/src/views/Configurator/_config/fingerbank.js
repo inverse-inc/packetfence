@@ -114,7 +114,7 @@ export const validators = (form, meta = {}) => {
       api_key: validatorsFromMeta(meta, 'upstream.api_key', i18n.t('Key'))
     },
     api_key_is_registered: {
-      [i18n.t('No valid API key specified')]: conditional(account !== null)
+      [i18n.t('No valid API key specified.')]: conditional(account !== null)
     }
   }
 }
