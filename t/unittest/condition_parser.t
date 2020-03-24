@@ -344,6 +344,15 @@ BEGIN {
                 value => "bobby",
             },
         ],
+        [
+            'radius_request.NAS-Port-Type == "19"',
+            ['==', 'radius_request.NAS-Port-Type', '19'],
+            {
+                op => 'equals',
+                field => 'radius_request.NAS-Port-Type',
+                value => "19",
+            }
+        ],
     );
 
     @VALID_IDS = (

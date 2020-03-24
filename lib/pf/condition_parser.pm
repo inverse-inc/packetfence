@@ -339,7 +339,7 @@ _parse_id
 
 sub _parse_id {
     my $id;
-    if (/\G\s*([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)/gc) {
+    if (/\G\s*([a-zA-Z0-9_]+(?:[\.-][a-zA-Z0-9_]+)*)/gc) {
         $id = $1;
     }
 
