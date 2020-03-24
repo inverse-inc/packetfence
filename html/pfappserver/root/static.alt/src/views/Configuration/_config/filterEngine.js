@@ -438,8 +438,6 @@ export const view = (form = {}, meta = {}) => {
             viewFields.description(form, meta),
             viewFields.status(form, meta),
             viewFields.condition(form, meta),
-            viewFields.run_actions(form, meta),
-            viewFields.actions(form, meta),
             viewFields.role(form, meta),
             viewFields.scopes(form, meta)
           ]
@@ -557,7 +555,10 @@ export const validatorFields = {
   },
   scopes: (form, meta = {}) => {
     return {
-      scopes: validatorsFromMeta(meta, 'scopes', i18n.t('Scopes'))
+      scopes: {
+        ...validatorsFromMeta(meta, 'scopes', i18n.t('Scopes')),
+        [i18n.t('Scopes required.')]: required
+      }
     }
   }
 }
@@ -592,7 +593,6 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
         ...validatorFields.condition(form, meta),
-        ...validatorFields.actions(form, meta),
         ...validatorFields.role(form, meta),
         ...validatorFields.scopes(form, meta)
       }
