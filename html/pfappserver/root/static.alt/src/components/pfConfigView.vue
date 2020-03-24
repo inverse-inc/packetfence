@@ -183,7 +183,7 @@ export default {
       } else if (row.cols.length === 1) { // else if row is singular
         c.push('col-sm-12') // use entire width
       } else if (row.cols.findIndex(_col => _col.namespace === col.namespace) < row.cols.length - 1) { // else col has subsequent siblings
-        c.push('mr-2') // right margin
+        c.push('pr-2') // right padding
       }
       return c.join(' ')
     },
