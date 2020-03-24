@@ -16,17 +16,18 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Added a new Meru controller module that supports RADIUS RFC3576 (RADIUS Disconnect)
-* CLI login to juniper switches
-* PacketFence pki service in golang
-* Support Aruba switchs using Aruba OS 16.10
-* Added service to correct broken Galera cluster members
-* Added support for anomaly detection through Fingerbank
-* Support for MySQL as dhcp pool backend and provide active/active dhcp support
-* Add single-sign-on support for Cisco ISE-PIC
+* New, fully integrated PacketFence PKI service
+* New service for automatic clustering issues resolution
+* Added support for network anomaly detection through Fingerbank
+* New API-based configurator
 
 Enhancements
 ++++++++++++
+* Add single-sign-on support for Cisco ISE-PIC
+* Support for MySQL as DHCP pool backend and provide active/active DHCP support
+* Support Aruba switches using Aruba OS 16.10
+* Added a new Meru controller module that supports RADIUS RFC3576 (RADIUS Disconnect)
+* CLI login to Juniper switches
 * Allow to configure VOIP Radius atrributes in switch templates
 * All configuration files have a copyright without year to avoid useless rpmnew or dpkg-dist files each yearly upgrade
 * Unifi: improve deauthentication using HTTP
