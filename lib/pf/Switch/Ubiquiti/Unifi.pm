@@ -278,7 +278,7 @@ sub getMACIP {
 
     my $cache = $self->cache_distributed;
 
-    my $result = $cache->get($mac);
+    my $result = $cache->get("Ubiquiti-" .$mac);
 
     return $result if defined($result);
 
