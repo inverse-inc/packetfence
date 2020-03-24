@@ -109,5 +109,22 @@ value = ^(.*)$
 action=trigger_security_event
 action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
-on_tab=1
+on_tab=0
+
+# Detect an active UDP port
+[ActiveUDP]
+request=select LocalPort from MSFT_NetUDPEndpoint
+namespace=ROOT\StandardCIMV2
+action= <<EOT
+[ActivePort]
+attribute = LocalPort
+operator = regex
+value = ^(.*)$
+
+[1:!ActivePort]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
+
 
