@@ -56,7 +56,28 @@ sub option_scopes {
     return $f->form->scopes();
 }
 
+sub option_fields {}
+
+sub make_field_options {
+    my ($self, $name) = @_;
+    my %options = (
+        label => $name,
+        value => $name,
+        $self->additional_field_options($name),
+    );
+    return \%options;
+}
+
+sub additional_field_options {}
+
+sub options_field {
+    my ($self) = @_;
+    return map { $self->make_field_options($_) } $self->options_field_names();
+}
+
 sub scopes { }
+
+sub options_field_names {}
 
 =head1 AUTHOR
 
