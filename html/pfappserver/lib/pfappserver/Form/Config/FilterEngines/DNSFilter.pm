@@ -60,6 +60,30 @@ has_field rcode => (
     ],
 );
 
+my %ADDITIONAL_FIELD_OPTIONS = (
+    %pfappserver::Form::Config::FilterEngines::ADDITIONAL_FIELD_OPTIONS
+);
+
+sub _additional_field_options {
+    return \%ADDITIONAL_FIELD_OPTIONS;
+}
+
+sub options_field_names {
+    qw(
+      qname
+      qclass
+      qtype
+      peerhost
+      query
+      conn.peerhost
+      conn.sockport
+      conn.sockhost
+      conn.peerport
+      time
+      mac
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
