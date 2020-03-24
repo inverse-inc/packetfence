@@ -62,6 +62,8 @@ sub buildEntry {
     $entry->{scopes} = $scopes = [split(/\s*,\s*/, $scopes)];
     $entry->{_rule} = $id;
     expand_ordered_array($entry, 'actions', 'action');
+    expand_ordered_array($entry, 'answers', 'answer');
+    expand_ordered_array($entry, 'params', 'param');
     $entry->{actions} = [
         map {
             my ( $err, $spec ) = pf::action_spec::parse_action_spec($_);
