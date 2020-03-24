@@ -1,0 +1,4 @@
+# Copyright (C) Inverse inc.
+## Update Log level for galera-autofix
+##
+LOG_LEVEL=INFO
