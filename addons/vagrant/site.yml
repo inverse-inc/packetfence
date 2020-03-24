@@ -52,12 +52,15 @@
     # inject environment variables here to not conflict with install
     - role: environment
       tags: env
+      when: lookup("env", "PERL_UNIT_TESTS") == 'yes'
 
     - role: packetfence_go
       tags: go
+      when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
 
     - role: venom
       tags: venom
+      when: lookup("env", "INTEGRATION_TESTS") == 'yes'
 
 # no sub directory for ansible to find roles under roles/ directory
 - import_playbook: winservers.yml
