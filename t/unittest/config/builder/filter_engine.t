@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 11;
 
 #This test will running last
 use Test::NoWarnings;
@@ -88,7 +88,7 @@ CONF
 
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
-condition=bob.jones == "bob"
+condition=bob.jones == "bob" && bob.jone == "no"
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
 role = registration
@@ -104,38 +104,220 @@ CONF
                     filters => [
                         pf::filter->new(
                             {
-                                'condition' => bless(
-                                {
-                                    key => 'bob',
-                                    'condition' => bless(
-                                        {
-                                            'condition' => bless(
+                                condition => pf::condition::all->new(
+                                    {
+                                        'conditions' => [
+                                            bless(
                                                 {
-                                                    'value' => 'bob'
+                                                    key         => 'bob',
+                                                    'condition' => bless(
+                                                        {
+                                                            'condition' =>
+                                                              bless(
+                                                                {
+                                                                    'value' =>
+                                                                      'bob'
+                                                                },
+'pf::condition::equals'
+                                                              ),
+                                                            'key' => 'jones'
+                                                        },
+                                                        'pf::condition::key'
+                                                    ),
                                                 },
-                                                'pf::condition::equals'
+                                                'pf::condition::key'
                                             ),
-                                            'key' => 'jones'
-                                        },
-                                        'pf::condition::key'
-                                    ),
-                                },
-                                'pf::condition::key'
+                                            bless(
+                                                {
+                                                    key         => 'bob',
+                                                    'condition' => bless(
+                                                        {
+                                                            'condition' =>
+                                                              bless(
+                                                                {
+                                                                    'value' => 'no'
+                                                                },
+'pf::condition::equals'
+                                                              ),
+                                                            'key' => 'jone'
+                                                        },
+                                                        'pf::condition::key'
+                                                    ),
+                                                },
+                                                'pf::condition::key'
+                                            )
+                                        ]
+                                    }
                                 ),
                                 answer => {
-                                    condition => 'bob.jones == "bob"',
-                                    scopes  => ['RegisteredRole'],
+                                    condition => 'bob.jones == "bob" && bob.jone == "no"',
+                                    scopes    => ['RegisteredRole'],
                                     id      => 'pf_deauth_from_wireless_secure',
                                     role    => 'registration',
                                     actions => [
                                         {
                                             api_method => 'modify_node',
-                                            api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                            api_parameters =>
+'mac, $mac, status = unreg, autoreg = no'
                                         },
                                     ],
                                 },
                             }
-                        )
+                          )
+                    ],
+                }
+            )
+        },
+        "Build simple condition filter with nested key"
+    );
+}
+
+{
+
+    my $conf = <<'CONF';
+[pf_deauth_from_wireless_secure]
+condition=bob.jones == "bob"
+scopes = RegisteredRole
+action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+role = registration
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            RegisteredRole => pf::filter_engine->new(
+                {
+                    filters => [
+                        pf::filter->new({
+                            'condition' => pf::condition::key->new({
+                                key         => 'bob',
+                                'condition' => pf::condition::key->new({
+                                    'condition' => bless(
+                                        {
+                                            'value' => 'bob'
+                                        },
+                                        'pf::condition::equals'
+                                    ),
+                                    'key' => 'jones'
+                                }),
+                            }),
+                            answer => {
+                                condition => 'bob.jones == "bob"',
+                                scopes    => ['RegisteredRole'],
+                                id      => 'pf_deauth_from_wireless_secure',
+                                role    => 'registration',
+                                actions => [
+                                    {
+                                        api_method => 'modify_node',
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                    },
+                                ],
+                            },
+                        })
+                    ],
+                }
+            )
+        },
+        "Build simple condition filter with nested key"
+    );
+}
+
+{
+
+    my $conf = <<'CONF';
+[pf_deauth_from_wireless_secure]
+condition=not_date_is_before(bob.jones, "bob")
+scopes = RegisteredRole
+action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+role = registration
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            RegisteredRole => pf::filter_engine->new(
+                {
+                    filters => [
+                        pf::filter->new(
+                            {
+                                'condition' => pf::condition::not->new( {
+                                    'condition' => pf::condition::key->new({
+                                        key => 'bob',
+                                        'condition' => pf::condition::key->new({
+                                                        condition => bless({ 'value' => 'bob' }, 'pf::condition::date_before'),
+                                                        'key' => 'jones'
+                                                    }),
+                                    }),
+                                }),
+                            answer => {
+                                condition => 'not_date_is_before(bob.jones, "bob")',
+                                scopes    => ['RegisteredRole'],
+                                id      => 'pf_deauth_from_wireless_secure',
+                                role    => 'registration',
+                                actions => [
+                                    {
+                                        api_method => 'modify_node',
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                    },
+                                ],
+                            },
+                        })
+                    ],
+                }
+            )
+        },
+        "Build simple condition filter with nested key"
+    );
+}
+
+{
+
+    my $conf = <<'CONF';
+[pf_deauth_from_wireless_secure]
+condition=contains(bob.jones, "bob")
+scopes = RegisteredRole
+action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+role = registration
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            RegisteredRole => pf::filter_engine->new(
+                {
+                    filters => [
+                        pf::filter->new({
+                            'condition' => pf::condition::key->new({
+                                key         => 'bob',
+                                'condition' => pf::condition::key->new({
+                                    'condition' => bless(
+                                        {
+                                            'value' => 'bob'
+                                        },
+                                        'pf::condition::matches'
+                                    ),
+                                    'key' => 'jones'
+                                }),
+                            }),
+                            answer => {
+                                condition => 'contains(bob.jones, "bob")',
+                                scopes    => ['RegisteredRole'],
+                                id      => 'pf_deauth_from_wireless_secure',
+                                role    => 'registration',
+                                actions => [
+                                    {
+                                        api_method => 'modify_node',
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                    },
+                                ],
+                            },
+                        })
                     ],
                 }
             )

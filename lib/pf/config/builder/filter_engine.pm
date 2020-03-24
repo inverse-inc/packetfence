@@ -133,6 +133,7 @@ our %FUNC_OPS = (
     'date_is_before'         => 'pf::condition::date_before',
     'date_is_after'          => 'pf::condition::date_after',
     'fingerbank_device_is_a' => 'pf::condition::fingerbank::device_is_a',
+    'time_period' =>            'pf::condition::time_period',
 );
 
 =head2 buildCondition
@@ -158,27 +159,63 @@ sub buildCondition {
             if (@rest == 1) {
                 return $self->buildCondition( $build_data, @rest);
             }
+
             return $LOGICAL_OPS{$op}->new({conditions => [map { $self->buildCondition($build_data, $_) } @rest]});
         }
 
         if (exists $BINARY_OP{$op}) {
             my ($key, $val) = @rest;
             my $sub_condition = $BINARY_OP{$op}->new(value => $val);
-            return pf::condition::key->new({
-                key => $key,
-                condition => $sub_condition,
-            });
+            return build_parent_condition($sub_condition, $key);
         }
 
         if ($op eq 'FUNC') {
-            return $self->buildFuncCondition($build_data, @rest);
+            my ($func, $params) = @rest;
+            my $wrap_in_not;
+            if (!exists $FUNC_OPS{$func}) {
+                die "op '$func' not handled" unless ($func =~ s/^not_//);
+                die "op 'not_$func' not handled" unless exists $FUNC_OPS{$func};
+                $wrap_in_not = 1;
+            }
+
+            my ($key, $val) = @$params;
+            my $sub_condition = $FUNC_OPS{$func}->new(value => $val);
+            my $condition = build_parent_condition($sub_condition, $key);
+            return $wrap_in_not ? pf::condition::not->new({condition => $condition}) : $condition;
         }
 
-
-        die "op '$op' not handled';"
+        die "op '$op' not handled";
     }
 
     die "condition '$ast' not defined\n";
+}
+
+sub build_parent_condition {
+    my ($child, $key) = @_;
+    my @parents = split /\./, $key;
+    if (@parents == 1) {
+        return pf::condition::key->new({
+            key       => $key,
+            condition => $child,
+        });
+    }
+
+    return _build_parent_condition($child, @parents);
+}
+
+sub _build_parent_condition {
+    my ($child, $key, @parents) = @_;
+    if (@parents == 0) {
+        return pf::condition::key->new({
+            key       => $key,
+            condition => $child,
+        });
+    }
+
+    return pf::condition::key->new({
+        key       => $key,
+        condition => _build_parent_condition($child, @parents),
+    });
 }
 
 =head1 AUTHOR
