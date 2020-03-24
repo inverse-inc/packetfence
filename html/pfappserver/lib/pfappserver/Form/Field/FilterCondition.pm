@@ -24,8 +24,9 @@ Name
 =cut
 
 has_field 'field' => (
-    type     => 'Text',
+    type     => 'SelectSuggested',
     label    => 'Field',
+    options_method => \&options_field,
 );
 
 has_field 'value' => (
@@ -33,6 +34,11 @@ has_field 'value' => (
     label    => 'Value',
 );
 
+sub options_field {
+    my ($field) = @_;
+    my $form = $field->form;
+    return $form->options_field;
+}
 
 sub make_options {
     my ($requires, @ops) = @_;
