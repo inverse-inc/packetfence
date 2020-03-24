@@ -15,11 +15,12 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::config qw(%Config);
 use pf::util;
+use pf::constants;
 
 sub allowed {
     my ($self) = @_;
     if (isenabled($Config{advanced}{configurator})) {
-        return 1;
+        return $TRUE;
     }
     return $self->render_error(401, "The configurator is turned off");
 }

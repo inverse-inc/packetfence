@@ -56,7 +56,7 @@ sub put_hostname {
     my ($self) = @_;
     my $hostname = $self->get_json ? $self->get_json->{hostname} : undef;
     if($hostname) {
-        pf_run("hostnamectl set-hostname $hostname");
+        pf_run("sudo hostnamectl set-hostname $hostname");
         my $new_hostname = pf_run("hostname");
         chomp($new_hostname);
         if($new_hostname eq $hostname) {
@@ -77,7 +77,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2020 Inverse inc.
 
 =head1 LICENSE
 
