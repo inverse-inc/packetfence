@@ -60,7 +60,7 @@ sub buildEntry {
         return;
     }
     $entry->{scopes} = $scopes = [split(/\s*,\s*/, $scopes)];
-    $entry->{id} = $id;
+    $entry->{_rule} = $id;
     expand_ordered_array($entry, 'actions', 'action');
     $entry->{actions} = [
         map {
