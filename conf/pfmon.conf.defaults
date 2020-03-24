@@ -717,7 +717,7 @@ timeout=10s
 # How long to keep a admin_api_audit_log entry before deleting it
 window=6M
 
-bandwidth_maintenance]
+[bandwidth_maintenance]
 #
 # type
 #
