@@ -306,18 +306,6 @@ export const viewFields = {
       ]
     }
   },
-  rcode: (form, meta = {}) => {
-    return {
-      label: i18n.t('Response Code'),
-      cols: [
-        {
-          namespace: 'rcode',
-          component: pfFormChosen,
-          attrs: attributesFromMeta(meta, 'rcode')
-        }
-      ]
-    }
-  },
   run_actions: (form, meta = {}) => {
     return {
       label: i18n.t('Peform Actions'),
@@ -409,7 +397,6 @@ export const view = (form = {}, meta = {}) => {
             viewFields.condition(form, meta),
             viewFields.scopes(form, meta),
             viewFields.answer(form, meta),
-            viewFields.rcode(form, meta)
           ]
         }
       ]
