@@ -23,7 +23,7 @@ use pf::freeradius;
 use Module::Load;
 use Benchmark qw(:all);
 use List::Util qw(first);
-use List::MoreUtils qw(any uniq);
+use List::MoreUtils qw(any);
 use pf::CHI;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
