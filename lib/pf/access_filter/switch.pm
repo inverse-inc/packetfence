@@ -34,16 +34,10 @@ sub filterRule {
             my $switch = $rule->{'switch'};
             return $switch;
         } elsif ($rule->{'scope'} eq 'radius_authorize' || $rule->{'scope'} eq 'reevaluate') {
-            my $i = 1;
             $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
-            while (1) {
-                if (defined($rule->{"param$i"}) && $rule->{"param$i"} ne '') {
-                    my @answer = $rule->{"param$i"} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/;
-                    evalAnswer(\@answer,$args,\$switch_params);
-                } else {
-                    last;
-                }
-                $i++;
+            for my $p (@{$rule->{params} // []}) {
+                my @answer = $p =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/;
+                evalAnswer(\@answer,$args,\$switch_params);
             }
             return ($switch_params);
         }
