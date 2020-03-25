@@ -188,7 +188,7 @@ frontend admin-https-0.0.0.0
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.admin
         use_backend %[var(req.action)]
-        http-request redirect location /admin/alt/index if { lua.redirect 1 }
+        http-request redirect location /admin/alt if { lua.redirect 1 }
 
 EOT
     }
