@@ -2597,7 +2597,7 @@ msgid "Controls the actions made on inactive nodes (based on the last_seen attri
 msgstr ""
 
 #: conf/pfmon.conf.defaults:[bandwidth_maintenance]/description
-msgid "Controls the aggreation of the bandwidth accounting records."
+msgid "Controls the aggregation of the bandwidth accounting records."
 msgstr ""
 
 #: conf/pfmon.conf.defaults:[ip4log_cleanup]/description
