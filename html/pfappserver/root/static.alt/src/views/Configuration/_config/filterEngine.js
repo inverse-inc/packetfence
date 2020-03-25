@@ -401,9 +401,9 @@ export const view = (form = {}, meta = {}) => {
         if (formKeyOrder.includes(a) && formKeyOrder.includes(b)) {
           return formKeyOrder.indexOf(a) - formKeyOrder.indexOf(b)
         } else if (formKeyOrder.includes(a)) {
-          return formKeyOrder.indexOf(a)
+          return 1
         } else {
-          return formKeyOrder.indexOf(b)
+          return -1
         }
       }).filter(field => {
         switch (field) {
