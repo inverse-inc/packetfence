@@ -77,7 +77,7 @@ sub database_secure_installation {
         return;
     }
 
-    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username}, $json->{password});
+    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username});
     if(is_error($status)) {
         $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
         return;
