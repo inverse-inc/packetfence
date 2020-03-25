@@ -401,6 +401,7 @@ const formKeyOrder = [
   'condition',
   'run_actions',
   'actions',
+  'merge_answer',
   'answers',
   'answersRadiusAttributes',
   'role',
@@ -421,9 +422,9 @@ export const view = (form = {}, meta = {}) => {
         if (formKeyOrder.includes(a) && formKeyOrder.includes(b)) {
           return formKeyOrder.indexOf(a) - formKeyOrder.indexOf(b)
         } else if (formKeyOrder.includes(a)) {
-          return 1
-        } else {
           return -1
+        } else {
+          return 1
         }
       }).filter(field => {
         switch (field) {
