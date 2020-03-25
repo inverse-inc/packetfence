@@ -221,13 +221,13 @@ sub clean_mac {
     return "0" unless defined $mac;
 
     # trim garbage
-    $mac =~ s/[\s\-\.:]//g;
+    $mac =~ tr/\-\.:\t\n\r //d;
     # lowercase
     $mac = lc($mac);
     # inject :
-    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
+    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g;
     # Untaint MAC (see perldoc perlsec if you don't know what Taint mode is)
-    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
+    if ($mac =~ /^([0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2})$/) {
         return $1;
     }
 

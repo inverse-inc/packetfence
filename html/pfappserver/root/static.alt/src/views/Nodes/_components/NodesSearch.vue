@@ -177,6 +177,7 @@ import pfFormToggle from '@/components/pfFormToggle'
 import pfProgress from '@/components/pfProgress'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import bytes from '@/utils/bytes'
 import convert from '@/utils/convert'
 
 export default {
@@ -691,7 +692,10 @@ export default {
         {
           key: 'bandwidth_balance',
           label: this.$i18n.t('Bandwidth Balance'),
-          sortable: true
+          sortable: true,
+          formatter: (value) => {
+            return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+          }
         },
         {
           key: 'time_balance',

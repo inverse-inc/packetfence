@@ -36,7 +36,6 @@ export const daemonsList = [
   { value: 'portal', text: 'portal' },
   { value: 'radius', text: 'radius' },
   { value: 'dhcp-listener', text: 'dhcp-listener' }
-
 ]
 
 export const typeFormatter = (value) => {

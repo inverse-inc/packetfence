@@ -25,11 +25,37 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: 'galera-autofix',
+          text: i18n.t('Should galera-autofix be managed by PacketFence?'),
+          cols: [
+            {
+              namespace: 'galera-autofix',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: 'fingerbank-collector',
           text: i18n.t('Should the fingerbank-collector be managed by PacketFence?'),
           cols: [
             {
               namespace: 'fingerbank-collector',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: 'haproxy-admin',
+          text: i18n.t(`Should haproxy-admin be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'haproxy-admin',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -95,6 +121,19 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'httpd_collector',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: 'httpd.admin_dispatcher',
+          text: i18n.t(`Should httpd.admin_dispatcher be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'httpd_admin_dispatcher',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }

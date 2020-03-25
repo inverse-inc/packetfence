@@ -30,10 +30,13 @@ sub import {
                     *{"${package}::supports$n"} = sub {
                         my $proto = $_[0];
                         my $class = ref($proto) || $proto;
-                        $proto->logger->warn("Switch type '$class' does not support $n");
+                        $proto->logger->debug("Switch type '$class' does not support $n");
                         $FALSE
                     };
                 }
+            } elsif ($s =~ /^\?(.*)$/) {
+                my $n = $1;
+                push @supports, $n;
             } else {
                 *{"${package}::supports$s"} = \&support;
                 push @supports, $s;

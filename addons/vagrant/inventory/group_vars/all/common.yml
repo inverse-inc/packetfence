@@ -1,0 +1,3 @@
+---
+# common variables to be available for all VM and also for Venom
+dns_domain: 'example.lan'

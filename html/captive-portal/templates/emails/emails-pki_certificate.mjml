@@ -1,0 +1,37 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_header.mjml" />
+    <mj-preview>{{translate "msg_subject"}}</mj-preview>
+  </mj-head>
+  <mj-body>
+    <mj-section></mj-section>
+    <mj-wrapper>
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="title">{{translate "msg_subject"}}</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider></mj-divider>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">{{translate "msg_hello"}}</p>
+            <p>{{translate .Header }}</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">{{translate "msg_password"}} {{.Password}}</p>
+            <p style="padding-bottom: 20px">{{translate .Footer }}</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

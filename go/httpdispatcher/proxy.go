@@ -425,7 +425,7 @@ func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bo
 func (p *Proxy) HasSecurityEvents(ctx context.Context, mac string) bool {
 	securityEvent := false
 	var securityEventCount int
-	err := p.ParkingSecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
+	err := p.ParkingSecurityEvent.QueryRowContext(ctx, mac, TenantID).Scan(&securityEventCount)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: HasSecurityEvent %s %s\n", mac, err)
 	} else if securityEventCount != 0 {
@@ -443,10 +443,15 @@ func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
 	)
 	srcIP := net.ParseIP(ip)
 
-	if sharedutils.IsIPv4(srcIP) {
-		err = p.IP4log.QueryRow(ip, TenantID).Scan(&mac)
+	if srcIP != nil {
+		if sharedutils.IsIPv4(srcIP) {
+			err = p.IP4log.QueryRowContext(ctx, ip, TenantID).Scan(&mac)
+		} else {
+			err = p.IP6log.QueryRowContext(ctx, ip, TenantID).Scan(&mac)
+		}
 	} else {
-		err = p.IP6log.QueryRow(ip, TenantID).Scan(&mac)
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: not able to fetch the source ip\n")
+		err = errors.New("httpd.dispatcher: not able to fetch the source ip")
 	}
 
 	if err != nil {

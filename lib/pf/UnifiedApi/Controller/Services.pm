@@ -34,6 +34,25 @@ sub list {
     $self->render(json => { items => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ] });
 }
 
+sub update_systemd {
+    my ($self) = @_;
+    
+    my $service = $self->_get_service_class($self->param('service_id'));
+    my $services = $service->name eq 'pf' ? [ grep {$_ ne 'pf'} @pf::services::ALL_SERVICES ] : [ $service->name ];
+    my @managers = pf::services::getManagers( $services );
+
+    for my $manager (@managers) {
+        if ( $manager->isManaged ) {
+            $manager->sysdEnable();
+        }
+        else {
+            $manager->sysdDisable();
+        }
+    }
+    my $name = $service->name;
+    return $self->render(json => {message => "Updated systemd for $name"});
+}
+
 sub status {
     my ($self) = @_;
     my $service = $self->_get_service_class($self->param('service_id'));

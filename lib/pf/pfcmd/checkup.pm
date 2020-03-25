@@ -186,7 +186,7 @@ sub service_exists {
     foreach my $service (@services) {
         next if ($service eq 'pf');
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
-        if ($service =~ /^(pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
+        if ($service =~ /^(pfpki|pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
             $exe = "$sbin_dir/pfhttpd";
         } elsif ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
@@ -639,7 +639,7 @@ sub is_config_documented {
                   || ($section =~ /^(services|interface|nessus_category_policy|nessus_scan_by_fingerprint)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
-            next if ( $item =~ /^temporary_/i );
+            next if ( $item =~ /^temporary_/i ) || ("$section.$item" eq "webservices.jsonrpcclient_args");
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
                 add_problem( $WARN,
                     "unknown configuration parameter $section.$item ".

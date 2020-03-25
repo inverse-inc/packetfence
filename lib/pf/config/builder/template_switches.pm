@@ -16,17 +16,27 @@ use base qw(pf::config::builder);
 use pf::mini_template;
 use pf::constants::template_switch qw(
     @RADIUS_ATTRIBUTE_SETS
+    @SUPPORTS
+);
+
+our %SetToSupports = (
+    voip => [qw(RadiusVoip)],
 );
 
 sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
     my $type = $id;
     $entry->{type} = $type;
+    my @supports = @SUPPORTS;
     for my $k (@RADIUS_ATTRIBUTE_SETS) {
         next unless exists $entry->{$k};
         my $ras = delete $entry->{$k};
         if (!defined $ras || $ras eq '') {
             next;
+        }
+
+        if (exists $SetToSupports{$k}) {
+            push @supports, @{$SetToSupports{$k}};
         }
 
         my ($ras_errors, $set) = make_radius_attribute_set($ras);
@@ -37,21 +47,13 @@ sub buildEntry {
         }
     }
 
+    @supports = sort @supports;
     my ($vendor, undef) = split /::/, $type, 2;
     push @{ $buildData->{entries}{'::VENDORS'}{$vendor} },
     {
         value    => $type,
         label    => $entry->{description},
-        supports => [
-            qw(
-              RadiusDynamicVlanAssignment
-              WiredMacAuth
-              WiredDot1x
-              WirelessMacAuth
-              WirelessDot1x
-              RadiusVoip
-              RoleBasedEnforcement)
-        ],
+        supports => \@supports,
     };
 
     return $entry;

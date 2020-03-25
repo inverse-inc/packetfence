@@ -255,6 +255,11 @@ httpd_portal_modstatus=1444
 #
 # port to use for accessing the Unified API
 unifiedapi=9999
+#
+# ports.pfacct_netflow
+#
+# port for listening to netflow
+pfacct_netflow=2056
 
 [database]
 #
@@ -351,6 +356,16 @@ other_members=
 # Should pfipset be managed by PacketFence?
 pfipset=enabled
 #
+# services.pfpki
+#
+# Should pfpki be managed by PacketFence?
+pfpki=enabled
+#
+# services.galera-autofix
+#
+# Should galera-autofix be managed by PacketFence?
+galera-autofix=enabled
+#
 # services.pfdhcp
 #
 # Should pfdhcp be managed by PacketFence?
@@ -360,6 +375,16 @@ pfdhcp=enabled
 #
 # Location of the pfdhcp binary.
 pfdhcp_binary=/usr/local/pf/sbin/pfdhcp
+#
+# services.haproxy-admin
+#
+# Should haproxy-admin be started?
+haproxy-admin=enabled
+#
+# services.haproxy-admin_binary
+#
+# Location of the haproxy-admin binary. Only necessary to change if you are not running the RPMed version.
+haproxy-admin_binary=/usr/sbin/haproxy
 #
 # services.haproxy-portal
 #
@@ -401,6 +426,16 @@ radiusd=enabled
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 radiusd_binary=/usr/sbin/radiusd
 #
+# services.radiusd_acct
+#
+# Should freeradius handling accounting
+radiusd_acct=disabled
+#
+# services.radiusd_auth
+#
+# Should freeradius handling authentication
+radiusd_auth=enabled
+#
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
@@ -419,7 +454,7 @@ pfbandwidthd=disabled
 # services.httpd_admin
 #
 # Should httpd.admin be started?
-httpd_admin=enabled
+httpd_admin=disabled
 #
 # services.httpd_portal
 #
@@ -445,6 +480,11 @@ httpd_collector=disabled
 #
 # Should httpd.dispatcher be started?
 httpd_dispatcher=enabled
+#
+# services.httpd_admin_dispatcher
+#
+# Should httpd.admin_dispatcher be started?
+httpd_admin_dispatcher=enabled
 #
 # services.httpd_aaa
 #
@@ -586,6 +626,16 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/sbin/pfdns
+
+# services.pfacct
+#
+# Should pfacct be managed by PacketFence?
+pfacct=enabled
+#
+# services.pfacct_binary
+#
+# Location of the pfacct binary.
+pfacct_binary=/usr/local/pf/sbin/pfacct
 #
 # services.api-frontend
 #
@@ -898,6 +948,21 @@ statsd_listen_port = 8125
 # Execution timeout for pfperl-api
 pfperl_api_timeout = 600
 
+# advanced.configurator
+#
+# Enable the Configurator and the Configurator API
+configurator = enabled
+
+# advanced.netflow_on_all_networks
+#
+# Listen to netflow on all networks
+netflow_on_all_network = disabled
+
+# advanced.accounting_timebucket_size
+#
+# Accounting timebucket size
+accounting_timebucket_size = 5m
+
 [provisioning]
 #
 # provisioning.autoconfig
@@ -1183,7 +1248,7 @@ ocsp_override_cert_url = yes
 # radius_configuration.ocsp_url
 #
 # The overridden OCSP Responder URL.
-ocsp_url = http://127.0.0.1/ocsp/
+ocsp_url = http://127.0.0.1:22225/api/v1/pki/ocsp
 #
 # radius_configuration.ocsp_use_nonce
 #

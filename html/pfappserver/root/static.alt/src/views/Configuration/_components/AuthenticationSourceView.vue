@@ -127,6 +127,8 @@ export default {
   },
   methods: {
     init () {
+      this.$store.dispatch(`${this.formStoreName}/clearForm`)
+      this.$store.dispatch(`${this.formStoreName}/clearMeta`)
       this.samlMetaData = false
       if (this.id) {
         // existing

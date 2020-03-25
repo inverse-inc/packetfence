@@ -141,6 +141,8 @@
 :input-highavailability-if - [0:0]
 #SSH
 -A input-highavailability-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
+#Galera autofix
+-A input-highavailability-if --protocol udp --match udp --dport 4253 --jump ACCEPT
 #Galera cluster
 -A input-highavailability-if --protocol tcp --match tcp --dport 4444 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 4567 --jump ACCEPT
@@ -165,6 +167,8 @@
 
 ### FORWARD ###
 :FORWARD DROP [0:0]
+-I FORWARD -j NETFLOW
+
 :forward-internal-vlan-if - [0:0]
 %%filter_forward_vlan%%
 

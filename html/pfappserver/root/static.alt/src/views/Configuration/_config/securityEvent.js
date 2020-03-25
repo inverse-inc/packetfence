@@ -1,3 +1,5 @@
+import Vue from 'vue'
+import store from '@/store'
 import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
@@ -129,6 +131,7 @@ export const view = (form = {}, meta = {}) => {
     isNew = false,
     isClone = false
   } = meta
+
   return [
     {
       tab: null, // ignore tabs
@@ -577,6 +580,15 @@ export const decomposeTriggers = (triggers) => {
                 decomposed[category].interval = groups.interval
               }
             }
+          } else if (category === triggerCategories.EVENT && type === 'internal') {
+            // Extract network behavior policy name
+            let match = /(fingerbank_diff_score_too_low|fingerbank_blacklisted_ips_threshold_too_high|fingerbank_blacklisted_ports)_(.+)/.exec(value)
+            if (match) {
+              decomposed[category].typeValue.value = match[1]
+              decomposed[category].fingerbank_network_behavior_policy = match[2]
+            } else {
+              decomposed[category].fingerbank_network_behavior_policy = 'all'
+            }
           }
         } else {
           throw new Error(`Uncategorized field type: ${type}`)
@@ -615,6 +627,12 @@ export const recomposeTriggers = (triggers) => {
             value: (direction && limit && interval)
               ? `${direction}${bytes.toHuman(limit, 0, true).replace(/ /, '').toUpperCase()}B${interval}`
               : type
+          }
+        } else if (category === triggerCategories.EVENT) {
+          // Append network behavior policy name
+          const { [category]: { typeValue: { type, value } = {}, fingerbank_network_behavior_policy } = {} } = trigger
+          if (type === 'internal' && fingerbank_network_behavior_policy !== 'all' && ['fingerbank_diff_score_too_low', 'fingerbank_blacklisted_ips_threshold_too_high', 'fingerbank_blacklisted_ports'].includes(value)) {
+            trigger[category].typeValue.value += `_${fingerbank_network_behavior_policy}`
           }
         }
         const { [category]: { typeValue: { type, value } = {} } = {} } = trigger
@@ -814,7 +832,17 @@ export const triggerUsageView = (form = {}) => {
   ]
 }
 
+let networkBehaviorPolicies = Vue.observable([{ text: i18n.t('All'), value: 'all' }])
+
 export const triggerEventView = (form, meta = {}) => {
+  const { [triggerCategories.EVENT]: { typeValue: { type, value } = {} } = {} } = form || {}
+
+  store.dispatch('$_network_behavior_policies/all').then(policies => {
+    policies.map((policy, index) => {
+      Vue.set(networkBehaviorPolicies, index + 1, { text: policy.description, value: policy.id })
+    })
+  })
+
   return [
     {
       tab: null, // ignore tabs
@@ -896,6 +924,20 @@ export const triggerEventView = (form, meta = {}) => {
                     types: [fieldType.SUBSTRING]
                   }
                 ]
+              }
+            }
+          ]
+        },
+        {
+          cols: [
+            {
+              if: type === 'internal' && ['fingerbank_diff_score_too_low', 'fingerbank_blacklisted_ips_threshold_too_high', 'fingerbank_blacklisted_ports'].includes(value),
+              namespace: 'fingerbank_network_behavior_policy',
+              component: pfFormChosen,
+              attrs: {
+                columnLabel: i18n.t('Policy'),
+                class: 'w-100 mb-1',
+                options: networkBehaviorPolicies
               }
             }
           ]

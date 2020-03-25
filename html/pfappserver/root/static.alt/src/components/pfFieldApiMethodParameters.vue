@@ -59,7 +59,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => { return this.default }
+      default: () => { return { api_method: null, api_parameters: null } }
     },
     apiMethodLabel: {
       type: String

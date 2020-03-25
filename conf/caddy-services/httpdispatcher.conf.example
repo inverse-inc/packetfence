@@ -13,11 +13,19 @@
 
 :8889/common {
   root /usr/local/pf/html/common
+  mime {
+    .crt application/x-pem-file
+    .pem application/x-pem-file
+  }
 }
 
 
 :8889/content {
   root /usr/local/pf/html/captive-portal/content
+  mime {
+    .crt application/x-pem-file
+    .pem application/x-pem-file
+  }
 }
 
 :8889/.well-known/acme-challenge {
@@ -33,4 +41,3 @@
   }
   root /usr/local/pf/html/parking
 }
-

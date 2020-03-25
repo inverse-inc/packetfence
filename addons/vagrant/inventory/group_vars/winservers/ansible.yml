@@ -1,0 +1,9 @@
+---
+ansible_user: vagrant
+ansible_password: vagrant
+ansible_connection: winrm
+ansible_port: 5986
+ansible_winrm_transport: basic
+# require pywinrm > 0.3.0 to be take into account by Vagrant
+# see https://github.com/hashicorp/vagrant/issues/10444
+ansible_winrm_server_cert_validation: ignore

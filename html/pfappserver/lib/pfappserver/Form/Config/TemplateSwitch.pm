@@ -34,6 +34,13 @@ has_field 'description' => (
     required => 1,
 );
 
+has_field 'snmpDisconnect' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+);
+
 has_field 'radiusDisconnect' => (
     type    => 'Select',
     label   => 'RADIUS Disconnect Method',
@@ -59,7 +66,7 @@ for my $n (@RADIUS_ATTRIBUTE_SETS) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2020 Inverse inc.
 
 =head1 LICENSE
 

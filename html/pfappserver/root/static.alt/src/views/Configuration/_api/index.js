@@ -110,12 +110,26 @@ export default {
     })
   },
   updateBase: data => {
-    return apiCall.patch(['config', 'base', data.id], data).then(response => {
+    const patch = data.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](['config', 'base', data.id], data).then(response => {
       return response.data
     })
   },
+  secureDatabase: data => {
+    return apiCall.postQuiet('config/base/database/secure_installation', data)
+  },
+  createDatabase: data => {
+    return apiCall.postQuiet('config/base/database/create', data)
+  },
+  assignDatabase: data => {
+    return apiCall.postQuiet('config/base/database/assign', data)
+  },
+  testDatabase: data => {
+    return apiCall.postQuiet('config/base/database/test', data)
+  },
   testSmtp: data => {
-    return apiCall.post(['config', 'bases', 'test_smtp'], data).then(response => {
+    const post = data.quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['config', 'bases', 'test_smtp'], data).then(response => {
       return response.data
     })
   },
@@ -414,6 +428,11 @@ export default {
    */
   fingerbankAccountInfo: () => {
     return apiCall.getQuiet(['fingerbank', 'account_info']).then(response => {
+      return response.data
+    })
+  },
+  fingerbankCanUseNbaEndpoints: () => {
+    return apiCall.getQuiet(['fingerbank', 'can_use_nba_endpoints']).then(response => {
       return response.data
     })
   },
@@ -842,6 +861,165 @@ export default {
   },
   deleteMaintenanceTask: id => {
     return apiCall.delete(['config', 'maintenance_task', id])
+  },
+
+  /*
+   * Network Behavior Policies
+   */
+  networkBehaviorPolicies: params => {
+    return apiCall.get('config/network_behavior_policies', { params }).then(response => {
+      return response.data
+    })
+  },
+  networkBehaviorPoliciesOptions: () => {
+    return apiCall.options('config/network_behavior_policies').then(response => {
+      return response.data
+    })
+  },
+  networkBehaviorPolicy: id => {
+    return apiCall.get(['config', 'network_behavior_policy', id]).then(response => {
+      return response.data.item
+    })
+  },
+  networkBehaviorPolicyOptions: id => {
+    return apiCall.options(['config', 'network_behavior_policy', id]).then(response => {
+      return response.data
+    })
+  },
+  createNetworkBehaviorPolicy: data => {
+    return apiCall.post('config/network_behavior_policies', data).then(response => {
+      return response.data
+    })
+  },
+  updateNetworkBehaviorPolicy: data => {
+    return apiCall.patch(['config', 'network_behavior_policy', data.id], data).then(response => {
+      return response.data
+    })
+  },
+  deleteNetworkBehaviorPolicy: id => {
+    return apiCall.delete(['config', 'network_behavior_policy', id])
+  },
+  /**
+   * PKI
+   */
+  pkiCas: () => {
+    return apiCall.get('pki/cas').then(response => {
+      const { data: { items = [] } = {} } = response
+      return { items }
+    })
+  },
+  pkiCa: id => {
+    return apiCall.get(['pki', 'ca', id]).then(response => {
+      const { data: { items: { 0: item = {} } = {} } = {} } = response
+      return item
+    })
+  },
+  createPkiCa: data => {
+    return apiCall.post('pki/cas', data).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return item
+      }
+    })
+  },
+  pkiProfiles: () => {
+    return apiCall.get('pki/profiles').then(response => {
+      const { data: { items = [] } = {} } = response
+      return { items }
+    })
+  },
+  pkiProfile: id => {
+    return apiCall.get(['pki', 'profile', id]).then(response => {
+      const { data: { items: { 0: item = {} } = {} } = {} } = response
+      return item
+    })
+  },
+  createPkiProfile: data => {
+    return apiCall.post('pki/profiles', data).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return item
+      }
+    })
+  },
+  updatePkiProfile: data => {
+    return apiCall.patch(['pki', 'profile', data.id], data).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return item
+      }
+    })
+  },
+  pkiCerts: () => {
+    return apiCall.get('pki/certs').then(response => {
+      const { data: { items = [] } = {} } = response
+      return { items }
+    })
+  },
+  pkiCert: id => {
+    return apiCall.get(['pki', 'cert', id]).then(response => {
+      const { data: { items: { 0: item = {} } = {} } = {} } = response
+      return item
+    })
+  },
+  createPkiCert: data => {
+    return apiCall.post('pki/certs', data).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return item
+      }
+    })
+  },
+  downloadPkiCert: data => {
+    const { id, password } = data
+    return apiCall.getArrayBuffer(['pki', 'cert', id, 'download', password]).then(response => {
+      return response.data
+    })
+  },
+  emailPkiCert: id => {
+    return apiCall.get(['pki', 'cert', id, 'email']).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { password } = {} } = response
+        return { password }
+      }
+    })
+  },
+  revokePkiCert: data => {
+    return apiCall.delete(['pki', 'cert', data.id, data.reason]).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        return true
+      }
+    })
+  },
+  pkiRevokedCerts: () => {
+    return apiCall.get('pki/revokedcerts').then(response => {
+      const { data: { items = [] } = {} } = response
+      return { items }
+    })
+  },
+  pkiRevokedCert: id => {
+    return apiCall.get(['pki', 'revokedcert', id]).then(response => {
+      const { data: { items: { 0: item = {} } = {} } = {} } = response
+      return item
+    })
   },
 
   /**

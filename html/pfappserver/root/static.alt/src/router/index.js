@@ -9,6 +9,7 @@ import AuditingRoute from '@/views/Auditing/_router'
 import NodesRoute from '@/views/Nodes/_router'
 import UsersRoute from '@/views/Users/_router'
 import ConfigurationRoute from '@/views/Configuration/_router'
+import ConfiguratorRoute from '@/views/Configurator/_router'
 
 Vue.use(Router)
 
@@ -26,6 +27,7 @@ let router = new Router({
     NodesRoute,
     UsersRoute,
     ConfigurationRoute,
+    ConfiguratorRoute,
     DefaultRoute
   ]
 })
@@ -42,26 +44,36 @@ router.beforeEach((to, from, next) => {
     document.body.classList.add('modal-open') // [2]
   }
   /**
-   * 3. Session token loaded from local storage
-   * 4. Token has expired -- go back to login page
-   * 5. No token -- go back to login page
+   * 3. Ignore everything under /configurator-
+   * 4. Ignore login page
+   * 5. Check if the configurator is enabled
+   * 6. Session token loaded from local storage
+   * 7. Token has expired -- go back to login page
+   * 8. No token -- go back to login page
    */
-  if (to.name !== 'login') {
-    store.dispatch('session/load').then(() => {
-      next() // [3]
-    }).catch(() => {
-      let currentPath = router.currentRoute.fullPath
-      if (currentPath === '/') {
-        currentPath = document.location.hash.substring(1)
-      }
-      if (store.state.session.token) {
-        next({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [4]
-      } else {
-        next({ name: 'login' }) // [5]
-      }
-    })
-  } else {
+  if (/^configurator-/.test(to.name)) { // [3]
+    store.commit('session/CONFIGURATOR_ACTIVE')
     next()
+  } else {
+    store.commit('session/CONFIGURATOR_INACTIVE')
+    if (to.name !== 'login') { // [4]
+      store.dispatch('session/load').then(() => {
+        store.dispatch('session/getConfiguratorState') // [5]
+        next() // [6]
+      }).catch(() => {
+        let currentPath = router.currentRoute.fullPath
+        if (currentPath === '/') {
+          currentPath = document.location.hash.substring(1)
+        }
+        if (store.state.session.token) {
+          next({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [7]
+        } else {
+          next({ name: 'login' }) // [8]
+        }
+      })
+    } else {
+      next()
+    }
   }
 })
 

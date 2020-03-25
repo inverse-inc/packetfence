@@ -89,6 +89,10 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "api-frontend"' ],
     },
     {
+        'name'       => 'pfacct.log',
+        'conditions' => [ '$programname == "pfacct"' ]
+    },
+    {
         'name'       => 'pfstats.log',
         'conditions' => [ '$programname == "pfstats"' ]
     },
@@ -99,15 +103,12 @@ our @SyslogInfo = (
             '$programname == "pfqueue"',
             '$programname == "pfhttpd"',
             '$programname == "pfipset"',
+            '$programname == "pfpki"',
         ]
     },
     {
         'name'       => 'pfdhcp.log',
         'conditions' => [ '$programname == "pfdhcp"' ]
-    },
-    {
-        'name'       => 'pfbandwidthd.log',
-        'conditions' => [ '$programname == "pfbandwidthd"' ]
     },
     {
         'name'       => 'pfconfig.log',

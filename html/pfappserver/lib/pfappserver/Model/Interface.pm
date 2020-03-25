@@ -522,12 +522,14 @@ sub setType {
                 if ( $is_vlan) {
                     $network_ref =
                       {
+                       pool_backend => 'memory',
                        dhcp_default_lease_time => 30,
                        dhcp_max_lease_time => 30,
                       };
                 } else {
                     $network_ref =
                       {
+                       pool_backend => 'memory',
                        dhcp_default_lease_time => 24 * 60 * 60,
                        dhcp_max_lease_time => 24 * 60 * 60,
                       };

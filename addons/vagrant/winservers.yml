@@ -1,0 +1,64 @@
+---
+# This playbook comes from https://github.com/jborean93/ansible-windows
+- name: get network adapter information for each host
+  hosts: winservers
+  gather_facts: no
+
+  tasks:
+  - name: make absolutely sure the connection is active
+    wait_for_connection:
+
+  - name: get network connection name for private adapter
+    win_shell: |
+      foreach ($instance in (Get-CimInstance -ClassName Win32_NetworkAdapter -Filter "Netenabled='True'")) {
+          $instance_config = Get-CimInstance -ClassName WIn32_NetworkAdapterConfiguration -Filter "Index = '$($instance.Index)'"
+          if ($instance_config.IPAddress -contains "{{ ansible_host }}") {
+              $instance.NetConnectionID
+          }
+      }
+    changed_when: false
+    register: network_connection_name_register
+
+  - name: "fail if we didn't get a network connection name"
+    fail:
+      msg: Failed to get the network connection name
+    when: network_connection_name_register.stdout_lines|count != 1
+
+- name: create Domain Controller and set AD CS
+  hosts: ad
+  gather_facts: no
+  collections:
+    - inverse_inc.windows
+
+  roles:
+
+  - name: domain_setup
+    vars:
+      domain_setup__network_name: '{{ network_connection_name_register.stdout_lines[0] }}'
+
+  - name: adcs_enrollment
+
+  post_tasks:
+  - name: create local file based on the certificate chain PEM content
+    copy:
+      content: '{{ out_adcs_enrollment_chain_thumbprint }}'
+      dest: ca_chain.pem
+    delegate_to: localhost
+    run_once: yes    
+
+- name: Create a domain user account
+  hosts: ad
+  gather_facts: no
+
+  tasks:
+  - name: Create a packetfence domain account
+    win_domain_user:
+      name: '{{ packetfence_domain_account }}'
+      upn: '{{ packetfence_domain_account }}@{{ domain_setup__domain_name }}'
+      description: 'packetfence Domain Users Account'
+      password: '{{ packetfence_domain_password }}'
+      password_never_expires: yes
+      email: '{{ packetfence_domain_email }}'
+      groups:
+        - Domain Users
+      state: present

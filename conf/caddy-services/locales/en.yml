@@ -1,0 +1,5 @@
+msg_subject: New certificate
+msg_hello: Hello
+msg_password: "Password:"
+msg_footer: "Regards"
+msg_header: "Attached to this email your certificate and the password"

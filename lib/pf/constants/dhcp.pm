@@ -29,6 +29,10 @@ Readonly our $DHCP_API_DEFAULT_CONNECT_TIMEOUT => 500;
 Readonly our $RANDOM_ALGORITHM => 1;
 Readonly our $OLDEST_RELEASED_ALGORITHM => 2;
 
+# DHCP Pool Backend Type
+Readonly our $MEMORY_POOL => "memory";
+Readonly our $MYSQL_POOL => "mysql";
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

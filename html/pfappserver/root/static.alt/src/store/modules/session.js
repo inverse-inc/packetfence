@@ -50,6 +50,11 @@ const api = {
   },
   getAllowedUserUnregDate: () => {
     return apiCall.get(`current_user/allowed_user_unreg_date`)
+  },
+  getAdvanced: () => {
+    return apiCall.getQuiet('config/base/advanced').then(response => {
+      return response.data.item
+    })
   }
 }
 
@@ -57,6 +62,8 @@ const state = {
   loginStatus: '',
   loginPromise: null,
   loginResolver: null,
+  configuratorEnabled: false,
+  configuratorActive: false,
   message: '',
   token: localStorage.getItem(STORAGE_TOKEN_KEY) || '',
   username: '',
@@ -291,7 +298,31 @@ const actions = {
       commit('ALLOWED_USER_UNREG_DATE_UPDATED', response.data.items)
       return state.allowedUserUnregDate
     })
-  }
+  },
+  getConfiguratorState: ({ commit }) => {
+    if (acl.$can('read', 'configuration_main')) {
+      return api.getAdvanced().then(advanced => {
+        const enabled = advanced.configurator === 'enabled'
+        if (enabled) {
+          commit('CONFIGURATOR_ENABLED')
+        } else {
+          commit('CONFIGURATOR_DISABLED')
+        }
+        return enabled
+      }).catch(() => {
+        // noop
+      })
+    } else {
+      return new Promise(false)
+    }
+  },
+  updateConfiguratorState: ({ commit }, state) => {
+    if (state === 'enabled') {
+      commit('CONFIGURATOR_ENABLED')
+    } else {
+      commit('CONFIGURATOR_DISABLED')
+    }
+  },
 }
 
 const mutations = {
@@ -306,6 +337,18 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  CONFIGURATOR_ENABLED: (state) => {
+    state.configuratorEnabled = true
+  },
+  CONFIGURATOR_DISABLED: (state) => {
+    state.configuratorEnabled = false
+  },
+  CONFIGURATOR_ACTIVE: (state) => {
+    state.configuratorActive = true
+  },
+  CONFIGURATOR_INACTIVE: (state) => {
+    state.configuratorActive = false
   },
   TOKEN_UPDATED: (state, token) => {
     state.token = token

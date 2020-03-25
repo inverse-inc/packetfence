@@ -156,6 +156,7 @@ sub do_sponsor_registration {
     my $pid = $self->request_fields->{$self->pid_field};
     my $email = $self->request_fields->{email};
     $info{'pid'} = $pid;
+    $info{'email'} = $email;
     my ( $status, $status_msg ) = $source->authenticate($pid);
     unless ( $status ) {
         $self->app->flash->{error} = $status_msg;
@@ -207,9 +208,15 @@ sub do_sponsor_registration {
 
     $self->session->{activation_code} = $activation_code;
     $self->app->session->{email} = $email;
-    $self->username($email);
+    $self->username($pid);
 
-    $self->update_person_from_fields(additionnal_fields => {notes => $note});
+    # update sponsor field with forced_sponsor value
+    if (!defined($self->request_fields->{sponsor})) {
+        $self->update_person_from_fields(additionnal_fields => {notes => $note, sponsor => $sponsor});
+    }
+    else {
+        $self->update_person_from_fields(additionnal_fields => {notes => $note});
+    }
 
     $self->waiting_room();
 }

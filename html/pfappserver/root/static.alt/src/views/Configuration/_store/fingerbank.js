@@ -18,6 +18,11 @@ const state = {
     message: '',
     status: ''
   },
+  canUseNbaEndpoints: {
+    cache: false,
+    message: '',
+    status: ''
+  },
   generalSettings: {
     cache: false,
     message: '',
@@ -78,6 +83,9 @@ const getters = {
   isAccountInfoWaiting: state => [types.LOADING, types.DELETING].includes(state.accountInfo.status),
   isAccountInfoLoading: state => state.accountInfo.status === types.LOADING,
 
+  isCanUseNbaEndpointsWaiting: state => [types.LOADING, types.DELETING].includes(state.canUseNbaEndpoints.status),
+  isCanUseNbaEndpointsLoading: state => state.canUseNbaEndpoints.status === types.LOADING,
+
   isGeneralSettingsWaiting: state => [types.LOADING, types.DELETING].includes(state.generalSettings.status),
   isGeneralSettingsLoading: state => state.generalSettings.status === types.LOADING,
 
@@ -125,6 +133,19 @@ const actions = {
       throw err
     })
   },
+  getCanUseNbaEndpoints: ({ state, commit }) => {
+    if (state.canUseNbaEndpoints.cache) {
+      return Promise.resolve(state.canUseNbaEndpoints.cache).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('CAN_USE_NBA_ENDPOINTS_REQUEST')
+    return api.fingerbankCanUseNbaEndpoints().then(info => {
+      commit('CAN_USE_NBA_ENDPOINTS_REPLACED', info)
+      return info
+    }).catch(err => {
+      commit('CAN_USE_NBA_ENDPOINTS_ERROR', err.response)
+      throw err
+    })
+  },
   getGeneralSettings: ({ state, commit }) => {
     if (state.generalSettings.cache) {
       return Promise.resolve(state.generalSettings.cache).then(cache => JSON.parse(JSON.stringify(cache)))
@@ -169,14 +190,12 @@ const actions = {
       let refactored = { ...data[id], ...{ id } }
       promises.push(api.fingerbankUpdateGeneralSetting(id, refactored))
     })
-    return new Promise((resolve, reject) => {
-      Promise.all(promises.map(p => p.catch(e => e))).then(response => {
-        commit('GENERAL_SETTINGS_REPLACED', data)
-        return response
-      }).catch(err => {
-        commit('GENERAL_SETTINGS_ERROR', err.response)
-        throw err
-      })
+    return Promise.all(promises).then(response => {
+      commit('GENERAL_SETTINGS_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('GENERAL_SETTINGS_ERROR', err.response)
+      throw err
     })
   },
   combinations: ({ state, commit }) => {
@@ -628,6 +647,20 @@ const mutations = {
     state.accountInfo.status = types.ERROR
     if (response && response.data) {
       state.accountInfo.message = response.data.message
+    }
+  },
+  CAN_USE_NBA_ENDPOINTS_REQUEST: (state, type) => {
+    state.canUseNbaEndpoints.status = type || types.LOADING
+    state.canUseNbaEndpoints.message = ''
+  },
+  CAN_USE_NBA_ENDPOINTS_REPLACED: (state, data) => {
+    state.canUseNbaEndpoints.status = types.SUCCESS
+    Vue.set(state.canUseNbaEndpoints, 'cache', JSON.parse(JSON.stringify(data)))
+  },
+  CAN_USE_NBA_ENDPOINTS_ERROR: (state, response) => {
+    state.canUseNbaEndpoints.status = types.ERROR
+    if (response && response.data) {
+      state.canUseNbaEndpoints.message = response.data.message
     }
   },
   GENERAL_SETTINGS_SUCCESS: (state) => {

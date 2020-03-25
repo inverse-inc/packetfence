@@ -64,7 +64,33 @@ const api = {
         throw new Error(`Could not stop ${name}`)
       }
     })
-  }
+  },
+  updateSystemd: name => {
+    return apiCall.post(['service', name, 'update_systemd'])
+  },
+  restartSystemService: name => {
+    return apiCall.post(['system_service', name, 'restart'])
+  },
+  startSystemService: name => {
+    return apiCall.post(['system_service', name, 'start']).then(response => {
+      const { data: { start = 0 } } = response
+      if (parseInt(start) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not start ${name}`)
+      }
+    })
+  },
+  stopSystemService: name => {
+    return apiCall.post(['system_service', name, 'top']).then(response => {
+      const { data: { stop = 0 } } = response
+      if (parseInt(stop) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not stop ${name}`)
+      }
+    })
+  },
 }
 
 const types = {
@@ -80,9 +106,10 @@ const types = {
 
 export const blacklistedServices = [ // prevent start|stop|restart control on these services
   'api-frontend',
-  'httpd.admin',
   'pf',
-  'pfperl-api'
+  'pfperl-api',
+  'haproxy-admin',
+  'httpd.admin_dispatcher'
 ]
 
 // Default values
@@ -162,6 +189,42 @@ const actions = {
   stopService: ({ state, commit }, id) => {
     commit('SERVICE_STOPPING', id)
     return api.stopService(id).then(() => {
+      commit('SERVICE_STOPPED', { id })
+      return state.cache[id]
+    }).catch((err) => {
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
+      throw err
+    })
+  },
+  updateSystemd: (context, id) => {
+    return api.updateSystemd(id)
+  },
+  restartSystemService: ({ state, commit }, id) => {
+    commit('SERVICE_RESTARTING', id)
+    return api.restartSystemService(id).then(response => {
+      commit('SERVICE_RESTARTED', { id, response })
+      return state.cache[id]
+    }).catch((err) => {
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
+      throw err
+    })
+  },
+  startSystemService: ({ state, commit }, id) => {
+    commit('SERVICE_STARTING', id)
+    return api.startSystemService(id).then(response => {
+      commit('SERVICE_STARTED', { id, response })
+      return state.cache[id]
+    }).catch((err) => {
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
+      throw err
+    })
+  },
+  stopSystemService: ({ state, commit }, id) => {
+    commit('SERVICE_STOPPING', id)
+    return api.stopSystemService(id).then(() => {
       commit('SERVICE_STOPPED', { id })
       return state.cache[id]
     }).catch((err) => {

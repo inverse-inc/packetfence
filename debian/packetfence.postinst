@@ -30,6 +30,8 @@ case "$1" in
         find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
         find $PACKETFENCE/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
+        find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;
+        find $PACKETFENCE/var/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/logs
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
@@ -122,7 +124,6 @@ case "$1" in
         sysctl -p /etc/sysctl.d/99-ip_forward.conf
  
         #Starting PacketFence.
-        echo "Starting PacketFence Administration GUI..."
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         # Start packetfence web administration
@@ -139,8 +140,7 @@ case "$1" in
         systemctl enable packetfence-redis-cache
         systemctl enable packetfence-config
         systemctl disable packetfence-iptables
-        systemctl enable packetfence-httpd.admin
-        systemctl enable packetfence-tracking-config.service
+        systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
         systemctl daemon-reload
         systemctl isolate packetfence-base.target
@@ -152,8 +152,13 @@ case "$1" in
         set +e
         /usr/local/pf/bin/pfcmd configreload
         /usr/local/pf/bin/pfcmd fixpermissions
-        set -e
-        /bin/systemctl start packetfence-httpd.admin
+        if [ -n "$CI" ]; then
+            echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
+        else
+            echo "Starting PacketFence Administration GUI..."
+            /bin/systemctl start packetfence-httpd.admin_dispatcher
+            /bin/systemctl start packetfence-haproxy-admin
+        fi
         systemctl enable packetfence-iptables
         /usr/local/pf/bin/pfcmd service pf updatesystemd
         # On new stretch install this should work but not on upgrade

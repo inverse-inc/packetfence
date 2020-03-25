@@ -45,7 +45,7 @@ func TestSimpleRedirect(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://www.inverse.ca", bytes.NewBuffer([]byte("")))
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
-	if recorder.Code != 302 {
+	if recorder.Code != 200 {
 		t.Fatalf("Received non-302 response: %d\n", recorder.Code)
 	}
 }

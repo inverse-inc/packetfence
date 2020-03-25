@@ -351,25 +351,23 @@ sub parse_dhcp_request {
     else {
         $self->checkForParking($client_mac);
     }
-    if ($self->pf_is_managing($client_ip)) {
-        my $apiclient = pf::client::getClient;
+    my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
 
-        my %violation_data = (
+    my %security_event_data;
+    if ($self->pf_is_managing($client_ip)) {
+        %security_event_data = (
             'mac'   => $client_mac,
             'tid'   => 'new_dhcp_info_from_managed_network',
             'type'  => 'internal',
         );
-        $apiclient->notify('trigger_violation', %violation_data);
     } else {
-        my $apiclient = pf::client::getClient;
-
-        my %violation_data = (
+        %security_event_data = (
             'mac'   => $client_mac,
             'tid'   => 'new_dhcp_info_from_production_network',
             'type'  => 'internal',
         );
-        $apiclient->notify('trigger_violation', %violation_data);
     }
+    $cache->set($client_mac, \%security_event_data);
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
     # in which case we are not interested in detecting rogue DHCP

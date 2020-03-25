@@ -134,7 +134,6 @@
           </b-col>
           <b-col cols="auto">
             <pf-button-service service="iptables" class="mr-1" restart start stop></pf-button-service>
-            <pf-button-service service="routes" class="mr-1" restart start stop></pf-button-service>
             <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
             <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
           </b-col>

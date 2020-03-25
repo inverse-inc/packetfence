@@ -63,6 +63,7 @@ export default {
                 { name: this.$i18n.t('User Agents'), path: '/configuration/fingerbank/user_agents' }
               ]
             },
+            { name: this.$i18n.t('Network Anomaly Detection'), path: '/configuration/fingerbank/network_behavior_policies' },
             { name: this.$i18n.t('Scans'),
               items: [
                 { name: this.$i18n.t('Scan Engines'), path: '/configuration/scans/scan_engines' },
@@ -84,7 +85,15 @@ export default {
             { name: this.$i18n.t('Switch Templates'), path: '/configuration/switch_templates' },
             { name: this.$i18n.t('Syslog Parsers'), path: '/configuration/pfdetect' },
             { name: this.$i18n.t('Syslog Forwarding'), path: '/configuration/syslog' },
-            { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' }
+            { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' },
+            { name: this.$i18n.t('PKI'),
+              items: [
+                { name: this.$i18n.t('Certificate Authorities'), path: '/configuration/pki/cas' },
+                { name: this.$i18n.t('Templates'), path: '/configuration/pki/profiles' },
+                { name: this.$i18n.t('Certificates'), path: '/configuration/pki/certs' },
+                { name: this.$i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
+              ]
+            }
           ]
         },
         {

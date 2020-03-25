@@ -31,9 +31,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormTextarea,
               attrs: {
                 ...attributesFromMeta(meta, 'emailaddr'),
-                ...{
-                  rows: 3
-                }
+                rows: 3
               }
             }
           ]
@@ -137,10 +135,8 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'smtp_timeout'),
-                ...{
-                  type: 'number',
-                  step: 1
-                }
+                type: 'number',
+                step: 1
               }
             }
           ]

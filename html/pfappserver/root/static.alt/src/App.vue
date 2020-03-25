@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': readonlyMode }">
+    <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': warnings.length > 0 }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
       <b-navbar-brand>
         <img src="/static/img/packetfence.white.small.svg"/>
@@ -47,15 +47,17 @@
             <b-dropdown-item href="/admin/status" target="_blank">{{ $t('Switch to Old Admin') }}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
-        <pf-notification-center :isAuthenticated="isAuthenticated" />
+        <pf-notification-center :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
     </b-navbar>
-    <pf-progress-api></pf-progress-api>
+    <pf-progress-api/>
     <!-- Show alert if the database is in read-only mode -->
-    <b-container v-if="readonlyMode" class="bg-danger text-white text-center pt-6" fluid>
-      <icon class="pr-2" name="lock"></icon> {{ $t('The database is in readonly mode. Not all functionality is available.') }}
+    <b-container v-if="warnings.length > 0" class="bg-danger text-white text-center pt-6" fluid>
+      <div class="py-2" v-for="(warning, index) in warnings" :key="index">
+        <icon class="pr-2" :name="warning.icon"></icon> {{ warning.message }}
+      </div>
     </b-container>
-    <b-container :class="[{ 'pt-6': !readonlyMode, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
+    <b-container :class="[{ 'pt-6': warnings.length === 0, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
       <pf-documentation v-show="isAuthenticated">
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
@@ -97,6 +99,12 @@ export default {
     isAuthenticated () {
       return this.$store.getters['session/isAuthenticated']
     },
+    isConfiguratorActive () {
+      return this.$store.state.session.configuratorActive
+    },
+    isConfiguratorEnabled () {
+      return this.$store.state.session.configuratorEnabled
+    },
     isPerfomingCheckup () {
       return this.$store.getters['config/isLoadingCheckup']
     },
@@ -106,8 +114,21 @@ export default {
     isProcessing () {
       return (this.isPerfomingCheckup || this.isFixingPermissions) ? 1 : 0
     },
-    readonlyMode () {
-      return this.$store.state.system.readonlyMode
+    warnings () {
+      const warnings = []
+      if (this.$store.state.system.readonlyMode) {
+        warnings.push({
+          icon: 'lock',
+          message: this.$i18n.t('The database is in readonly mode. Not all functionality is available.')
+        })
+      }
+      if (this.$store.state.session.configuratorEnabled) {
+        warnings.push({
+          icon: 'door-open',
+          message: this.$i18n.t('The configurator is enabled. You should disable it if your PacketFence configuration is completed.')
+        })
+      }
+      return warnings
     },
     username () {
       return this.$store.state.session.username

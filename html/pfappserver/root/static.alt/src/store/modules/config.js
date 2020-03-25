@@ -123,6 +123,18 @@ const api = {
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
+  getPkiCas () {
+    return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
+  },
+  getPkiProfiles () {
+    return apiCall({ url: 'pki/profiles', method: 'get', params: { limit: 1000 } })
+  },
+  getPkiCerts () {
+    return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
+  },
+  getNetworkBehaviorPolicies () {
+    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -158,6 +170,9 @@ const api = {
   },
   getSwitchGroups () {
     return apiCall({ url: 'config/switch_groups', method: 'get' })
+  },
+  getSwitchGroupMembers (id) {
+    return apiCall({ url: `config/switch_group/${id}/members`, method: 'get' })
   },
   getSwitchTemplates () {
     return apiCall({ url: 'config/template_switches', method: 'get' })
@@ -264,6 +279,14 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     layer2NetworksStatus: '',
     maintenanceTasks: false,
     maintenanceTasksStatus: '',
+    networkBehaviorPolicies: false,
+    networkBehaviorPoliciesStatus: '',
+    pkiCas: false,
+    pkiCasStatus: '',
+    pkiProfiles: false,
+    pkiProfilesStatus: '',
+    pkiCerts: false,
+    pkiCertsStatus: '',
     pkiProviders: false,
     pkiProvidersStatus: '',
     portalModules: false,
@@ -327,16 +350,6 @@ const helpers = {
       sortedSecurityEvents.push(securityEvents[id])
     }
     return sortedSecurityEvents
-  },
-  groupSwitches: (switches) => {
-    let ret = []
-    if (switches) {
-      let groups = [...new Set(switches.map(sw => sw.group))]
-      groups.forEach(function (group) {
-        ret.push({ group: group, switches: switches.filter(sw => sw.group === group) })
-      })
-    }
-    return ret
   }
 }
 
@@ -448,6 +461,18 @@ const getters = {
   },
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
+  },
+  isLoadingNetworkBehaviorPolicies: state => {
+    return state.networkBehaviorPoliciesStatus === types.LOADING
+  },
+  isLoadingPkiCas: state => {
+    return state.pkiCasStatus === types.LOADING
+  },
+  isLoadingPkiProfiles: state => {
+    return state.pkiProfilesStatus === types.LOADING
+  },
+  isLoadingPkiCerts: state => {
+    return state.pkiCertsStatus === types.LOADING
   },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
@@ -596,9 +621,6 @@ const getters = {
   },
   sortedSecurityEvents: state => {
     return helpers.sortSecurityEvents(state.securityEvents)
-  },
-  groupedSwitches: state => {
-    return helpers.groupSwitches(state.switches)
   }
 }
 
@@ -1119,6 +1141,80 @@ const actions = {
       return Promise.resolve(state.maintenanceTasks)
     }
   },
+  getNetworkBehaviorPolicies: ({ state, getters, commit }) => {
+    if (getters.isLoadingNetworkBehaviorPolicies) {
+      return Promise.resolve(state.networkBehaviorPolicies)
+    }
+    if (!state.networkBehaviorPolicies) {
+      commit('NETWORK_BEHAVIOR_POLICIES_REQUEST')
+      return api.getNetworkBehaviorPolicies().then(response => {
+        commit('NETWORK_BEHAVIOR_POLICIES_UPDATED', response.data.items)
+        return state.networkBehaviorPolicies
+      })
+    } else {
+      return Promise.resolve(state.networkBehaviorPolicies)
+    }
+  },
+  getPkiCas: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiCas) {
+      return Promise.resolve(state.pkiCas)
+    }
+    if (!state.pkiCas) {
+      commit('PKI_CAS_REQUEST')
+      return api.getPkiCas().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_CAS_UPDATED', items || [])
+        return state.pkiCas
+      })
+    } else {
+      return Promise.resolve(state.pkiCas)
+    }
+  },
+  resetPkiCas: ({ state, commit }) => {
+    if (state.pkiCas) {
+      commit('PKI_CAS_RESET')
+    }
+  },
+  getPkiProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiProfiles) {
+      return Promise.resolve(state.pkiProfiles)
+    }
+    if (!state.pkiProfiles) {
+      commit('PKI_PROFILES_REQUEST')
+      return api.getPkiProfiles().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_PROFILES_UPDATED', items || [])
+        return state.pkiProfiles
+      })
+    } else {
+      return Promise.resolve(state.pkiProfiles)
+    }
+  },
+  resetPkiProfiles: ({ state, commit }) => {
+    if (state.pkiProfiles) {
+      commit('PKI_PROFILES_RESET')
+    }
+  },
+  getPkiCerts: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiCerts) {
+      return Promise.resolve(state.pkiCerts)
+    }
+    if (!state.pkiCerts) {
+      commit('PKI_CERTS_REQUEST')
+      return api.getPkiCerts().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_CERTS_UPDATED', items || [])
+        return state.pkiCerts
+      })
+    } else {
+      return Promise.resolve(state.pkiCerts)
+    }
+  },
+  resetPkiCerts: ({ state, commit }) => {
+    if (state.pkiCerts) {
+      commit('PKI_CERTS_RESET')
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
       return Promise.resolve(state.pkiProviders)
@@ -1287,8 +1383,22 @@ const actions = {
     if (!state.switchGroups) {
       commit('SWITCH_GROUPS_REQUEST')
       return api.getSwitchGroups().then(response => {
-        commit('SWITCH_GROUPS_UPDATED', response.data.items)
-        return state.switchGroups
+        const { data: { items: switchGroups = [] } = {} } = response
+        let promises = []
+        switchGroups.map((switchGroup, index) => {
+          const { id } = switchGroup
+          promises.push(api.getSwitchGroupMembers(id).then(response => {
+            const { data: { items: members = [] } = {} } = response
+            switchGroups[index].members = members
+          }))
+        })
+        return Promise.all(promises.map(p => p.catch(e => e))).then(() => {
+          commit('SWITCH_GROUPS_UPDATED', switchGroups)
+          return state.switchGroups
+        }).catch(err => {
+          commit('SWITCH_GROUPS_ERROR', err)
+          throw err
+        })
       }).catch((err) => {
         commit('SWITCH_GROUPS_ERROR', err)
         throw err
@@ -1660,6 +1770,44 @@ const mutations = {
   MAINTENANCE_TASKS_UPDATED: (state, maintenanceTasks) => {
     state.maintenanceTasks = maintenanceTasks
     state.maintenanceTasksStatus = types.SUCCESS
+  },
+  NETWORK_BEHAVIOR_POLICIES_REQUEST: (state) => {
+    state.networkBehaviorPoliciesStatus = types.LOADING
+  },
+  NETWORK_BEHAVIOR_POLICIES_UPDATED: (state, networkBehaviorPolicies) => {
+    state.networkBehaviorPolicies
+      = networkBehaviorPolicies
+    state.networkBehaviorPoliciesStatus = types.SUCCESS
+  },
+  PKI_CAS_REQUEST: (state) => {
+    state.pkiCasStatus = types.LOADING
+  },
+  PKI_CAS_UPDATED: (state, pkiCas) => {
+    state.pkiCas = pkiCas
+    state.pkiCasStatus = types.SUCCESS
+  },
+  PKI_CAS_RESET: (state) => {
+    state.pkiCas = false
+  },
+  PKI_PROFILES_REQUEST: (state) => {
+    state.pkiProfilesStatus = types.LOADING
+  },
+  PKI_PROFILES_UPDATED: (state, pkiProfiles) => {
+    state.pkiProfiles = pkiProfiles
+    state.pkiProfilesStatus = types.SUCCESS
+  },
+  PKI_PROFILES_RESET: (state) => {
+    state.pkiProfiles = false
+  },
+  PKI_CERTS_REQUEST: (state) => {
+    state.pkiCertsStatus = types.LOADING
+  },
+  PKI_CERTS_UPDATED: (state, pkiCerts) => {
+    state.pkiCerts = pkiCerts
+    state.pkiCertsStatus = types.SUCCESS
+  },
+  PKI_CERTS_RESET: (state) => {
+    state.pkiCerts = false
   },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING

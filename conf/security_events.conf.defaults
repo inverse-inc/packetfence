@@ -4,6 +4,7 @@
 # In order to use different rulesets, please point the variable snort_rules,
 # defined below (in [defaults]), to your local file(s).
 #
+
 [defaults]
 priority=4
 max_enable=3
@@ -136,6 +137,12 @@ trigger=internal::connection_type_change
 actions=log
 enabled=Y
 
+[1100020]
+desc=Wireless IPS
+trigger=internal::1100020
+actions=email_admin,log
+enabled=Y
+
 #
 #  1200000 - 120099 Reserved for required administration security events
 #
@@ -266,6 +273,18 @@ template=invalid_device_transition
 auto_enable=N
 delay_by=
 grace=
+
+[1300007]
+trigger=internal::fingerbank_diff_score_too_low
+actions=email_admin
+desc=Fingerbank profile anomaly
+enabled=Y
+
+[1300008]
+trigger=internal::fingerbank_blacklisted_ips_threshold_too_high,internal::fingerbank_blacklisted_ports
+actions=email_admin
+desc=Fingerbank detected blacklisted communication
+enabled=Y
 
 #
 # 1400000 - 1499999 Reserved for local security events

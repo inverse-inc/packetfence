@@ -50,6 +50,22 @@ pfdetect:
         cd - && \
         mv detect/detect pfdetect
 
+.PHONY: galera-autofix
+galera-autofix:
+	cd galeraautofix && \
+        go build && \
+        cd - && \
+        mv galeraautofix/galeraautofix galera-autofix
+
+.PHONY: pfacct
+pfacct:
+	cd acct && \
+        go build && \
+        cd - && \
+        mv acct/acct pfacct
+
+
+
 .PHONY: clean-caddy-src
 clean-caddy-src:
 	find caddy/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete

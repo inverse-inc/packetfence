@@ -70,7 +70,6 @@ build_admin_artifacts() {
 
     log_subsection "Move artifacts in ${MAINT_DIR}"
     tar -v -czf ${MAINT_DIR}/static.alt.tgz -C ${SRC_HTML_PFAPPDIR_ALT} dist
-    cp -v ${SRC_HTML_PFAPPDIR_ROOT}/admin/v-index.tt ${MAINT_DIR}
 }
 
 # build artifact for each distribution

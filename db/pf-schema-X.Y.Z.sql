@@ -616,8 +616,10 @@ CREATE TABLE radius_nas (
   start_ip INT UNSIGNED DEFAULT 0,
   end_ip INT UNSIGNED DEFAULT 0,
   range_length INT DEFAULT 0,
+  unique_session_attributes varchar(255),
   PRIMARY KEY nasname (nasname),
-  KEY id (id)
+  KEY id (id),
+  INDEX radius_nas_start_ip_end_ip (start_ip, end_ip)
 ) ENGINE=InnoDB;
 
 -- Adding RADIUS accounting table
@@ -1362,6 +1364,344 @@ CREATE TABLE `admin_api_audit_log` (
    KEY `object_id_action` (`object_id`, `action`),
    KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPRESSED;
+
+
+--
+-- Table structure for table `dhcppool`
+--
+
+CREATE TABLE dhcppool (
+  id                    int(11) unsigned NOT NULL auto_increment,
+  pool_name             varchar(30) NOT NULL,
+  idx                   int(11) NOT NULL,
+  mac                   VARCHAR(30) NOT NULL,
+  free                  BOOLEAN NOT NULL default '1',
+  released              DATETIME(6) NULL default NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY dhcppool_poolname_idx (pool_name, idx),
+  KEY mac (mac),
+  KEY released (released)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `pki_cas`
+--
+
+CREATE TABLE `pki_cas` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cn` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  `organisation` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `locality` varchar(255) DEFAULT NULL,
+  `street_address` varchar(255) DEFAULT NULL,
+  `postal_code` varchar(255) DEFAULT NULL,
+  `key_type` int(11) DEFAULT NULL,
+  `key_size` int(11) DEFAULT NULL,
+  `digest` int(11) DEFAULT NULL,
+  `key_usage` varchar(255) DEFAULT NULL,
+  `extended_key_usage` varchar(255) DEFAULT NULL,
+  `days` int(11) DEFAULT NULL,
+  `key` longtext,
+  `cert` longtext,
+  `issuer_key_hash` varchar(255) DEFAULT NULL,
+  `issuer_name_hash` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cn` (`cn`),
+  UNIQUE KEY `uix_cas_issuer_key_hash` (`issuer_key_hash`),
+  UNIQUE KEY `uix_cas_issuer_name_hash` (`issuer_name_hash`),
+  KEY `mail` (`mail`),
+  KEY `organisation` (`organisation`),
+  KEY `idx_cas_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `pki_certs`
+--
+
+CREATE TABLE `pki_certs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cn` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  `ca_id` int(10) unsigned DEFAULT NULL,
+  `ca_name` varchar(255) DEFAULT NULL,
+  `street_address` varchar(255) DEFAULT NULL,
+  `organisation` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `locality` varchar(255) DEFAULT NULL,
+  `postal_code` varchar(255) DEFAULT NULL,
+  `key` longtext,
+  `cert` longtext,
+  `profile_id` int(10) unsigned DEFAULT NULL,
+  `profile_name` varchar(255) DEFAULT NULL,
+  `valid_until` timestamp NULL DEFAULT NULL,
+  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `serial_number` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cn` (`cn`),
+  KEY `profile_name` (`profile_name`),
+  KEY `valid_until` (`valid_until`),
+  KEY `idx_certs_deleted_at` (`deleted_at`),
+  KEY `mail` (`mail`),
+  KEY `ca_id` (`ca_id`),
+  KEY `ca_name` (`ca_name`),
+  KEY `organisation` (`organisation`),
+  KEY `profile_id` (`profile_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `pki_profiles`
+--
+
+CREATE TABLE `pki_profiles` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `ca_id` int(10) unsigned DEFAULT NULL,
+  `ca_name` varchar(255) DEFAULT NULL,
+  `validity` int(11) DEFAULT NULL,
+  `key_type` int(11) DEFAULT NULL,
+  `key_size` int(11) DEFAULT NULL,
+  `digest` int(11) DEFAULT NULL,
+  `key_usage` varchar(255) DEFAULT NULL,
+  `extended_key_usage` varchar(255) DEFAULT NULL,
+  `p12_mail_password` int(11) DEFAULT NULL,
+  `p12_mail_subject` varchar(255) DEFAULT NULL,
+  `p12_mail_from` varchar(255) DEFAULT NULL,
+  `p12_mail_header` varchar(255) DEFAULT NULL,
+  `p12_mail_footer` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `idx_profiles_deleted_at` (`deleted_at`),
+  KEY `ca_id` (`ca_id`),
+  KEY `ca_name` (`ca_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `pki_revoked_certs`
+--
+
+CREATE TABLE `pki_revoked_certs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cn` varchar(255) DEFAULT NULL,
+  `mail` varchar(255) DEFAULT NULL,
+  `ca_id` int(10) unsigned DEFAULT NULL,
+  `ca_name` varchar(255) DEFAULT NULL,
+  `street_address` varchar(255) DEFAULT NULL,
+  `organisation` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `locality` varchar(255) DEFAULT NULL,
+  `postal_code` varchar(255) DEFAULT NULL,
+  `key` longtext,
+  `cert` longtext,
+  `profile_id` int(10) unsigned DEFAULT NULL,
+  `profile_name` varchar(255) DEFAULT NULL,
+  `valid_until` timestamp NULL DEFAULT NULL,
+  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `serial_number` varchar(255) DEFAULT NULL,
+  `revoked` timestamp NULL DEFAULT NULL,
+  `crl_reason` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `valid_until` (`valid_until`),
+  KEY `crl_reason` (`crl_reason`),
+  KEY `idx_revoked_certs_deleted_at` (`deleted_at`),
+  KEY `cn` (`cn`),
+  KEY `mail` (`mail`),
+  KEY `ca_id` (`ca_id`),
+  KEY `profile_id` (`profile_id`),
+  KEY `profile_name` (`profile_name`),
+  KEY `ca_name` (`ca_name`),
+  KEY `organisation` (`organisation`),
+  KEY `revoked` (`revoked`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `bandwidth_accounting`
+--
+
+CREATE TABLE bandwidth_accounting (
+    tenant_id INT NOT NULL,
+    mac char(17) NOT NULL,
+    unique_session_id char(32) NOT NULL,
+    time_bucket DATETIME NOT NULL,
+    in_bytes BIGINT UNSIGNED NOT NULL,
+    out_bytes BIGINT UNSIGNED NOT NULL,
+    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    processed BOOLEAN NOT NULL DEFAULT 0,
+    PRIMARY KEY (tenant_id, mac, time_bucket, unique_session_id),
+    KEY bandwidth_aggregate_buckets (time_bucket, tenant_id, mac, unique_session_id, in_bytes, out_bytes )
+);
+
+--
+-- Table structure for table `bandwidth_accounting_history`
+--
+
+CREATE TABLE bandwidth_accounting_history (
+    tenant_id INT NOT NULL,
+    mac char(17) NOT NULL,
+    time_bucket DATETIME NOT NULL,
+    in_bytes BIGINT UNSIGNED NOT NULL,
+    out_bytes BIGINT UNSIGNED NOT NULL,
+    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    PRIMARY KEY (tenant_id, mac, time_bucket),
+    KEY bandwidth_aggregate_buckets (time_bucket, tenant_id, mac, in_bytes, out_bytes )
+);
+
+DROP PROCEDURE IF EXISTS `bandwidth_aggregation`;
+DELIMITER /
+CREATE PROCEDURE `bandwidth_aggregation` (
+  IN `p_end_bucket` datetime,
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+
+    DROP TABLE IF EXISTS to_delete;
+    SET @end_bucket= p_end_bucket, @batch = p_batch;
+    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting LIMIT 0');
+    PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
+    EXECUTE create_table_to_delete;
+    DEALLOCATE PREPARE create_table_to_delete;
+    PREPARE insert_into_to_delete FROM  'INSERT INTO to_delete SELECT tenant_id, mac, DATE_ADD(DATE(time_bucket), INTERVAL HOUR(time_bucket) HOUR) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting WHERE time_bucket <= ? AND processed = 1 LIMIT ?';
+
+    START TRANSACTION;
+    EXECUTE insert_into_to_delete using @end_bucket, @batch;
+    SELECT COUNT(*) INTO @count FROM to_delete;
+    IF @count > 0 THEN
+
+        INSERT INTO bandwidth_accounting_history
+        (tenant_id, mac, time_bucket, in_bytes, out_bytes)
+         SELECT
+             tenant_id,
+             mac,
+             new_time_bucket,
+             sum(in_bytes) AS in_bytes,
+             sum(out_bytes) AS out_bytes
+            FROM to_delete
+            GROUP BY tenant_id, mac, new_time_bucket
+            ON DUPLICATE KEY UPDATE
+                in_bytes = in_bytes + VALUES(in_bytes),
+                out_bytes = out_bytes + VALUES(out_bytes)
+            ;
+
+        DELETE bandwidth_accounting
+            FROM to_delete INNER JOIN bandwidth_accounting
+            WHERE
+                to_delete.tenant_id = bandwidth_accounting.tenant_id AND
+                to_delete.mac = bandwidth_accounting.mac AND
+                to_delete.time_bucket = bandwidth_accounting.time_bucket AND
+                to_delete.unique_session_id = bandwidth_accounting.unique_session_id;
+    END IF;
+    COMMIT;
+
+    DROP TABLE to_delete;
+    DEALLOCATE PREPARE insert_into_to_delete;
+    SELECT @count AS aggreated;
+END /
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `process_bandwidth_accounting`;
+DELIMITER /
+CREATE PROCEDURE `process_bandwidth_accounting` (
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+    SET @batch = p_batch;
+    DROP TABLE IF EXISTS to_process;
+    CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting LIMIT 0;
+    START TRANSACTION;
+    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting WHERE processed = 0 LIMIT ?';
+    EXECUTE insert_into_to_process USING @batch;
+    DEALLOCATE PREPARE insert_into_to_process;
+    SELECT COUNT(*) INTO @count FROM to_process;
+    IF @count > 0 THEN
+        UPDATE 
+            (SELECT tenant_id, mac, SUM(total_bytes) AS total_bytes FROM to_process GROUP BY tenant_id, mac) AS x 
+            LEFT JOIN node USING(tenant_id, mac)
+            SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0)
+            WHERE node.bandwidth_balance IS NOT NULL;
+
+        UPDATE to_process LEFT JOIN bandwidth_accounting USING(mac, tenant_id, time_bucket, unique_session_id)
+        SET processed = 1;
+
+        COMMIT;
+    END IF;
+
+    DROP TABLE to_process;
+    SELECT @count;
+END/
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `bandwidth_aggregation_history`;
+DELIMITER /
+CREATE PROCEDURE `bandwidth_aggregation_history` (
+  IN `p_bucket_size` varchar(255),
+  IN `p_end_bucket` datetime,
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+
+    DROP TABLE IF EXISTS to_delete;
+    SET @end_bucket= p_end_bucket, @batch = p_batch;
+    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT tenant_id, mac, time_bucket as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history LIMIT 0');
+    PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
+    EXECUTE create_table_to_delete;
+    DEALLOCATE PREPARE create_table_to_delete;
+    IF p_bucket_size = 'monthly' THEN
+        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT tenant_id, mac, date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) LIMIT ?';
+    ELSE
+        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT tenant_id, mac, DATE(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != DATE(time_bucket) LIMIT ?';
+    END IF;
+
+    START TRANSACTION;
+    EXECUTE insert_into_to_delete using @end_bucket, @batch;
+    SELECT COUNT(*) INTO @count FROM to_delete;
+    IF @count > 0 THEN
+        SELECT * from to_delete;
+        INSERT INTO bandwidth_accounting_history
+        (tenant_id, mac, time_bucket, in_bytes, out_bytes)
+         SELECT
+             tenant_id,
+             mac,
+             new_time_bucket,
+             sum(in_bytes) AS in_bytes,
+             sum(out_bytes) AS out_bytes
+            FROM to_delete
+            GROUP BY tenant_id, mac, new_time_bucket
+            ON DUPLICATE KEY UPDATE
+                in_bytes = in_bytes + VALUES(in_bytes),
+                out_bytes = out_bytes + VALUES(out_bytes)
+            ;
+
+        DELETE bandwidth_accounting_history
+            FROM to_delete INNER JOIN bandwidth_accounting_history
+            WHERE
+                to_delete.tenant_id = bandwidth_accounting_history.tenant_id AND
+                to_delete.mac = bandwidth_accounting_history.mac AND
+                to_delete.time_bucket = bandwidth_accounting_history.time_bucket;
+    END IF;
+    COMMIT;
+
+    DROP TABLE to_delete;
+    DEALLOCATE PREPARE insert_into_to_delete;
+    SELECT @count AS aggreated;
+END /
+DELIMITER ;
 
 --
 -- Updating to current version

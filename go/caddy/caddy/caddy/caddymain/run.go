@@ -34,8 +34,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
-	"github.com/klauspost/cpuid"
 	"github.com/julsemaan/certmagic"
+	"github.com/klauspost/cpuid"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	_ "github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp" // plug in the HTTP server type
@@ -47,10 +47,12 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/caddy/cors"
 	_ "github.com/inverse-inc/packetfence/go/caddy/forwardproxy"
 	_ "github.com/inverse-inc/packetfence/go/caddy/httpdispatcher"
+	_ "github.com/inverse-inc/packetfence/go/caddy/httpdportalpreview"
 	_ "github.com/inverse-inc/packetfence/go/caddy/job-status"
 	_ "github.com/inverse-inc/packetfence/go/caddy/logger"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfconfig"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfipset"
+	_ "github.com/inverse-inc/packetfence/go/caddy/pfpki"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"
 	_ "github.com/inverse-inc/packetfence/go/caddy/requestlimit"
 	_ "github.com/inverse-inc/packetfence/go/caddy/statsd"

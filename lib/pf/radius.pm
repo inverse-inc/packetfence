@@ -377,10 +377,11 @@ sub accounting {
 
     # update last_seen of MAC address as some activity from it has been seen
     node_update_last_seen($mac);
+    my $acct_status_type = $radius_request->{'Acct-Status-Type'};
 
-    my $isStart   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::START;
-    my $isStop   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::STOP;
-    my $isUpdate = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::INTERIM_UPDATE;
+    my $isStart  = $acct_status_type  == $ACCOUNTING::START;
+    my $isStop   = $acct_status_type  == $ACCOUNTING::STOP;
+    my $isUpdate = $acct_status_type  == $ACCOUNTING::INTERIM_UPDATE;
 
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
@@ -451,6 +452,7 @@ sub accounting {
             }
         }
     }
+
     if(isenabled($Config{radius_configuration}{filter_in_packetfence_accounting})){
         my %RAD_REPLY_REF;
         my $node_obj = node_attributes($mac);
@@ -823,6 +825,7 @@ sub switch_access {
         stripped_user_name => $stripped_user_name,
         realm => $realm,
         username => $user_name,
+        user_name => $user_name,
         radius_request => $radius_request,
         switch_group => $switch->{_group},
         switch_id => $switch->{_id},

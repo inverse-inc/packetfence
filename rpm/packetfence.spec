@@ -100,6 +100,7 @@ requires: perl(Const::Fast)
 Requires: perl(Time::HiRes)
 # Required for inline mode.
 Requires: ipset = 6.38, ipset-symlink
+Requires: ipt-netflow >= 2.4, dkms-ipt-netflow >= 2.4
 Requires: sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
@@ -202,6 +203,8 @@ Requires: perl(Catalyst::Plugin::Authentication)
 Requires: perl(Catalyst::Authentication::Credential::HTTP)
 Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
+Requires: perl(Catalyst::Plugin::SmartURI)
+Requires: perl(URI::SmartURI)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
 Requires: perl(SQL::Abstract::More) >= 1.28
@@ -288,8 +291,8 @@ Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.1.5, fingerbank < 5.0.0
-Requires: fingerbank-collector >= 1.2.2, fingerbank-collector < 2.0.0
+Requires: fingerbank >= 4.2.0, fingerbank < 5.0.0
+Requires: fingerbank-collector >= 1.3.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
 %description
@@ -388,7 +391,9 @@ done
 # systemd services
 %{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service %{buildroot}%{_unitdir}/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}%{_unitdir}/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-galera-autofix.service %{buildroot}%{_unitdir}/packetfence-galera-autofix.service
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service %{buildroot}%{_unitdir}/packetfence-tracking-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-admin.service %{buildroot}%{_unitdir}/packetfence-haproxy-admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
@@ -401,7 +406,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}%{_unitdir}/packetfence-pfperl-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service %{buildroot}%{_unitdir}/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service %{buildroot}%{_unitdir}/packetfence-pfbandwidthd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfacct.service %{buildroot}%{_unitdir}/packetfence-pfacct.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
@@ -410,6 +415,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}%{_unitdir}/packetfence-pfqueue.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin_dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.admin_dispatcher.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service %{buildroot}%{_unitdir}/packetfence-radiusd-acct.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service %{buildroot}%{_unitdir}/packetfence-radiusd-auth.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service %{buildroot}%{_unitdir}/packetfence-radiusd-cli.service
@@ -426,8 +432,12 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service %{buildroot}%{_unitdir}/packetfence-pfipset.service
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}%{_unitdir}/packetfence-pfstats.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
+# systemd modules
+%{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
+%{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
 
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
@@ -692,7 +702,6 @@ sysctl -p /etc/sysctl.d/99-ip_forward.conf
 /bin/systemctl daemon-reload
 
 #Starting PacketFence.
-echo "Starting PacketFence Administration GUI..."
 #removing old cache
 rm -rf /usr/local/pf/var/cache/
 /usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
@@ -702,13 +711,18 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
 /bin/systemctl isolate packetfence-base
-/bin/systemctl enable packetfence-httpd.admin
+/bin/systemctl enable packetfence-httpd.admin_dispatcher
+/bin/systemctl enable packetfence-haproxy-admin
 /bin/systemctl enable packetfence-iptables
-/bin/systemctl enable packetfence-tracking-config.service
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
-/bin/systemctl restart packetfence-httpd.admin
-
+if [ -n "$CI" ]; then
+    echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
+else
+    echo "Starting PacketFence Administration GUI..."
+    /bin/systemctl restart packetfence-httpd.admin_dispatcher
+    /bin/systemctl restart packetfence-haproxy-admin
+fi
 
 
 echo Installation complete
@@ -749,6 +763,8 @@ fi
 %attr(0644, root, root) /etc/systemd/system/packetfence-base.target
 %attr(0644, root, root) /etc/systemd/system/packetfence-cluster.target
 %attr(0644, root, root) /etc/systemd/system/packetfence*.slice
+%attr(0644, root, root) /etc/modules-load.d/packetfence.conf
+%attr(0644, root, root) /etc/modprobe.d/packetfence.conf
 
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.path
@@ -806,6 +822,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
@@ -826,6 +844,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
+%config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/nexpose-responses.txt
@@ -836,6 +855,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/self_service.conf
 %config                 /usr/local/pf/conf/self_service.conf.defaults
                         /usr/local/pf/conf/self_service.conf.example
+%config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
+                        /usr/local/pf/conf/network_behavior_policies.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example
@@ -845,6 +866,8 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
+%config(noreplace)      /usr/local/pf/conf/.gitignore
+                        /usr/local/pf/conf/.gitignore.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
 %config                 /usr/local/pf/conf/survey.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_cache.conf
@@ -913,6 +936,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/networks.conf
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
+%config                 /usr/local/pf/conf/passthrough_admin.lua.tt
 %config                 /usr/local/pf/conf/passthrough.lua.tt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
@@ -1000,6 +1024,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/vlan_filters.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/haproxy-admin.conf
+                        /usr/local/pf/conf/haproxy-admin.conf.example
 %config(noreplace)      /usr/local/pf/conf/haproxy-db.conf
                         /usr/local/pf/conf/haproxy-db.conf.example
 %config(noreplace)      /usr/local/pf/conf/haproxy-portal.conf
@@ -1033,6 +1059,7 @@ fi
 %dir                    /usr/local/pf/conf/caddy-services
 %config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
+%config                 /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
                         /usr/local/pf/conf/monitoring/netdata.conf.example
@@ -1201,7 +1228,6 @@ fi
 %doc                    /usr/local/pf/README.md
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb

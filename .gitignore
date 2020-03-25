@@ -69,6 +69,7 @@ conf/authentication.conf
 conf/floating_network_device.conf
 conf/guest-managers.conf
 conf/passthrough.lua.tt
+conf/passthrough_admin.lua.tt
 conf/log.conf
 conf/chi.conf
 conf/dhcp_filters.conf
@@ -152,8 +153,10 @@ conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/cluster.conf
 conf/domain.conf
+conf/network_behavior_policies.conf
 conf/haproxy-portal.conf
 conf/haproxy-db.conf
+conf/haproxy-admin.conf
 conf/keepalived.conf
 conf/report.conf
 conf/device_registration.conf

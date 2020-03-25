@@ -108,6 +108,11 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/ifup@.service $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/modprobe.d
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/modules-load.d
+	install -m0644 $(CURDIR)/debian/packetfence.modprobe $(CURDIR)/debian/packetfence/etc/modprobe.d/packetfence.conf
+	install -m0644 $(CURDIR)/debian/packetfence.modules-load $(CURDIR)/debian/packetfence/etc/modules-load.d/packetfence.conf
+
 	# copy the rsyslog systemd drop in
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
 	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/packetfence.conf
@@ -144,6 +149,9 @@ install: build
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/redis_cache
 	install -m0600 conf/redis_cache.conf.example $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf/redis_cache.conf
 
+	# packetfence-tracking-config
+	install -m0644 $(CURDIR)/debian/packetfence-tracking-config.path $(CURDIR)/debian/packetfence/lib/systemd/system/packetfence-tracking-config.path
+
 	#Portal javascript/css
 	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css
 	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css.map
@@ -173,10 +181,7 @@ install: build
 		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
 	done
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static.alt
-	for i in `find * -wholename "*dist/js/*" -o -wholename "*dist/css/*" -path 'html/pfappserver/root/static.alt/*' -type f`; do \
-		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
-	done
-	for i in `find * -wholename "*admin/v-index.tt" -path 'html/pfappserver/root/admin/*' -type f`; do \
+	for i in `find * -wholename "*dist/js/*" -o -wholename "*dist/css/*" -o -wholename "*dist/index.html" -path 'html/pfappserver/root/static.alt/*' -type f`; do \
 		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
 	done
 	#Golang binary
@@ -206,12 +211,15 @@ binary-arch: build install
 #	dh_python
 	dh_systemd_enable
 	dh_installinit --no-restart-on-upgrade
+	dh_installinit --name=packetfence-galera-autofix
+	dh_installinit --name=packetfence-haproxy-admin
 	dh_installinit --name=packetfence-haproxy-portal
 	dh_installinit --name=packetfence-haproxy-db
 	dh_installinit --name=packetfence-httpd.aaa
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
 	dh_installinit --name=packetfence-httpd.dispatcher
+	dh_installinit --name=packetfence-httpd.admin_dispatcher
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.proxy
 	dh_installinit --name=packetfence-httpd.webservices
@@ -220,12 +228,14 @@ binary-arch: build install
 	dh_installinit --name=packetfence-mariadb
 	dh_installinit --name=packetfence-netdata
 	dh_installinit --name=packetfence-pfbandwidthd
+	dh_installinit --name=packetfence-pfacct.service
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
 	dh_installinit --name=packetfence-pfdns
 	dh_installinit --name=packetfence-pffilter
 	dh_installinit --name=packetfence-pfmon
 	dh_installinit --name=packetfence-pfperl-api
+	dh_installinit --name=packetfence-pfpki
 	dh_installinit --name=packetfence-pfqueue
 	dh_installinit --name=packetfence-pfsso
 	dh_installinit --name=packetfence-radiusd-acct
@@ -244,7 +254,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfunified-api
 	dh_installinit --name=packetfence-pfstats
 	dh_installinit --name=packetfence-api-frontend
-	dh_installinit --name=packetfence-tracking-config
+	dh_installinit --no-start --name=packetfence-tracking-config
 
 	dh_installcron
 #	dh_installinfo

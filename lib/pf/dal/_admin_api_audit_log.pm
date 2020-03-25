@@ -50,6 +50,7 @@ BEGIN {
 
     %DEFAULTS = (
         tenant_id => '1',
+        created_at => 'CURRENT_TIMESTAMP(6)',
         user_name => undef,
         action => undef,
         object_id => undef,
@@ -61,6 +62,7 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
         tenant_id
+        created_at
         user_name
         action
         object_id
@@ -120,13 +122,13 @@ BEGIN {
             is_nullable => 1,
         },
         request => {
-            type => 'TEXT',
+            type => 'MEDIUMTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         status => {
-            type => 'INT',
+            type => 'SMALLINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,

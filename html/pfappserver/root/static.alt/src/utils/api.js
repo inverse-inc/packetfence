@@ -52,6 +52,13 @@ Object.assign(apiCall, {
       }]
     })
   },
+  getArrayBuffer (url) {
+    return this.request({
+      responseType: 'arraybuffer',
+      method: 'get',
+      url: _encodeURL(url)
+    })
+  },
   getQuiet (url) {
     return this.request({
       method: 'get',
@@ -124,6 +131,16 @@ Object.assign(apiCall, {
  * - detect if the token has expired;
  * - detect errors assigned to specific form fields.
  */
+
+apiCall.interceptors.request.use((request) => {
+  const { baseURL, method, url, params = {} } = request
+  const apiServer = localStorage.getItem('X-PacketFence-Server') || null
+  if (apiServer) {
+    request.headers['X-PacketFence-Server'] = apiServer
+  }
+  store.dispatch('performance/startRequest', { method, url: `${baseURL}${url}`, params }) // start performance benchmark
+  return request
+})
 
 apiCall.interceptors.response.use((response) => {
   /* Intercept successful API call */

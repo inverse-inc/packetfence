@@ -3,8 +3,9 @@ package firewallsso
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"reflect"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 // A factory for FirewallSSO
@@ -27,6 +28,7 @@ func NewFactory(ctx context.Context) Factory {
 	f.typeRegistry["JSONRPC"] = reflect.TypeOf(&JSONRPC{}).Elem()
 	f.typeRegistry["JuniperSRX"] = reflect.TypeOf(&JuniperSRX{}).Elem()
 	f.typeRegistry["FamilyZone"] = reflect.TypeOf(&FamilyZone{}).Elem()
+	f.typeRegistry["CiscoIsePic"] = reflect.TypeOf(&CiscoIsePic{}).Elem()
 	return f
 }
 

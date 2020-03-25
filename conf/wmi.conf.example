@@ -1,5 +1,10 @@
 # Copyright (C) Inverse inc.
-# Detect installed software and trigger a security event
+
+# - Retrieve all the installed software on the device and test
+# if the attribute Caption contains Google
+# - If it matched then trigger a security event
+# (with the custom trigger GOOGLE_SOFTWARE_INSTALLED
+# for the MAC address of the device.
 [Software_Installed]
 namespace=ROOT\cimv2
 request=select * from Win32_Product
@@ -28,7 +33,8 @@ action=trigger_security_event
 action_param = mac = $mac, tid = SERVICE_PACK_OUTDATED, type = CUSTOM
 EOT
 
-# Detect the current user logged in and register the device
+# - Retrieve the current logged user on the device and register the
+# device based on the user account.
 [logged_user]
 namespace=ROOT\cimv2
 request=select UserName from Win32_ComputerSystem
@@ -43,7 +49,8 @@ action = dynamic_register_node
 action_param = mac = $mac, username = $result->{'UserName'}
 EOT
 
-# Detect the running process and if it exist then bybass the scan
+# - Retrieve all the running process on the device and if one match
+# explorer.exe then we bypass the scan.
 [Process_Running]
 namespace=ROOT\cimv2
 request=select Name from Win32_Process

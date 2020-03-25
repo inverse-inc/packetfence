@@ -160,13 +160,36 @@ sub build_child {
         $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
     }
 
-    unless ($Config{general}{timezone}) {
+    if ($Config{general}{timezone}) {
+        set_timezone($Config{general}{timezone});
+    }
+    else {
         my $tz = DateTime::TimeZone->new(name => 'local')->name();
         $logger->info("No timezone defined, using $tz");
         $Config{general}{timezone} = $tz;
     }
+    my $webservices = $Config{'webservices'};
+    $webservices->{jsonrpcclient_args} = {
+        username => $webservices->{'user'},
+        password => $webservices->{'pass'},
+        proto    => $webservices->{'proto'},
+        host     => $webservices->{'host'},
+        port     => $webservices->{'port'},
+    };
 
     return \%Config;
+}
+
+sub set_timezone {
+    my ($tz) = @_;
+    my $lt = readlink("/etc/localtime"); 
+    $lt =~ s/..\/usr\/share\/zoneinfo\///g;
+    if($lt ne $tz) {
+        my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";
+        print STDERR $msg;
+        get_logger->warn($msg);
+        system("sudo timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
+    }
 }
 
 =head1 AUTHOR

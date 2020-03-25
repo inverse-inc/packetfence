@@ -16,6 +16,8 @@ import FloatingDevicesStore from '../_store/floatingDevices'
 import InterfacesStore from '../_store/interfaces'
 import Layer2NetworksStore from '../_store/layer2Networks'
 import MaintenanceTasksStore from '../_store/maintenanceTasks'
+import NetworkBehaviorPoliciesStore from '../_store/networkBehaviorPolicies'
+import PkisStore from '../_store/pkis'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
 import ProvisioningsStore from '../_store/provisionings'
@@ -52,6 +54,8 @@ const ConnectionProfileFileView = () => import(/* webpackChunkName: "Editor" */ 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
+const NetworkBehaviorPoliciesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPoliciesList')
+const NetworkBehaviorPolicyView = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPolicyView')
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDeviceView')
 const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
@@ -80,6 +84,11 @@ const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" *
 const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
 const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
 const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationView')
+const PkisTabs = () => import(/* webpackChunkName: "Editor" */ '../_components/PkisTabs')
+const PkiCaView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiCaView')
+const PkiProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProfileView')
+const PkiCertView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiCertView')
+const PkiRevokedCertView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiRevokedCertView')
 
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
@@ -174,6 +183,12 @@ const route = {
     }
     if (!store.state.$_maintenance_tasks) {
       store.registerModule('$_maintenance_tasks', MaintenanceTasksStore)
+    }
+    if (!store.state.$_network_behavior_policies) {
+      store.registerModule('$_network_behavior_policies', NetworkBehaviorPoliciesStore)
+    }
+    if (!store.state.$_pkis) {
+      store.registerModule('$_pkis', PkisStore)
     }
     if (!store.state.$_pki_providers) {
       store.registerModule('$_pki_providers', PkiProvidersStore)
@@ -623,6 +638,52 @@ const route = {
       name: 'fingerbankDeviceChangeDetection',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
+    },
+    {
+      path: 'fingerbank/network_behavior_policies',
+      name: 'network_behavior_policies',
+      component: NetworkBehaviorPoliciesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'network_behavior_policies/new',
+      name: 'newNetworkBehaviorPolicy',
+      component: NetworkBehaviorPolicyView,
+      props: () => ({ formStoreName: 'formNetworkBehaviorPolicy', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
+          store.registerModule('formNetworkBehaviorPolicy', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'network_behavior_policy/:id',
+      name: 'network_behavior_policy',
+      component: NetworkBehaviorPolicyView,
+      props: (route) => ({ formStoreName: 'formNetworkBehaviorPolicy', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
+          store.registerModule('formNetworkBehaviorPolicy', FormStore)
+        }
+        store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'network_behavior_policy/:id/clone',
+      name: 'cloneNetworkBehaviorPolicy',
+      component: NetworkBehaviorPolicyView,
+      props: (route) => ({ formStoreName: 'formNetworkBehaviorPolicy', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
+          store.registerModule('formNetworkBehaviorPolicy', FormStore)
+        }
+        store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/combinations',
@@ -1224,10 +1285,10 @@ const route = {
       props: (route) => ({ query: route.query.query })
     },
     {
-      path: 'switch_template/new/:switchTemplateType',
+      path: 'switch_template/new',
       name: 'newSwitchTemplate',
       component: SwitchTemplateView,
-      props: (route) => ({ formStoreName: 'formSwitchTemplates', isNew: true, switchTemplateType: route.params.switchTemplateType }),
+      props: (route) => ({ formStoreName: 'formSwitchTemplates', isNew: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formSwitchTemplates) { // Register store module only once
           store.registerModule('formSwitchTemplates', FormStore)
@@ -1397,6 +1458,170 @@ const route = {
           store.registerModule('formWrixLocation', FormStore)
         }
         store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki',
+      name: 'pki',
+      component: PkisTabs,
+      props: (route) => ({ tab: 'pkiCas', query: route.query.query })
+    },
+    {
+      path: 'pki/cas',
+      name: 'pkiCas',
+      component: PkisTabs,
+      props: (route) => ({ tab: 'pkiCas', query: route.query.query })
+    },
+    {
+      path: 'pki/cas/new',
+      name: 'newPkiCa',
+      component: PkiCaView,
+      props: () => ({ formStoreName: 'formPkiCa', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCa) { // Register store module only once
+          store.registerModule('formPkiCa', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'pki/ca/:id',
+      name: 'pkiCa',
+      component: PkiCaView,
+      props: (route) => ({ formStoreName: 'formPkiCa', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCa) { // Register store module only once
+          store.registerModule('formPkiCa', FormStore)
+        }
+        store.dispatch('$_pkis/getCa', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/ca/:id/clone',
+      name: 'clonePkiCa',
+      component: PkiCaView,
+      props: (route) => ({ formStoreName: 'formPkiCa', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCa) { // Register store module only once
+          store.registerModule('formPkiCa', FormStore)
+        }
+        store.dispatch('$_pkis/getCa', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/profiles',
+      name: 'pkiProfiles',
+      component: PkisTabs,
+      props: (route) => ({ tab: 'pkiProfiles', query: route.query.query })
+    },
+    {
+      path: 'pki/ca/:ca_id/profiles/new',
+      name: 'newPkiProfile',
+      component: PkiProfileView,
+      props: (route) => ({ formStoreName: 'formPkiProfile', ca_id: String(route.params.ca_id).toString(), isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProfile) { // Register store module only once
+          store.registerModule('formPkiProfile', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'pki/profile/:id',
+      name: 'pkiProfile',
+      component: PkiProfileView,
+      props: (route) => ({ formStoreName: 'formPkiProfile', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProfile) { // Register store module only once
+          store.registerModule('formPkiProfile', FormStore)
+        }
+        store.dispatch('$_pkis/getProfile', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/profile/:id/clone',
+      name: 'clonePkiProfile',
+      component: PkiProfileView,
+      props: (route) => ({ formStoreName: 'formPkiProfile', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiProfile) { // Register store module only once
+          store.registerModule('formPkiProfile', FormStore)
+        }
+        store.dispatch('$_pkis/getProfile', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/certs',
+      name: 'pkiCerts',
+      component: PkisTabs,
+      props: (route) => ({ tab: 'pkiCerts', query: route.query.query })
+    },
+    {
+      path: 'pki/profile/:profile_id/certs/new',
+      name: 'newPkiCert',
+      component: PkiCertView,
+      props: (route) => ({ formStoreName: 'formPkiCert', profile_id: String(route.params.profile_id).toString(), isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCert) { // Register store module only once
+          store.registerModule('formPkiCert', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'pki/cert/:id',
+      name: 'pkiCert',
+      component: PkiCertView,
+      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCert) { // Register store module only once
+          store.registerModule('formPkiCert', FormStore)
+        }
+        store.dispatch('$_pkis/getCert', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/cert/:id/clone',
+      name: 'clonePkiCert',
+      component: PkiCertView,
+      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCert) { // Register store module only once
+          store.registerModule('formPkiCert', FormStore)
+        }
+        store.dispatch('$_pkis/getCert', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki/revokedcerts',
+      name: 'pkiRevokedCerts',
+      component: PkisTabs,
+      props: (route) => ({ tab: 'pkiRevokedCerts', query: route.query.query })
+    },
+    {
+      path: 'pki/revokedcert/:id',
+      name: 'pkiRevokedCert',
+      component: PkiRevokedCertView,
+      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formPkiCert) { // Register store module only once
+          store.registerModule('formPkiCert', FormStore)
+        }
+        store.dispatch('$_pkis/getRevokedCert', to.params.id).then(() => {
           next()
         })
       }
