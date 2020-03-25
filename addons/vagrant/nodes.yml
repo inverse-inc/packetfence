@@ -8,12 +8,8 @@
     - inverse_inc.packetfence
 
   pre_tasks:
-  - name: wait node reboot before provisioning (20s)
-    wait_for:
-      timeout: 20
-    delegate_to: localhost
-    become: false
-    tags: wait
+  - name: wait for SSH available (after reboot) before provisioning
+    wait_for_connection:
 
   roles:
     - role: wpasupplicant

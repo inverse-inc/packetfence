@@ -8,12 +8,8 @@
     - inverse_inc.cumulus
 
   pre_tasks:
-  - name: wait switch reboot before provisioning (20s)
-    wait_for:
-      timeout: 20
-    delegate_to: localhost
-    become: false
-    tags: wait
+  - name: wait for SSH available before provisioning
+    wait_for_connection:
 
   roles:
     - role: hostapd
