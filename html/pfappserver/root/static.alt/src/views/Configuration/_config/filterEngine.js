@@ -305,6 +305,18 @@ export const viewFields = {
       ]
     }
   },
+  rcode: (form, meta = {}) => {
+    return {
+      label: i18n.t('Response Code'),
+      cols: [
+        {
+          namespace: 'rcode',
+          component: pfFormChosen,
+          attrs: attributesFromMeta(meta, 'rcode')
+        }
+      ]
+    }
+  },
   run_actions: (form, meta = {}) => {
     return {
       label: i18n.t('Peform Actions'),
@@ -362,100 +374,49 @@ export const viewFields = {
   }
 }
 
+const formKeyOrder = [
+  'id',
+  'description',
+  'status',
+  'condition',
+  'run_actions',
+  'actions',
+  'answers',
+  'answersRadiusAttributes',
+  'role',
+  'scopes',
+  'rcode',
+  'radius_status',
+]
+
 export const view = (form = {}, meta = {}) => {
   const {
     run_actions
   } = form
-  const {
-    isNew = false,
-    isClone = false,
-    collection = null
-  } = meta
-  switch (collection) {
-    case 'dhcp_filters':
-      return [
-        {
-          tab: null,
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.condition(form, meta),
-            viewFields.run_actions(form, meta),
-            ...((run_actions === 'enabled')
-              ? [viewFields.actions(form, meta)]
-              : []
-            ),
-            viewFields.answers(form, meta),
-            viewFields.scopes(form, meta)
-          ]
+  return [
+    {
+      tab: null,
+      // meta indicates which fields are preset
+      rows: Object.keys(meta).sort((a, b) => {
+        if (formKeyOrder.includes(a) && formKeyOrder.includes(b)) {
+          return formKeyOrder.indexOf(a) - formKeyOrder.indexOf(b)
+        } else if (formKeyOrder.includes(a)) {
+          return formKeyOrder.indexOf(a)
+        } else {
+          return formKeyOrder.indexOf(b)
         }
-      ]
-    case 'dns_filters':
-      return [
-        {
-          tab: null,
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.condition(form, meta),
-            viewFields.scopes(form, meta),
-            viewFields.answer(form, meta),
-          ]
+      }).filter(field => {
+        switch (field) {
+          case 'actions':
+            return run_actions === 'enabled'
+          default:
+              return field in viewFields
         }
-      ]
-    case 'radius_filters':
-      return [
-        {
-          tab: null,
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.condition(form, meta),
-            ...((run_actions === 'enabled')
-              ? [viewFields.actions(form, meta)]
-              : []
-            ),
-            viewFields.merge_answer(form, meta),
-            viewFields.answersRadiusAttributes(form, meta),
-            viewFields.scopes(form, meta),
-            viewFields.radius_status(form, meta)
-          ]
-        }
-      ]
-    case 'vlan_filters':
-      return [
-        {
-          tab: null,
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.condition(form, meta),
-            viewFields.run_actions(form, meta),
-            ...((run_actions === 'enabled')
-              ? [viewFields.actions(form, meta)]
-              : []
-            ),
-            viewFields.role(form, meta),
-            viewFields.scopes(form, meta)
-          ]
-        }
-      ]
-    default:
-      return [
-        {
-          tab: null,
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta)
-          ]
-        }
-      ]
-  }
+      }).map(field => {
+        return viewFields[field](form, meta)
+      })
+    }
+  ]
 }
 
 export const validatorFields = {
@@ -563,52 +524,15 @@ export const validators = (form = {}, meta = {}) => {
   const {
     run_actions
   } = form
-  const {
-    collection = null
-  } = meta
-  switch (collection) {
-    case 'dhcp_filters':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.condition(form, meta),
-        ...((run_actions === 'enabled')
-          ? validatorFields.actions(form, meta)
-          : {}
-        ),
-        ...validatorFields.scopes(form, meta)
-      }
-    case 'dns_filters':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.condition(form, meta),
-        ...validatorFields.scopes(form, meta)
-      }
-    case 'radius_filters':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.condition(form, meta),
-        ...((run_actions === 'enabled')
-          ? validatorFields.actions(form, meta)
-          : {}
-        ),
-        ...validatorFields.scopes(form, meta)
-      }
-    case 'vlan_filters':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.condition(form, meta),
-        ...((run_actions === 'enabled')
-          ? validatorFields.actions(form, meta)
-          : {}
-        ),
-        ...validatorFields.role(form, meta),
-        ...validatorFields.scopes(form, meta)
-      }
-    default:
-      return {}
-  }
+  // meta indicates which fields are preset
+  return Object.keys(meta).filter(field => {
+    switch (field) {
+      case 'actions':
+        return run_actions === 'enabled'
+      default:
+          return field in validatorFields
+    }
+  }).reduce((validators, field) => {
+    return { ...validators, ...validatorFields[field](form, meta) }
+  }, {})
 }
