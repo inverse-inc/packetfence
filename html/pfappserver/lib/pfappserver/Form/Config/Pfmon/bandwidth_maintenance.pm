@@ -12,6 +12,7 @@ Web form for bandwidth_maintenance pfmon task
 
 use HTML::FormHandler::Moose;
 
+use pfappserver::Form::Config::Pfmon qw(default_field_method);
 extends 'pfappserver::Form::Config::Pfmon';
 with 'pfappserver::Base::Form::Role::Help';
 
