@@ -83,6 +83,25 @@ const answerFieldsFromMeta = (meta = {}) => {
   })
 }
 
+const fieldOperatorsFromMeta = (meta = {}) => {
+  const { condition: { properties: { field: { allowed = [] } = {} } = {} } = {} } = meta
+  return allowed.map(allowed => {
+    const { text, value, siblings: { value: { allowed_values } = {} } = {} } = allowed
+    if (allowed_values) {
+      return {
+        text,
+        value,
+        options: allowed_values.sort((a, b) => {
+          return a.text.localeCompare(b.text)
+        })
+      }
+    }
+    return { text, value }
+  }).sort((a, b) => {
+    return a.text.localeCompare(b.text)
+  })
+}
+
 const valueOperatorsFromMeta = (meta = {}) => {
   const { condition: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
   return allowed.filter(allowed => {
@@ -252,6 +271,7 @@ export const viewFields = {
           namespace: 'condition',
           component: pfFormFilterEngineCondition,
           attrs: {
+            fieldOperators: fieldOperatorsFromMeta(meta),
             valueOperators: valueOperatorsFromMeta(meta).map(value => {
               const { [value]: text = value } = pfOperators
               return { text, value }

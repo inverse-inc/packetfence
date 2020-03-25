@@ -40,7 +40,14 @@
           </template>
           <template v-slot:value="{ formStoreName, formNamespace, disabled }">
             <div class="pf-form-filter-engine-condition-value">
-              <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.field'" class="m-1" :disabled="disabled"/>
+              <pf-form-chosen
+                :form-store-name="formStoreName"
+                :form-namespace="formNamespace + '.field'"
+                :options="fieldOperators"
+                :allow-empty="false"
+                :disabled="disabled"
+                class="m-1"
+              />
               <pf-form-chosen
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.op'"
@@ -49,7 +56,22 @@
                 :disabled="disabled"
                 class="m-1"
               />
-              <pf-form-input :form-store-name="formStoreName" :form-namespace="formNamespace + '.value'" class="m-1" :disabled="disabled"/>
+              <!-- `value` w/ options -->
+              <pf-form-chosen v-if="valueOptions(formNamespace).length > 0"
+                :form-store-name="formStoreName"
+                :form-namespace="formNamespace + '.value'"
+                :options="valueOptions(formNamespace)"
+                :allow-empty="false"
+                :disabled="disabled"
+                class="m-1"
+              />
+              <!-- `value` w/o options -->
+              <pf-form-input v-else
+                :form-store-name="formStoreName"
+                :form-namespace="formNamespace + '.value'"
+                :disabled="disabled"
+                class="m-1"
+              />
             </div>
           </template>
         </pf-form-boolean>
@@ -98,6 +120,10 @@ export default {
     pfMixinForm
   ],
   props: {
+    fieldOperators: {
+      type: Array,
+      default: () => { return [] }
+    },
     valueOperators: {
       type: Array,
       default: () => { return [] }
@@ -129,6 +155,21 @@ export default {
       set (newValue) {
         this.form.condition = newValue
       }
+    }
+  },
+  methods: {
+    valueOptions (namespace) {
+      const { field } = this.vModel[namespace]
+      if (field) {
+        const { options = [] } = this.fieldOperators.find(fieldOperator => {
+          const { text, options = [] } = fieldOperator
+          if (text === field) {
+            return options
+          }
+        })
+        return options
+      }
+      return []
     }
   },
   watch: {
