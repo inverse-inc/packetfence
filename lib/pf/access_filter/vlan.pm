@@ -53,40 +53,6 @@ sub getEngineForScope {
     return undef;
 }
 
-=head2 dispatchAction
-
-Return the reference to the function that call the api.
-
-=cut
-
-sub dispatchAction {
-    my ($self, $rule, $args) = @_;
-
-    my $param = $self->evalParamAction($rule->{'action_param'}, $args);
-    my $apiclient = pf::api::jsonrpcclient->new;
-    $apiclient->notify($rule->{'action'}, %{$param});
-}
-
-=head2 evalParam
-
-evaluate action parameters
-
-=cut
-
-sub evalParamAction {
-    my ($self, $action_param, $args) = @_;
-    my @params = split(/\s*,\s*/, $action_param);
-    my $return = {};
-    foreach my $param (@params) {
-        $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
-        $param =~ s/^\s+|\s+$//g;
-        my @param_unit = split(/\s*=\s*/, $param);
-        $return = {%$return, @param_unit};
-    }
-    return $return;
-}
-
-
 =head2 evalAnswer
 
 evaluate the radius answer
