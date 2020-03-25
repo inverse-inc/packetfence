@@ -152,7 +152,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::HTTP;
     my %tech = (
@@ -160,6 +160,9 @@ sub deauthTechniques {
         $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
+    if ($connection_type == $WEBAUTH_WIRELESS) {
+        $method = $SNMP::HTTP;
+    }
     if (!defined($method) || !defined($tech{$method})) {
         $method = $default;
     }
@@ -173,7 +176,8 @@ Return the connection to the controller
 =cut
 
 sub _connect {
-    my ($self) @_;
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     my $controllerIp = $self->{_controllerIp};
     my $transport = lc($self->{_wsTransport});
@@ -194,7 +198,7 @@ sub _connect {
         $logger->error("Can't login on the Unifi controller: ".$response->status_line);
         die;
     }
-    return $ua;
+    return ($ua, $base_url);
 }
 
 
@@ -234,9 +238,9 @@ sub _deauthenticateMacWithHTTP {
     
     $args->{cmd} = $command;
 
-    my $ua = $self->_connect();
+    my ($ua, $base_url)  = $self->_connect();
 
-    $response = $ua->get("$base_url/api/self/sites");
+    my $response = $ua->get("$base_url/api/self/sites");
 
     unless($response->is_success) {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
@@ -317,9 +321,9 @@ sub populateMACIP {
     my $username = $self->{_wsUser};
     my $password = $self->{_wsPwd};
 
-    my $ua = $self->_connect();
+    my ($ua, $base_url)  = $self->_connect();
 
-    $response = $ua->get("$base_url/api/self/sites");
+    my $response = $ua->get("$base_url/api/self/sites");
 
     unless($response->is_success) {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
