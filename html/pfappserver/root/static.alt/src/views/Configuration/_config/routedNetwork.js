@@ -89,7 +89,7 @@ export const columns = [
   },
   {
     key: 'netflow_accounting_enabled',
-    label: i18n.t('Netfow Accounting Enabled'),
+    label: i18n.t('Netflow Accounting Enabled'),
     sortable: true,
     visible: true
   }
