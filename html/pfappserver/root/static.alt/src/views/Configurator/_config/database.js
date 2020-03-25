@@ -245,7 +245,7 @@ export const view = (form = {}, meta = {}) => {
               },
               listeners: {
                 click: () => {
-                  return store.dispatch('$_bases/assignDatabase', { username: 'root', password: root_pass, pf_username: user, pf_password: pass, database: db }).then(() => {
+                  return store.dispatch('$_bases/assignDatabase', { root_username: 'root', root_password: root_pass, pf_username: user, pf_password: pass, database: db }).then(() => {
                     Vue.set(meta.database, 'userIsValid', true)
                   }).catch(err => {
                     const {
