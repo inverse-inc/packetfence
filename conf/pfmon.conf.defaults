@@ -727,7 +727,7 @@ type=bandwidth_maintenance
 # description
 #
 # The description of task to perform
-description=Controls the aggreation of the bandwidth accounting records.
+description=Controls the aggregation of the bandwidth accounting records.
 #
 # status
 #
