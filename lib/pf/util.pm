@@ -286,23 +286,27 @@ our $NON_VALID_MAC_REGEX = qr/^(00|ff)(:\g1){5}$/;
 our $VALID_PF_MAC_REGEX = qr/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/;
 
 sub valid_mac {
-    my ($mac) = @_;
-    return (0) unless defined $mac;
-    my $logger = get_logger();
-    if ( !defined($mac) ) {
-        return(0);
-    }
-    if ( $mac !~ $VALID_MAC_REGEX) {
-        $logger->debug("invalid MAC: $mac");
-        return (0);
-    }
-    $mac = clean_mac($mac);
-    if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
-        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
-        return (0);
-    } else {
-        return (1);
-    }
+   my ($mac) = @_;
+   return (0) unless defined $mac;
+   my $logger = get_logger();
+   if ( !defined($mac) ) {
+       return(0);
+   }
+   if ( $mac !~ $VALID_MAC_REGEX) {
+       $logger->debug("invalid MAC: $mac");
+       return (0);
+   }
+   if ($mac =~ /^((?:\d{1,3}\.){3}\d{1,3})$/) {
+       $logger->debug("invalid MAC: $mac");
+       return (0);
+   }
+   $mac = clean_mac($mac);
+   if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
+       $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
+       return (0);
+   } else {
+       return (1);
+   }
 }
 
 =item  macoui2nb
