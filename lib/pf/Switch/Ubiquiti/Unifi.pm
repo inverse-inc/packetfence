@@ -166,6 +166,38 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
+=head2 _connect
+
+Return the connection to the controller
+
+=cut
+
+sub _connect {
+    my ($self) @_;
+
+    my $controllerIp = $self->{_controllerIp};
+    my $transport = lc($self->{_wsTransport});
+    my $username = $self->{_wsUser};
+    my $password = $self->{_wsPwd};
+
+    my $ua = LWP::UserAgent->new();
+    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
+    $ua->ssl_opts(verify_hostname => 0);
+    $ua->timeout(10);
+
+
+    my $base_url = "$transport://$controllerIp:$UNIFI_API_PORT";
+
+    my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
+
+    unless($response->is_success) {
+        $logger->error("Can't login on the Unifi controller: ".$response->status_line);
+        die;
+    }
+    return $ua;
+}
+
+
 =head2 _deauthenticateMacWithHTTP
 
 Enable or disable the access of a user (portal vs no portal) using an HTTP webservices call
@@ -177,11 +209,6 @@ sub _deauthenticateMacWithHTTP {
     my $logger = $self->logger;
 
     my $node_info = node_view($mac);
-
-    my $controllerIp = $self->{_controllerIp};
-    my $transport = lc($self->{_wsTransport});
-    my $username = $self->{_wsUser};
-    my $password = $self->{_wsPwd};
 
     my %site_opts;
     my $found = $FALSE;
@@ -207,20 +234,7 @@ sub _deauthenticateMacWithHTTP {
     
     $args->{cmd} = $command;
 
-    my $ua = LWP::UserAgent->new();
-    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
-    $ua->ssl_opts(verify_hostname => 0);
-    $ua->timeout(10);
-
-
-    my $base_url = "$transport://$controllerIp:$UNIFI_API_PORT";
-
-    my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
-
-    unless($response->is_success) {
-        $logger->error("Can't login on the Unifi controller: ".$response->status_line);
-        return;
-    }
+    my $ua = $self->_connect();
 
     $response = $ua->get("$base_url/api/self/sites");
 
@@ -303,20 +317,7 @@ sub populateMACIP {
     my $username = $self->{_wsUser};
     my $password = $self->{_wsPwd};
 
-    my $ua = LWP::UserAgent->new();
-    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
-    $ua->ssl_opts(verify_hostname => 0);
-    $ua->timeout(10);
-
-
-    my $base_url = "$transport://$controllerIp:$UNIFI_API_PORT";
-
-    my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
-
-    unless($response->is_success) {
-        $logger->error("Can't login on the Unifi controller: ".$response->status_line);
-        return;
-    }
+    my $ua = $self->_connect();
 
     $response = $ua->get("$base_url/api/self/sites");
 
