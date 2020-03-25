@@ -2028,17 +2028,24 @@ sub setup_api_v1_config_system_routes {
     my ($self, $root) = @_;
     $root->any( ['GET'] => "/system/gateway" )
       ->to(controller => "Config::System", action => "get_gateway")
-      ->name("api.v1.System.Gateway.get_gateway");
+      ->name("api.v1.Config.System.get_gateway");
     $root->any( ['PUT'] => "/system/gateway" )
       ->to(controller => "Config::System", action => "put_gateway")
-      ->name("api.v1.System.Gateway.put_gateway");
+      ->name("api.v1.System.put_gateway");
     
     $root->any( ['GET'] => "/system/hostname" )
       ->to(controller => "Config::System", action => "get_hostname")
-      ->name("api.v1.System.Gateway.get_hostname");
+      ->name("api.v1.Config.System.get_hostname");
     $root->any( ['PUT'] => "/system/hostname" )
       ->to(controller => "Config::System", action => "put_hostname")
-      ->name("api.v1.System.Gateway.put_hostname");
+      ->name("api.v1.Config.System.put_hostname");
+    
+    $root->any( ['GET'] => "/system/dns_servers" )
+      ->to(controller => "Config::System", action => "get_dns_servers")
+      ->name("api.v1.Config.System.get_dns_servers");
+    $root->any( ['PUT'] => "/system/dns_servers" )
+      ->to(controller => "Config::System", action => "put_dns_servers")
+      ->name("api.v1.Config.System.put_dns_servers");
 }
 
 =head2 setup_api_v1_system_summary_route

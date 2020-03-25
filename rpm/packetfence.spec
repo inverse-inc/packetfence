@@ -565,6 +565,14 @@ rm -rf %{buildroot}
 /usr/bin/systemctl --now mask systemd-logind
 /usr/bin/systemctl daemon-reload
 
+if [ "$1" = "1" ]; then
+  # Disable the DNS handling in network manager if its a new install
+  echo "# This file disables the DNS handling in network manager so that PacketFence is able to manage the DNS servers
+  [main]
+  dns=none" > /etc/NetworkManager/conf.d/99-packetfence-no-dns.conf
+  /usr/bin/systemctl restart NetworkManager
+fi
+
 # clean up the old systemd files if it's an upgrade
 if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-redis-cache
