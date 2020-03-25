@@ -23,7 +23,7 @@ all:
           mgmt_ip: 172.17.17.100
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
-          cpus: 1
+          cpus: 2
           memory: 2048
     stable_and_nightly:
       children:
