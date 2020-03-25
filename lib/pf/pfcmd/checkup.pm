@@ -1039,24 +1039,14 @@ sub vlan_filter_rules {
     my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
         my $rule_data = $ConfigVlanFilters{$rule};
-        if ($rule =~ /^[^:]+:(.*)$/) {
-            my ($condition, $err) = parse_condition_string($1);
-            add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $err->{highlighted_error})
-                if !defined $condition;
-            add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
-                if (!defined($rule_data->{'scope'}));
-            add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
-                if (!defined($rule_data->{'role'}));
-        } else {
-            add_problem ( $WARN, "Missing filter attribute in $rule vlan filter rule")
-                if (!defined($rule_data->{'filter'}));
-            if (!defined($rule_data->{'operator'})) {
-                add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule");
-            } else {
-                add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
-                    if (!defined($rule_data->{'value'}) && $rule_data->{'operator'} ne 'defined' && $rule_data->{'operator'} ne 'not_defined');
-            }
-        }
+        my $condition = $rule_data->{condition};
+        ($condition, my $err) = parse_condition_string($condition);
+        add_problem ( $WARN, "Cannot parse condition '$condition' in $rule for vlan filter rule" . "\n" . $err->{highlighted_error})
+            if defined $err;
+        add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
+            if (!defined($rule_data->{'scopes'}));
+        add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
+            if (!defined($rule_data->{'role'}));
     }
 }
 
