@@ -9,6 +9,7 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 =cut
 
 use pf::config;
+use pf::constants::provisioning qw($WIRELESS $WIRED $WIRELESS_WIRED);
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
@@ -16,6 +17,25 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'company' =>
   (
    type => 'Text',
+  );
+
+has_field 'description' =>
+  (
+   type => 'Text',
+   messages => { required => 'Please specify the Description Provisioning entry.' },
+   required => 1,
+  );
+
+has_field 'connection_type' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Connection type',
+   options_method => \&options_conn_type,
+   default => $WIRELESS,
+   element_class => ['chzn-deselect'],
+   tags => { after_element => \&help,
+             help => 'Select the connection type for the profile' },
   );
 
 has_field 'ssid' =>
@@ -150,7 +170,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path) ],
+   render_list => [ qw(id description type category connection_type ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path) ],
   );
 
 has_block signing =>
@@ -176,6 +196,16 @@ sub option_security {
                         ];
     return @security_type;
 }
+
+sub options_conn_type {
+    my $self = shift;
+    my @connection_type = [$WIRELESS => "Wireless",
+                           $WIRED => "Wired",
+                           $WIRELESS_WIRED => "Wireless and Wired",
+                          ];
+    return @connection_type;
+}
+
 
 =head1 COPYRIGHT
 

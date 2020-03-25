@@ -19,7 +19,7 @@ use MIME::Base64 qw(decode_base64);
 use pf::log;
 use pf::constants;
 use fingerbank::Constant;
-
+use pf::constants::provisioning qw($WIRELESS);
 use pf::person;
 
 use Crypt::GeneratePassword qw(word);
@@ -36,6 +36,7 @@ If the provisioner has to be enforced on each connection
 =cut
 
 has 'enforce' => (is => 'rw', default => sub { 0 });
+has 'connection_type' => (is => 'rw', default => sub { $WIRELESS });
 
 =head2 oses
 
@@ -254,15 +255,16 @@ Creates a template from the eap type
 
 sub _build_profile_template {
     my ($self) = @_;
+    my $connection_type = $self->connection_type;
     my $eap_type = $self->eap_type;
     if (defined($eap_type)) {
         if ($eap_type == 13) {
-            return "wireless-profile-tls.xml";
+            return "$connection_type-profile-tls.xml";
         } elsif ($eap_type == 25) {
-            return "wireless-profile-peap.xml";
+            return "$connection_type-profile-peap.xml";
         }
     } 
-    return "wireless-profile-noeap.xml";
+    return "$connection_type-profile-noeap.xml";
 }
 
 sub generate_dpsk {
