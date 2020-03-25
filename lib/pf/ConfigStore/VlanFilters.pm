@@ -14,12 +14,17 @@ pf::ConfigStore::VlanFilters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($vlan_filters_config_file);
-extends 'pf::ConfigStore';
+use pf::file_paths qw($vlan_filters_config_file $vlan_filters_config_default_file);
+use namespace::autoclean;
+extends 'pf::ConfigStore::FilterEngine';
 
 sub configFile { $vlan_filters_config_file };
 
+sub importConfigFile { $vlan_filters_config_default_file };
+
 sub pfconfigNamespace {'config::VlanFilters'}
+
+sub ordered_arrays { ['actions',  'action'] }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

@@ -81,8 +81,18 @@ Provide a list of api methods
 
 sub options_api_method {
     my ($self) = @_;
-    return {value => '', label => '--- choose ---'}, map {/^pf::api::(.*)$/;{value => $1, label => $1}} sort keys %pf::api::attributes::ALLOWED_ACTIONS;
-
+    return { value => '', label => '--- choose ---' }, map {
+        /^pf::api::(.*)$/;
+        {
+            value   => $1,
+            label   => $1,
+            sibling => {
+                api_parameters => {
+                    default => $pf::api::attributes::ALLOWED_ACTIONS{$_}
+                }
+            }
+        }
+    } sort keys %pf::api::attributes::ALLOWED_ACTIONS;
 }
 
 pf::api::attributes::updateAllowedAsActions();

@@ -23,7 +23,7 @@ use pf::freeradius;
 use Module::Load;
 use Benchmark qw(:all);
 use List::Util qw(first);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::CHI;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
@@ -310,6 +310,38 @@ Checks to see if the type is configured
 
 sub isTypeConfigured {
     exists $SwitchTypesConfigured{$_[0]}
+}
+
+=head2 form_options
+
+Extract the descriptions from the various Switch modules.
+
+=cut
+
+sub form_options {
+    # Sort vendors and switches for display
+    my @modules;
+    my $V2 = $TemplateSwitches{'::VENDORS'} // {};
+    foreach my $v ( uniq sort ( keys %VENDORS, keys %$V2)) {
+        my @switches =
+          map { {%{$_}} }
+          sort { $a->{value} cmp $b->{value} } (
+              (
+                exists $VENDORS{$v} ? @{ $VENDORS{$v} } : ()
+              ),
+              (
+                exists $V2->{$v} ? @{ $V2->{$v} } : ()
+              )
+        );
+        push @modules,
+          {
+            group   => $v,
+            options => \@switches,
+            value   => ''
+          };
+    }
+
+    return ({group => '', options => [{value => '', label => ''}], value => ''}, @modules);
 }
 
 =back

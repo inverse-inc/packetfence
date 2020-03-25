@@ -663,31 +663,7 @@ Extract the descriptions from the various Switch modules.
 =cut
 
 sub options_type {
-    my $self = shift;
-    # Sort vendors and switches for display
-    my @modules;
-    my $V1 = \%pf::SwitchFactory::VENDORS;
-    my $V2 = $pf::SwitchFactory::TemplateSwitches{'::VENDORS'} // {};
-    foreach my $v ( uniq sort ( keys %$V1, keys %$V2)) {
-        my @switches =
-          map { {%{$_}} }
-          sort { $a->{value} cmp $b->{value} } (
-              (
-                exists $V1->{$v} ? @{ $V1->{$v} } : ()
-              ),
-              (
-                exists $V2->{$v} ? @{ $V2->{$v} } : ()
-              )
-        );
-        push @modules,
-          {
-            group   => $v,
-            options => \@switches,
-            value   => ''
-          };
-    }
-
-    return ({group => '', options => [{value => '', label => ''}], value => ''}, @modules);
+    return pf::SwitchFactory::form_options();
 }
 
 =head2 options_groups

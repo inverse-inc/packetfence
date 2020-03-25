@@ -19,6 +19,9 @@ use pf::error qw(is_error);
 
 sub form_class_by_type {
     my ($self, $type) = @_;
+    if (!defined $type) {
+        return undef;
+    }
     my $lookup = $self->type_lookup;
     return exists $lookup->{$type} ? $lookup->{$type} : undef;
 }

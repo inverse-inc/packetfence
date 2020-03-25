@@ -16,11 +16,13 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($radius_filters_config_file);
-extends 'pf::ConfigStore';
+extends 'pf::ConfigStore::FilterEngine';
 
 sub configFile { $radius_filters_config_file };
 
 sub pfconfigNamespace {'config::RadiusFilters'}
+
+sub ordered_arrays { ['answers', 'answer'] }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

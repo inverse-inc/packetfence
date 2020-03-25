@@ -122,7 +122,7 @@ after validate => sub {
     if (defined $advanced_filter) {
         my ($conditions, $err) = pf::condition_parser::parse_condition_string($advanced_filter);
         if ($err) {
-            $self->field('advanced_filter')->add_error("Advanced filter is invalid");
+            $self->field('advanced_filter')->add_error($err->{message});
         }
     }
 };

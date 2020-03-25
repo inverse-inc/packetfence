@@ -2,37 +2,6 @@
 # defaults PacketFence's rules for PacketFence
 
 # This rules are predefined in PacketFence and disconnect device that coming from a secure connection to an open one.
-
-[pf_wired_mac_auth]
-filter = connection_type
-operator = is
-value = Ethernet-NoEAP
-
-[pf_wireless_mac_auth]
-filter = connection_type
-operator = is
-value = Wireless-802.11-NoEAP
-
-[pf_node_wired_eap]
-filter = node_info.last_connection_type
-operator = is
-value = Ethernet-EAP
-
-[pf_node_wireless_eap]
-filter = node_info.last_connection_type
-operator = is
-value = Wireless-802.11-EAP
-
-[pf_node_reg]
-filter = node_info.status
-operator = is
-value = reg
-
-[pf_node_auto_reg]
-filter = node_info.autoreg
-operator = is
-value = yes
-
 # Rule definition : 
 #   If the device comes from a Wireless secure connection (802.1x) and is currently connected to an open SSID
 #   And if it is currently registered and was previously auto-registered
@@ -40,8 +9,9 @@ value = yes
 # That will make sure, the user will be presented the captive portal if he switches from secure to open
 # We do *NOT* apply this logic to wired as supplicant failures would unregister the device
 # To apply this flow to wired, see the example pf_deauth_from_wireless_secure in vlan_filters.conf.example
-[pf_deauth_from_wireless_secure:pf_wireless_mac_auth&pf_node_wireless_eap&pf_node_reg&pf_node_auto_reg]
-scope = RegisteredRole
-action = modify_node
-action_param = mac = $mac, status = unreg, autoreg = no
+
+[pf_deauth_from_wireless_secure]
+condition=connection_type == "Wireless-802.11-NoEAP" && node_info.last_connection_type == "Ethernet-EAP" && node_info.status == "reg" && node_info.autoreg == "yes"
+scopes = RegisteredRole
+action.0=modify_node: mac, $mac, status = unreg, autoreg = no
 role = registration

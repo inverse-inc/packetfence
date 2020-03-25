@@ -16,11 +16,13 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($dns_filters_config_file);
-extends 'pf::ConfigStore';
+extends 'pf::ConfigStore::FilterEngine';
 
 sub configFile { $dns_filters_config_file };
 
 sub pfconfigNamespace {'config::DNS_Filters'}
+
+sub ordered_arrays { ['actions',  'action'] }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

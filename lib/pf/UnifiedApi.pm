@@ -280,6 +280,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_self_services_routes($root);
     $self->setup_api_v1_config_domains_routes($root);
     $self->setup_api_v1_config_filters_routes($root);
+    $self->setup_api_v1_config_filter_engines_routes($root);
     $self->setup_api_v1_config_fingerbank_settings_routes($root);
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
@@ -1941,6 +1942,78 @@ sub setup_api_v1_config_wmi_rules_routes {
         "/wmi_rule/#wmi_rule_id",
         "api.v1.Config.WMIRules"
     );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_filter_engines_routes
+
+setup_api_v1_config_filter_engines_routes
+
+=cut
+
+sub setup_api_v1_config_filter_engines_routes {
+    my ($self, $root) = @_;
+    my $filter_engines_root = $root->any("/filter_engines")->name("api.v1.Config.FilterEngines");
+    $filter_engines_root->register_sub_action(
+        {
+            method     => 'GET',
+            action     => 'engines',
+            path       => '',
+            controller => 'Config::FilterEngines'
+        }
+    );
+    $filter_engines_root->register_sub_actions(
+        {
+            method     => 'POST',
+            actions    => [qw(parse_condition flatten_condition)],
+            controller => 'Config::FilterEngines'
+        }
+    );
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::VlanFilters",
+        "/vlan_filters",
+        "/vlan_filter/#vlan_filter_id",
+        "api.v1.Config.FilterEngines.Vlan"
+      );
+
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::DHCPFilters",
+        "/dhcp_filters",
+        "/dhcp_filter/#dhcp_filter_id",
+        "api.v1.Config.FilterEngines.DHCP"
+      );
+
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::DNSFilters",
+        "/dns_filters",
+        "/dns_filter/#dns_filter_id",
+        "api.v1.Config.FilterEngines.DNS"
+      );
+
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::RADIUSFilters",
+        "/radius_filters",
+        "/radius_filter/#radius_filter_id",
+        "api.v1.Config.FilterEngines.RADIUS"
+      );
+
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::SwitchFilters",
+        "/switch_filters",
+        "/switch_filter/#switch_filter_id",
+        "api.v1.Config.FilterEngines.Switch"
+      );
 
     return ($collection_route, $resource_route);
 }

@@ -337,8 +337,6 @@ export default {
     vertical-align: middle;
     margin: 0;
     user-select: none;
-    font-size: $font-size-sm;
-    font-weight: 600;
   }
 
   .range {

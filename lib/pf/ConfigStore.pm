@@ -18,7 +18,9 @@ use Moo;
 use namespace::autoclean;
 use pf::IniFiles;
 use pf::log;
+use pf::util qw();
 use List::MoreUtils qw(uniq);
+use Sort::Naturally qw(nsort);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::config::cluster;
@@ -843,6 +845,21 @@ sub readDefaults {
     }
     
     return $self->read($default_section, 'id');
+}
+
+sub flatten_to_ordered_array {
+    my ($self, $item, $items_key, $item_key) = @_;
+    my $items = delete $item->{$items_key} // [];
+    my $i = 0;
+    for my $j (@$items) {
+        $item->{"${item_key}.$i"} = $j;
+        $i++;
+    }
+}
+
+sub expand_ordered_array {
+    my ($self, $item, $items_key, $item_key) = @_;
+    return pf::util::expand_ordered_array($item, $items_key, $item_key);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

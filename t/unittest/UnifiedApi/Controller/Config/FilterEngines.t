@@ -2,22 +2,18 @@
 
 =head1 NAME
 
-Domains
-
-=cut
+FilterEngines
 
 =head1 DESCRIPTION
 
-unit test for Domains
+unit test for FilterEngines
 
 =cut
 
 use strict;
 use warnings;
 #
-use lib qw(
-    /usr/local/pf/lib
-);
+use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs
@@ -26,65 +22,28 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 13;
+use Test::More tests => 11;
 use Test::Mojo;
 
 #This test will running last
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
+my $url = "/api/v1/config/filter_engines";
 
-my $base_url = '/api/v1/config/filter/vlan';
-my $content = <<'CONTENT';
-[2]
-filter = node_info
-attribute=category
-operator = match
-value = default
+$t->post_ok("$url/parse_condition" => json => {})
+  ->status_is(422);
 
-[3]
-filter = ssid
-operator = is
-value = OPEN
+$t->post_ok("$url/parse_condition" => json => { condition => []})
+  ->status_is(422);
 
-[4]
-filter = ssid
-operator = is
-value = TEST
+$t->post_ok("$url/parse_condition" => json => { condition => 'b == "bob" && a = "bobby"'})
+  ->status_is(422);
 
-[5]
-filter = node_info.category
-operator = match_not
-value = bob
+$t->post_ok("$url/parse_condition" => json => { condition => "b && a"})
+  ->status_is(200);
 
-[6]
-filter = node_info.status
-operator = is
-value = unreg
-
-[2:2&3]
-scope = RegistrationRole
-role = registration
-
-[3: 4 && ( 5 & 6 )]
-scope = RegistrationRole
-role = registration2
-CONTENT
-
-$t->put_ok($base_url => {} => $content)
-  ->status_is(200)
-  ->json_is({ message => "Filter updated", status => 200 });
-
-$t->get_ok($base_url)
-  ->status_is(200)
-  ->content_is($content);
-
-$t->put_ok($base_url => {} => "This is a garbage")
-  ->status_is(422)
-  ->json_has("/errors");
-
-$t->put_ok($base_url => {} => "This is a garbage\n")
-  ->status_is(422)
-  ->json_has("/errors");
+$t->get_ok("$url")
+  ->status_is(200);
 
 =head1 AUTHOR
 

@@ -24,6 +24,7 @@ use Net::MAC::Vendor;
 use File::Path qw(make_path remove_tree);
 use POSIX qw(setuid setgid);
 use File::Spec::Functions;
+use Sort::Naturally qw(nsort);
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
@@ -102,6 +103,7 @@ BEGIN {
         find_outgoing_srcip
         mcmp make_string_cmp make_string_rcmp make_num_rcmp make_num_cmp
         mac2dec
+        expand_ordered_array
     );
 }
 
@@ -1395,7 +1397,7 @@ Parse an api action spec
 
 sub parse_api_action_spec {
     my ($spec) = @_;
-    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
+    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_\.]+)\s*:\s*(?<api_parameters>.*)$/) {
         return undef;
     }
     #return a copy of the named captures hash
@@ -1621,6 +1623,12 @@ sub make_num_cmp {
 sub mac2dec {
     my ($mac) = @_;
     return join (".",  map { hex($_) } split( /:/, $mac ));
+}
+
+sub expand_ordered_array {
+    my ($item, $items_key, $item_key) = @_;
+    my @keys = nsort grep {/^\Q$item_key\E\.\d+$/} keys %$item;
+    $item->{$items_key} = [delete @$item{@keys}];
 }
 
 =back
