@@ -7,7 +7,7 @@ Integration tests rely on:
 
 * <<_virtual_environment>>
 * a network topology built using `libvirt` footnote:[based on Cumulus Networks's project link:https://github.com/CumulusNetworks/cldemo-vagrant[cldemo]]
-* virtual machines different than PF to test integrations
+* virtual machines different than PacketFence to test integrations
 
 ==== Network Topology
 
@@ -18,7 +18,7 @@ This topology require a working `libvirt` setup (Virtualbox is not supported) an
 Infrastructure-as-code in two
 link:https://github.com/inverse-inc/packetfence/tree/devel/addons/vagrant/[Vagrantfiles].
 
-===== Initial provisioning
+===== Initial Provisioning
 
 `switch01` and `node01` are provisioned using Vagrant like this:
 
@@ -28,7 +28,7 @@ link:https://github.com/inverse-inc/packetfence/tree/devel/addons/vagrant/[Vagra
 
 Provisioning is deliberately minimalist to make the most during integration tests.
 
-===== Inventory informations
+===== Inventory Information
 
 .IPAM table
 |===
@@ -98,14 +98,15 @@ put them in a desired state.
 
 ==== Virtual machines
 
-===== Active directory server
+===== Active Directory Server
 
-Virtual machine called `ad`  will be auto-provision with:
+Virtual machine called `ad` will be auto-provisioned with:
 
 * a DNS domain
 * an Active Directory domain
-* AD CS services with auto-enrollment using a GPO
-* a packetfence account (Domain users)
+* Active Directory Certificate Services (AD CS) with auto-enrollment using a GPO
+* a `vagrant-domain` account, member of Domain admins group, with `VagrantPass1` as password
+* a `packetfence` account, member of Domain users group, with `P@ck3tF3nc3pass` as password
 
 .Vagrant admin accounts:
 [source,yaml]
@@ -127,7 +128,7 @@ This switch is configured using a
 link:https://docs.cumulusnetworks.com/cumulus-linux-37/Layer-2/Ethernet-Bridging-VLANs/[VLAN
 aware-bridge] to manage VLAN on interfaces (recommended approach)
 
-`hostapd` is the daemon responsible to sent 802.1X and MAC Authentication
+`hostapd` is the daemon responsible to send 802.1X and MAC Authentication
 requests to RADIUS server (as described in
 link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/Layer-1-and-Switch-Ports/802.1X-Interfaces/[802.1X
 Cumulus Linux documentation]). We configured this daemon using Ansible.
@@ -138,5 +139,5 @@ Cumulus Linux documentation]). We configured this daemon using Ansible.
 features like 802.1X, MAC authentification, registration, isolation and inline
 scenarios.
 
-This machine has an Internet access during it's first boot. After the reboot, this machine is only
+This machine has an Internet access during its first boot. After the reboot, this machine is only
 reachable using management network. A `vagrant ssh node01` will not work.
