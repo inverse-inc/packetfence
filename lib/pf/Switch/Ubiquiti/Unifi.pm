@@ -369,9 +369,11 @@ sub deauthenticateMacRadius {
 }
 
 =item radiusDisconnect
+
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 Optionally you can provide other attributes as an hashref.
 Uses L<pf::util::radius> for the low-level RADIUS stuff.
+
 =cut
 
 # TODO consider whether we should handle retries or not?
@@ -394,11 +396,7 @@ sub radiusDisconnect {
     # Where should we send the RADIUS Disconnect-Request?
     # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
-    # but if controllerIp is set, we send there
-    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
-        $send_disconnect_to = $self->{'_controllerIp'};
-    }
+
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
