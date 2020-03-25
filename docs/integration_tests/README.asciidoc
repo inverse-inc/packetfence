@@ -108,6 +108,10 @@ Virtual machine called `ad` will be auto-provisioned with:
 * a `vagrant-domain` account, member of Domain admins group, with `VagrantPass1` as password
 * a `packetfence` account, member of Domain users group, with `P@ck3tF3nc3pass` as password
 
+Several reboots are necessary before machine can be provisioned by
+Ansible. During initial Ansible provisioning, several reboots will
+occur too. It takes like 10 minutes to have a machine up and running.
+
 .Vagrant admin accounts:
 [source,yaml]
 ----
