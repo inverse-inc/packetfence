@@ -19,7 +19,8 @@ New Features
 * New, fully integrated PacketFence PKI service
 * New service for automatic clustering issues resolution
 * Added support for network anomaly detection through Fingerbank
-* New API-based configurator
+* New GUI for all filtering engines
+* New API and Vue.js based configurator
 
 Enhancements
 ++++++++++++
