@@ -19,6 +19,7 @@ action=trigger_security_event
 action_param = mac = $mac, tid = GOOGLE_SOFTWARE_INSTALLED, type = CUSTOM
 EOT
 
+# KB from Windows Update installed in the last 30 days 
 [ServicePackUpdated]
 namespace=ROOT\cimv2
 request=SELECT HotFixID,InstalledOn FROM Win32_QuickFixEngineering
@@ -64,12 +65,48 @@ value = explorer.exe
 action = allow
 EOT
 
+# Detect if FortiClient.exe is running, if yes the Security Event is triggered
+[Forticlient-Enable]
+request=SELECT Name FROM Win32_Process
+namespace=ROOT\cimv2
+action= <<EOT
+[ActiveProcess]
+attribute = Name
+operator = match
+value = FortiClient.exe
+
+[1:ActiveProcess]
+action=trigger_security_event
+action_param = mac = $mac, tid = PROCESS_FORTI, type = CUSTOM
+EOT
+on_tab=0
+
+
 # Detect if the SCCM client is installed
 [SCCM]
 request=select * from Win32_Process where name='CcmExec.exe'
 action=[sccm]
 namespace=ROOT\cimv2
 on_tab=1
+
+# Detect if the SCCM client is installed and if yes an Security Event is triggered
+[SCCM]
+request=select * from Win32_Process where name='CcmExec.exe'
+action=[sccm]
+namespace=ROOT\cimv2
+action= <<EOT
+
+[SCCM]
+attribute = Name
+operator = match
+value = CcmExec.exe
+
+[1:SCCM]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
+
 
 # Detect security product like Firewall, Antivirus or Antispyware
 [FireWall]
@@ -97,16 +134,16 @@ on_tab=1
 
 # Detect if TCP port 25 is activate (SMTP)
 # This example can be used for all TCP ports, change the value by the ports you want, example: value = ^(143|465|587)$
-[ActiveTCP]
+[Active SMTP]
 request=select LocalPort from MSFT_NetTCPConnection
 namespace=ROOT\StandardCIMV2
 action= <<EOT
 [ActivePort]
 attribute = LocalPort
-operator = regex
-value = ^(25)$
+operator = match
+value = 25
 
-[1:!ActivePort]
+[1:ActivePort]
 action=trigger_security_event
 action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
@@ -114,19 +151,50 @@ on_tab=0
 
 # Detect if UDP ports 137,138,139 are activate (NetBIOS)
 # This example can be used for all UDP ports, change the value by the ports you want, example for SNMP: value = ^(161|162)$
-[ActiveUDP]
+[Active NetBIOS]
 request=select LocalPort from MSFT_NetUDPEndpoint
 namespace=ROOT\StandardCIMV2
 action= <<EOT
 [ActivePort]
 attribute = LocalPort
-operator = regex
+operator = match
 value = ^(137|138|139)$
 
-[1:!ActivePort]
+[1:ActivePort]
 action=trigger_security_event
 action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
 on_tab=0
 
+# Template for check if a specific TCP port is active, you can check the SMTP Active example.
+[Active TCP]
+request=select LocalPort from MSFT_NetTCPConnection
+namespace=ROOT\StandardCIMV2
+action= <<EOT
+[ActivePort]
+attribute = LocalPort
+operator = match
+value = *
+
+[1:ActivePort]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
+
+# Template for check if a specific UDP port is active, you can check the Active NetBios example.
+[Active UDP]
+request=select LocalPort from MSFT_NetUDPEndpoint
+namespace=ROOT\StandardCIMV2
+action= <<EOT
+[ActivePort]
+attribute = LocalPort
+operator = match
+value = *
+
+[1:ActivePort]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
 
