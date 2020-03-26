@@ -22,6 +22,7 @@ extends qw(pf::pfmon::task);
 
 has 'batch' => ( is => 'rw');
 has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
 has 'history_batch' => ( is => 'rw', default => "100" );
 has 'history_timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
 has 'history_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1);

@@ -749,6 +749,11 @@ batch=100
 # How long a bandwidth_accounting job can run
 timeout=10s
 #
+# window
+#
+# How long to keep a bandwidth_accounting entry before aggregating it
+window=24h
+#
 # history_batch
 #
 # How many bandwidth_accounting_history entries to clean up in one run

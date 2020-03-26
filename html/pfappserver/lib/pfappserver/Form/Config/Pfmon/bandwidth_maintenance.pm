@@ -31,6 +31,13 @@ has_field 'timeout' => (
              help => \&timeout_help_text },
 );
 
+has_field 'window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
+
 has_field 'history_batch' => (
     type => 'PosInteger',
     default_method => \&default_field_method,
