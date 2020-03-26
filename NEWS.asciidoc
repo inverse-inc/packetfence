@@ -58,6 +58,7 @@ Bug Fixes
 * Some DHCP info triggers use outdated Fingerbank data (#5106)
 * Issue with the timezone in the admin not being honored on the system (#5205)
 * Issue with chrome who don't show the portal on self signed certificate (#5233)
+* Issue with RADIUS CLI access and ldap authentication source where the cache is enabled. (#5018)
 
 Version 9.3.0 released on 2020-01-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
