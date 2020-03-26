@@ -124,8 +124,11 @@ const mutations = {
   },
   ADD_CACHE: (state, request) => {
     const { method = 'get', url = '/', params = {} } = request
-    const cache = [...state.cache, { method, url, params, time: (new Date()).getTime() }]
-    Vue.set(state, 'cache', cache)
+    const fIndex = state.cache.findIndex((req) => !(req.method !== method || req.url !== url || JSON.stringify(req.params) !== JSON.stringify(params)))
+    if (fIndex === -1) {
+      const cache = [...state.cache, { method, url, params, time: (new Date()).getTime() }]
+      Vue.set(state, 'cache', cache)
+    }
   },
   PRUNE_CACHE: (state, request) => {
     const { method = 'get', url = '/', params = {} } = request
