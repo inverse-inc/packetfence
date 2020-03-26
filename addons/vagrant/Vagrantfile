@@ -156,7 +156,8 @@ Vagrant.configure("2") do |config|
       end
 
       # shell provisioner to run by hand
-      srv.vm.provision "run-integration-tests", type: "shell", run: "never" do |config|
+      # run as vagrant user to use vagrant account and SSH key on other nodes
+      srv.vm.provision "run-integration-tests", type: "shell", run: "never", privileged: false do |config|
         config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
           PERL_UNIT_TESTS: "no",
