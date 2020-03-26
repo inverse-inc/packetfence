@@ -185,6 +185,8 @@ sub startService {
                 _doStart($manager);
             } else {
                 _doUpdateSystemd($manager, $TRUE);
+                # Force stop
+                $manager->stop;
             }
         }
     }
