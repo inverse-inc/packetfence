@@ -314,6 +314,10 @@ export default {
               })
             }
           })
+        } else {
+          this.cacheTagsFromOptions((((this.multiple) ? a : [a]) || []).map(value => {
+             return { [this.label]: value, [this.trackBy]: value }
+          }))
         }
       },
       immediate: true
