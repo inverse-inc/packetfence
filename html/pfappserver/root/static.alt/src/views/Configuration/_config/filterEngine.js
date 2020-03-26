@@ -45,11 +45,6 @@ export const columns = [
     visible: true
   },
   {
-    key: 'role',
-    label: i18n.t('Role'),
-    visible: true
-  },
-  {
     key: 'scopes',
     label: i18n.t('Scopes'),
     visible: true,
