@@ -211,6 +211,7 @@ sub selfSigned {
             my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
             my $self_signed = $cert->is_selfsigned;
             if ($self_signed) {
+                close $BUNDLE;
                 return $TRUE;
             }
             $pemcert = "";
