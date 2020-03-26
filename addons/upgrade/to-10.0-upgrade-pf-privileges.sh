@@ -11,7 +11,7 @@ PF_DB=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{db}')
 
 # Apply new privileges on DB for PF_USER with root account
 echo "Hit MariaDB root password"
-echo mysql -u root -p \
+ mysql -u root -p \
 -e "GRANT CREATE TEMPORARY TABLES ON ${PF_DB}.* TO $PF_USER@'%';" \
 -e "GRANT CREATE TEMPORARY TABLES ON ${PF_DB}.* TO $PF_USER@'localhost';" \
 -e "FLUSH PRIVILEGES;"
