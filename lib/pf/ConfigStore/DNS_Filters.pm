@@ -15,10 +15,12 @@ pf::ConfigStore::DNS_Filters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($dns_filters_config_file);
+use pf::file_paths qw($dns_filters_config_file $dns_filters_default_config_file);
 extends 'pf::ConfigStore::FilterEngine';
 
 sub configFile { $dns_filters_config_file };
+
+sub importConfigFile { $dns_filters_default_config_file };
 
 sub pfconfigNamespace {'config::DNS_Filters'}
 
