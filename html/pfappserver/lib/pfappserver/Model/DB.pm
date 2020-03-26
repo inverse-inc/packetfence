@@ -45,7 +45,7 @@ sub assign {
 
     # Create global PF user
     foreach my $host ("'%'","localhost") {
-        my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES, CREATE TEMPORARY TABLE ON $db.* TO ?\@${host} IDENTIFIED BY ?";
+        my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
         $dbHandler->do($sql_query, undef, $user, $password);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
