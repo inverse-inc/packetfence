@@ -1535,16 +1535,17 @@ CREATE TABLE `pki_revoked_certs` (
 --
 
 CREATE TABLE bandwidth_accounting (
-    tenant_id INT NOT NULL,
-    mac char(17) NOT NULL,
-    unique_session_id char(32) NOT NULL,
+    node_id BIGINT UNSIGNED NOT NULL,
+    unique_session_id BIGINT UNSIGNED NOT NULL,
     time_bucket DATETIME NOT NULL,
-    in_bytes BIGINT UNSIGNED NOT NULL,
-    out_bytes BIGINT UNSIGNED NOT NULL,
-    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
+    in_bytes BIGINT SIGNED NOT NULL,
+    out_bytes BIGINT SIGNED NOT NULL,
+    mac CHAR(17) NOT NULL,
+    tenant_id SMALLINT NOT NULL,
     processed BOOLEAN NOT NULL DEFAULT 0,
-    PRIMARY KEY (tenant_id, mac, time_bucket, unique_session_id),
-    KEY bandwidth_aggregate_buckets (time_bucket, tenant_id, mac, unique_session_id, in_bytes, out_bytes )
+    total_bytes BIGINT SIGNED AS (in_bytes + out_bytes) VIRTUAL,
+    PRIMARY KEY (node_id, time_bucket, unique_session_id),
+    KEY bandwidth_aggregate_buckets (time_bucket, node_id, unique_session_id, in_bytes, out_bytes)
 );
 
 --
@@ -1552,14 +1553,15 @@ CREATE TABLE bandwidth_accounting (
 --
 
 CREATE TABLE bandwidth_accounting_history (
-    tenant_id INT NOT NULL,
-    mac char(17) NOT NULL,
+    node_id BIGINT UNSIGNED NOT NULL,
     time_bucket DATETIME NOT NULL,
-    in_bytes BIGINT UNSIGNED NOT NULL,
-    out_bytes BIGINT UNSIGNED NOT NULL,
-    total_bytes BIGINT UNSIGNED AS (in_bytes + out_bytes) PERSISTENT,
-    PRIMARY KEY (tenant_id, mac, time_bucket),
-    KEY bandwidth_aggregate_buckets (time_bucket, tenant_id, mac, in_bytes, out_bytes )
+    in_bytes BIGINT SIGNED NOT NULL,
+    out_bytes BIGINT SIGNED NOT NULL,
+    total_bytes BIGINT SIGNED AS (in_bytes + out_bytes) VIRTUAL,
+    mac CHAR(17) NOT NULL,
+    tenant_id SMALLINT NOT NULL,
+    PRIMARY KEY (node_id, time_bucket),
+    KEY bandwidth_aggregate_buckets (time_bucket, node_id, in_bytes, out_bytes )
 );
 
 DROP PROCEDURE IF EXISTS `bandwidth_aggregation`;
@@ -1572,11 +1574,11 @@ BEGIN
 
     DROP TABLE IF EXISTS to_delete;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
-    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting LIMIT 0');
+    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting LIMIT 0');
     PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
     EXECUTE create_table_to_delete;
     DEALLOCATE PREPARE create_table_to_delete;
-    PREPARE insert_into_to_delete FROM  'INSERT INTO to_delete SELECT tenant_id, mac, DATE_ADD(DATE(time_bucket), INTERVAL HOUR(time_bucket) HOUR) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting WHERE time_bucket <= ? AND processed = 1 LIMIT ?';
+    PREPARE insert_into_to_delete FROM  'INSERT INTO to_delete SELECT node_id, tenant_id, mac, DATE_ADD(DATE(time_bucket), INTERVAL HOUR(time_bucket) HOUR) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting WHERE time_bucket <= ? AND processed = 1 LIMIT ?';
 
     START TRANSACTION;
     EXECUTE insert_into_to_delete using @end_bucket, @batch;
@@ -1584,8 +1586,9 @@ BEGIN
     IF @count > 0 THEN
 
         INSERT INTO bandwidth_accounting_history
-        (tenant_id, mac, time_bucket, in_bytes, out_bytes)
+        (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
          SELECT
+             node_id,
              tenant_id,
              mac,
              new_time_bucket,
@@ -1601,8 +1604,7 @@ BEGIN
         DELETE bandwidth_accounting
             FROM to_delete INNER JOIN bandwidth_accounting
             WHERE
-                to_delete.tenant_id = bandwidth_accounting.tenant_id AND
-                to_delete.mac = bandwidth_accounting.mac AND
+                to_delete.node_id = bandwidth_accounting.node_id AND
                 to_delete.time_bucket = bandwidth_accounting.time_bucket AND
                 to_delete.unique_session_id = bandwidth_accounting.unique_session_id;
     END IF;
@@ -1622,27 +1624,27 @@ CREATE PROCEDURE `process_bandwidth_accounting` (
 BEGIN
     SET @batch = p_batch;
     DROP TABLE IF EXISTS to_process;
-    CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting LIMIT 0;
+    CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting LIMIT 0;
     START TRANSACTION;
-    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting WHERE processed = 0 LIMIT ?';
+    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT node_id, tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting WHERE processed = 0 LIMIT ?';
     EXECUTE insert_into_to_process USING @batch;
     DEALLOCATE PREPARE insert_into_to_process;
     SELECT COUNT(*) INTO @count FROM to_process;
     IF @count > 0 THEN
         UPDATE 
-            (SELECT tenant_id, mac, SUM(total_bytes) AS total_bytes FROM to_process GROUP BY tenant_id, mac) AS x 
+            (SELECT tenant_id, mac, SUM(total_bytes) AS total_bytes FROM to_process GROUP BY node_id) AS x 
             LEFT JOIN node USING(tenant_id, mac)
             SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0)
             WHERE node.bandwidth_balance IS NOT NULL;
 
-        UPDATE to_process LEFT JOIN bandwidth_accounting USING(mac, tenant_id, time_bucket, unique_session_id)
+        UPDATE to_process LEFT JOIN bandwidth_accounting USING(node_id, time_bucket, unique_session_id)
         SET processed = 1;
 
         COMMIT;
     END IF;
 
     DROP TABLE to_process;
-    SELECT @count;
+    SELECT @count as count;
 END/
 
 DELIMITER ;
@@ -1658,14 +1660,14 @@ BEGIN
 
     DROP TABLE IF EXISTS to_delete;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
-    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT tenant_id, mac, time_bucket as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history LIMIT 0');
+    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history LIMIT 0');
     PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
     EXECUTE create_table_to_delete;
     DEALLOCATE PREPARE create_table_to_delete;
     IF p_bucket_size = 'monthly' THEN
-        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT tenant_id, mac, date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) LIMIT ?';
+        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT node_id, tenant_id, mac, date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) LIMIT ?';
     ELSE
-        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT tenant_id, mac, DATE(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != DATE(time_bucket) LIMIT ?';
+        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT node_id, tenant_id, mac, DATE(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != DATE(time_bucket) LIMIT ?';
     END IF;
 
     START TRANSACTION;
@@ -1674,8 +1676,9 @@ BEGIN
     IF @count > 0 THEN
         SELECT * from to_delete;
         INSERT INTO bandwidth_accounting_history
-        (tenant_id, mac, time_bucket, in_bytes, out_bytes)
+        (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
          SELECT
+             node_id,
              tenant_id,
              mac,
              new_time_bucket,
@@ -1691,8 +1694,7 @@ BEGIN
         DELETE bandwidth_accounting_history
             FROM to_delete INNER JOIN bandwidth_accounting_history
             WHERE
-                to_delete.tenant_id = bandwidth_accounting_history.tenant_id AND
-                to_delete.mac = bandwidth_accounting_history.mac AND
+                to_delete.node_id = bandwidth_accounting_history.node_id AND
                 to_delete.time_bucket = bandwidth_accounting_history.time_bucket;
     END IF;
     COMMIT;
