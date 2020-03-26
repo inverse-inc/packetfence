@@ -181,8 +181,9 @@ sub build_child {
     };
 
 
-    if (isenabled($Config{'captive_portal'}{'secure_redirect'}) && selfSigned()) {
+    if (isenabled($Config{'captive_portal'}{'secure_redirect'}) && isSelfSigned()) {
         $Config{'captive_portal'}{'secure_redirect'} = 'disabled';
+        get_logger->warn("secure redirect has been disabled since the portal certificate is a self-signed");
     }
 
     return \%Config;
@@ -200,7 +201,7 @@ sub set_timezone {
     }
 }
 
-sub selfSigned {
+sub isSelfSigned {
     open (my $BUNDLE, '<', $server_pem);
 
     my $pemcert = "";
@@ -209,8 +210,7 @@ sub selfSigned {
         $pemcert .= $row;
         if($row =~ /^\-+END(\s\w+)?\sCERTIFICATE\-+$/) {
             my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
-            my $self_signed = $cert->is_selfsigned;
-            if ($self_signed) {
+            if ($cert->is_selfsigned) {
                 close $BUNDLE;
                 return $TRUE;
             }
