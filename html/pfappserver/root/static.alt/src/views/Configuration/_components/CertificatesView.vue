@@ -159,21 +159,25 @@
     </b-tabs>
     <!-- Generate CSR modal -->
     <b-modal id="csrModal" size="lg" v-model="csrMode"
-      @shown="csrModalShown"
-      :ok-title="csr ? $t('Copy to clipboard') : $t('Generate')" @ok="generateCSR($event)"
-      :ok-disabled="$v.csrForm.$invalid"
-      :cancel-title="$t('Cancel')" @cancel="toggleCSRModal">
-      <div v-slot:modal-title>
+      @shown="csrModalShown">
+      <template v-slot:modal-title>
         <span v-html="csrModalTitle"></span>
-      </div>
-      <b-form @submit.prevent="generateCSR($event)" v-show="!csr">
-        <pf-form-input :label-cols="6" :column-label="$t('2-letter country code')" ref="csr_country" v-model="$v.csrForm.country.$model" :vuelidate="$v.csrForm.country" />
-        <pf-form-input :label-cols="6" :column-label="$t('State')" v-model="$v.csrForm.state.$model" :vuelidate="$v.csrForm.state" />
-        <pf-form-input :label-cols="6" :column-label="$t('Locality')" v-model="$v.csrForm.locality.$model" :vuelidate="$v.csrForm.locality" />
-        <pf-form-input :label-cols="6" :column-label="$t('Organization Name')" v-model="$v.csrForm.organization_name.$model" :vuelidate="$v.csrForm.organization_name" />
-        <pf-form-input :label-cols="6" :column-label="$t('Common Name')" v-model="$v.csrForm.common_name.$model" :vuelidate="$v.csrForm.common_name" />
-      </b-form>
-      <b-form-textarea ref="csr" rows="6" max-rows="17" v-show="csr" v-model="csr"></b-form-textarea>
+      </template>
+      <template v-slot:default>
+        <b-form @submit.prevent="generateCSR($event)" v-show="!csr">
+          <pf-form-chosen :label-cols="6" :column-label="$t('Country')" ref="csr_country" v-model="$v.csrForm.country.$model" :vuelidate="$v.csrForm.country" :options="countries" />
+          <pf-form-input :label-cols="6" :column-label="$t('State')" v-model="$v.csrForm.state.$model" :vuelidate="$v.csrForm.state" />
+          <pf-form-input :label-cols="6" :column-label="$t('Locality')" v-model="$v.csrForm.locality.$model" :vuelidate="$v.csrForm.locality" />
+          <pf-form-input :label-cols="6" :column-label="$t('Organization Name')" v-model="$v.csrForm.organization_name.$model" :vuelidate="$v.csrForm.organization_name" />
+          <pf-form-input :label-cols="6" :column-label="$t('Common Name')" v-model="$v.csrForm.common_name.$model" :vuelidate="$v.csrForm.common_name" />
+        </b-form>
+        <b-form-textarea ref="csr" rows="6" max-rows="17" v-show="csr" v-model="csr"></b-form-textarea>
+      </template>
+      <template v-slot:modal-footer="{ hide }" class="text-right">
+        <b-button class="mr-1" variant="secondary" @click="hide()">{{ $t('Close') }}</b-button>
+        <b-button v-if="csr" class="mr-1" variant="primary" :disabled="$v.csrForm.$invalid" @click="clipboardCSR($event)">{{ $t('Copy to clipboard') }}</b-button>
+        <b-button v-else class="mr-1" variant="primary" :disabled="$v.csrForm.$invalid" @click="generateCSR($event)">{{ $t('Generate') }}</b-button>
+      </template>
     </b-modal>
   </b-card>
 </template>
@@ -182,12 +186,14 @@
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonService from '@/components/pfButtonService'
 import pfField from '@/components/pfField'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormUpload from '@/components/pfFormUpload'
+import countries from '@/globals/countries'
 const {
   minLength,
   required
@@ -202,6 +208,7 @@ export default {
   components: {
     pfButtonSave,
     pfButtonService,
+    pfFormChosen,
     pfFormFields,
     pfFormInput,
     pfFormRangeToggle,
@@ -244,7 +251,10 @@ export default {
             attrs: { rows: 6 }
           }
         }
-      }
+      },
+      countries: Object.keys(countries).map(countryCode => {
+        return { value: countryCode, text: countries[countryCode] }
+      })
     }
   },
   validations () {
@@ -358,20 +368,18 @@ export default {
       this.$refs.csr_country.focus()
     },
     generateCSR ($event) {
-      if (this.csr) {
-        if (document.queryCommandSupported('copy')) {
-          this.$refs.csr.$el.select()
-          document.execCommand('copy')
-          this.csr = ''
-          this.$store.dispatch('notification/info', { message: this.$i18n.t('Signing Request copied to clipboard') })
-        }
-      } else {
-        this.csrForm.id = this.sortedCerts[this.tabIndex]
-        this.$store.dispatch('$_certificates/generateCertificateSigningRequest', this.csrForm).then(csr => {
-          this.csr = csr
-          this.$nextTick(() => this.$refs.csr.$el.select())
-        })
-        $event.preventDefault()
+      this.csrForm.id = this.sortedCerts[this.tabIndex]
+      this.$store.dispatch('$_certificates/generateCertificateSigningRequest', this.csrForm).then(csr => {
+        this.csr = csr
+        this.$nextTick(() => this.$refs.csr.$el.select())
+      })
+      $event.preventDefault()
+    },
+    clipboardCSR ($event) {
+      if (document.queryCommandSupported('copy')) {
+        this.$refs.csr.$el.select()
+        document.execCommand('copy')
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Signing Request copied to clipboard') })
       }
     }
   },
