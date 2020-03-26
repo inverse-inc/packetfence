@@ -16,9 +16,10 @@ declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS INTEGRATION_TESTS
 # /usr/local/pf is hardcoded everywhere in 't'
 cp -a ${SRC_DIR}/t ${PF_DIR}
 
-# Preliminary steps before running unit tests
+# Preliminary steps before running Perl and Golang unit tests
 # used MYSQL_PWD env variable
 mysql -uroot < ${PF_DIR}/t/db/smoke_test.sql;
+${PF_DIR}/t/db/setup_test_db.pl
 
 if [ "$PERL_UNIT_TESTS" = "yes" ]; then
     echo "Running Perl unit tests"
