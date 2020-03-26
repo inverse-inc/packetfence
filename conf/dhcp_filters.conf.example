@@ -30,7 +30,7 @@
 #         7 for Release
 #         8 for Inform
 #     options.optionClientIdentifier
-#         is the mac of teh device like 001122334455
+#         is the mac of the device like 001122334455
 #     options.optionParameterRequestList
 #     options.optionMaximumDHCPMessageSize
 #     node_info.autoreg
