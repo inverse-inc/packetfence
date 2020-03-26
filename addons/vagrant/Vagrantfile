@@ -96,6 +96,18 @@ Vagrant.configure("2") do |config|
         # Allow SSH as root with insecure_private_key
         srv.vm.provision "ssh", type:"shell", inline: "sudo mkdir -p /root/.ssh && sudo cp /home/vagrant/.ssh/authorized_keys /root/.ssh/"
 
+        # Inject the insecure Vagrant SSH key into the PacketFence server so it can be
+        # used to run Venom tasks over SSH
+        srv.vm.provision "file", source: "#{Dir.home}/.vagrant.d/insecure_private_key", \
+                                       destination: "/home/vagrant/.ssh/id_rsa"
+        srv.vm.provision "shell" do |s|
+          s.inline = <<-SHELL
+                chown vagrant:vagrant /home/vagrant/.ssh/id_rsa
+                chmod 600 /home/vagrant/.ssh/id_rsa
+            SHELL
+        end
+
+
         # Use to run only tasks tagged "install" in site.yml
         srv.vm.provision "config", type:"ansible", run:"never" do |config|
           config.playbook = "site.yml"
