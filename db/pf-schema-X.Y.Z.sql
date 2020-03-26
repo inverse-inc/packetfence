@@ -1595,7 +1595,7 @@ BEGIN
              sum(in_bytes) AS in_bytes,
              sum(out_bytes) AS out_bytes
             FROM to_delete
-            GROUP BY tenant_id, mac, new_time_bucket
+            GROUP BY node_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
                 out_bytes = out_bytes + VALUES(out_bytes)
