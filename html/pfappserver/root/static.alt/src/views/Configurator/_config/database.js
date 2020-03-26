@@ -28,7 +28,7 @@ export const view = (form = {}, meta = {}) => {
   } = form
   const {
     database: {
-      advancedMode = false,
+      // advancedMode = false,
       setRootPassword = false,
       rootPasswordIsRequired = true,
       rootPasswordIsValid = false,
@@ -48,7 +48,7 @@ export const view = (form = {}, meta = {}) => {
         /**
          * Advanced settings
          */
-        {
+        /*{
           if: advancedMode,
           label: i18n.t('Hostname'),
           text: i18n.t('Server the MySQL server is running on.'),
@@ -71,7 +71,7 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'database.port')
             }
           ]
-        },
+        },*/
         /**
          * Root password
          */

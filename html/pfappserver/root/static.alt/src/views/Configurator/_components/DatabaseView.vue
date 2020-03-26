@@ -9,9 +9,9 @@
     <template v-slot:header>
       <h4 class="mb-0">
         <span>{{ $t('Database') }}</span>
-        <div class="float-right">
+        <!-- <div class="float-right">
           <pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle>
-        </div>
+        </div> -->
       </h4>
     </template>
   </pf-config-view>
@@ -19,17 +19,23 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
-import pfFormToggle from '@/components/pfFormToggle'
+// import pfFormToggle from '@/components/pfFormToggle'
 import {
   view,
   validators
 } from '../_config/database'
+import { createDebouncer } from 'promised-debounce'
 
 export default {
   name: 'database-view',
   components: {
-    pfConfigView,
-    pfFormToggle
+    pfConfigView
+    // pfFormToggle
+  },
+  data () {
+    return {
+      $debouncer: null
+    }
   },
   props: {
     formStoreName: {
@@ -50,23 +56,16 @@ export default {
     },
     isLoading () {
       return this.$store.getters['$_bases/isLoading']
-    },
-    advancedMode: { // mutating this property will re-evaluate view() and validators()
-      get () {
-        const { meta: { database: { advancedMode = false } = {} } = {} } = this
-        return advancedMode
-      },
-      set (newValue) {
-        this.$set(this.meta.database, 'advancedMode', newValue)
-      }
-    // },
-    // hostState () {
-    //   return this.$store.getters[`${this.formStoreName}/$stateNS`]('database.host')
-    // },
-    // portState () {
-    //   return this.$store.getters[`${this.formStoreName}/$stateNS`]('database.port')
     }
-
+    // advancedMode: { // mutating this property will re-evaluate view() and validators()
+    //   get () {
+    //     const { meta: { database: { advancedMode = false } = {} } = {} } = this
+    //     return advancedMode
+    //   },
+    //   set (newValue) {
+    //     this.$set(this.meta.database, 'advancedMode', newValue)
+    //   }
+    // }
   },
   methods: {
     init () {
@@ -77,9 +76,6 @@ export default {
         this.$store.dispatch('$_bases/getDatabase').then(form => {
           this.$store.dispatch(`${this.formStoreName}/appendForm`, { database: form })
           this.initialValidation()
-          // TODO: if host or port is changed, call this.save and this.initialValidation
-          // this.$watch('hostState')
-          // this.$watch('portState')
         })
       })
     },
@@ -117,5 +113,41 @@ export default {
   created () {
     this.init()
   }
+  /*watch: {
+    'form.database.host': {
+      handler: function (a, b) {
+        if (a || b) {
+          if (!this.$debouncer) {
+            this.$debouncer = createDebouncer()
+          }
+          this.$debouncer({
+            handler: () => {
+              this.save().then(() => {
+                this.initialValidation()
+              })
+            },
+            time: 2000 // 2 seconds
+          })
+        }
+      }
+    },
+    'form.database.port': {
+      handler: function (a, b) {
+        if (a || b) {
+          if (!this.$debouncer) {
+            this.$debouncer = createDebouncer()
+          }
+          this.$debouncer({
+            handler: () => {
+              this.save().then(() => {
+                this.initialValidation()
+              })
+            },
+            time: 2000 // 2 seconds
+          })
+        }
+      }
+    }
+  }*/
 }
 </script>
