@@ -8,8 +8,8 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/mac"
 )
 
 var rows = flag.Int("rows", 10000, "The amount of rows to insert")
@@ -48,7 +48,17 @@ func main() {
 	}
 
 	db := connectDB()
-	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting VALUES(1, ?, ?, ?, ?, ?, ?, 0)`)
+/*
+    node_id BIGINT UNSIGNED NOT NULL,
+    unique_session_id BIGINT UNSIGNED NOT NULL,
+    time_bucket DATETIME NOT NULL,
+    in_bytes BIGINT SIGNED NOT NULL,
+    out_bytes BIGINT SIGNED NOT NULL,
+    mac CHAR(17) NOT NULL,
+    tenant_id SMALLINT NOT NULL,
+    processed BOOLEAN NOT NULL DEFAULT 0,
+*/
+	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes, mac, tenant_id, processed) VALUES(?, ?, ?, ?, ?, ?, 1, 0)`)
 	sharedutils.CheckError(err)
 
 	rowsPerEndpoint := *rows / *endpointsCount
@@ -56,17 +66,16 @@ func main() {
 	concurrencyChan := make(chan int, *concurrency)
 
 	wg := sync.WaitGroup{}
-
 	// start at a00000000001
 	startMac := 175921860444161
 	for i := 0; i < *endpointsCount; i++ {
-		mac := sharedutils.CleanMac(fmt.Sprintf("%x", startMac+i))
+		mac, _ := mac.NewFromString(fmt.Sprintf("%x", startMac+i))
 		for j := 0; j < rowsPerEndpoint; j++ {
 			concurrencyChan <- 1
 			go func(j int) {
 				wg.Add(1)
 				defer wg.Done()
-				_, err := insertBandwidthAccounting.Exec(mac, uuid.New().String(), startAt.Add(time.Duration(j)*time.Duration(*bucketSize)*time.Second), 1, 1, 2)
+				_, err := insertBandwidthAccounting.Exec(mac.NodeId(1), i, startAt.Add(time.Duration(j)*time.Duration(*bucketSize)*time.Second), 1, 1, mac.String())
 				sharedutils.CheckError(err)
 				<-concurrencyChan
 			}(j)
