@@ -202,7 +202,10 @@ sub set_timezone {
 }
 
 sub isSelfSigned {
-    open (my $BUNDLE, '<', $server_pem);
+    my $BUNDLE;
+    if (!open ($BUNDLE, '<', $server_pem)) {
+        return $FALSE;
+    }
 
     my $pemcert = "";
 
