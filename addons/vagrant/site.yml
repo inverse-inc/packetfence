@@ -57,11 +57,8 @@
       tags: go
       when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
 
-    - role: venom
-      tags: venom
-      when: lookup("env", "INTEGRATION_TESTS") == 'yes'
-
 # no sub directory for ansible to find roles under roles/ directory
 - import_playbook: winservers.yml
 - import_playbook: cumulus.yml
 - import_playbook: nodes.yml
+- import_playbook: venom.yml
