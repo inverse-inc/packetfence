@@ -20,6 +20,7 @@ use Readonly;
 use pf::accounting_events_history;
 use pf::config::pfmon qw(%ConfigPfmon);
 use pf::config::tenant;
+use pf::util qw(make_node_id);
 use pf::error qw(is_success);
 
 use constant ACCOUNTING => 'accounting';
@@ -530,9 +531,9 @@ sub node_acct_maintenance_bw {
     my $date = $grouping_dates{$interval};
     my $sql = <<"SQL";
     select tenant_id, mac, SUM($field) as $field FROM (
-        SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? GROUP BY $date, tenant_id, mac
-        UNION ALL SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? GROUP BY $date, tenant_id, mac
-    ) AS X GROUP BY time_bucket, tenant_id, mac HAVING SUM($field) >= ?;
+        SELECT $date AS time_bucket, node_id, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? GROUP BY $date, node_id
+        UNION ALL SELECT $date AS time_bucket, node_id, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? GROUP BY $date, node_id
+    ) AS X GROUP BY time_bucket, node_id HAVING SUM($field) >= ?;
 SQL
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $releaseDate, $bytes);
     if (is_success($status)) {
@@ -548,13 +549,14 @@ sub node_acct_maintenance_bw_exists {
     my ($tenant_id, $mac, $direction, $interval, $releaseDate, $bytes) = @_;
     my $field = $direction_field{$direction};
     my $date = $grouping_dates{$interval};
+    my $node_id = make_node_id($tenant_id, $mac);
     my $sql = <<"SQL";
     select tenant_id, mac FROM (
-        SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? AND tenant_id = ? AND mac = ? GROUP BY $date, tenant_id, mac
-        UNION ALL SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? AND tenant_id = ? AND mac = ? GROUP BY $date, tenant_id, mac
+        SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
+        UNION ALL SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
     ) AS X GROUP BY time_bucket HAVING SUM($field) >= ?;
 SQL
-    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $tenant_id, $mac, $releaseDate, $tenant_id, $mac, $bytes);
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $node_id, $releaseDate, $node_id, $bytes);
     if (is_success($status)) {
         my $tbl_ary_ref = $sth->fetchall_arrayref({});
         $sth->finish();
@@ -575,13 +577,14 @@ sub node_accounting_bw {
     my ($mac, $interval) = @_;
     my $tenant_id = pf::config::tenant::get_tenant();
     my $date = $mac_grouping_dates{$interval};
+    my $node_id = make_node_id($tenant_id, $mac);
     my $sql = <<"SQL";
     select SUM(in_bytes) AS acctinput, SUM(out_bytes) AS acctoutput, SUM(total_bytes) AS accttotal FROM (
-        SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting WHERE time_bucket >= $date AND tenant_id = ? AND mac = ?
-        UNION SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting_history WHERE time_bucket >= $date AND tenant_id = ? AND mac = ?
+        SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting WHERE time_bucket >= $date AND node_id = ?
+        UNION SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting_history WHERE time_bucket >= $date AND node_id = ?
     ) AS X;
 SQL
-    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $tenant_id, $mac, $tenant_id, $mac);
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $node_id, $node_id);
     if (is_success($status)) {
         my $tbl_ary_ref = $sth->fetchall_arrayref({});
         return @$tbl_ary_ref;
