@@ -51,6 +51,13 @@ const network = {
     var resulta = aa[0] * 0x1000000 + aa[1] * 0x10000 + aa[2] * 0x100 + aa[3] * 1
     var resultb = bb[0] * 0x1000000 + bb[1] * 0x10000 + bb[2] * 0x100 + bb[3] * 1
     return (resulta === resultb) ? 0 : ((resulta > resultb) ? 1 : -1)
+  },
+  ipv4InSubnet (ip, subnet) {
+    const _ip = ip.split('.').map(i => parseInt(i))
+    const _subnet = subnet.replace(/(\.0)+$/, '').split('.').map(s => parseInt(s))
+    return _ip.reduce((result, d, index) => {
+      return result && (index >= _subnet.length || d === _subnet[index])
+    }, true)
   }
 }
 

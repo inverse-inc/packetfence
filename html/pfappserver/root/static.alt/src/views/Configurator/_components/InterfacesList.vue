@@ -94,6 +94,7 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   columns as columnsInterface
 } from '../_config/interface'
+import network from '@/utils/network'
 
 export default {
   name: 'interfaces-list',
@@ -133,6 +134,23 @@ export default {
       })
       this.$store.dispatch('system/getGateway').then((gateway) => {
         this.$store.dispatch(`formNetwork/appendForm`, { gateway })
+        this.$watch('interfaces', (interfaces) => {
+            if (this.interfaces.filter(i => i.type === 'management').length === 0) {
+              // No interface is of type management -- force one
+              let management_interface = interfaces.find(i => {
+                return network.ipv4InSubnet(gateway, network.ipv4NetmaskToSubnet(i.network, i.netmask))
+              })
+              if (!management_interface && interfaces.length > 0) {
+                management_interface = interfaces[0]
+              }
+              if (management_interface) {
+                management_interface.type = 'management'
+                this.$store.dispatch('$_interfaces/updateInterface', management_interface)
+              }
+            }
+          },
+          { immediate: true }
+        )
       })
       this.$store.dispatch('system/getHostname').then((hostname) => {
         this.$store.dispatch(`formNetwork/appendForm`, { hostname })
