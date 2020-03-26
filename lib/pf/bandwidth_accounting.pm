@@ -25,10 +25,10 @@ use pf::config::security_event;
 my $logger = get_logger();
 
 sub bandwidth_maintenance {
-    my ($batch, $time_limit, $history_batch, $history_timeout, $history_window) = @_;
+    my ($batch, $time_limit, $window, $history_batch, $history_timeout, $history_window) = @_;
     process_bandwidth_accounting($batch, $time_limit);
     trigger_bandwidth($batch, $time_limit);
-    bandwidth_aggregation_hourly($batch, $time_limit);
+    bandwidth_aggregation_hourly($batch, $window, $time_limit);
     bandwidth_aggregation_history_daily($batch, $time_limit);
     bandwidth_aggregation_history_monthly($batch, $time_limit);
     bandwidth_accounting_history_cleanup($history_window, $history_batch, $history_timeout);
@@ -60,12 +60,12 @@ sub trigger_bandwidth {
 }
 
 sub bandwidth_aggregation_hourly {
-    my ($batch, $time_limit) = @_;
+    my ($batch, $time_limit, $window) = @_;
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
     while (1) {
-        my $rows = call_bandwidth_aggregation_hourly($batch);
+        my $rows = call_bandwidth_aggregation_hourly($batch, $window);
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
@@ -134,9 +134,9 @@ sub call_process_bandwidth_accounting {
 }
 
 sub call_bandwidth_aggregation_hourly {
-    my ($batch) = @_;
-    my $sql = "CALL bandwidth_aggregation(SUBDATE(NOW(), INTERVAL ? HOUR), ?);";
-    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, 2, $batch);
+    my ($batch, $window) = @_;
+    my $sql = "CALL bandwidth_aggregation(SUBDATE(NOW(), INTERVAL ? SECOND), ?);";
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $window, $batch);
     if (is_error($status)) {
         $logger->error("Error calling bandwidth_aggregation");
         return 0;

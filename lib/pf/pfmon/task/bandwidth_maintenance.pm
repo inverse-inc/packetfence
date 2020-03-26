@@ -38,6 +38,7 @@ sub run {
     bandwidth_maintenance(
         $self->batch,
         $self->timeout,
+        $self->window,
         $self->history_batch,
         $self->history_timeout,
         $self->history_window,
