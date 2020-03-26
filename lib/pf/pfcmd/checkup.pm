@@ -20,6 +20,7 @@ use Readonly;
 use pf::constants::filters;
 use pf::validation::profile_filters;
 use Graph;
+use pf::config::builder::filter_engine;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::config qw(
@@ -1331,7 +1332,7 @@ Validate Access Filters
 =cut
 
 sub validate_access_filters {
-    my $builder = pf::config::builder::scoped_filter_engines->new();
+    my $builder = pf::config::builder::filter_engine->new();
     while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
         next if $f eq 'apache-filters';
        my $ini = $cs->configIniFile();
