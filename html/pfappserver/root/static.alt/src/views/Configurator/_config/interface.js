@@ -51,6 +51,9 @@ export const columns = [
 
 export const networkValidators = () => {
   return {
+    dns_servers: {
+      [i18n.t('At least one DNS server is required.')]: required
+    },
     gateway: {
       [i18n.t('Default gateway required.')]: required
     },

@@ -12,6 +12,11 @@ const api = {
       return response.data
     })
   },
+  getDnsServers: () => {
+    return apiCall.getQuiet('config/system/dns_servers').then(response => {
+      return response.data
+    })
+  },
   getGateway: () => {
     return apiCall.getQuiet('config/system/gateway').then(response => {
       return response.data
@@ -19,6 +24,12 @@ const api = {
   },
   getHostname: () => {
     return apiCall.getQuiet('config/system/hostname').then(response => {
+      return response.data
+    })
+  },
+  setDnsServers: (data) => {
+    const put = data.quiet ? 'putQuiet' : 'put'
+    return apiCall[put]('config/system/dns_servers', { dns_servers: data.dns_servers }).then(response => {
       return response.data
     })
   },
@@ -46,6 +57,7 @@ const types = {
 const initialState = () => {
   return {
     summary: false,
+    dns_servers: [],
     gateway: '',
     hostname: '',
     message: '',
@@ -77,6 +89,22 @@ const actions = {
           })
         }
         resolve(state.summary)
+      }).catch(err => {
+        commit('SYSTEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  getDnsServers: ({ commit, state }) => {
+    if (state.dns_servers.length) {
+      return Promise.resolve(state.dns_servers)
+    }
+    commit('SYSTEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.getDnsServers().then(data => {
+        const { dns_servers = [] } = data
+        commit('SYSTEM_ITEM_SUCCESS', { dns_servers })
+        resolve(state.dns_servers)
       }).catch(err => {
         commit('SYSTEM_ERROR', err.response)
         reject(err)
@@ -131,6 +159,18 @@ const actions = {
       api.setHostname(data).then(() => {
         commit('SYSTEM_ITEM_SUCCESS', { hostname: data.hostname })
         resolve(state.hostname)
+      }).catch(err => {
+        commit('SYSTEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  setDnsServers: ({ commit, state }, data) => {
+    commit('SYSTEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.setDnsServers(data).then(() => {
+        commit('SYSTEM_ITEM_SUCCESS', { dns_servers: data.dns_servers })
+        resolve(state.dns_servers)
       }).catch(err => {
         commit('SYSTEM_ERROR', err.response)
         reject(err)

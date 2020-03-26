@@ -75,6 +75,12 @@
       <pf-form-input :column-label="$t('Server Hostname')"
         form-store-name="formNetwork" form-namespace="hostname"
       />
+      <pf-form-chosen :column-label="$t('DNS Servers')"
+        :multiple="true" :taggable="true"
+        :tag-placeholder="$t('Click to add host')"
+        @tag="addDnsServer"
+        form-store-name="formNetwork" form-namespace="dns_servers"
+      />
     </div>
   </b-card>
 </template>
@@ -82,6 +88,7 @@
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
@@ -93,6 +100,7 @@ export default {
   components: {
     pfButtonDelete,
     pfEmptyTable,
+    pfFormChosen,
     pfFormInput,
     pfFormRangeToggle
   },
@@ -102,6 +110,9 @@ export default {
     }
   },
   computed: {
+    form () {
+      return this.$store.getters[`formNetwork/$form`]
+    },
     isInterfacesLoading () {
       return this.$store.getters[`$_interfaces/isLoading`]
     },
@@ -125,6 +136,9 @@ export default {
       })
       this.$store.dispatch('system/getHostname').then((hostname) => {
         this.$store.dispatch(`formNetwork/appendForm`, { hostname })
+      })
+      this.$store.dispatch('system/getDnsServers').then((dns_servers) => {
+        this.$store.dispatch(`formNetwork/appendForm`, { dns_servers })
       })
     },
     /**
@@ -172,8 +186,14 @@ export default {
       }
       return null // default sort
     },
+    /**
+     * DNS Servers
+     */
+    addDnsServer (value) {
+      this.form.dns_servers.push(value)
+    },
     save () {
-      const { gateway, hostname } = this.$store.getters['formNetwork/$form']
+      const { gateway, hostname, dns_servers } = this.$store.getters['formNetwork/$form']
       return Promise.all([
         this.$store.dispatch('system/setGateway', { quiet: true, gateway }).catch(error => {
           // Only show a notification in case of a failure
@@ -195,6 +215,16 @@ export default {
           })
           throw error
         }),
+        this.$store.dispatch('system/setDnsServers', { quiet: true, dns_servers }).catch(error => {
+          // Only show a notification in case of a failure
+          const { response: { data: { message = '' } = {} } = {} } = error
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            url: message,
+            message: this.$i18n.t('An error occured while updating the DNS servers.')
+          })
+          throw error
+        })
       ])
     }
   },
