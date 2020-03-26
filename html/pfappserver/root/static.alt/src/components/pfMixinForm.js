@@ -38,6 +38,9 @@ export default {
     vModel () {
       return this.$store.getters[`${this.formStoreName}/$vModel`]
     },
+    inputDebounceTimeMs () {
+      return this.$store.getters[`${this.formStoreName}/$inputDebounceTimeMs`]
+    },
     formStoreValue: {
       get () {
         return this.vModel[this.formNamespace]
@@ -50,7 +53,7 @@ export default {
           handler: () => {
             this.vModel[this.formNamespace] = newValue
           },
-          time: 300
+          time: this.inputDebounceTimeMs
         })
       }
     },

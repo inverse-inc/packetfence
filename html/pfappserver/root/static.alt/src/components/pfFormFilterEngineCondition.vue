@@ -166,7 +166,7 @@ export default {
           if (text === field) {
             return options
           }
-        })
+        }) || {}
         return options
       }
       return []

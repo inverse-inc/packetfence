@@ -18,7 +18,9 @@ export default {
         $form: {}
       },
       $validationsStatus: '',
-      $validationsMessage: ''
+      $validationsMessage: '',
+
+      $inputDebounceTimeMs: 300
     }
   },
   getters: { // { state, getters, rootState, rootGetters }
@@ -141,11 +143,15 @@ export default {
           return false
         }
       })
-    }
+    },
+    $inputDebounceTimeMs: (state) => state.$inputDebounceTimeMs
   },
   actions: { // { state, rootState, commit, dispatch, getters, rootGetters }
     $touch: ({ getters }) => {
       getters.$validator.$v.$touch()
+    },
+    setInputDebounceTimeMs: ({ commit }, timeMs) => {
+      commit('SET_INPUT_DEBOUNCE_TIME_MS', timeMs)
     },
     setOptions: ({ dispatch }, options) => { // shortcut for setMeta
       return new Promise((resolve, reject) => {
@@ -259,6 +265,9 @@ export default {
       state.$validations.$form = validations
       state.$validationsStatus = types.SUCCESS
       state.$validationsMessage = ''
+    },
+    SET_INPUT_DEBOUNCE_TIME_MS: (state, timeMs) => {
+      state.$inputDebounceTimeMs = timeMs
     }
   }
 }

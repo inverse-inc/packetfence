@@ -117,6 +117,7 @@ export default {
   },
   methods: {
     init () {
+      this.$store.dispatch(`${this.formStoreName}/setInputDebounceTimeMs`, 1000)
       const { collection, id } = this
       this.$store.dispatch('$_filter_engines/options', { collection, id }).then(options => {
         const { meta = {} } = options
