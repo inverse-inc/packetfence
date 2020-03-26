@@ -23,7 +23,7 @@
         </template>
       </b-tabs>
       <template v-for="(tab, t) in view">
-        <div class="card-body" v-if="tab.rows" v-show="t === tabIndex" :key="t">
+        <div class="card-body" v-show="tab.rows && t === tabIndex" :key="t">
           <template v-for="row in tab.rows">
             <b-form-group v-if="!('if' in row) || row.if" :key="row.key"
               :label-cols="('label' in row && row.cols) ? labelCols : 0"
@@ -35,7 +35,7 @@
               <b-input-group align-v="start">
                 <template v-for="col in row.cols">
                   <span v-if="col.text" :key="col.index" class="d-inline py-2" :class="col.class">{{ col.text }}</span>
-                  <component v-else-if="!('if' in col) || col.if"
+                  <component v-show="!('if' in col) || col.if"
                     v-bind="col.attrs"
                     v-on="kebabCaseListeners(col.listeners)"
                     :form-store-name="formStoreName"

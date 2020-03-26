@@ -57,7 +57,7 @@
                 class="m-1"
               />
               <!-- `value` w/ options -->
-              <pf-form-chosen v-if="valueOptions(formNamespace).length > 0"
+              <pf-form-chosen v-show="valueOptions(formNamespace).length > 0"
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.value'"
                 :options="valueOptions(formNamespace)"
@@ -66,7 +66,7 @@
                 class="m-1"
               />
               <!-- `value` w/o options -->
-              <pf-form-input v-else
+              <pf-form-input v-show="valueOptions(formNamespace).length === 0"
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.value'"
                 :disabled="disabled"
@@ -159,7 +159,7 @@ export default {
   },
   methods: {
     valueOptions (namespace) {
-      const { field } = this.vModel[namespace]
+      const { vModel: { [namespace]: field } = {} } = this
       if (field) {
         const { options = [] } = this.fieldOperators.find(fieldOperator => {
           const { text, options = [] } = fieldOperator

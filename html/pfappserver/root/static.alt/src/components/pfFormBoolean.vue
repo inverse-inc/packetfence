@@ -13,19 +13,17 @@
     >
       <span class="m-0">
         <span v-if="!isRoot" class="drag-handle" :class="{ 'text-secondary': disabled }">
-          <icon name="grip-vertical" :class="{ 'text-primary': actionKey }"></icon>
+          <icon name="grip-vertical"></icon>
         </span>
         <slot name="op" v-bind="{ op, formStoreName, formNamespace, disabled }"></slot>
       </span>
-      <span class="menu"
-        @mouseover="actionKey && $refs.menu.show(true)"
-      >
+      <span class="menu">
         <b-dropdown no-caret lazy right variant="transparent" ref="menu" :disabled="disabled">
           <template v-slot:button-content>
-            <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
+            <icon name="cog"></icon>
           </template>
           <b-dropdown-group v-if="!isRoot">
-            <b-dropdown-item @click="$emit('cloneOperator'); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="$emit('cloneOperator'); highlight = false;">
               <icon name="clone" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
             <b-dropdown-item @click="$emit('deleteOperator'); highlight = false;">
@@ -33,13 +31,13 @@
             </b-dropdown-item>
           </b-dropdown-group>
           <b-dropdown-group>
-            <b-dropdown-item @click="addOperator(values.length + 1); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="addOperator(values.length + 1); highlight = false;">
               <icon name="grip-horizontal" class="mr-1"></icon> {{ $t('Add Operator') }}
             </b-dropdown-item>
-            <b-dropdown-item @click="addValue(values.length + 1); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="addValue(values.length + 1); highlight = false;">
               <icon name="ellipsis-h" class="mr-1"></icon> {{ $t('Add Value') }}
             </b-dropdown-item>
-            <b-dropdown-item @click="truncate(); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="truncate(); highlight = false;">
               <icon name="cut" class="mr-1"></icon> {{ $t('Truncate') }}
             </b-dropdown-item>
           </b-dropdown-group>
@@ -95,18 +93,16 @@
 
     <div v-else class="pf-form-boolean-value">
       <span class="drag-handle" :class="{ 'text-secondary': disabled }">
-        <icon name="grip-vertical" :class="{ 'text-primary': actionKey }"></icon>
+        <icon name="grip-vertical"></icon>
       </span>
       <slot name="value" v-bind="{ value, formStoreName, formNamespace, disabled }"></slot>
-      <span class="menu"
-        @mouseover.stop.prevent="actionKey && $refs.menu.show(true)"
-      >
+      <span class="menu">
         <b-dropdown no-caret lazy right variant="transparent" ref="menu" :disabled="disabled">
           <template v-slot:button-content>
-            <icon name="cog" :class="{ 'text-primary': actionKey }"></icon>
+            <icon name="cog"></icon>
           </template>
           <b-dropdown-group>
-            <b-dropdown-item @click="$emit('cloneValue'); highlight = false; (actionKey && $nextTick(() => $refs.menu.show(true)))">
+            <b-dropdown-item @click="$emit('cloneValue'); highlight = false;">
               <icon name="clone" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
             <b-dropdown-item @click="$emit('deleteValue'); highlight = false;">
@@ -195,9 +191,6 @@ export default {
       const { inputValue: { values } = {} } = this
       return values && values.constructor === Array
     },
-    actionKey () {
-      return this.$store.getters['events/actionKey']
-    },
     op () {
       const { inputValue: { op } = {} } = this
       return op || null
@@ -217,7 +210,7 @@ export default {
       return { value, formStoreName, formNamespace: `${formNamespace}.values.${index}` }
     },
     addValue (index, newValue = {}) {
-      let { inputValue: { values } = {}, sourceIndex } = this
+      let { inputValue: { values } = {} } = this
       this.$set(this.inputValue, 'values', [...values.slice(0, index), newValue, ...values.slice(index)])
     },
     cloneValue (index) {
@@ -271,10 +264,9 @@ export default {
           return
         }
         this.sourceIndex = index
-        const { actionKey: clone, formStoreName, formNamespace, value } = this
+        const { formStoreName, formNamespace, value } = this
         new Promise((resolve) => {
           this.$set(this.dataBus, 'data', {
-            clone,
             source: this,
             sourceElement,
             formStoreName,
@@ -283,18 +275,15 @@ export default {
             resolve
           })
         }).then(target => {
-          if (!clone) {
-            if (this.$el.isSameNode(target.$el)) { // same parent
-              if (target.targetIndex <= this.sourceIndex) { // target is before source
-                this.sourceIndex += 1 // increment index to include new value
-              }
+          if (this.$el.isSameNode(target.$el)) { // same parent
+            if (target.targetIndex <= this.sourceIndex) { // target is before source
+              this.sourceIndex += 1 // increment index to include new value
             }
-            this.deleteValue(this.sourceIndex) // delete old value
           }
+          this.deleteValue(this.sourceIndex) // delete old value
         }).finally(() => {
           this.dragEnd()
         })
-        this.$store.dispatch('events/onKeyUp') // fix: unable to detect actionKey keyup while dragging
     },
     dragEnd () { // @source
       const { dataBus: { data: { source, target } = {} } = {} } = this
@@ -312,17 +301,15 @@ export default {
       let targetElement = event.target.closest('.pf-form-boolean')
       if (targetElement.classList.contains('drag-target')) return // ignore placeholder
       if (targetElement.classList.contains('root')) return // ignore root
-      const { dataBus: { data: { clone, sourceElement, target } = {} } = {} } = this
+      const { dataBus: { data: { sourceElement, target } = {} } = {} } = this
       if (this.values.length > 0) { // has values (not empty)
-        if (!clone) {
-          if (sourceElement.contains(targetElement)) return // ignore self, ignore children
-          const { previousElementSibling, nextElementSibling } = targetElement
-          if (
-            (!isNext && previousElementSibling && previousElementSibling.isSameNode(sourceElement))
-            ||
-            (isNext && nextElementSibling && nextElementSibling.isSameNode(sourceElement))
-          ) return // ignore sibling previousElement@next and nextElement@previous
-        }
+        if (sourceElement.contains(targetElement)) return // ignore self, ignore children
+        const { previousElementSibling, nextElementSibling } = targetElement
+        if (
+          (!isNext && previousElementSibling && previousElementSibling.isSameNode(sourceElement))
+          ||
+          (isNext && nextElementSibling && nextElementSibling.isSameNode(sourceElement))
+        ) return // ignore sibling previousElement@next and nextElement@previous
         // @target is a valid drop target
         if (isNext) {
           index += 1 // shift after following
@@ -341,15 +328,6 @@ export default {
       let value = JSON.parse(JSON.stringify(source.inputValue.values[sourceIndex]))
       target.addValue(targetIndex, value) // add new value
       resolve(target)
-    }
-  },
-  watch: {
-    actionKey: {
-      handler: function (a) {
-        if (!a) {
-          this.$refs.menu.hide(true)
-        }
-      }
     }
   }
 }

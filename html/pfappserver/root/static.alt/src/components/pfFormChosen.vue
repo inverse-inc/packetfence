@@ -2,7 +2,7 @@
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
     class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+      {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
       <multiselect ref="multiselect"
@@ -39,14 +39,14 @@
           </span>
         </template>
         <template v-slot:noResult>
-          <template v-if="loading">
+          <template v-show="loading">
             <b-media class="text-secondary" md="auto">
               <template v-slot:aside><icon name="circle-notch" spin scale="1.5" class="mt-2 ml-2"></icon></template>
               <strong>{{ $t('Loading results') }}</strong>
               <b-form-text class="font-weight-light">{{ $t('Please wait...') }}</b-form-text>
             </b-media>
           </template>
-          <template v-else>
+          <template v-show="!loading">
             <b-media class="text-secondary" md="auto">
               <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
               <strong>{{ $t('No results') }}</strong>
@@ -55,11 +55,11 @@
           </template>
         </template>
       </multiselect>
-      <b-input-group-append v-if="readonly || disabled">
+      <b-input-group-append v-show="readonly || disabled">
         <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-html="text"></b-form-text>
+    <b-form-text v-show="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
