@@ -16,6 +16,7 @@ modules.
 
 use strict;
 use warnings;
+no warnings 'portable';
 
 use Cwd;
 use File::Basename;
@@ -104,6 +105,7 @@ BEGIN {
         mcmp make_string_cmp make_string_rcmp make_num_rcmp make_num_cmp
         mac2dec
         expand_ordered_array
+        make_node_id split_node_id
     );
 }
 
@@ -1633,6 +1635,19 @@ sub expand_ordered_array {
     my ($item, $items_key, $item_key) = @_;
     my @keys = nsort grep {/^\Q$item_key\E\.\d+$/} keys %$item;
     $item->{$items_key} = [delete @$item{@keys}];
+}
+
+sub make_node_id {
+    my ($tenant_id, $mac) = @_;
+    $mac =~ tr/://d; #A faster way to delete a character
+    return ($tenant_id << 48) | hex($mac);
+}
+
+sub split_node_id {
+    my ($node_id) = @_;
+    my $tenant_id = $node_id >> 48;
+    my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
+    return ($tenant_id, $mac);
 }
 
 =back
