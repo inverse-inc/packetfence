@@ -21,6 +21,7 @@ New Features
 * Added support for network anomaly detection through Fingerbank
 * New GUI for all filtering engines
 * New API and Vue.js based configurator
+* Added suppport to run integration tests using Cumulus Linux and libvirt
 
 Enhancements
 ++++++++++++
