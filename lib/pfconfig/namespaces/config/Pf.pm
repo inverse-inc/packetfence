@@ -26,11 +26,14 @@ use pf::file_paths qw(
     $pf_default_file
     $pf_config_file
     $log_dir
+    $server_pem
 );
 use pf::util;
 use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
+use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(uniq any);
 use DateTime::TimeZone;
+use Crypt::OpenSSL::X509;
 
 use base 'pfconfig::namespaces::config';
 
@@ -177,6 +180,12 @@ sub build_child {
         port     => $webservices->{'port'},
     };
 
+
+    if (isenabled($Config{'captive_portal'}{'secure_redirect'}) && isSelfSigned()) {
+        $Config{'captive_portal'}{'secure_redirect'} = 'disabled';
+        get_logger->info("secure redirect has been disabled since the portal certificate is a self-signed");
+    }
+
     return \%Config;
 }
 
@@ -190,6 +199,26 @@ sub set_timezone {
         get_logger->warn($msg);
         system("sudo timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
     }
+}
+
+sub isSelfSigned {
+    open (my $BUNDLE, '<', $server_pem);
+
+    my $pemcert = "";
+
+    while (my $row = <$BUNDLE>) {
+        $pemcert .= $row;
+        if($row =~ /^\-+END(\s\w+)?\sCERTIFICATE\-+$/) {
+            my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
+            if ($cert->is_selfsigned) {
+                close $BUNDLE;
+                return $TRUE;
+            }
+            $pemcert = "";
+        }
+    }
+    close $BUNDLE;
+    return $FALSE;
 }
 
 =head1 AUTHOR
