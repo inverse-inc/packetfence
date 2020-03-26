@@ -232,6 +232,8 @@ variables:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
 .test_script:
+  variables:
+    INT_TEST_VM_NAMES: ad switch01 node01
   script:
     - make -e -C ${TESTDIR} test
   after_script:
@@ -406,7 +408,10 @@ pages:
 ########################################
 test_pkg_dev_and_release_centos_7:
   variables:
-    VM_NAME: pfcen7dev
+    PF_VM_NAME: pfcen7dev
+    PERL_UNIT_TESTS: 'yes'
+    GOLANG_UNIT_TESTS: 'yes'
+    INTEGRATION_TESTS: 'no'
   extends:
     - .test_job
     - .test_script
@@ -415,7 +420,10 @@ test_pkg_dev_and_release_centos_7:
 
 test_pkg_nigthly_centos_7:
   variables:
-    VM_NAME: pfcen7dev
+    PF_VM_NAME: pfcen7dev
+    PERL_UNIT_TESTS: 'yes'
+    GOLANG_UNIT_TESTS: 'yes'
+    INTEGRATION_TESTS: 'yes'
   extends:
     - .test_job
     - .test_script
@@ -423,8 +431,10 @@ test_pkg_nigthly_centos_7:
 
 test_pkg_dev_and_release_debian_stretch:
   variables:
-    VM_NAME: pfdeb9dev
+    PF_VM_NAME: pfdeb9dev
     PERL_UNIT_TESTS: 'no'
+    GOLANG_UNIT_TESTS: 'yes'
+    INTEGRATION_TESTS: 'no'
   extends:
     - .test_job
     - .test_script
@@ -433,8 +443,10 @@ test_pkg_dev_and_release_debian_stretch:
 
 test_pkg_nightly_debian_stretch:
   variables:
-    VM_NAME: pfdeb9dev
+    PF_VM_NAME: pfdeb9dev
     PERL_UNIT_TESTS: 'no'
+    GOLANG_UNIT_TESTS: 'yes'
+    INTEGRATION_TESTS: 'yes'
   extends:
     - .test_job
     - .test_script

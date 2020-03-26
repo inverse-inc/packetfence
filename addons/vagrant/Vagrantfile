@@ -6,19 +6,25 @@ require 'yaml'
  
 # Read YAML file with box details
 inventory = YAML.load_file('inventory/hosts')
+networks = inventory['all']['vars']['networks']
 
 Vagrant.configure("2") do |config|
 
-  ## Global settings for config
+  ### Global settings for all VMS
+
   # disable synced folders
   config.vm.synced_folder ".", "/vagrant", disabled: true
   
   # use same private key on all machines
   config.ssh.insert_key = false
 
+  config.vm.provider "libvirt" do |vm|
+    vm.random_hostname = true
+  end
+
   # common Ansible provisionner for all hosts
   # filtering is done using 'hosts' directive in site.yml
-  config.vm.provision "ansible" do |ansible|
+  config.vm.provision "ansible", type: 'ansible' do |ansible|
     ansible.playbook = "site.yml"
     ansible.config_file = "ansible.cfg"
     ansible.inventory_path = "inventory"
@@ -40,18 +46,40 @@ Vagrant.configure("2") do |config|
         # Allow inbound, but only to our expected subnet. Allow outbound, but
         # only from our expected subnet. Allow traffic between guests. Deny
         # all other inbound. Deny all other outbound.
-        srv.vm.network "private_network", ip: details['mgmt_ip'], netmask: details['mgmt_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "route"
+        srv.vm.network "private_network",
+                       :libvirt__network_name => networks[0]['name'],
+                       :ip => details['mgmt_ip'],
+                       :netmask => details['mgmt_netmask'],
+                       :libvirt__dhcp_enabled => false,
+                       :libvirt__forward_mode => networks[0]['forward_mode']
 
         # registration
         # libvirt__forward_mode: "none" mean:
         # Allow traffic between guests. Deny inbound. Deny outbound.
-        srv.vm.network "private_network", ip: details['reg_ip'], netmask: details['reg_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
+        srv.vm.network "private_network",
+                       :libvirt__network_name => networks[1]['name'],
+                       :ip => networks[1]['subnet'],
+                       :libvirt__dhcp_enabled => false,
+                       :libvirt__forward_mode => networks[1]['forward_mode'],
+                       auto_config: false
 
         # isolation
-        srv.vm.network "private_network", ip: details['iso_ip'], netmask: details['iso_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
+        srv.vm.network "private_network",
+                       :libvirt__network_name => networks[2]['name'],
+                       :ip => networks[2]['subnet'],
+                       :libvirt__dhcp_enabled => false,
+                       :libvirt__forward_mode => networks[2]['forward_mode'],
+                       auto_config: false
+
+        # inline
+        srv.vm.network "private_network",
+                       :libvirt__network_name => networks[3]['name'],
+                       :ip => networks[3]['subnet'],
+                       :libvirt__dhcp_enabled => false,
+                       :libvirt__forward_mode => networks[3]['forward_mode'],
+                       auto_config: false
 
         srv.vm.provider "libvirt" do |v|
-          v.random_hostname = true
           v.cpus = details['cpus']
           v.memory = details['memory']
         end
@@ -87,16 +115,6 @@ Vagrant.configure("2") do |config|
           # only for debug
           config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
         end
-
-        srv.vm.provision "api_config", type:"ansible", run:"never" do |config|
-          config.playbook = "site.yml"
-          config.config_file = "ansible.cfg"
-          config.inventory_path = "inventory"
-          config.tags = "install"
-          config.start_at_task = "include api_config tasks"
-          # only for debug
-          config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
-        end
       end
     end
   end
@@ -114,11 +132,24 @@ Vagrant.configure("2") do |config|
         config.reset = true
       end
 
-      srv.vm.provision "run-tests", type: "shell" do |config|
+      # shell provisioner to run by hand
+      srv.vm.provision "run-unit-tests", type: "shell", run: "never" do |config|
         config.path = "../../ci/lib/test/run-tests.sh"
         config.env = {
-          PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'] || "yes",
-          GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'] || "yes"
+          PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'],
+          GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'],
+          # INTEGRATION_TESTS should run only when INT_TEST_VM_NAMES have booted
+          INTEGRATION_TESTS: "no"
+        }
+      end
+
+      # shell provisioner to run by hand
+      srv.vm.provision "run-integration-tests", type: "shell", run: "never" do |config|
+        config.path = "../../ci/lib/test/run-tests.sh"
+        config.env = {
+          PERL_UNIT_TESTS: "no",
+          GOLANG_UNIT_TESTS: "no",
+          INTEGRATION_TESTS: ENV['INTEGRATION_TESTS']
         }
       end
     end
@@ -134,7 +165,12 @@ Vagrant.configure("2") do |config|
       # Allow inbound, but only to our expected subnet. Allow outbound, but
       # only from our expected subnet. Allow traffic between guests. Deny
       # all other inbound. Deny all other outbound.
-      srv.vm.network "private_network", ip: details['mgmt_ip'], netmask: details['mgmt_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "route"
+      srv.vm.network "private_network",
+                     :libvirt__network_name => networks[0]['name'],
+                     :ip => details['mgmt_ip'],
+                     :netmask => details['mgmt_netmask'],
+                     :libvirt__dhcp_enabled => false,
+                     :libvirt__forward_mode => networks[0]['forward_mode']
 
       srv.vm.provider "libvirt" do |v|
         v.random_hostname = true
@@ -149,3 +185,7 @@ Vagrant.configure("2") do |config|
     end
   end
 end
+
+# include switch(s) and supplicant(s) from Cumulus Vagrantfile
+cumulus_vagrantfile = File.expand_path('cumulus/Vagrantfile')
+load cumulus_vagrantfile if File.exists?(cumulus_vagrantfile)

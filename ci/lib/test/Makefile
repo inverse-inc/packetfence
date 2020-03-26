@@ -4,8 +4,6 @@ include ../../../config.mk
 # Specific variables
 #==============================================================================
 SHELL=/bin/bash
-PERL_UNIT_TESTS=yes
-GOLANG_UNIT_TESTS=yes
 
 #==============================================================================
 # Targets
@@ -21,38 +19,54 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 ### Targets used in pipeline
 .PHONY: test
 test: clean
-	CI_COMMIT_TAG=$(CI_COMMIT_TAG) \
-	VM_NAME=$(VM_NAME) \
-	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
-	GOLANG_UNIT_TESTS=$(GOLANG_UNIT_TESTS) \
-	./manage-vagrant-vm.sh setup
+	./vagrant-wrapper.sh run
 
 .PHONY: clean
 clean:
-	VM_NAME=$(VM_NAME) \
-	./manage-vagrant-vm.sh teardown
+	./vagrant-wrapper.sh teardown
 
 ### Targets used for local tests
 # test
 .PHONY: test-pfcen7dev-dev
 test-pfcen7dev-dev:
-	make VM_NAME=pfcen7dev test
+	make PF_VM_NAME=pfcen7dev \
+	PERL_UNIT_TESTS=yes \
+	GOLANG_UNIT_TESTS=yes \
+	test
 
 .PHONY: test-pfdeb9dev-dev
 test-pfdeb9dev-dev:
-	make VM_NAME=pfdeb9dev \
+	make PF_VM_NAME=pfdeb9dev \
 	PERL_UNIT_TESTS=no \
+	GOLANG_UNIT_TESTS=yes \
 	test
 
 .PHONY: test-pfcen7dev-release
 test-pfcen7dev-release:
-	make VM_NAME=pfcen7dev CI_COMMIT_TAG=vX.Y.Z test
+	make PF_VM_NAME=pfcen7dev \
+	CI_COMMIT_TAG=vX.Y.Z \
+	test
 
 .PHONY: test-pfdeb9dev-release
 test-pfdeb9dev-release:
-	make CI_COMMIT_TAG=vX.Y.Z \
-	VM_NAME=pfdeb9dev \
-	PERL_UNIT_TESTS=no \
+	make PF_VM_NAME=pfdeb9dev \
+	CI_COMMIT_TAG=vX.Y.Z \
 	test
 
+.PHONY: test-int-pfcen7dev-dev
+test-int-pfcen7dev-dev:
+	make PF_VM_NAME=pfcen7dev \
+	INT_TEST_VM_NAMES='ad switch01 node01' \
+	PERL_UNIT_TESTS=yes \
+	GOLANG_UNIT_TESTS=yes \
+	INTEGRATION_TESTS=yes \
+	test
 
+.PHONY: test-int-pfdeb9dev-dev
+test-int-pfdeb9dev-dev:
+	make PF_VM_NAME=pfdeb9dev \
+	INT_TEST_VM_NAMES='ad switch01 node01' \
+	PERL_UNIT_TESTS=no \
+	GOLANG_UNIT_TESTS=yes \
+	INTEGRATION_TESTS=yes \
+	test

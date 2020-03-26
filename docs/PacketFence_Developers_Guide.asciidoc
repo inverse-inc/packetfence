@@ -1108,10 +1108,10 @@ a similar environment to develop.
 
 Install following softwares:
 
-* link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3)
-* Virtualbox if you wan to use Virtualbox as a provider for Vagrant
+* link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3) provided by Hashicorp
+* Virtualbox if you wan to use Virtualbox as a provider for Vagrant (only `pf*` and `ad` machines)
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
-* pywinrm > 0.3.0 if you want to use Windows virtual machine
+* pywinrm > 0.3.0 if you want to use `ad` virtual machine
 
 ==== Virtual environment: initial setup
 
@@ -1179,7 +1179,7 @@ To keep your machine up-to-date, you can run the following commands:
 
 [source,bash]
 ----
-vagrant provision --provision-with=config VM_NAME
+vagrant provision --provision-with=install VM_NAME
 ----
 
 Make sure you read the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>> after every upgrades to avoid any surprises.
@@ -1210,34 +1210,12 @@ EOF
 ansible-playbook site.yml --limit VM_NAME -e @extra.yml
 ----
 
-=== Running virtual machines other than PF
-
-==== Active directory server
-
-You can start a virtual machine called `ad` by running: [command]`vagrant up ad`. This virtual machine will be auto-provision with:
-
-* a DNS domain
-* an Active Directory domain
-* AD CS services with auto-enrollment using a GPO
-* a packetfence account
-
-.Vagrant admin accounts:
-[source,yaml]
-----
-include::../addons/vagrant/inventory/group_vars/winservers/domain_setup.yml[]
-----
-
-.PacketFence domain account:
-[source,yaml]
-----
-include::../addons/vagrant/inventory/group_vars/winservers/domain_account.yml[]
-----
-
-
 
 == Running tests
 
 include::tests/README.asciidoc[]
+
+include::integration_tests/README.asciidoc[]
 
 
 == Contributing
