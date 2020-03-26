@@ -17,7 +17,7 @@ const (
 
 type NetFlowBandwidthAccountingRec struct {
 	Ip            string
-	UniqueSession string
+	UniqueSession uint64
 	TimeBucket    time.Time
 	InBytes       uint64
 	OutBytes      uint64
@@ -28,9 +28,9 @@ func (rec *NetFlowBandwidthAccountingRec) ToSQLSelect() string {
 	sqlBytes := buffer[:0] // Use buffer as the backing of the slice
 	sqlBytes = append(sqlBytes, []byte(`SELECT _latin1"`)...)
 	sqlBytes = append(sqlBytes, []byte(rec.Ip)...)
-	sqlBytes = append(sqlBytes, []byte(`" as ip, "`)...)
-	sqlBytes = append(sqlBytes, []byte(rec.UniqueSession)...)
-	sqlBytes = append(sqlBytes, []byte(`" as unique_session_id, `)...)
+	sqlBytes = append(sqlBytes, []byte(`" as ip, `)...)
+	sqlBytes = strconv.AppendUint(sqlBytes, rec.UniqueSession, 10)
+	sqlBytes = append(sqlBytes, []byte(` as unique_session_id, `)...)
 	sqlBytes = strconv.AppendUint(sqlBytes, rec.InBytes, 10)
 	sqlBytes = append(sqlBytes, []byte(` as in_bytes_, `)...)
 	sqlBytes = strconv.AppendUint(sqlBytes, rec.OutBytes, 10)
@@ -42,9 +42,10 @@ func (rec *NetFlowBandwidthAccountingRec) ToSQLSelect() string {
 
 type NetFlowBandwidthAccountingRecs []NetFlowBandwidthAccountingRec
 
-func (array *NetFlowBandwidthAccountingRecs) Append(ip string, TimeBucket time.Time) int {
+func (array *NetFlowBandwidthAccountingRecs) Append(ip net.IP, TimeBucket time.Time) int {
 	index := len(*array)
-	*array = append(*array, NetFlowBandwidthAccountingRec{Ip: ip, TimeBucket: TimeBucket, UniqueSession: "NETFLOW-" + ip})
+	var unique_session uint64 = (0xFFFFFFFF << 32) | (uint64(ip[0]) << 24) | (uint64(ip[1]) << 16) | (uint64(ip[2]) << 8) | uint64(ip[3])
+	*array = append(*array, NetFlowBandwidthAccountingRec{Ip: ip.String(), TimeBucket: TimeBucket, UniqueSession: unique_session})
 	return index
 }
 
@@ -54,9 +55,9 @@ func (array NetFlowBandwidthAccountingRecs) ToSQL() string {
 	}
 
 	sql :=
-		`INSERT INTO bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes)
+		`INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes)
     SELECT * FROM (
-        SELECT ((tenant_id << 48) | CAST(CONV(REPLACE(mac,":",""), 16, 10) AS UNSIGNED INTEGER)) as node_id, unique_session_id, time_bucket, in_bytes_, out_bytes_ FROM (
+        SELECT ((tenant_id << 48) | CAST(CONV(REPLACE(mac,":",""), 16, 10) AS UNSIGNED)) as node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes_, out_bytes_ FROM (
             `
 	first := array[0]
 	sql += first.ToSQLSelect()
@@ -108,7 +109,7 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 		if h.IpAddressAllowed(srcIP) {
 			srcIpStr := srcIP.String()
 			if srcIndex, found = lookup[srcIpStr]; !found {
-				srcIndex = recs.Append(srcIpStr, unixTime)
+				srcIndex = recs.Append(srcIP, unixTime)
 				lookup[srcIpStr] = srcIndex
 			}
 		}
@@ -117,7 +118,7 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 		if h.IpAddressAllowed(dstIP) {
 			dstIpStr := dstIP.String()
 			if dstIndex, found = lookup[dstIpStr]; !found {
-				dstIndex = recs.Append(dstIpStr, unixTime)
+				dstIndex = recs.Append(dstIP, unixTime)
 				lookup[dstIpStr] = dstIndex
 			}
 		}
