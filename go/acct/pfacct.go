@@ -68,10 +68,10 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfAcct.AllNetworks = keyConfAdvanced.NetFlowOnAllNetworks == "enabled"
 	var ports pfconfigdriver.PfConfPorts
 	pfconfigdriver.FetchDecodeSocket(ctx, &ports)
-    pfAcct.TimeDuration = time.Duration(keyConfAdvanced.AccountingTimebucketSize) * time.Second
-    if pfAcct.TimeDuration == 0 {
-        pfAcct.TimeDuration = DefaultTimeDuration
-    }
+	pfAcct.TimeDuration = time.Duration(keyConfAdvanced.AccountingTimebucketSize) * time.Second
+	if pfAcct.TimeDuration == 0 {
+		pfAcct.TimeDuration = DefaultTimeDuration
+	}
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfAcct.Management)
 }

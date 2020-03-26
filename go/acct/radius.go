@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"crypto/md5"
 	"database/sql"
 	"encoding/binary"
-	"encoding/hex"
 	"fmt"
+	"hash"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/OneOfOne/xxhash"
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
@@ -32,6 +33,10 @@ func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
 		h.HandleAccountingRequest(w, r)
 		return
 	}
+}
+
+func (h *PfAcct) hasher() hash.Hash64 {
+	return xxhash.New64()
 }
 
 func (h *PfAcct) HandleAccountingRequest(w radius.ResponseWriter, r *radius.Request) {
@@ -70,6 +75,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	}
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	err := h.InsertBandwidthAccounting(
+		mac.NodeId(uint16(switchInfo.TenantId)),
 		switchInfo.TenantId,
 		mac.String(),
 		h.accountingUniqueSessionId(r),
@@ -121,18 +127,17 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 	}
 }
 
-func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) string {
+func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) uint64 {
 	username := rfc2865.UserName_Get(r.Packet)
 	callingStation := rfc2865.CallingStationID_Get(r.Packet)
 	acctSessionId := rfc2866.AcctSessionID_Get(r.Packet)
-	hash := md5.New()
+	hash := h.hasher()
 	hash.Write(username)
 	hash.Write([]byte{','})
 	hash.Write(callingStation)
 	hash.Write([]byte{','})
 	hash.Write(acctSessionId)
-	sum := hash.Sum(nil)
-	return hex.EncodeToString(sum)
+	return hash.Sum64()
 }
 
 func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
@@ -378,9 +383,9 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	}
 
 	rs.insertBandwidthAccounting, err = db.Prepare(`
-        INSERT INTO bandwidth_accounting (tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes)
-            SELECT ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes FROM (
-                SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes FROM bandwidth_accounting WHERE unique_session_id = ? AND time_bucket != ?
+        INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes)
+            SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes FROM (
+                SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
             ) AS y WHERE in_bytes > 0 || out_bytes > 0
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes);
     `)
@@ -462,8 +467,19 @@ func (rs *RadiusStatements) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
 	return switchInfo, nil
 }
 
-func (rs *RadiusStatements) InsertBandwidthAccounting(tenant_id int, mac string, unique_session string, bucket time.Time, in_bytes int64, out_bytes int64) error {
-	_, err := rs.insertBandwidthAccounting.Exec(tenant_id, mac, unique_session, bucket, in_bytes, out_bytes, unique_session, bucket)
+func (rs *RadiusStatements) InsertBandwidthAccounting(node_id uint64, tenant_id int, mac string, unique_session uint64, bucket time.Time, in_bytes int64, out_bytes int64) error {
+	_, err := rs.insertBandwidthAccounting.Exec(
+		node_id,
+		tenant_id,
+		mac,
+		unique_session,
+		bucket,
+		in_bytes,
+		out_bytes,
+		node_id,
+		unique_session,
+		bucket,
+	)
 	return err
 }
 
