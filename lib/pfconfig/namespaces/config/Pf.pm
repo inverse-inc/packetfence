@@ -183,7 +183,7 @@ sub build_child {
 
     if (isenabled($Config{'captive_portal'}{'secure_redirect'}) && isSelfSigned()) {
         $Config{'captive_portal'}{'secure_redirect'} = 'disabled';
-        get_logger->warn("secure redirect has been disabled since the portal certificate is a self-signed");
+        get_logger->info("secure redirect has been disabled since the portal certificate is a self-signed");
     }
 
     return \%Config;
