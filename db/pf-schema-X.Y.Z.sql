@@ -1543,6 +1543,7 @@ CREATE TABLE bandwidth_accounting (
     mac CHAR(17) NOT NULL,
     tenant_id SMALLINT NOT NULL,
     processed BOOLEAN NOT NULL DEFAULT 0,
+    last_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_bytes BIGINT SIGNED AS (in_bytes + out_bytes) VIRTUAL,
     PRIMARY KEY (node_id, time_bucket, unique_session_id),
     KEY bandwidth_aggregate_buckets (time_bucket, node_id, unique_session_id, in_bytes, out_bytes)
