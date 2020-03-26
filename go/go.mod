@@ -3,6 +3,7 @@ module github.com/inverse-inc/packetfence/go
 go 1.13
 
 require (
+	github.com/OneOfOne/xxhash v1.2.7 // indirect
 	github.com/Sereal/Sereal v0.0.0-20161214074320-36f2c9f6f409
 	github.com/Shopify/sarama v1.24.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
