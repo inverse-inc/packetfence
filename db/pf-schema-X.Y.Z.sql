@@ -1674,7 +1674,6 @@ BEGIN
     EXECUTE insert_into_to_delete using @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete;
     IF @count > 0 THEN
-        SELECT * from to_delete;
         INSERT INTO bandwidth_accounting_history
         (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
          SELECT
@@ -1685,7 +1684,7 @@ BEGIN
              sum(in_bytes) AS in_bytes,
              sum(out_bytes) AS out_bytes
             FROM to_delete
-            GROUP BY tenant_id, mac, new_time_bucket
+            GROUP BY node_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
                 out_bytes = out_bytes + VALUES(out_bytes)
@@ -1696,8 +1695,8 @@ BEGIN
             WHERE
                 to_delete.node_id = bandwidth_accounting_history.node_id AND
                 to_delete.time_bucket = bandwidth_accounting_history.time_bucket;
+        COMMIT;
     END IF;
-    COMMIT;
 
     DROP TABLE to_delete;
     DEALLOCATE PREPARE insert_into_to_delete;
