@@ -19,18 +19,18 @@ New Features
 * New, fully integrated PacketFence PKI service
 * New service for automatic clustering issues resolution
 * Added support for network anomaly detection through Fingerbank
-* New GUI for all filtering engines
+* New GUI for all filtering engines and switch templates
 * New API and Vue.js based configurator
 * Added suppport to run integration tests using Cumulus Linux and libvirt
 
 Enhancements
 ++++++++++++
-* Add single-sign-on support for Cisco ISE-PIC
+* Add single sign-on support for Cisco ISE-PIC
 * Support for MySQL as DHCP pool backend and provide active/active DHCP support
 * Support Aruba switches using Aruba OS 16.10
 * Added a new Meru controller module that supports RADIUS RFC3576 (RADIUS Disconnect)
 * CLI login to Juniper switches
-* Allow to configure VOIP Radius atrributes in switch templates
+* Allow to configure VOIP RADIUS atrributes in switch templates
 * All configuration files have a copyright without year to avoid useless rpmnew or dpkg-dist files each yearly upgrade
 * Unifi: improve deauthentication using HTTP
 * Set TTL to 5 seconds when the host match with a captive portal detection host
@@ -38,19 +38,20 @@ Enhancements
 * Better captive portal detection for Samsung devices
 * Faster captive portal detection for Apple devices
 * Routes are now managed by the keepalived service
-* Parking security can now be trigger without limitation
-* Added a way to change the sql table used by pfconfig
+* Parking security event can now be triggered without limitation
+* Added a way to change the SQL table used by pfconfig
 * Showing the configurator is now configurable (#5121)
 * Node deletion in consistent between the the API and pf::node::node_delete (#5088)
-* Allow vlan number greater than 1023 for floating devices.
+* Allow VLAN number greater than 1023 for floating devices
 * Improved captive-portal health checks in monit (#5185)
-* Added radius disconnect for wired port on Aruba AP (#5016)
+* Added RADIUS disconnect for wired port on Aruba AP (#5016)
 * Switch templates can now use SNMP up/down to perform access reevaluation (#5197)
-* Haproxy server the admin gui, httpd.admin disabled by default
+* HAProxy now serves the admin gui, httpd.admin disabled by default
+* Reports are now tenant-aware
 
 Bug Fixes
 +++++++++
-* Fixed logic to move mac to another port (Avaya)
+* Fixed logic to move MAC address to another port (Avaya)
 * Fix serialization of the switch when calling ReAssignVlan/desAssociate
 * Prevent double restart when setting the port admin status of an EX2300 Juniper switch
 * Sponsor field is missing on sponsored users when using forced sponsor (#5171)
