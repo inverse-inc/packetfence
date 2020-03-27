@@ -75,11 +75,13 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		timestamp = time.Now()
 	}
 	timestamp = timestamp.Truncate(h.TimeDuration)
+	node_id := mac.NodeId(uint16(switchInfo.TenantId))
+	unique_session_id := h.accountingUniqueSessionId(r)
 	err := h.InsertBandwidthAccounting(
 		mac.NodeId(uint16(switchInfo.TenantId)),
 		switchInfo.TenantId,
 		mac.String(),
-		h.accountingUniqueSessionId(r),
+		unique_session_id,
 		timestamp,
 		in_bytes,
 		out_bytes,
@@ -87,6 +89,11 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	if err != nil {
 		logError(r.Context(), "InsertBandwidthAccounting: "+err.Error())
 	}
+
+	if status == rfc2866.AcctStatusType_Value_Stop {
+		h.CloseSession(node_id, unique_session_id)
+	}
+
 	h.sendRadiusAccounting(r)
 	h.handleTimeBalance(r, switchInfo)
 }
@@ -363,6 +370,7 @@ type RadiusStatements struct {
 	nodeTimeBalanceSubtract   *sql.Stmt
 	nodeTimeBalance           *sql.Stmt
 	isNodeTimeBalanceZero     *sql.Stmt
+	closeSession              *sql.Stmt
 }
 
 func (rs *RadiusStatements) Setup(db *sql.DB) {
@@ -418,6 +426,23 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	if err != nil {
 		panic(err)
 	}
+
+	rs.closeSession, err = db.Prepare(`
+        UPDATE bandwidth_accounting SET last_updated = '0000-00-00 00:00:00' WHERE node_id = ? AND unique_session_id = ?;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (rs *RadiusStatements) CloseSession(node_id, unique_session_id uint64) (int64, error) {
+	result, err := rs.closeSession.Exec(node_id, unique_session_id)
+	if err != nil {
+		return 0, err
+	}
+
+	return result.RowsAffected()
 }
 
 func (rs *RadiusStatements) IsNodeTimeBalanceZero(tenant_id int, mac mac.Mac) (bool, error) {
