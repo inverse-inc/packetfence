@@ -5,6 +5,17 @@ echo "  Running config_node.sh"
 echo "#################################"
 sudo su
 
+
+install_venom() {
+    local venom_bin_path=/usr/local/bin
+    local venom_binary=venom
+    local venom_repo_url=https://api.github.com/repos/ovh/venom/releases/latest
+    local venom_download_url=$(curl -s ${venom_repo_url}|grep "browser_download_url.*linux-amd64*"|cut -d '"' -f 4)
+    echo "Installing Venom in ${venom_bin_path}/${venom_binary}"
+    curl -L -s ${venom_download_url} -o ${venom_bin_path}/${venom_binary}
+    chmod +x ${venom_bin_path}/${venom_binary}
+}
+
 # Make DHCP Try Over and Over Again
 echo "retry 1;" >> /etc/dhcp/dhclient.conf
 
@@ -19,11 +30,13 @@ echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 # Other stuff
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
-  apt-get update -qy
-  # additional stuff for Ansible management
-  apt-get install lldpd ntp ntpdate wpasupplicant python-apt -qy
-  echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf 
+    apt-get update -qy
+    # python-apt for ansible management
+    apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
+    echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 fi
+
+install_venom
 
 # Set Timezone
 cat << EOT > /etc/timezone

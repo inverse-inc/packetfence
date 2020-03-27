@@ -27,9 +27,6 @@ all:
           memory: 2048
     service_venom:
       children:
-        nodes:
-          hosts:
-            node01: {}
         dev:
           hosts:
             pfcen7dev: {}
