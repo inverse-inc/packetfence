@@ -36,7 +36,10 @@ export const view = (form = {}, meta = {}) => {
       databaseExists = false,
       databaseCreationError = false,
       userIsValid = false,
-      userCreationError = false
+      userCreationError = false,
+      secureDatabase = null,
+      createDatabase = null,
+      assignDatabase = null
     } = {}
   } = meta
   db = db || 'pf'
@@ -88,9 +91,7 @@ export const view = (form = {}, meta = {}) => {
                 readonly: rootPasswordIsValid,
                 testLabel: i18n.t('Set Password'),
                 test: () => {
-                  return store.dispatch('$_bases/secureDatabase', { username: 'root', password: root_pass }).then(() => {
-                    Vue.set(meta.database, 'rootPasswordIsValid', true)
-                  })
+                  return secureDatabase()
                 }
               }
             }
@@ -176,18 +177,7 @@ export const view = (form = {}, meta = {}) => {
               },
               listeners: {
                 click: () => {
-                  return store.dispatch('$_bases/createDatabase', { username: 'root', password: root_pass, database: db }).then(() => {
-                    Vue.set(meta.database, 'databaseExists', true)
-                  }).catch(err => {
-                    const {
-                      response: {
-                        data: {
-                          message = false
-                        } = {}
-                      } = {}
-                    } = err
-                    Vue.set(meta.database, 'databaseCreationError', message)
-                  })
+                  return createDatabase()
                 }
               }
             },
@@ -245,18 +235,7 @@ export const view = (form = {}, meta = {}) => {
               },
               listeners: {
                 click: () => {
-                  return store.dispatch('$_bases/assignDatabase', { root_username: 'root', root_password: root_pass, pf_username: user, pf_password: pass, database: db }).then(() => {
-                    Vue.set(meta.database, 'userIsValid', true)
-                  }).catch(err => {
-                    const {
-                      response: {
-                        data: {
-                          message = false
-                        } = {}
-                      } = {}
-                    } = err
-                    Vue.set(meta.database, 'userCreationError', message)
-                  })
+                  return assignDatabase()
                 }
               }
             },
@@ -284,14 +263,17 @@ export const validators = (form, meta = {}) => {
   } = meta
   return {
     database: {
-      host: validatorsFromMeta(meta, 'database.host', i18n.t('Host')),
-      port: validatorsFromMeta(meta, 'database.port', i18n.t('Port')),
-      db: validatorsFromMeta(meta, 'database.db', i18n.t('Database')),
-      user: {
-        [i18n.t('Database username required.')]: or(conditional(setUserPassword === false), required),
-        ...validatorsFromMeta(meta, 'database.user', i18n.t('User'))
+      // host: validatorsFromMeta(meta, 'database.host', i18n.t('Host')),
+      // port: validatorsFromMeta(meta, 'database.port', i18n.t('Port')),
+      db: {
+        [i18n.t('Database name required.')]: required
       },
-      pass: validatorsFromMeta(meta, 'database.pass', i18n.t('Password')),
+      user: {
+        [i18n.t('Database username required.')]: or(conditional(setUserPassword === false), required)
+      },
+      pass: {
+        [i18n.t('Database password required.')]: or(conditional(setUserPassword === false), required)
+      },
       root_pass: {
         [i18n.t('Root password required.')]: or(conditional(!rootPasswordIsRequired), required)
       },

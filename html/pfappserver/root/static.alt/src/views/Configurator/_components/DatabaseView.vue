@@ -18,13 +18,14 @@
 </template>
 
 <script>
+import { createDebouncer } from 'promised-debounce'
+import password from '@/utils/password'
 import pfConfigView from '@/components/pfConfigView'
 // import pfFormToggle from '@/components/pfFormToggle'
 import {
   view,
   validators
 } from '../_config/database'
-import { createDebouncer } from 'promised-debounce'
 
 export default {
   name: 'database-view',
@@ -34,7 +35,17 @@ export default {
   },
   data () {
     return {
-      $debouncer: null
+      $debouncer: null,
+      passwordOptions: {
+        pwlength: 16,
+        upper: true,
+        lower: true,
+        digits: true,
+        special: true,
+        brackets: true,
+        high: true,
+        ambiguous: true
+      }
     }
   },
   props: {
@@ -69,32 +80,112 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_bases/optionsDatabase').then(({ meta }) => {
-        this.$store.dispatch(`${this.formStoreName}/appendMeta`, { database: { properties: meta } })
-        this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
-        // Fetch configuration
-        this.$store.dispatch('$_bases/getDatabase').then(form => {
-          this.$store.dispatch(`${this.formStoreName}/appendForm`, { database: form })
-          this.initialValidation()
-        })
+      const metaMethods = {
+        secureDatabase: this.secureDatabase,
+        createDatabase: this.createDatabase,
+        assignDatabase: this.assignDatabase
+      }
+      this.$store.dispatch(`${this.formStoreName}/appendMeta`, { database: { properties: metaMethods } }) // initialize meta for database
+      this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
+      // Fetch configuration
+      this.$store.dispatch('$_bases/getDatabase').then(form => {
+        this.$store.dispatch(`${this.formStoreName}/appendForm`, { database: form })
+        this.initialValidation()
       })
     },
     initialValidation () {
       const form = this.form.database
       // Check if root has no password
+      if (!form.db) {
+        this.$set(this.form.database, 'db', 'pf') // default database is "pf"
+      }
+      if (!form.user) {
+        this.$set(this.form.database, 'user', 'pf') // default username is "pf"
+      }
       this.$store.dispatch('$_bases/testDatabase', { username: 'root' }).then(() => {
+        // No root password -- woohoo!
         this.$set(this.meta.database, 'setRootPassword', true) // need to define a root password
-        this.$store.dispatch('$_bases/testDatabase', { username: 'root', database: form.db || 'pf' }).then(() => {
-          this.$set(this.meta.database, 'databaseExists', true) // database exists
-        })
-      }).catch(() => {})
-      // Check if database name and credentials are valid
-      this.$store.dispatch('$_bases/testDatabase', { username: form.user || 'pf', password: form.pass, database: form.db || 'pf' }).then(() => {
-        this.$set(this.meta.database, 'databaseExists', true)
-        this.$set(this.meta.database, 'userIsValid', true)
-        this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
+        this.$set(this.form.database, 'root_pass', password.generate(this.passwordOptions))
+        // Assign a generated password for root
+        this.secureDatabase()
       }).catch(() => {
-        this.$set(this.meta.database, 'setUserPassword', true) // credentials don't work, user probably doesn't exist
+        // Root password is defined
+        // Check if database name and credentials are valid
+        this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
+          this.$set(this.meta.database, 'databaseExists', true)
+          this.$set(this.meta.database, 'userIsValid', true)
+          this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
+        }).catch(() => {
+          this.$set(this.meta.database, 'setUserPassword', true) // credentials don't work, user probably doesn't exist
+        })
+      })
+    },
+    secureDatabase () {
+      const form = this.form.database
+      return this.$store.dispatch('$_bases/secureDatabase', { username: 'root', password: form.root_pass }).then(() => {
+        this.$set(this.meta.database, 'rootPasswordIsValid', true)
+        this.$set(this.meta.database, 'setRootPassword', false)
+        const databaseReady = new Promise((resolve, reject) => {
+          this.$store.dispatch('$_bases/testDatabase', { username: 'root', password: form.root_pass, database: form.db }).then(() => {
+            this.$set(this.meta.database, 'databaseExists', true) // database exists
+            resolve()
+          }).catch(() => {
+            // Create database
+            this.createDatabase().then(resolve, reject)
+          })
+        })
+        return databaseReady.then(() => {
+          // Check if database name and credentials are valid
+          this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
+            this.$set(this.meta.database, 'databaseExists', true)
+            this.$set(this.meta.database, 'userIsValid', true)
+            this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
+          }).catch(() => {
+            // Assign a generated password for database user
+            this.$set(this.form.database, 'pass', password.generate(this.passwordOptions))
+            this.assignDatabase()
+          })
+        })
+      })
+    },
+    createDatabase () {
+      return this.$store.dispatch('$_bases/createDatabase', {
+        username: 'root',
+        password: this.form.database.root_pass,
+        database: this.form.database.db
+      }).then(() => {
+        this.$et(this.meta.database, 'databaseExists', true)
+      }).catch(err => {
+        const {
+          response: {
+            data: {
+              message = false
+            } = {}
+          } = {}
+        } = err
+        this.$set(this.meta.database, 'databaseCreationError', message)
+        throw err
+      })
+    },
+    assignDatabase () {
+      return this.$store.dispatch('$_bases/assignDatabase', {
+        root_username: 'root',
+        root_password: this.form.database.root_pass,
+        pf_username: this.form.database.user,
+        pf_password: this.form.database.pass,
+        database: this.form.database.db
+      }).then(() => {
+        this.$set(this.meta.database, 'userIsValid', true)
+      }).catch(err => {
+        const {
+          response: {
+            data: {
+              message = false
+            } = {}
+          } = {}
+        } = err
+        this.$set(this.meta.database, 'userCreationError', message)
+        throw err
       })
     },
     save () {
