@@ -257,7 +257,7 @@ sub make_columns {
 
 sub default_columns {
     my ($self, $s) = @_;
-    return [@{$s->{dal}->table_field_names}];
+    return [map { $self->format_column($s, $_) } @{$s->{dal}->table_field_names}];
 }
 
 =head2 check_for_duplicated_fields

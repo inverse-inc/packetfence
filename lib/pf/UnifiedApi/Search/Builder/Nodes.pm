@@ -56,6 +56,25 @@ our @IP6LOG_JOIN = (
     'ip6log',
 );
 
+our @ONLINE_JOIN = (
+    '=>{node.mac=online.mac,node.tenant_id=online.tenant_id}',
+    'bandwidth_accounting|online',
+    {
+        operator  => '=>',
+        condition => [
+            -and => [
+            'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
+            \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
+            ],
+        ],
+    },
+    'bandwidth_accounting|b2',
+);
+
+our %ONLINE_WHERE = (
+    'b2.node_id' => undef,
+);
+
 our @NODE_CATEGORY_JOIN = (
     '=>{node.category_id=node_category.category_id}', 'node_category',
 );
@@ -98,6 +117,13 @@ our %ALLOWED_JOIN_FIELDS = (
         join_spec     => \@IP6LOG_JOIN,
         column_spec   => make_join_column_spec( 'ip6log', 'ip' ),
         namespace     => 'ip6log',
+    },
+    'online' => {
+        join_spec     => \@ONLINE_JOIN,
+        where_spec    => \%ONLINE_WHERE,
+        namespace     => 'online',
+        rewrite_query => \&rewrite_online_query,
+        column_spec   => "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online",
     },
     'node_category.name' => {
         join_spec   => \@NODE_CATEGORY_JOIN,
@@ -181,6 +207,53 @@ sub rewrite_security_event_close_security_event_id {
 sub rewrite_security_event_close_count {
     my ($self, $s, $q) = @_;
     $q->{field} = 'COUNT(security_event_close.id)';
+    return (200, $q);
+}
+
+sub rewrite_online_query {
+    my ($self, $s, $q) = @_;
+    my $op =$q->{op};
+    if ($op ne 'equals' && $op ne 'not_equals') {
+        return (422, { message => "$op is not valid for the online field" });
+    }
+
+    my $value = $q->{value};
+    if (!defined $value || ($value ne 'on' && $value ne 'off' && $value ne 'unknown')) {
+        return (422, { message => "value of " . ($value // "(null)"). " is not valid for the online field" });
+    }
+
+    if ($value eq 'unknown') {
+        $q->{value} = undef;
+        $q->{field} = 'online.node_id';
+    } else {
+        if ($op eq 'equals') {
+            $q->{field} = 'online.last_updated';
+            $q->{'value'} = '0000-00-00 00:00:00';
+            if ($value eq 'on') {
+                $q->{op} = $op eq 'equals' ? 'not_equals' : 'equals';
+            }
+        } else {
+            my %unknown_query = (
+                value => undef,
+                field => 'online.node_id',
+                op => 'equals',
+            );
+            my %last_updated_query = (
+                field => 'online.last_updated',
+                value => '0000-00-00 00:00:00',
+                op => $value eq 'on' ? 'equals' : 'not_equals'
+            );
+
+            %$q = (
+                op => 'or',
+                values => [
+                    \%unknown_query,
+                    \%last_updated_query
+                ],
+            );
+        }
+    }
+
     return (200, $q);
 }
 
