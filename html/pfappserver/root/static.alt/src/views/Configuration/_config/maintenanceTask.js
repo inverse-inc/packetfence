@@ -758,7 +758,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.status(form, meta),
             viewFields.interval(form, meta),
             viewFields.batch(form, meta),
-            viewFields.window(form, meta)
+            viewFields.window(form, meta),
             viewFields.timeout(form, meta),
             viewFields.history_batch(form, meta),
             viewFields.history_timeout(form, meta),
