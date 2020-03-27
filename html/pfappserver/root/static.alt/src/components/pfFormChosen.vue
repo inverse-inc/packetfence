@@ -19,7 +19,8 @@
         :label="label"
         :options="options"
         :options-limit="optionsLimit"
-        :placeholder="placeholder"
+        :placeholder="multiselectPlaceholder"
+        :tag-placeholder="multiselectTagPlaceholder"
         :preserve-search="preserveSearch"
         :searchable="searchable"
         :show-labels="false"
@@ -151,6 +152,10 @@ export default {
       type: String,
       default: null
     },
+    tagPlaceholder: {
+      type: String,
+      default: null
+    },
     preserveSearch: {
       type: Boolean,
       default: false
@@ -242,6 +247,14 @@ export default {
       return (this.options || []).map(option => {
         return option[this.trackBy]
       })
+    },
+    multiselectPlaceholder () {
+      return (this.isFocus)
+        ? this.placeholder || this.$i18n.t('Enter a new value')
+        : '' // hide placeholder when not in focus
+    },
+    multiselectTagPlaceholder () {
+      return this.tagPlaceholder || this.$i18n.t('Click to add value')
     }
   },
   methods: {
