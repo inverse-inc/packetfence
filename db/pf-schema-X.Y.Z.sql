@@ -1546,7 +1546,8 @@ CREATE TABLE bandwidth_accounting (
     last_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_bytes BIGINT SIGNED AS (in_bytes + out_bytes) VIRTUAL,
     PRIMARY KEY (node_id, time_bucket, unique_session_id),
-    KEY bandwidth_aggregate_buckets (time_bucket, node_id, unique_session_id, in_bytes, out_bytes)
+    KEY bandwidth_aggregate_buckets (time_bucket, node_id, unique_session_id, in_bytes, out_bytes),
+    KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
 );
 
 --
@@ -1562,7 +1563,8 @@ CREATE TABLE bandwidth_accounting_history (
     mac CHAR(17) NOT NULL,
     tenant_id SMALLINT NOT NULL,
     PRIMARY KEY (node_id, time_bucket),
-    KEY bandwidth_aggregate_buckets (time_bucket, node_id, in_bytes, out_bytes )
+    KEY bandwidth_aggregate_buckets (time_bucket, node_id, in_bytes, out_bytes),
+    KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
 );
 
 DROP PROCEDURE IF EXISTS `bandwidth_aggregation`;
