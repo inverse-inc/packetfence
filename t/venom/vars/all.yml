@@ -1,0 +1,13 @@
+---
+# variables assigned based on environment variables
+venom_result_dir: '{{.VENOM_RESULT_DIR}}'
+pfserver_token: '{{.TOKEN}}'
+pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
+
+# static variables
+pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
+pfserver_default_admin_user: admin
+pfserver_default_admin_password: admin
+ad_mgmt_ip: 172.17.17.100
+switch01_mgmt_ip: 172.17.17.201
+node01_mgmt_ip: 172.17.17.251

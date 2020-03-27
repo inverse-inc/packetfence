@@ -1,5 +1,3 @@
-include ../../config.mk
-
 #==============================================================================
 # Specific variables
 #==============================================================================
@@ -12,6 +10,16 @@ SHELL=/bin/bash
 .PHONY: all
 all: test
 
+.PHONY: install
+install:
+	./install-venom.sh
+
 .PHONY: test
-test:
-	echo "let's run tests"
+test: clean
+	./venom-wrapper.sh setup
+	./venom-wrapper.sh pfservers
+
+.PHONY: clean
+clean:
+	./venom-wrapper.sh teardown
+

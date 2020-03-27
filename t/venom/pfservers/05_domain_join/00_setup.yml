@@ -1,0 +1,17 @@
+name: Domain join setup
+testcases:
+- name: Create new domain
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domains'
+    ignore_verify_ssl: true
+    # bodyFile: config_domain.json
+    body: |
+      {"ad_server":"{{.ad_mgmt_ip}}","bind_dn":null,"bind_pass":null,"dns_name":"example.lan","dns_servers":"172.17.17.100","id":"example2","ntlm_cache":null,"ntlm_cache_batch":"disabled","ntlm_cache_batch_one_at_a_time":"disabled","ntlm_cache_expiry":3600,"ntlm_cache_filter":"(&(samAccountName=*)(!(|(lockoutTime=>0)(userAccountControl:1.2.840.113556.1.4.803:=2))))","ntlm_cache_on_connection":"disabled","ntlm_cache_source":null,"ntlmv2_only":null,"ou":"Computers","registration":null,"server_name":"%h","status":"enabled","sticky_dc":"*","workgroup":"EXAMPLE"}
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
