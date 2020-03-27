@@ -85,7 +85,7 @@ export default {
         createDatabase: this.createDatabase,
         assignDatabase: this.assignDatabase
       }
-      this.$store.dispatch(`${this.formStoreName}/appendMeta`, { database: { properties: metaMethods } }) // initialize meta for database
+      this.$store.dispatch(`${this.formStoreName}/appendMeta`, { database: metaMethods }) // initialize meta for database
       this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
       // Fetch configuration
       this.$store.dispatch('$_bases/getDatabase').then(form => {

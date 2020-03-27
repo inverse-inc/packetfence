@@ -6,10 +6,6 @@ import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import {
-  attributesFromMeta,
-  validatorsFromMeta
-} from '@/views/Configuration/_config'
-import {
   or,
   conditional
 } from '@/globals/pfValidators'
@@ -21,9 +17,7 @@ export const view = (form = {}, meta = {}) => {
   let {
     database: {
       db,
-      root_pass = '',
-      user,
-      pass = ''
+      root_pass = ''
     } = {}
   } = form
   const {
@@ -43,7 +37,6 @@ export const view = (form = {}, meta = {}) => {
     } = {}
   } = meta
   db = db || 'pf'
-  user = user || 'pf'
   return [
     {
       tab: null,
@@ -156,7 +149,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'database.db',
               component: pfFormInput,
               attrs: {
-                ...attributesFromMeta(meta, 'database.db'),
                 stateMap: { false: false, true: databaseExists ? true : null },
                 disabled: databaseExists
               }
@@ -202,8 +194,7 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 disabled: userIsValid,
                 class: 'col-6 pr-1',
-                stateMap: { false: false, true: userIsValid ? true : null },
-                ...attributesFromMeta(meta, 'database.user')
+                stateMap: { false: false, true: userIsValid ? true : null }
               }
             },
             {
@@ -213,7 +204,6 @@ export const view = (form = {}, meta = {}) => {
                 disabled: userIsValid,
                 class: 'col-6 pl-1',
                 stateMap: { false: false, true: userIsValid ? true : null },
-                ...attributesFromMeta(meta, 'database.pass')
                 // test: () => {
                 //   return store.dispatch('$_bases/testDatabase', { username: user, password: pass, database: db })
                 // }
