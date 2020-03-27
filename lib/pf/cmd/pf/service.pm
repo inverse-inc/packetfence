@@ -183,6 +183,7 @@ sub startService {
         foreach my $manager (@$checkupManagers) {
             if ($manager->isManaged()) {
                 _doStart($manager);
+                _doStopSubServices() if ($manager->name eq 'pf');
             } else {
                 _doUpdateSystemd($manager, $TRUE);
                 # Force stop
@@ -249,6 +250,16 @@ sub checkup {
         return $TRUE;
     } else {
         return $FALSE;
+    }
+}
+
+sub _doStopSubServices {
+    my @services = grep {$_ ne 'pf'} @pf::services::ALL_SERVICES;
+    my @managers = pf::services::getManagers(\@services);
+    foreach my $manager (@managers) {
+        if (!$manager->isManaged()) {
+            $manager->stop();
+        }
     }
 }
 
