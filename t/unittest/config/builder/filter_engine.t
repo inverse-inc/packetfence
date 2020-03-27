@@ -67,6 +67,8 @@ CONF
                                     scopes  => ['RegisteredRole'],
                                     _rule   => 'pf_deauth_from_wireless_secure',
                                     role    => 'registration',
+                                    params  => [],
+                                    answers => [],
                                     actions => [
                                         {
                                             api_method => 'modify_node',
@@ -154,6 +156,8 @@ CONF
                                     scopes    => ['RegisteredRole'],
                                     _rule     => 'pf_deauth_from_wireless_secure',
                                     role    => 'registration',
+                                    params  => [],
+                                    answers => [],
                                     actions => [
                                         {
                                             api_method => 'modify_node',
@@ -208,6 +212,8 @@ CONF
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
+                                params  => [],
+                                answers => [],
                                 actions => [
                                     {
                                         api_method => 'modify_node',
@@ -258,6 +264,8 @@ CONF
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
+                                params  => [],
+                                answers => [],
                                 actions => [
                                     {
                                         api_method => 'modify_node',
@@ -310,6 +318,8 @@ CONF
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
+                                params  => [],
+                                answers => [],
                                 actions => [
                                     {
                                         api_method => 'modify_node',
