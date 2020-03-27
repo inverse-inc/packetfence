@@ -564,12 +564,15 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 			// Add options on the fly from pffilter
 			reject := AddPffilterDevicesOptions(info, GlobalOptions)
+
 			if reject != nil {
 				log.LoggerWContext(ctx).Info("DHCPNAK on to " + clientMac)
 				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 				return answer
 			}
-
+			if _, ok := GlobalOptions[dhcp.OptionIPAddressLeaseTime]; ok {
+				leaseDuration = 0
+			}
 			// Add device (mac) options on the fly
 			x, err = decodeOptions(answer.MAC.String())
 			if err == nil {
@@ -689,6 +692,10 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					info = GetFromGlobalFilterCache(msgType.String(), answer.MAC.String(), Options)
 					// Add options on the fly from pffilter
 					reject := AddPffilterDevicesOptions(info, GlobalOptions)
+					if _, ok := GlobalOptions[dhcp.OptionIPAddressLeaseTime]; ok {
+						leaseDuration = 0
+					}
+
 					if reject != nil {
 						log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
 						answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
