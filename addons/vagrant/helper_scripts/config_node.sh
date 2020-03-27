@@ -16,6 +16,12 @@ install_venom() {
     chmod +x ${venom_bin_path}/${venom_binary}
 }
 
+install_packetfence_repo() {
+    echo 'deb http://inverse.ca/downloads/PacketFence/debian-devel stretch stretch' > \
+         /etc/apt/sources.list.d/packetfence.list
+    wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+}
+
 # Make DHCP Try Over and Over Again
 echo "retry 1;" >> /etc/dhcp/dhclient.conf
 
@@ -30,9 +36,10 @@ echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 # Other stuff
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
+    install_packetfence_repo
     apt-get update -qy
     # python-apt for ansible management
-    apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
+    apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl packetfence-test -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 fi
 

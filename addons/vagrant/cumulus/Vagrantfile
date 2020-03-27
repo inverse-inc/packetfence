@@ -176,7 +176,7 @@ Vagrant.configure("2") do |config|
     
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision :shell , path: "./helper_scripts/config_switch.sh"
+    device.vm.provision "config_switch", type: "shell" , path: "./helper_scripts/config_switch.sh"
 
 
     # Install Rules for the interface re-map
@@ -294,7 +294,7 @@ vagrant_interface_rule
 
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision :shell , path: "./helper_scripts/config_node.sh"
+    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node.sh"
 
 
     # Install Rules for the interface re-map
