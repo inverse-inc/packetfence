@@ -42,6 +42,9 @@ packetfence_install__configuration:
           - name: 'advanced'
             settings:
 
+              - name: 'api_inactivity_timeout'
+                value: '12h'
+
               - name: 'configurator'
                 value: '{{ packetfence_install__configurator_status }}'
 
