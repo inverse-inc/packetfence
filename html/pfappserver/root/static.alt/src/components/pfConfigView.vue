@@ -23,7 +23,7 @@
         </template>
       </b-tabs>
       <template v-for="(tab, t) in view">
-        <div class="card-body" v-show="tab.rows && t === tabIndex" :key="t">
+        <div class="card-body" v-if="!('if' in tab) || tab.if" v-show="t === tabIndex" :key="t">
           <template v-for="row in tab.rows">
             <b-form-group v-if="!('if' in row) || row.if" :key="row.key"
               :label-cols="('label' in row && row.cols) ? labelCols : 0"
