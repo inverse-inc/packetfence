@@ -341,7 +341,7 @@ sub form_options {
           };
     }
 
-    return ({group => '', options => [{value => '', label => ''}], value => ''}, @modules);
+    return @modules;
 }
 
 =back
