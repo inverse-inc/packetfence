@@ -447,7 +447,8 @@ export default {
     })
   },
   fingerbankUpdateGeneralSetting: (id, params) => {
-    return apiCall.patch(['config', 'fingerbank_setting', id], params).then(response => {
+    const patch = params.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](['config', 'fingerbank_setting', id], params).then(response => {
       return response.data
     })
   },

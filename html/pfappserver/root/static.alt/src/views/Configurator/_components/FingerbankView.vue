@@ -4,7 +4,6 @@
     :is-loading="isLoading"
     :disabled="isLoading"
     :view="view"
-    @save="save"
   >
     <template v-slot:header>
       <h4 class="mb-0">
