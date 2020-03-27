@@ -126,18 +126,20 @@ const actions = {
       })
     })
   },
-  getUser: ({ commit, state }, pid) => {
+  getUser: ({ commit, state }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { pid: arg }
+    const { pid } = body
     if (state.users[pid]) {
       return Promise.resolve(state.users[pid])
     }
     commit('USER_REQUEST')
-    return api.user(pid).then(data => {
+    return api.user(body).then(data => {
       inflateActions(data)
       commit('USER_REPLACED', data)
       return state.users[pid]
     }).catch(err => {
       commit('USER_ERROR', err.response)
-      return err
+      throw err
     })
   },
   getUserNodes: ({ commit, state }, pid) => {

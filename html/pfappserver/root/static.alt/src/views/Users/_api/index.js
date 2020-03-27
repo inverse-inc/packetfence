@@ -19,8 +19,9 @@ export default {
       return response.data
     })
   },
-  user: pid => {
-    return apiCall.get(['user', pid]).then(response => {
+  user: body => {
+    const get = body.quiet ? 'getQuiet' : 'get'
+    return apiCall[get](['user', body.pid]).then(response => {
       return response.data.item
     })
   },

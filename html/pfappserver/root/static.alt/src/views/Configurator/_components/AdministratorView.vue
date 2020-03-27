@@ -49,13 +49,26 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_users/getUser', 'admin').then(form => {
+      this.$store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(form => { // TODO: create user
         this.$store.dispatch(`${this.formStoreName}/appendForm`, { administrator: form })
+        this.$set(this.meta, 'userExists', true)
+      }).catch(() => {
+        // User doesn't exist
+        this.$store.dispatch(`${this.formStoreName}/appendForm`, { administrator: { pid: 'admin' } })
+      }).finally(() => {
+        this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
       })
-      this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
     },
     save () {
-      return this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form.administrator)).catch(error => {
+      let savePromise
+      if (this.meta.userExists) {
+        savePromise = this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form.administrator))
+      } else {
+        savePromise = this.$store.dispatch('$_users/createUser', this.form.administrator).then(() => {
+          return this.$store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, this.form.administrator))
+        })
+      }
+      return savePromise.catch(error => {
         // Only show a notification in case of a failure
         const { response: { data: { message = '' } = {} } = {} } = error
         this.$store.dispatch('notification/danger', {
