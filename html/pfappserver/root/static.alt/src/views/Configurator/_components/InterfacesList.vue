@@ -42,7 +42,6 @@
         </template> -->
         <template v-slot:cell(ipaddress)="{ item }">
           <ip>{{ item.ipaddress }}</ip><ip v-if="item.netmask" class="text-black-50">/{{ item.netmask }}</ip>
-          <br/>
           <ip>{{ item.ipv6_address }}</ip><ip v-if="item.ipv6_prefix" class="text-black-50">{{ item.ipv6_prefix }}</ip>
         </template>
         <template v-slot:cell(type)="{ item }">
