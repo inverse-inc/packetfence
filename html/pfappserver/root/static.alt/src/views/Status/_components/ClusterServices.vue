@@ -19,7 +19,7 @@
           <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
           </template>
-          <template v-for="server in servers" :slot="`HEAD_${server}`" slot-scope="data">
+          <template v-for="server in servers" v-slot:[head(server)]="data">
             <span :key="server.host">
               {{ data.label }}
               <b-button v-if="!isApiServer(server)" size="sm" variant="outline-success" class="ml-1" @click.stop.prevent="setApiServer(server)">{{ $t('Start Redirect') }} <icon class="ml-1" name="directions"></icon></b-button>
@@ -116,6 +116,9 @@ export default {
   methods: {
     cell (name) {
       return `cell(${name})`
+    },
+    head (name) {
+      return `head(${name})`
     },
     uniqueServices: (...services) => [ ...new Set([].concat(...services)) ],
     isApiServer (host) {
