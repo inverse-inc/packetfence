@@ -1147,6 +1147,25 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
 ----
 
+=== Database Privileges
+
+Some queries now need CREATE TEMPORARY TABLE priviledge.
+You will be prompted for the mysql root password when running this script;
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.0-upgrade-pf-privileges.sh
+----
+
+=== Filter Engine
+
+We are now using a new format for the VLAN/DNS/DHCP/RADIUS/Switch filters.
+This script will convert the old format to the new one.
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.0-filter_engines.pl
+----
 
 == Archived upgrade notes
 
