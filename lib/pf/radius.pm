@@ -895,16 +895,20 @@ sub switch_access {
             $args->{'profile'} = $profile;
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
     }
-    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
-            'username' =>  $radius_request->{'User-Name'},
-            'password' =>  $radius_request->{'User-Password'},
-            'rule_class' => $Rules::ADMIN,
-            'context' => $pf::constants::realm::RADIUS_CONTEXT,
-        }, @sources );
+    my ( $return, $message, $source_id, $extra );
+    $source_id = @sources;
+    if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'})) {
+        ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
+                'username' =>  $radius_request->{'User-Name'},
+                'password' =>  $radius_request->{'User-Password'},
+                'rule_class' => $Rules::ADMIN,
+                'context' => $pf::constants::realm::RADIUS_CONTEXT,
+            }, @sources );
 
-    if ( !( defined($return) && $return == $TRUE ) ) {
-        $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
-        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+        if ( !( defined($return) && $return == $TRUE ) ) {
+            $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
+            return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+        }
     }
     if ($connection->isVPN()) {
         return $switch->returnAuthorizeVPN($args);

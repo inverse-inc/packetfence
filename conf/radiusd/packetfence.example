@@ -95,10 +95,13 @@ authorize {
 	#files
 
 	# Accept any non-eap request and send it to the packetfence module for authorization
-	if ( !EAP-Message ) {
+	if ( !EAP-Message && Control:Auth-type != "mschap") {
 		update {
 			&control:Auth-Type := Accept
 		}
+	}
+	if (Control:Auth-type == "mschap") {
+		packetfence-multi-domain
 	}
 	packetfence-eap-mac-policy
 
@@ -172,7 +175,7 @@ authenticate {
 	#
 	#  MSCHAP authentication.
 	Auth-Type MS-CHAP {
-		mschap
+		packetfence-mschap-authenticate
 	}
 
 
