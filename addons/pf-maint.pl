@@ -77,6 +77,8 @@ our @patchable_binaries = (
     "pfdhcp",
     "pfstats",
     "pfdetect",
+    "galera-autofix",
+    "pfacct",
 );
 
 GetOptions(
