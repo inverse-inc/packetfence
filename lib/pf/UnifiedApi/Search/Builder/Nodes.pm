@@ -56,49 +56,6 @@ our @IP6LOG_JOIN = (
     'ip6log',
 );
 
-our @RADACCT_JOIN = (
-    '=>{node.mac=radacct.callingstationid,node.tenant_id=radacct.tenant_id}',
-    {
-        sql  => "radacct AS radacct FORCE INDEX FOR JOIN(callingstationid)",
-        bind => [],
-        name => "radacct",
-        aliased_tables => { "radacct" => "radacct" }
-    },
-    {
-        operator  => '=>',
-        condition => {
-            'node.mac' => { '=' => { -ident => '%2$s.callingstationid' } },
-            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-            -or              => [
-                '%1$s.acctstarttime' =>
-                  { '<' => { -ident => '%2$s.acctstarttime' } },
-                -and => [
-                    -or => [
-                        '%1$s.acctstarttime' =>
-                          { '=' => { -ident => '%2$s.acctstarttime' } },
-                        -and => [
-                            '%1$s.acctstarttime' => undef,
-                            '%2$s.acctstarttime' => undef
-                        ],
-                    ],
-                    '%1$s.radacctid' =>
-                      { '<' => { -ident => '%2$s.radacctid' } },
-                ],
-            ],
-        },
-    },
-    {
-        sql  => "radacct AS r2 FORCE INDEX FOR JOIN(callingstationid)",
-        bind => [],
-        name => "r2",
-        aliased_tables => { "r2" => "radacct" }
-    }
-);
-
-our %RADACCT_WHERE = (
-    'r2.radacctid' => undef,
-);
-
 our @NODE_CATEGORY_JOIN = (
     '=>{node.category_id=node_category.category_id}', 'node_category',
 );
@@ -142,13 +99,6 @@ our %ALLOWED_JOIN_FIELDS = (
         column_spec   => make_join_column_spec( 'ip6log', 'ip' ),
         namespace     => 'ip6log',
     },
-    'online' => {
-        join_spec     => \@RADACCT_JOIN,
-        where_spec    => \%RADACCT_WHERE,
-        namespace     => 'radacct',
-        rewrite_query => \&rewrite_online_query,
-        column_spec   => "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
-    },
     'node_category.name' => {
         join_spec   => \@NODE_CATEGORY_JOIN,
         namespace   => 'node_category',
@@ -159,7 +109,6 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace   => 'node_category_bypass_role',
         column_spec => \"IFNULL(node_category_bypass_role.name, '') as `node_category_bypass_role.name`",
     },
-    map_dal_fields_to_join_spec("pf::dal::radacct", \@RADACCT_JOIN, \%RADACCT_WHERE),
     map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN),
     'security_event.open_count' => {
         namespace => 'security_event_open',
@@ -232,54 +181,6 @@ sub rewrite_security_event_close_security_event_id {
 sub rewrite_security_event_close_count {
     my ($self, $s, $q) = @_;
     $q->{field} = 'COUNT(security_event_close.id)';
-    return (200, $q);
-}
-
-sub rewrite_online_query {
-    my ($self, $s, $q) = @_;
-    my $op =$q->{op};
-    if ($op ne 'equals' && $op ne 'not_equals') {
-        return (422, { message => "$op is not valid for the online field" });
-    }
-
-    my $value = $q->{value};
-    if (!defined $value || ($value ne 'on' && $value ne 'off' && $value ne 'unknown')) {
-        return (422, { message => "value of " . ($value // "(null)"). " is not valid for the online field" });
-    }
-
-    if ($op eq 'equals') {
-        $q->{value} = undef;
-        if ($value eq 'unknown') {
-            $q->{field} = 'radacct.acctstarttime';
-        } else {
-            if ($value eq 'on') {
-                delete @{$q}{'field' ,'value'};
-                $q->{op} = 'and';
-                $q->{'values'} = [
-                    { op => 'not_equals', value => undef, field => 'radacct.acctstarttime' },
-                    { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-                ];
-            } else {
-                $q->{field} = 'radacct.acctstoptime';
-                $q->{op} = 'not_equals';
-            }
-        }
-    } elsif ($op eq 'not_equals') {
-        $q->{value} = undef;
-        if ($value eq 'unknown') {
-            $q->{field} = 'radacct.acctstarttime';
-        } else {
-            delete @{$q}{'field' ,'value'};
-            $q->{op} = 'or';
-            $q->{'values'} = [
-                { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
-                { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-            ];
-            if ($value eq 'on') {
-                $q->{'values'}[-1]{op} = 'not_equals';
-            }
-        }
-    }
     return (200, $q);
 }
 
