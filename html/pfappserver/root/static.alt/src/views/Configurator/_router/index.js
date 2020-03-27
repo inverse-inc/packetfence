@@ -21,6 +21,9 @@ const route = {
   name: 'configurator',
   redirect: '/configurator/network/interfaces',
   component: ConfiguratorView,
+  meta: {
+    transitionDelay: 150 // force scroll to the top
+  },
   beforeEnter: (to, from, next) => {
     // Force initial visit to start with the first step
     if (!['configurator-network', 'configurator-interfaces'].includes(to.name)) {
