@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	cache "github.com/fdurand/go-cache"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
@@ -25,6 +26,7 @@ type PfAcct struct {
 	AAAClient       *jsonrpc2.Client
 	LoggerCtx       context.Context
 	Dispatcher      *Dispatcher
+	SwitchInfoCache *cache.Cache
 }
 
 func NewPfAcct() *PfAcct {
@@ -36,6 +38,7 @@ func NewPfAcct() *PfAcct {
 	}
 
 	pfAcct := &PfAcct{Db: db, TimeDuration: DefaultTimeDuration}
+	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 	pfAcct.SetupConfig(ctx)

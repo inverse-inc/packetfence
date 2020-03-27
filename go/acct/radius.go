@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
+	cache "github.com/fdurand/go-cache"
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
@@ -457,13 +458,19 @@ type SwitchInfo struct {
 	RadiusAttributes db.CsvArray
 }
 
-func (rs *RadiusStatements) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
+func (h *PfAcct) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
+	key := mac + ":" + ip
+	if item, found := h.SwitchInfoCache.Get(key); found {
+		return item.(*SwitchInfo), nil
+	}
+
 	switchInfo := &SwitchInfo{}
-	err := rs.switchLookup.QueryRow(mac, ip, ip).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.TenantId, &switchInfo.RadiusAttributes)
+	err := h.switchLookup.QueryRow(mac, ip, ip).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.TenantId, &switchInfo.RadiusAttributes)
 	if err != nil {
 		return nil, err
 	}
 
+	h.SwitchInfoCache.Set(key, switchInfo, cache.DefaultExpiration)
 	return switchInfo, nil
 }
 
