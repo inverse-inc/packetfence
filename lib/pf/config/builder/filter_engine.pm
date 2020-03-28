@@ -18,13 +18,14 @@ use pf::log;
 use List::MoreUtils qw(uniq);
 use pf::factory::condition::access_filter;
 use pf::filter;
-use pf::util qw(expand_ordered_array);
+use pf::util qw(expand_ordered_array isdisabled);
 use pf::action_spec;
 use pf::factory::condition;
 use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
 use base qw(pf::config::builder);
 
+my $logger = get_logger();
 =head2 cleanupBuildData
 
 Merge all conditions and filters to build the scoped filter engines
@@ -47,7 +48,11 @@ Preprocess a rule
 
 sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
-    my $logger = get_logger();
+    if (isdisabled($entry->{status})) {
+        $logger->debug("Skipping Loading rule $id");
+        return;
+    }
+
     $logger->info("Processing rule '$id'");
     my ($conditions, $err) = parse_condition_string($entry->{condition});
     unless ( defined $conditions ) {
