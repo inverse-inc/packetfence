@@ -58,6 +58,7 @@ authorize {
 	#  'raddb/huntgroups' files.
 	preprocess
 
+	mschap
 
 	#
 	#  If you are using multiple kinds of realms, you probably
