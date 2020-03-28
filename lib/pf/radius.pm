@@ -896,7 +896,7 @@ sub switch_access {
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
     }
     my ( $return, $message, $source_id, $extra );
-    $source_id = @sources;
+    $source_id = \@sources;
     if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'})) {
         ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
                 'username' =>  $radius_request->{'User-Name'},
