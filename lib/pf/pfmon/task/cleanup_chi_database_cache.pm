@@ -36,7 +36,7 @@ sub run {
     my ($self) = @_;
     my $batch = $self->batch;
     my $time_limit = $self->timeout;
-    my $now        = pf::dal->now();
+    my $now        = time();
     my %search = (
         -where => {
             expires_at  => {
