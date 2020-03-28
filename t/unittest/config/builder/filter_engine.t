@@ -34,6 +34,7 @@ my $builder = pf::config::builder::filter_engine->new;
 
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
+status=enabled
 condition=bob == "bob"
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
@@ -63,6 +64,7 @@ CONF
                                     'pf::condition::key'
                                 ),
                                 answer => {
+                                    status => 'enabled',
                                     condition => 'bob == "bob"',
                                     scopes  => ['RegisteredRole'],
                                     _rule   => 'pf_deauth_from_wireless_secure',
@@ -90,6 +92,7 @@ CONF
 
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
+status=enabled
 condition=bob.jones == "bob" && bob.jone == "no"
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
@@ -152,6 +155,7 @@ CONF
                                     }
                                 ),
                                 answer => {
+                                    status => 'enabled',
                                     condition => 'bob.jones == "bob" && bob.jone == "no"',
                                     scopes    => ['RegisteredRole'],
                                     _rule     => 'pf_deauth_from_wireless_secure',
@@ -180,6 +184,7 @@ CONF
 
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
+status=enabled
 condition=bob.jones == "bob"
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
@@ -208,6 +213,7 @@ CONF
                                 }),
                             }),
                             answer => {
+                                status => 'enabled',
                                 condition => 'bob.jones == "bob"',
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
@@ -234,6 +240,7 @@ CONF
 
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
+status=enabled
 condition=not_date_is_before(bob.jones, "bob")
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
@@ -260,6 +267,8 @@ CONF
                                     }),
                                 }),
                             answer => {
+                                    
+                                status => 'enabled',
                                 condition => 'not_date_is_before(bob.jones, "bob")',
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
@@ -286,6 +295,7 @@ CONF
 
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
+status=enabled
 condition=contains(bob.jones, "bob")
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
@@ -314,6 +324,7 @@ CONF
                                 }),
                             }),
                             answer => {
+                                status => 'enabled',
                                 condition => 'contains(bob.jones, "bob")',
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
