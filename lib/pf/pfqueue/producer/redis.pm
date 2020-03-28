@@ -104,7 +104,7 @@ sub hashed_queue_name {
 
 sub submit_hashed {
     my ($self, $count, $id, $queue, $task_type, $task_data, $expire_in, %opts) = @_;
-    return $self->submit(hash_queue_name($queue, $count, $id), $task_type, $task_data, $expire_in, %opts);
+    return $self->submit(hashed_queue_name($queue, $count, $id), $task_type, $task_data, $expire_in, %opts);
 }
 
 sub submit_delayed {
@@ -131,7 +131,7 @@ sub submit_delayed {
 
 sub submit_delayed_hashed {
     my ($self, $count, $id, $queue, $task_type, $delay, $task_data, $expire_in, %opts) = @_;
-    return $self->submit_delayed(hash_queue_name($queue, $count, $id), $task_type, $delay, $task_data, $expire_in, %opts);
+    return $self->submit_delayed(hashed_queue_name($queue, $count, $id), $task_type, $delay, $task_data, $expire_in, %opts);
 }
 
 =head1 AUTHOR
