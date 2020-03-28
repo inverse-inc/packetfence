@@ -74,7 +74,7 @@ sub generateConfig {
         $tags{'snmpTrapdAddr'} = "snmpTrapdAddr $management_ip";
     }
     $tags{perlaction} = "perl do \"/usr/local/pf/lib/pf/snmptrapd.pm\";\n";
-    $tags{perlaction} .= "perl " . Data::Dumper->Dump([$ConfigPfqueue{queue_config}{pfsnmp_parsing}{workers}], ['pf::snmptrapd::WORKERS']) . "\n";
+    $tags{perlaction} .= "perl " . Data::Dumper->Dump([$ConfigPfqueue{queue_config}{pfsnmp_parsing}{workers}], ['pf::snmptrapd::WORKER']) . "\n";
 
     foreach my $user_key ( sort keys %$snmpv3_users ) {
         $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";
