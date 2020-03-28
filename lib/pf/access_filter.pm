@@ -17,6 +17,7 @@ use pf::log;
 use pf::api::jsonrpcclient;
 use pf::constants::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
+use pf::util qw(isenabled);
 use pf::factory::condition::access_filter;
 use pf::filter_engine;
 use pf::filter;
@@ -105,9 +106,12 @@ dispatch the array of actions
 sub dispatchActions {
     my ($self, $rule, $args) = @_;
     my $apiclient = $self->api_client();
-    for my $action (@{$rule->{actions}//[]}) {
-        my $param = $self->evalActionParams($action->{'api_parameters'}, $args);
-        $apiclient->notify($action->{'api_method'}, @{$param});
+    my $run_actions = $rule->{run_actions} // "enabled";
+    if (isenabled($run_actions)) {
+        for my $action (@{$rule->{actions}//[]}) {
+            my $param = $self->evalActionParams($action->{'api_parameters'}, $args);
+            $apiclient->notify($action->{'api_method'}, @{$param});
+        }
     }
 }
 
