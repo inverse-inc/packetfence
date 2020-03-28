@@ -93,7 +93,7 @@ sub doTask {
     }
 
     my $client = pf::pfqueue::producer::redis->new(queue => 'pfsnmp');
-    $client->submit_hashed($ConfigPfqueue{pfsnmp}{workers}, $switch_id, "pfsnmp", "pfsnmp", $trap);
+    $client->submit_hashed($ConfigPfqueue{queue_config}{pfsnmp}{workers}, $switch_id, "pfsnmp", "pfsnmp", $trap);
     return undef, undef;
 }
 

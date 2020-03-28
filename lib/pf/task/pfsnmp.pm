@@ -893,7 +893,7 @@ requeueTrap
 sub requeueTrap {
     my ($self, $args) = @_;
     my $client = pf::pfqueue::producer::redis->new();
-    $client->submit_hashed($ConfigPfqueue{pfsnmp}{workers}, $args->{switchId}, "pfsnmp", "pfsnmp", $args);
+    $client->submit_hashed($ConfigPfqueue{queue_config}{pfsnmp}{workers}, $args->{switchId}, "pfsnmp", "pfsnmp", $args);
     return ;
 }
 
