@@ -18,6 +18,7 @@ use pf::log;
 use pf::dal::chi_cache;
 use pf::error qw(is_error);
 use Moose;
+use Time::HiRes qw(time);
 extends qw(pf::pfmon::task);
 
 has 'batch' => ( is => 'rw', default => 1000 );
