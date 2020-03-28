@@ -107,7 +107,7 @@ sub fetch {
       or croak $dbh->errstr;
     $sth->execute($self->namespaced_key($key), time) or croak $sth->errstr;
     my $results = $sth->fetchall_arrayref;
-
+    $sth->finish;
     return $results->[0]->[0];
 }
 
@@ -127,6 +127,7 @@ sub store {
               or croak $dbh->errstr;
             $sth->execute( $data, $expires_at, $self->namespaced_key($key) )
               or croak $sth->errstr;
+            $sth->finish;
         }
         else {
             croak $sth->errstr;
