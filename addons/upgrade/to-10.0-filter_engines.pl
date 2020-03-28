@@ -38,6 +38,10 @@ my %new_fields = (
     status => 'enabled',
 );
 
+my %skipped = (
+    action_param => undef,
+);
+
 my %operator = (
     regex => '=~',
     regex_not => '!~',
@@ -142,9 +146,23 @@ sub populate {
         }
         $new_file->newval($id, 'condition', $condition);
         while (my ($k, $v) = each %$rule) {
+            if (exists $skipped{$k}) {
+                next;
+            }
+
             if (exists $rename{$k}) {
                 $k = $rename{$k};
             }
+
+            if ($k =~ qr/(answer|param)(\d+)/) {
+                $k = "$1.$2";
+            }
+
+            if ($k eq 'action') {
+                $k = 'action.0';
+                $v = "${v}:$rule->{action_param}";
+            }
+
             $new_file->newval($id, $k, $v);
         }
 
@@ -243,7 +261,7 @@ for my $file (@files) {
         print $indent, "Skipping\n";
     } else {
         print "${indent}Old config is located $file.$old_ext\n\n";
-        if ($warnings) {
+        if (@$warnings) {
             print "${indent}Problems converting some rules \n";
             for my $w (@$warnings) {
                 display_warning($w);
