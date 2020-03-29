@@ -59,6 +59,7 @@ Bug Fixes
 * Issue with the timezone in the admin not being honored on the system (#5205)
 * Issue with chrome who don't show the portal on self signed certificate (#5233)
 * Issue with RADIUS CLI access and ldap authentication source where the cache is enabled. (#5018)
+* Distribute pfsnmp trap jobs between queues based off switch id. (#5004)
 
 Version 9.3.0 released on 2020-01-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
