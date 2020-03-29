@@ -37,6 +37,7 @@ use pf::util;
 use pf::config::util;
 use pf::Connection::ProfileFactory;
 use pf::pfqueue::producer::redis;
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::Redis;
 use pf::rate_limiter;
 
@@ -892,7 +893,7 @@ requeueTrap
 sub requeueTrap {
     my ($self, $args) = @_;
     my $client = pf::pfqueue::producer::redis->new();
-    $client->submit("pfsnmp", "pfsnmp", $args);
+    $client->submit_hashed($ConfigPfqueue{queue_config}{pfsnmp}{workers}, $args->{switchId}, "pfsnmp", "pfsnmp", $args);
     return ;
 }
 

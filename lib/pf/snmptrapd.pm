@@ -25,6 +25,8 @@ our $TRAP_RECEIVED_FROM = qr/
 
 /sx;
 
+our $WORKER;
+
 =head2 receiver
 
 =cut
@@ -42,7 +44,7 @@ sub receiver {
         redis => _redis_client(),
     });
 #    Delay parsing by two seconds to allow snmp to do it's magic
-    $producer->submit_delayed("pfsnmp_parsing", "pfsnmp_parsing", 2000, [$trapInfo, $variables]);
+    $producer->submit_delayed_hashed($WORKER, $switchIp, "pfsnmp_parsing", "pfsnmp_parsing", 2000, [$trapInfo, $variables]);
     return NETSNMPTRAPD_HANDLER_OK;
 }
 
