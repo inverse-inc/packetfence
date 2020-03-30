@@ -1,6 +1,6 @@
 ---
 # variables assigned based on environment variables
-venom_result_dir: '{{.VENOM_RESULT_DIR}}'
+venom_vars_dir: '{{.VENOM_VARS_DIR}}'
 pfserver_token: '{{.TOKEN}}'
 pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
 
