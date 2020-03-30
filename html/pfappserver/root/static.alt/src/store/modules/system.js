@@ -126,8 +126,9 @@ const actions = {
       })
     })
   },
-  getHostname: ({ commit, state }) => {
-    if (state.hostname) {
+  getHostname: ({ commit, state }, options = {}) => {
+    const { cache = true } = options
+    if (cache && state.hostname) {
       return Promise.resolve(state.hostname)
     }
     commit('SYSTEM_REQUEST')
@@ -196,7 +197,7 @@ const mutations = {
     state.requestStatus = types.SUCCESS
     state.message = ''
   },
-  SYSTEM_ERROR: (state, data) => {
+  SYSTEM_ERROR: (state, data = {}) => {
     state.requestStatus = types.ERROR
     const { response: { data: { message } = {} } = {} } = data
     if (message) {

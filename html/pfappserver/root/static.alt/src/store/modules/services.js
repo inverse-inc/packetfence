@@ -35,13 +35,14 @@ const api = {
       }
     })
   },
-  restartService: name => {
-    return apiCall.post(`service/${name}/restart`).then(response => {
+  restartService: body => {
+    const post = body.quiet ? 'postQuiet' : 'post'
+    return apiCall[post](`service/${body.id}/restart`).then(response => {
       const { data: { restart } } = response
       if (parseInt(restart) > 0) {
         return response.data
       } else {
-        throw new Error(`Could not restart ${name}`)
+        throw new Error(`Could not restart ${body.id}`)
       }
     })
   },
@@ -164,9 +165,11 @@ const actions = {
       throw err
     })
   },
-  restartService: ({ state, commit }, id) => {
+  restartService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
     commit('SERVICE_RESTARTING', id)
-    return api.restartService(id).then(response => {
+    return api.restartService(body).then(response => {
       commit('SERVICE_RESTARTED', { id, response })
       return state.cache[id]
     }).catch((err) => {
