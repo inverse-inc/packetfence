@@ -90,19 +90,21 @@ packetfence-eap-mac-policy {
                 update {
                     &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
                 }
-                if  ( &Tmp-String-1 == &Tmp-String-2 ) {
-                    update {
-                        &control:Cleartext-Password := &request:User-Name
+                if ("%{%{request:PacketFence-Authorization-Status}:-Allow}" == "deny") {
+                    noop
+                } else {
+                    if  ( &Tmp-String-1 == &Tmp-String-2 ) {
+                        update {
+                            &control:Cleartext-Password := &request:User-Name
+                        }
+                        updated
                     }
-                    updated
                 }
             }
         }
-
     }
     noop
 }
-
 
 packetfence-audit-log-accept {
     if (&User-Name && (&User-Name == "dummy")) {
