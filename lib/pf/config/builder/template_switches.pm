@@ -54,6 +54,7 @@ sub buildEntry {
         value    => $type,
         label    => $entry->{description},
         supports => \@supports,
+        is_template => 1,
     };
 
     return $entry;
