@@ -319,18 +319,20 @@ export default {
     },
     inputValue: {
       handler (a) {
-        if (this.optionsSearchFunction) {
-          (((this.multiple) ? a : [a]) || []).map(value => {
-            if (!(value in this.tagCache)) {
-              Promise.resolve(this.optionsSearchFunction(this, value, SEARCH_BY_ID)).then(options => {
-                this.cacheTagsFromOptions(options)
-              })
-            }
-          })
-        } else {
-          this.cacheTagsFromOptions((((this.multiple) ? a : [a]) || []).map(value => {
-             return { [this.label]: value, [this.trackBy]: value }
-          }))
+        if (a) {
+          if (this.optionsSearchFunction) {
+            (((this.multiple) ? a : [a]) || []).map(value => {
+              if (!(value in this.tagCache)) {
+                Promise.resolve(this.optionsSearchFunction(this, value, SEARCH_BY_ID)).then(options => {
+                  this.cacheTagsFromOptions(options)
+                })
+              }
+            })
+          } else {
+            this.cacheTagsFromOptions((((this.multiple) ? a : [a]) || []).map(value => {
+              return { [this.label]: value, [this.trackBy]: value }
+            }))
+          }
         }
       },
       immediate: true
