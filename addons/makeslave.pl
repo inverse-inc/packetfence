@@ -59,7 +59,7 @@ my $gtid;
 
 while (my $row = <$fh>) {
     chomp $row;
-    if ($row =~ /^([a-zA-Z0-9_\-\.]+)\s+(\d+)(\s+)?(\d+-\d+-\d+)?$/ ) {
+    if ($row =~ /^([a-zA-Z0-9_\-\.]+)\s+(\d+)(\s+)?(\d+-\d+-\d+)?(,(\d+-\d+-\d+))?$/ ) {
         $file = $1;
         $position = $2;
         if (defined($4)) {
