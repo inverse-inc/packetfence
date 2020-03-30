@@ -8,8 +8,7 @@ die() {
 
 # script usage definition
 usage() { 
-    echo "Usage: $(basename $0) <arg>" 
-    echo "   Available targets: setup, pfservers, teardown"
+    echo "Usage: $(basename $0) <test_suite>"
 } 
 
 
@@ -36,7 +35,7 @@ configure_and_check() {
     # paths
     VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${PWD}/results}"
     VENOM_VARS_DIR=${VARS:-${PWD}/vars}
-    VENOM_VARS_FILE=${VENOM_VARS_FILE:-${VENOM_VARS_DIR}/all.json}
+    VENOM_VARS_FILE=${VENOM_VARS_FILE:-${VENOM_VARS_DIR}/all.yml}
 
     mkdir -vp ${VENOM_RESULT_DIR} || die "mkdir failed: ${VENOM_RESULT_DIR}"
     declare -p VENOM_RESULT_DIR VENOM_VARS_FILE
@@ -72,18 +71,16 @@ teardown() {
 # Arguments are mandatory
 [[ $# -lt 1 ]] && usage && exit 1 
 configure_and_check
-# test_script_args $@
-
 case $1 in
-    setup)
-        export VENOM_RESULT_DIR
-        run_test_suite setup ;;
     pfservers)
         export VENOM_RESULT_DIR
         source $VENOM_RESULT_DIR/env
         pfservers_test_suite pfservers;;
     teardown) teardown ;;
-    *) echo -e "${RED}Error: unknown test suite: $1${NOCOLOR}"
-       usage
-       exit 1;;
+    *)
+        export VENOM_RESULT_DIR
+        if [ -f "${VENOM_RESULT_DIR}/env" ]; then
+            source $VENOM_RESULT_DIR/env
+        fi
+        run_test_suite $1 ;;
 esac
