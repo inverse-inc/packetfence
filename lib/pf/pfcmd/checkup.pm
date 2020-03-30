@@ -214,17 +214,18 @@ sub interfaces_defined {
     $cached_pf_config->build();
     foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
-        my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
+        my $type = $int_conf{'type'};
+        my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability|other)/;
 
-        if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /$int_with_no_config_required_regexp/) {
+        if (!defined($type) || $type !~ /$int_with_no_config_required_regexp/) {
             if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
         }
 
-        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius|dhcp|dns)/;
-        if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
-            add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius|dhcp|dns|other)/;
+        if (defined($type) && $type !~ /$int_types/) {
+            add_problem( $FATAL, "invalid network type $type for $interface" );
         }
 
         $nb_management_interface++ if (defined($int_conf{'type'}) && $int_conf{'type'} =~ /management|managed/);
