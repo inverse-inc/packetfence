@@ -195,6 +195,10 @@ our @SyslogInfo = (
         'name'       => 'haproxy_db.log',
         'conditions' => [ '$programname == "haproxy" and ($msg contains "mysql" or $msg contains "backend has no server available")' ],
     },
+    {
+        'name'       => 'haproxy_admin.log',
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ],
+    },
 );
 
 our $ALL_LOGS = join(",", map { $_->{name} } @pf::constants::syslog::SyslogInfo);
