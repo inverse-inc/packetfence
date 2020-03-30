@@ -149,6 +149,11 @@ expires_in=24h
 #
 # The storage to use for the namespace
 storage=distributed
+#
+# storage switch.overlay.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=24h
 
 [namespace openvas_scans]
 #
@@ -156,6 +161,11 @@ storage=distributed
 #
 # The storage to use for the namespace
 storage=distributed
+#
+# storage openvas_scans.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=2h
 
 [storage ntlm_cache_username_lookup]
 #
