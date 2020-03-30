@@ -6356,9 +6356,13 @@ Finally, we need to tie the service profiles with the proper AAA configuration.
 
 In order to configure web authentication (external captive-portal) on Ubiquiti access points, you must have access to a Unifi controller and your APs must be connected to it.
 
-First, you must configure the guest policy. Go in _Settings->Guest Control_ and configure it as shown below:
+First, you must configure the guest policy. Go in _Settings->hotspot->general_ and configure it as shown below:
 
 image::ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
+
+Next, you must allow the device to reach the portal. Go in _Settings->hotspot->advanced_ and configure it as shown below:
+
+image::ubiquiti-unifi-guest-policy_access.png[scaledwidth="100%",alt="Unifi web-auth policy"]
 
 Make sure you enabled _Enable Guest Portal_, and that you've set _External portal server_.
 
