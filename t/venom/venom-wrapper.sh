@@ -6,6 +6,15 @@ die() {
     echo "$(basename $0): $@" >&2 ; exit 1
 }
 
+log_section() {
+   printf '=%.0s' {1..72} ; printf "\n"
+   printf "=\t%s\n" "" "$@" ""
+}
+
+log_subsection() {
+   printf "=\t%s\n" "" "$@" ""
+}
+
 # script usage definition
 usage() { 
     echo "Usage: $(basename $0) <test_suite>"
@@ -50,7 +59,6 @@ configure_and_check() {
 
 pfservers_test_suite() {
     local pfservers_dir=${1:-.}
-    echo "Running pfservers tests suite"
     for sub_dir in $(find ${pfservers_dir}/* -type d); do
         run_test_suite $sub_dir
     done
@@ -58,9 +66,8 @@ pfservers_test_suite() {
 }
 run_test_suite() {
     local test_suite_dir=$(readlink -e ${1:-.})
-    echo "Running ${test_suite_dir}"
+    log_section "Running ${test_suite_dir} suite"
     CMD="${VENOM_BINARY} run ${VENOM_OPTS} ${test_suite_dir}"
-    echo -e "  ${YELLOW}${test_suite_dir} ${DARKGRAY}[${CMD}]${NOCOLOR}"
     ${CMD}
 }
 
