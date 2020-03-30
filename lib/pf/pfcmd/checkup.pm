@@ -416,9 +416,12 @@ sub network {
 
         # validate dns entry if named is enabled
         if (exists $net{'named'} &&  $net{'named'} =~ /enabled/i) {
-            for my $dns ( split( ",", $net{'dns'})) {
-                if (!valid_ip($dns)) {
-                    add_problem( $FATAL, "networks.conf: DNS IP is not valid for network $network" );
+            my @dns = split( /\s*,\s*/, $net{'dns'} // '');
+            if (@dns) {
+                for my $dns (@dns) {
+                    if ( !valid_ip($dns) ) {
+                        add_problem( $FATAL, "networks.conf: DNS IP '$dns' is not valid for network $network");
+                    }
                 }
             }
         }
