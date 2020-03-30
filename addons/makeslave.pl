@@ -59,7 +59,7 @@ my $gtid;
 
 while (my $row = <$fh>) {
     chomp $row;
-    if ($row =~ /^([a-zA-Z0-9_\-\.]+)\s+(\d+)(\s+)?(\d+-\d+-\d+)?(,(\d+-\d+-\d+))?$/ ) {
+    if ($row =~ /^([a-zA-Z0-9_\-\.]+)\s+(\d+)(\s+)?((\d+-\d+-\d+)?(,(\d+-\d+-\d+))?)?$/ ) {
         $file = $1;
         $position = $2;
         if (defined($4)) {
@@ -76,7 +76,7 @@ if (!defined($gtid)) {
     @output = `sudo mysql -u $replication_username -p'$replication_password' -h$mysql_master_ip -e "SELECT BINLOG_GTID_POS('$file', $position)\\G"`;
 
     foreach my $item (@output) {
-        if ($item =~ /(\d+-\d+-\d+)$/) {
+        if ($item =~ /((\d+-\d+-\d+)?(,(\d+-\d+-\d+))?)$/) {
             $gtid = $1;
         }
     }
