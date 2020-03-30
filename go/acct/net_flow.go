@@ -67,7 +67,7 @@ func (array NetFlowBandwidthAccountingRecs) ToSQL() string {
 
 	sql += `        ) as time_buckets INNER JOIN ip4log as ip4 ON time_buckets.ip = ip4.ip
     ) as x
-ON DUPLICATE KEY UPDATE in_bytes = in_bytes + VALUES(in_bytes), out_bytes = out_bytes + VALUES(out_bytes);`
+ON DUPLICATE KEY UPDATE in_bytes = in_bytes + VALUES(in_bytes), out_bytes = out_bytes + VALUES(out_bytes), last_updated = NOW();`
 
 	return sql
 }
