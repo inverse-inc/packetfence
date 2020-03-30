@@ -246,7 +246,7 @@ export const validators = (form, meta = {}) => {
   const {
     database: {
       setUserPassword = false,
-      rootPasswordIsRequired = false,
+      rootPasswordIsRequired = true,
       databaseExists = false,
       userIsValid = false
     } = {}

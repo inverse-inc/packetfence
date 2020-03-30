@@ -104,7 +104,6 @@ export default {
       }
       this.$store.dispatch('$_bases/testDatabase', { username: 'root' }).then(() => {
         // No root password -- woohoo!
-        this.$set(this.meta.database, 'setRootPassword', true) // need to define a root password
         this.$set(this.form.database, 'root_pass', password.generate(this.passwordOptions))
         // Assign a generated password for root
         this.secureDatabase()
@@ -124,7 +123,6 @@ export default {
       const form = this.form.database
       return this.$store.dispatch('$_bases/secureDatabase', { username: 'root', password: form.root_pass }).then(() => {
         this.$set(this.meta.database, 'rootPasswordIsValid', true)
-        this.$set(this.meta.database, 'setRootPassword', false)
         const databaseReady = new Promise((resolve, reject) => {
           this.$store.dispatch('$_bases/testDatabase', { username: 'root', password: form.root_pass, database: form.db }).then(() => {
             this.$set(this.meta.database, 'databaseExists', true) // database exists
@@ -146,6 +144,8 @@ export default {
             this.assignDatabase()
           })
         })
+      }).catch(() => {
+        this.$set(this.meta.database, 'setRootPassword', true) // need to define a root password
       })
     },
     createDatabase () {
