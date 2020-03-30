@@ -42,15 +42,17 @@ export default {
         this.progressFeedback = this.$i18n.t('Enabling PacketFence')
         return this.$store.dispatch('services/updateSystemd', 'pf').then(() => {
           this.progressFeedback = this.$i18n.t('Starting PacketFence')
-          return this.$store.dispatch('services/startService', 'pf').then(() => {
-            this.progressFeedback = this.$i18n.t('Disabling Configurator')
-            this.advancedPromise.then(data => {
-              data.configurator = 'disabled'
-              this.$store.dispatch('$_bases/updateAdvanced', data).then(() => {
-                this.progressFeedback = this.$i18n.t('Redirecting to login page')
-                setTimeout(() => {
-                  this.$router.push({ name: 'login' })
-                }, 2000)
+          return this.$store.dispatch('services/restartService', 'haproxy-admin').catch(e => e).finally(() => {
+            return this.$store.dispatch('services/startService', 'pf').then(() => {
+              this.progressFeedback = this.$i18n.t('Disabling Configurator')
+              this.advancedPromise.then(data => {
+                data.configurator = 'disabled'
+                this.$store.dispatch('$_bases/updateAdvanced', data).then(() => {
+                  this.progressFeedback = this.$i18n.t('Redirecting to login page')
+                  setTimeout(() => {
+                    this.$router.push({ name: 'login' })
+                  }, 2000)
+                })
               })
             })
           })
