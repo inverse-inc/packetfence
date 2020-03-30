@@ -154,7 +154,7 @@ export default {
         password: this.form.database.root_pass,
         database: this.form.database.db
       }).then(() => {
-        this.$et(this.meta.database, 'databaseExists', true)
+        this.$set(this.meta.database, 'databaseExists', true)
       }).catch(err => {
         const {
           response: {
