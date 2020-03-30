@@ -167,7 +167,6 @@ sub sanity_check {
     switches();
     connection_profiles();
     guests();
-    vlan_filter_rules();
     apache_filter_rules();
     db_check_version();
     valid_certs();
@@ -1026,28 +1025,6 @@ sub connection_profiles {
             add_problem ( $WARN, "many authentication sources of type $type are selected for profile $connection_profile" )
               if ($external{$type} > 1);
         }
-    }
-}
-
-=item vlan_filter_rules
-
-Make sure that the minimum parameters have been defined in access filter rules
-
-=cut
-
-sub vlan_filter_rules {
-    require pf::access_filter::vlan;
-    my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
-    foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
-        my $rule_data = $ConfigVlanFilters{$rule};
-        my $condition = $rule_data->{condition};
-        my ($ast, $err) = parse_condition_string($condition);
-        add_problem ( $WARN, "Cannot parse condition '$condition' in $rule for vlan filter rule" . "\n" . $err->{highlighted_error})
-            if $err;
-        add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
-            if (!defined($rule_data->{'scopes'}));
-        add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
-            if (!defined($rule_data->{'role'}));
     }
 }
 
