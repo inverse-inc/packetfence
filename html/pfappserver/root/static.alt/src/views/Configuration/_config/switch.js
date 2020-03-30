@@ -1164,28 +1164,28 @@ export const view = (form = {}, meta = {}) => {
           labelSize: 'lg'
         },
         viewFields.VlanMap(form, meta),
-        viewFields.mapVlan(form, meta),
+        ...viewFields.mapVlan(form, meta),
         {
           if: advancedMode || supports(form, meta, ['RoleBasedEnforcement']),
           label: i18n.t('Role mapping by Switch Role'),
           labelSize: 'lg'
         },
         viewFields.RoleMap(form, meta),
-        viewFields.mapRole(form, meta),
+        ...viewFields.mapRole(form, meta),
         {
           if: advancedMode || supports(form, meta, ['AccessListBasedEnforcement']),
           label: i18n.t('Role mapping by Access List'),
           labelSize: 'lg'
         },
         viewFields.AccessListMap(form, meta),
-        viewFields.mapAccessList(form, meta),
+        ...viewFields.mapAccessList(form, meta),
         {
           if: advancedMode || supports(form, meta, ['ExternalPortal']),
           label: i18n.t('Role mapping by Web Auth URL'),
           labelSize: 'lg'
         },
         viewFields.UrlMap(form, meta),
-        viewFields.mapUrl(form, meta)
+        ...viewFields.mapUrl(form, meta)
       ]
     },
     {
