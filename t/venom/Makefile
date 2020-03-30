@@ -15,7 +15,7 @@ install:
 	./install-venom.sh
 
 .PHONY: test
-test: clean
+test:
 	./venom-wrapper.sh setup
 	./venom-wrapper.sh pfservers
 
