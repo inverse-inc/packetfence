@@ -41,9 +41,9 @@ export default {
         upper: true,
         lower: true,
         digits: true,
-        special: true,
+        special: false,
         brackets: true,
-        high: true,
+        high: false,
         ambiguous: true
       }
     }
