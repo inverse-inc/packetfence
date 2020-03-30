@@ -396,7 +396,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
             SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes FROM (
                 SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
             ) AS y WHERE in_bytes > 0 || out_bytes > 0
-        ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes);
+        ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes), last_updated = NOW();
     `)
 
 	if err != nil {
