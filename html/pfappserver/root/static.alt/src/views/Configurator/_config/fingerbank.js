@@ -34,7 +34,7 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 html: `<div class="alert alert-info">
                   <h4 class="alert-heading">${i18n.t('This step is optional')}</h4>
-                  ${i18n.t('You can visit the official <a href="{link}" target="_new">registration page</a> to create an account.', { link: 'https://api.fingerbank.org/users/register' })}
+                  ${i18n.t('You can visit the official <a href="{link}" target="_new">registration page</a> to create an account and get an API key.', { link: 'https://api.fingerbank.org/users/register' })}
                   </div>`
               }
             }
