@@ -51,10 +51,11 @@
       </b-collapse>
     </b-navbar>
     <pf-progress-api/>
-    <!-- Show alert if the database is in read-only mode -->
+    <!-- Show alert if the database is in read-only mode and/or the configurator is enabled -->
     <b-container v-if="warnings.length > 0" class="bg-danger text-white text-center pt-6" fluid>
       <div class="py-2" v-for="(warning, index) in warnings" :key="index">
         <icon class="pr-2" :name="warning.icon"></icon> {{ warning.message }}
+        <b-button v-if="warning.to" size="sm" variant="outline-light" :to="warning.to">{{ warning.toLabel }}</b-button>
       </div>
     </b-container>
     <b-container :class="[{ 'pt-6': warnings.length === 0, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
@@ -102,9 +103,6 @@ export default {
     isConfiguratorActive () {
       return this.$store.state.session.configuratorActive
     },
-    isConfiguratorEnabled () {
-      return this.$store.state.session.configuratorEnabled
-    },
     isPerfomingCheckup () {
       return this.$store.getters['config/isLoadingCheckup']
     },
@@ -113,6 +111,9 @@ export default {
     },
     isProcessing () {
       return (this.isPerfomingCheckup || this.isFixingPermissions) ? 1 : 0
+    },
+    readonlyMode () {
+      return this.$store.state.system.readonlyMode
     },
     warnings () {
       const warnings = []
@@ -125,7 +126,9 @@ export default {
       if (this.$store.state.session.configuratorEnabled) {
         warnings.push({
           icon: 'door-open',
-          message: this.$i18n.t('The configurator is enabled. You should disable it if your PacketFence configuration is completed.')
+          message: this.$i18n.t('The configurator is enabled. You should disable it if your PacketFence configuration is completed.'),
+          to: '/configuration/advanced',
+          toLabel: this.$i18n.t('Go to configuration')
         })
       }
       return warnings
