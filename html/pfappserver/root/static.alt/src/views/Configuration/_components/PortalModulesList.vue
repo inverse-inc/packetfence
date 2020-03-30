@@ -1,5 +1,5 @@
 <template>
-  <b-card class="h-100" no-body>
+  <b-card class="h-100" no-body ref="container">
     <b-card-header>
       <h4 class="mb-0">
         {{ $t('Portal Modules') }}
@@ -57,7 +57,7 @@
           </draggable>
         </b-tab>
         <template v-slot:tabs-end>
-          <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport">
+          <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" :boundary="$refs.container">
             <template v-for="group in moduleTypes">
               <b-dropdown-header class="text-secondary px-2" v-t="group.name" :key="group.name"></b-dropdown-header>
               <b-dropdown-item v-for="moduleType in group.types" :key="moduleType.name" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
