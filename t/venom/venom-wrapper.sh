@@ -39,11 +39,11 @@ configure_and_check() {
 
     mkdir -vp ${VENOM_RESULT_DIR} || die "mkdir failed: ${VENOM_RESULT_DIR}"
     declare -p VENOM_RESULT_DIR VENOM_VARS_FILE
-    VENOM="${VENOM:-`which venom`}"
+    VENOM_BINARY="${VENOM_BINARY:-`which venom`}"
     VENOM_OPTS="${VENOM_OPTS:---format tap --output-dir ${VENOM_RESULT_DIR} --strict --stop-on-failure --var-from-file ${VENOM_VARS_FILE}}"
 
     echo -e "Using venom using following variables:"
-    echo -e "  VENOM=${CYAN}${VENOM}${NOCOLOR}"
+    echo -e "  VENOM_BINARY=${CYAN}${VENOM_BINARY}${NOCOLOR}"
     echo -e "  VENOM_OPTS=${CYAN}${VENOM_OPTS}${NOCOLOR}"
     echo ""
 }
@@ -59,7 +59,7 @@ pfservers_test_suite() {
 run_test_suite() {
     local test_suite_dir=$(readlink -e ${1:-.})
     echo "Running ${test_suite_dir}"
-    CMD="${VENOM} run ${VENOM_OPTS} ${test_suite_dir}"
+    CMD="${VENOM_BINARY} run ${VENOM_OPTS} ${test_suite_dir}"
     echo -e "  ${YELLOW}${test_suite_dir} ${DARKGRAY}[${CMD}]${NOCOLOR}"
     ${CMD}
 }
