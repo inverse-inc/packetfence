@@ -33,6 +33,11 @@ export default {
       required: true
     }
   },
+  data () {
+    return {
+      userExists: false
+    }
+  },
   computed: {
     meta () {
       return this.$store.getters[`${this.formStoreName}/$meta`]
@@ -49,25 +54,33 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(form => { // TODO: create user
+      this.$store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(form => {
+        this.userExists = true
         this.$store.dispatch(`${this.formStoreName}/appendForm`, { administrator: form })
-        this.$set(this.meta, 'userExists', true)
       }).catch(() => {
-        // User doesn't exist
+        // User doesn't exist or database is not accessible
         this.$store.dispatch(`${this.formStoreName}/appendForm`, { administrator: { pid: 'admin' } })
       }).finally(() => {
         this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
       })
     },
     save () {
-      let savePromise
-      if (this.meta.userExists) {
-        savePromise = this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form.administrator))
-      } else {
-        savePromise = this.$store.dispatch('$_users/createUser', this.form.administrator).then(() => {
-          return this.$store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, this.form.administrator))
-        })
-      }
+      let savePromise = new Promise((resolve, reject) => {
+        if (this.userExists) {
+          this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form.administrator)).then(resolve, reject)
+        } else {
+          this.$store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(() => {
+            // User exists
+            this.userExists = true
+            this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form.administrator)).then(resolve, reject)
+          }).catch(() => {
+            // User doesn't exist
+            this.$store.dispatch('$_users/createUser', this.form.administrator).then(() => {
+              this.$store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, this.form.administrator)).then(resolve, reject)
+            }).catch(reject)
+          })
+        }
+      })
       return savePromise.catch(error => {
         // Only show a notification in case of a failure
         const { response: { data: { message = '' } = {} } = {} } = error
