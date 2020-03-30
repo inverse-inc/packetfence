@@ -125,21 +125,24 @@ Object.assign(apiCall, {
 })
 
 /**
- * Intercept responses to
- *
- * - detect messages in payload and display them in the notification center;
- * - detect if the token has expired;
- * - detect errors assigned to specific form fields.
+ * Intercept requests
  */
 
-apiCall.interceptors.request.use((request) => {
-  const { baseURL, method, url, params = {} } = request
+ apiCall.interceptors.request.use((request) => {
   const apiServer = localStorage.getItem('X-PacketFence-Server') || null
   if (apiServer) {
     request.headers['X-PacketFence-Server'] = apiServer
   }
   return request
 })
+
+/**
+ * Intercept responses to
+ *
+ * - detect messages in payload and display them in the notification center;
+ * - detect if the token has expired;
+ * - detect errors assigned to specific form fields.
+ */
 
 apiCall.interceptors.response.use((response) => {
   /* Intercept successful API call */
@@ -210,8 +213,15 @@ apiCall.interceptors.response.use((response) => {
       }
     }
   } else if (error.request) {
-    store.commit('session/API_ERROR')
-    store.dispatch('notification/danger', { url: config.url, message: 'API server seems down' })
+    const { transformResponse: [firstTransform] = [] } = error.config
+    let quiet = false
+    if (firstTransform) {
+      quiet = firstTransform().quiet
+    }
+    if (!quiet) {
+      store.commit('session/API_ERROR')
+      store.dispatch('notification/danger', { url: config.url, message: 'API server seems down' })
+    }
   }
   return Promise.reject(error)
 })
