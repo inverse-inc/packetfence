@@ -72,7 +72,7 @@ run_test_suite() {
 }
 
 teardown() {
-    rm -rf -v ${VENOM_RESULT_DIR}
+    rm -rf ${VENOM_RESULT_DIR}
 }
 
 # Arguments are mandatory
@@ -81,14 +81,16 @@ configure_and_check
 
 case $1 in
     pfservers)
-        export VENOM_VARS_DIR
-        source $VENOM_VARS_DIR/env
+        export VENOM_RESULT_DIR
+        if [ -f "${VENOM_RESULT_DIR}/env" ]; then
+            source $VENOM_RESULT_DIR/env
+        fi
         pfservers_test_suite pfservers;;
     teardown) teardown ;;
     *)
-        export VENOM_VARS_DIR
-        if [ -f "${VENOM_VARS_DIR}/env" ]; then
-            source $VENOM_VARS_DIR/env
+        export VENOM_RESULT_DIR
+        if [ -f "${VENOM_RESULT_DIR}/env" ]; then
+            source $VENOM_RESULT_DIR/env
         fi
         run_test_suite $1 ;;
 esac
