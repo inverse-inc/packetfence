@@ -55,7 +55,7 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_pkis/allCas').then(cas => {
-        this.cas = cas.sort((a, b) => { // sort cas
+        this.cas = (cas || []).sort((a, b) => { // sort cas
           return a.cn.localeCompare(b.cn)
         })
       })

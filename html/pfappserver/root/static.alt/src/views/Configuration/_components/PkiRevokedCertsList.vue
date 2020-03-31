@@ -62,7 +62,7 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_pkis/allProfiles').then(profiles => {
-        this.profiles = profiles.sort((a, b) => { // sort profiles
+        this.profiles = (profiles || []).sort((a, b) => { // sort profiles
           return (a.ca_name === b.ca_name)
             ? a.name.localeCompare(b.name)
             : a.ca_name.localeCompare(b.ca_name)
