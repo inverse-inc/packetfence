@@ -79,7 +79,7 @@ go-env:
 .PHONY: test
 test:
 	/usr/local/pf/t/pfconfig-test ;\
-	PFCONFIG_TESTING=y go test ./...
+	PFCONFIG_TESTING=y go test -count=1 ./...
 
 .PHONY: all
 all: $(GOBINARIES)
