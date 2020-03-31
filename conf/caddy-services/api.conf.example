@@ -4,7 +4,10 @@
 
   log / stdout "api-frontend-access {remote} - {user} [{when}] \"{method} {uri} {proto}\" {status} {size} \"{>Referer}\" \"{>User-Agent}\""
 
-  errors
+  errors {
+    502 /usr/local/pf/html/pfappserver/root/static/502.json
+    503 /usr/local/pf/html/pfappserver/root/static/503.json
+  }
 
   pfconfigpool
   logger {

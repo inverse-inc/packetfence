@@ -177,6 +177,7 @@ backend api
         option httpclose
         option forwardfor
         errorfile 502 /usr/local/pf/html/pfappserver/root/static/502.json
+        errorfile 503 /usr/local/pf/html/pfappserver/root/static/503.json
         server 127.0.0.1 127.0.0.1:9999 weight 1 maxconn 100 check  ssl verify none
 
 frontend admin-https-0.0.0.0
