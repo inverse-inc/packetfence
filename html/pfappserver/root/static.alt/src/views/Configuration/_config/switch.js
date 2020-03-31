@@ -1,4 +1,5 @@
 import i18n from '@/utils/locale'
+import { BButton } from 'bootstrap-vue'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
@@ -881,6 +882,12 @@ export const viewFields = {
     }
   },
   type: (form = {}, meta = {}) => {
+    const {
+      type
+    } = form
+    const {
+      switchTemplates
+    } = meta
     return {
       label: i18n.t('Type'),
       cols: [
@@ -892,6 +899,16 @@ export const viewFields = {
             groupLabel: 'group',
             groupValues: 'options',
             optionsLimit: 1000
+          }
+        },
+        {
+          if: switchTemplates.includes(type),
+          component: BButton,
+          html: i18n.t('View Switch Template'),
+          attrs: {
+            class: null, // ignore defaults
+            variant: 'outline-primary',
+            to: { name: 'switchTemplate', params: { id: type } }
           }
         }
       ]

@@ -87,6 +87,7 @@ export default {
   },
   data () {
     return {
+      switchTemplates: [],
       roles: []
     }
   },
@@ -140,8 +141,8 @@ export default {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.switchGroup = form.group
             const { meta = {} } = options
-            const { isNew, isClone, switchGroup, roles } = this
-            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, switchGroup, roles } })
+            const { isNew, isClone, switchGroup, roles, switchTemplates } = this
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, switchGroup, roles, switchTemplates } })
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         })
@@ -156,6 +157,18 @@ export default {
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
       this.$store.dispatch('$_roles/all').then(roles => {
         this.roles = roles
+      })
+      this.$store.dispatch('$_switches/optionsBySwitchGroup').then(switchGroupOptions => {
+        const { meta: { type: { allowed: switchGroups = [] } = {} } = {} } = switchGroupOptions
+        switchGroups.map(switchGroup => {
+          const { options: switchGroupMembers } = switchGroup
+          switchGroupMembers.map(switchGroupMember => {
+              const { is_template, value } = switchGroupMember
+              if (is_template) {
+                this.switchTemplates.push(value)
+              }
+          })
+        })
       })
     },
     close () {

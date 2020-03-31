@@ -13,6 +13,14 @@
     <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No switches found') }}</pf-empty-table>
     </template>
+    <template v-slot:cell(type)="item">
+      <template v-if="switchTemplates.includes(item.type)">
+        <b-link :to="{ name: 'switchTemplate', params: { id: item.type } }" v-b-tooltip.hover.top.d300 :title="$t('View Switch Template')">{{ item.type }}</b-link>
+      </template>
+      <template v-else>
+        {{ item.type }}
+      </template>
+    </template>
     <template v-slot:cell(buttons)="item">
       <span class="float-right text-nowrap text-right">
         <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Switch?')" @on-delete="remove(item)" reverse/>
@@ -38,11 +46,24 @@ export default {
   data () {
     return {
       switchGroups: [], // all switches
+      switchTemplates: [], // all switch templates
       config: config(this)
     }
   },
   methods: {
     init () {
+      this.$store.dispatch('$_switches/optionsBySwitchGroup').then(switchGroupOptions => {
+        const { meta: { type: { allowed: switchGroups = [] } = {} } = {} } = switchGroupOptions
+        switchGroups.map(switchGroup => {
+          const { options: switchGroupMembers } = switchGroup
+          switchGroupMembers.map(switchGroupMember => {
+              const { is_template, value } = switchGroupMember
+              if (is_template) {
+                this.switchTemplates.push(value)
+              }
+          })
+        })
+      })
       this.$store.dispatch('$_switch_groups/all').then(switchGroups => {
         this.switchGroups = switchGroups
       })
@@ -51,7 +72,7 @@ export default {
       this.$router.push({ name: 'cloneSwitch', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_switches/deleteSwitch', item.id).then(response => {
+      this.$store.dispatch('$_switches/deleteSwitch', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

@@ -46,7 +46,7 @@
                     :class="getClass(row, col)"
                     :disabled="(col.attrs && col.attrs.disabled) || disabled"
                     v-once
-                  ></component>
+                  >{{ col.html }}</component>
                 </template>
               </b-input-group>
               <b-form-text v-if="row.text" v-html="row.text"></b-form-text>
@@ -176,14 +176,16 @@ export default {
       this.$emit('remove', event)
     },
     getClass (row, col) {
-      let c = ['px-0'] // always remove padding
-      const { attrs: { 'class': classDefinition } = {} } = col
-      if (classDefinition) { // if class is defined
+      const { attrs: { 'class': classDefinition = false } = {} } = col
+      let c = []
+      if (classDefinition) { // class is defined
         c.push(classDefinition) // use manual definition
-      } else if (row.cols.length === 1) { // else if row is singular
-        c.push('col-sm-12') // use entire width
-      } else if (row.cols.findIndex(_col => _col.namespace === col.namespace) < row.cols.length - 1) { // else col has subsequent siblings
-        c.push('pr-2') // right padding
+      }
+      else if (row.cols.length === 1) { // else if row is singular
+        c.push('px-0', 'col-sm-12') // remove padding, use entire width
+      }
+      else if (row.cols.findIndex(_col => _col.namespace === col.namespace) < row.cols.length - 1) { // else col has subsequent siblings
+        c.push('pl-0', 'pr-2') // remove left padding, add right padding
       }
       return c.join(' ')
     },

@@ -1370,9 +1370,15 @@ export default {
     })
   },
   switchesOptions: switchGroup => {
-    return apiCall.options(['config', 'switches'], { params: { type: switchGroup } }).then(response => {
-      return response.data
-    })
+    if (switchGroup) {
+      return apiCall.options(['config', 'switches'], { params: { type: switchGroup } }).then(response => {
+        return response.data
+      })
+    } else {
+      return apiCall.options(['config', 'switches']).then(response => {
+        return response.data
+      })
+    }
   },
   switche: id => {
     return apiCall.get(['config', 'switch', id]).then(response => {
