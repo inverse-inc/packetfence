@@ -106,10 +106,6 @@ msgstr "2 mois"
 msgid "2 weeks"
 msgstr "2 semaines"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:170
-msgid "2-letter country code"
-msgstr "Code du pays en 2 lettres"
-
 #: html/pfappserver/root/static.alt/src/globals/pfField.js:342
 msgid "3 days"
 msgstr "3 jours"
@@ -210,6 +206,10 @@ msgstr ""
 msgid "A string that indicates a comment (for example, '#' or '//')."
 msgstr "Une chaîne qui indique un commentaire (par exemple, '#' ou '//')."
 
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:4
+msgid "ALL (AND)"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:12
 #: html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:17
 #: html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:22
@@ -218,12 +218,17 @@ msgstr "Une chaîne qui indique un commentaire (par exemple, '#' ou '//')."
 msgid "AND"
 msgstr "ET"
 
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:6
+msgid "ANY (OR)"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:472
 msgid "API Authorize Path"
 msgstr "Chemin autorisé par l'API"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:314
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/index.js:15
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:44
 msgid "API Key"
 msgstr "Clef d'API"
 
@@ -284,6 +289,7 @@ msgid "API inactivity timeout"
 msgstr "Délai d'expiration du jeton d'accès à l'API"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/index.js:16
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:45
 msgid ""
 "API key to interact with upstream Fingerbank project. Changing this value "
 "requires to restart the Fingerbank collector."
@@ -386,8 +392,8 @@ msgstr ""
 "Les décisions de contrôle d’accès dans PacketFence peuvent être modifiées "
 "par des paramètres avancés. Parmi ceux-ci, il y a:"
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:153
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:158
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:169
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:174
 msgid "Access duration"
 msgstr "Durée d’accès"
 
@@ -399,8 +405,8 @@ msgstr "Choix des durées d’accès"
 msgid "Access duration to assign"
 msgstr "Durée de l'accès à attribuer"
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:168
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:173
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:184
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:189
 msgid "Access level"
 msgstr "Niveau d’accès"
 
@@ -527,6 +533,8 @@ msgstr "L'action contient une ou plusieurs erreurs."
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DnsLogsSearch.vue:186
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/adminRole.js:483
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/adminRole.js:629
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:144
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:454
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:181
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesSearch.vue:468
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:126
@@ -536,6 +544,7 @@ msgstr "L'action contient une ou plusieurs erreurs."
 msgid "Actions"
 msgstr "Actions"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:161
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:198
 msgid "Actions contain one or more errors."
 msgstr "Les actions contiennent une ou plusieurs erreurs."
@@ -579,12 +588,18 @@ msgstr "Ajouter un temps d'accès"
 #: html/pfappserver/root/static.alt/src/components/pfFieldRule.vue:77
 #: html/pfappserver/root/static.alt/src/components/pfFieldRuleSyslogParserRegex.vue:52
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/adminRole.js:489
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:151
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:187
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:128
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:217
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:56
 msgid "Add Action"
 msgstr "Ajouter une action"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:187
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:244
+msgid "Add Answer"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:520
 msgid "Add Billing Tier"
@@ -612,6 +627,10 @@ msgstr "Ajouter une locale"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:349
 msgid "Add Module"
 msgstr "Ajouter un module"
+
+#: html/pfappserver/root/static.alt/src/components/pfFormBoolean.vue:35
+msgid "Add Operator"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:547
 msgid "Add Provisioner"
@@ -652,6 +671,10 @@ msgstr "Ajouter une source"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:216
 msgid "Add Trigger"
 msgstr "Ajouter un déclencheur"
+
+#: html/pfappserver/root/static.alt/src/components/pfFormBoolean.vue:38
+msgid "Add Value"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfSearchBoolean.vue:68
 msgid "Add \"and\" statement"
@@ -774,7 +797,7 @@ msgstr "Journaux d'audit de l'API d'administration"
 msgid "Admin Access"
 msgstr "Accès Administrateur"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:13
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:14
 msgid "Admin Access:"
 msgstr "Accès Administrateur:"
 
@@ -795,6 +818,18 @@ msgstr "Rôles Admin"
 msgid "Administration rule contains one or more errors."
 msgstr "La règle d'administration contient une ou plusieurs erreurs."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/AdministratorView.vue:11
+msgid "Administrator"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:17
+msgid "Administrator Account"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/administrator.js:15
+msgid "Administrator username."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/AdminApiAuditLogsSearch.vue:5
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DhcpOption82LogsSearch.vue:5
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DnsLogsSearch.vue:5
@@ -805,6 +840,8 @@ msgstr "La règle d'administration contient une ou plusieurs erreurs."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/SwitchView.vue:17
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:145
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:153
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/AlertingView.vue:13
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/DatabaseView.vue:13
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesSearch.vue:5
 #: html/pfappserver/root/static.alt/src/views/Reports/_components/DynamicReportChart.vue:4
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Network.vue:4
@@ -820,6 +857,10 @@ msgstr "Configuration d’accès avancée"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DatabaseTabs.vue:10
 msgid "Advanced Configuration"
 msgstr "Configuration avancée"
+
+#: html/pfappserver/root/static.alt/src/components/pfFormFilterEngineCondition.vue:6
+msgid "Advanced Mode"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:472
 msgid "Advanced filter"
@@ -856,6 +897,7 @@ msgstr "Canal d’alerte"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AlertingView.vue:11
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/MainTabs.vue:10
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:144
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/AlertingView.vue:11
 msgid "Alerting"
 msgstr "Alertes"
 
@@ -908,14 +950,17 @@ msgstr "Tous types d'appareil"
 msgid "All logs"
 msgstr "Tous les journaux"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:180
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:244
 msgid "All services restarted."
 msgstr "Tous les services ont été redémarrés."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:174
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:238
 msgid "All services started."
 msgstr "Tous les services ont été démarrés."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:168
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:232
 msgid "All services stopped."
 msgstr "Tous les services ont été arrêtés."
@@ -1096,6 +1141,34 @@ msgstr ""
 "Une requête LDAP permettant de filtrer les utilisateurs qui doivent être mis"
 " en cache."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/AdministratorView.vue:90
+msgid "An error occured while setting the administrator password."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:243
+msgid "An error occured while updating the DNS servers."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/AlertingView.vue:82
+msgid "An error occured while updating the alerting configuration."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/DatabaseView.vue:198
+msgid "An error occured while updating the database configuration."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:223
+msgid "An error occured while updating the default gateway."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/GeneralView.vue:67
+msgid "An error occured while updating the general configuration."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:233
+msgid "An error occured while updating the hostname."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:191
 msgid "Android agent download URI"
 msgstr "URI de téléchargement Android"
@@ -1114,8 +1187,19 @@ msgstr "Anniversaire de mariage"
 
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DnsLogView.vue:12
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DnsLogsSearch.vue:236
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:169
 msgid "Answer"
 msgstr "Réponse"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:181
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:238
+msgid "Answers"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:197
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:254
+msgid "Answers contain one or more errors."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfFieldRule.vue:56
 msgid "Any"
@@ -1187,6 +1271,10 @@ msgstr "Appliquer le rôle"
 msgid "Apply Security Event"
 msgstr "Appliquer l'événement de sécurité"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/StatusStep.vue:37
+msgid "Applying configuration"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/device.js:38
 msgid "Approved"
 msgstr "Approuvé"
@@ -1216,6 +1304,10 @@ msgstr "Realms associés"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1536
 msgid "Associated Sources"
 msgstr "Sources associées"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:55
+msgid "At least one DNS server is required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2637
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2756
@@ -1300,10 +1392,6 @@ msgstr "Type d’authentification"
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:377
 msgid "Authentication"
 msgstr "Authentification"
-
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:11
-msgid "Authentication Methods:"
-msgstr "Méthodes d'authentification:"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:511
 msgid "Authentication Source"
@@ -1417,7 +1505,7 @@ msgstr "Bande passante restante"
 msgid "Bandwidth Limit"
 msgstr "Limite de Bande passante"
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:178
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:194
 msgid "Bandwidth balance"
 msgstr "Bande passante restante"
 
@@ -1444,9 +1532,13 @@ msgstr "Bande passante utilisée"
 msgid "Base DN"
 msgstr "DN de base"
 
+#: html/pfappserver/root/static.alt/src/components/pfFormFilterEngineCondition.vue:6
+msgid "Basic Mode"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:117
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:793
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:826
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:794
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:827
 msgid "Batch"
 msgstr "Lot"
 
@@ -1634,7 +1726,7 @@ msgstr "Total d'octets"
 msgid "CA cert path"
 msgstr "Emplacement du certificat de l’AC"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1235
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1233
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:195
 msgid "CLI"
 msgstr "CLI"
@@ -1702,7 +1794,6 @@ msgstr "Identifiant de la station appelant"
 #: html/pfappserver/root/static.alt/src/components/pfSearch.vue:43
 #: html/pfappserver/root/static.alt/src/components/pfSearch.vue:51
 #: html/pfappserver/root/static.alt/src/components/pfSearch.vue:59
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:165
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:95
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:102
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:57
@@ -1859,7 +1950,7 @@ msgstr "Le certificat/la clé correspondent"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiCertsList.vue:8
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PkisTabs.vue:13
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:130
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:796
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:797
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:93
 msgid "Certificates"
 msgstr "Certificat"
@@ -2005,13 +2096,17 @@ msgid "Click & drag statement to reorder"
 msgstr "Cliquer et faire glisser pour réordonner"
 
 #: html/pfappserver/root/static.alt/src/components/pfFormFields.vue:52
-#: html/pfappserver/root/static.alt/src/components/pfTableSortable.vue:56
+#: html/pfappserver/root/static.alt/src/components/pfTableSortable.vue:55
 msgid "Click and drag to re-order"
 msgstr "Cliquer et faire glisser pour réordonner"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/SwitchGroupViewMembers.vue:20
 msgid "Click the button below to add a new member."
 msgstr "Cliquer le bouton ci-bas pour ajouter un nouveau membre."
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:30
+msgid "Click the button to define a new filter."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourcesList.vue:103
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourcesList.vue:131
@@ -2038,6 +2133,7 @@ msgid "Click to add a type"
 msgstr "Cliquer pour ajouter un type"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:822
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:79
 msgid "Click to add host"
 msgstr "Cliquer pour ajouter un Hôte"
 
@@ -2053,6 +2149,7 @@ msgstr "Cliquer pour ajouter un nouveau SSID"
 msgid "Click to add new option"
 msgstr "Cliquer pour ajouter une option"
 
+#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:257
 #: html/pfappserver/root/static.alt/src/components/pfFormInputMultiple.vue:124
 msgid "Click to add value"
 msgstr "Cliquer pour ajouter une valeur"
@@ -2116,9 +2213,12 @@ msgid "Client key path"
 msgstr "Chemin de la clé du client"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiCasList.vue:62
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:60
 msgid "Clipboard not supported."
 msgstr "Presse-papiers non pris en charge."
 
+#: html/pfappserver/root/static.alt/src/components/pfFormBoolean.vue:106
+#: html/pfappserver/root/static.alt/src/components/pfFormBoolean.vue:27
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AdminRoleView.vue:27
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AdminRoleView.vue:32
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AdminRolesList.vue:25
@@ -2137,6 +2237,9 @@ msgstr "Presse-papiers non pris en charge."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:29
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:34
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:36
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:28
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:33
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:49
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:28
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:33
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationsList.vue:25
@@ -2223,6 +2326,9 @@ msgstr "Presse-papiers non pris en charge."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:27
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:31
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationsList.vue:21
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:31
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:36
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:59
 msgid "Clone"
 msgstr "Cloner"
 
@@ -2257,6 +2363,10 @@ msgstr "Cloner le profil de connexion {id}"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:19
 msgid "Clone Domain {id}"
 msgstr "Cloner Domaine {id}"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:19
+msgid "Clone Filter {id}"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:19
 msgid "Clone Fingerbank Combination {id}"
@@ -2299,6 +2409,7 @@ msgid "Clone Floating Device {id}"
 msgstr "Cloner l'appareil itinérant {id}"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfaceView.vue:21
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:21
 msgid "Clone Interface {id}"
 msgstr "Cloner Interface {id}"
 
@@ -2383,6 +2494,7 @@ msgstr "Cloner la localisation WRIX {id}"
 #: html/pfappserver/root/static.alt/src/components/pfDocumentation.vue:7
 #: html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:59
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourceView.vue:40
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:177
 msgid "Close"
 msgstr "Fermer"
 
@@ -2411,6 +2523,7 @@ msgstr "Fermer l'événement de sécurité"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileFileView.vue:5
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileView.vue:17
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:16
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:16
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:16
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceView.vue:16
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDhcpFingerprintView.vue:16
@@ -2447,6 +2560,7 @@ msgstr "Fermer l'événement de sécurité"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/TrafficShapingView.vue:15
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WmiRuleView.vue:16
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:16
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:17
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:5
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:5
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersPreview.vue:4
@@ -2496,7 +2610,7 @@ msgstr "Services du cluster"
 msgid "Cluster resync interval"
 msgstr "Intervalle de resynchronisation du cluster"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:10
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:11
 msgid "Cluster:"
 msgstr "Cluster:"
 
@@ -2558,7 +2672,8 @@ msgstr ""
 "Liste des VLANs séparés par une virgule. Si le port est multi VLAN alors "
 "cette liste correspond aux VLANs qui seront taggés dessus."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:150
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:146
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:152
 msgid "Comma-delimited list of email address(es) to receive test message."
 msgstr ""
 "Liste d'adresses électroniques séparées par des virgules, destinées à "
@@ -2660,6 +2775,7 @@ msgstr ""
 "activé."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:27
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:32
 msgid ""
 "Comma-separated list of email addresses to which notifications of rogue DHCP"
 " servers, violations with an action of email, or any other PacketFence-"
@@ -2682,7 +2798,7 @@ msgstr ""
 "Liste de port(s) utilisé(s) par l’interception proxy séparée par des "
 "virgules."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:912
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:910
 msgid "Comma-separated list of the switch uplinks."
 msgstr "Liste des ports uplinks du commutateur séparée par des virgules."
 
@@ -2690,7 +2806,7 @@ msgstr "Liste des ports uplinks du commutateur séparée par des virgules."
 msgid "Comments"
 msgstr "Commentaires"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:174
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:172
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:38
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/ca.js:174
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/ca.js:40
@@ -2775,12 +2891,20 @@ msgstr "Nom de l'ordinateur"
 msgid "Concurrency"
 msgstr "Simultanéité"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1364
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:262
+msgid "Condition"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1362
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:343
 msgid "Condition conflicts with \"Always\"."
 msgstr "La condition est en conflit avec \"Toujours\"."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1381
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:278
+msgid "Condition contains one or more errors."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1379
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:360
 msgid "Condition required."
 msgstr "Condition requise."
@@ -2801,10 +2925,22 @@ msgstr "Gabarit de configuration"
 msgid "Configurator"
 msgstr "Configurateur"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/NetworkStep.vue:3
+msgid "Configure Network"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PacketFenceStep.vue:3
+msgid "Configure PacketFence"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/components/pfButtonPrompt.vue:16
 #: html/pfappserver/root/static.alt/src/components/pfButtonPrompt.vue:27
 msgid "Confirm"
 msgstr "Confirmer"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/StatusStep.vue:3
+msgid "Confirmation"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:91
 msgid "Conflict resolution threshold"
@@ -2885,9 +3021,8 @@ msgstr ""
 "l'attribut last_seen du nœud)."
 
 #: conf/pfmon.conf.defaults[bandwidth_maintenance]/description
-msgid "Controls the aggreation of the bandwidth accounting records."
+msgid "Controls the aggregation of the bandwidth accounting records."
 msgstr ""
-"Contrôle l'agrégation des enregistrements de comptabilité de bande passante."
 
 #: conf/pfmon.conf.defaults[ip4log_cleanup]/description
 msgid "Controls the cleanup and rotation of IP entries in IPv4 tables."
@@ -2973,11 +3108,13 @@ msgstr "Copier le certificat"
 
 #: html/pfappserver/root/static.alt/src/components/pfSearch.vue:44
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourceView.vue:41
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:13
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:21
 msgid "Copy to Clipboard"
 msgstr "Copier dans le presse-papier"
 
 #: html/pfappserver/root/static.alt/src/components/pfButtonPkiCertDownload.vue:21
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:163
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:178
 msgid "Copy to clipboard"
 msgstr "Copier dans le presse-papier"
 
@@ -2993,6 +3130,10 @@ msgstr "Coût"
 msgid "Could not copy <code>{cn}</code> certificate to clipboard."
 msgstr ""
 "Impossible de copier <code>{cn}</code> certificat dans le presse-papiers."
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:57
+msgid "Could not copy password to clipboard."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiCaView.vue:121
 msgid "Could not create Certificate Authority: "
@@ -3030,6 +3171,7 @@ msgstr "Impossible d'enregistrer le profil:"
 msgid "Count"
 msgstr "Nombre"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:168
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/ca.js:210
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/cert.js:259
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/revokedCert.js:225
@@ -3056,6 +3198,7 @@ msgstr "Zone de couverture"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileFileView.vue:53
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileView.vue:32
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:27
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:27
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:27
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceView.vue:27
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDhcpFingerprintView.vue:27
@@ -3089,6 +3232,9 @@ msgstr "Zone de couverture"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/TrafficShapingView.vue:24
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WmiRuleView.vue:26
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:26
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:30
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:165
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:221
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesCreate.vue:41
 #: html/pfappserver/root/static.alt/src/views/Nodes/index.vue:42
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:229
@@ -3129,6 +3275,14 @@ msgstr "Créer un fichier"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:111
 msgid "Create new user account"
 msgstr "Créer un nouveau compte d'utilisateur"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:274
+msgid "Create the database user."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:271
+msgid "Create the database."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfCSVImport.vue:322
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/AdminApiAuditLogsSearch.vue:121
@@ -3174,6 +3328,10 @@ msgstr "Devise"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/SwitchGroupViewMembers.vue:5
 msgid "Current Members"
 msgstr "Membres actuels"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:96
+msgid "Current root password of the MySQL server."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:502
 msgid "Currently open security events"
@@ -3447,6 +3605,10 @@ msgstr ""
 msgid "DNS Configuration"
 msgstr "Configuration DNS"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:13
+msgid "DNS Configuration:"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:24
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:26
 msgid "DNS Enforcement"
@@ -3463,6 +3625,10 @@ msgstr "Requête DNS"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:362
 msgid "DNS Server"
 msgstr "Serveur DNS"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:77
+msgid "DNS Servers"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DnsLogsSearch.vue:169
 msgid "DNS Type"
@@ -3494,6 +3660,7 @@ msgstr "Utilisation de données"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:78
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:150
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/DatabaseView.vue:11
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:254
 msgid "Database"
 msgstr "Base de données"
@@ -3514,6 +3681,10 @@ msgstr "Configuration de la base de donnée"
 msgid "Database General"
 msgstr "Base de données Général"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:9
+msgid "Database Root Account"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:278
 msgid "Database connections"
 msgstr "Connexions de la base de données"
@@ -3523,8 +3694,17 @@ msgid "Database handlers"
 msgstr "Handlers de la de base de données"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:37
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:145
 msgid "Database name"
 msgstr "Nom de la base de données"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:259
+msgid "Database name required."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:265
+msgid "Database password required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/advanced.js:155
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:768
@@ -3543,7 +3723,11 @@ msgstr "Requêtes sur la base de données"
 msgid "Database threads"
 msgstr "Threads de la de base de données"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:9
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:262
+msgid "Database username required."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:10
 msgid "Database:"
 msgstr "Base de données:"
 
@@ -3613,20 +3797,24 @@ msgstr "Méthode de désauthentification."
 msgid "Default"
 msgstr "Défaut"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1009
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1031
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1049
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1066
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1088
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1007
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1029
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1047
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1064
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1086
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:231
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:249
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:394
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:625
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:942
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:969
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:987
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:940
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:967
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:985
 msgid "Default ({default})"
 msgstr "Default ({default})"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:71
+msgid "Default Gateway"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/layer2Network.js:175
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/layer2Network.js:63
@@ -3635,6 +3823,7 @@ msgid "Default Lease Time"
 msgstr "Durée du bail par défaut"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:206
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:34
 msgid "Default Network"
 msgstr "Réseau par défaut"
 
@@ -3662,6 +3851,10 @@ msgstr ""
 msgid "Default access duration"
 msgstr "Durée d’accès par défaut"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:58
+msgid "Default gateway required."
+msgstr ""
+
 #: conf/portal_modules.conf.defaults[default_pending_policy]/description
 msgid "Default pending policy"
 msgstr "Stratégie en attente par défaut"
@@ -3677,6 +3870,10 @@ msgstr "Realm par défaut"
 #: conf/portal_modules.conf.defaults[default_registration_policy]/description
 msgid "Default registration policy"
 msgstr "Politique d'enregistrement par défaut"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:77
+msgid "Define a root password for the MySQL server."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:490
 msgid "Define if the PSK needs to be generated"
@@ -3799,7 +3996,7 @@ msgstr ""
 "Définit quel attribut de l’appareil est à utiliser pour le nom d’hôte durant"
 " la génération du certificat."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1138
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1136
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:85
 msgid "Definition"
 msgstr "Définition"
@@ -3833,6 +4030,8 @@ msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfButtonDelete.vue:11
 #: html/pfappserver/root/static.alt/src/components/pfButtonDelete.vue:26
+#: html/pfappserver/root/static.alt/src/components/pfFormBoolean.vue:109
+#: html/pfappserver/root/static.alt/src/components/pfFormBoolean.vue:30
 #: html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:64
 #: html/pfappserver/root/static.alt/src/components/pfTree.vue:62
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:41
@@ -3887,6 +4086,11 @@ msgstr "Supprimer l'appareil?"
 msgid "Delete Domain?"
 msgstr "Supprimer le domaine?"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:34
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:48
+msgid "Delete Filter?"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:34
 msgid "Delete Fingerbank Combination?"
 msgstr "Supprimer la combinaison de Fingerbank?"
@@ -3930,6 +4134,7 @@ msgid "Delete Floating Device?"
 msgstr "Supprimer l'appareil itinérant?"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfaceView.vue:37
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:37
 msgid "Delete Interface?"
 msgstr "Supprimer l'interface?"
 
@@ -4046,6 +4251,7 @@ msgid "Delete User?"
 msgstr "Supprimer l'utilisateur?"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:62
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:58
 msgid "Delete VLAN?"
 msgstr "Supprimer le VLAN?"
 
@@ -4113,6 +4319,8 @@ msgstr "Désenregistrer un appareil par PID"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:153
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:177
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:896
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:286
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:43
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:184
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:37
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/networkBehaviorPolicy.js:114
@@ -4140,7 +4348,7 @@ msgstr "Désenregistrer un appareil par PID"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/selfService.js:196
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/selfService.js:30
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/selfService.js:49
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1347
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1345
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:351
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:40
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:80
@@ -4152,7 +4360,8 @@ msgstr "Désenregistrer un appareil par PID"
 msgid "Description"
 msgstr "Description"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1349
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:511
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1347
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:328
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:333
 msgid "Description required."
@@ -4183,15 +4392,15 @@ msgstr "Détecter"
 msgid "Detect Date"
 msgstr "Date de détection"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1022
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1020
 msgid "Detect VoIP with a SNMP request in the CDP MIB."
 msgstr "Détecter la VoIP avec une requête SNMP dans la MIB CDP."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1079
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1077
 msgid "Detect VoIP with a SNMP request in the LLDP MIB."
 msgstr "Détecter la VoIP avec une requête SNMP dans la MIB LLDP."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1040
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1038
 msgid "Detect VoIP with the DHCP Fingerprint."
 msgstr "Détecter la VoIP avec l’empreinte DHCP."
 
@@ -4322,7 +4531,7 @@ msgstr "Appareils"
 msgid "Devices currently registered"
 msgstr "Appareils actuellement enregistrés"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:13
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:14
 msgid ""
 "Different access level can be defined for the PacketFence administrative "
 "interface from this module."
@@ -4369,12 +4578,18 @@ msgstr "Désactiver la vérification de la jointure OS AD"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:36
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:44
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:38
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/MaintenanceTasksList.vue:24
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/SyslogParsersList.vue:41
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:35
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:29
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:99
 msgid "Disabled"
 msgstr "Désactivé"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/StatusStep.vue:61
+msgid "Disabling Configurator"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfButtonService.vue:159
 msgid "Disabling {service}"
@@ -4400,7 +4615,7 @@ msgstr "I/O Disque"
 msgid "Disk Space Usage for /"
 msgstr "Utilisation d'espace disque pour /"
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:193
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:159
 msgid "Do not perform an action"
 msgstr "Ne pas faire d'action"
 
@@ -4417,8 +4632,14 @@ msgstr "Souhaitez-vous surveiller cette source?"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/realm.js:381
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:170
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:446
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:15
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:60
 msgid "Domain"
 msgstr "Domaine"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:16
+msgid "Domain name of PacketFence system."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/general.js:17
 msgid ""
@@ -4445,6 +4666,10 @@ msgstr "Domaine {id}"
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:30
 msgid "Domains"
 msgstr "Domaines"
+
+#: conf/dns_filters.conf.defaults[pfdns]/description
+msgid "Domains that should redirect to 127.0.0.1"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PoliciesAccessControlSection.vue:12
 msgid "Domains:"
@@ -4506,7 +4731,7 @@ msgstr "Dupliquer l'action."
 msgid "Duplicate billing tier."
 msgstr "Dupliquer le plan de facturation"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1363
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1361
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:342
 msgid "Duplicate condition."
 msgstr "Dupliquer la condition."
@@ -4514,6 +4739,10 @@ msgstr "Dupliquer la condition."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:950
 msgid "Duplicate locale."
 msgstr "Dupliquer la locale."
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:459
+msgid "Duplicate method."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:1060
 msgid "Duplicate module."
@@ -4560,7 +4789,7 @@ msgstr "Durées"
 msgid "Dynamic Reports"
 msgstr "Rapports dynamiques"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:932
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:930
 msgid "Dynamic Uplinks"
 msgstr "Lien montant dynamique"
 
@@ -4568,7 +4797,7 @@ msgstr "Lien montant dynamique"
 msgid "Dynamic Window"
 msgstr "Fenêtre dynamique"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:933
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:931
 msgid "Dynamically lookup uplinks."
 msgstr "Rechercher dynamiquement les uplinks."
 
@@ -4589,11 +4818,11 @@ msgstr "Clé EAP FAST"
 msgid "EAP Type"
 msgstr "Type EAP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:11
-msgid "EAP methods provided by PacketFence can be changed from this module."
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:12
+msgid ""
+"EAP methods provided by PacketFence can be changed and the RADIUS auditing "
+"feature can be enabled or not from this module."
 msgstr ""
-"Les méthodes EAP gérés par PacketFence peuvent être changés depuis ce "
-"module."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:504
 msgid "EAP type"
@@ -4659,7 +4888,7 @@ msgstr "Port du serveur 2 Eduroam"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiCertView.vue:31
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiCertsList.vue:33
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:181
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:177
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1060
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2634
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2695
@@ -4674,6 +4903,7 @@ msgstr "Port du serveur 2 Eduroam"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/revokedCert.js:98
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:1039
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:105
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:180
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:20
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:31
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersPreviewModal.vue:36
@@ -4687,7 +4917,8 @@ msgstr "Courriel"
 msgid "Email Activation Timeout"
 msgstr "Délais d’activation de courriel"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:175
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:171
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:174
 msgid "Email Addresses"
 msgstr "Adresses mail"
 
@@ -4703,7 +4934,8 @@ msgstr "Enregistrement par Mail"
 msgid "Email address"
 msgstr "Adresse courriel"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:43
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:41
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:49
 msgid ""
 "Email address from which notifications of rogue DHCP servers, violations "
 "with an action of email, or any other PacketFence-related message are sent. "
@@ -4872,14 +5104,28 @@ msgstr ""
 "Activer pour contourner la vérification de la jointure du domaine du système"
 " d'exploitation."
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:299
+msgid ""
+"Enable to merge the following answers with the original RADIUS answers."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:338
+msgid ""
+"Enable to perform the following actions. Disable to only apply the role."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/components/pfButtonService.vue:22
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:36
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:44
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:38
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/MaintenanceTasksList.vue:24
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/SyslogParsersList.vue:41
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:376
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/deviceChangeDetection.js:16
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:295
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:322
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:117
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:35
 #: html/pfappserver/root/static.alt/src/views/Status/_components/ClusterServices.vue:39
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:181
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:29
@@ -4899,6 +5145,10 @@ msgstr ""
 "PacketFence et votre Active Directory. Se référer au guide d’administration "
 "pour plus de détails. Activer cette fonction requiert un redémarrage de "
 "radius."
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/StatusStep.vue:39
+msgid "Enabling PacketFence"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/MaintenanceTasksList.vue:9
 msgid ""
@@ -4925,12 +5175,14 @@ msgstr "Activation  {service}"
 msgid "Encoding"
 msgstr "Encodage"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:188
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:184
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2652
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:187
 msgid "Encryption"
 msgstr "Chiffrement"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:76
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:74
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:73
 msgid "Encryption style when connecting to the SMTP server."
 msgstr "Type de cryptage lors d'une connexion au serveur SMTP"
 
@@ -4994,6 +5246,7 @@ msgstr "Entrer un VLAN"
 msgid "Enter a new host"
 msgstr "Entrer un nouvel Hôte"
 
+#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:253
 #: html/pfappserver/root/static.alt/src/components/pfFormInputMultiple.vue:120
 msgid "Enter a new value"
 msgstr "Entrez une nouvelle valeur"
@@ -5177,6 +5430,10 @@ msgstr "Fencing"
 msgid "Field Mappings"
 msgstr "Mappages de champs"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:492
+msgid "Field required."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:1030
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:1036
 msgid "Fields"
@@ -5225,7 +5482,7 @@ msgstr "Fichiers"
 msgid "Filter"
 msgstr "Filtre"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineTabs.vue:4
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:4
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:106
 msgid "Filter Engines"
 msgstr "Moteurs de Filtrage"
@@ -5238,6 +5495,10 @@ msgstr "Moteurs de Filtrage:"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:884
 msgid "Filter or advanced filter required."
 msgstr "Filtre ou filtre avancé requis."
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:18
+msgid "Filter {id}"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:465
 msgid "Filter(s) contain one or more errors."
@@ -5253,6 +5514,7 @@ msgid "Find intermediate CA certificates automatically"
 msgstr "Trouver les certificats CA intermédiaires automatiquement"
 
 #: html/pfappserver/root/static.alt/src/globals/pfReports.js:712
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/FingerbankView.vue:10
 msgid "Fingerbank"
 msgstr "Fingerbank"
 
@@ -5300,6 +5562,18 @@ msgstr "Fingerbank User Agent {id}"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceChangeDetectionView.vue:11
 msgid "Fingerbank device change detection"
 msgstr "Détection des changements de classe d'appareil Fingerbank"
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:23
+msgid "Fingerbank device is"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:24
+msgid "Fingerbank device is not"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/FingerbankStep.vue:3
+msgid "Fingerbank on-boarding"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/dhcpFingerprint.js:134
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/dhcpV6Fingerprint.js:134
@@ -5431,6 +5705,12 @@ msgstr "Configuration FreeRADIUS Proxy"
 msgid "From"
 msgstr "De"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:14
+msgid ""
+"From this module, you can configure PacketFence to send syslog-based "
+"information to remote syslog servers like SIEM-based solutions."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:159
 msgid "Fully Qualified Device Name"
 msgstr "Nom de domaine pleinement qualifié (FQDN)"
@@ -5466,6 +5746,7 @@ msgstr "Sexe"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/radius.js:14
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:108
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:152
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/GeneralView.vue:11
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:597
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:609
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:621
@@ -5478,13 +5759,19 @@ msgstr "Général"
 msgid "General Configuration"
 msgstr "Configuration générale"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:9
+msgid ""
+"General PacketFence configuration parameters can be changed from this "
+"module."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankTabs.vue:11
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:54
 msgid "General Settings"
 msgstr "Réglages généraux"
 
-#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:79
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:163
+#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:56
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:179
 msgid "Generate"
 msgstr "Générer"
 
@@ -5492,14 +5779,18 @@ msgstr "Générer"
 msgid "Generate Signing Request (CSR)"
 msgstr "Générer la requête de signature (CSR)"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:292
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:302
 msgid "Generate Signing Request for {certificate} certificate"
 msgstr "Générer la requête de signature pour le certificat {certificate}"
 
-#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:24
-#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:54
+#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:25
+#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:31
 msgid "Generate password"
 msgstr "Générer le mot de passe"
+
+#: html/pfappserver/root/static.alt/src/App.vue:131
+msgid "Go to configuration"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:251
 msgid "Grace"
@@ -5522,7 +5813,7 @@ msgstr "URL de l’API Graph"
 msgid "Graph API URL of logged user"
 msgstr "URL de l’API Graph de l’utilisateur connecté"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1388
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1386
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:46
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:367
 msgid "Group"
@@ -5615,6 +5906,7 @@ msgstr "Type de pool de serveurs domestiques."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:524
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:134
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:195
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:256
 #: html/pfappserver/root/static.alt/src/views/Nodes/_config/index.js:291
 msgid "Host"
 msgstr "Hôte"
@@ -5635,10 +5927,14 @@ msgstr ""
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/general.js:27
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/general.js:77
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/networkBehaviorPolicy.js:273
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:49
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:26
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:61
 msgid "Hostname"
 msgstr "Nom de l’hôte"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/general.js:28
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:27
 msgid ""
 "Hostname of PacketFence system. This is concatenated with the domain in "
 "Apache rewriting rules and therefore must be resolvable by clients. Changing"
@@ -5656,6 +5952,10 @@ msgstr "Nom d’hôte ou IP"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:149
 msgid "Hostname or IP Address"
 msgstr "Nom d’hôte ou Adresse IP"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:61
+msgid "Hostname required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/globals/pfReports.js:911
 #: html/pfappserver/root/static.alt/src/globals/pfReports.js:962
@@ -5760,6 +6060,7 @@ msgstr "IP"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/floatingDevice.js:67
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:32
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:63
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:27
 #: html/pfappserver/root/static.alt/src/views/Nodes/_config/index.js:164
 msgid "IP Address"
 msgstr "Adresse IP"
@@ -6287,7 +6588,7 @@ msgstr "Initialisation"
 #: html/pfappserver/root/static.alt/src/globals/pfSearch.js:166
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InlineView.vue:11
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/NetworksTabs.vue:13
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1194
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1192
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:154
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:125
 msgid "Inline"
@@ -6352,6 +6653,7 @@ msgid "Interface"
 msgstr "Interface"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfaceView.vue:20
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:20
 msgid "Interface {id}"
 msgstr "Interface {id}"
 
@@ -6362,6 +6664,7 @@ msgid "Interfaces"
 msgstr "Interfaces"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:7
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:4
 msgid "Interfaces & Networks"
 msgstr "Interfaces & Réseaux"
 
@@ -6397,14 +6700,14 @@ msgstr "Sources Internes"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:109
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:198
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:43
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:801
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:809
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:818
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:831
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:839
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:848
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:856
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:864
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:802
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:810
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:819
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:832
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:840
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:849
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:857
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:865
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/network.js:152
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/network.js:155
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:459
@@ -6414,7 +6717,7 @@ msgstr "Sources Internes"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:822
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/selfService.js:200
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/snmpTrap.js:74
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1412
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1410
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:391
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:480
 msgid "Interval"
@@ -6464,6 +6767,10 @@ msgstr ""
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:401
 msgid "Interval required."
 msgstr "Interval requis."
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:86
+msgid "Invalid API key"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:526
 msgid "Invalid CIDR."
@@ -6550,16 +6857,20 @@ msgid "Invalid date."
 msgstr "Date invalide."
 
 #: html/pfappserver/root/static.alt/src/globals/pfDatabaseSchema.js:82
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:177
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:183
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:199
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:173
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:179
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:195
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/ca.js:399
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/cert.js:341
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/profile.js:380
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:176
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:182
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:198
 msgid "Invalid email address."
 msgstr "Adresse courriel invalideé"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:192
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:188
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:191
 msgid "Invalid port."
 msgstr "Port invalide."
 
@@ -6615,6 +6926,7 @@ msgstr "Joindre"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:604
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:662
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/radius.js:294
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:114
 msgid "Key"
 msgstr "Clé"
 
@@ -6912,7 +7224,7 @@ msgstr "Ligne"
 msgid "Lines"
 msgstr "Lignes"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1291
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1289
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:269
 msgid "List"
 msgstr "Liste"
@@ -7016,11 +7328,15 @@ msgstr "Adresse(s) IP d'équilibreur(s) de charge"
 msgid "Loading Documentation"
 msgstr "Chargement de la documentation"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:12
+msgid "Loading Filter Engines"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/components/pfNetworkGraph.vue:242
 msgid "Loading Network Data"
 msgstr "Chargement des données du réseau"
 
-#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:45
+#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:46
 msgid "Loading results"
 msgstr "Chargement des résultats"
 
@@ -7049,7 +7365,7 @@ msgstr "Locale requise."
 msgid "Locale(s) contain one or more errors."
 msgstr "La locale contient une ou plusieurs erreurs."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:172
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:170
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/ca.js:237
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/cert.js:286
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/revokedCert.js:252
@@ -7120,6 +7436,7 @@ msgid "Log out"
 msgstr "Déconnexion"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:172
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:19
 msgid "Logical Name"
 msgstr "Nom logique"
 
@@ -7277,6 +7594,10 @@ msgstr "Compte machine"
 msgid "Main Configuration"
 msgstr "Configuration générale"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:9
+msgid "Main Configuration:"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1712
 msgid "Main reference attribute that contain the username."
 msgstr "Attribut principal qui contient l'identifiant"
@@ -7290,7 +7611,7 @@ msgstr "Maintenance"
 msgid "Maintenance Task Name"
 msgstr "Nom de la tâches de Maintenance"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:787
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:788
 msgid "Maintenance Task exists."
 msgstr "La tâche de maintenance existe."
 
@@ -7302,10 +7623,15 @@ msgstr "Tâches de maintenance {id}"
 msgid "Maintenance Tasks"
 msgstr "Tâches de Maintenance"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:5
+msgid "Make sure to keep them in a secure place"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/globals/pfField.js:250
 msgid "Male"
 msgstr "Masculin"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:5
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:56
 msgid "Manageable Services"
 msgstr "Services administrables"
@@ -7336,7 +7662,7 @@ msgid "Map the required fields and any optional static fields."
 msgstr ""
 "Mappez les champs obligatoires et tous les champs statiques facultatifs."
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:187
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:153
 msgid "Mark as sponsor"
 msgstr "Marquer comme sponsor"
 
@@ -7355,7 +7681,7 @@ msgid "Matches"
 msgstr "Contient"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/role.js:162
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1411
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1409
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:390
 msgid "Max"
 msgstr "Max"
@@ -7412,7 +7738,7 @@ msgstr "Maximiser"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/profile.js:381
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:453
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:460
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1371
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1369
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:350
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:486
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:491
@@ -7524,6 +7850,10 @@ msgstr "Membres"
 msgid "Merchant ID"
 msgstr "ID du marchant"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:298
+msgid "Merge Answer"
+msgstr ""
+
 #: conf/template_switches.conf.defaults:[Meru::MC_v2]/description
 msgid "Meru Controller v2"
 msgstr "Meru Controlleur v2"
@@ -7538,10 +7868,14 @@ msgstr "Message"
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/AdminApiAuditLogView.vue:12
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/AdminApiAuditLogsSearch.vue:195
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/advanced.js:376
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1389
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1387
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:368
 msgid "Method"
 msgstr "Méthode"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:458
+msgid "Method required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Network.vue:105
 msgid "Minimize"
@@ -7551,6 +7885,10 @@ msgstr "Minimiser"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/profile.js:371
 msgid "Minimum 1 day(s)."
 msgstr "Minimum 1 jour."
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:480
+msgid "Minimum 2 values required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfButtonPkiCertDownload.vue:136
 #: html/pfappserver/root/static.alt/src/views/Users/_config/index.js:195
@@ -7599,7 +7937,7 @@ msgid "Mobile"
 msgstr "Mobile"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/databaseAdvanced.js:175
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1387
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1385
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:587
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:61
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:85
@@ -7660,7 +7998,7 @@ msgstr "Hôte multiple"
 msgid "Multiple"
 msgstr "Multiple"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:255
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:265
 msgid "Must be exactly two characters."
 msgstr "Doit contenir exactement 2 caractères."
 
@@ -7673,18 +8011,18 @@ msgstr "Doit être numérique"
 msgid "Must be numeric."
 msgstr "Doit être numérique."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1009
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1031
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1049
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1066
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1088
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1007
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1029
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1047
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1064
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1086
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:231
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:249
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:394
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:625
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:942
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:969
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:987
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:940
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:967
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:985
 msgid "N"
 msgstr "N"
 
@@ -7722,6 +8060,14 @@ msgstr "Identifiant du port du NAS"
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/RadiusLogsSearch.vue:509
 msgid "NAS Port Type"
 msgstr "Type du port NAS"
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:7
+msgid "NONE (NOR)"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:5
+msgid "NOT ALL (NAND)"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/realm.js:143
 msgid "NTLM Auth Configuration"
@@ -7775,10 +8121,13 @@ msgstr "Latence NTLM"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:779
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:891
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/domain.js:59
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:126
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:37
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:443
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/device.js:133
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/firewall.js:340
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/firewall.js:52
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:785
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:786
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/profile.js:179
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/profile.js:50
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/profile.js:74
@@ -7804,12 +8153,17 @@ msgstr "Latence NTLM"
 msgid "Name"
 msgstr "Nom"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:445
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/cert.js:337
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pki/profile.js:365
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:441
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/selfService.js:193
 msgid "Name exists."
 msgstr "Le nom existe."
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:146
+msgid "Name of the MySQL database used by PacketFence."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:38
 msgid "Name of the mysql database used by PacketFence."
@@ -7856,13 +8210,10 @@ msgid "NetFlow On All Networks"
 msgstr "NetFlow sur tous les réseaux"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/layer2Network.js:256
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:193
-msgid "Netflow Accounting Enabled"
-msgstr "Comptabilité Netflow activée"
-
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/layer2Network.js:81
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:193
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:92
-msgid "Netfow Accounting Enabled"
+msgid "Netflow Accounting Enabled"
 msgstr "Comptabilité Netflow activée"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:199
@@ -7882,6 +8233,10 @@ msgstr "Réseau"
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:66
 msgid "Network Anomaly Detection"
 msgstr "Détection d'anomalies réseau"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:10
+msgid "Network Anomaly Detection:"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/NetworkBehaviorPoliciesList.vue:10
 msgid "Network Behavior Policy"
@@ -8013,6 +8368,11 @@ msgstr "Nouvel appareil"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:14
 msgid "New Domain"
 msgstr "Ajouter un domaine"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:20
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:20
+msgid "New Filter"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:20
 msgid "New Fingerbank Combination"
@@ -8171,10 +8531,12 @@ msgid "New User Agent"
 msgstr "Nouvel agent d'utilisateur"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:68
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:64
 msgid "New VLAN"
 msgstr "Nouveau VLAN"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfaceView.vue:22
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:22
 msgid "New VLAN for Interface {id}"
 msgstr "Nouveau VLAN pour l'interface {id}"
 
@@ -8233,6 +8595,10 @@ msgstr "L'événement Nexpose commence par .."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:57
 msgid "Next Hop"
 msgstr "Saut suivant"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/BaseStep.vue:24
+msgid "Next Step"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:45
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:57
@@ -8300,6 +8666,7 @@ msgstr "Aucune règle ne correspond"
 msgid "No Self Services found"
 msgstr "Aucun Self Service trouvé"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:21
 #: html/pfappserver/root/static.alt/src/views/Status/_components/ClusterServices.vue:20
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:22
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:85
@@ -8364,11 +8731,16 @@ msgstr "Aucune source exclusive définie"
 msgid "No external sources defined"
 msgstr "Aucune source externe définie"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:30
+msgid "No filters defined"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FirewallsList.vue:29
 msgid "No firewalls found"
 msgstr "Aucun pare-feu trouvé"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:30
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:22
 msgid "No interfaces found"
 msgstr "Aucune interface trouvée"
 
@@ -8419,7 +8791,7 @@ msgstr "Aucun realm trouvé"
 msgid "No report data found"
 msgstr "Aucune donnée de rapport trouvée"
 
-#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:52
+#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:53
 msgid "No results"
 msgstr "Aucun résultat"
 
@@ -8493,6 +8865,10 @@ msgstr "Aucun agent utilisateur trouvé"
 msgid "No user found"
 msgstr "Aucun utilisateur trouvé"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:117
+msgid "No valid API key specified."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDhcpFingerprintsList.vue:27
 msgid "No {scope} DHCP fingerprints found"
 msgstr "Aucun {scope} d'empreintes DHCP trouvé"
@@ -8521,10 +8897,6 @@ msgstr "Appareil"
 #: html/pfappserver/root/static.alt/src/globals/pfReports.js:959
 msgid "Node Bandwidth"
 msgstr "Bande passante de l'appareil"
-
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:12
-msgid "Node Import"
-msgstr "Import de l'appareil"
 
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/RadiusLogView.vue:13
 msgid "Node Information"
@@ -8754,6 +9126,10 @@ msgstr "Sur l'onglet Appareil"
 msgid "On node tab"
 msgstr "Sur l'onglet appareil"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:64
+msgid "One interface has to be of type management."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Nodes/index.vue:62
 msgid "Online Nodes"
 msgstr "Appareils en ligne"
@@ -8843,6 +9219,8 @@ msgstr "Classe de système d'exploitation"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2483
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2555
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:476
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:495
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/index.js:163
 msgid "Operator required."
 msgstr "Operateur requis."
@@ -8905,7 +9283,7 @@ msgstr "Organisation requise."
 msgid "Organization"
 msgstr "Organisme"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:173
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:171
 msgid "Organization Name"
 msgstr "Nom de l'organisation"
 
@@ -9026,6 +9404,7 @@ msgid "P12 mail subject"
 msgstr "Objet du courriel P12"
 
 #: html/pfappserver/root/static.alt/src/globals/pfReports.js:432
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:129
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:193
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:189
 #: html/pfappserver/root/static.alt/src/views/Users/_config/index.js:238
@@ -9073,6 +9452,10 @@ msgstr "Fournisseur de certificats:"
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:108
 msgid "PKI Providers"
 msgstr "Fournisseur de certificats"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:16
+msgid "PKI:"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:279
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:462
@@ -9134,7 +9517,7 @@ msgstr ""
 "pour configurer automatiquement une connexion WiFi pendant l’enregistrement."
 " Vous pouvez configurer les agents de configurations à partir de ce module."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:12
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:13
 msgid ""
 "PacketFence can receive security event information from multiple solutions "
 "over syslog. You can configure which data input you want to accept from this"
@@ -9144,7 +9527,7 @@ msgstr ""
 "plusieurs solutions par syslog. Vous pouvez configurer quel flux de données "
 "vous voulez accepter dans ce module."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:10
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:11
 msgid ""
 "PacketFence can use active vulnerability like Nessus, OpenVAS or Windows "
 "Management Instrumentation (WMI) to proactively scan endpoints for security "
@@ -9155,6 +9538,12 @@ msgstr ""
 "proactive les périphériques contre des problèmes de sécurité. Vous pouvez "
 "définir les scanneurs utilisés ici."
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:16
+msgid ""
+"PacketFence integrates a fully-featured Public Key Infrastructure (PKI) "
+"solution allowing you to manage certificates for EAP-TLS clients."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:7
 msgid ""
 "PacketFence integrates with many 3rd party solutions. Among the solutions, "
@@ -9163,7 +9552,7 @@ msgstr ""
 "PacketFence peut s’intégrer avec beaucoup de solutions tierces. Parmi ces "
 "solutions sont: "
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:9
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:10
 msgid ""
 "PacketFence makes use of a MySQL/MariaDB database. You can configure the "
 "connection information from this module."
@@ -9181,7 +9570,15 @@ msgstr ""
 "devez ajouter les équipements que PacketFence doit gérer et configurer la "
 "correspondance de rôle par VLAN/ACL/politiques."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:10
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:12
+msgid ""
+"PacketFence supports a wide range of networking equipment. From this module,"
+" you can also support any standards-compliant networking equipment by "
+"creating an associated switch template for it and use it after in "
+"PacketFence to secure wired or WiFi accesses."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:11
 msgid ""
 "PacketFence supports clustering of 3+ members. You can configure the "
 "clustering solution from this module."
@@ -9189,7 +9586,7 @@ msgstr ""
 "PacketFence supporte le regroupement de 3 noeuds. Vous pouvez configurer le "
 "clustering depuis ce module."
 
-#: html/pfappserver/root/static.alt/src/App.vue:61
+#: html/pfappserver/root/static.alt/src/App.vue:64
 msgid "Packetfence Version"
 msgstr "Version de Packetfence"
 
@@ -9200,6 +9597,10 @@ msgstr "Les paquets"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2443
 msgid "Parameter"
 msgstr "Paramètre"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:462
+msgid "Parameter required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/device.js:142
 msgid "Parent device"
@@ -9238,7 +9639,7 @@ msgstr "Domaines passthrough"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:52
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:148
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:155
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:196
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:192
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1039
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2515
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2692
@@ -9255,16 +9656,20 @@ msgstr "Domaines passthrough"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:210
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:180
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:447
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1096
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1415
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1416
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1419
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1094
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1413
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1414
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1417
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:269
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:394
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:395
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:398
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/webServices.js:26
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/webServices.js:44
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:11
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:19
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/administrator.js:27
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:195
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:92
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:94
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:151
@@ -9281,6 +9686,10 @@ msgstr "Mot de passe du jour"
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:61
 msgid "Password Options"
 msgstr "Options du mot de passe"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:55
+msgid "Password copied to clipboard"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/ciscoMobilityServicesEngine.js:50
 msgid "Password for MSE service."
@@ -9302,6 +9711,10 @@ msgstr "Longueur du mot de passe"
 msgid "Password must be at least 6 characters."
 msgstr "Le mote de passe doit être au moins de 6 caractères."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/administrator.js:47
+msgid "Password must be defined."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/components/pfButtonPkiCertDownload.vue:135
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:165
 #: html/pfappserver/root/static.alt/src/views/Users/_config/index.js:134
@@ -9311,6 +9724,10 @@ msgstr "Mot de passe requis."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1086
 msgid "Password rotation duration"
 msgstr "Durée de rotation du mot de passe"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:4
+msgid "Passwords"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2446
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2581
@@ -9388,6 +9805,10 @@ msgstr "Type de paiement"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1123
 msgid "Paypal cert file"
 msgstr "Fichier de certification Paypal"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:337
+msgid "Peform Actions"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/globals/pfField.js:259
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/RadiusLogsSearch.vue:57
@@ -9478,7 +9899,7 @@ msgstr ""
 "ce domaine."
 
 #: html/pfappserver/root/static.alt/src/components/pfEmptyTable.vue:27
-#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:53
+#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:54
 #: html/pfappserver/root/static.alt/src/components/pfNetworkGraph.vue:228
 msgid "Please refine your search."
 msgstr "Veuillez raffiner votre recherche."
@@ -9487,7 +9908,7 @@ msgstr "Veuillez raffiner votre recherche."
 msgid "Please wait"
 msgstr "S'il vous plait, attendez"
 
-#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:46
+#: html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:47
 #: html/pfappserver/root/static.alt/src/components/pfNetworkGraph.vue:243
 msgid "Please wait..."
 msgstr "S'il vous plaît, attendez..."
@@ -9504,7 +9925,7 @@ msgstr "Politique"
 
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DhcpOption82LogView.vue:13
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/DhcpOption82LogsSearch.vue:193
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:190
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:186
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1149
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2518
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2651
@@ -9530,13 +9951,16 @@ msgstr "Politique"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:38
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:448
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:68
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1322
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1328
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1320
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1326
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:147
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:300
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:306
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:145
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:196
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:189
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:257
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:61
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:243
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:708
 #: html/pfappserver/root/static.alt/src/views/Nodes/_config/index.js:281
@@ -9548,6 +9972,10 @@ msgstr "Port"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:191
 msgid "Port of the service"
 msgstr "Port du service"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:62
+msgid "Port the MySQL server is running on."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:27
 msgid "Port the mysql server is running on."
@@ -9633,7 +10061,8 @@ msgstr "Code postal"
 msgid "Postal code required."
 msgstr "Code postal requis."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:187
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:183
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:186
 msgid "Prefix"
 msgstr "Préfixe"
 
@@ -9652,6 +10081,7 @@ msgid "Preview Messages for Created Users"
 msgstr "Visualiser les Messages pour les utilisateurs créés"
 
 #: html/pfappserver/root/static.alt/src/components/pfReportChart.vue:17
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/BaseStep.vue:19
 #: html/pfappserver/root/static.alt/src/views/Reports/_components/DynamicReportChart.vue:30
 msgid "Previous"
 msgstr "Précédent"
@@ -9903,7 +10333,7 @@ msgstr "Files d'attente"
 msgid "Quote Character"
 msgstr "Caractère de citation"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1201
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1199
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:161
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:289
 msgid "RADIUS"
@@ -9938,6 +10368,10 @@ msgstr "Authentification RADIUS"
 msgid "RADIUS Configuration"
 msgstr "Configuration RADIUS"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:12
+msgid "RADIUS Configuration:"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:161
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:40
 msgid "RADIUS Disconnect"
@@ -9965,6 +10399,10 @@ msgstr "Requêtes RADIUS"
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/RadiusLogsSearch.vue:515
 msgid "RADIUS Source IP Address"
 msgstr "Adresse IP de la source RADIUS"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:313
+msgid "RADIUS Status"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:341
 msgid "RADIUS acct"
@@ -10096,6 +10534,7 @@ msgid "Reauthenticate node"
 msgstr "Réauthentifier l’appareil"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:26
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:31
 msgid "Recipients"
 msgstr "Destinataires"
 
@@ -10126,6 +10565,10 @@ msgstr ""
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:939
 msgid "Redirect"
 msgstr "Rediriger"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/StatusStep.vue:65
+msgid "Redirecting to login page"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfFormSecurityEventActions.vue:46
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:620
@@ -10345,13 +10788,13 @@ msgstr "L’utilisateur doit accepter la politique d’utilisation du réseau"
 msgid "Required fields"
 msgstr "Champs requis"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:254
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:256
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:257
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:258
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:271
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:273
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:274
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:264
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:266
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:267
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:268
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:281
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:283
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:284
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/accessDuration.js:76
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/accessDuration.js:87
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/accessDuration.js:91
@@ -10375,7 +10818,7 @@ msgstr "Requis."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DnsView.vue:19
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:33
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FencingView.vue:19
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:27
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:32
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:32
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceChangeDetectionView.vue:19
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceView.vue:31
@@ -10420,6 +10863,7 @@ msgstr "Requis."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/TrafficShapingView.vue:29
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WebServicesView.vue:19
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WmiRuleView.vue:31
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:35
 msgid "Reset"
 msgstr "Réinitialiser"
 
@@ -10430,6 +10874,10 @@ msgstr "Réinitialiser le mot de passe"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/radius.js:233
 msgid "Responder URL"
 msgstr "URL du répondeur"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:325
+msgid "Response Code"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/radius.js:274
 msgid "Response softfail"
@@ -10461,6 +10909,7 @@ msgstr "Redémarrer le port du commutateur"
 msgid "Restart Switchport"
 msgstr "Redémarrer le port du commutateur"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:178
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:242
 msgid "Restarting all services."
 msgstr "Redémarrage de tous les services."
@@ -10551,11 +11000,13 @@ msgstr "Interval illégal"
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/RadiusLogsSearch.vue:431
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/billingTier.js:165
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/billingTier.js:232
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:352
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:519
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:1024
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:1045
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:1107
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:523
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1287
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1285
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:265
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:245
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:27
@@ -10582,11 +11033,11 @@ msgstr "Rôle par liste d'accès"
 msgid "Role by Switch Role"
 msgstr "Rôle par rôle de commutateur"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:999
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:997
 msgid "Role by VLAN ID"
 msgstr "Rôle par VLAN ID"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:959
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:957
 msgid "Role by Web Auth URL"
 msgstr "Rôle par URL pour l’authentification web"
 
@@ -10608,25 +11059,29 @@ msgstr "Le rôle n'existe pas."
 msgid "Role exists."
 msgstr "Le rôle existe."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1179
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1177
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:139
 msgid "Role mapping by Access List"
 msgstr "Mappage de rôle par liste d'accès"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1172
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1170
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:132
 msgid "Role mapping by Switch Role"
 msgstr "Mappage de rôle par rôle de commutateur"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1165
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1163
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:125
 msgid "Role mapping by VLAN ID"
 msgstr "Traduction de rôle par numéro de VLAN"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1186
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1184
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:146
 msgid "Role mapping by Web Auth URL"
 msgstr "Mappage de rôle par URL d'authentification Web"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:522
+msgid "Role required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/selfService.js:142
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/selfService.js:198
@@ -10653,7 +11108,7 @@ msgstr "Rôle {id}"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:305
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:312
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:320
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1161
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1159
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:121
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:29
 msgid "Roles"
@@ -10671,9 +11126,18 @@ msgstr "Rôles:"
 msgid "Room Number"
 msgstr "Numéro de la pièce"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:76
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:95
+msgid "Root Password"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:282
 msgid "Root Portal Module"
 msgstr "Module du portail racine"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:268
+msgid "Root password required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:231
 msgid "Rotate"
@@ -10724,6 +11188,8 @@ msgstr "La règle contient une ou plusieurs erreurs."
 msgid "Rules Actions"
 msgstr "Actions"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:123
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:47
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:111
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:187
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:41
@@ -10766,35 +11232,43 @@ msgstr "Source SMS pour envoyer les messages de création d’utilisateur "
 msgid "SMS text message ($pin will be replaced by the PIN number)"
 msgstr "Texte du message SMS ($pin sera remplacé par le numéro de téléphone)"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:119
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:117
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:120
 msgid "SMTP Check SSL"
 msgstr "Verification du SSL pour le SMTP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:75
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:73
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:72
 msgid "SMTP encryption"
 msgstr "Chiffrement SMTP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:108
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:106
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:108
 msgid "SMTP password"
 msgstr "Mot de passe SMTP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:86
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:84
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:84
 msgid "SMTP port"
 msgstr "Port SMTP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:53
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:51
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:60
 msgid "SMTP server"
 msgstr "Serveur SMTP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:149
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:145
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:151
 msgid "SMTP test"
 msgstr "Test SMTP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:132
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:130
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:134
 msgid "SMTP timeout"
 msgstr "Expiration SMTP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:97
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:95
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:96
 msgid "SMTP username"
 msgstr "Nom d'utilisateur SMTP"
 
@@ -10804,7 +11278,7 @@ msgid "SNAT Interface"
 msgstr "Interface SNAT"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/SnmpTrapView.vue:11
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1207
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1205
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:167
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:131
 msgid "SNMP"
@@ -10858,6 +11332,10 @@ msgstr "URL du certificat SSL"
 msgid "SSL Certificates"
 msgstr "Certificats SSL"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:15
+msgid "SSL Certificates:"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/portalModule.js:130
 msgid "SSL Inspection"
 msgstr "Inspection SSL"
@@ -10905,7 +11383,7 @@ msgstr "Exemple de lignes de journal"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DnsView.vue:17
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:30
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FencingView.vue:17
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:25
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:30
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:30
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceChangeDetectionView.vue:17
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceView.vue:29
@@ -10950,6 +11428,7 @@ msgstr "Exemple de lignes de journal"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WebServicesView.vue:17
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WmiRuleView.vue:29
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:29
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:33
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Network.vue:68
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:214
 msgid "Save"
@@ -10960,6 +11439,7 @@ msgstr "Sauvegarder"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/BillingTierView.vue:28
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileFileView.vue:54
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileView.vue:34
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:29
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:29
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceView.vue:28
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDhcpFingerprintView.vue:28
@@ -10992,6 +11472,7 @@ msgstr "Sauvegarder"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/TrafficShapingView.vue:25
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WmiRuleView.vue:28
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:28
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfaceView.vue:32
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:213
 msgid "Save & Close"
 msgstr "Sauvegarder & fermer"
@@ -11088,7 +11569,7 @@ msgstr "le scanneur contient une ou plusieurs erreurs."
 msgid "Scans"
 msgstr "Analyses"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:10
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:11
 msgid "Scans:"
 msgstr "Analyses:"
 
@@ -11106,6 +11587,16 @@ msgstr "Schéma"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2753
 msgid "Scope"
 msgstr "Etendue"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:364
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:49
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:532
+msgid "Scopes"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:533
+msgid "Scopes required."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/combination.js:294
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/combination.js:38
@@ -11341,7 +11832,7 @@ msgstr "Secondes"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:1324
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:369
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:617
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1334
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1332
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:312
 msgid "Secret"
 msgstr "Mot de passe"
@@ -11415,7 +11906,7 @@ msgstr "Événement de sécurité {id}"
 msgid "Security Events"
 msgstr "Événements de sécurité"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:11
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:12
 msgid "Security Events:"
 msgstr "Événements de sécurité:"
 
@@ -11494,16 +11985,26 @@ msgstr "Sélectionner le type d'action"
 msgid "Select action value"
 msgstr "Sélectionner la valeur de l'action"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:192
+msgid "Select answer type"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:193
+msgid "Select answer value"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:265
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:430
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/networkBehaviorPolicy.js:258
 msgid "Select attribute"
 msgstr "Sélectionner un attribut"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:156
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:426
 msgid "Select condition type"
 msgstr "Sélectionner un type de condition"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:157
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:427
 msgid "Select condition value"
 msgstr "Sélectionner une valeur de condition"
@@ -11561,6 +12062,7 @@ msgstr "Sélectionnez le type de correspondance d'utilisation"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:267
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:432
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:250
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:665
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:725
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:194
@@ -11658,7 +12160,8 @@ msgstr ""
 "Envoyer la requête RADIUS dans le filtre RADIUS depuis la section RADIUS "
 "packetfence.preacct. Nécessite un redémarrage de radiusd pour être appliqué."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:42
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:40
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:48
 msgid "Sender"
 msgstr "Expéditeur"
 
@@ -11670,8 +12173,9 @@ msgstr "Adresse e-mail de l'expéditeur."
 msgid "Sending data"
 msgstr "Envoi des données"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:186
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:182
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/domain.js:366
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:185
 msgid "Server"
 msgstr "Serveur"
 
@@ -11688,7 +12192,8 @@ msgstr "Adresse du serveur 2"
 msgid "Server Error - \"{field}\": {message}"
 msgstr "Erreur de serveur - \"{field}\": {message}"
 
-#: html/pfappserver/root/static.alt/src/App.vue:64
+#: html/pfappserver/root/static.alt/src/App.vue:67
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:74
 msgid "Server Hostname"
 msgstr "Nom d'hôte du serveur"
 
@@ -11704,11 +12209,16 @@ msgstr "Emplacement du certificat serveur"
 msgid "Server name"
 msgstr "Nom du serveur"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:50
+msgid "Server the MySQL server is running on."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:16
 msgid "Server the mysql server is running on."
 msgstr "Serveur sur lequel mysql est installé"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:54
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:52
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:61
 msgid ""
 "Server through which to send messages to the above emailaddr. The default is"
 " localhost - be sure you're running an SMTP host locally if you don't change"
@@ -11725,17 +12235,20 @@ msgstr ""
 msgid "Servers"
 msgstr "Les serveurs"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:111
 #: html/pfappserver/root/static.alt/src/views/Status/_components/ClusterServices.vue:88
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:175
 msgid "Service"
 msgstr "Service"
 
 #: html/pfappserver/root/static.alt/src/components/pfButtonService.vue:187
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:141
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:205
 msgid "Service <code>{service}</code> disabled."
 msgstr "Service {service} désactivé."
 
 #: html/pfappserver/root/static.alt/src/components/pfButtonService.vue:179
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:146
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:210
 msgid "Service <code>{service}</code> enabled."
 msgstr "Service {service} activé."
@@ -11749,10 +12262,12 @@ msgid "Service <code>{service}</code> restarted."
 msgstr "Service {service} redémarré."
 
 #: html/pfappserver/root/static.alt/src/components/pfButtonService.vue:203
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:160
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:224
 msgid "Service <code>{service}</code> started."
 msgstr "Service {service} démarré."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:155
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:219
 msgid "Service <code>{service}</code> stopped."
 msgstr "Service {service} arrêté."
@@ -11769,10 +12284,12 @@ msgstr "Marque du fournisseur de services"
 msgid "Service Provider entity ID"
 msgstr "Identifiant du fournisseur de service"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:27
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:91
 msgid "Service {name} is not required with this configuration."
 msgstr "Le service {name} n'est pas requis pour cette configuration."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:25
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:89
 msgid "Service {name} is required with this configuration."
 msgstr "Le service {name} est requis pour cette configuration."
@@ -11792,11 +12309,15 @@ msgstr "Services"
 msgid "Session ID"
 msgstr "Identifiant de session"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:85
+msgid "Set Password"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:415
 msgid "Set inline mode if any of the conditions are met."
 msgstr "Activer le mode inline si aucune des conditions n'est remplie."
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:198
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:164
 msgid "Set role from the authentication source"
 msgstr "Applique le rôle de la source d'authentification"
 
@@ -12220,7 +12741,7 @@ msgstr "Signer le profil"
 msgid "Signing"
 msgstr "La signature"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:366
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:382
 msgid "Signing Request copied to clipboard"
 msgstr "Demande de signature copiée dans le presse-papier"
 
@@ -12398,6 +12919,10 @@ msgstr ""
 " de sécurité (bouton enable network) ou s'il doit appeler la hotline "
 "informatique."
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:263
+msgid "Specify a condition to match."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/domain.js:120
 msgid ""
 "Specify a unique identifier for your configuration.<br/>This doesn't have to"
@@ -12405,6 +12930,14 @@ msgid ""
 msgstr ""
 "Spécifiez un identifiant unique pour votre configuration.</br>Celui-ci ne "
 "nécessite pas d’être en relation avec votre domaine."
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:127
+msgid "Specify a unique name for your filter."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:145
+msgid "Specify actions when condition is met."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:421
 msgid "Split network by role"
@@ -12428,7 +12961,7 @@ msgstr "Enregistrement par Sponsor"
 msgid "Sponsor Validation"
 msgstr "Validation de commanditaire"
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:163
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:179
 msgid "Sponsor access durations"
 msgstr "Durée d'accès du sponsor"
 
@@ -12476,6 +13009,10 @@ msgstr "Tout démarrer"
 msgid "Start Date"
 msgstr "Date de démarrage"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/StatusStep.vue:8
+msgid "Start PacketFence"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Status/_components/ClusterServices.vue:25
 msgid "Start Redirect"
 msgstr "Démarrer la redirection"
@@ -12499,6 +13036,11 @@ msgstr "Date de démarrage requise."
 msgid "Starting IP Address"
 msgstr "IP de démarrage"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/StatusStep.vue:41
+msgid "Starting PacketFence"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:172
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:236
 msgid "Starting all services."
 msgstr "Démarrage de tous les services."
@@ -12507,7 +13049,7 @@ msgstr "Démarrage de tous les services."
 msgid "Starting {service}"
 msgstr "Démarrage du {service}"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:171
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:169
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pkiProvider.js:211
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pkiProvider.js:368
 msgid "State"
@@ -12527,7 +13069,7 @@ msgstr "État ou province"
 msgid "State required."
 msgstr "État requis."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:911
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:909
 msgid "Static Uplinks"
 msgstr "Liens montants dynamiques"
 
@@ -12544,10 +13086,12 @@ msgstr "Niveau de chronométrage des statistiques"
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/AdminApiAuditLogsSearch.vue:151
 #: html/pfappserver/root/static.alt/src/views/Auditing/_components/AdminApiAuditLogsSearch.vue:200
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:140
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:32
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:167
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:25
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:38
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:32
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:14
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:23
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesCreate.vue:19
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesSearch.vue:239
@@ -12589,6 +13133,7 @@ msgstr "Tout arrêter"
 msgid "Stop processing rules if this rule matches."
 msgstr "Arrêter de traiter les règles si cette règle correspond."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:47
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:111
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:41
 msgid "Stopped"
@@ -12598,6 +13143,7 @@ msgstr "Arrêté"
 msgid "Stopping"
 msgstr "En cours d'arrêt"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/ServicesView.vue:166
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Services.vue:230
 msgid "Stopping all services."
 msgstr "Arrêter tous les services."
@@ -12667,11 +13213,11 @@ msgstr "Sous Type d’endroit"
 msgid "Subject"
 msgstr "Sujet"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:64
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:62
 msgid "Subject prefix"
 msgstr "Préfixe du sujet"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:65
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:63
 msgid ""
 "Subject prefix for email notifications of rogue DHCP servers, violations "
 "with an action of email, or any other PacketFence-related message."
@@ -12810,7 +13356,11 @@ msgstr "Modèle de commutateur {id}"
 msgid "Switch Templates"
 msgstr "Modèle de commutateur"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1343
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:12
+msgid "Switch Templates:"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1341
 msgid "Switch exists."
 msgstr "Le commutateur existe."
 
@@ -12857,6 +13407,10 @@ msgstr "Le renvoi vers syslog existe déjà."
 msgid "Syslog Forwarding"
 msgstr "Renvoi Syslog"
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:14
+msgid "Syslog Forwarding:"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:107
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:22
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:43
@@ -12876,7 +13430,7 @@ msgstr "Analyseur syntaxique {id}"
 msgid "Syslog Parsers"
 msgstr "Analyseurs syntaxiques Syslog"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:12
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:13
 msgid "Syslog Parsers:"
 msgstr "Analyseurs syntaxiques Syslog:"
 
@@ -12903,6 +13457,7 @@ msgid "System Swap Used"
 msgstr "Système d'échange utilisé"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/general.js:55
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:38
 msgid ""
 "System's timezone in string format. List generated from Perl library "
 "DateTime::TimeZone. When left empty, it will use the timezone of the server."
@@ -13100,7 +13655,7 @@ msgid "Terminal ID for Mirapay Direct."
 msgstr "Identifiant de terminal de MiraPay Direct"
 
 #: html/pfappserver/root/static.alt/src/components/pfFormInput.vue:23
-#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:33
+#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:68
 msgid "Test"
 msgstr "Tester"
 
@@ -13117,7 +13672,7 @@ msgid "Test Syslog Parser"
 msgstr "Tester l'analyseur syntaxique Syslog?"
 
 #: html/pfappserver/root/static.alt/src/components/pfFormInput.vue:112
-#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:201
+#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:207
 msgid "Test failed with unknown error."
 msgstr "Le test a échoué avec une erreur inconnue."
 
@@ -13140,6 +13695,14 @@ msgstr "Tester l'accès public"
 #: html/pfappserver/root/static.alt/src/components/pfFormSecurityEventActions.vue:43
 msgid "Text displayed on the security event form to hosts."
 msgstr "Texte présenté à l’appareil sur la page d'événements de sécurité."
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:98
+msgid "The API key is associated to Github account <b>{name}</b>"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:13
+msgid "The DNS auditing feature can be enabled or not from this module."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/domain.js:146
 msgid "The DNS name (FQDN) of the domain."
@@ -13326,6 +13889,12 @@ msgid "The charts of the dasboard are currently not available."
 msgstr ""
 "Les diagrammes du tableau de bord ne sont pas disponibles pour le moment."
 
+#: html/pfappserver/root/static.alt/src/App.vue:129
+msgid ""
+"The configurator is enabled. You should disable it if your PacketFence "
+"configuration is completed."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/advanced.js:167
 msgid ""
 "The cost factor to apply to the password hashing if applicable. Currently "
@@ -13334,16 +13903,12 @@ msgstr ""
 "Le facteur coût à appliquer au hachage de mot de passe le cas échéant. "
 "Actuellement cela s’applique uniquement aux bcrypt."
 
-#: html/pfappserver/root/static.alt/src/App.vue:56
-#: html/pfappserver/root/static.alt/src/store/modules/system.js:51
+#: html/pfappserver/root/static.alt/src/App.vue:123
+#: html/pfappserver/root/static.alt/src/store/modules/system.js:88
 msgid "The database is in readonly mode. Not all functionality is available."
 msgstr ""
 "La base de donnée est en mode lecture seule. Toutes les fonctionnalités ne "
 "sont pas disponibles."
-
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:12
-msgid "The default parameters to be used when importing nodes"
-msgstr "Les paramètres par défaut à affecter aux appareils importés."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/firewall.js:308
 msgid ""
@@ -13565,7 +14130,8 @@ msgstr ""
 msgid "The overridden OCSP Responder URL."
 msgstr "URL du répondeur OCSP remplacée."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:109
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:107
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:109
 msgid "The password used to connect to the SMTP server."
 msgstr "Le mot de passe pour se connecter au serveur SMTP."
 
@@ -13605,7 +14171,8 @@ msgstr ""
 msgid "The port must be configured as a muti-vlan port."
 msgstr "Le port doit être configuré comme un port Multi VLANs."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:87
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:85
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:85
 msgid ""
 "The port of the SMTP server. If the port is set to 0 then port is calculated"
 " by the encryption type. none: 25, ssl: 465, starttls: 587."
@@ -13773,7 +14340,8 @@ msgstr ""
 msgid "The timeout in seconds for an API request."
 msgstr "Le délai d'expiration en secondes pour une requête API."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:133
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:131
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:135
 msgid "The timeout in seconds for sending an email."
 msgstr "Le délai d'attente en secondes pour l'envoi d'un courriel."
 
@@ -13790,7 +14358,8 @@ msgstr ""
 msgid "The username used for login to the captive portal."
 msgstr "L'identifiant utilisé pour la connexion au portail-captif."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:98
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:96
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:97
 msgid "The username used to connect to the SMTP server."
 msgstr "Le nom d'utilisateur pour se connecter au serveur SMTP."
 
@@ -13912,7 +14481,7 @@ msgstr ""
 "portail. Vérifiez que les sources du profil de connexion ont l’option \"Crée"
 " un compte local\" activé."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:13
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:15
 msgid ""
 "This allows PacketFence to define Wireless Roaming Intermediary eXchange "
 "(WRIX) information on access points it manages."
@@ -14019,10 +14588,6 @@ msgstr ""
 " serveur RADIUS répondra aux requêtes avec des attributs spécifiques comme "
 "Clé PSK à utiliser pour se connecter au SSID."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineTabs.vue:5
-msgid "This is an advanced section. Proceed with caution when editing."
-msgstr "Ceci est une section avancée. A utiliser avec précaution."
-
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AdvancedAccessConfigurationSection.vue:9
 msgid "This is for changing global captive-portal parameters."
 msgstr "Ceci est pour changer les paramètres globaux du portail captif."
@@ -14127,7 +14692,7 @@ msgstr ""
 "contient pas de partie domaine alors seulement le realm NULL sera utilisé si"
 " une source d’authentification a été configuré pour ça.  "
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:11
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:12
 msgid ""
 "This powerful module allows you to tie security events (malware detection, "
 "unauthorized operating system, etc.) with actions such as quarantining "
@@ -14152,6 +14717,12 @@ msgstr ""
 "différent basé sur où l’équipement se trouve physiquement, ou placer un "
 "équipement sur une carte spécifique du batiment."
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/SystemConfigurationSection.vue:15
+msgid ""
+"This section allows you to manage your captive-portal and RADIUS "
+"certificates."
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/domain.js:156
 msgid "This server's name"
 msgstr "Veuillez indiquer le nom du serveur"
@@ -14163,6 +14734,10 @@ msgid ""
 msgstr ""
 "Le nom de serveur (nom de compte) dans votre Active Directory. Utiliser '%h'"
 " pour utiliser le nom actuel du serveur."
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:36
+msgid "This step is optional"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:422
 msgid "This will create a small network for each roles."
@@ -14227,7 +14802,7 @@ msgid "Timeline"
 msgstr "Chronologie"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/advanced.js:381
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:197
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:193
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:1650
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2611
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2741
@@ -14238,11 +14813,14 @@ msgstr "Chronologie"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:102
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:310
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/radius.js:299
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:196
 msgid "Timeout"
 msgstr "Expiré"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/general.js:54
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/general.js:79
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:37
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/general.js:62
 msgid "Timezone"
 msgstr "Fuseau horaire"
 
@@ -14261,6 +14839,14 @@ msgstr "Vers"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/SwitchesList.vue:8
 msgid "To group"
 msgstr "Grouper"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/ComplianceSection.vue:10
+msgid ""
+"Together with Fingerbank, PacketFence is able to detect abnormal network "
+"activity of devices on your network. You can create here templates of what "
+"you consider abnormal on your network so PacketFence can react based on this"
+" through its Security Events."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2521
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2656
@@ -14297,9 +14883,9 @@ msgstr "Clé de transaction"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/firewall.js:204
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/firewall.js:339
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1108
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1413
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1417
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1106
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1411
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1415
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:281
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:392
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:396
@@ -14360,7 +14946,7 @@ msgstr "Déclencher de l'authentification unique (pare-feu SSO) sur le DHCP."
 msgid "Trigger a security event"
 msgstr "Déclencher un événement de sécurité"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1362
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1360
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:341
 msgid "Trigger condition."
 msgstr "Condition de déclenchement."
@@ -14380,6 +14966,10 @@ msgstr "Le(s) déclencheur contient une ou plusieurs erreurs."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/deviceChangeDetection.js:125
 msgid "Triggers"
 msgstr "Déclencheurs"
+
+#: html/pfappserver/root/static.alt/src/components/pfFormBoolean.vue:41
+msgid "Truncate"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/floatingDevice.js:161
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/floatingDevice.js:48
@@ -14433,7 +15023,7 @@ msgstr ""
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:44
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:73
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:787
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1386
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1384
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:55
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:885
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:90
@@ -14442,6 +15032,7 @@ msgstr ""
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogForwarder.js:48
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:44
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/syslogParser.js:65
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/interface.js:41
 #: html/pfappserver/root/static.alt/src/views/Nodes/_config/index.js:183
 msgid "Type"
 msgstr "Type"
@@ -14456,6 +15047,7 @@ msgstr "Type enregistré."
 msgid "Type required."
 msgstr "Type requis."
 
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:249
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:193
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:214
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:235
@@ -14564,14 +15156,14 @@ msgstr "Identifiant unique"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/captivePortal.js:258
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/captivePortal.js:262
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js:942
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:802
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:810
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:819
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:832
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:840
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:849
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:857
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:865
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:803
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:811
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:820
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:833
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:841
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:850
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:858
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:866
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/network.js:153
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/pkiProvider.js:371
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:460
@@ -14678,12 +15270,12 @@ msgstr "Mettre à jour l’Iplog en utilisant la comptabilisation"
 msgid "Updated"
 msgstr "Mis-à-jour"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1306
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1304
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:284
 msgid "Uplinks"
 msgstr "Uplinks"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1308
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1306
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:286
 msgid "Uplinks required."
 msgstr "Liens montants requis."
@@ -14728,11 +15320,11 @@ msgstr "Port pour l'API officielle"
 msgid "Usage"
 msgstr "Utilisation"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:977
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:975
 msgid "Use CoA"
 msgstr "Utiliser le CoA"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:978
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:976
 msgid ""
 "Use CoA when available to deauthenticate the user. When disabled, RADIUS "
 "Disconnect will be used instead if it is available."
@@ -14833,6 +15425,7 @@ msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:48
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:79
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:188
 msgid "User"
 msgstr "Utilisateur"
 
@@ -14899,7 +15492,7 @@ msgstr "Utilisateur {pid}"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:50
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankGeneralSettingView.vue:18
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:154
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:195
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:191
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2512
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/ciscoMobilityServicesEngine.js:38
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/ciscoMobilityServicesEngine.js:67
@@ -14915,14 +15508,18 @@ msgstr "Utilisateur {pid}"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js:810
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:159
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:445
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1120
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1414
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1418
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1118
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1412
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1416
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:293
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:393
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:397
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/webServices.js:15
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/webServices.js:43
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:10
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/PasswordsView.vue:18
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/administrator.js:14
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:194
 #: html/pfappserver/root/static.alt/src/views/Nodes/_config/index.js:201
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersPreviewModal.vue:30
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:364
@@ -14967,6 +15564,12 @@ msgstr "Nom d'utilisateur pour ce certificat."
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/firewall.js:296
 msgid "Username format"
 msgstr "Format du nom d'utilisateur"
+
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:189
+msgid ""
+"Username of the account with access to the MySQL database used by "
+"PacketFence."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/database.js:49
 msgid ""
@@ -15023,7 +15626,7 @@ msgid "VLAN required."
 msgstr "VLAN requis."
 
 #: html/pfappserver/root/static.alt/src/globals/pfReports.js:533
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1057
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1055
 msgid "VOIP"
 msgstr "VOIP"
 
@@ -15063,11 +15666,11 @@ msgstr "Validité requise."
 msgid "Value must be a URL."
 msgstr "La valeur doit être une URL."
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:181
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:197
 msgid "Value must be greater than {min}bytes."
 msgstr "La valeur doit être supérieure à {min} octets."
 
-#: html/pfappserver/root/static.alt/src/globals/pfActions.js:182
+#: html/pfappserver/root/static.alt/src/globals/pfActions.js:198
 msgid "Value must be less than {max}bytes."
 msgstr "La valeur doit être inférieure à {max} octets."
 
@@ -15082,11 +15685,12 @@ msgstr "Valeur requise"
 #: html/pfappserver/root/static.alt/src/components/pfCSVImport.vue:931
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2486
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/authenticationSource.js:2558
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/filterEngine.js:498
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/index.js:166
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:357
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:379
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/securityEvent.js:412
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1370
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1368
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:349
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:340
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchTemplate.js:351
@@ -15119,6 +15723,11 @@ msgstr "Vendor"
 msgid "Vendor required."
 msgstr "Vendeur requis."
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:115
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:65
+msgid "Verify"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/scanEngine.js:263
 msgid "Verify Hostname"
 msgstr "Vérifier le nom de l’hôte"
@@ -15127,7 +15736,8 @@ msgstr "Vérifier le nom de l’hôte"
 msgid "Verify SSL"
 msgstr "Vérifier le SSL"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:120
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/alerting.js:118
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/alerting.js:121
 msgid "Verify SSL connection."
 msgstr "Vérifier la connexion SSL."
 
@@ -15136,7 +15746,7 @@ msgid "Verify hostname of server when connecting to the API."
 msgstr "Vérifiez le nom d'hôte du serveur lors de la connexion à l'API."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/combination.js:285
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1390
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1388
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:861
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:369
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:162
@@ -15184,15 +15794,15 @@ msgstr "Colonnes visibles"
 msgid "VoIP"
 msgstr "VoIP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1021
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1019
 msgid "VoIPCDPDetect"
 msgstr "VOIP, détection par CDP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1039
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1037
 msgid "VoIPDHCPDetect"
 msgstr "VOIP, détection par DHCP"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1078
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1076
 msgid "VoIPLLDPDetect"
 msgstr "VOIP, détection par LLDP"
 
@@ -15260,7 +15870,7 @@ msgstr "La localisation WRIX existe."
 msgid "WRIX Location {id}"
 msgstr "Localisation WRIX {id}"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:13
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/IntegrationSection.vue:15
 msgid "WRIX:"
 msgstr "WRIX:"
 
@@ -15278,7 +15888,7 @@ msgid "Warning"
 msgstr "Attention"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/WebServicesView.vue:11
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1244
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1242
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:204
 #: html/pfappserver/root/static.alt/src/views/Configuration/index.vue:84
 msgid "Web Services"
@@ -15788,22 +16398,26 @@ msgstr "Workgroup"
 msgid "Workphone number"
 msgstr "Numéro de téléphone Bureau"
 
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/database.js:136
+msgid "Wrong password"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourceView.vue:195
 msgid "XML copied to clipboard"
 msgstr "XML copié dans le presse papier"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1009
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1031
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1049
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1066
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1088
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1007
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1029
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1047
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1064
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1086
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:231
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:249
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:394
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:625
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:942
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:969
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:987
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:940
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:967
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:985
 msgid "Y"
 msgstr "O"
 
@@ -15839,7 +16453,13 @@ msgid "You can add FreeRADIUS options in the realm definition."
 msgstr ""
 "Vous pouvez ajouter des options FreeRADIUS dans la définition du realm."
 
-#: html/pfappserver/root/static.alt/src/store/modules/session.js:190
+#: html/pfappserver/root/static.alt/src/views/Configurator/_config/fingerbank.js:37
+msgid ""
+"You can visit the official <a href=\"{link}\" target=\"_new\">registration "
+"page</a> to create an account and get an API key."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/store/modules/session.js:197
 msgid "You don't have enough privileges to login"
 msgstr "Vous n'avez pas les privilèges suffisants pour vous connecter."
 
@@ -15914,11 +16534,16 @@ msgstr "Par nom d'utilisateur"
 msgid "closed"
 msgstr "fermé"
 
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:9
+msgid "contains"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AdminRoleView.vue:119
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourceView.vue:137
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/BillingTierView.vue:122
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileView.vue:151
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:120
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:130
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:115
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceView.vue:118
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDhcpFingerprintView.vue:118
@@ -15949,6 +16574,22 @@ msgstr "fermé"
 msgid "copy"
 msgstr "copier"
 
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:27
+msgid "date is after"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:25
+msgid "date is before"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:28
+msgid "date is not after"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:26
+msgid "date is not before"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/utils/duration.js:9
 msgid "day"
 msgstr "jour"
@@ -15963,13 +16604,26 @@ msgstr "jours"
 msgid "default"
 msgstr "défaut"
 
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:13
+msgid "defined"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:38
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:30
 msgid "down"
 msgstr "inactif"
 
-#: html/pfappserver/root/static.alt/src/store/modules/config.js:560
+#: html/pfappserver/root/static.alt/src/store/modules/config.js:575
 msgid "empty - None"
 msgstr "vide - aucun"
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:17
+msgid "ends with"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:19
+msgid "equals"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:599
 msgid "expired"
@@ -15989,7 +16643,11 @@ msgstr "heure"
 msgid "hours"
 msgstr "heures"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1276
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:11
+msgid "includes"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1274
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:480
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:513
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:541
@@ -15998,7 +16656,7 @@ msgstr "heures"
 msgid "inline"
 msgstr "inline"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1274
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1272
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:478
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:511
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:539
@@ -16016,7 +16674,7 @@ msgstr "local"
 msgid "mDNS services"
 msgstr "Services mDNS"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1275
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1273
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:479
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:512
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:540
@@ -16024,6 +16682,10 @@ msgstr "Services mDNS"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switchGroup.js:253
 msgid "macDetection"
 msgstr "macDetection"
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:21
+msgid "matches"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/utils/duration.js:7
 msgid "minute"
@@ -16047,6 +16709,34 @@ msgstr "mois"
 #: html/pfappserver/root/static.alt/src/components/pfCSVImport.vue:331
 msgid "not commited"
 msgstr "non appliqué"
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:10
+msgid "not contains"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:14
+msgid "not defined"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:18
+msgid "not ends with"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:20
+msgid "not equals"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:12
+msgid "not includes"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:22
+msgid "not matches"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:16
+msgid "not starts with"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/domain.js:211
 msgid "ntlmv2 only"
@@ -16099,7 +16789,7 @@ msgstr "nombre d’éléments dans la file d'attente"
 msgid "registered"
 msgstr "enregistré"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1273
+#: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:1271
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:477
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:510
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/switch.js:538
@@ -16126,6 +16816,10 @@ msgstr "secondes"
 msgid "skipped"
 msgstr "ignoré"
 
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:15
+msgid "starts with"
+msgstr ""
+
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/PortalModulesList.vue:25
 msgid "step"
 msgstr "étape"
@@ -16134,6 +16828,14 @@ msgstr "étape"
 #: html/pfappserver/root/static.alt/src/components/pfNotificationCenter.vue:52
 msgid "succeeded"
 msgstr "réussi"
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:30
+msgid "time period not within"
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/globals/pfOperators.js:29
+msgid "time period within"
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:270
 #: html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesSearch.vue:138
@@ -16146,6 +16848,7 @@ msgid "unregistered"
 msgstr "non enregistré"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:38
+#: html/pfappserver/root/static.alt/src/views/Configurator/_components/InterfacesList.vue:30
 msgid "up"
 msgstr "actif"
 
@@ -16167,11 +16870,27 @@ msgstr "année"
 msgid "years"
 msgstr "années"
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:350
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:360
 msgid "{certificate} certificate saved"
 msgstr "{certificate} certificats sauvegardés"
 
-#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:61
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:163
+msgid "{collection} <code>{id}</code> could not be disabled."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:148
+msgid "{collection} <code>{id}</code> could not be enabled."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:161
+msgid "{collection} <code>{id}</code> disabled."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:146
+msgid "{collection} <code>{id}</code> enabled."
+msgstr ""
+
+#: html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:38
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:156
 #: html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:70
 msgid "{count} characters"
@@ -16189,13 +16908,13 @@ msgstr "{duration} secondes"
 msgid "{fieldName} required."
 msgstr "{fieldName} requis."
 
-#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:80
-msgid "{filterName} filter saved"
-msgstr "{filterName} filtres sauvés"
-
 #: html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:522
 msgid "{http_code} responses"
 msgstr "{http_code} réponses"
+
+#: html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEnginesList.vue:121
+msgid "{name} resorted."
+msgstr ""
 
 #: html/pfappserver/root/static.alt/src/components/pfFormDatetime.vue:291
 msgid "{num} {unit} ago"
