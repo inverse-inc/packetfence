@@ -9,19 +9,30 @@ export default {
   name: 'Configurator',
   data () {
     return {
-      requestInterceptor: null
+      requestInterceptor: null,
+      responseInterceptor: null
     }
-  },
-  methods: {
   },
   created () {
     this.requestInterceptor = apiCall.interceptors.request.use((config) => {
       config.baseURL = '/api/v1/configurator/'
       return config;
     });
+    this.responseInterceptor = apiCall.interceptors.response.use((response) => {
+      return response
+    }, (error) => {
+      const { response: { status = false, data: { message = null } = {} } = {} } = error
+      if (message) {
+        if (status === 401 && /configurator is turned off/.test(message)) {
+          this.$router.push({ name: 'login' })
+        }
+      }
+      return Promise.reject(error)
+    })
   },
   beforeDestroy () {
     apiCall.interceptors.request.eject(this.requestInterceptor)
+    apiCall.interceptors.response.eject(this.responseInterceptor)
   }
 }
 </script>
