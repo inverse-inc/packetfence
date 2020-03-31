@@ -775,7 +775,13 @@ export default {
     })
   },
   createInterface: data => {
-    return apiCall.post('config/interfaces', data).then(response => {
+    let sanitizedData = {}
+    Object.keys(data).forEach(key => {
+      if (typeof data[key] !== 'boolean') {
+        sanitizedData[key] = data[key]
+      }
+    })
+    return apiCall.post('config/interfaces', sanitizedData).then(response => {
       return response.data
     })
   },

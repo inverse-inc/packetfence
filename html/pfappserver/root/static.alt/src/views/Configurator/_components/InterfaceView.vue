@@ -123,6 +123,8 @@ export default {
       this.$store.dispatch('$_interfaces/getInterface', this.id).then(form => {
         if (this.isNew) {
           promise = this.$store.dispatch(`${this.formStoreName}/setForm`, { id: form.id, type: 'none' })
+        } else if (this.isClone) {
+          promise = this.$store.dispatch(`${this.formStoreName}/setForm`, { ...form, id: form.master })
         } else {
           promise = this.$store.dispatch(`${this.formStoreName}/setForm`, form)
         }
