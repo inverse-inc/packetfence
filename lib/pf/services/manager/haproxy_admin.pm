@@ -141,6 +141,8 @@ $mgmt_backend_ip_api_config
 
 frontend admin-https-$mgmt_cluster_ip
         bind $mgmt_cluster_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        errorfile 502 /usr/local/pf/html/pfappserver/root/static/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/static/503.json.http
         capture request header Host len 40
         reqadd X-Forwarded-Proto:\\ https
         http-request lua.change_host
