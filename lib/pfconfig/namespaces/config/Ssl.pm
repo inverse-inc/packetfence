@@ -29,7 +29,7 @@ sub init {
     my ($self) = @_;
 
     $self->{child_resources} = [
-        'resource::tls_config'
+        'resource::eap_config'
     ];
 
     $self->{_scoped_by_tenant_id} = 1;

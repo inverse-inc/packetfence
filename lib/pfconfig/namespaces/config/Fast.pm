@@ -1,16 +1,16 @@
-package pfconfig::namespaces::config::Tls;
+package pfconfig::namespaces::config::Fast;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Tls
+pfconfig::namespaces::config::Fast
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Tls
+pfconfig::namespaces::config::Fast
 
-This module creates the configuration hash associated to tls.conf
+This module creates the configuration hash associated to fast.conf
 
 =cut
 
@@ -18,20 +18,20 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($tls_config_file $tls_default_config_file);
+use pf::file_paths qw($fast_config_file $fast_default_config_file);
 use pf::util;
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $tls_config_file;
+    $self->{file} = $fast_config_file;
 
     $self->{child_resources} = [
         'resource::eap_config'
     ];
 
-    my $defaults = Config::IniFiles->new( -file => $tls_default_config_file );
+    my $defaults = Config::IniFiles->new( -file => $fast_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

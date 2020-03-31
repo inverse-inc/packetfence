@@ -117,7 +117,9 @@ our (
     $iptable_config_file,
     $ssl_config_file, $ssl_default_config_file,
     $tls_config_file, $tls_default_config_file,
-    $ocsp_config_file, $ocsp_default_config_file
+    $ocsp_config_file, $ocsp_default_config_file,
+    $eap_config_file, $eap_default_config_file,
+    $fast_config_file, $fast_default_config_file
 );
 
 BEGIN {
@@ -212,6 +214,8 @@ BEGIN {
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file
         $ocsp_config_file $ocsp_default_config_file
+        $eap_config_file $eap_default_config_file
+        $fast_config_file $fast_default_config_file
     );
 }
 
@@ -334,6 +338,10 @@ $tls_config_file = catfile($conf_dir,"radiusd/tls.conf");
 $tls_default_config_file = catfile($conf_dir,"radiusd/tls.conf.defaults");
 $ocsp_config_file = catfile($conf_dir,"radiusd/ocsp.conf");
 $ocsp_default_config_file = catfile($conf_dir,"radiusd/ocsp.conf.defaults");
+$eap_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf");
+$eap_default_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf.defaults");
+$fast_config_file = catfile($conf_dir,"radiusd/fast.conf");
+$fast_default_config_file = catfile($conf_dir,"radiusd/fast.conf.defaults");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
