@@ -46,7 +46,7 @@ use pf::config qw(
     $local_secret
     @radius_ints
     %ConfigAuthenticationLdap
-    %ConfigTLS
+    %ConfigEAP
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
@@ -577,14 +577,8 @@ Generates the eap.conf configuration file
 sub generate_radiusd_eapconf {
     my ($self, $tt) = @_;
     my $radius_configuration = $Config{radius_configuration};
-    my %vars = (
-        install_dir => $install_dir,
-        radius_configuration => $radius_configuration,
-        eap_fast_opaque_key => $radius_configuration->{eap_fast_opaque_key},
-        eap_fast_authority_identity => $radius_configuration->{eap_fast_authority_identity},
-        (map { $_ => 1 } (split ( /\s*,\s*/, $radius_configuration->{eap_authentication_types} // ''))),
-    );
-    $vars{'items'} = \%ConfigTLS;
+    my %vars;
+    $vars{'eap'} = \%ConfigEAP;
     $tt->process("$conf_dir/radiusd/eap.conf", \%vars, "$install_dir/raddb/mods-enabled/eap") or die $tt->error();
 }
 

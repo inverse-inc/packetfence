@@ -12,7 +12,12 @@
 #  common side effect of setting 'Auth-Type := EAP' is that the
 #  users then cannot use ANY other authentication method.
 #
+[% FOREACH key IN eap.keys %]
+[% IF key == 'default' %]
 eap {
+[% ELSE %]
+eap [% key -%] {
+[% END %]
 	#  Invoke the default supported EAP type when
 	#  EAP-Identity response is received.
 	#
@@ -25,14 +30,14 @@ eap {
 	#  then that EAP type takes precedence over the
 	#  default type configured here.
 	#
-	default_eap_type = peap
+	default_eap_type = [% eap.$key.default_eap_type %]
 
 	#  A list is maintained to correlate EAP-Response
 	#  packets with EAP-Request packets.  After a
 	#  configurable length of time, entries in the list
 	#  expire, and are deleted.
 	#
-	timer_expire     = 60
+	timer_expire     = [% eap.$key.timer_expire %]
 
 	#  There are many EAP types, but the server has support
 	#  for only a limited subset.  If the server receives
@@ -46,7 +51,7 @@ eap {
 	#  If another module is NOT configured to handle the
 	#  request, then the request will still end up being
 	#  rejected.
-	ignore_unknown_eap_types = no
+	ignore_unknown_eap_types = [% eap.$key.ignore_unknown_eap_types %]
 
 	# Cisco AP1230B firmware 12.2(13)JA1 has a bug.  When given
 	# a User-Name attribute in an Access-Accept, it copies one
@@ -54,135 +59,52 @@ eap {
 	#
 	# We can work around it by configurably adding an extra
 	# zero byte.
-	cisco_accounting_username_bug = no
+	cisco_accounting_username_bug = [% eap.$key.cisco_accounting_username_bug %]
 
 	#
 	#  Help prevent DoS attacks by limiting the number of
 	#  sessions that the server is tracking.  For simplicity,
 	#  this is taken from the "max_requests" directive in
 	#  radiusd.conf.
-	max_sessions = ${max_requests}
+	max_sessions = [% eap.$key.max_sessions %]
 
-	# Supported EAP-types
+    ## Common TLS configuration for TLS-based EAP types
+    #
+    #  See raddb/certs/README for additional comments
+    #  on certificates.
+    #
+    #  If OpenSSL was not found at the time the server was
+    #  built, the "tls", "ttls", and "peap" sections will
+    #  be ignored.
+    #
+    #  If you do not currently have certificates signed by
+    #  a trusted CA you may use the 'snakeoil' certificates.
+    #  Included with the server in raddb/certs.
+    #
+    #  If these certificates have not been auto-generated:
+    #    cd raddb/certs
+    #    make
+    #
+    #  These test certificates SHOULD NOT be used in a normal
+    #  deployment.  They are created only to make it easier
+    #  to install the server, and to perform some simple
+    #  tests with EAP-TLS, TTLS, or PEAP.
+    #
+    #  See also:
+    #
+    #  http://www.dslreports.com/forum/remark,9286052~mode=flat
+    #
+    #  Note that you should NOT use a globally known CA here!
+    #  e.g. using a Verisign cert as a "known CA" means that
+    #  ANYONE who has a certificate signed by them can
+    #  authenticate via EAP-TLS!  This is likely not what you want.
 
-    [% IF MD5 %]
-	#
-	#  We do NOT recommend using EAP-MD5 authentication
-	#  for wireless connections.  It is insecure, and does
-	#  not provide for dynamic WEP keys.
-	#
-	md5 {
-	}
-    [% END %]
+[%- FOREACH tls IN eap.$key.tls.keys %]
 
-	#
-	# EAP-pwd -- secure password-based authentication
-	#
-#	pwd {
-#		group = 19
-
-		#
-#		server_id = theserver@example.com
-
-		#  This has the same meaning as for TLS.
-#		fragment_size = 1020
-
-		# The virtual server which determines the
-		# "known good" password for the user.
-		# Note that unlike TLS, only the "authorize"
-		# section is processed.  EAP-PWD requests can be
-		# distinguished by having a User-Name, but
-		# no User-Password, CHAP-Password, EAP-Message, etc.
-#		virtual_server = "inner-tunnel"
-#	}
-
-    [% IF LEAP %]
-	# Cisco LEAP
-	#
-	#  We do not recommend using LEAP in new deployments.  See:
-	#  http://www.securiteam.com/tools/5TP012ACKE.html
-	#
-	#  Cisco LEAP uses the MS-CHAP algorithm (but not
-	#  the MS-CHAP attributes) to perform it's authentication.
-	#
-	#  As a result, LEAP *requires* access to the plain-text
-	#  User-Password, or the NT-Password attributes.
-	#  'System' authentication is impossible with LEAP.
-	#
-	leap {
-	}
-    [% END %]
-
-    [% IF GTC %]
-	#  Generic Token Card.
-	#
-	#  Currently, this is only permitted inside of EAP-TTLS,
-	#  or EAP-PEAP.  The module "challenges" the user with
-	#  text, and the response from the user is taken to be
-	#  the User-Password.
-	#
-	#  Proxying the tunneled EAP-GTC session is a bad idea,
-	#  the users password will go over the wire in plain-text,
-	#  for anyone to see.
-	#
-	gtc {
-		#  The default challenge, which many clients
-		#  ignore..
-		#challenge = "Password: "
-
-		#  The plain-text response which comes back
-		#  is put into a User-Password attribute,
-		#  and passed to another module for
-		#  authentication.  This allows the EAP-GTC
-		#  response to be checked against plain-text,
-		#  or crypt'd passwords.
-		#
-		#  If you say "Local" instead of "PAP", then
-		#  the module will look for a User-Password
-		#  configured for the request, and do the
-		#  authentication itself.
-		#
-		auth_type = PAP
-	}
-    [% END %]
-
-	## Common TLS configuration for TLS-based EAP types
-	#
-	#  See raddb/certs/README for additional comments
-	#  on certificates.
-	#
-	#  If OpenSSL was not found at the time the server was
-	#  built, the "tls", "ttls", and "peap" sections will
-	#  be ignored.
-	#
-	#  If you do not currently have certificates signed by
-	#  a trusted CA you may use the 'snakeoil' certificates.
-	#  Included with the server in raddb/certs.
-	#
-	#  If these certificates have not been auto-generated:
-	#    cd raddb/certs
-	#    make
-	#
-	#  These test certificates SHOULD NOT be used in a normal
-	#  deployment.  They are created only to make it easier
-	#  to install the server, and to perform some simple
-	#  tests with EAP-TLS, TTLS, or PEAP.
-	#
-	#  See also:
-	#
-	#  http://www.dslreports.com/forum/remark,9286052~mode=flat
-	#
-	#  Note that you should NOT use a globally known CA here!
-	#  e.g. using a Verisign cert as a "known CA" means that
-	#  ANYONE who has a certificate signed by them can
-	#  authenticate via EAP-TLS!  This is likely not what you want.
-
-[%- FOREACH key IN items.keys %]
-
-    [% key -%] {
+    tls [% tls -%] {
 
         #private_key_password = whatever
-        private_key_file = [% items.$key.certificate_profile.key_file %]
+        private_key_file = [% eap.$key.tls.$tls.certificate_profile.key_file %]
 
         #  If Private key & Certificate are located in
         #  the same file, then private_key_file &
@@ -194,7 +116,7 @@ eap {
         #  only the server certificate, but ALSO all
         #  of the CA certificates used to sign the
         #  server certificate.
-        certificate_file = [% items.$key.certificate_profile.cert_file %]
+        certificate_file = [% eap.$key.tls.$tls.certificate_profile.cert_file %]
 
         #  Trusted Root CA list
         #
@@ -206,7 +128,7 @@ eap {
         #  In that case, this CA file should contain
         #  *one* CA certificate.
         #
-        ca_file = [% items.$key.certificate_profile.ca_file %]
+        ca_file = [% eap.$key.tls.$tls.certificate_profile.ca_file %]
 
         #  OpenSSL will automatically create certificate chains,
         #  unless we tell it to not do that.  The problem is that
@@ -494,7 +416,7 @@ eap {
             #  Deleting the entire "ocsp" subsection
             #  also disables ocsp checking
             #
-            enable = [% items.$key.ocsp.ocsp_enable %]
+            enable = [% eap.$key.tls.$tls.ocsp.ocsp_enable %]
 
             #
             #  The OCSP Responder URL can be automatically
@@ -502,13 +424,13 @@ eap {
             #  To override the OCSP Responder URL set
             #  "override_cert_url = yes".
             #
-            override_cert_url = [% items.$key.ocsp.ocsp_override_cert_url %]
+            override_cert_url = [% eap.$key.tls.$tls.ocsp.ocsp_override_cert_url %]
 
             #
             #  If the OCSP Responder address is not extracted from
             #  the certificate, the URL can be defined here.
             #
-            url = [% items.$key.ocsp.ocsp_url %]
+            url = [% eap.$key.tls.$tls.ocsp.ocsp_url %]
 
             #
             # If the OCSP Responder can not cope with nonce
@@ -524,13 +446,13 @@ eap {
             # to disable it in the query here.
             # See http://technet.microsoft.com/en-us/library/cc770413%28WS.10%29.aspx
             #
-            use_nonce = [% items.$key.ocsp.ocsp_use_nonce %]
+            use_nonce = [% eap.$key.tls.$tls.ocsp.ocsp_use_nonce %]
 
             #
             # Number of seconds before giving up waiting
             # for OCSP response. 0 uses system default.
             #
-            timeout = [% items.$key.ocsp.ocsp_timeout %]
+            timeout = [% eap.$key.tls.$tls.ocsp.ocsp_timeout %]
 
             #
             # Normally an error in querying the OCSP
@@ -546,14 +468,95 @@ eap {
             # certificates to connect if the OCSP responder
             # is not available. Use with caution.
             #
-            softfail = [% items.$key.ocsp.ocsp_softfail %]
+            softfail = [% eap.$key.tls.$tls.ocsp.ocsp_softfail %]
         }
 
     }
 
 [% END -%]
 
-    [% IF TLS %]
+	# Supported EAP-types
+
+[% FOREACH eaptype IN eap.$key.eap_authentication_types %][% IF eaptype == "MD5" %]
+	#
+	#  We do NOT recommend using EAP-MD5 authentication
+	#  for wireless connections.  It is insecure, and does
+	#  not provide for dynamic WEP keys.
+	#
+	md5 {
+	}
+
+[% ELSIF eaptype == "PWD" %]
+	#
+	# EAP-pwd -- secure password-based authentication
+	#
+#	pwd {
+#		group = 19
+
+		#
+#		server_id = theserver@example.com
+
+		#  This has the same meaning as for TLS.
+#		fragment_size = 1020
+
+		# The virtual server which determines the
+		# "known good" password for the user.
+		# Note that unlike TLS, only the "authorize"
+		# section is processed.  EAP-PWD requests can be
+		# distinguished by having a User-Name, but
+		# no User-Password, CHAP-Password, EAP-Message, etc.
+#		virtual_server = "inner-tunnel"
+#	}
+
+[% ELSIF eaptype == "LEAP" %]
+	# Cisco LEAP
+	#
+	#  We do not recommend using LEAP in new deployments.  See:
+	#  http://www.securiteam.com/tools/5TP012ACKE.html
+	#
+	#  Cisco LEAP uses the MS-CHAP algorithm (but not
+	#  the MS-CHAP attributes) to perform it's authentication.
+	#
+	#  As a result, LEAP *requires* access to the plain-text
+	#  User-Password, or the NT-Password attributes.
+	#  'System' authentication is impossible with LEAP.
+	#
+	leap {
+	}
+
+[% ELSIF eaptype == "LEAP" %]
+	#  Generic Token Card.
+	#
+	#  Currently, this is only permitted inside of EAP-TTLS,
+	#  or EAP-PEAP.  The module "challenges" the user with
+	#  text, and the response from the user is taken to be
+	#  the User-Password.
+	#
+	#  Proxying the tunneled EAP-GTC session is a bad idea,
+	#  the users password will go over the wire in plain-text,
+	#  for anyone to see.
+	#
+	gtc {
+		#  The default challenge, which many clients
+		#  ignore..
+		#challenge = "Password: "
+
+		#  The plain-text response which comes back
+		#  is put into a User-Password attribute,
+		#  and passed to another module for
+		#  authentication.  This allows the EAP-GTC
+		#  response to be checked against plain-text,
+		#  or crypt'd passwords.
+		#
+		#  If you say "Local" instead of "PAP", then
+		#  the module will look for a User-Password
+		#  configured for the request, and do the
+		#  authentication itself.
+		#
+		auth_type = PAP
+	}
+
+[% ELSIF eaptype == "TLS" %]
 	## EAP-TLS
 	#
 	#  As of Version 3.0, the TLS configuration for TLS-based
@@ -561,7 +564,7 @@ eap {
 	#
 	tls {
 		# Point to the common TLS configuration
-		tls = tls-common
+		tls = [% eap.$key.tls_tlsprofile %]
 
 		#
 		# As part of checking a client certificate, the EAP-TLS
@@ -571,10 +574,8 @@ eap {
 		#
 	#	virtual_server = check-eap-tls
 	}
-    [% END %]
 
-
-    [% IF TTLS %]
+[% ELSIF eaptype == "TTLS" %]
 	## EAP-TTLS
 	#
 	#  The TTLS module implements the EAP-TTLS protocol,
@@ -593,7 +594,7 @@ eap {
 		#  above. If that is done, the tls= option here (and in
 		#  tls above) MUST be commented out.
 		#
-		tls = tls-common
+		tls = [% eap.$key.ttls_tlsprofile %]
 
 		#  The tunneled EAP session needs a default EAP type
 		#  which is separate from the one for the non-tunneled
@@ -673,10 +674,8 @@ eap {
 		#
 	#	require_client_cert = yes
 	}
-    [% END %]
 
-
-    [% IF PEAP %]
+[% ELSIF eaptype == "PEAP" %]
 	## EAP-PEAP
 	#
 
@@ -730,7 +729,7 @@ eap {
 		#  above. If that is done, the tls= option here (and in
 		#  tls above) MUST be commented out.
 		#
-		tls = tls-common
+		tls = [% eap.$key.peap_tlsprofile %]
 
 		#  The tunneled EAP session needs a default
 		#  EAP type which is separate from the one for
@@ -789,9 +788,8 @@ eap {
 		#
 	#	require_client_cert = yes
 	}
-    [% END %]
 
-    [% IF MSCHAPv2 %]
+[% ELSIF eaptype == "MSCHAPv2" %]
 	#
 	#  This takes no configuration.
 	#
@@ -832,9 +830,8 @@ eap {
 		#  identify it.
 #		identity = "FreeRADIUS"
 	}
-  [% END %]
 
-  [% IF FAST %]
+[% ELSIF eaptype == "FAST" %]
 	## EAP-FAST
 	#
 	#  Note: To use EAP-FAST you must also configure an inner method in
@@ -850,7 +847,7 @@ eap {
         #  "DEFAULT" as "DEFAULT" contains "!aNULL" so instead it is
         #  recommended "ALL:!EXPORT:!eNULL:!SSLv2" is used
         #
-		tls = tls-eap-fast
+		tls = [% eap.$key.fast_config.tls %]
 
         #  PAC lifetime in seconds (default: seven days)
         #
@@ -862,7 +859,7 @@ eap {
         #  this and "pac_opaque_key" have the same value on all of the
         #  systems.
         #
-		authority_identity = [% eap_fast_authority_identity %]
+		authority_identity = [% eap.$key.fast_config.authority_identity %]
 
         #  PAC Opaque encryption key (must be exactly 32 bytes in size)
         #
@@ -870,7 +867,7 @@ eap {
         #
         #  $ od -vAn -N16 -tx8 < /dev/urandom | sed 's/ //g'
         #
-		pac_opaque_key = [% eap_fast_opaque_key %]
+		pac_opaque_key = [% eap.$key.fast_config.pac_opaque_key %]
 
 		#
 		#  The inner tunneled request can be sent
@@ -921,6 +918,6 @@ eap {
         #  allowed values: {no, yes}
         #
 		use_tunneled_reply = yes
-	}
-  [% END %]
-}
+
+	}[% END %][% END %]
+}[% END -%]
