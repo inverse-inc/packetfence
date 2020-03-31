@@ -21,6 +21,7 @@ use List::MoreUtils qw(uniq);
 use pf::log;
 use pf::util;
 use pf::cluster;
+use pf::util qw(isenabled);
 use pf::config qw(
     %Config
     $OS
@@ -150,14 +151,26 @@ frontend admin-https-$mgmt_cluster_ip
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.admin
         use_backend %[var(req.action)]
-        default_backend $mgmt_cluster_ip-admin
         http-request redirect location /admin/alt if { lua.redirect 1 }
+EOT
+            if (isenabled($Config{services}{httpd_admin})) {
+	$tags{'http_admin'} .= <<"EOT";
+	default_backend  $mgmt_cluster_ip-admin
 
 backend $mgmt_cluster_ip-admin
         balance source
         option httpclose
         option forwardfor
 $mgmt_backend_ip_config
+
+EOT
+            } else {
+        $tags{'http_admin'} .= <<"EOT";
+        default_backend static
+EOT
+	    }
+
+	$tags{'http_admin'} .= <<"EOT";
 
 $mgmt_srv_netdata
 
