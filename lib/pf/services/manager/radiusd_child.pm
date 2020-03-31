@@ -116,7 +116,6 @@ sub _generateConfig {
     $self->generate_radiusd_eduroamconf($tt);
     $self->generate_radiusd_ldap($tt);
     $self->generate_radiusd_mschap($tt);
-    $self->generate_radiusd_tls($tt);
 }
 
 
@@ -585,7 +584,7 @@ sub generate_radiusd_eapconf {
         eap_fast_authority_identity => $radius_configuration->{eap_fast_authority_identity},
         (map { $_ => 1 } (split ( /\s*,\s*/, $radius_configuration->{eap_authentication_types} // ''))),
     );
-
+    $vars{'items'} = \%ConfigTLS;
     $tt->process("$conf_dir/radiusd/eap.conf", \%vars, "$install_dir/raddb/mods-enabled/eap") or die $tt->error();
 }
 
@@ -1160,22 +1159,6 @@ sub generate_radiusd_mschap {
     parse_template( \%tags, "$conf_dir/radiusd/mschap.conf", "$install_dir/raddb/mods-enabled/mschap" );
 
 }
-
-=head2 generate_radiusd_tls
-
-Generates the tls configuration
-
-=cut
-
-sub generate_radiusd_tls {
-    my ($self, $tt) = @_;
-    my %tags;
-
-     $tags{'items'} =  \%ConfigTLS;
-
-    $tt->process("$conf_dir/radiusd/eaptls.conf", \%tags, "$install_dir/raddb/mods-enabled/eaptls" ) or die $tt->error();
-}
-
 
 =head1 AUTHOR
 
