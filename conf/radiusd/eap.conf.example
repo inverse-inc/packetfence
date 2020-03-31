@@ -101,7 +101,7 @@ eap [% key -%] {
 
 [%- FOREACH tls IN eap.$key.tls.keys %]
 
-    tls [% tls -%] {
+    tls-config [% tls -%] {
 
         #private_key_password = whatever
         private_key_file = [% eap.$key.tls.$tls.certificate_profile.key_file %]
