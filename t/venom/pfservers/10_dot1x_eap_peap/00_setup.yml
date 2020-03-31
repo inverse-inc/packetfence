@@ -1,6 +1,7 @@
-name: Domain join setup
+name: Setup
+version: 2
 testcases:
-- name: Create and join new domain
+- name: create-domain
   steps:
   - type: http
     method: POST
@@ -35,6 +36,8 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
+- name: join-domain
+  steps:      
   - type: http
     method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain}}/join'
@@ -50,34 +53,27 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 202
+    vars:
+      task_id:
+        from: result.bodyjson.task_id
 
+- name: poll-domain-join
+  steps:
   - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain}}/join'
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/pfqueue/task/{{.join-domain.task_id}}/status/poll'
     ignore_verify_ssl: true
-    body: >-
-      {
-        "id": "{{.ad_domain}}",
-        "username": "{{.ad_domain_admin_user}}",
-        "password": "{{.ad_domain_admin_password}}"
-      }
     headers:
       "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 202
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.status ShouldEqual 200 
+    retry: 10
+    delay: 15
       
-  # - type: script
-  #   exec: 'chroot /chroots/{{.ad_domain}} wbinfo -t'
+      
 
 
 
-- name: Delete domain
-  steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.pfserver_token}}"
-      "Content-Type": "application/json"
+

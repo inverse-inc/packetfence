@@ -1,0 +1,11 @@
+name: Teardown
+testcases:
+- name: Delete domain
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
