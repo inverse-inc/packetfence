@@ -85,7 +85,10 @@ CONF
             "::VENDORS" => {
                 PacketFence => [
                     {
-                        value => 'PacketFence::Standard', label => 'Standard Switch', supports => $supports,
+                        value    => 'PacketFence::Standard',
+                        label    => 'Standard Switch',
+                        supports => $supports,
+                        is_template => 1,
                     },
                 ]
             },
@@ -131,7 +134,10 @@ CONF
             "::VENDORS" => {
                 PacketFence => [
                     {
-                        value => 'PacketFence::Standard', label => 'Standard Switch', supports => $supports
+                        value    => 'PacketFence::Standard',
+                        label    => 'Standard Switch',
+                        supports => $supports,
+                        is_template => 1,
                     },
                 ]
             },
@@ -203,7 +209,10 @@ ${disconnectIp
             "::VENDORS" => {
                 PacketFence => [
                     {
-                        value => 'PacketFence::Standard', label => 'Standard Switch', supports => $supports,
+                        value    => 'PacketFence::Standard',
+                        label    => 'Standard Switch',
+                        supports => $supports,
+                        is_template => 1,
                     },
                 ]
             },
