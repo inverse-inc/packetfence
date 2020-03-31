@@ -40,7 +40,7 @@ sub build {
             if ($key eq "certificate_profile") {
                  $ConfigTls{$tls}{$key} = $self->{ssl}{$self->{tls}{$tls}{$key}};
              } elsif ($key eq "ocsp") {
-                 $ConfigTls{$tls}{$key} = $self->{oscp}{$self->{tls}{$tls}{$key}};
+                 $ConfigTls{$tls}{$key} = $self->{ocsp}{$self->{tls}{$tls}{$key}};
              } else {
                  $ConfigTls{$tls}{$key} = $self->{tls}{$tls}{$key};
              }
