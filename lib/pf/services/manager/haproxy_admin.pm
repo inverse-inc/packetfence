@@ -154,8 +154,8 @@ frontend admin-https-$mgmt_cluster_ip
         http-request redirect location /admin/alt if { lua.redirect 1 }
 EOT
             if (isenabled($Config{services}{httpd_admin})) {
-	$tags{'http_admin'} .= <<"EOT";
-	default_backend  $mgmt_cluster_ip-admin
+        $tags{'http_admin'} .= <<"EOT";
+        default_backend  $mgmt_cluster_ip-admin
 
 backend $mgmt_cluster_ip-admin
         balance source
@@ -170,7 +170,7 @@ EOT
 EOT
 	    }
 
-	$tags{'http_admin'} .= <<"EOT";
+        $tags{'http_admin'} .= <<"EOT";
 
 $mgmt_srv_netdata
 
