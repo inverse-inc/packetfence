@@ -24,5 +24,4 @@ testcases:
 - name: write-token-to-file
   steps:
     - type: exec
-      #script: "echo 'export TOKEN={{.get-login-token.token}}' >> {{.venom_result_dir}}/env"
-      script: "echo 'export TOKEN={{.get-login-token.token}}' >> /rs/env"      
+      script: "echo 'export TOKEN={{.get-login-token.token}}' >> {{.venom_result_dir}}/env"
