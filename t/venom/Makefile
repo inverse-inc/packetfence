@@ -8,16 +8,17 @@ SHELL=/bin/bash
 #==============================================================================
 
 .PHONY: all
-all: test
-
-.PHONY: install
-install:
-	./install-venom.sh
+all: install test clean
 
 .PHONY: test
 test:
 	./venom-wrapper.sh setup
 	./venom-wrapper.sh pfservers
+
+.PHONY: install
+install:
+	./install-venom.sh
+
 
 .PHONY: clean
 clean:
