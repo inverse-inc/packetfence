@@ -228,10 +228,6 @@ sub interfaces_defined {
             add_problem( $FATAL, "invalid network type $type for $interface" );
         }
 
-        if ($type ne 'other' && $type =~ /other/) {
-            add_problem( $FATAL, "network type other must not have be the only type for $interface ($type)" );
-        }
-
         $nb_management_interface++ if (defined($int_conf{'type'}) && $int_conf{'type'} =~ /management|managed/);
     }
 
