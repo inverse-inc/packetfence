@@ -313,7 +313,7 @@ const actions = {
         // noop
       })
     } else {
-      return new Promise(false)
+      return Promise.resolve()
     }
   },
   updateConfiguratorState: ({ commit }, state) => {
