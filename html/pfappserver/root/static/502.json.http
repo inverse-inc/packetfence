@@ -1,4 +1,4 @@
-HTTP/1.1 502 Bad Gateway
+HTTP/1.1 502 Proxy Error
 Content-Type: application/json
 Content-Length: 40
 
