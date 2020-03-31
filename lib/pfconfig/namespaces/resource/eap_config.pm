@@ -57,6 +57,8 @@ sub build {
         foreach my $eapkey ( keys %{$self->{eap}{$eap}} ) {
             if ($eapkey eq "fast_config") {
                 $ConfigEAP{$eap}{$eapkey} = $self->{fast}{$self->{eap}{$eap}{$eapkey}};
+            } elsif ($eapkey eq "eap_authentication_types") {
+                $ConfigEAP{$eap}{$eapkey} = [map { $_ } split /,/, $self->{eap}{$eap}{$eapkey}];
             } else {
                 $ConfigEAP{$eap}{$eapkey} = $self->{eap}{$eap}{$eapkey};
             }
@@ -71,7 +73,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2010 Inverse inc.
+Copyright (C) 2005-2020 Inverse inc.
 
 =head1 LICENSE
 
