@@ -37,7 +37,7 @@ sub resource {
     my $server = pf::cluster::find_server_by_hostname($self->param('server_id'));
 
     return 1 if defined($server);
-    $self->render_error(404, { message => $self->status_to_error_msg(404) });
+    $self->render_error(404, $self->status_to_error_msg(404));
     return undef;
 }
 
