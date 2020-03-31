@@ -175,7 +175,7 @@ our (
 # Radius sources
     %ConfigAuthenticationRadius,
 # TLS configuration
-    %ConfigTLS,
+    %ConfigEAP,
 );
 
 BEGIN {
@@ -240,7 +240,7 @@ BEGIN {
         %ConfigSelfService
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
-        %ConfigTLS
+        %ConfigEAP
     );
 }
 
@@ -321,7 +321,7 @@ tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authenticatio
 
 tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
 
-tie %ConfigTLS, 'pfconfig::cached_hash', 'resource::tls_config';
+tie %ConfigEAP, 'pfconfig::cached_hash', 'resource::eap_config';
 
 
 $thread = 0;
