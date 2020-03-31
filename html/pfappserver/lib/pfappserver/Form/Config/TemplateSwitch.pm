@@ -16,6 +16,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
 use pf::util;
+use pf::SwitchFactory;
 use pf::constants::template_switch qw(
   $DISCONNECT_TYPE_COA
   $DISCONNECT_TYPE_DISCONNECT
@@ -27,7 +28,18 @@ use pf::constants::template_switch qw(
 has_field 'id' => (
     type     => 'Text',
     required => 1,
+    apply    => [
+        {
+            check   => \&check_id,
+            message => 'Cannot be an existing Switch Module',
+        }
+    ]
 );
+
+sub check_id {
+   my ($value, $field) = @_;
+   return !exists $pf::SwitchFactory::TYPE_TO_MODULE{$value} && !exists $pf::SwitchFactory::VENDORS{$value};;
+}
 
 has_field 'description' => (
     type     => 'Text',
