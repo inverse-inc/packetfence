@@ -18,6 +18,15 @@
           <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
           <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
         </b-nav-text>
+        <b-navbar-nav v-show="isConfiguratorActive">
+          <b-nav-item-dropdown right>
+            <template v-slot:button-content>
+              {{ $i18n.locale }}
+            </template>
+            <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
+            <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
         <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item-dropdown right>
             <template v-slot:button-content>

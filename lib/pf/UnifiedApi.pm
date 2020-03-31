@@ -2076,6 +2076,7 @@ sub setup_api_v1_configurator_routes {
     $self->setup_api_v1_config_interfaces_routes($config);
     $self->setup_api_v1_config_system_routes($config);
 
+    $self->setup_api_v1_translations_routes($root);
     $self->setup_api_v1_fingerbank_routes($root);
     $self->setup_api_v1_services_routes($root);
     $self->setup_api_v1_system_services_routes($root);
