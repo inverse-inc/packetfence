@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o nounset -o pipefail -o errexit
+set -o nounset -o pipefail
 
 # Wrapper to run venom tests
 die() {
@@ -49,7 +49,8 @@ configure_and_check() {
     mkdir -vp ${VENOM_RESULT_DIR} || die "mkdir failed: ${VENOM_RESULT_DIR}"
     declare -p VENOM_RESULT_DIR VENOM_VARS_FILE
     VENOM_BINARY="${VENOM_BINARY:-`which venom`}"
-    VENOM_OPTS="${VENOM_OPTS:---format tap --output-dir ${VENOM_RESULT_DIR} --strict --stop-on-failure --var-from-file ${VENOM_VARS_FILE}}"
+    VENOM_FORMAT=tap
+    VENOM_OPTS="${VENOM_OPTS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --strict --stop-on-failure --var-from-file ${VENOM_VARS_FILE}}"
 
     echo -e "Using venom using following variables:"
     echo -e "  VENOM_BINARY=${CYAN}${VENOM_BINARY}${NOCOLOR}"
@@ -66,17 +67,25 @@ pfservers_test_suite() {
 }
 run_test_suite() {
     local test_suite_dir=$(readlink -e ${1:-.})
+    local test_suite_name=${1:-test_suite_name}
     log_section "Running ${test_suite_dir} suite"
     CMD="${VENOM_BINARY} run ${VENOM_OPTS} ${test_suite_dir}"
-    ${CMD}
+    ${CMD} > ${VENOM_RESULT_DIR}/${test_suite_name}.output 2>&1
+
+    # display error logs only on error (need --strict)
+    if [ "$?" -ne 0 ]; then
+        cat ${VENOM_RESULT_DIR}/${test_suite_name}.output
+    else
+        cat ${VENOM_RESULT_DIR}/test_results.${VENOM_FORMAT}
+    fi
 }
 
 teardown() {
-    rm -rf ${VENOM_RESULT_DIR}
+    rm -rf ${VENOM_RESULT_DIR} || die "rm failed: ${VENOM_RESULT_DIR}"
 }
 
 # Arguments are mandatory
-[[ $# -lt 1 ]] && usage && exit 1 
+[[ $# -lt 1 ]] && usage && exit 1
 configure_and_check
 
 case $1 in
