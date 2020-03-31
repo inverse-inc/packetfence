@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use base qw(pf::config::builder);
 use pf::mini_template;
+use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 use pf::constants::template_switch qw(
     @RADIUS_ATTRIBUTE_SETS
     @SUPPORTS
@@ -85,6 +86,10 @@ sub make_radius_attribute {
     if ($n =~ /([^:]+):(.*)/) {
         $n = $2;
         $v = $1;
+    } else {
+        if (exists $RADIUS_DICTIONARY->{avendors}{$n}) {
+            $v = $RADIUS_DICTIONARY->{avendors}{$n};
+        }
     }
 
     my $attr = {

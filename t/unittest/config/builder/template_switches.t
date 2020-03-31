@@ -106,7 +106,7 @@ radiusDisconnect=disconnect
 coa=<<EOT
 Calling-Station-Id = $mac
 NAS-IP-Address = $disconnectIp
-Cisco:Cisco-AVPair = jisas=kksd
+Cisco-AVPair = jisas=kksd
 EOT
 reject =<<EOT
 Reply-Message = This node is not allowed to use this service

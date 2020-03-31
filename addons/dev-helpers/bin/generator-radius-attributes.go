@@ -15,15 +15,16 @@ type RValuesVal map[uint]string
 type Values map[int]ValuesVal
 type RValues map[int]RValuesVal
 type RadiusDictPerl struct {
-	Vendors   map[string]uint  `json:"vendors"`
-	VsAttrs   map[uint]Attrs   `json:"vsattr"`
-	Attrs     Attrs            `json:"attr"`
-	RAttrs    RAttrs           `json:"rattr"`
-	RVAttrs   map[uint]RAttrs  `json:"rvsattr"`
-	Values    Values           `json:"val"`
-	RValues   RValues          `json:"rval"`
-	VSValues  map[uint]Values  `json:"vsaval"`
-	RVSValues map[uint]RValues `json:"rvsaval"`
+	Vendors   map[string]uint    `json:"vendors"`
+	AVendors  map[string]string  `json:"avendors"`
+	VsAttrs   map[uint]Attrs     `json:"vsattr"`
+	Attrs     Attrs              `json:"attr"`
+	RAttrs    RAttrs             `json:"rattr"`
+	RVAttrs   map[uint]RAttrs    `json:"rvsattr"`
+	Values    Values             `json:"val"`
+	RValues   RValues            `json:"rval"`
+	VSValues  map[uint]Values    `json:"vsaval"`
+	RVSValues map[uint]RValues   `json:"rvsaval"`
 }
 
 func AddValues(dictValues Values, dictRValues RValues, attrs []*dictionary.Attribute, dValues []*dictionary.Value) {
@@ -68,6 +69,7 @@ func main() {
 
 	dict := RadiusDictPerl{
 		Vendors:   make(map[string]uint),
+		AVendors:  make(map[string]string),
 		VsAttrs:   make(map[uint]Attrs),
 		Attrs:     make(Attrs),
 		RVAttrs:   make(map[uint]RAttrs),
@@ -91,6 +93,7 @@ func main() {
 		rvAttrs := make(RAttrs)
 
 		for _, a := range v.Attributes {
+			dict.AVendors[a.Name] = v.Name
 			aType := a.Type.String()
 			vsAttrs[a.Name] = [2]string{strconv.FormatUint(uint64(a.OID[0]), 10), aType}
 			rvAttrs[a.OID[0]] = [2]string{a.Name, aType}
