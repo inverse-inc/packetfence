@@ -28,7 +28,7 @@ sub init {
     $self->{file} = $ocsp_config_file;
 
     $self->{child_resources} = [
-        'resource::tls_config'
+        'resource::eap_config'
     ];
 
     my $defaults = Config::IniFiles->new( -file => $ocsp_default_config_file );
