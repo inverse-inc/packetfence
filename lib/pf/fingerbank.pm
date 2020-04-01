@@ -42,7 +42,7 @@ use POSIX::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
 use pf::config qw(%Config);
-use pf::util qw(isdisabled isenabled);
+use pf::util qw(isdisabled isenabled valid_mac);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -164,6 +164,8 @@ sub endpoint_attributes {
     my ($mac) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
 
+    return undef unless(valid_mac($mac));
+
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
     
@@ -220,6 +222,8 @@ Updates the endpoint data in the collector for a specific MAC address
 sub update_collector_endpoint_data {
     my ($mac, $data) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
+
+    return undef unless(valid_mac($mac));
 
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
