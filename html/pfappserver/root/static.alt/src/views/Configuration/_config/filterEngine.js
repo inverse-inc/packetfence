@@ -3,6 +3,7 @@ import Vue from 'vue'
 import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
+import pfFieldPrefixTypeValue from '@/components/pfFieldPrefixTypeValue'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
@@ -71,7 +72,11 @@ const actionsFieldsFromMeta = (meta = {}) => {
 }
 
 const answerFieldsFromMeta = (meta = {}) => {
-  const { answers: { item: { properties: { type: { allowed = [] } = {} } = {} } = {} } = {} } = meta
+  const { answers: { item: { properties: { prefix: { allowed: prefixes } = {}, type: { allowed = [], allowed_lookup: { search_path: searchPath, field_name: fieldName, value_name: valueName } = {} } = {} } = {} } = {} } = {} } = meta
+  if (searchPath) {
+    store.dispatch('lookup/postSearchPath', searchPath) // prime cache
+    return store.getters['lookup/getFields'](searchPath, fieldName, valueName)
+  }
   return allowed.map(allowed => {
     const { text, value } = allowed
     return { text, value, types: [fieldType.SUBSTRING] }
@@ -177,6 +182,7 @@ export const viewFields = {
     }
   },
   answers: (form, meta = {}) => {
+    const { answers: { item: { properties: { prefix: { allowed: prefixes } = {} } = {} } = {} } = {} } = meta
     return {
       label: i18n.t('Answers'),
       cols: [
@@ -187,68 +193,15 @@ export const viewFields = {
             buttonLabel: i18n.t('Add Answer'),
             sortable: true,
             field: {
-              component: pfFieldTypeValue,
+              component: (prefixes)
+                ? pfFieldPrefixTypeValue
+                : pfFieldTypeValue,
               attrs: {
-                typeLabel: i18n.t('Select answer type'),
-                valueLabel: i18n.t('Select answer value'),
+                prefixLabel: i18n.t('Select a prefix'),
+                typeLabel: i18n.t('Select a type'),
+                valueLabel: i18n.t('Select a value'),
+                prefixes,
                 fields: answerFieldsFromMeta(meta)
-              }
-            },
-            invalidFeedback: i18n.t('Answers contain one or more errors.')
-          }
-        }
-      ]
-    }
-  },
-  answersRadiusAttributes:(form, meta = {}) => {
-    let fields = Vue.observable([])
-    store.dispatch('radius/getAttributes').then(radiusAttributes => {
-      Object.values(radiusAttributes)
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((radiusAttribute, index) => {
-          const { name, name: value, vendor, allowed_values } = radiusAttribute
-          if (allowed_values) { // has allowed values
-            Vue.set(fields, index, {
-              text: ((vendor)
-                ? `${name} (${vendor})`
-                : name
-              ),
-              value,
-              types: [fieldType.OPTIONS],
-              attrs: {
-                options: allowed_values.map(allowed => {
-                  const { name, value } = allowed
-                  return { name, value: `${value}` } // cast string to support 0
-                })
-              }
-            })
-          } else { // user input
-            Vue.set(fields, index, {
-              text: ((vendor)
-                ? `${name} (${vendor})`
-                : name
-              ),
-              value,
-              types: [fieldType.SUBSTRING]
-            })
-          }
-        })
-    })
-    return {
-      label: i18n.t('Answers'),
-      cols: [
-        {
-          namespace: 'answers',
-          component: pfFormFields,
-          attrs: {
-            buttonLabel: i18n.t('Add Answer'),
-            sortable: true,
-            field: {
-              component: pfFieldTypeValue,
-              attrs: {
-                typeLabel: i18n.t('Type to filter RADIUS attributes'),
-                valueLabel: i18n.t('Select value'),
-                fields
               }
             },
             invalidFeedback: i18n.t('Answers contain one or more errors.')
@@ -398,7 +351,6 @@ const formKeyOrder = [
   'actions',
   'merge_answer',
   'answers',
-  'answersRadiusAttributes',
   'role',
   'scopes',
   'rcode',
