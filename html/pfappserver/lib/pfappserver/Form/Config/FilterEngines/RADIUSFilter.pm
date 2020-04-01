@@ -66,7 +66,7 @@ The definition for the list of actions
 =cut
 
 has_field 'answers.contains' => (
-    type  => 'RadiusAttribute',
+    type  => 'RadiusAnswer',
     label => 'Answer',
     pfappserver::Form::Field::DynamicList::child_options(),
 );
