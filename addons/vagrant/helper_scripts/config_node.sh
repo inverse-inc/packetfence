@@ -39,7 +39,7 @@ if [ "$?" == "0" ]; then
     install_packetfence_repo
     apt-get update -qy
     # python-apt for ansible management
-    apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl packetfence-test -qy
+    apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 fi
 
