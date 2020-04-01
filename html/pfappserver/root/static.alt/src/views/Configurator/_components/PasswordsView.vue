@@ -53,7 +53,7 @@ export default {
       try {
         navigator.clipboard.writeText(text).then(() => {
           this.$store.dispatch('notification/info', { message: this.$i18n.t('Password copied to clipboard') })
-        }).catch(err => {
+        }).catch(() => {
           this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not copy password to clipboard.') })
         })
       } catch (e) {

@@ -69,7 +69,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },*/
         /**
-         * Root password
+         * Root password is empty
          */
         {
           if: rootPasswordIsRequired && setRootPassword,
@@ -82,6 +82,7 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 generate: true,
                 readonly: rootPasswordIsValid,
+                stateMap: { false: false, true: rootPasswordIsValid ? true : null },
                 testLabel: i18n.t('Set Password'),
                 test: () => {
                   return secureDatabase()
@@ -90,6 +91,36 @@ export const view = (form = {}, meta = {}) => {
             }
           ]
         },
+        {
+          if: rootPasswordIsRequired && setRootPassword && rootPasswordIsValid,
+          label: true, // trick to keep bottom margin in pfConfigView
+          cols: [
+            {
+              component: pfButton,
+              attrs: {
+                label: i18n.t('Copy to Clipboard'),
+                class: 'col-4',
+                variant: 'outline-primary'
+              },
+              listeners: {
+                click: () => {
+                  try {
+                    navigator.clipboard.writeText(root_pass).then(() => {
+                      store.dispatch('notification/info', { message: i18n.t('Password copied to clipboard') })
+                    }).catch(() => {
+                      store.dispatch('notification/danger', { message: i18n.t('Could not copy password to clipboard.') })
+                    })
+                  } catch (e) {
+                    store.dispatch('notification/danger', { message: i18n.t('Clipboard not supported.') })
+                  }
+                }
+              }
+            }
+          ]
+        },
+        /**
+         * Root password is set
+         */
         {
           if: rootPasswordIsRequired && !setRootPassword,
           label: i18n.t('Root Password'),
@@ -122,7 +153,7 @@ export const view = (form = {}, meta = {}) => {
                   return store.dispatch('$_bases/testDatabase', { username: 'root', password: root_pass }).then(() => {
                     Vue.set(meta.database, 'rootPasswordIsValid', true)
                     store.dispatch('$_bases/testDatabase', { username: 'root', database: db || 'pf' }).then(() => {
-                      Vue.set(this.meta.database, 'databaseExists', true) // database exists
+                      Vue.set(meta.database, 'databaseExists', true) // database exists
                     })
                   }).catch(() => {
                     Vue.set(meta.database, 'rootPasswordIsInvalid', true)

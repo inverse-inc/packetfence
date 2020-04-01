@@ -137,7 +137,6 @@ export default {
           this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
             this.$set(this.meta.database, 'databaseExists', true)
             this.$set(this.meta.database, 'userIsValid', true)
-            this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
           }).catch(() => {
             // Assign a generated password for database user
             this.$set(this.form.database, 'pass', password.generate(this.passwordOptions))
