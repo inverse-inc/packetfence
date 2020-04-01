@@ -886,7 +886,7 @@ export const viewFields = {
       type
     } = form
     const {
-      switchTemplates
+      switchTemplates = []
     } = meta
     return {
       label: i18n.t('Type'),
