@@ -228,7 +228,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-mariadb
 	dh_installinit --name=packetfence-netdata
 	dh_installinit --name=packetfence-pfbandwidthd
-	dh_installinit --name=packetfence-pfacct.service
+	dh_installinit --name=packetfence-pfacct
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
 	dh_installinit --name=packetfence-pfdns
