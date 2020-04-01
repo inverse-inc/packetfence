@@ -168,7 +168,7 @@ EOT
         $tags{'http_admin'} .= <<"EOT";
         default_backend static
 EOT
-	    }
+           }
 
         $tags{'http_admin'} .= <<"EOT";
 
