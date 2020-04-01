@@ -17,9 +17,9 @@ export default {
   components: {
     pfSidebar
   },
-  data () {
-    return {
-      sections: [
+  computed: {
+    sections () {
+      return [
         {
           name: this.$i18n.t('Policies and Access Control'),
           path: '/configuration/policies_access_control',
