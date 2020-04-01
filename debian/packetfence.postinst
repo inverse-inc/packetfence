@@ -152,13 +152,9 @@ case "$1" in
         set +e
         /usr/local/pf/bin/pfcmd configreload
         /usr/local/pf/bin/pfcmd fixpermissions
-        if [ -n "$CI" ]; then
-            echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
-        else
-            echo "Starting PacketFence Administration GUI..."
-            /bin/systemctl start packetfence-httpd.admin_dispatcher
-            /bin/systemctl start packetfence-haproxy-admin
-        fi
+        echo "Starting PacketFence Administration GUI..."
+        /bin/systemctl start packetfence-httpd.admin_dispatcher
+        /bin/systemctl start packetfence-haproxy-admin
         systemctl enable packetfence-iptables
         /usr/local/pf/bin/pfcmd service pf updatesystemd
         # On new stretch install this should work but not on upgrade

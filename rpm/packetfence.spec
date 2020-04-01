@@ -724,13 +724,9 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
-if [ -n "$CI" ]; then
-    echo "CI environment, not starting PacketFence Administration GUI with default config to save ressources"
-else
-    echo "Starting PacketFence Administration GUI..."
-    /bin/systemctl restart packetfence-httpd.admin_dispatcher
-    /bin/systemctl restart packetfence-haproxy-admin
-fi
+echo "Starting PacketFence Administration GUI..."
+/bin/systemctl restart packetfence-httpd.admin_dispatcher
+/bin/systemctl restart packetfence-haproxy-admin
 
 
 echo Installation complete
