@@ -234,12 +234,13 @@ sub print_status {
     my $colors = pf::util::console::colors();
     my $loop = $TRUE;
     for my $output (@output) {
-        if ($output =~ /(packetfence-$name\.service)\s+loaded\s+active/) {
+        next if ($output =~ /packetfence-tracking-config.service/);
+        if ($output =~ /(packetfence-$name\.(service|path))\s+loaded\s+active/) {
             my $service = $1;
             $service .= (" " x (50 - length($service)));
             print "$service\t$colors->{success}started   ".$self->pid."$colors->{reset}\n";
             $loop = $FALSE;
-        } elsif ($output =~ /(packetfence-$name\.service)\s+loaded.*/) {
+        } elsif ($output =~ /(packetfence-$name\.(service|path))\s+loaded.*/) {
             my $service = $1;
             if ($name =~ /(radiusd).*/) {
                 $name = $1;
@@ -261,6 +262,7 @@ sub print_status {
        print "$service\t$colors->{warning}disabled  ".$self->pid."$colors->{reset}\n";
     }
 }
+
 
 =head2 pid
 
