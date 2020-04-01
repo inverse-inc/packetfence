@@ -22,6 +22,10 @@ New Features
 * New GUI for all filtering engines and switch templates
 * New API and Vue.js based configurator
 * Added suppport to run integration tests using Cumulus Linux and libvirt
+* Added the ability to autoregister and assign a role to a device authorized in a provisioner
+* Added the ability to control whether or not a provisioner should be enforcing (i.e. ensuring all devices matching it are authorized with it)
+* Added the ability to sync the PID of devices authorized in a provisioner (only for Airwatch and JAMF)
+* Added VMware Airwatch support
 
 Enhancements
 ++++++++++++
