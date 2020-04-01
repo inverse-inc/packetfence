@@ -35,6 +35,8 @@ sbin/pfdetect
 sbin/pfdhcp
 sbin/pfdns
 sbin/pfstats
+sbin/pfacct
+sbin/galera-autofix
 src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
