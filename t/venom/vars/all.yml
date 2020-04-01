@@ -13,12 +13,28 @@ pfserver_default_admin_password: admin
 ad_mgmt_ip: 172.17.17.100
 ad_domain: example
 ad_domain_upper: EXAMPLE
-ad_dns_name: '{{.ad_domain}}.lan'
+ad_dns_domain: '{{.ad_domain}}.lan'
 ad_domain_admin_user: vagrant-domain
 ad_domain_admin_password: VagrantPass1
+ad_base_dn: dc=example,dc=lan
+
 
 # switchs variables
 switch01_mgmt_ip: 172.17.17.201
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
+
+  
+# Roles
+dot1x_user_role.id: user-staff
+dot1x_user_role.notes: Staff
+
+dot1x_machine_role.id: machine-staff
+dot1x_machine_role.notes: Machine staff
+
+# Sources
+ad_user_source.name: ad-user-auth
+ad_user_source.description: '{{.ad_mgmt_ip}} user authentication'
+ad_machine_source.name: ad-machine-auth
+ad_machine_source.description: '{{.ad_mgmt_ip}} machine authentication'
