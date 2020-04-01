@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import config from './modules/config'
 import documentation from './modules/documentation'
 import events from './modules/events'
+import lookup from './modules/lookup'
 import notification from './modules/notification'
 import performance from './modules/performance'
 import pfqueue from './modules/pfqueue'
@@ -29,6 +30,7 @@ export default new Vuex.Store({
     config,
     documentation,
     events,
+    lookup,
     notification,
     performance,
     pfqueue,
