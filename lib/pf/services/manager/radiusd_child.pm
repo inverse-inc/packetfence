@@ -134,9 +134,9 @@ sub generate_radiusd_sitesconf {
     }
     if(isenabled($Config{radius_configuration}{filter_in_packetfence_authorize})){
         $tags{'authorize_filter'} .= <<"EOT";
-        if ( !EAP-Message ) {
-             rest
-        }
+        rest
+
+        # PacketFence-Auth-Type test to-do
 EOT
     }
     else {
