@@ -561,7 +561,7 @@ sub create_response {
         };
         if ($count) {
             $resp->{warnings} = [
-                { messgae => "There are $count files in profile template please review", id => $id},
+                { message => "There are $count files in profile template please review", id => $id},
             ];
         }
     }
