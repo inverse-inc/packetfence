@@ -33,7 +33,7 @@ sub scopes {
 has_field radius_status => (
     type    => 'Select',
     options => [
-        map { { label => $_, values => $_ } }
+        map { { label => $_, value => $_ } }
           qw(
           RLM_MODULE_REJECT
           RLM_MODULE_FAIL
