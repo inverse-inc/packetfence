@@ -141,9 +141,13 @@ export default {
     return {
       tableValues: Array,
       sortBy: 'created_at',
-      sortDesc: true,
-      // Fields must match the database schema
-      fields: [ // keys match with b-form-select
+      sortDesc: true
+    }
+  },
+  computed: {
+    // Fields must match the database schema
+    fields () {
+      return [ // keys match with b-form-select
         {
           value: 'created_at',
           text: this.$i18n.t('Created'),
@@ -179,8 +183,10 @@ export default {
           text: this.$i18n.t('DNS Answer'),
           types: [conditionType.SUBSTRING]
         }
-      ],
-      columns: [
+      ]
+    },
+    columns () {
+      return [
         {
           key: 'actions',
           label: this.$i18n.t('Actions'),

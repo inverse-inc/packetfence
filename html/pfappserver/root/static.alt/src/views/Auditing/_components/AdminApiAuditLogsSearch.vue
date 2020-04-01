@@ -113,9 +113,13 @@ export default {
     return {
       tableValues: Array,
       sortBy: 'created_at',
-      sortDesc: true,
-      // Fields must match the database schema
-      fields: [ // keys match with b-form-select
+      sortDesc: true
+    }
+  },
+  computed: {
+    // Fields must match the database schema
+    fields () {
+      return [ // keys match with b-form-select
         {
           value: 'created_at',
           text: this.$i18n.t('Created'),
@@ -151,8 +155,10 @@ export default {
           text: this.$i18n.t('Status'),
           types: [conditionType.SUBSTRING]
         }
-      ],
-      columns: [
+      ]
+    },
+    columns () {
+      return [
         {
           key: 'id',
           label: this.$i18n.t('Log ID'),

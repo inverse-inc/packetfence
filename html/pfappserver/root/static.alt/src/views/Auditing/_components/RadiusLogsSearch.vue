@@ -121,9 +121,14 @@ export default {
   },
   data () {
     return {
-      // Fields must match the database schema
-      fields: [ // keys match with b-form-select
-
+      sortBy: 'created_at',
+      sortDesc: true
+    }
+  },
+  computed: {
+    // Fields must match the database schema
+    fields () {
+      return [ // keys match with b-form-select
         {
           value: 'auth_status',
           text: 'Auth Status',
@@ -324,8 +329,10 @@ export default {
           text: 'Unique ID',
           types: [conditionType.SUBSTRING]
         }
-      ],
-      columns: [
+      ]
+    },
+    columns () {
+      return [
         {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
@@ -535,9 +542,7 @@ export default {
           label: this.$i18n.t('RADIUS Reply'),
           sortable: true
         }
-      ],
-      sortBy: 'created_at',
-      sortDesc: true
+      ]
     }
   },
   methods: {

@@ -106,10 +106,10 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-      // Fields must match the database schema
-      fields: [ // keys match with b-form-select
+  computed: {
+    // Fields must match the database schema
+    fields () {
+      return [ // keys match with b-form-select
         {
           value: 'created_at',
           text: 'Created',
@@ -155,8 +155,10 @@ export default {
           text: 'VLAN',
           types: [conditionType.INTEGER]
         }
-      ],
-      columns: [
+      ]
+    },
+    columns () {
+      return [
         {
           key: 'mac',
           label: this.$i18n.t('MAC Address'),
