@@ -1,40 +1,34 @@
-package pf::ConfigStore::Domain;
+package pfconfig::namespaces::resource::RealmReverseLookup;
 
 =head1 NAME
 
-pf::ConfigStore::Domain
-Store Domain configuration
+pfconfig::namespaces::resource::RealmReverseLookup -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Domain
+pfconfig::namespaces::resource::RealmReverseLookup
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-use pf::file_paths qw($domain_config_file);
-use pf::constants qw($FALSE);
-extends 'pf::ConfigStore';
-with 'pf::ConfigStore::Role::ReverseLookup';
+use pfconfig::namespaces::config;
+use pfconfig::namespaces::config::Realm;
+use pf::factory::condition::profile;
 
-sub configFile { $domain_config_file };
+use base 'pfconfig::namespaces::resource';
 
-sub canDelete {
-    my ($self, $id) = @_;
-    if ($self->isInRealm('domain', $id)) {
-        return "Used in a realm", $FALSE;
-    }
+sub build {
+    my ($self) = @_;
 
-    return $self->SUPER::canDelete($id);
+    my $config = pfconfig::namespaces::config::Realm->new( $self->{cache} );
+    my %Realms_Config = %{ $config->build };
+
+    return $config->{reverseLookup};
 }
 
-sub pfconfigNamespace {'config::Domain'}
-
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 

@@ -20,6 +20,7 @@ tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileRevers
 tie our %PortalModuleReverseLookup, 'pfconfig::cached_hash', 'resource::PortalModuleReverseLookup';
 tie our %ProvisioningReverseLookup, 'pfconfig::cached_hash', 'resource::ProvisioningReverseLookup';
 tie our %SwitchReverseLookup, 'pfconfig::cached_hash', 'resource::SwitchReverseLookup';
+tie our %RealmReverseLookup, 'pfconfig::cached_hash', 'resource::RealmReverseLookup';
 
 sub isInProfile {
     my ($self, $namespace, $id) = @_;
@@ -39,6 +40,11 @@ sub isInProvisioning {
 sub isInSwitch {
     my ($self, $namespace, $id) = @_;
     return exists $SwitchReverseLookup{$namespace}{$id};
+}
+
+sub isInRealm {
+    my ($self, $namespace, $id) = @_;
+    return exists $RealmReverseLookup{$namespace}{$id};
 }
 
 =head1 AUTHOR

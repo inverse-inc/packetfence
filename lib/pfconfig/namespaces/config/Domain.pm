@@ -35,6 +35,7 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
+    my %reverseLookup;
 
     my %tmp_cfg = %{$self->{cfg}};
 
