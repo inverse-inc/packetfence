@@ -9,7 +9,7 @@
             <pf-form-row :column-label="$t('Database Root Account')" label-class="col-form-label-lg offset-sm-3"></pf-form-row>
             <pf-form-row :column-label="$t('Username')">root</pf-form-row>
             <pf-form-row :column-label="$t('Password')">
-              {{ database.root_pass }}
+              <code>{{ database.root_pass }}</code>
               <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="clipboard(database.root_pass)">{{ $t('Copy to Clipboard') }}</b-button>
             </pf-form-row>
         </template>
@@ -17,7 +17,7 @@
             <pf-form-row :column-label="$t('Administrator Account')" label-class="col-form-label-lg"></pf-form-row>
             <pf-form-row :column-label="$t('Username')">{{ administrator.pid }}</pf-form-row>
             <pf-form-row :column-label="$t('Password')">
-              {{ administrator.password }}
+              <code>{{ administrator.password }}</code>
               <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="clipboard(administrator.password)">{{ $t('Copy to Clipboard') }}</b-button>
             </pf-form-row>
         </template>

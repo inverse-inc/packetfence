@@ -224,7 +224,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 disabled: userIsValid,
-                class: 'col-6 pr-1',
+                class: 'px-0 pr-lg-1 col-lg-6',
                 stateMap: { false: false, true: userIsValid ? true : null }
               }
             },
@@ -233,7 +233,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormPassword,
               attrs: {
                 disabled: userIsValid,
-                class: 'col-6 pl-1',
+                class: 'px-0 pl-lg-1 col-lg-6',
                 stateMap: { false: false, true: userIsValid ? true : null },
                 // test: () => {
                 //   return store.dispatch('$_bases/testDatabase', { username: user, password: pass, database: db })
