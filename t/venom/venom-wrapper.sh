@@ -67,7 +67,7 @@ pfservers_test_suite() {
 }
 run_test_suite() {
     local test_suite_dir=$(readlink -e ${1:-.})
-    local test_suite_name=${1:-test_suite_name}
+    local test_suite_name=$(basename $test_suite_dir)
     log_section "Running ${test_suite_dir} suite"
     CMD="${VENOM_BINARY} run ${VENOM_OPTS} ${test_suite_dir}"
     ${CMD} > ${VENOM_RESULT_DIR}/${test_suite_name}.output 2>&1
