@@ -17,9 +17,9 @@ export default {
   components: {
     pfSidebar
   },
-  data () {
-    return {
-      sections: [
+  computed: {
+    sections () {
+      return [
         {
           name: this.$i18n.t('Dashboard'),
           path: '/status/dashboard'
@@ -41,9 +41,7 @@ export default {
           can: 'read services'
         }
       ]
-    }
-  },
-  computed: {
+    },
     cluster () {
       return this.$store.state.$_status.cluster || []
     }

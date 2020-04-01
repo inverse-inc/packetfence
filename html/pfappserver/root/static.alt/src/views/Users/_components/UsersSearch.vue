@@ -176,9 +176,13 @@ export default {
     return {
       tableValues: Array,
       sortBy: 'pid',
-      sortDesc: false,
-      // Fields must match the database schema
-      fields: [ // keys match with b-form-select
+      sortDesc: false
+    }
+  },
+  computed: {
+    // Fields must match the database schema
+    fields () {
+      return [ // keys match with b-form-select
         {
           value: 'tenant_id',
           text: this.$i18n.t('Tenant'),
@@ -344,8 +348,10 @@ export default {
           text: this.$i18n.t('Custom Field #9'),
           types: [conditionType.SUBSTRING]
         }
-      ],
-      columns: [
+      ]
+    },
+    columns () {
+      return [
         {
           key: 'actions',
           label: this.$i18n.t('Actions'),
@@ -540,9 +546,7 @@ export default {
           class: 'text-nowrap'
         }
       ]
-    }
-  },
-  computed: {
+    },
     roles () {
       this.$store.dispatch('config/getRoles')
       return this.$store.state.config.roles

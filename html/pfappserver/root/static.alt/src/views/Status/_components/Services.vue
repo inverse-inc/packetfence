@@ -142,34 +142,15 @@ export default {
       required: true
     }
   },
-  computed: {
-    blacklistedServices () {
-      return this.$store.getters[`${this.storeName}/blacklistedServices`]
-    },
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isServicesLoading`]
-    },
-    isStopping () {
-      return this.$store.getters[`${this.storeName}/isServicesStopping`]
-    },
-    isStarting () {
-      return this.$store.getters[`${this.storeName}/isServicesStarting`]
-    },
-    isRestarting () {
-      return this.$store.getters[`${this.storeName}/isServicesRestarting`]
-    },
-    manageableServices () {
-      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name)))
-    },
-    protectedServices () {
-      return this.$store.state[this.storeName].services.filter(service => this.blacklistedServices.includes(service.name))
-    }
-  },
   data () {
     return {
       sortBy: 'name',
-      sortDesc: false,
-      fields: [
+      sortDesc: false
+    }
+  },
+  computed: {
+    fields () {
+      return [
         {
           key: 'name',
           label: this.$i18n.t('Service'),
@@ -195,6 +176,27 @@ export default {
           visible: true
         }
       ]
+    },
+    blacklistedServices () {
+      return this.$store.getters[`${this.storeName}/blacklistedServices`]
+    },
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isServicesLoading`]
+    },
+    isStopping () {
+      return this.$store.getters[`${this.storeName}/isServicesStopping`]
+    },
+    isStarting () {
+      return this.$store.getters[`${this.storeName}/isServicesStarting`]
+    },
+    isRestarting () {
+      return this.$store.getters[`${this.storeName}/isServicesRestarting`]
+    },
+    manageableServices () {
+      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name)))
+    },
+    protectedServices () {
+      return this.$store.state[this.storeName].services.filter(service => this.blacklistedServices.includes(service.name))
     }
   },
   methods: {

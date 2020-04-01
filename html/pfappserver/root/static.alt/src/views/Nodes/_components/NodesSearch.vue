@@ -223,12 +223,21 @@ export default {
       tableValues: Array,
       sortBy: 'mac',
       sortDesc: false,
-      /**
-       *  Fields on which a search can be defined.
-       *  The names must match the database schema.
-       *  The keys must conform to the format of the b-form-select's options property.
-       */
-      fields: [ // keys match with b-form-select
+      requestPage: 1,
+      currentPage: 1,
+      pageSizeLimit: 10,
+      showBypassVlanModal: false,
+      bypassVlanString: null
+    }
+  },
+  computed: {
+    /**
+     *  Fields on which a search can be defined.
+     *  The names must match the database schema.
+     *  The keys must conform to the format of the b-form-select's options property.
+     */
+    fields () {
+      return [ // keys match with b-form-select
         {
           value: 'tenant_id',
           text: this.$i18n.t('Tenant'),
@@ -458,11 +467,13 @@ export default {
           types: [conditionType.PREFIXMULTIPLE],
           icon: 'balance-scale'
         }
-      ],
-      /**
-       * The columns that can be displayed in the results table.
-       */
-      columns: [
+      ]
+    },
+    /**
+     * The columns that can be displayed in the results table.
+     */
+    columns () {
+      return [
         {
           key: 'actions',
           label: this.$i18n.t('Actions'),
@@ -741,15 +752,8 @@ export default {
           class: 'text-nowrap'
         }
         */
-      ],
-      requestPage: 1,
-      currentPage: 1,
-      pageSizeLimit: 10,
-      showBypassVlanModal: false,
-      bypassVlanString: null
-    }
-  },
-  computed: {
+      ]
+    },
     roles () {
       this.$store.dispatch('config/getRoles')
       return this.$store.state.config.roles

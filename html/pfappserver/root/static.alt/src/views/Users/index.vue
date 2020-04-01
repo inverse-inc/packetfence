@@ -24,9 +24,9 @@ export default {
       required: true
     }
   },
-  data () {
-    return {
-      sections: [
+  computed: {
+    sections () {
+      return  [
         {
           name: this.$i18n.t('Search'),
           path: '/users/search',

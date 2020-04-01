@@ -17,9 +17,9 @@ export default {
   components: {
     pfSidebar
   },
-  data () {
-    return {
-      sections: [
+  computed: {
+    sections () {
+      return [
         {
           name: this.$i18n.t('RADIUS Audit Logs'),
           path: '/auditing/radiuslogs/search',
