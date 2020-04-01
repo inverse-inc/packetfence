@@ -49,7 +49,9 @@ sub cleanupBeforeCommit {
 
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
-    $self->expand_ordered_array($item, 'actions', 'action');
+    for my $i ($self->ordered_arrays) {
+        $self->expand_ordered_array($item, @$i);
+    }
     $self->expand_list($item, $self->_fields_expanded);
     $self->expandCondition($id, $item, $idKey);
     return;
