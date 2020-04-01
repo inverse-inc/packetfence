@@ -15,10 +15,8 @@ pf::services::manager::tracking
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($install_dir);
 use pf::log;
-use pf::util;
-use pf::config qw(%Config);
+use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
 
@@ -51,7 +49,7 @@ Wrapper around systemctl. systemctl should in turn call the actuall _start.
 sub start {
     my ($self,$quick) = @_;
     system('sudo systemctl start packetfence-tracking-config.path');
-    return $? == 0;
+    return $? == $FALSE;
 }
 
 =head2 stop
@@ -63,7 +61,7 @@ Wrapper around systemctl. systemctl should in turn call the actual _stop.
 sub stop {
     my ($self) = @_;
     system('sudo systemctl stop packetfence-tracking-config.path');
-    return 1;
+    return $TRUE;
 }
 
 =head2 pid
@@ -81,9 +79,9 @@ sub pid {
     $state = (split(/=/, $state))[1];
     if ($state ne "inactive") {
         $logger->debug("sudo systemctl packetfence-$name returned $state");
-        return "1";
+        return $TRUE;
     }
-    return "0";
+    return $FALSE;
 }
 
 =head1 AUTHOR
