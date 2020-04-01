@@ -1,8 +1,10 @@
 import axios from 'axios'
 import store from '@/store'
 
+const baseURL = '/api/v1/'
+
 const apiCall = axios.create({
-  baseURL: '/api/v1/'
+  baseURL
 })
 
 /**
@@ -12,10 +14,13 @@ const apiCall = axios.create({
 
 function _encodeURL (url) {
   if (Array.isArray(url)) {
-    return url.map(segment => encodeURIComponent(segment.toString().replace('/', '~'))).join('/')
-  } else {
-    return url
+    url = url.map(segment => encodeURIComponent(segment.toString().replace('/', '~'))).join('/')
   }
+  if (url.slice(0, baseURL.length) === baseURL) {
+    // strip baseURL from prefix
+    return url.slice(baseURL.length - 1)
+  }
+  return url
 }
 
 const methodsWithoutData = ['delete', 'get', 'head', 'options']
@@ -224,6 +229,13 @@ apiCall.interceptors.response.use((response) => {
     }
   }
   return Promise.reject(error)
+})
+
+/**
+ * Axios instance for previous Web admin
+ */
+export const customCall = axios.create({
+  baseURL: '/'
 })
 
 /**
