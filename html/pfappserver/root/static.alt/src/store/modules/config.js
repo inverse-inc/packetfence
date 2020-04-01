@@ -655,14 +655,19 @@ const actions = {
     if (getters.isLoadingAdminRoles) {
       return Promise.resolve(state.adminRoles)
     }
-    if (!state.adminRoles) {
-      commit('ADMIN_ROLES_REQUEST')
-      return api.getAdminRoles().then(response => {
-        commit('ADMIN_ROLES_UPDATED', response.data.items)
-        return state.adminRoles
-      })
+    if (acl.$can('read', 'admin_roles')) {
+      if (!state.adminRoles) {
+        commit('ADMIN_ROLES_REQUEST')
+        return api.getAdminRoles().then(response => {
+          commit('ADMIN_ROLES_UPDATED', response.data.items)
+          return state.adminRoles
+        })
+      } else {
+        return Promise.resolve(state.adminRoles)
+      }
     } else {
-      return Promise.resolve(state.adminRoles)
+      commit('ADMIN_ROLES_UPDATED', [])
+      return state.adminRoles
     }
   },
   getBaseActiveActive: ({ state, getters, commit }) => {
@@ -809,14 +814,19 @@ const actions = {
     if (getters.isLoadingBaseGuestsAdminRegistration) {
       return Promise.resolve(state.baseGuestsAdminRegistration)
     }
-    if (!state.baseGuestsAdminRegistration) {
-      commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
-      return api.getBaseGuestsAdminRegistration().then(response => {
-        commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
-        return state.baseGuestsAdminRegistration
-      })
+    if (acl.$can('read', 'configuration_main')) {
+      if (!state.baseGuestsAdminRegistration) {
+        commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
+        return api.getBaseGuestsAdminRegistration().then(response => {
+          commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
+          return state.baseGuestsAdminRegistration
+        })
+      } else {
+        return Promise.resolve(state.baseGuestsAdminRegistration)
+      }
     } else {
-      return Promise.resolve(state.baseGuestsAdminRegistration)
+      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', {})
+      return state.baseGuestsAdminRegistration
     }
   },
   getBaseInline: ({ state, getters, commit }) => {
@@ -1275,14 +1285,19 @@ const actions = {
     if (getters.isLoadingRoles) {
       return Promise.resolve(state.roles)
     }
-    if (!state.roles) {
-      commit('ROLES_REQUEST')
-      return api.getRoles().then(response => {
-        commit('ROLES_UPDATED', response.data.items)
-        return state.roles
-      })
+    if (acl.$can('read', 'nodes')) {
+      if (!state.roles) {
+        commit('ROLES_REQUEST')
+        return api.getRoles().then(response => {
+          commit('ROLES_UPDATED', response.data.items)
+          return state.roles
+        })
+      } else {
+        return Promise.resolve(state.roles)
+      }
     } else {
-      return Promise.resolve(state.roles)
+      commit('ROLES_UPDATED', [])
+      return state.roles
     }
   },
   getRoutedNetworks: ({ state, getters, commit }) => {
@@ -1327,6 +1342,7 @@ const actions = {
       }
     } else {
       commit('SECURITY_EVENTS_UPDATED', [])
+      return state.securityEvents
     }
     return Promise.resolve(state.securityEvents)
   },
@@ -1456,14 +1472,19 @@ const actions = {
     if (getters.isLoadingTenants) {
       return Promise.resolve(state.tenants)
     }
-    if (!state.tenants) {
-      commit('TENANTS_REQUEST')
-      return api.getTenants().then(response => {
-        commit('TENANTS_UPDATED', response.data.items)
-        return state.tenants
-      })
+    if (acl.$can('read', 'system')) {
+      if (!state.tenants) {
+        commit('TENANTS_REQUEST')
+        return api.getTenants().then(response => {
+          commit('TENANTS_UPDATED', response.data.items)
+          return state.tenants
+        })
+      } else {
+        return Promise.resolve(state.tenants)
+      }
     } else {
-      return Promise.resolve(state.tenants)
+      commit('TENANTS_UPDATED', [])
+      return state.tenants
     }
   },
   getTrafficShapingPolicies: ({ state, getters, commit }) => {
