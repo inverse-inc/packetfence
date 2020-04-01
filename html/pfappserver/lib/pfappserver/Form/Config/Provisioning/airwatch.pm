@@ -46,7 +46,7 @@ has_field 'api_password' => (
 
 has_field 'tenant_code' => (
     type        => 'ObfuscatedText',
-    label       => 'API password',
+    label       => 'Tenant code',
     required    => $TRUE,
 );
 

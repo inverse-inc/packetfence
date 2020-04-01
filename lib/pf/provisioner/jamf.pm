@@ -124,7 +124,7 @@ sub authorize {
     my $logger = get_logger;
 
     my ( $status, $device_type, $device_information ) = $self->get_device_information($mac);
-    
+ 
     unless ( is_success($status) ) {
         $logger->info("Unable to complete a JAMF query for MAC address '$mac'");
         return $FALSE;
@@ -265,7 +265,7 @@ sub parse_device_information {
     my $logger = get_logger;
 
     my $json = decode_json($device_information);
-    
+ 
     if ( $device_type eq $JAMF_COMPUTERS_INVENTORY ) {
         return $json->{'computer'}{'general'}{'remote_management'}{'managed'}, $json->{computer}->{location}->{username};
     }
