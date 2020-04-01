@@ -652,9 +652,9 @@ pfstats_binary=/usr/local/pf/sbin/pfstats
 # Should tracking-config be managed by PacketFence?
 tracking-config=enabled
 #
-# services.tracking_binary
+# services.tracking-config_binary
 #
-# Location of the pfstats binary.
+# Location of the tracking-config binary.
 tracking-config_binary=/dev/null
 
 [snmp_traps]
