@@ -236,7 +236,7 @@ sub action_enforce_provisioning {
     my $logger = get_logger();
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     if (defined(my $provisioner = $profile->findProvisioner($mac))) {
-        my $result = $provisioner->authorize($mac);
+        my $result = $provisioner->authorize_enforce($mac);
         if ($result == $TRUE) {
             $logger->debug("$mac is still authorized with it's provisioner");
         }

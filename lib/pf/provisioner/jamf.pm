@@ -28,6 +28,7 @@ use pf::constants;
 use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node;
+use pf::person;
 use pf::util qw(isenabled);
 
 
@@ -101,6 +102,14 @@ Option to query the "mobile devices" inventory
 
 has query_mobiledevices => ( is => 'rw', default => sub { $TRUE } );
 
+=head2 sync_pid
+
+Option to sync PID from provisioner
+
+=cut
+
+has sync_pid => (is => 'rw', required => 1);
+
 
 =head1 Methods
 
@@ -115,14 +124,20 @@ sub authorize {
     my $logger = get_logger;
 
     my ( $status, $device_type, $device_information ) = $self->get_device_information($mac);
-
+ 
     unless ( is_success($status) ) {
         $logger->info("Unable to complete a JAMF query for MAC address '$mac'");
         return $FALSE;
     }
 
-    my $result = $self->parse_device_information($device_type, $device_information);
+    my ($result, $pid) = $self->parse_device_information($device_type, $device_information);
 
+    if($pid) {
+        get_logger->info("Found username $pid through JAMF");
+        person_add($pid);
+        node_modify($mac, pid => $pid);
+    }
+    
     if ( $result eq $TRUE ) {
         $logger->info("MAC address '$mac' seems to be managed by JAMF");
         return $TRUE;
@@ -250,12 +265,12 @@ sub parse_device_information {
     my $logger = get_logger;
 
     my $json = decode_json($device_information);
-
+ 
     if ( $device_type eq $JAMF_COMPUTERS_INVENTORY ) {
-        return $json->{'computer'}{'general'}{'remote_management'}{'managed'};
+        return $json->{'computer'}{'general'}{'remote_management'}{'managed'}, $json->{computer}->{location}->{username};
     }
     elsif ( $device_type eq $JAMF_MOBILEDEVICES_INVENTORY ) {
-        return $json->{'mobile_device'}{'general'}{'managed'};
+        return $json->{'mobile_device'}{'general'}{'managed'}, $json->{mobile_device}->{location}->{username};
     }
 }
 

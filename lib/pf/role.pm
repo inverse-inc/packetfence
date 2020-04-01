@@ -48,6 +48,7 @@ use pf::lookup::person;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::constants::realm;
+use pf::factory::provisioner;
 
 our $VERSION = 1.04;
 
@@ -378,7 +379,7 @@ sub getRegisteredRole {
         }
     }
     my $provisioner = $profile->findProvisioner($args->{'mac'},$args->{'node_info'});
-    if (defined($provisioner) && $provisioner->{enforce}) {
+    if (defined($provisioner) && isenabled($provisioner->{enforce})) {
         $logger->info("Triggering provisioner check");
         pf::security_event::security_event_trigger( { 'mac' => $args->{'mac'}, 'tid' => $TRIGGER_ID_PROVISIONER, 'type' => $TRIGGER_TYPE_PROVISIONER } );
     }
@@ -540,7 +541,6 @@ sub getNodeInfoForAutoReg {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-
     my $profile = $args->{'profile'};
     my $role = $self->filterVlan('NodeInfoForAutoReg', $args);
 
@@ -642,6 +642,19 @@ sub getNodeInfoForAutoReg {
         $node_info{'eap_type'} = $args->{'eap_type'};
     }
 
+    foreach my $id (@{$args->{profile}->getProvisioners()}) {
+        my $provisioner = pf::factory::provisioner->new($id);
+        if(isenabled($provisioner->apply_role)) {
+            get_logger->debug("Provisioner $id is setup to apply a role on matching devices. Checking state of node");
+            my $role = $provisioner->authorize_apply_role($args->{mac});
+            if(defined($role)) {
+                get_logger->info("Applying role $role based on provisioner $id");
+                $node_info{category} = $role;
+                last;
+            }
+        }
+    }
+
     return %node_info;
 }
 
@@ -674,6 +687,18 @@ sub shouldAutoRegister {
 
     $logger->trace("[$args->{'mac'}] asked if should auto-register device");
     my $switch = $args->{'switch'};
+
+    foreach my $id (@{$args->{profile}->getProvisioners()}) {
+        my $provisioner = pf::factory::provisioner->new($id);
+        if(isenabled($provisioner->autoregister)) {
+            get_logger->debug("Provisioner $id is setup to autoreg on matching devices. Checking state of node for autoregistration");
+            my $role = $provisioner->authorize_apply_role($args->{mac});
+            if(defined($role)) {
+                get_logger->info("Device is authorized in provisioner, autoregistering the device.");
+                return $TRUE
+            }
+        }
+    }
 
     # handling switch-config first because I think it's the most important to honor
     if (defined($switch->{switch_in_autoreg_mode}) && $switch->{switch_in_autoreg_mode}) {

@@ -145,11 +145,11 @@ sub execute_child {
     elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
         $self->done();
     }
-    elsif ($provisioner->authorize($mac) == 0) {
+    elsif ($provisioner->authorize_enforce($mac) == 0) {
         $self->app->flash->{notice} = [ "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below.", $provisioner->description ];
         $self->show_provisioning();
     }
-    elsif ($provisioner->authorize($mac) == $TRUE || $provisioner->authorize($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
+    elsif ($provisioner->authorize_enforce($mac) == $TRUE || $provisioner->authorize_enforce($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
         $self->done();
     }
     else {

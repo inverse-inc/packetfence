@@ -29,7 +29,7 @@ has_field 'psk_size' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid oses psk_size) ],
+   render_list => [ qw(id description type category ssid oses psk_size apply_role role_to_apply autoregister) ],
   );
 
 

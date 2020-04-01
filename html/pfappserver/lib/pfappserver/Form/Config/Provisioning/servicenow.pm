@@ -46,7 +46,7 @@ has_field 'protocol' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses username password protocol host table_for_mac table_for_agent) ],
+   render_list => [ qw(id type description category oses username password protocol host table_for_mac table_for_agent apply_role role_to_apply autoregister) ],
   );
 
 =head1 COPYRIGHT

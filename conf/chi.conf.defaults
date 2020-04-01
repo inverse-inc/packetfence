@@ -180,3 +180,11 @@ expires_in=24h
 #
 # Amount of time from the current time to expire an entry
 expires_in=10s
+
+[storage provisioning]
+#
+# storage provisioning.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=24h
+

@@ -1,10 +1,12 @@
-package pfappserver::Form::Config::Provisioning::mobileiron;
+package pfappserver::Form::Config::Provisioning::airwatch;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning::mobileiron - Web form for mobileiron provisioner
+pfappserver::Form::Config::Provisioning::airwatch
 
 =head1 DESCRIPTION
+
+Web form for a airwatch provisioner
 
 =cut
 
@@ -12,50 +14,45 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field username => (
+use pf::constants;
+
+has_field 'host' => (
     type => 'Text',
-    required => 1,
 );
 
-has_field password => (
-    type => 'ObfuscatedText',
-    required => 1,
+has_field 'port' => (
+    type        => 'Port',
+    required    => $TRUE,
+    default     => $HTTPS_PORT,
 );
 
-has_field host => (
-    type => 'Text',
-    required => 1,
+has_field 'protocol' => (
+    type    => 'Select',
+    options => [ { label => $HTTP, value => $HTTP }, { label => $HTTPS , value => $HTTPS } ],
+    default => $HTTPS,
 );
 
-has_field android_download_uri => (
-    type => 'Text',
-    required => 1,
+has_field 'api_username' => (
+    type        => 'Text',
+    label       => 'API username',
+    required    => $TRUE,
 );
 
-has_field ios_download_uri => (
-    type => 'Text',
-    required => 1,
+has_field 'api_password' => (
+    type        => 'ObfuscatedText',
+    label       => 'API password',
+    required    => $TRUE,
 );
 
-has_field windows_phone_download_uri => (
-    type => 'Text',
-    required => 1,
+has_field 'tenant_code' => (
+    type        => 'ObfuscatedText',
+    label       => 'Tenant code',
+    required    => $TRUE,
 );
 
-has_field boarding_host => (
-    type => 'Text',
-    required => 1,
+has_block definition => (
+    render_list => [ qw(id type description category oses host port protocol api_username api_password tenant_code apply_role role_to_apply autoregister sync_pid) ],
 );
-
-has_field boarding_port => (
-    type => 'Port',
-    required => 1,
-);
-
-has_block definition =>
-  (
-   render_list => [ qw(id type description category oses username password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port apply_role role_to_apply autoregister) ],
-  );
 
 =head1 COPYRIGHT
 

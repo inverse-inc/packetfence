@@ -108,7 +108,7 @@ has_field 'domains' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses tenantID applicationID applicationSecret loginUrl host port protocol access_token windows_agent_download_uri mac_osx_agent_download_uri ios_agent_download_uri android_agent_download_uri domains) ],
+   render_list => [ qw(id type description category oses tenantID applicationID applicationSecret loginUrl host port protocol access_token windows_agent_download_uri mac_osx_agent_download_uri ios_agent_download_uri android_agent_download_uri domains apply_role role_to_apply autoregister) ],
   );
 
 =head1 COPYRIGHT

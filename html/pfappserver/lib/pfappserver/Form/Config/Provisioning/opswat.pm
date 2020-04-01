@@ -74,7 +74,7 @@ has_field 'critical_issues_threshold' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri) ],
+   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri apply_role role_to_apply autoregister) ],
   );
 
 has_block compliance =>
