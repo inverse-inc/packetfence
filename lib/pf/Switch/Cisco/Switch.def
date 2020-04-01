@@ -1,0 +1,20 @@
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Standard Cisco Switch
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+voip= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Cisco-AVPair = device-traffic-class=voice
+EOT
