@@ -16,7 +16,6 @@ This module creates the configuration hash of all the switches group
 
 use strict;
 use warnings;
-use pf::ConfigStore::Switch;
 
 use base 'pfconfig::namespaces::resource';
 
