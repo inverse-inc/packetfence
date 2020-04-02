@@ -25,7 +25,8 @@ switch01_mgmt_ip: 172.17.17.201
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
 
-  
+
+### Actions for rules
 # Roles
 dot1x_user_role.id: user-staff
 dot1x_user_role.notes: Staff
@@ -43,12 +44,14 @@ access_duration.default_choice: "5m"
 access_level_user_and_node.id: user-and-node-manager
 access_level_user_and_node.description: Users and Nodes management
 
-# Sources
+### Sources
+# AD sources
 ad_user_source.name: ad-user-auth
 ad_user_source.description: '{{.ad_mgmt_ip}} user authentication'
 ad_machine_source.name: ad-machine-auth
 ad_machine_source.description: '{{.ad_mgmt_ip}} machine authentication'
 
+### Network devices
 # Switch group
 cumulus_switch_group.id: cumulus-switch-group
 cumulus_switch_group.description: Cumulus switch group
@@ -57,3 +60,9 @@ cumulus_switch_group.radiusSecret: testing123
 # Switch
 cumulus_switch.id: '{{.switch01_mgmt_ip}}'
 cumulus_switch.description: switch01
+
+### Connection profiles
+# dot1x wired eap
+dot1x_wired_eap_profile.id: catch-dot1x-wired-eap
+dot1x_wired_eap_profile.description: 802.1X wired EAP
+dot1x_wired_eap_profile.filter_match: Ethernet-EAP

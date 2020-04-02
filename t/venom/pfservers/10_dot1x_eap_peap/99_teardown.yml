@@ -110,3 +110,14 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
+- name: Delete connection profile
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_wired_eap_profile.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
