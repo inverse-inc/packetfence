@@ -25,6 +25,14 @@ all:
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 2
           memory: 2048
+    service_venom:
+      children:
+        dev:
+          hosts:
+            pfcen7dev: {}
+            pfcen8dev: {}
+            pfdeb9dev: {}
+            pfdeb10dev: {}
     stable_and_nightly:
       children:
         stable:

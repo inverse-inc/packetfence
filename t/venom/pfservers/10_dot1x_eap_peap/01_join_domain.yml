@@ -1,0 +1,83 @@
+name: Join domain
+version: 2
+testcases:
+- name: add-ad-as-dns-server
+  steps:
+    - type: exec
+      # replace first line of /etc/resolv.conf
+      script: sudo sed -i '1 s/^.*$/nameserver {{.ad_mgmt_ip}}/' /etc/resolv.conf
+
+- name: create-domain
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domains'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ad_server": "{{.ad_mgmt_ip}}",
+        "bind_dn": null,
+        "bind_pass": null,
+        "dns_name": "{{.ad_dns_domain}}",
+        "dns_servers": "{{.ad_mgmt_ip}}",
+        "id": "{{.ad_domain_id}}",
+        "ntlm_cache": null,
+        "ntlm_cache_batch": "disabled",
+        "ntlm_cache_batch_one_at_a_time": "disabled",
+        "ntlm_cache_expiry": 3600,
+        "ntlm_cache_filter": "(&(samAccountName=*)(!(|(lockoutTime=>0)(userAccountControl:1.2.840.113556.1.4.803:=2))))",
+        "ntlm_cache_on_connection": "disabled",
+        "ntlm_cache_source": null,
+        "ntlmv2_only": null,
+        "ou": "Computers",
+        "registration": null,
+        "server_name": "%h",
+        "status": "enabled",
+        "sticky_dc": "*",
+        "workgroup": "{{.ad_domain_upper}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: join-domain-to-create-chroot
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id}}/join'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.ad_domain_id}}",
+        "username": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
+        "password": "{{.ad_domain_admin_password}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 202
+
+# hack to join domain due to incompatibility when running 'netns exec' with libvirt
+# commands are run directly in chroot
+# we don't use testjoin API call
+- name: join-domain
+  steps:
+    - type: exec
+      script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads join -s /etc/samba/{{.ad_domain_id}}.conf -U {{.ad_domain_admin_user}}%{{.ad_domain_admin_password}}'
+      retry: 5
+      delay: 15
+
+- name: check-domain-join
+  steps:
+    - type: exec
+      script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads testjoin -s /etc/samba/{{.ad_domain_id}}.conf'
+      retry: 5
+      delay: 15
+
+    - type: exec
+      script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain_id}} wbinfo -t'
+      retry: 5
+      delay: 15

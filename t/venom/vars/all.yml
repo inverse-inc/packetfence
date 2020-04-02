@@ -1,0 +1,68 @@
+---
+# variables assigned based on environment variables
+venom_result_dir: '{{.VENOM_RESULT_DIR}}'
+pfserver_token: '{{.TOKEN}}'
+pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
+
+# pfserver variables
+pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
+pfserver_default_admin_user: admin
+pfserver_default_admin_password: admin
+
+# ad variables
+ad_mgmt_ip: 172.17.17.100
+ad_domain_id: example
+ad_domain_upper: EXAMPLE
+ad_dns_domain: example.lan
+ad_domain_admin_user: vagrant-domain
+ad_domain_admin_password: VagrantPass1
+ad_base_dn: dc=example,dc=lan
+
+
+# switchs variables
+switch01_mgmt_ip: 172.17.17.201
+
+# nodes variables
+node01_mgmt_ip: 172.17.17.251
+
+
+### Actions for rules
+# Roles
+dot1x_user_role.id: user-staff
+dot1x_user_role.notes: Staff
+dot1x_user_role.vlan_id: 100
+
+dot1x_machine_role.id: machine-staff
+dot1x_machine_role.notes: Machine staff
+dot1x_machine_role.vlan_id: 100
+
+# Access durations
+access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
+access_duration.default_choice: "5m"
+
+# Access level
+access_level_user_and_node.id: user-and-node-manager
+access_level_user_and_node.description: Users and Nodes management
+
+### Sources
+# AD sources
+ad_user_source.name: ad-user-auth
+ad_user_source.description: '{{.ad_mgmt_ip}} user authentication'
+ad_machine_source.name: ad-machine-auth
+ad_machine_source.description: '{{.ad_mgmt_ip}} machine authentication'
+
+### Network devices
+# Switch group
+cumulus_switch_group.id: cumulus-switch-group
+cumulus_switch_group.description: Cumulus switch group
+cumulus_switch_group.radiusSecret: testing123
+
+# Switch
+cumulus_switch.id: '{{.switch01_mgmt_ip}}'
+cumulus_switch.description: switch01
+
+### Connection profiles
+# dot1x wired eap
+dot1x_wired_eap_profile.id: catch-dot1x-wired-eap
+dot1x_wired_eap_profile.description: 802.1X wired EAP
+dot1x_wired_eap_profile.filter_match: Ethernet-EAP
