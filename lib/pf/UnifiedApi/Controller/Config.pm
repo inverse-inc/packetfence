@@ -383,7 +383,12 @@ sub create {
     return unless($self->commit($cs));
     $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
-    $self->render(status => 201, json => { id => $id, message => "'$id' created" });
+    $self->render(status => 201, json => $self->create_response($id));
+}
+
+sub create_response {
+    my ($self, $id) = @_;
+    return { id => $id, message => "'$id' created" };
 }
 
 sub commit {

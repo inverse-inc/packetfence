@@ -542,6 +542,33 @@ sub cached_form_key {
     return $id eq 'default' ? 'cached_form_default' : 'cached_form'
 }
 
+=head2 create_response
+
+create_response
+
+=cut
+
+sub create_response {
+    my ($self, $id) = @_;
+    my $resp = $self->SUPER::create_response($id);
+    my $path = profileFilePath($self->id, '');
+    if (-e -d $path) {
+        my $count = do {
+            opendir(my $dh, $path);
+            my $c =()= readdir($dh);
+            closedir($dh);
+            $c -= 2
+        };
+        if ($count) {
+            $resp->{warnings} = [
+                { message => "There are $count files in profile template please review", id => $id},
+            ];
+        }
+    }
+
+    return $resp;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
