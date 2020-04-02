@@ -30,9 +30,11 @@ const ACCOUNTING_POLICY_TIME = "TimeExpired"
 var radiusDictionary *dictionary.Dictionary
 
 func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
-	if r.Code == radius.CodeAccountingRequest {
-		h.HandleAccountingRequest(w, r)
-		return
+    switch radius.CodeAccountingRequest {
+    case radius.CodeAccountingRequest:
+		h.HandleAccounting(w, r)
+    case radius.CodeStatusServer:
+		h.HandleStatusServer(w, r)
 	}
 }
 
@@ -40,7 +42,11 @@ func (h *PfAcct) hasher() hash.Hash64 {
 	return xxhash.New64()
 }
 
-func (h *PfAcct) HandleAccountingRequest(w radius.ResponseWriter, r *radius.Request) {
+func (h *PfAcct) HandleStatusServer(w radius.ResponseWriter, r *radius.Request) {
+	w.Write(r.Response(radius.CodeAccessAccept))
+}
+
+func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 	outPacket := r.Response(radius.CodeAccountingResponse)
 	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
 	ctx := r.Context()
