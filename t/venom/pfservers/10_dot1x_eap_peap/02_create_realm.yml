@@ -80,6 +80,8 @@ testcases:
     headers:
       "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
 
   - type: http
     method: PATCH
@@ -92,6 +94,8 @@ testcases:
     headers:
       "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
       
 - name: restart-radius-services
   steps:
@@ -112,4 +116,5 @@ testcases:
     headers:
       "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
-
+    assertions:
+      - result.statuscode ShouldEqual 200
