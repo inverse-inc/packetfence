@@ -152,7 +152,7 @@ Constants related to actions rules.
 
 package Actions;
 
-=item MARK_AS_SPONSOR, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_ACCESS_DURATIONS, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE
+=item MARK_AS_SPONSOR, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_ACCESS_DURATIONS, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE, SET_ROLE_FROM_SOURCE, SET_ACCESS_DURATION_FROM_SOURCE
 
 Available actions
 
@@ -169,6 +169,8 @@ Readonly::Scalar our $SET_ACCESS_DURATIONS => "set_access_durations";
 Readonly::Scalar our $SET_UNREG_DATE => "set_unreg_date";
 Readonly::Scalar our $SET_TIME_BALANCE => "set_time_balance";
 Readonly::Scalar our $SET_BANDWIDTH_BALANCE => "set_bandwidth_balance";
+Readonly::Scalar our $SET_ROLE_FROM_SOURCE => "set_role_from_source";
+Readonly::Scalar our $SET_ACCESS_DURATION_FROM_SOURCE => "set_access_duration_from_source";
 =item ACTIONS
 
 List of available actions
@@ -205,12 +207,13 @@ Readonly::Hash our %ALLOWED_ACTIONS => (
         $SET_ROLE_FROM_SOURCE  => 1,
     },
     $SET_UNREG_DATE   => {
-        $SET_UNREG_DATE      => 1,
-        $SET_ACCESS_DURATION => 1,
+        $SET_UNREG_DATE                  => 1,
+        $SET_ACCESS_DURATION             => 1,
     },
-    $SET_TIME_BALANCE => {$SET_TIME_BALANCE => 1},
-    $SET_BANDWIDTH_BALANCE => {$SET_BANDWIDTH_BALANCE => 1},
-    $SET_ACCESS_DURATIONS => {$SET_ACCESS_DURATIONS => 1},
+    $SET_TIME_BALANCE                => {$SET_TIME_BALANCE                => 1},
+    $SET_BANDWIDTH_BALANCE           => {$SET_BANDWIDTH_BALANCE           => 1},
+    $SET_ACCESS_DURATIONS            => {$SET_ACCESS_DURATIONS            => 1},
+    $SET_ROLE_FROM_SOURCE            => {$SET_ROLE_FROM_SOURCE            => 1},
 );
 
 Readonly::Hash our %MAPPED_ACTIONS => (
@@ -223,6 +226,8 @@ Readonly::Hash our %MAPPED_ACTIONS => (
     $SET_UNREG_DATE         => $SET_UNREG_DATE,
     $SET_ACCESS_DURATION    => $SET_UNREG_DATE,
     $SET_ACCESS_DURATIONS   => $SET_ACCESS_DURATIONS,
+    $SET_ROLE_FROM_SOURCE   => $SET_ROLE_FROM_SOURCE,
+
 );
 
 =back
