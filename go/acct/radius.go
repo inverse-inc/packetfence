@@ -21,7 +21,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/mac"
-	"github.com/inverse-inc/packetfence/go/statsd"
 )
 
 const TRIGGER_TYPE_ACCOUNTING = "accounting"
@@ -48,7 +47,7 @@ func (h *PfAcct) HandleStatusServer(w radius.ResponseWriter, r *radius.Request) 
 }
 
 func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
-	defer statsd.NewStatsDTiming(ctx).Send("pfacct.HandleAccountingRequest")
+	defer h.NewTiming().Send("pfacct.HandleAccountingRequest")
 	outPacket := r.Response(radius.CodeAccountingResponse)
 	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
 	ctx := r.Context()
@@ -66,7 +65,7 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
 	ctx := r.Context()
 	status := rfc2866.AcctStatusType_Get(r.Packet)
-	defer statsd.NewStatsDTiming(ctx).Send("pfacct.accounting." + status.String())
+	defer h.NewTiming().Send("pfacct.accounting." + status.String())
 	if status > rfc2866.AcctStatusType_Value_InterimUpdate {
 		logInfo(ctx, fmt.Sprintf("Accounting status of %s ignored", status.String()))
 		return

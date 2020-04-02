@@ -9,7 +9,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/netflow5"
 	"github.com/inverse-inc/packetfence/go/netflow5/processor"
-	"github.com/inverse-inc/packetfence/go/statsd"
 )
 
 const (
@@ -74,7 +73,7 @@ ON DUPLICATE KEY UPDATE in_bytes = in_bytes + VALUES(in_bytes), out_bytes = out_
 }
 
 func (h *PfAcct) HandleFlows(header *netflow5.Header, flows []netflow5.Flow) {
-	defer statsd.NewStatsDTiming(context.Background()).Send("net_flow.HandleFlows")
+	defer h.NewTiming().Send("net_flow.HandleFlows")
 	recs := h.NetFlowV5ToBandwidthAccounting(header, flows)
 	sql := recs.ToSQL()
 	if sql != "" {
