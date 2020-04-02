@@ -52,6 +52,7 @@ Enhancements
 * Switch templates can now use SNMP up/down to perform access reevaluation (#5197)
 * HAProxy now serves the admin gui, httpd.admin disabled by default
 * Reports are now tenant-aware
+* Security events can be triggered when running node maintenance task (#4948)
 
 Bug Fixes
 +++++++++
