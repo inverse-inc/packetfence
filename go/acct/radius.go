@@ -30,7 +30,7 @@ const ACCOUNTING_POLICY_TIME = "TimeExpired"
 var radiusDictionary *dictionary.Dictionary
 
 func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
-    switch radius.CodeAccountingRequest {
+    switch r.Code {
     case radius.CodeAccountingRequest:
 		h.HandleAccounting(w, r)
     case radius.CodeStatusServer:
