@@ -8,6 +8,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/tryableonce"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	"net"
@@ -28,7 +29,7 @@ type PfAcct struct {
 	LoggerCtx       context.Context
 	Dispatcher      *Dispatcher
 	SwitchInfoCache *cache.Cache
-	StatsdOnce      TryableOnce
+	StatsdOnce      tryableonce.TryableOnce
 	StatsdAddress   string
 	StatsdOption    statsd.Option
 	StatsdClient    *statsd.Client
