@@ -61,6 +61,8 @@ testcases:
   steps:
     - type: exec
       script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain}} /usr/bin/net ads join -s /etc/samba/{{.ad_domain}}.conf -U {{.ad_domain_admin_user}}%{{.ad_domain_admin_password}}'
+      retry: 5
+      delay: 15
 
 - name: check-domain-join
   steps:
@@ -69,8 +71,7 @@ testcases:
 
     - type: exec
       script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain}} wbinfo -t'
-      retry: 3
-      delay: 1
+
 
 
 
