@@ -134,6 +134,11 @@ sub parse_js {
                 my $string = $1;
                 add_string($string, "$file:$nb");
             }
+            # i18n defer inside <script>
+            if ($line =~ m/['`](.+?(?<!\/\/))['`],?\s+\/\/ i18n defer$/g) {
+                my $string = $1;
+                add_string($string, "$file:$nb");
+            }
             # Report untranslatable strings
             while ($line =~ m/(\$t\(|v-t="|i18n\.t\()([^'`].+?)[\)"]/g) {
                 my $string = $2;
