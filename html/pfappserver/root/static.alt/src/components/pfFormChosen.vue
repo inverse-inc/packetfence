@@ -39,15 +39,23 @@
             <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="removeTag(option.value)"></i>
           </span>
         </template>
+        <template v-slot:beforeList v-if="internalSearch || optionsSearchFunction">
+          <li class="multiselect__element" v-if="internalSearch">
+            <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
+          </li>
+          <li class="multiselect__element" v-if="optionsSearchFunction">
+            <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search results') }}</div>
+          </li>
+        </template>
         <template v-slot:noResult>
-          <template v-show="loading">
+          <template v-if="isLoading">
             <b-media class="text-secondary" md="auto">
               <template v-slot:aside><icon name="circle-notch" spin scale="1.5" class="mt-2 ml-2"></icon></template>
               <strong>{{ $t('Loading results') }}</strong>
               <b-form-text class="font-weight-light">{{ $t('Please wait...') }}</b-form-text>
             </b-media>
           </template>
-          <template v-show="!loading">
+          <template v-else>
             <b-media class="text-secondary" md="auto">
               <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
               <strong>{{ $t('No results') }}</strong>
@@ -129,10 +137,6 @@ export default {
       type: String,
       default: 'text'
     },
-    loading: {
-      type: Boolean,
-      default: false
-    },
     multiple: {
       type: Boolean,
       default: false
@@ -176,6 +180,7 @@ export default {
   },
   data () {
     return {
+      isLoading: false,
       isFocus: false,
       tagCache: {}
     }
@@ -278,13 +283,13 @@ export default {
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
         }
-        this.loading = true
+        this.isLoading = true
         this.$debouncer({
           handler: () => {
             Promise.resolve(this.optionsSearchFunction(this, query, SEARCH_BY_TEXT)).then(options => {
               this.options = options
             }).finally(() => {
-              this.loading = false
+              this.isLoading = false
             })
           },
           time: 300
