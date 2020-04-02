@@ -126,6 +126,38 @@ Generates the packetfence and packetfence-tunnel configuration file
 sub generate_radiusd_sitesconf {
     my %tags;
 
+    $tags{'authorize_eap_choice'} = "";
+    $tags{'authentication_auth_type'} = "";
+
+    $tags{'authorize_eap_choice'} .= <<"EOT";
+
+        switch "%{%{control:PacketFence-Auth-Type}:-False}" {
+EOT
+        foreach my $key (keys %ConfigEAP) {
+            next if $key eq 'default';
+
+            $tags{'authorize_eap_choice'} .= <<"EOT";
+            case "$key" {
+                $key {
+                    ok = return
+                }
+            }
+EOT
+            $tags{'authentication_auth_type'} .= <<"EOT";
+        Auth-Type $key {
+            $key
+        }
+EOT
+        }
+        $tags{'authorize_eap_choice'} .= <<"EOT";
+            case {
+                eap {
+                    ok = return
+                }
+            }
+        }
+EOT
+
     if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
     }

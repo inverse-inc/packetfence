@@ -67,8 +67,9 @@ authorize {
 	#  the other styles won't be checked.
 	#
 	suffix
-%%authorize_filter%%
 	ntdomain
+
+%%authorize_filter%%
 
 	#
 	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
@@ -86,9 +87,8 @@ authorize {
 	#  initial set of packets that go back and forth to set up
 	#  TTLS or PEAP.
 	#
-	eap {
-		ok = return
-	}
+
+%%authorize_eap_choice%%
 
 	#
 	#  Read the 'users' file.  In v3, this is located in
@@ -179,7 +179,7 @@ authenticate {
 		packetfence-mschap-authenticate
 	}
 
-
+%%authentication_auth_type%%
 
 	#  Uncomment it if you want to use ldap for authentication
 	#
