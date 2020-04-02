@@ -8,7 +8,7 @@ Tunnel-Type = 13
 Tunnel-Private-Group-Id = $vlan
 EOT
 acceptRole=<<EOT
-Filter-ID = $role
+Filter-Id = $role
 EOT
 disconnect=<<EOT
 Calling-Station-Id = $mac

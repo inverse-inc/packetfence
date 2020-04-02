@@ -11,7 +11,7 @@ Tunnel-Private-Group-Id = $vlan
 EOT
 
 acceptRole = <<EOT
-Filter-ID = $role
+Filter-Id = $role
 EOT
 
 reject = <<EOT
