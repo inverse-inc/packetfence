@@ -13,7 +13,7 @@ pfserver_default_admin_password: admin
 ad_mgmt_ip: 172.17.17.100
 ad_domain: example
 ad_domain_upper: EXAMPLE
-ad_dns_domain: '{{.ad_domain}}.lan'
+ad_dns_domain: example.lan
 ad_domain_admin_user: vagrant-domain
 ad_domain_admin_password: VagrantPass1
 ad_base_dn: dc=example,dc=lan
@@ -34,6 +34,14 @@ dot1x_user_role.vlan_id: 100
 dot1x_machine_role.id: machine-staff
 dot1x_machine_role.notes: Machine staff
 dot1x_machine_role.vlan_id: 100
+
+# Access durations
+access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
+access_duration.default_choice: "5m"
+
+# Access level
+access_level_user_and_node.id: user-and-node-manager
+access_level_user_and_node.description: Users and Nodes management
 
 # Sources
 ad_user_source.name: ad-user-auth
