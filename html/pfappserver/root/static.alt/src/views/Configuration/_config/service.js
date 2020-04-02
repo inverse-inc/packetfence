@@ -285,7 +285,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('pfdhcplistener Packet Size'),
+          label: 'pfdhcplistener Packet Size', // i18n defer
           text: i18n.t(`Set the max size of DHCP packetsDo not change unless you know what you are doing`),
           cols: [
             {

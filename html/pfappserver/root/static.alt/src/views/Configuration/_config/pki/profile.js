@@ -30,7 +30,7 @@ import {
 export const columns = [
   {
     key: 'ID',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
@@ -41,13 +41,13 @@ export const columns = [
   },
   {
     key: 'ca_name',
-    label: i18n.t('Certificate Authority'),
+    label: 'Certificate Authority', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'name',
-    label: i18n.t('Name'),
+    label: 'Name', // i18n defer
     sortable: true,
     visible: true
   },
@@ -151,7 +151,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
+          label: 'Identifier', // i18n defer
           cols: [
             {
               namespace: 'ID',
@@ -163,7 +163,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Certificate Authority'),
+          label: 'Certificate Authority', // i18n defer
           cols: [
             {
               namespace: 'ca_id',
@@ -176,7 +176,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Name'),
+          label: 'Name', // i18n defer
           text: i18n.t('Profile Name.'),
           cols: [
             {
@@ -189,7 +189,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Validity'),
+          label: 'Validity', // i18n defer
           text: i18n.t('Number of days the certificate will be valid.'),
           cols: [
             {
@@ -203,7 +203,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Key type'),
+          label: 'Key type', // i18n defer
           cols: [
             {
               namespace: 'key_type',
@@ -227,7 +227,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: key_type,
-          label: i18n.t('Key size'),
+          label: 'Key size', // i18n defer
           cols: [
             {
               namespace: 'key_size',
@@ -240,7 +240,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Digest'),
+          label: 'Digest', // i18n defer
           cols: [
             {
               namespace: 'digest',
@@ -253,7 +253,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Key usage'),
+          label: 'Key usage', // i18n defer
           text: i18n.t('Optional. One or many of: digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly.'),
           cols: [
             {
@@ -268,7 +268,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Extended key usage'),
+          label: 'Extended key usage', // i18n defer
           text: i18n.t('Optional. One or many of: serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, msCodeInd, msCodeCom, msCTLSign, msSGC, msEFS, nsSGC.'),
           cols: [
             {
@@ -288,7 +288,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('PKCS 12'),
       rows: [
         {
-          label: i18n.t('P12 mail password'),
+          label: 'P12 mail password', // i18n defer
           text: i18n.t('Email the password of the pkcs12 file.'),
           cols: [
             {
@@ -301,7 +301,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('P12 mail subject'),
+          label: 'P12 mail subject', // i18n defer
           text: i18n.t('Email subject.'),
           cols: [
             {
@@ -311,7 +311,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('P12 mail from'),
+          label: 'P12 mail from', // i18n defer
           text: i18n.t('Sender email address.'),
           cols: [
             {
@@ -321,7 +321,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('P12 mail header'),
+          label: 'P12 mail header', // i18n defer
           text: i18n.t('Email header.'),
           cols: [
             {
@@ -334,7 +334,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('P12 mail footer'),
+          label: 'P12 mail footer', // i18n defer
           text: i18n.t('Email footer.'),
           cols: [
             {

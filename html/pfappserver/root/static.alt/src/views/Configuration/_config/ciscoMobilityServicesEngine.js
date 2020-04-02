@@ -13,7 +13,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: i18n.t('Enable MSE'),
+          label: 'Enable MSE', // i18n defer
           cols: [
             {
               namespace: 'enabled',
@@ -25,7 +25,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('URL of MSE service'),
+          label: 'URL of MSE service', // i18n defer
           cols: [
             {
               namespace: 'url',
@@ -35,7 +35,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Username'),
+          label: 'Username', // i18n defer
           text: i18n.t('Username for MSE service.'),
           cols: [
             {
@@ -46,7 +46,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Password'),
+          label: 'Password', // i18n defer
           text: i18n.t('Password for MSE service.'),
           cols: [
             {

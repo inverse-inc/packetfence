@@ -29,19 +29,19 @@ import {
 export const columns = [
   {
     key: 'status',
-    label: i18n.t('Status'),
+    label: 'Status', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'id',
-    label: i18n.t('Detector'),
+    label: 'Detector', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'type',
-    label: i18n.t('Type'),
+    label: 'Type', // i18n defer
     sortable: true,
     visible: true
   },
@@ -304,7 +304,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('Detector'),
+          label: 'Detector', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -319,7 +319,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Enabled'),
+          label: 'Enabled', // i18n defer
           cols: [
             {
               namespace: 'status',
@@ -331,7 +331,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Alert pipe'),
+          label: 'Alert pipe', // i18n defer
           cols: [
             {
               namespace: 'path',
@@ -342,7 +342,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: syslogParserType !== 'regex', // all but 'regex'
-          label: i18n.t('Rate limit'),
+          label: 'Rate limit', // i18n defer
           cols: [
             {
               namespace: 'rate_limit.interval',
@@ -405,12 +405,12 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
-          label: i18n.t('Test Syslog Parser'),
+          label: 'Test Syslog Parser', // i18n defer
           labelSize: 'lg'
         },
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
-          label: i18n.t('Sample Log Lines'),
+          label: 'Sample Log Lines', // i18n defer
           cols: [
             {
               namespace: 'lines',
@@ -444,7 +444,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfButton,
               attrs: {
                 variant: 'outline-warning',
-                label: i18n.t('Test Dry Run'),
+                label: 'Test Dry Run', // i18n defer
                 class: 'col-sm-2',
                 disabled: !(form.lines && !invalidForm)
               },

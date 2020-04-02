@@ -10,32 +10,32 @@ import {
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'name',
-    label: i18n.t('Device'),
+    label: 'Device', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'created_at',
-    label: i18n.t('Created'),
+    label: 'Created', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'updated_at',
-    label: i18n.t('Updated'),
+    label: 'Updated', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'approved',
-    label: i18n.t('Approved'),
+    label: 'Approved', // i18n defer
     sortable: true,
     visible: true
   },
@@ -118,7 +118,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
+          label: 'Identifier', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -130,7 +130,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Name'),
+          label: 'Name', // i18n defer
           cols: [
             {
               namespace: 'name',
@@ -139,7 +139,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Parent device'),
+          label: 'Parent device', // i18n defer
           cols: [
             {
               namespace: 'parent_id',

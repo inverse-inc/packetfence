@@ -12,7 +12,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: i18n.t('Hostname'),
+          label: 'Hostname', // i18n defer
           text: i18n.t('Server the mysql server is running on.'),
           cols: [
             {
@@ -23,7 +23,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Port'),
+          label: 'Port', // i18n defer
           text: i18n.t('Port the mysql server is running on.'),
           cols: [
             {
@@ -34,7 +34,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Database name'),
+          label: 'Database name', // i18n defer
           text: i18n.t('Name of the mysql database used by PacketFence.'),
           cols: [
             {
@@ -45,7 +45,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('User'),
+          label: 'User', // i18n defer
           text: i18n.t('Username of the account with access to the mysql database used by PacketFence.'),
           cols: [
             {
@@ -56,7 +56,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Password'),
+          label: 'Password', // i18n defer
           text: i18n.t('Password for the mysql database used by PacketFence.'),
           cols: [
             {

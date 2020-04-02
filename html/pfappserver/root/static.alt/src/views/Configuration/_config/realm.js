@@ -23,42 +23,42 @@ const {
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Name'),
+    label: 'Name', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'domain',
-    label: i18n.t('Domain'),
+    label: 'Domain', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'radius_auth',
-    label: i18n.t('RADIUS Authentication'),
+    label: 'RADIUS Authentication', // i18n defer
     visible: true
   },
   {
     key: 'radius_acct',
-    label: i18n.t('RADIUS Accounting'),
+    label: 'RADIUS Accounting', // i18n defer
     visible: true
   },
   {
     key: 'portal_strip_username',
-    label: i18n.t('Strip Portal'),
+    label: 'Strip Portal', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'admin_strip_username',
-    label: i18n.t('Strip Admin'),
+    label: 'Strip Admin', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'radius_strip_username',
-    label: i18n.t('Strip RADIUS'),
+    label: 'Strip RADIUS', // i18n defer
     sortable: true,
     visible: true
   },
@@ -125,7 +125,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('Realm'),
+          label: 'Realm', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -140,10 +140,10 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('NTLM Auth Configuration'), labelSize: 'lg'
+          label: 'NTLM Auth Configuration', // i18n defer labelSize: 'lg'
         },
         {
-          label: i18n.t('Domain'),
+          label: 'Domain', // i18n defer
           text: i18n.t('The domain to use for the authentication in that realm.'),
           cols: [
             {
@@ -154,10 +154,10 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Freeradius Proxy Configuration'), labelSize: 'lg'
+          label: 'Freeradius Proxy Configuration', // i18n defer labelSize: 'lg'
         },
         {
-          label: i18n.t('Realm Options'),
+          label: 'Realm Options', // i18n defer
           text: i18n.t('You can add FreeRADIUS options in the realm definition.'),
           cols: [
             {
@@ -168,7 +168,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('RADIUS AUTH'),
+          label: 'RADIUS AUTH', // i18n defer
           text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
           cols: [
             {
@@ -179,7 +179,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Type'),
+          label: 'Type', // i18n defer
           text: i18n.t('Home server pool type.'),
           cols: [
             {
@@ -190,7 +190,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Authorize from PacketFence'),
+          label: 'Authorize from PacketFence', // i18n defer
           text: i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?'),
           cols: [
             {
@@ -203,7 +203,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('RADIUS ACCT'),
+          label: 'RADIUS ACCT', // i18n defer
           text: i18n.t('The RADIUS Server(s) to proxy accounting.'),
           cols: [
             {
@@ -214,7 +214,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Type'),
+          label: 'Type', // i18n defer
           text: i18n.t('Home server pool type.'),
           cols: [
             {
@@ -225,10 +225,10 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Freeradius Eduroam Proxy Configuration'), labelSize: 'lg'
+          label: 'Freeradius Eduroam Proxy Configuration', // i18n defer labelSize: 'lg'
         },
         {
-          label: i18n.t('Eduroam Realm Options'),
+          label: 'Eduroam Realm Options', // i18n defer
           text: i18n.t('You can add Eduroam FreeRADIUS options in the realm definition.'),
           cols: [
             {
@@ -239,7 +239,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Eduroam RADIUS AUTH'),
+          label: 'Eduroam RADIUS AUTH', // i18n defer
           text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
           cols: [
             {
@@ -250,7 +250,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Type'),
+          label: 'Type', // i18n defer
           text: i18n.t('Home server pool type.'),
           cols: [
             {
@@ -261,7 +261,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Authorize from PacketFence'),
+          label: 'Authorize from PacketFence', // i18n defer
           text: i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?'),
           cols: [
             {
@@ -274,7 +274,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Eduroam RADIUS ACCT'),
+          label: 'Eduroam RADIUS ACCT', // i18n defer
           text: i18n.t('The RADIUS Server(s) to proxy accounting.'),
           cols: [
             {
@@ -285,7 +285,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Type'),
+          label: 'Type', // i18n defer
           text: i18n.t('Home server pool type.'),
           cols: [
             {
@@ -296,10 +296,10 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Stripping Configuration'), labelSize: 'lg'
+          label: 'Stripping Configuration', // i18n defer labelSize: 'lg'
         },
         {
-          label: i18n.t('Strip on the portal'),
+          label: 'Strip on the portal', // i18n defer
           text: i18n.t('Should the usernames matching this realm be stripped when used on the captive portal.'),
           cols: [
             {
@@ -312,7 +312,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Strip on the admin'),
+          label: 'Strip on the admin', // i18n defer
           text: i18n.t('Should the usernames matching this realm be stripped when used on the administration interface.'),
           cols: [
             {
@@ -325,7 +325,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Strip in RADIUS authorization'),
+          label: 'Strip in RADIUS authorization', // i18n defer
           text: i18n.t(`Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x.\nNote that this doesn't control the stripping in FreeRADIUS, use the options above for that.`),
           cols: [
             {
@@ -338,7 +338,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Custom attributes'),
+          label: 'Custom attributes', // i18n defer
           text: i18n.t('Allow to use custom attributes to authenticate 802.1x users (attributes are defined in the source).'),
           cols: [
             {
@@ -351,7 +351,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('LDAP source'),
+          label: 'LDAP source', // i18n defer
           text: i18n.t('The LDAP Server to query the custom attributes.'),
           cols: [
             {

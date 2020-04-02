@@ -18,7 +18,7 @@ import {
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('WRIX Identifier'),
+    label: 'WRIX Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
@@ -84,7 +84,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Identification'),
       rows: [
         {
-          label: i18n.t('Id'),
+          label: 'Id', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -96,7 +96,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Provider Identifier'),
+          label: 'Provider Identifier', // i18n defer
           cols: [
             {
               namespace: 'Provider_Identifier',
@@ -105,7 +105,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location Identifier'),
+          label: 'Location Identifier', // i18n defer
           cols: [
             {
               namespace: 'Location_Identifier',
@@ -114,7 +114,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Service Provider Brand'),
+          label: 'Service Provider Brand', // i18n defer
           cols: [
             {
               namespace: 'Service_Provider_Brand',
@@ -128,7 +128,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Location'),
       rows: [
         {
-          label: i18n.t('Location Type'),
+          label: 'Location Type', // i18n defer
           cols: [
             {
               namespace: 'Location_Type',
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Sub Location Type'),
+          label: 'Sub Location Type', // i18n defer
           cols: [
             {
               namespace: 'Sub_Location_Type',
@@ -146,7 +146,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('English Location Name'),
+          label: 'English Location Name', // i18n defer
           cols: [
             {
               namespace: 'English_Location_Name',
@@ -155,7 +155,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location Address 1'),
+          label: 'Location Address 1', // i18n defer
           cols: [
             {
               namespace: 'Location_Address1',
@@ -164,7 +164,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location Address 2'),
+          label: 'Location Address 2', // i18n defer
           cols: [
             {
               namespace: 'Location_Address2',
@@ -173,7 +173,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('English Location City'),
+          label: 'English Location City', // i18n defer
           cols: [
             {
               namespace: 'English_Location_City',
@@ -182,7 +182,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location Zip Postal Code'),
+          label: 'Location Zip Postal Code', // i18n defer
           cols: [
             {
               namespace: 'Location_Zip_Postal_Code',
@@ -191,7 +191,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location State Province Name'),
+          label: 'Location State Province Name', // i18n defer
           cols: [
             {
               namespace: 'Location_State_Province_Name',
@@ -200,7 +200,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location Country Name'),
+          label: 'Location Country Name', // i18n defer
           cols: [
             {
               namespace: 'Location_Country_Name',
@@ -209,7 +209,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location Phone Number'),
+          label: 'Location Phone Number', // i18n defer
           cols: [
             {
               namespace: 'Location_Phone_Number',
@@ -218,7 +218,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Location URL'),
+          label: 'Location URL', // i18n defer
           cols: [
             {
               namespace: 'Location_URL',
@@ -227,7 +227,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Coverage Area'),
+          label: 'Coverage Area', // i18n defer
           cols: [
             {
               namespace: 'Coverage_Area',
@@ -241,7 +241,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('SSID'),
       rows: [
         {
-          label: i18n.t('SSID Open Auth'),
+          label: 'SSID Open Auth', // i18n defer
           cols: [
             {
               namespace: 'SSID_Open_Auth',
@@ -250,7 +250,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SSID Broadcasted'),
+          label: 'SSID Broadcasted', // i18n defer
           cols: [
             {
               namespace: 'SSID_Broadcasted',
@@ -262,7 +262,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('WEP Key'),
+          label: 'WEP Key', // i18n defer
           cols: [
             {
               namespace: 'WEP_Key',
@@ -271,7 +271,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('WEP Key Entry Method'),
+          label: 'WEP Key Entry Method', // i18n defer
           cols: [
             {
               namespace: 'WEP_Key_Entry_Method',
@@ -280,7 +280,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('WEP Key Size'),
+          label: 'WEP Key Size', // i18n defer
           cols: [
             {
               namespace: 'WEP_Key_Size',
@@ -289,7 +289,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SSID 1X'),
+          label: 'SSID 1X', // i18n defer
           cols: [
             {
               namespace: 'SSID_1X',
@@ -298,7 +298,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SSID 1X Broadcasted'),
+          label: 'SSID 1X Broadcasted', // i18n defer
           cols: [
             {
               namespace: 'SSID_1X_Broadcasted',
@@ -310,7 +310,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Security Protocol 1X'),
+          label: 'Security Protocol 1X', // i18n defer
           cols: [
             {
               namespace: 'Security_Protocol_1X',
@@ -334,7 +334,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Restricted Access'),
+          label: 'Restricted Access', // i18n defer
           cols: [
             {
               namespace: 'Restricted_Access',
@@ -346,7 +346,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Client Support'),
+          label: 'Client Support', // i18n defer
           cols: [
             {
               namespace: 'Client_Support',
@@ -355,7 +355,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
           cols: [
             {
               namespace: 'MAC_Address',
@@ -369,7 +369,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Hours'),
       rows: [
         {
-          label: i18n.t('UTC Timezone'),
+          label: 'UTC Timezone', // i18n defer
           cols: [
             {
               namespace: 'UTC_Timezone',
@@ -778,7 +778,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Open Monday'),
+          label: 'Open Monday', // i18n defer
           cols: [
             {
               namespace: 'Open_Monday',
@@ -787,7 +787,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Open Tuesday'),
+          label: 'Open Tuesday', // i18n defer
           cols: [
             {
               namespace: 'Open_Tuesday',
@@ -796,7 +796,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Open Wednesday'),
+          label: 'Open Wednesday', // i18n defer
           cols: [
             {
               namespace: 'Open_Wednesday',
@@ -805,7 +805,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Open Thursday'),
+          label: 'Open Thursday', // i18n defer
           cols: [
             {
               namespace: 'Open_Thursday',
@@ -814,7 +814,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Open Friday'),
+          label: 'Open Friday', // i18n defer
           cols: [
             {
               namespace: 'Open_Friday',
@@ -823,7 +823,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Open Saturday'),
+          label: 'Open Saturday', // i18n defer
           cols: [
             {
               namespace: 'Open_Saturday',
@@ -832,7 +832,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Open Sunday'),
+          label: 'Open Sunday', // i18n defer
           cols: [
             {
               namespace: 'Open_Sunday',
@@ -846,7 +846,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Longitude/Latitude'),
       rows: [
         {
-          label: i18n.t('Longitude'),
+          label: 'Longitude', // i18n defer
           cols: [
             {
               namespace: 'Longitude',
@@ -855,7 +855,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Latitude'),
+          label: 'Latitude', // i18n defer
           cols: [
             {
               namespace: 'Latitude',

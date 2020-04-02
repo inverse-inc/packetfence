@@ -74,10 +74,10 @@
           <slot :name="cell(column.key)" v-bind="data.item">{{ data.item[column.key] }}</slot>
         </template>
         <template v-for="column in config.columns" v-slot:[head(column.key)]="data">
-          <slot :name="head(column.key)">{{ data.label }}</slot>
+          <slot :name="head(column.key)">{{ $t(data.label) }}</slot>
         </template>
         <template v-for="column in config.columns" v-slot:[foot(column.key)]="data">
-          <slot :name="foot(column.key)">{{ data.label }}</slot>
+          <slot :name="foot(column.key)">{{ $t(data.label) }}</slot>
         </template>
       </b-table>
 

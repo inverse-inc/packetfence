@@ -22,32 +22,32 @@ import { search as userAgentSearch } from './userAgent'
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'device_id',
-    label: i18n.t('Device'),
+    label: 'Device', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'score',
-    label: i18n.t('Score'),
+    label: 'Score', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'created_at',
-    label: i18n.t('Created'),
+    label: 'Created', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'updated_at',
-    label: i18n.t('Updated'),
+    label: 'Updated', // i18n defer
     sortable: true,
     visible: true
   },
@@ -116,7 +116,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
+          label: 'Identifier', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -128,7 +128,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('DHCP Fingerprint'),
+          label: 'DHCP Fingerprint', // i18n defer
           cols: [
             {
               namespace: 'dhcp_fingerprint_id',
@@ -150,7 +150,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('DHCP Vendor'),
+          label: 'DHCP Vendor', // i18n defer
           cols: [
             {
               namespace: 'dhcp_vendor_id',
@@ -172,7 +172,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('DHCPv6 Fingerprint'),
+          label: 'DHCPv6 Fingerprint', // i18n defer
           cols: [
             {
               namespace: 'dhcp6_fingerprint_id',
@@ -194,7 +194,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('DHCPv6 Enterprise'),
+          label: 'DHCPv6 Enterprise', // i18n defer
           cols: [
             {
               namespace: 'dhcp6_enterprise_id',
@@ -216,7 +216,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('MAC Vendor (OUI)'),
+          label: 'MAC Vendor (OUI)', // i18n defer
           cols: [
             {
               namespace: 'mac_vendor_id',
@@ -238,7 +238,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('User Agent'),
+          label: 'User Agent', // i18n defer
           cols: [
             {
               namespace: 'user_agent_id',
@@ -260,7 +260,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Device'),
+          label: 'Device', // i18n defer
           cols: [
             {
               namespace: 'device_id',
@@ -282,7 +282,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Version'),
+          label: 'Version', // i18n defer
           cols: [
             {
               namespace: 'version',
@@ -291,7 +291,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Score'),
+          label: 'Score', // i18n defer
           cols: [
             {
               namespace: 'score',

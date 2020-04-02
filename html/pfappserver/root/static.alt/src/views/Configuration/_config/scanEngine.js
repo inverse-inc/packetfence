@@ -22,26 +22,26 @@ import { required } from 'vuelidate/lib/validators'
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Name'),
+    label: 'Name', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'ip',
-    label: i18n.t('IP Address'),
+    label: 'IP Address', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'port',
-    label: i18n.t('Port'),
+    label: 'Port', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'type',
-    label: i18n.t('Type'),
+    label: 'Type', // i18n defer
     sortable: true,
     visible: true
   },
@@ -130,7 +130,7 @@ export const view = (meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('Name'),
+          label: 'Name', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -146,7 +146,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
-          label: i18n.t('Hostname or IP Address'),
+          label: 'Hostname or IP Address', // i18n defer
           cols: [
             {
               namespace: 'ip',
@@ -156,7 +156,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Username'),
+          label: 'Username', // i18n defer
           cols: [
             {
               namespace: 'username',
@@ -167,7 +167,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['wmi'].includes(scanType),
-          label: i18n.t('Domain'),
+          label: 'Domain', // i18n defer
           cols: [
             {
               namespace: 'domain',
@@ -177,7 +177,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Password'),
+          label: 'Password', // i18n defer
           cols: [
             {
               namespace: 'password',
@@ -188,7 +188,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
-          label: i18n.t('Port of the service'),
+          label: 'Port of the service', // i18n defer
           text: i18n.t('If you use an alternative port, please specify.'),
           cols: [
             {
@@ -200,7 +200,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['nessus', 'nessus6'].includes(scanType),
-          label: i18n.t('Nessus client policy'),
+          label: 'Nessus client policy', // i18n defer
           text: i18n.t('Name of the policy to use on the nessus server.'),
           cols: [
             {
@@ -212,7 +212,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['nessus6'].includes(scanType),
-          label: i18n.t('Nessus scanner name'),
+          label: 'Nessus scanner name', // i18n defer
           text: i18n.t('Name of the scanner to use on the nessus server.'),
           cols: [
             {
@@ -224,7 +224,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['openvas'].includes(scanType),
-          label: i18n.t('Alert ID'),
+          label: 'Alert ID', // i18n defer
           text: i18n.t('ID of the alert configuration on the OpenVAS server.'),
           cols: [
             {
@@ -236,7 +236,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['openvas'].includes(scanType),
-          label: i18n.t('Scan config ID'),
+          label: 'Scan config ID', // i18n defer
           text: i18n.t('ID of the scanning configuration on the OpenVAS server.'),
           cols: [
             {
@@ -248,7 +248,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['openvas'].includes(scanType),
-          label: i18n.t('Report format ID'),
+          label: 'Report format ID', // i18n defer
           text: i18n.t('ID of the "CSV Results" report format on the OpenVAS server.'),
           cols: [
             {
@@ -260,7 +260,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['rapid7'].includes(scanType),
-          label: i18n.t('Verify Hostname'),
+          label: 'Verify Hostname', // i18n defer
           text: i18n.t('Verify hostname of server when connecting to the API.'),
           cols: [
             {
@@ -274,7 +274,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['rapid7'].includes(scanType),
-          label: i18n.t('Scan Engine'),
+          label: 'Scan Engine', // i18n defer
           text: i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.'),
           cols: [
             {
@@ -286,7 +286,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['rapid7'].includes(scanType),
-          label: i18n.t('Scan Template'),
+          label: 'Scan Template', // i18n defer
           text: i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.'),
           cols: [
             {
@@ -298,7 +298,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['rapid7'].includes(scanType),
-          label: i18n.t('Site'),
+          label: 'Site', // i18n defer
           text: i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.'),
           cols: [
             {
@@ -309,7 +309,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Roles'),
+          label: 'Roles', // i18n defer
           text: i18n.t('Nodes with the selected roles will be affected.'),
           cols: [
             {
@@ -321,7 +321,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
-          label: i18n.t('OS'),
+          label: 'OS', // i18n defer
           text: i18n.t('Nodes with the selected OS will be affected.'),
           cols: [
             {
@@ -332,7 +332,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Duration'),
+          label: 'Duration', // i18n defer
           text: i18n.t('Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete.'),
           cols: [
             {
@@ -348,7 +348,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Scan before registration'),
+          label: 'Scan before registration', // i18n defer
           text: i18n.t('If this option is enabled, the PF system will scan host before the registration.'),
           cols: [
             {
@@ -361,7 +361,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Scan on registration'),
+          label: 'Scan on registration', // i18n defer
           text: i18n.t('If this option is enabled, the PF system will scan each host after registration is complete.'),
           cols: [
             {
@@ -374,7 +374,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Scan after registration'),
+          label: 'Scan after registration', // i18n defer
           text: i18n.t('If this option is enabled, the PF system will scan host after on the production vlan.'),
           cols: [
             {
@@ -388,7 +388,7 @@ export const view = (meta = {}) => {
         },
         {
           if: ['wmi'].includes(scanType),
-          label: i18n.t('WMI Rules'),
+          label: 'WMI Rules', // i18n defer
           text: i18n.t('If this option is enabled, the PF system will scan host after on the production vlan.'),
           cols: [
             {

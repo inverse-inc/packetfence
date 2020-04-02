@@ -21,20 +21,20 @@ import {
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'name',
-    label: i18n.t('Name'),
+    label: 'Name', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'price',
-    label: i18n.t('Price'),
+    label: 'Price', // i18n defer
     sortable: true,
     visible: true
   },
@@ -110,7 +110,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('Billing Tier'),
+          label: 'Billing Tier', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -125,7 +125,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Name'),
+          label: 'Name', // i18n defer
           cols: [
             {
               namespace: 'name',
@@ -135,7 +135,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Description'),
+          label: 'Description', // i18n defer
           cols: [
             {
               namespace: 'description',
@@ -145,7 +145,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Price'),
+          label: 'Price', // i18n defer
           text: i18n.t('The price that will be charged to the customer.'),
           cols: [
             {
@@ -162,7 +162,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Role'),
+          label: 'Role', // i18n defer
           text: i18n.t('The target role of the devices that use this tier.'),
           cols: [
             {
@@ -173,7 +173,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Access Duration'),
+          label: 'Access Duration', // i18n defer
           text: i18n.t('The access duration of the devices that use this tier.'),
           cols: [
             {
@@ -189,7 +189,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use Time Balance'),
+          label: 'Use Time Balance', // i18n defer
           text: i18n.t('Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.'),
           cols: [
             {

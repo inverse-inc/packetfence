@@ -15,14 +15,14 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'description',
-    label: i18n.t('Description'),
+    label: 'Description', // i18n defer
     sortable: true,
     visible: true
   },
@@ -96,7 +96,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('Profile Name'),
+          label: 'Profile Name', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -111,7 +111,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Description'),
+          label: 'Description', // i18n defer
           cols: [
             {
               namespace: 'description',
@@ -143,7 +143,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Monitor for blacklisted IPs'),
+          label: 'Monitor for blacklisted IPs', // i18n defer
           text: i18n.t('Whether or not the policy should check if the endpoints are communicating with blacklisted IP addresses.'),
           cols: [
             {
@@ -156,7 +156,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Whitelisted IPs'),
+          label: 'Whitelisted IPs', // i18n defer
           text: i18n.t('Comma delimited list of IP addresses (can be CIDR) to ignore when checking against the blacklisted IPs list'),
           cols: [
             {
@@ -167,7 +167,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Blacklisted IP Hosts Window'),
+          label: 'Blacklisted IP Hosts Window', // i18n defer
           text: i18n.t('The window to consider when counting the amount of blacklisted IPs the endpoint has communicated with.'),
           cols: [
             {
@@ -183,7 +183,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Blacklisted IPs Threshold'),
+          label: 'Blacklisted IPs Threshold', // i18n defer
           text: i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers an event.'),
           cols: [
             {
@@ -194,7 +194,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Blacklisted ports'),
+          label: 'Blacklisted ports', // i18n defer
           text: i18n.t('Which ports should be considered as vulnerable/dangerous and trigger an event. Should be a comma delimited list of ports. Also supports ranges (ex: "1000-1024" configures ports 1000 to 1024 inclusively). This list is for the outbound communication of the endpoint.'),
           cols: [
             {
@@ -205,7 +205,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Blacklisted ports window'),
+          label: 'Blacklisted ports window', // i18n defer
           text: i18n.t('The window to consider when checking for blacklisted ports communication.'),
           cols: [
             {
@@ -232,7 +232,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Device attributes minimal score'),
+          label: 'Device attributes minimal score', // i18n defer
           text: i18n.t('If an endpoint doesn\'t get at least this score when being matched against the pristine profile, then it triggers an event.'),
           cols: [
             {
@@ -243,7 +243,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-         label: i18n.t('Device Attributes weight'),
+         label: 'Device Attributes weight', // i18n defer
          text: i18n.t('Override the weight of the different attributes when matching them against the pristine profiles. '),
          cols: [
            {

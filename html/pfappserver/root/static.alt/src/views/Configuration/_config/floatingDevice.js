@@ -27,25 +27,25 @@ export const columns = [
   },
   {
     key: 'ip',
-    label: i18n.t('IP Address'),
+    label: 'IP Address', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'pvid',
-    label: i18n.t('Native VLAN'),
+    label: 'Native VLAN', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'taggedVlan',
-    label: i18n.t(`Tagged VLAN's`),
+    label: `Tagged VLAN's`, // i18n defer
     sortable: false,
     visible: true
   },
   {
     key: 'trunkPort',
-    label: i18n.t('Trunk Port'),
+    label: 'Trunk Port', // i18n defer
     sortable: true,
     visible: true
   },
@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('IP Address'),
+          label: 'IP Address', // i18n defer
           cols: [
             {
               namespace: 'ip',
@@ -147,7 +147,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Native VLAN'),
+          label: 'Native VLAN', // i18n defer
           text: i18n.t('VLAN in which PacketFence should put the port.'),
           cols: [
             {
@@ -158,7 +158,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Trunk Port'),
+          label: 'Trunk Port', // i18n defer
           text: i18n.t('The port must be configured as a muti-vlan port.'),
           cols: [
             {
@@ -172,7 +172,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: (trunkPort === 'yes'),
-          label: i18n.t('Tagged VLANs'),
+          label: 'Tagged VLANs', // i18n defer
           text: i18n.t('Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.'),
           cols: [
             {

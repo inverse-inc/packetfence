@@ -30,24 +30,24 @@ import {
 export const columns = [
   {
     key: 'status',
-    label: i18n.t('Status'),
+    label: 'Status', // i18n defer
     visible: true
   },
   {
     key: 'id',
-    label: i18n.t('Name'),
+    label: 'Name', // i18n defer
     required: true,
     visible: true
   },
   {
     key: 'description',
-    label: i18n.t('Description'),
+    label: 'Description', // i18n defer
     required: true,
     visible: true
   },
   {
     key: 'scopes',
-    label: i18n.t('Scopes'),
+    label: 'Scopes', // i18n defer
     visible: true,
     formatter: (value) => {
       if (value && value.constructor === Array && value.length > 0) {
@@ -128,7 +128,7 @@ export const viewFields = {
   id: (form, meta = {}) => {
     const { isNew = false, isClone = false } = meta
     return {
-      label: i18n.t('Name'),
+      label: 'Name', // i18n defer
       text: i18n.t('Specify a unique name for your filter.'),
       cols: [
         {
@@ -146,7 +146,7 @@ export const viewFields = {
   },
   actions: (form, meta = {}) => {
     return {
-      label: i18n.t('Actions'),
+      label: 'Actions', // i18n defer
       text: i18n.t('Specify actions when condition is met.'),
       cols: [
         {
@@ -171,7 +171,7 @@ export const viewFields = {
   },
   answer: (form, meta = {}) => {
     return {
-      label: i18n.t('Answer'),
+      label: 'Answer', // i18n defer
       cols: [
         {
           namespace: 'answer',
@@ -184,7 +184,7 @@ export const viewFields = {
   answers: (form, meta = {}) => {
     const { answers: { item: { properties: { prefix: { allowed: prefixes } = {} } = {} } = {} } = {} } = meta
     return {
-      label: i18n.t('Answers'),
+      label: 'Answers', // i18n defer
       cols: [
         {
           namespace: 'answers',
@@ -212,7 +212,7 @@ export const viewFields = {
   },
   condition: (form, meta = {}) => {
     return {
-      label: i18n.t('Condition'),
+      label: 'Condition', // i18n defer
       text: i18n.t('Specify a condition to match.'),
       cols: [
         {
@@ -236,7 +236,7 @@ export const viewFields = {
   },
   description: (form, meta = {}) => {
     return {
-      label: i18n.t('Description'),
+      label: 'Description', // i18n defer
       cols: [
         {
           namespace: 'description',
@@ -248,7 +248,7 @@ export const viewFields = {
   },
   merge_answer: (form, meta = {}) => {
     return {
-      label: i18n.t('Merge Answer'),
+      label: 'Merge Answer', // i18n defer
       text: i18n.t('Enable to merge the following answers with the original RADIUS answers.'),
       cols: [
         {
@@ -263,7 +263,7 @@ export const viewFields = {
   },
   radius_status: (form, meta = {}) => {
     return {
-      label: i18n.t('RADIUS Status'),
+      label: 'RADIUS Status', // i18n defer
       cols: [
         {
           namespace: 'radius_status',
@@ -275,7 +275,7 @@ export const viewFields = {
   },
   rcode: (form, meta = {}) => {
     return {
-      label: i18n.t('Response Code'),
+      label: 'Response Code', // i18n defer
       cols: [
         {
           namespace: 'rcode',
@@ -287,7 +287,7 @@ export const viewFields = {
   },
   run_actions: (form, meta = {}) => {
     return {
-      label: i18n.t('Peform Actions'),
+      label: 'Peform Actions', // i18n defer
       text: i18n.t('Enable to perform the following actions. Disable to only apply the role.'),
       cols: [
         {
@@ -302,7 +302,7 @@ export const viewFields = {
   },
   role: (form, meta = {}) => {
     return {
-      label: i18n.t('Role'),
+      label: 'Role', // i18n defer
       cols: [
         {
           namespace: 'role',
@@ -314,7 +314,7 @@ export const viewFields = {
   },
   scopes: (form, meta = {}) => {
     return {
-      label: i18n.t('Scopes'),
+      label: 'Scopes', // i18n defer
       cols: [
         {
           namespace: 'scopes',
@@ -326,7 +326,7 @@ export const viewFields = {
   },
   status: (form, meta = {}) => {
     return {
-      label: i18n.t('Enabled'),
+      label: 'Enabled', // i18n defer
       cols: [
         {
           namespace: 'status',

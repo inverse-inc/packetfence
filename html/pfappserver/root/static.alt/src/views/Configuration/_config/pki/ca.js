@@ -30,26 +30,26 @@ import {
 export const columns = [
   {
     key: 'ID',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'cn',
-    label: i18n.t('Common Name'),
+    label: 'Common Name', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'mail',
-    label: i18n.t('Email'),
+    label: 'Email', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'organisation',
-    label: i18n.t('Organisation'),
+    label: 'Organisation', // i18n defer
     sortable: true,
     visible: true
   },
@@ -159,7 +159,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
+          label: 'Identifier', // i18n defer
           cols: [
             {
               namespace: 'ID',
@@ -171,7 +171,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Common Name'),
+          label: 'Common Name', // i18n defer
           cols: [
             {
               namespace: 'cn',
@@ -183,7 +183,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Email'),
+          label: 'Email', // i18n defer
           cols: [
             {
               namespace: 'mail',
@@ -195,7 +195,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Organisation'),
+          label: 'Organisation', // i18n defer
           cols: [
             {
               namespace: 'organisation',
@@ -207,7 +207,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Country'),
+          label: 'Country', // i18n defer
           cols: [
             {
               namespace: 'country',
@@ -222,7 +222,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('State or Province'),
+          label: 'State or Province', // i18n defer
           cols: [
             {
               namespace: 'state',
@@ -234,7 +234,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Locality'),
+          label: 'Locality', // i18n defer
           cols: [
             {
               namespace: 'locality',
@@ -246,7 +246,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Street Address'),
+          label: 'Street Address', // i18n defer
           cols: [
             {
               namespace: 'street_address',
@@ -258,7 +258,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Postal Code'),
+          label: 'Postal Code', // i18n defer
           cols: [
             {
               namespace: 'postal_code',
@@ -270,7 +270,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Key type'),
+          label: 'Key type', // i18n defer
           cols: [
             {
               namespace: 'key_type',
@@ -294,7 +294,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: key_type,
-          label: i18n.t('Key size'),
+          label: 'Key size', // i18n defer
           cols: [
             {
               namespace: 'key_size',
@@ -307,7 +307,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Digest'),
+          label: 'Digest', // i18n defer
           cols: [
             {
               namespace: 'digest',
@@ -320,7 +320,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Key usage'),
+          label: 'Key usage', // i18n defer
           text: i18n.t('Optional. One or many of: digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly.'),
           cols: [
             {
@@ -335,7 +335,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Extended key usage'),
+          label: 'Extended key usage', // i18n defer
           text: i18n.t('Optional. One or many of: serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, msCodeInd, msCodeCom, msCTLSign, msSGC, msEFS, nsSGC.'),
           cols: [
             {
@@ -350,7 +350,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Days'),
+          label: 'Days', // i18n defer
           text: i18n.t('Number of days the CA will be valid.'),
           cols: [
             {
@@ -365,7 +365,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: (!isNew && !isClone),
-          label: i18n.t('Certificate'),
+          label: 'Certificate', // i18n defer
           cols: [
             {
               namespace: 'cert',

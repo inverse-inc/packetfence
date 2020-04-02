@@ -14,7 +14,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('General'),
       rows: [
         {
-          label: i18n.t('EAP Auth Types'),
+          label: 'EAP Auth Types', // i18n defer
           text: i18n.t('Supported EAP Authentication Methods.'),
           cols: [
             {
@@ -25,7 +25,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('EAP FAST Key'),
+          label: 'EAP FAST Key', // i18n defer
           text: i18n.t('EAP-FAST Opaque Key (32 randomized bytes).'),
           cols: [
             {
@@ -36,7 +36,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('EAP FAST Authority Identity'),
+          label: 'EAP FAST Authority Identity', // i18n defer
           text: i18n.t('EAP-FAST authority ID.'),
           cols: [
             {
@@ -47,7 +47,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Record accounting in SQL tables'),
+          label: 'Record accounting in SQL tables', // i18n defer
           text: i18n.t('Record the accounting data in the SQL tables. Requires a restart of radiusd to be effective.'),
           cols: [
             {
@@ -60,7 +60,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use RADIUS filters in packetfence authorize'),
+          label: 'Use RADIUS filters in packetfence authorize', // i18n defer
           text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.authorize section. Requires a restart of radiusd to be effective.'),
           cols: [
             {
@@ -73,7 +73,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use RADIUS filters in packetfence pre_proxy'),
+          label: 'Use RADIUS filters in packetfence pre_proxy', // i18n defer
           text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.pre_proxy section. Requires a restart of radiusd to be effective.'),
           cols: [
             {
@@ -86,7 +86,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use RADIUS filters in packetfence post_proxy'),
+          label: 'Use RADIUS filters in packetfence post_proxy', // i18n defer
           text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.post_proxy section. Requires a restart of radiusd to be effective.'),
           cols: [
             {
@@ -99,7 +99,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use RADIUS filters in packetfence preacct'),
+          label: 'Use RADIUS filters in packetfence preacct', // i18n defer
           text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.preacct section. Requires a restart of radiusd to be effective.'),
           cols: [
             {
@@ -112,7 +112,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use RADIUS filters in packetfence accounting'),
+          label: 'Use RADIUS filters in packetfence accounting', // i18n defer
           text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.accounting section. Requires a restart of radiusd to be effective.'),
           cols: [
             {
@@ -125,7 +125,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use RADIUS filters in packetfence-tunnel authorize'),
+          label: 'Use RADIUS filters in packetfence-tunnel authorize', // i18n defer
           text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence-tunnel.authorize section. Requires a restart of radiusd to be effective.'),
           cols: [
             {
@@ -138,7 +138,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('NTLM Redis cache'),
+          label: 'NTLM Redis cache', // i18n defer
           text: i18n.t('Enables a Redis driven cache for NTLM authentication.In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD. Refer to the Administration guide for more details. Applying this requires a restart of radiusd.'),
           cols: [
             {
@@ -151,7 +151,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('RADIUS attributes'),
+          label: 'RADIUS attributes', // i18n defer
           text: i18n.t('List of RADIUS attributes that can be used in the sources configuration.'),
           cols: [
             {
@@ -169,7 +169,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('RADIUS machine auth with username'),
+          label: 'RADIUS machine auth with username', // i18n defer
           text: i18n.t('Use the RADIUS username instead of the TLS certificate common name when doing machine authentication.'),
           cols: [
             {
@@ -182,7 +182,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Username attributes'),
+          label: 'Username attributes', // i18n defer
           text: i18n.t('Which attributes to use to get the username from a RADIUS request. The order of the attributes are listed in this configuration parameter is followed while performing the lookup.'),
           cols: [
             {
@@ -203,7 +203,7 @@ export const view = (form = {}, meta = {}) => {
       tab: 'OCSP',
       rows: [
         {
-          label: i18n.t('Enable'),
+          label: 'Enable', // i18n defer
           text: i18n.t('Enable OCSP checking.'),
           cols: [
             {
@@ -216,7 +216,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Override Responder URL'),
+          label: 'Override Responder URL', // i18n defer
           text: i18n.t('Override the OCSP Responder URL from the certificate.'),
           cols: [
             {
@@ -230,7 +230,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: form.ocsp_override_cert_url === 'yes',
-          label: i18n.t('Responder URL'),
+          label: 'Responder URL', // i18n defer
           text: i18n.t('The overridden OCSP Responder URL.'),
           cols: [
             {
@@ -241,7 +241,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Use nonce'),
+          label: 'Use nonce', // i18n defer
           text: i18n.t('If the OCSP Responder can not cope with nonce in the request, then it can be disabled here.'),
           cols: [
             {
@@ -254,7 +254,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Response timeout'),
+          label: 'Response timeout', // i18n defer
           text: i18n.t('Number of seconds to wait for the OCSP response. 0 uses system default.'),
           cols: [
             {
@@ -271,7 +271,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Response softfail'),
+          label: 'Response softfail', // i18n defer
           text: i18n.t(`Treat OCSP response errors as 'soft' failures and still accept the certificate.`),
           cols: [
             {

@@ -17,7 +17,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: i18n.t('Accounting'),
+          label: 'Accounting', // i18n defer
           text: i18n.t('Should we handle accouting data for inline clients? This controls inline accouting tasks in pfmon.'),
           cols: [
             {
@@ -30,7 +30,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Accounting session timeout'),
+          label: 'Accounting session timeout', // i18n defer
           text: i18n.t(`Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfmon runs Defaults to 300 - 5 minutes.`),
           cols: [
             {
@@ -41,7 +41,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Accounting sync interval'),
+          label: 'Accounting sync interval', // i18n defer
           text: i18n.t('Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds.'),
           cols: [
             {
@@ -52,7 +52,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Ports redirect'),
+          label: 'Ports redirect', // i18n defer
           text: i18n.t(`Ports to intercept and redirect for trapped and unregistered systems. Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid certificate or if you don't use DNS (although IP-based certificates supposedly exist). Redirecting 53/udp (DNS) seems to have issues and is also not recommended.`),
           cols: [
             {
@@ -63,7 +63,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Reauthenticate node'),
+          label: 'Reauthenticate node', // i18n defer
           text: i18n.t('Should have to reauthenticate the node if vlan change.'),
           cols: [
             {
@@ -76,7 +76,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SNAT Interface'),
+          label: 'SNAT Interface', // i18n defer
           text: i18n.t('Comma-separated list of interfaces used to SNAT inline level 2 traffic.'),
           cols: [
             {

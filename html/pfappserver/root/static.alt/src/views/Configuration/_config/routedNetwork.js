@@ -42,37 +42,37 @@ export const htmlNote = `<div class="alert alert-warning">
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Network'),
+    label: 'Network', // i18n defer
     required: true,
     visible: true
   },
   {
     key: 'type',
-    label: i18n.t('Type'),
+    label: 'Type', // i18n defer
     visible: true,
     formatter: routedNetworkListFormatter
   },
   {
     key: 'next_hop',
-    label: i18n.t('Next Hop'),
+    label: 'Next Hop', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'gateway',
-    label: i18n.t('Gateway'),
+    label: 'Gateway', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'dns',
-    label: i18n.t('DNS'),
+    label: 'DNS', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'dhcpd',
-    label: i18n.t('DHCP'),
+    label: 'DHCP', // i18n defer
     sortable: true,
     visible: true
   },
@@ -83,13 +83,13 @@ export const columns = [
   },
   {
     key: 'pool_backend',
-    label: i18n.t('Backend'),
+    label: 'Backend', // i18n defer
     sortable: false,
     visible: true,
   },
   {
     key: 'netflow_accounting_enabled',
-    label: i18n.t('Netflow Accounting Enabled'),
+    label: 'Netflow Accounting Enabled', // i18n defer
     sortable: true,
     visible: true
   }
@@ -108,7 +108,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('General'),
       rows: [
         {
-          label: i18n.t('Routed Network'),
+          label: 'Routed Network', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -123,7 +123,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Netmask'),
+          label: 'Netmask', // i18n defer
           cols: [
             {
               namespace: 'netmask',
@@ -133,7 +133,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Type'),
+          label: 'Type', // i18n defer
           cols: [
             {
               namespace: 'type',
@@ -150,7 +150,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: form.type === 'inlinel3',
-          label: i18n.t('Enable NAT'),
+          label: 'Enable NAT', // i18n defer
           cols: [
             {
               namespace: 'nat_enabled',
@@ -163,7 +163,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: form.type === 'inlinel3',
-          label: i18n.t('Fake MAC Address'),
+          label: 'Fake MAC Address', // i18n defer
           cols: [
             {
               namespace: 'fake_mac_enabled',
@@ -176,7 +176,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: form.type === 'inlinel3',
-          label: i18n.t('Enable CoA'),
+          label: 'Enable CoA', // i18n defer
           text: i18n.t('Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints.'),
           cols: [
             {
@@ -190,7 +190,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: form.type === 'inlinel3',
-          label: i18n.t('Netflow Accounting Enabled'),
+          label: 'Netflow Accounting Enabled', // i18n defer
           text: i18n.t('Enable Netflow on this network to enable accounting.'),
           cols: [
             {
@@ -222,7 +222,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('DHCP'),
       rows: [
         {
-          label: i18n.t('DHCP Server'),
+          label: 'DHCP Server', // i18n defer
           cols: [
             {
               namespace: 'dhcpd',
@@ -235,7 +235,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Algorithm'),
+          label: 'Algorithm', // i18n defer
           cols: [
             {
               namespace: 'algorithm',
@@ -250,7 +250,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('DHCP Pool Backend Type'),
+          label: 'DHCP Pool Backend Type', // i18n defer
           cols: [
             {
               namespace: 'pool_backend',
@@ -265,7 +265,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Starting IP Address'),
+          label: 'Starting IP Address', // i18n defer
           cols: [
             {
               namespace: 'dhcp_start',
@@ -280,7 +280,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Ending IP Address'),
+          label: 'Ending IP Address', // i18n defer
           cols: [
             {
               namespace: 'dhcp_end',
@@ -295,7 +295,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Default Lease Time'),
+          label: 'Default Lease Time', // i18n defer
           cols: [
             {
               namespace: 'dhcp_default_lease_time',
@@ -310,7 +310,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Max Lease Time'),
+          label: 'Max Lease Time', // i18n defer
           cols: [
             {
               namespace: 'dhcp_max_lease_time',
@@ -325,7 +325,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('IP Addresses reserved'),
+          label: 'IP Addresses reserved', // i18n defer
           text: i18n.t('Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool.'),
           cols: [
             {
@@ -342,7 +342,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('IP Addresses assigned'),
+          label: 'IP Addresses assigned', // i18n defer
           text: i18n.t('List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13.'),
           cols: [
             {
@@ -359,7 +359,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('DNS Server'),
+          label: 'DNS Server', // i18n defer
           text: i18n.t('Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses).'),
           cols: [
             {
@@ -375,7 +375,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Portal FQDN'),
+          label: 'Portal FQDN', // i18n defer
           text: i18n.t('Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server.'),
           cols: [
             {
@@ -391,7 +391,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Client Gateway'),
+          label: 'Client Gateway', // i18n defer
           cols: [
             {
               namespace: 'gateway',
@@ -422,7 +422,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Routing'),
       rows: [
         {
-          label: i18n.t('Router IP'),
+          label: 'Router IP', // i18n defer
           text: i18n.t('IP address of the router to reach this network.'),
           cols: [
             {

@@ -12,7 +12,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: i18n.t('Parking lease length'),
+          label: 'Parking lease length', // i18n defer
           text: i18n.t('Lease length (in seconds) when a device is in parking.'),
           cols: [
             {
@@ -23,7 +23,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Parking threshold'),
+          label: 'Parking threshold', // i18n defer
           text: i18n.t('The threshold (in seconds) after which a device will be placed in parking. A value of 0 deactivates the parking detection. The detection works by looking at the time in seconds a device has been in the registration role and comparing it with this threshold.'),
           cols: [
             {
@@ -34,7 +34,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Place in DHCP parking group'),
+          label: 'Place in DHCP parking group', // i18n defer
           text: i18n.t('Place the device in the DHCP parking group when it is detected doing parking.'),
           cols: [
             {
@@ -47,7 +47,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Show parking portal'),
+          label: 'Show parking portal', // i18n defer
           text: i18n.t('Show the parking portal to the device instead of the usual portal.'),
           cols: [
             {

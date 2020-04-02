@@ -18,7 +18,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: i18n.t('Language of communication'),
+          label: 'Language of communication', // i18n defer
           text: i18n.t('Language choice for the communication with administrators.'),
           cols: [
             {
@@ -29,7 +29,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('API inactivity timeout'),
+          label: 'API inactivity timeout', // i18n defer
           text: i18n.t('The inactivity timeout of an API token. Requires to restart the api-frontend service to be fully effective.'),
           cols: [
             {
@@ -45,7 +45,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('API token max expiration'),
+          label: 'API token max expiration', // i18n defer
           text: i18n.t('The maximum amount of time an API token can be valid. Requires to restart the api-frontend service to be fully effective.'),
           cols: [
             {
@@ -61,7 +61,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Configurator'),
+          label: 'Configurator', // i18n defer
           text: i18n.t('Enable the Configurator and the Configurator API.'),
           cols: [
             {
@@ -74,7 +74,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('CSP headers for Admin'),
+          label: 'CSP headers for Admin', // i18n defer
           text: i18n.t('(Experimental) Enforce Content-Security-Policy (CSP) HTTP response header in admin interface.'),
           cols: [
             {
@@ -87,7 +87,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('CSP headers for Captive portal'),
+          label: 'CSP headers for Captive portal', // i18n defer
           text: i18n.t('(Experimental) Enforce Content-Security-Policy (CSP) HTTP response header in captive portal interface.'),
           cols: [
             {
@@ -100,7 +100,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SSO on access reevaluation'),
+          label: 'SSO on access reevaluation', // i18n defer
           text: i18n.t('Trigger Single-Sign-On (Firewall SSO) on access reevaluation.'),
           cols: [
             {
@@ -113,7 +113,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Scan on accounting'),
+          label: 'Scan on accounting', // i18n defer
           text: i18n.t('Trigger scan engines on accounting.'),
           cols: [
             {
@@ -126,7 +126,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SSO on accounting'),
+          label: 'SSO on accounting', // i18n defer
           text: i18n.t('Trigger Single-Sign-On (Firewall SSO) on accounting.'),
           cols: [
             {
@@ -139,7 +139,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SSO on DHCP'),
+          label: 'SSO on DHCP', // i18n defer
           text: i18n.t('Trigger Single-Sign-On (Firewall SSO) on dhcp.'),
           cols: [
             {
@@ -152,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Database passwords hashing method'),
+          label: 'Database passwords hashing method', // i18n defer
           text: i18n.t('The algorithm used to hash the passwords in the database. This will only affect newly created or reset passwords.'),
           cols: [
             {
@@ -163,7 +163,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Hashing Cost'),
+          label: 'Hashing Cost', // i18n defer
           text: i18n.t('The cost factor to apply to the password hashing if applicable. Currently only applies to bcrypt.'),
           cols: [
             {
@@ -174,7 +174,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('LDAP Attributes'),
+          label: 'LDAP Attributes', // i18n defer
           text: i18n.t('List of LDAP attributes that can be used in the sources configuration.'),
           cols: [
             {
@@ -192,7 +192,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('PfFilter Processes'),
+          label: 'PfFilter Processes', // i18n defer
           text: i18n.t(`Amount of pffilter processes to start.`),
           cols: [
             {
@@ -209,7 +209,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('PfPerl API Processes'),
+          label: 'PfPerl API Processes', // i18n defer
           text: i18n.t(`Amount of pfperl-api processes to start.`),
           cols: [
             {
@@ -226,7 +226,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('PfPerl API Timeout'),
+          label: 'PfPerl API Timeout', // i18n defer
           text: i18n.t(`The timeout in seconds for an API request.`),
           cols: [
             {
@@ -243,7 +243,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Update the iplog using the accounting'),
+          label: 'Update the iplog using the accounting', // i18n defer
           text: i18n.t('Use the information included in the accounting to update the iplog.'),
           cols: [
             {
@@ -256,7 +256,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Close locationlog on accounting stop'),
+          label: 'Close locationlog on accounting stop', // i18n defer
           text: i18n.t('Close the locationlog for a node on accounting stop.'),
           cols: [
             {
@@ -269,7 +269,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Stats timing level'),
+          label: 'Stats timing level', // i18n defer
           text: i18n.t(`Level of timing stats to keep - 0 is the lowest - 10 the highest amount to log. Do not change unless you know what you are doing.`),
           cols: [
             {
@@ -280,7 +280,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SMS Source for sending user create messages'),
+          label: 'SMS Source for sending user create messages', // i18n defer
           text: i18n.t('The source to use to send an SMS when creating a user.'),
           cols: [
             {
@@ -291,7 +291,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Multihost'),
+          label: 'Multihost', // i18n defer
           text: i18n.t('Ability to manage all active devices from a same switch port.'),
           cols: [
             {
@@ -304,7 +304,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Disable OS AD join check'),
+          label: 'Disable OS AD join check', // i18n defer
           text: i18n.t('Enable to bypass the operating system domain join verification.'),
           cols: [
             {
@@ -317,7 +317,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Accounting timebucket size'),
+          label: 'Accounting timebucket size', // i18n defer
           text: i18n.t('Accounting timebucket size. Changing this requires to restart pfacct.'),
           cols: [
             {

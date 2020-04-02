@@ -19,14 +19,14 @@ import { required } from 'vuelidate/lib/validators'
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Syslog Name'),
+    label: 'Syslog Name', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'type',
-    label: i18n.t('Type'),
+    label: 'Type', // i18n defer
     sortable: true,
     visible: true
   },
@@ -104,7 +104,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('Syslog Name'),
+          label: 'Syslog Name', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -120,7 +120,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['server'].includes(form.type),
-          label: i18n.t('Protocol'),
+          label: 'Protocol', // i18n defer
           cols: [
             {
               namespace: 'proto',
@@ -131,7 +131,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['server'].includes(form.type),
-          label: i18n.t('Host'),
+          label: 'Host', // i18n defer
           cols: [
             {
               namespace: 'host',
@@ -142,7 +142,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['server'].includes(form.type),
-          label: i18n.t('Port'),
+          label: 'Port', // i18n defer
           cols: [
             {
               namespace: 'port',
@@ -152,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('All logs'),
+          label: 'All logs', // i18n defer
           cols: [
             {
               namespace: 'all_logs',
@@ -165,7 +165,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: form.all_logs === 'disabled',
-          label: i18n.t('Logs'),
+          label: 'Logs', // i18n defer
           cols: [
             {
               namespace: 'logs',

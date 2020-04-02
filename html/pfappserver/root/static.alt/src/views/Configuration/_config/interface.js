@@ -164,12 +164,12 @@ export const sortColumns = { // maintain hierarchical ordering (master => vlans)
 export const columns = [
   {
     key: 'is_running',
-    label: i18n.t('Status'),
+    label: 'Status', // i18n defer
     visible: true
   },
   {
     key: 'id',
-    label: i18n.t('Logical Name'),
+    label: 'Logical Name', // i18n defer
     required: true,
     sortable: true,
     visible: true,
@@ -177,46 +177,46 @@ export const columns = [
   },
   {
     key: 'ipaddress',
-    label: i18n.t('IPv4 Address'),
+    label: 'IPv4 Address', // i18n defer
     sortable: true,
     visible: true,
     sort: sortColumns.ipaddress
   },
   {
     key: 'ipv6_address',
-    label: i18n.t('IPv6 Address'),
+    label: 'IPv6 Address', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'ipv6_prefix',
-    label: i18n.t('IPv6 Prefix'),
+    label: 'IPv6 Prefix', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'netmask',
-    label: i18n.t('Netmask'),
+    label: 'Netmask', // i18n defer
     sortable: true,
     visible: true,
     sort: sortColumns.netmask
   },
   {
     key: 'network',
-    label: i18n.t('Default Network'),
+    label: 'Default Network', // i18n defer
     sortable: true,
     visible: true,
     sort: sortColumns.network
   },
   {
     key: 'type',
-    label: i18n.t('Type'),
+    label: 'Type', // i18n defer
     visible: true,
     formatter: typeFormatter
   },
   {
     key: 'additional_listening_daemons',
-    label: i18n.t('Daemons'),
+    label: 'Daemons', // i18n defer
     visible: true,
     formatter: (value) => {
       if (value && value.constructor === Array && value.length > 0) {
@@ -227,7 +227,7 @@ export const columns = [
   },
   {
     key: 'high_availability',
-    label: i18n.t('High Availability'),
+    label: 'High Availability', // i18n defer
     visible: true
   },
   {
@@ -253,7 +253,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!master),
-          label: i18n.t('Interface'),
+          label: 'Interface', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -266,7 +266,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: (master),
-          label: i18n.t('Interface'),
+          label: 'Interface', // i18n defer
           cols: [
             {
               namespace: 'master',
@@ -279,7 +279,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: (isNew || isClone || isVlan),
-          label: i18n.t('Virtual LAN ID'),
+          label: 'Virtual LAN ID', // i18n defer
           cols: [
             {
               namespace: 'vlan',
@@ -293,7 +293,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('IPv4 Address'),
+          label: 'IPv4 Address', // i18n defer
           cols: [
             {
               namespace: 'ipaddress',
@@ -302,7 +302,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Netmask'),
+          label: 'Netmask', // i18n defer
           cols: [
             {
               namespace: 'netmask',
@@ -311,7 +311,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('IPv6 Address'),
+          label: 'IPv6 Address', // i18n defer
           cols: [
             {
               namespace: 'ipv6_address',
@@ -320,7 +320,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('IPv6 Prefix'),
+          label: 'IPv6 Prefix', // i18n defer
           cols: [
             {
               namespace: 'ipv6_prefix',
@@ -329,7 +329,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Type'),
+          label: 'Type', // i18n defer
           cols: [
             {
               namespace: 'type',
@@ -345,7 +345,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Additional listening daemon(s)'),
+          label: 'Additional listening daemon(s)', // i18n defer
           cols: [
             {
               namespace: 'additional_listening_daemons',
@@ -366,7 +366,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: i18n.t('DNS'),
+          label: 'DNS', // i18n defer
           text: i18n.t('The DNS server(s) of your network. (comma limited)'),
           cols: [
             {
@@ -377,7 +377,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration'].includes(type),
-          label: i18n.t('Enable DHCP Server'),
+          label: 'Enable DHCP Server', // i18n defer
           cols: [
             {
               namespace: 'dhcpd_enabled',
@@ -390,7 +390,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: i18n.t('Enable NAT'),
+          label: 'Enable NAT', // i18n defer
           cols: [
             {
               namespace: 'nat_enabled',
@@ -418,7 +418,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: i18n.t('Split network by role'),
+          label: 'Split network by role', // i18n defer
           text: i18n.t('This will create a small network for each roles.'),
           cols: [
             {
@@ -432,7 +432,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: i18n.t('Registration IP Address CIDR format'),
+          label: 'Registration IP Address CIDR format', // i18n defer
           text: i18n.t('When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).'),
           cols: [
             {
@@ -458,7 +458,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: i18n.t('Enable CoA'),
+          label: 'Enable CoA', // i18n defer
           text: i18n.t('Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints.'),
           cols: [
             {
@@ -472,7 +472,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['none', 'management'].includes(type),
-          label: i18n.t('High availability'),
+          label: 'High availability', // i18n defer
           cols: [
             {
               namespace: 'high_availability',

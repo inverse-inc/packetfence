@@ -12,32 +12,32 @@ import {
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'mac',
-    label: i18n.t('OUI'),
+    label: 'OUI', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'name',
-    label: i18n.t('MAC Vendor'),
+    label: 'MAC Vendor', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'created_at',
-    label: i18n.t('Created'),
+    label: 'Created', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'updated_at',
-    label: i18n.t('Updated'),
+    label: 'Updated', // i18n defer
     sortable: true,
     visible: true
   },
@@ -110,7 +110,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
+          label: 'Identifier', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('MAC Vendor'),
+          label: 'MAC Vendor', // i18n defer
           cols: [
             {
               namespace: 'name',
@@ -131,7 +131,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('OUI'),
+          label: 'OUI', // i18n defer
           text: i18n.t('The OUI is the first six digits or letters of a MAC address. They must be entered without any space or separator (ex: 001122).'),
           cols: [
             {

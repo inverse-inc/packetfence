@@ -9,34 +9,34 @@ import {
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'value',
-    label: i18n.t('DHCPv6 Enterprise'),
+    label: 'DHCPv6 Enterprise', // i18n defer
     sortable: true,
     visible: true
   },
   /* TODO - Issue #4217
   {
     key: 'organization',
-    label: i18n.t('Organization'),
+    label: 'Organization', // i18n defer
     sortable: true,
     visible: true
   },
   */
   {
     key: 'created_at',
-    label: i18n.t('Created'),
+    label: 'Created', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'updated_at',
-    label: i18n.t('Updated'),
+    label: 'Updated', // i18n defer
     sortable: true,
     visible: true
   },
@@ -108,7 +108,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
+          label: 'Identifier', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -120,7 +120,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('DHCPv6 Enterprise'),
+          label: 'DHCPv6 Enterprise', // i18n defer
           cols: [
             {
               namespace: 'value',

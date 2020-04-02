@@ -7,7 +7,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: i18n.t('Record DNS'),
+          label: 'Record DNS', // i18n defer
           text: i18n.t('Record DNS requests and replies in the SQL tables.'),
           cols: [
             {

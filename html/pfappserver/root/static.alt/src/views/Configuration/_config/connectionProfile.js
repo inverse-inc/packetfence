@@ -137,20 +137,20 @@ export const filters = {
 export const columns = [
   {
     key: 'status',
-    label: i18n.t('Status'),
+    label: 'Status', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'Identifier', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'description',
-    label: i18n.t('Description'),
+    label: 'Description', // i18n defer
     sortable: true,
     visible: true
   },
@@ -240,7 +240,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Settings'),
       rows: [
         {
-          label: i18n.t('Profile Name'),
+          label: 'Profile Name', // i18n defer
           text: i18n.t('A profile id can only contain alphanumeric characters, dashes, period and or underscores.'),
           cols: [
             {
@@ -256,7 +256,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Profile Description'),
+          label: 'Profile Description', // i18n defer
           cols: [
             {
               namespace: 'description',
@@ -267,7 +267,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: !isDefault,
-          label: i18n.t('Enable profile'),
+          label: 'Enable profile', // i18n defer
           cols: [
             {
               namespace: 'status',
@@ -279,7 +279,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Root Portal Module'),
+          label: 'Root Portal Module', // i18n defer
           text: i18n.t('The Root Portal Module to use.'),
           cols: [
             {
@@ -290,7 +290,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Activate preregistration'),
+          label: 'Activate preregistration', // i18n defer
           text: i18n.t('This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have "Create local account" enabled.'),
           cols: [
             {
@@ -303,7 +303,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Automatically register devices'),
+          label: 'Automatically register devices', // i18n defer
           text: i18n.t('This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.'),
           cols: [
             {
@@ -316,7 +316,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Reuse dot1x credentials'),
+          label: 'Reuse dot1x credentials', // i18n defer
           text: i18n.t('This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.'),
           cols: [
             {
@@ -329,7 +329,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Dot1x recompute role from portal'),
+          label: 'Dot1x recompute role from portal', // i18n defer
           text: i18n.t('When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.'),
           cols: [
             {
@@ -342,7 +342,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('MAC Auth recompute role from portal'),
+          label: 'MAC Auth recompute role from portal', // i18n defer
           text: i18n.t('When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.'),
           cols: [
             {
@@ -355,7 +355,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Dot1x unset on unmatch'),
+          label: 'Dot1x unset on unmatch', // i18n defer
           text: i18n.t('When enabled, PacketFence will unset the role of the device if no authentication sources returned one.'),
           cols: [
             {
@@ -368,7 +368,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Enable DPSK'),
+          label: 'Enable DPSK', // i18n defer
           text: i18n.t('This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'),
           cols: [
             {
@@ -381,7 +381,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Default PSK key'),
+          label: 'Default PSK key', // i18n defer
           text: i18n.t('This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.'),
           cols: [
             {
@@ -392,7 +392,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Automatically deregister devices on accounting stop'),
+          label: 'Automatically deregister devices on accounting stop', // i18n defer
           text: i18n.t('This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.'),
           cols: [
             {
@@ -405,7 +405,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('VLAN pool technique'),
+          label: 'VLAN pool technique', // i18n defer
           text: i18n.t('The algorithm used to calculate the VLAN in a VLAN pool.'),
           cols: [
             {
@@ -417,7 +417,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: !isDefault,
-          label: i18n.t('Filters'),
+          label: 'Filters', // i18n defer
           cols: [
             {
               namespace: 'filter_match_style',
@@ -428,7 +428,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: !isDefault,
-          label: i18n.t('Filter'),
+          label: 'Filter', // i18n defer
           cols: [
             {
               namespace: 'filter',
@@ -469,7 +469,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: !isDefault,
-          label: i18n.t('Advanced filter'),
+          label: 'Advanced filter', // i18n defer
           cols: [
             {
               namespace: 'advanced_filter',
@@ -484,7 +484,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Sources'),
+          label: 'Sources', // i18n defer
           cols: [
             {
               namespace: 'sources',
@@ -511,7 +511,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Billing Tiers'),
+          label: 'Billing Tiers', // i18n defer
           cols: [
             {
               namespace: 'billing_tiers',
@@ -538,7 +538,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Provisioners'),
+          label: 'Provisioners', // i18n defer
           cols: [
             {
               namespace: 'provisioners',
@@ -565,7 +565,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Scanners'),
+          label: 'Scanners', // i18n defer
           cols: [
             {
               namespace: 'scans',
@@ -592,7 +592,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Self service policy'),
+          label: 'Self service policy', // i18n defer
           cols: [
             {
               namespace: 'self_service',
@@ -607,7 +607,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Captive Portal'),
       rows: [
         {
-          label: i18n.t('Logo'),
+          label: 'Logo', // i18n defer
           cols: [
             {
               namespace: 'logo',
@@ -617,7 +617,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Redirection URL'),
+          label: 'Redirection URL', // i18n defer
           text: i18n.t('Default URL to redirect to on registration/mitigation release. This is only used if a per-security event redirect URL is not defined.'),
           cols: [
             {
@@ -628,7 +628,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Force redirection URL'),
+          label: 'Force redirection URL', // i18n defer
           text: i18n.t('Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.'),
           cols: [
             {
@@ -641,7 +641,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Block Interval'),
+          label: 'Block Interval', // i18n defer
           text: i18n.t('The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.'),
           cols: [
             {
@@ -657,7 +657,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SMS Pin Retry Limit'),
+          label: 'SMS Pin Retry Limit', // i18n defer
           text: i18n.t('Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.'),
           cols: [
             {
@@ -668,7 +668,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SMS Request Retry Limit'),
+          label: 'SMS Request Retry Limit', // i18n defer
           text: i18n.t('Maximum number of times a user can request a SMS PIN. A value of 0 disables the limit.'),
           cols: [
             {
@@ -679,7 +679,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Login Attempt Limit'),
+          label: 'Login Attempt Limit', // i18n defer
           text: i18n.t('Limit the number of login attempts. A value of 0 disables the limit.'),
           cols: [
             {
@@ -690,7 +690,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Allow access to registration portal when registered'),
+          label: 'Allow access to registration portal when registered', // i18n defer
           text: i18n.t('This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.'),
           cols: [
             {
@@ -703,7 +703,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Network Logoff'),
+          label: 'Network Logoff', // i18n defer
           text: i18n.t('This allows users to access the network logoff page (http://{fqdn}/networklogoff) in order to terminate their network access (switch their device back to unregistered).', store.getters['$_bases/general']),
           cols: [
             {
@@ -716,7 +716,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Network Logoff Popup'),
+          label: 'Network Logoff Popup', // i18n defer
           text: i18n.t('When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.'),
           cols: [
             {
@@ -729,7 +729,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Languages'),
+          label: 'Languages', // i18n defer
           cols: [
             {
               namespace: 'locale',
@@ -776,21 +776,21 @@ export const view = (form = {}, meta = {}) => {
                 fields: [
                   {
                     key: 'name',
-                    label: i18n.t('Name'),
+                    label: 'Name', // i18n defer
                     class: 'w-50',
                     required: true,
                     sortable: true
                   },
                   {
                     key: 'size',
-                    label: i18n.t('Size'),
+                    label: 'Size', // i18n defer
                     formatter: formatter.fileSize,
                     tdClass: 'text-right',
                     sortable: true
                   },
                   {
                     key: 'mtime',
-                    label: i18n.t('Last modification'),
+                    label: 'Last modification', // i18n defer
                     formatter: formatter.shortDateTime,
                     tdClass: 'text-right',
                     sortable: true

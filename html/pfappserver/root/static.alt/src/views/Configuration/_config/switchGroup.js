@@ -85,7 +85,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Definition'),
       rows: [
         {
-          label: i18n.t('Group name'),
+          label: 'Group name', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -122,28 +122,28 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: advancedMode || supports(form, meta, ['RadiusDynamicVlanAssignment']),
-          label: i18n.t('Role mapping by VLAN ID'),
+          label: 'Role mapping by VLAN ID', // i18n defer
           labelSize: 'lg'
         },
         viewFields.VlanMap(form, meta),
         ...viewFields.mapVlan(form, meta),
         {
           if: advancedMode || supports(form, meta, ['RoleBasedEnforcement']),
-          label: i18n.t('Role mapping by Switch Role'),
+          label: 'Role mapping by Switch Role', // i18n defer
           labelSize: 'lg'
         },
         viewFields.RoleMap(form, meta),
         ...viewFields.mapRole(form, meta),
         {
           if: advancedMode || supports(form, meta, ['AccessListBasedEnforcement']),
-          label: i18n.t('Role mapping by Access List'),
+          label: 'Role mapping by Access List', // i18n defer
           labelSize: 'lg'
         },
         viewFields.AccessListMap(form, meta),
         ...viewFields.mapAccessList(form, meta),
         {
           if: advancedMode || supports(form, meta, ['ExternalPortal']),
-          label: i18n.t('Role mapping by Web Auth URL'),
+          label: 'Role mapping by Web Auth URL', // i18n defer
           labelSize: 'lg'
         },
         viewFields.UrlMap(form, meta),

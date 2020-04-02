@@ -17,7 +17,7 @@ import { required } from 'vuelidate/lib/validators'
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('Traffic Shaping Policy Name'),
+    label: 'Traffic Shaping Policy Name', // i18n defer
     required: true,
     sortable: true,
     visible: true
@@ -85,7 +85,7 @@ export const view = (form, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: i18n.t('Traffic Shaping Policy Name'),
+          label: 'Traffic Shaping Policy Name', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -106,7 +106,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Upload'),
+          label: 'Upload', // i18n defer
           text: i18n.t(`Bandwidth must be in the following format 'nXY' where XY is one of the following KB,MB,GB,TB,PB.`),
           cols: [
             {
@@ -118,7 +118,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Download'),
+          label: 'Download', // i18n defer
           text: i18n.t(`Bandwidth must be in the following format 'nXY' where XY is one of the following KB,MB,GB,TB,PB.`),
           cols: [
             {

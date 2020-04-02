@@ -19,20 +19,20 @@ import { required } from 'vuelidate/lib/validators'
 export const columns = [
   {
     key: 'id',
-    label: i18n.t('WMI Rule'),
+    label: 'WMI Rule', // i18n defer
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'namespace',
-    label: i18n.t('Namespace'),
+    label: 'Namespace', // i18n defer
     sortable: true,
     visible: true
   },
   {
     key: 'on_tab',
-    label: i18n.t('On Node Tab'),
+    label: 'On Node Tab', // i18n defer
     sortable: true,
     visible: true
   },
@@ -107,7 +107,7 @@ export const view = (form, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('WMI Rule'),
+          label: 'WMI Rule', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -122,7 +122,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('On node tab'),
+          label: 'On node tab', // i18n defer
           text: i18n.t('Scan this WMI element while editing a node.'),
           cols: [
             {
@@ -136,7 +136,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Namespace'),
+          label: 'Namespace', // i18n defer
           cols: [
             {
               namespace: 'namespace',
@@ -146,7 +146,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Request'),
+          label: 'Request', // i18n defer
           cols: [
             {
               namespace: 'request',
@@ -161,7 +161,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Rules Actions'),
+          label: 'Rules Actions', // i18n defer
           text: i18n.t('Add an action based on the result of the request.'),
           cols: [
             {

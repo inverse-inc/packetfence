@@ -35,7 +35,7 @@ import {
 export const columns = [
   {
     key: 'enabled',
-    label: i18n.t('Status'),
+    label: 'Status', // i18n defer
     required: true,
     sortable: true,
     visible: true
@@ -48,7 +48,7 @@ export const columns = [
   },
   {
     key: 'desc',
-    label: i18n.t('Description'),
+    label: 'Description', // i18n defer
     sortable: true,
     visible: true
   },
@@ -60,7 +60,7 @@ export const columns = [
   },
   {
     key: 'template',
-    label: i18n.t('Template'),
+    label: 'Template', // i18n defer
     visible: true
   },
   {
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: i18n.t('Enable security event'),
+          label: 'Enable security event', // i18n defer
           cols: [
             {
               namespace: 'enabled',
@@ -151,7 +151,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Identifier'),
+          label: 'Identifier', // i18n defer
           cols: [
             {
               namespace: 'id',
@@ -166,7 +166,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Description'),
+          label: 'Description', // i18n defer
           cols: [
             {
               namespace: 'desc',
@@ -176,7 +176,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Priority'),
+          label: 'Priority', // i18n defer
           text: i18n.t('When multiple violations are opened for an endpoint, the one with the lowest priority takes precedence.'),
           cols: [
             {
@@ -187,7 +187,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Ignored Roles'),
+          label: 'Ignored Roles', // i18n defer
           text: i18n.t(`Which roles shouldn't be impacted by this security event.`),
           cols: [
             {
@@ -198,7 +198,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Event Triggers'),
+          label: 'Event Triggers', // i18n defer
           if: (form.triggers && form.triggers.length),
           cols: [
             {
@@ -225,7 +225,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Event Actions'),
+          label: 'Event Actions', // i18n defer
           cols: [
             {
               namespace: '', // use the model itself
@@ -235,7 +235,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Dynamic Window'),
+          label: 'Dynamic Window', // i18n defer
           text: i18n.t('Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).'),
           cols: [
             {
@@ -248,7 +248,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Grace'),
+          label: 'Grace', // i18n defer
           text: i18n.t('Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.'),
           cols: [
             {
@@ -264,7 +264,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Window'),
+          label: 'Window', // i18n defer
           text: i18n.t('Amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead.'),
           cols: [
             {
@@ -280,7 +280,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Delay By'),
+          label: 'Delay By', // i18n defer
           text: i18n.t('Delay before triggering the security event.'),
           cols: [
             {
