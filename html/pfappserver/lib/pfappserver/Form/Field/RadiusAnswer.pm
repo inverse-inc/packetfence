@@ -103,10 +103,11 @@ deflate to be saved into the config store
 =cut
 
 sub deflate {
-    my ($self, $value) = @_;
-    my $name = $value->{type};
-    my $prefix = $value->{prefix};
-    if ($value->{prefix} ne '') {
+    my ($self, $data) = @_;
+    my $name = $data->{type};
+    my $value = $data->{value};
+    my $prefix = $data->{prefix};
+    if ($prefix ne '') {
         $name = $prefix . $name;
     }
 
