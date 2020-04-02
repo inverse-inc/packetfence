@@ -76,6 +76,7 @@ sub print_status {
     for my $output (@output) {
         if ($output =~ /(packetfence-(.+)\.service)\s+enabled/) {
             my $service = $1;
+            $service = "packetfence-tracking-config.path" if ($service eq "packetfence-tracking-config.service");
             my $main_service = $2;
             my $sub_service = $main_service;
             if ($sub_service =~ /(radiusd).*/) {
