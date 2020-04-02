@@ -8,7 +8,7 @@ SHELL=/bin/bash
 #==============================================================================
 
 .PHONY: all
-all: install test clean
+all: install test clean-pfservers
 
 .PHONY: install
 install:
@@ -17,12 +17,14 @@ install:
 .PHONY: test
 test:
 	./venom-wrapper.sh setup
-	# run all test suite in each subdirectories
+	# run all test suite in each subdirectories of pfservers
 	./venom-wrapper.sh pfservers
 
-.PHONY: clean
-clean:
-	./venom-wrapper.sh teardown
+.PHONY: clean-pfservers
+clean-pfservers:
+	./venom-wrapper.sh setup
+	VENOM_EXIT_FLAGS="--strict" \
+	./venom-wrapper.sh pfservers/10_dot1x_eap_peap/99_teardown.yml
 
 
 # Targets for local tests

@@ -17,7 +17,8 @@ log_subsection() {
 
 # script usage definition
 usage() { 
-    echo "Usage: $(basename $0) <test_suite>"
+    echo "Usage: $(basename $0) <path_to_test_suite> or <path_to_test_suite_dir>"
+    echo "$(basename $0) <pfservers> is specific and will run all test suite in all subdirectories"
 } 
 
 
@@ -49,12 +50,13 @@ configure_and_check() {
     mkdir -vp ${VENOM_RESULT_DIR} || die "mkdir failed: ${VENOM_RESULT_DIR}"
     declare -p VENOM_RESULT_DIR VENOM_VARS_FILE
     VENOM_BINARY="${VENOM_BINARY:-`which venom`}"
-    VENOM_FORMAT=tap
-    VENOM_OPTS="${VENOM_OPTS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --strict --stop-on-failure --var-from-file ${VENOM_VARS_FILE}}"
+    VENOM_FORMAT=${VENOM_FORMAT:-tap}
+    VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --var-from-file ${VENOM_VARS_FILE}}"
+    VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:---strict --stop-on-failure}"
 
     echo -e "Using venom using following variables:"
     echo -e "  VENOM_BINARY=${CYAN}${VENOM_BINARY}${NOCOLOR}"
-    echo -e "  VENOM_OPTS=${CYAN}${VENOM_OPTS}${NOCOLOR}"
+    echo -e "  VENOM_FLAGS=${CYAN}${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS}${NOCOLOR}"
     echo ""
 }
 
@@ -69,7 +71,7 @@ run_test_suite() {
     local test_suite_dir=$(readlink -e ${1:-.})
     local test_suite_name=$(basename $test_suite_dir)
     log_section "Running ${test_suite_dir} suite"
-    CMD="${VENOM_BINARY} run ${VENOM_OPTS} ${test_suite_dir}"
+    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suite_dir}"
     ${CMD} > ${VENOM_RESULT_DIR}/${test_suite_name}.output 2>&1
 
     # display error logs only on error (need --strict)
@@ -89,6 +91,8 @@ teardown() {
 configure_and_check
 
 case $1 in
+    # run all test suite file in each subdirectories of pfservers dir
+    # source "env" file to have API token if exist
     pfservers)
         export VENOM_RESULT_DIR
         if [ -f "${VENOM_RESULT_DIR}/env" ]; then
@@ -96,6 +100,8 @@ case $1 in
         fi
         pfservers_test_suite pfservers;;
     teardown) teardown ;;
+    # run all test suite files in a arg directory
+    # source "env" file to have API token if exist
     *)
         export VENOM_RESULT_DIR
         if [ -f "${VENOM_RESULT_DIR}/env" ]; then
