@@ -13,8 +13,10 @@ pfappserver::Form::Config::FilterEngines::RADIUSFilter
 use strict;
 use warnings;
 use pfappserver::Form::Field::DynamicList;
+use pfappserver::Form::Config::FilterEngines;
 use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
+use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 extends 'pfappserver::Form::Config::FilterEngines';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -87,56 +89,63 @@ sub _additional_field_options {
 }
 
 sub options_field_names {
-    qw(
-      node_info.autoreg
-      node_info.status
-      node_info.bypass_vlan
-      node_info.bandwidth_balance
-      node_info.regdate
-      node_info.bypass_role
-      node_info.device_class
-      node_info.device_type
-      node_info.device_version
-      node_info.device_score
-      node_info.pid
-      node_info.machine_account
-      node_info.category
-      node_info.mac
-      node_info.last_arp
-      node_info.lastskip
-      node_info.last_dhcp
-      node_info.user_agent
-      node_info.computername
-      node_info.dhcp_fingerprint
-      node_info.detect_date
-      node_info.voip
-      node_info.notes
-      node_info.time_balance
-      node_info.sessionid
-      node_info.dhcp_vendor
-      node_info.unregdate
-      fingerbank_info.device_fq
-      fingerbank_info.device_hierarchy_names
-      fingerbank_info.device_hierarchy_ids
-      fingerbank_info.score
-      fingerbank_info.version
-      fingerbank_info.mobile
-      switch._switchIp
-      switch._ip
-      switch._portalURL
-      switch._switchMac
-      switch._ip
-      ifIndex
-      mac
-      connection_type
-      username
-      ssid
-      vlan
-      wasInline
-      user_role
-      radius_request
-      violation
-      time
+    (
+        qw(
+          node_info.autoreg
+          node_info.status
+          node_info.bypass_vlan
+          node_info.bandwidth_balance
+          node_info.regdate
+          node_info.bypass_role
+          node_info.device_class
+          node_info.device_type
+          node_info.device_version
+          node_info.device_score
+          node_info.pid
+          node_info.machine_account
+          node_info.category
+          node_info.mac
+          node_info.last_arp
+          node_info.lastskip
+          node_info.last_dhcp
+          node_info.user_agent
+          node_info.computername
+          node_info.dhcp_fingerprint
+          node_info.detect_date
+          node_info.voip
+          node_info.notes
+          node_info.time_balance
+          node_info.sessionid
+          node_info.dhcp_vendor
+          node_info.unregdate
+          fingerbank_info.device_fq
+          fingerbank_info.device_hierarchy_names
+          fingerbank_info.device_hierarchy_ids
+          fingerbank_info.score
+          fingerbank_info.version
+          fingerbank_info.mobile
+          switch._switchIp
+          switch._ip
+          switch._portalURL
+          switch._switchMac
+          switch._ip
+          ifIndex
+          mac
+          connection_type
+          username
+          ssid
+          vlan
+          wasInline
+          user_role
+          violation
+          time
+        ),
+        (
+           map { "radius_request.$_" } (
+            keys %{$RADIUS_DICTIONARY->{attr}},
+            keys %{$RADIUS_DICTIONARY->{avendors}}
+           )
+        )
     );
 }
 
