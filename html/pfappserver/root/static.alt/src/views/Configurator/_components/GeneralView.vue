@@ -55,6 +55,7 @@ export default {
       this.$store.dispatch('$_bases/getGeneral').then(form => {
         this.$store.dispatch(`${this.formStoreName}/appendForm`, { general: form })
       })
+      this.$store.dispatch('services/getService', 'tracking-config')
       this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
     },
     save () {

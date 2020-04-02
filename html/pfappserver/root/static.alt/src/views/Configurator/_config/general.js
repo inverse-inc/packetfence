@@ -1,4 +1,5 @@
 import i18n from '@/utils/locale'
+import pfButtonService from '@/components/pfButtonService'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import {
@@ -6,7 +7,7 @@ import {
   validatorsFromMeta
 } from '@/views/Configuration/_config'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (form, meta = {}) => {
   return [
     {
       tab: null,
@@ -48,13 +49,29 @@ export const view = (form = {}, meta = {}) => {
               }
             }
           ]
+        },
+        {
+          label: i18n.t('Track Configuration'),
+          text: i18n.t('This service will track all changes to the configuration. Notice that the content of all files (except domain.conf) under /usr/local/pf/conf will be tracked, including passwords.'),
+          cols: [
+            {
+              component: pfButtonService,
+              attrs: {
+                service: 'tracking-config',
+                'hide-details': true,
+                start: true,
+                stop: true,
+                class: 'px-0 col-md-7 col-lg-5 col-xl-4'
+              }
+            }
+          ]
         }
       ]
     }
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (form, meta = {}) => {
   return {
     general: {
       domain: validatorsFromMeta(meta, 'general.domain', i18n.t('Domain')),

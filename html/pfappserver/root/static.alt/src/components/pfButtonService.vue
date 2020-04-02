@@ -10,7 +10,7 @@
       <icon :name="buttonIcon.name" :spin="buttonIcon.spin" class="mr-1"></icon>
       {{ buttonText }}
     </template>
-    <b-dropdown-form>
+    <b-dropdown-form v-if="!hideDetails">
       <b-row class="row-nowrap">
         <b-col>{{ $t('Alive') }}</b-col>
         <b-col cols="auto">
@@ -27,7 +27,7 @@
         <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
       </b-row>
     </b-dropdown-form>
-    <b-dropdown-divider v-if="!isLoading"></b-dropdown-divider>
+    <b-dropdown-divider v-if="!isLoading && !hideDetails"></b-dropdown-divider>
     <b-dropdown-item v-if="canEnable" @click="doEnable"><icon name="toggle-on" class="mr-1" @click.stop="onClick"></icon> {{ $t('Enable') }}</b-dropdown-item>
     <b-dropdown-item v-if="canDisable" @click="doDisable"><icon name="toggle-off" class="mr-1" @click.stop="onClick"></icon> {{ $t('Disable') }}</b-dropdown-item>
     <b-dropdown-item v-if="canRestart" @click="doRestart"><icon name="redo" class="mr-1" @click.stop="onClick"></icon> {{ $t('Restart') }}</b-dropdown-item>
@@ -45,6 +45,10 @@ export default {
     service: {
       type: String,
       default: null
+    },
+    hideDetails: {
+      type: Boolean,
+      default: false
     },
     enable: {
       type: Boolean,
