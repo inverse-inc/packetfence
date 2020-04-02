@@ -19,9 +19,9 @@ yum install perl -y
 yum install --enablerepo=$PFREPO $PFPACKAGE -y
 
 # Setting the hostname
-hostname PacketFence-ZEN
-echo "PacketFence-ZEN" > /etc/hostname
-echo "NETWORKING=yes HOSTNAME=PacketFence-ZEN" > /etc/sysconfig/network
+hostname packetfence
+echo "packetfence" > /etc/hostname
+echo "NETWORKING=yes HOSTNAME=packetfence" > /etc/sysconfig/network
 
 # Setting up rc.local so it modifies /etc/issue to display instructions on setting up the ZEN
 cat /vagrant/installer/rc.local > /etc/rc.local
