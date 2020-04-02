@@ -29,12 +29,23 @@ node01_mgmt_ip: 172.17.17.251
 # Roles
 dot1x_user_role.id: user-staff
 dot1x_user_role.notes: Staff
+dot1x_user_role.vlan_id: 100
 
 dot1x_machine_role.id: machine-staff
 dot1x_machine_role.notes: Machine staff
+dot1x_machine_role.vlan_id: 100
 
 # Sources
 ad_user_source.name: ad-user-auth
 ad_user_source.description: '{{.ad_mgmt_ip}} user authentication'
 ad_machine_source.name: ad-machine-auth
 ad_machine_source.description: '{{.ad_mgmt_ip}} machine authentication'
+
+# Switch group
+cumulus_switch_group.id: cumulus-switch-group
+cumulus_switch_group.description: Cumulus switch group
+cumulus_switch_group.radiusSecret: testing123
+
+# Switch
+cumulus_switch.id: '{{.switch01_mgmt_ip}}'
+cumulus_switch.description: switch01
