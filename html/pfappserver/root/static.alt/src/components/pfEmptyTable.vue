@@ -6,7 +6,7 @@
                 <b-media v-else>
                     <template v-slot:aside><icon :name="icon" scale="2"></icon></template>
                     <h4><slot/></h4>
-                    <p class="font-weight-light" v-if="text">{{ text }}</p>
+                    <p class="font-weight-light" v-if="subtext">{{ subtext }}</p>
                 </b-media>
             </b-col>
         </b-row>
@@ -24,11 +24,16 @@ export default {
     },
     text: {
       type: String,
-      default: i18n.t('Please refine your search.')
+      default: null
     },
     icon: {
       type: String,
       default: 'search'
+    }
+  },
+  computed: {
+    subtext () {
+      return this.text !== null ? this.text : this.$i18n.t('Please refine your search.')
     }
   }
 }
