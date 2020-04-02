@@ -8,7 +8,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/tryableonce"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	statsd "gopkg.in/alexcesaro/statsd.v2"
 	"net"
 	"time"
 )
@@ -27,6 +29,10 @@ type PfAcct struct {
 	LoggerCtx       context.Context
 	Dispatcher      *Dispatcher
 	SwitchInfoCache *cache.Cache
+	StatsdOnce      tryableonce.TryableOnce
+	StatsdAddress   string
+	StatsdOption    statsd.Option
+	StatsdClient    *statsd.Client
 }
 
 func NewPfAcct() *PfAcct {
@@ -75,6 +81,39 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	if pfAcct.TimeDuration == 0 {
 		pfAcct.TimeDuration = DefaultTimeDuration
 	}
+
+	pfAcct.StatsdOption = statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfAcct.Management)
+}
+
+// Timing struct
+type Timing struct {
+	timing statsd.Timing
+}
+
+// NewTiming struct
+func (pfAcct *PfAcct) NewTiming() *Timing {
+	err := pfAcct.StatsdOnce.Do(
+		func() error {
+			var err error
+			pfAcct.StatsdClient, err = statsd.New(pfAcct.StatsdOption)
+			return err
+		},
+	)
+
+	if err != nil || pfAcct.StatsdClient == nil {
+		return nil
+	}
+
+	return &Timing{timing: pfAcct.StatsdClient.NewTiming()}
+}
+
+// Send function to add pf prefix
+func (t *Timing) Send(name string) {
+	if t == nil {
+		return
+	}
+
+	t.timing.Send(name)
 }

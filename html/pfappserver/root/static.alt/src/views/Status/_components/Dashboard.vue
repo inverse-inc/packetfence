@@ -343,6 +343,16 @@ export default {
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
                   cols: 6
+                },
+                {
+                  title: this.$i18n.t('RADIUS pfacct'),
+                  metric: 'statsd_timer_pfacct.handleaccountingrequest',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  params: {
+                    filter_graph: 'events'
+                  },
+                  cols: 6
                 }
               ]
             },
