@@ -81,12 +81,3 @@ testcases:
       script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain_id}} wbinfo -t'
       retry: 5
       delay: 15
-
-
-
-
-      
-
-
-
-
