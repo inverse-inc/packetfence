@@ -54,8 +54,8 @@
             <b-dropdown-item-button @click="fixPermissions" :disabled="isFixingPermissions">
               {{ $t('Fix Permissions') }} <icon class="ml-2" name="circle-notch" spin v-if="isFixingPermissions"></icon>
             </b-dropdown-item-button>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-item href="/admin/status" target="_blank">{{ $t('Switch to Old Admin') }}</b-dropdown-item>
+            <b-dropdown-divider v-if="isOldAdminEnabled"></b-dropdown-divider>
+            <b-dropdown-item v-if="isOldAdminEnabled" href="/admin/status" target="_blank">{{ $t('Switch to Old Admin') }}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
         <pf-notification-center :isAuthenticated="isAuthenticated || isConfiguratorActive" />
@@ -113,6 +113,9 @@ export default {
     },
     isConfiguratorActive () {
       return this.$store.state.session.configuratorActive
+    },
+    isOldAdminEnabled () {
+      return this.$store.state.session.oldAdminEnabled
     },
     isPerfomingCheckup () {
       return this.$store.getters['config/isLoadingCheckup']
