@@ -10,7 +10,7 @@ testcases:
     body: >-
       {
         "admin_strip_username": "enabled",
-        "domain": "{{.ad_domain}}",
+        "domain": "{{.ad_domain_id}}",
         "eduroam_options": null,
         "eduroam_radius_acct": null,
         "eduroam_radius_acct_proxy_type": "load-balance",
@@ -42,7 +42,7 @@ testcases:
     body: >-
       {
         "admin_strip_username": "enabled",
-        "domain": "{{.ad_domain}}",
+        "domain": "{{.ad_domain_id}}",
         "eduroam_options": null,
         "eduroam_radius_acct": null,
         "eduroam_radius_acct_proxy_type": "load-balance",
@@ -75,7 +75,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.ad_domain}}"
+        "domain": "{{.ad_domain_id}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -89,7 +89,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.ad_domain}}"
+        "domain": "{{.ad_domain_id}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"

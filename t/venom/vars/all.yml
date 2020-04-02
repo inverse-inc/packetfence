@@ -11,7 +11,7 @@ pfserver_default_admin_password: admin
 
 # ad variables
 ad_mgmt_ip: 172.17.17.100
-ad_domain: example
+ad_domain_id: example
 ad_domain_upper: EXAMPLE
 ad_dns_domain: example.lan
 ad_domain_admin_user: vagrant-domain
