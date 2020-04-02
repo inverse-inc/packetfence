@@ -16,6 +16,7 @@ use pfappserver::Form::Field::DynamicList;
 use pfappserver::Form::Config::FilterEngines;
 use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
+use pf::config qw(%Config);
 use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 extends 'pfappserver::Form::Config::FilterEngines';
 with qw(
@@ -142,8 +143,7 @@ sub options_field_names {
         ),
         (
            map { "radius_request.$_" } (
-            keys %{$RADIUS_DICTIONARY->{attr}},
-            keys %{$RADIUS_DICTIONARY->{avendors}}
+               @{$Config{radius_configuration}{radius_attributes} // []}
            )
         )
     );
