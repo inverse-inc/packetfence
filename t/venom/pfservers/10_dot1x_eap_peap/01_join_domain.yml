@@ -36,8 +36,27 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
+- name: join-domain-to-create-chroot
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain}}/join'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.ad_domain}}",
+        "username": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
+        "password": "{{.ad_domain_admin_password}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 202
+
 # hack to join domain due to incompatibility when running 'netns exec' with libvirt
 # commands are run directly in chroot
+# we don't use testjoin API call
 - name: join-domain
   steps:
     - type: exec
