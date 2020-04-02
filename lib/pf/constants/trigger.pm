@@ -82,6 +82,7 @@ our $TRIGGER_MAP = {
     "node_discovered" => "Node discovered",
     "new_dhcp_info_from_managed_network" => "DHCP packet received from managed network",
     "new_dhcp_info_from_production_network" => "DHCP packet received from production network",
+    "node_maintenance" => "Node maintenance",
     "fingerbank_diff_score_too_low" => "Fingerbank Collector detected a network behavior that doesn't match the known profile",
     "fingerbank_blacklisted_ips_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs",
     "fingerbank_blacklisted_ports" => "Fingerbank Collector detected traffic to blacklisted ports",
