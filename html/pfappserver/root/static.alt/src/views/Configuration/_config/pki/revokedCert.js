@@ -158,7 +158,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           cols: [
             {
               namespace: 'ID',
@@ -170,7 +170,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Certificate Template', // i18n defer
+          label: i18n.t('Certificate Template'),
           text: i18n.t('Certificate template used for this certificate.'),
           cols: [
             {
@@ -184,7 +184,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Common Name', // i18n defer
+          label: i18n.t('Common Name'),
           text: i18n.t('Username for this certificate.'),
           cols: [
             {
@@ -197,7 +197,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Email', // i18n defer
+          label: i18n.t('Email'),
           text: i18n.t('Email address of the user. The email with the certificate will be sent to this address.'),
           cols: [
             {
@@ -210,7 +210,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Organisation', // i18n defer
+          label: i18n.t('Organisation'),
           cols: [
             {
               namespace: 'organisation',
@@ -222,7 +222,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Country', // i18n defer
+          label: i18n.t('Country'),
           cols: [
             {
               namespace: 'country',
@@ -237,7 +237,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'State or Province', // i18n defer
+          label: i18n.t('State or Province'),
           cols: [
             {
               namespace: 'state',
@@ -249,7 +249,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Locality', // i18n defer
+          label: i18n.t('Locality'),
           cols: [
             {
               namespace: 'locality',
@@ -261,7 +261,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Street Address', // i18n defer
+          label: i18n.t('Street Address'),
           cols: [
             {
               namespace: 'street_address',
@@ -273,7 +273,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Postal Code', // i18n defer
+          label: i18n.t('Postal Code'),
           cols: [
             {
               namespace: 'postal_code',
@@ -285,7 +285,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Revoked', // i18n defer
+          label: i18n.t('Revoked'),
           cols: [
             {
               namespace: 'revoked',
@@ -297,7 +297,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Reason', // i18n defer
+          label: i18n.t('Reason'),
           cols: [
             {
               namespace: 'crl_reason',

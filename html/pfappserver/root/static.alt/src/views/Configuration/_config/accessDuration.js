@@ -22,7 +22,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'Access duration choices', // i18n defer
+          label: i18n.t('Access duration choices'),
           text: i18n.t('List of all the choices offered in the access duration action of an authentication source.'),
           cols: [
             {
@@ -40,7 +40,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Default access duration', // i18n defer
+          label: i18n.t('Default access duration'),
           text: i18n.t('This is the default access duration value selected in the dropdown. The value must be part of the above list of access duration choices.'),
           cols: [
             {

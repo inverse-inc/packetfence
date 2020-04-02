@@ -19,20 +19,20 @@ import {
 export const columns = [
   {
     key: 'id',
-    label: 'Name', // i18n defer
+    label: i18n.t('Name'),
     required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'notes',
-    label: 'Description', // i18n defer
+    label: i18n.t('Description'),
     sortable: true,
     visible: true
   },
   {
     key: 'max_nodes_per_pid',
-    label: 'Max nodes per user', // i18n defer
+    label: i18n.t('Max nodes per user'),
     sortable: true,
     visible: true
   },
@@ -106,7 +106,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'Name', // i18n defer
+          label: i18n.t('Name'),
           cols: [
             {
               namespace: 'id',
@@ -121,7 +121,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Description', // i18n defer
+          label: i18n.t('Description'),
           cols: [
             {
               namespace: 'notes',
@@ -131,7 +131,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Max nodes per user', // i18n defer
+          label: i18n.t('Max nodes per user'),
           text: i18n.t('The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.'),
           cols: [
             {

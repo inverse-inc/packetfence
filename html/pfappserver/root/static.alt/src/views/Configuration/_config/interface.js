@@ -253,7 +253,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!master),
-          label: 'Interface', // i18n defer
+          label: i18n.t('Interface'),
           cols: [
             {
               namespace: 'id',
@@ -266,7 +266,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: (master),
-          label: 'Interface', // i18n defer
+          label: i18n.t('Interface'),
           cols: [
             {
               namespace: 'master',
@@ -279,7 +279,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: (isNew || isClone || isVlan),
-          label: 'Virtual LAN ID', // i18n defer
+          label: i18n.t('Virtual LAN ID'),
           cols: [
             {
               namespace: 'vlan',
@@ -293,7 +293,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'IPv4 Address', // i18n defer
+          label: i18n.t('IPv4 Address'),
           cols: [
             {
               namespace: 'ipaddress',
@@ -302,7 +302,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Netmask', // i18n defer
+          label: i18n.t('Netmask'),
           cols: [
             {
               namespace: 'netmask',
@@ -311,7 +311,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'IPv6 Address', // i18n defer
+          label: i18n.t('IPv6 Address'),
           cols: [
             {
               namespace: 'ipv6_address',
@@ -320,7 +320,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'IPv6 Prefix', // i18n defer
+          label: i18n.t('IPv6 Prefix'),
           cols: [
             {
               namespace: 'ipv6_prefix',
@@ -329,7 +329,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Type', // i18n defer
+          label: i18n.t('Type'),
           cols: [
             {
               namespace: 'type',
@@ -345,7 +345,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Additional listening daemon(s)', // i18n defer
+          label: i18n.t('Additional listening daemon(s)'),
           cols: [
             {
               namespace: 'additional_listening_daemons',
@@ -366,7 +366,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: 'DNS', // i18n defer
+          label: i18n.t('DNS'),
           text: i18n.t('The DNS server(s) of your network. (comma limited)'),
           cols: [
             {
@@ -377,7 +377,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration'].includes(type),
-          label: 'Enable DHCP Server', // i18n defer
+          label: i18n.t('Enable DHCP Server'),
           cols: [
             {
               namespace: 'dhcpd_enabled',
@@ -390,7 +390,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: 'Enable NAT', // i18n defer
+          label: i18n.t('Enable NAT'),
           cols: [
             {
               namespace: 'nat_enabled',
@@ -418,7 +418,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: 'Split network by role', // i18n defer
+          label: i18n.t('Split network by role'),
           text: i18n.t('This will create a small network for each roles.'),
           cols: [
             {
@@ -432,7 +432,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: 'Registration IP Address CIDR format', // i18n defer
+          label: i18n.t('Registration IP Address CIDR format'),
           text: i18n.t('When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).'),
           cols: [
             {
@@ -458,7 +458,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['inlinel2'].includes(type),
-          label: 'Enable CoA', // i18n defer
+          label: i18n.t('Enable CoA'),
           text: i18n.t('Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints.'),
           cols: [
             {
@@ -472,7 +472,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['none', 'management'].includes(type),
-          label: 'High availability', // i18n defer
+          label: i18n.t('High availability'),
           cols: [
             {
               namespace: 'high_availability',

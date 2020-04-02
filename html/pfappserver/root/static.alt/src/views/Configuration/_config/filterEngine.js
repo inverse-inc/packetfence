@@ -128,7 +128,7 @@ export const viewFields = {
   id: (form, meta = {}) => {
     const { isNew = false, isClone = false } = meta
     return {
-      label: 'Name', // i18n defer
+      label: i18n.t('Name'),
       text: i18n.t('Specify a unique name for your filter.'),
       cols: [
         {
@@ -146,7 +146,7 @@ export const viewFields = {
   },
   actions: (form, meta = {}) => {
     return {
-      label: 'Actions', // i18n defer
+      label: i18n.t('Actions'),
       text: i18n.t('Specify actions when condition is met.'),
       cols: [
         {
@@ -171,7 +171,7 @@ export const viewFields = {
   },
   answer: (form, meta = {}) => {
     return {
-      label: 'Answer', // i18n defer
+      label: i18n.t('Answer'),
       cols: [
         {
           namespace: 'answer',
@@ -184,7 +184,7 @@ export const viewFields = {
   answers: (form, meta = {}) => {
     const { answers: { item: { properties: { prefix: { allowed: prefixes } = {} } = {} } = {} } = {} } = meta
     return {
-      label: 'Answers', // i18n defer
+      label: i18n.t('Answers'),
       cols: [
         {
           namespace: 'answers',
@@ -212,7 +212,7 @@ export const viewFields = {
   },
   condition: (form, meta = {}) => {
     return {
-      label: 'Condition', // i18n defer
+      label: i18n.t('Condition'),
       text: i18n.t('Specify a condition to match.'),
       cols: [
         {
@@ -236,7 +236,7 @@ export const viewFields = {
   },
   description: (form, meta = {}) => {
     return {
-      label: 'Description', // i18n defer
+      label: i18n.t('Description'),
       cols: [
         {
           namespace: 'description',
@@ -248,7 +248,7 @@ export const viewFields = {
   },
   merge_answer: (form, meta = {}) => {
     return {
-      label: 'Merge Answer', // i18n defer
+      label: i18n.t('Merge Answer'),
       text: i18n.t('Enable to merge the following answers with the original RADIUS answers.'),
       cols: [
         {
@@ -263,7 +263,7 @@ export const viewFields = {
   },
   radius_status: (form, meta = {}) => {
     return {
-      label: 'RADIUS Status', // i18n defer
+      label: i18n.t('RADIUS Status'),
       cols: [
         {
           namespace: 'radius_status',
@@ -275,7 +275,7 @@ export const viewFields = {
   },
   rcode: (form, meta = {}) => {
     return {
-      label: 'Response Code', // i18n defer
+      label: i18n.t('Response Code'),
       cols: [
         {
           namespace: 'rcode',
@@ -287,7 +287,7 @@ export const viewFields = {
   },
   run_actions: (form, meta = {}) => {
     return {
-      label: 'Peform Actions', // i18n defer
+      label: i18n.t('Peform Actions'),
       text: i18n.t('Enable to perform the following actions. Disable to only apply the role.'),
       cols: [
         {
@@ -302,7 +302,7 @@ export const viewFields = {
   },
   role: (form, meta = {}) => {
     return {
-      label: 'Role', // i18n defer
+      label: i18n.t('Role'),
       cols: [
         {
           namespace: 'role',
@@ -314,7 +314,7 @@ export const viewFields = {
   },
   scopes: (form, meta = {}) => {
     return {
-      label: 'Scopes', // i18n defer
+      label: i18n.t('Scopes'),
       cols: [
         {
           namespace: 'scopes',
@@ -326,7 +326,7 @@ export const viewFields = {
   },
   status: (form, meta = {}) => {
     return {
-      label: 'Enabled', // i18n defer
+      label: i18n.t('Enabled'),
       cols: [
         {
           namespace: 'status',

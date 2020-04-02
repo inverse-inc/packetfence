@@ -152,7 +152,7 @@ export const viewFields = {
   id: (form, meta = {}) => {
     const { isNew = false, isClone = false } = meta
     return {
-      label: 'Name', // i18n defer
+      label: i18n.t('Name'),
       cols: [
         {
           namespace: 'id',
@@ -169,7 +169,7 @@ export const viewFields = {
   },
   access_scope: (form, meta = {}) => {
     return {
-      label: 'Scope', // i18n defer
+      label: i18n.t('Scope'),
       text: i18n.t('The permissions the application requests.'),
       cols: [
         {
@@ -182,7 +182,7 @@ export const viewFields = {
   },
   access_token_param: (form, meta = {}) => {
     return {
-      label: 'Access Token Parameter', // i18n defer
+      label: i18n.t('Access Token Parameter'),
       cols: [
         {
           namespace: 'access_token_param',
@@ -206,7 +206,7 @@ export const viewFields = {
   },
   account_sid: (form, meta = {}) => {
     return {
-      label: 'Account SID', // i18n defer
+      label: i18n.t('Account SID'),
       text: i18n.t('Twilio Account SID.'),
       cols: [
         {
@@ -219,7 +219,7 @@ export const viewFields = {
   },
   activation_domain: (form, meta = {}) => {
     return {
-      label: 'Host in activation link', // i18n defer
+      label: i18n.t('Host in activation link'),
       text: i18n.t('Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.'),
       cols: [
         {
@@ -278,7 +278,7 @@ export const viewFields = {
   },
   allowed_domains: (form, meta = {}) => {
     return {
-      label: 'Comma-separated list of Allowed Domains', // i18n defer
+      label: i18n.t('Comma-separated list of Allowed Domains'),
       text: i18n.t('A comma-separated list of domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.'),
       cols: [
         {
@@ -296,7 +296,7 @@ export const viewFields = {
   },
   allow_localdomain: () => {
     return {
-      label: 'Allow Local Domain', // i18n defer
+      label: i18n.t('Allow Local Domain'),
       text: i18n.t('Accept self-registration with email address from the local domain.'),
       cols: [
         {
@@ -311,7 +311,7 @@ export const viewFields = {
   },
   api_key: (form, meta = {}) => {
     return {
-      label: 'API Key', // i18n defer
+      label: i18n.t('API Key'),
       cols: [
         {
           namespace: 'api_key',
@@ -323,7 +323,7 @@ export const viewFields = {
   },
   api_login_id: (form, meta = {}) => {
     return {
-      label: 'API login ID', // i18n defer
+      label: i18n.t('API login ID'),
       cols: [
         {
           namespace: 'api_login_id',
@@ -335,7 +335,7 @@ export const viewFields = {
   },
   api_username: (form, meta = {}) => {
     return {
-      label: 'API username (basic auth)', // i18n defer
+      label: i18n.t('API username (basic auth)'),
       cols: [
         {
           namespace: 'username',
@@ -347,7 +347,7 @@ export const viewFields = {
   },
   api_password: (form, meta = {}) => {
     return {
-      label: 'API password (basic auth)', // i18n defer
+      label: i18n.t('API password (basic auth)'),
       cols: [
         {
           namespace: 'password',
@@ -359,7 +359,7 @@ export const viewFields = {
   },
   auth_listening_port: (form, meta = {}) => {
     return {
-      label: 'Authentication listening port', // i18n defer
+      label: i18n.t('Authentication listening port'),
       text: i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port.'),
       cols: [
         {
@@ -372,7 +372,7 @@ export const viewFields = {
   },
   auth_token: (form, meta = {}) => {
     return {
-      label: 'Auth Token', // i18n defer
+      label: i18n.t('Auth Token'),
       text: i18n.t('Twilio Auth Token.'),
       cols: [
         {
@@ -385,7 +385,7 @@ export const viewFields = {
   },
   authenticate_realm: (form, meta = {}) => {
     return {
-      label: 'Realm to use to authenticate', // i18n defer
+      label: i18n.t('Realm to use to authenticate'),
       cols: [
         {
           namespace: 'authenticate_realm',
@@ -443,7 +443,7 @@ export const viewFields = {
   },
   authentication_url: (form, meta = {}) => {
     return {
-      label: 'Authentication URL', // i18n defer
+      label: i18n.t('Authentication URL'),
       text: i18n.t('Note : The URL is always prefixed by a slash (/).'),
       cols: [
         {
@@ -456,7 +456,7 @@ export const viewFields = {
   },
   authorization_source_id: (form, meta = {}) => {
     return {
-      label: 'Authorization source', // i18n defer
+      label: i18n.t('Authorization source'),
       text: i18n.t('The source to use for authorization (rule matching).'),
       cols: [
         {
@@ -469,7 +469,7 @@ export const viewFields = {
   },
   authorize_path: (form, meta = {}) => {
     return {
-      label: 'API Authorize Path', // i18n defer
+      label: i18n.t('API Authorize Path'),
       cols: [
         {
           namespace: 'authorize_path',
@@ -481,7 +481,7 @@ export const viewFields = {
   },
   authorization_url: (form, meta = {}) => {
     return {
-      label: 'Authorization URL', // i18n defer
+      label: i18n.t('Authorization URL'),
       text: i18n.t('Note : The URL is always prefixed by a slash (/).'),
       cols: [
         {
@@ -494,7 +494,7 @@ export const viewFields = {
   },
   banned_domains: (form, meta = {}) => {
     return {
-      label: 'Comma-separated list of Banned Domains', // i18n defer
+      label: i18n.t('Comma-separated list of Banned Domains'),
       text: i18n.t('A comma-separated list of domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.'),
       cols: [
         {
@@ -512,7 +512,7 @@ export const viewFields = {
   },
   base_url: (form, meta = {}) => {
     return {
-      label: 'Iframe Base URL', // i18n defer
+      label: i18n.t('Iframe Base URL'),
       cols: [
         {
           namespace: 'base_url',
@@ -524,7 +524,7 @@ export const viewFields = {
   },
   basedn: (form, meta = {}) => {
     return {
-      label: 'Base DN', // i18n defer
+      label: i18n.t('Base DN'),
       cols: [
         {
           namespace: 'basedn',
@@ -536,7 +536,7 @@ export const viewFields = {
   },
   binddn: (form, meta = {}) => {
     return {
-      label: 'Bind DN', // i18n defer
+      label: i18n.t('Bind DN'),
       text: i18n.t('Leave this field empty if you want to perform an anonymous bind.'),
       cols: [
         {
@@ -549,7 +549,7 @@ export const viewFields = {
   },
   cache_match: () => {
     return {
-      label: 'Cache match', // i18n defer
+      label: i18n.t('Cache match'),
       text: i18n.t('Will cache results of matching a rule.'),
       cols: [
         {
@@ -564,7 +564,7 @@ export const viewFields = {
   },
   cert_file: (form, meta = {}) => {
     return {
-      label: 'Cert file', // i18n defer
+      label: i18n.t('Cert file'),
       text: i18n.t('The path to the certificate you submitted to Paypal.'),
       cols: [
         {
@@ -577,7 +577,7 @@ export const viewFields = {
   },
   cert_id: (form, meta = {}) => {
     return {
-      label: 'Cert ID', // i18n defer
+      label: i18n.t('Cert ID'),
       cols: [
         {
           namespace: 'cert_id',
@@ -589,7 +589,7 @@ export const viewFields = {
   },
   client_id: (form, meta = {}) => {
     return {
-      label: 'App ID', // i18n defer
+      label: i18n.t('App ID'),
       cols: [
         {
           namespace: 'client_id',
@@ -601,7 +601,7 @@ export const viewFields = {
   },
   client_secret: (form, meta = {}) => {
     return {
-      label: 'App Secret', // i18n defer
+      label: i18n.t('App Secret'),
       cols: [
         {
           namespace: 'client_secret',
@@ -613,7 +613,7 @@ export const viewFields = {
   },
   connection_timeout: (form, meta = {}) => {
     return {
-      label: 'Connection timeout', // i18n defer
+      label: i18n.t('Connection timeout'),
       text: i18n.t('LDAP connection Timeout.'),
       cols: [
         {
@@ -626,7 +626,7 @@ export const viewFields = {
   },
   create_local_account: () => {
     return {
-      label: 'Create Local Account', // i18n defer
+      label: i18n.t('Create Local Account'),
       text: i18n.t('Create a local account on the PacketFence system based on the username provided.'),
       cols: [
         {
@@ -641,7 +641,7 @@ export const viewFields = {
   },
   currency: (form, meta = {}) => {
     return {
-      label: 'Currency', // i18n defer
+      label: i18n.t('Currency'),
       cols: [
         {
           namespace: 'currency',
@@ -653,7 +653,7 @@ export const viewFields = {
   },
   description: (form, meta = {}) => {
     return {
-      label: 'Description', // i18n defer
+      label: i18n.t('Description'),
       cols: [
         {
           namespace: 'description',
@@ -665,7 +665,7 @@ export const viewFields = {
   },
   direct_base_url: (form, meta = {}) => {
     return {
-      label: 'Direct Base url', // i18n defer
+      label: i18n.t('Direct Base url'),
       cols: [
         {
           namespace: 'direct_base_url',
@@ -677,7 +677,7 @@ export const viewFields = {
   },
   domains: (form, meta = {}) => {
     return {
-      label: 'Authorized domains', // i18n defer
+      label: i18n.t('Authorized domains'),
       text: i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.'),
       cols: [
         {
@@ -690,7 +690,7 @@ export const viewFields = {
   },
   email_activation_timeout: (form, meta = {}) => {
     return {
-      label: 'Email Activation Timeout', // i18n defer
+      label: i18n.t('Email Activation Timeout'),
       text: null, // multiple occurances w/ different strings, nullify for overload
       cols: [
         {
@@ -713,7 +713,7 @@ export const viewFields = {
   },
   email_address: (form, meta = {}) => {
     return {
-      label: 'Email address', // i18n defer
+      label: i18n.t('Email address'),
       text: i18n.t('The email address associated to your paypal account.'),
       cols: [
         {
@@ -726,7 +726,7 @@ export const viewFields = {
   },
   email_attribute: (form, meta = {}) => {
     return {
-      label: 'Email Attribute', // i18n defer
+      label: i18n.t('Email Attribute'),
       text: i18n.t('LDAP attribute name that stores the email address against which the filter will match.'),
       cols: [
         {
@@ -739,7 +739,7 @@ export const viewFields = {
   },
   email_required: () => {
     return {
-      label: 'Email required', // i18n defer
+      label: i18n.t('Email required'),
       cols: [
         {
           namespace: 'email_required',
@@ -753,7 +753,7 @@ export const viewFields = {
   },
   group_header: (form, meta = {}) => {
     return {
-      label: 'Group header ', // i18n defer
+      label: i18n.t('Group header '),
       cols: [
         {
           namespace: 'group_header',
@@ -765,7 +765,7 @@ export const viewFields = {
   },
   hash_passwords: (form, meta = {}) => {
     return {
-      label: 'Database passwords hashing method', // i18n defer
+      label: i18n.t('Database passwords hashing method'),
       text: i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.'),
       cols: [
         {
@@ -778,7 +778,7 @@ export const viewFields = {
   },
   host: (form, meta = {}) => {
     return {
-      label: 'Host', // i18n defer
+      label: i18n.t('Host'),
       cols: [
         {
           namespace: 'host',
@@ -809,7 +809,7 @@ export const viewFields = {
     }
 
     return {
-      label: 'Host', // i18n defer
+      label: i18n.t('Host'),
       cols: [
         {
           namespace: 'host',
@@ -861,7 +861,7 @@ export const viewFields = {
   },
   identity_token: (form, meta = {}) => {
     return {
-      label: 'Identity token', // i18n defer
+      label: i18n.t('Identity token'),
       cols: [
         {
           namespace: 'identity_token',
@@ -873,7 +873,7 @@ export const viewFields = {
   },
   idp_ca_cert_path: (form, meta = {}) => {
     return {
-      label: 'Path to Identity Provider CA cert (x509)', // i18n defer
+      label: i18n.t('Path to Identity Provider CA cert (x509)'),
       text: i18n.t('If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.'),
       cols: [
         {
@@ -886,7 +886,7 @@ export const viewFields = {
   },
   idp_cert_path: (form, meta = {}) => {
     return {
-      label: 'Path to Identity Provider cert (x509)', // i18n defer
+      label: i18n.t('Path to Identity Provider cert (x509)'),
       cols: [
         {
           namespace: 'idp_cert_path',
@@ -898,7 +898,7 @@ export const viewFields = {
   },
   idp_entity_id: (form, meta = {}) => {
     return {
-      label: 'Identity Provider entity ID', // i18n defer
+      label: i18n.t('Identity Provider entity ID'),
       cols: [
         {
           namespace: 'idp_entity_id',
@@ -910,7 +910,7 @@ export const viewFields = {
   },
   idp_metadata_path: (form, meta = {}) => {
     return {
-      label: 'Path to Identity Provider metadata', // i18n defer
+      label: i18n.t('Path to Identity Provider metadata'),
       cols: [
         {
           namespace: 'idp_metadata_path',
@@ -922,7 +922,7 @@ export const viewFields = {
   },
   key_file: (form, meta = {}) => {
     return {
-      label: 'Key file', // i18n defer
+      label: i18n.t('Key file'),
       text: i18n.t('The path to the associated key of the certificate you submitted to Paypal.'),
       cols: [
         {
@@ -935,7 +935,7 @@ export const viewFields = {
   },
   lang: (form, meta = {}) => {
     return {
-      label: 'Language', // i18n defer
+      label: i18n.t('Language'),
       text: i18n.t('Language for sponsor email.'),
       cols: [
         {
@@ -948,7 +948,7 @@ export const viewFields = {
   },
   local_account_logins: (form, meta = {}) => {
     return {
-      label: 'Amount of logins for the local account', // i18n defer
+      label: i18n.t('Amount of logins for the local account'),
       text: i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.'),
       cols: [
         {
@@ -961,7 +961,7 @@ export const viewFields = {
   },
   local_realm: (form, meta = {}) => {
     return {
-      label: 'Local Realms', // i18n defer
+      label: i18n.t('Local Realms'),
       text: i18n.t('Realms that will be authenticate locally.'),
       cols: [
         {
@@ -974,7 +974,7 @@ export const viewFields = {
   },
   merchant_id: (form, meta = {}) => {
     return {
-      label: 'Merchant ID', // i18n defer
+      label: i18n.t('Merchant ID'),
       cols: [
         {
           namespace: 'merchant_id',
@@ -986,7 +986,7 @@ export const viewFields = {
   },
   message: (form, meta = {}) => {
     return {
-      label: 'SMS text message ($pin will be replaced by the PIN number)', // i18n defer
+      label: i18n.t('SMS text message ($pin will be replaced by the PIN number)'),
       cols: [
         {
           namespace: 'message',
@@ -1003,7 +1003,7 @@ export const viewFields = {
   },
   monitor: () => {
     return {
-      label: 'Monitor', // i18n defer
+      label: i18n.t('Monitor'),
       text: i18n.t('Do you want to monitor this source?'),
       cols: [
         {
@@ -1018,7 +1018,7 @@ export const viewFields = {
   },
   options: (form, meta = {}) => {
     return {
-      label: 'Options', // i18n defer
+      label: i18n.t('Options'),
       text: i18n.t('Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radiusd restart.'),
       cols: [
         {
@@ -1036,7 +1036,7 @@ export const viewFields = {
   },
   password: (form = {}, meta = {}) => {
     return {
-      label: 'Password', // i18n defer
+      label: i18n.t('Password'),
       cols: [
         {
           namespace: 'password',
@@ -1057,7 +1057,7 @@ export const viewFields = {
   },
   password_email_update: (form, meta = {}) => {
     return {
-      label: 'Email', // i18n defer
+      label: i18n.t('Email'),
       text: i18n.t('Email addresses to send the new generated password.'),
       cols: [
         {
@@ -1070,7 +1070,7 @@ export const viewFields = {
   },
   password_length: (form, meta = {}) => {
     return {
-      label: 'Password length ', // i18n defer
+      label: i18n.t('Password length '),
       text: i18n.t('The length of the password to generate.'),
       cols: [
         {
@@ -1083,7 +1083,7 @@ export const viewFields = {
   },
   password_rotation: (form, meta = {}) => {
     return {
-      label: 'Password rotation duration', // i18n defer
+      label: i18n.t('Password rotation duration'),
       text: i18n.t('Period of time after the password must be rotated.'),
       cols: [
         {
@@ -1096,7 +1096,7 @@ export const viewFields = {
   },
   path: (form, meta = {}) => {
     return {
-      label: 'File Path', // i18n defer
+      label: i18n.t('File Path'),
       cols: [
         {
           namespace: 'path',
@@ -1108,7 +1108,7 @@ export const viewFields = {
   },
   payment_type: (form, meta = {}) => {
     return {
-      label: 'Payment type', // i18n defer
+      label: i18n.t('Payment type'),
       cols: [
         {
           namespace: 'payment_type',
@@ -1120,7 +1120,7 @@ export const viewFields = {
   },
   paypal_cert_file: (form, meta = {}) => {
     return {
-      label: 'Paypal cert file', // i18n defer
+      label: i18n.t('Paypal cert file'),
       text: i18n.t('The path to the Paypal certificate you downloaded.'),
       cols: [
         {
@@ -1133,7 +1133,7 @@ export const viewFields = {
   },
   pin_code_length: (form, meta = {}) => {
     return {
-      label: 'PIN length', // i18n defer
+      label: i18n.t('PIN length'),
       text: i18n.t('The amount of digits of the PIN number.'),
       cols: [
         {
@@ -1146,7 +1146,7 @@ export const viewFields = {
   },
   port: (form, meta = {}) => {
     return {
-      label: 'Port', // i18n defer
+      label: i18n.t('Port'),
       text: i18n.t('If you use this source in the realm configuration the accounting port will be this port + 1.'),
       cols: [
         {
@@ -1171,7 +1171,7 @@ export const viewFields = {
   },
   protocol_host_port: (form, meta = {}) => {
     return {
-      label: 'Host', // i18n defer
+      label: i18n.t('Host'),
       cols: [
         {
           namespace: 'protocol',
@@ -1212,7 +1212,7 @@ export const viewFields = {
   },
   proxy_addresses: (form, meta = {}) => {
     return {
-      label: 'Proxy addresses', // i18n defer
+      label: i18n.t('Proxy addresses'),
       text: i18n.t('A comma seperated list of IP Address.'),
       cols: [
         {
@@ -1230,7 +1230,7 @@ export const viewFields = {
   },
   public_client_key: (form, meta = {}) => {
     return {
-      label: 'Public Client Key', // i18n defer
+      label: i18n.t('Public Client Key'),
       cols: [
         {
           namespace: 'public_client_key',
@@ -1242,7 +1242,7 @@ export const viewFields = {
   },
   publishable_key: (form, meta = {}) => {
     return {
-      label: 'Publishable key', // i18n defer
+      label: i18n.t('Publishable key'),
       cols: [
         {
           namespace: 'publishable_key',
@@ -1254,7 +1254,7 @@ export const viewFields = {
   },
   radius_secret: (form, meta = {}) => {
     return {
-      label: 'RADIUS secret', // i18n defer
+      label: i18n.t('RADIUS secret'),
       text: i18n.t('Eduroam RADIUS secret.'),
       cols: [
         {
@@ -1267,7 +1267,7 @@ export const viewFields = {
   },
   read_timeout: (form, meta = {}) => {
     return {
-      label: 'Response timeout', // i18n defer
+      label: i18n.t('Response timeout'),
       text: i18n.t('LDAP response timeout.'),
       cols: [
         {
@@ -1280,7 +1280,7 @@ export const viewFields = {
   },
   realms: (form, meta = {}) => {
     return {
-      label: 'Associated Realms', // i18n defer
+      label: i18n.t('Associated Realms'),
       text: i18n.t('Realms that will be associated with this source.'),
       cols: [
         {
@@ -1293,7 +1293,7 @@ export const viewFields = {
   },
   redirect_url: (form, meta = {}) => {
     return {
-      label: 'Portal URL', // i18n defer
+      label: i18n.t('Portal URL'),
       text: i18n.t('The hostname must be the one of your captive portal.'),
       cols: [
         {
@@ -1306,7 +1306,7 @@ export const viewFields = {
   },
   reject_realm: (form, meta = {}) => {
     return {
-      label: 'Reject Realms', // i18n defer
+      label: i18n.t('Reject Realms'),
       text: i18n.t('Realms that will be rejected.'),
       cols: [
         {
@@ -1319,7 +1319,7 @@ export const viewFields = {
   },
   scope: (form, meta = {}) => {
     return {
-      label: 'Scope', // i18n defer
+      label: i18n.t('Scope'),
       cols: [
         {
           namespace: 'scope',
@@ -1331,7 +1331,7 @@ export const viewFields = {
   },
   searchattributes: (form, meta = {}) => {
     return {
-      label: 'Search Attributes', // i18n defer
+      label: i18n.t('Search Attributes'),
       text: i18n.t('Other attributes that can be used as the username (requires to restart the radiusd service to be effective).'),
       cols: [
         {
@@ -1344,7 +1344,7 @@ export const viewFields = {
   },
   secret: (form, meta = {}) => {
     return {
-      label: 'Secret', // i18n defer
+      label: i18n.t('Secret'),
       cols: [
         {
           namespace: 'secret',
@@ -1356,7 +1356,7 @@ export const viewFields = {
   },
   secret_key: (form, meta = {}) => {
     return {
-      label: 'Secret key', // i18n defer
+      label: i18n.t('Secret key'),
       cols: [
         {
           namespace: 'secret_key',
@@ -1368,7 +1368,7 @@ export const viewFields = {
   },
   send_email_confirmation: () => {
     return {
-      label: 'Send billing confirmation', // i18n defer
+      label: i18n.t('Send billing confirmation'),
       cols: [
         {
           namespace: 'send_email_confirmation',
@@ -1382,7 +1382,7 @@ export const viewFields = {
   },
   server1_address: (form, meta = {}) => {
     return {
-      label: 'Server 1 address', // i18n defer
+      label: i18n.t('Server 1 address'),
       text: i18n.t('Eduroam server 1 address.'),
       cols: [
         {
@@ -1395,7 +1395,7 @@ export const viewFields = {
   },
   server1_port: (form, meta = {}) => {
     return {
-      label: 'Eduroam server 1 port', // i18n defer
+      label: i18n.t('Eduroam server 1 port'),
       cols: [
         {
           namespace: 'server1_port',
@@ -1407,7 +1407,7 @@ export const viewFields = {
   },
   server2_address: (form, meta = {}) => {
     return {
-      label: 'Server 2 address', // i18n defer
+      label: i18n.t('Server 2 address'),
       text: i18n.t('Eduroam server 1 address.'),
       cols: [
         {
@@ -1420,7 +1420,7 @@ export const viewFields = {
   },
   server2_port: (form, meta = {}) => {
     return {
-      label: 'Eduroam server 2 port', // i18n defer
+      label: i18n.t('Eduroam server 2 port'),
       cols: [
         {
           namespace: 'server2_port',
@@ -1432,7 +1432,7 @@ export const viewFields = {
   },
   service_fqdn: (form, meta = {}) => {
     return {
-      label: 'Service FQDN', // i18n defer
+      label: i18n.t('Service FQDN'),
       cols: [
         {
           namespace: 'service_fqdn',
@@ -1444,7 +1444,7 @@ export const viewFields = {
   },
   shared_secret: (form, meta = {}) => {
     return {
-      label: 'Shared Secret', // i18n defer
+      label: i18n.t('Shared Secret'),
       text: i18n.t('MKEY for the iframe.'),
       cols: [
         {
@@ -1457,7 +1457,7 @@ export const viewFields = {
   },
   shared_secret_direct: (form, meta = {}) => {
     return {
-      label: 'Shared Secret Direct', // i18n defer
+      label: i18n.t('Shared Secret Direct'),
       text: i18n.t('MKEY for Mirapay Direct.'),
       cols: [
         {
@@ -1470,7 +1470,7 @@ export const viewFields = {
   },
   shuffle: () => {
     return {
-      label: 'Shuffle', // i18n defer
+      label: i18n.t('Shuffle'),
       text: i18n.t('Randomly choose LDAP server to query.'),
       cols: [
         {
@@ -1497,7 +1497,7 @@ export const viewFields = {
   },
   sms_activation_timeout: (form, meta = {}) => {
     return {
-      label: 'SMS Activation Timeout ', // i18n defer
+      label: i18n.t('SMS Activation Timeout '),
       text: i18n.t('This is the delay given to a guest who registered by SMS confirmation to fill the PIN code.'),
       cols: [
         {
@@ -1520,7 +1520,7 @@ export const viewFields = {
   },
   sms_carriers: (form, meta = {}) => {
     return {
-      label: 'SMS Carriers', // i18n defer
+      label: i18n.t('SMS Carriers'),
       text: i18n.t('List of phone carriers available to the user.'),
       cols: [
         {
@@ -1533,7 +1533,7 @@ export const viewFields = {
   },
   sources: (form, meta = {}) => {
     return {
-      label: 'Associated Sources', // i18n defer
+      label: i18n.t('Associated Sources'),
       text: i18n.t('Sources that will be associated with this source (For the Sponsor).\nWith no source specified, all internal and external sources will be used.'),
       cols: [
         {
@@ -1546,7 +1546,7 @@ export const viewFields = {
   },
   sp_cert_path: (form, meta = {}) => {
     return {
-      label: 'Path to Service Provider cert (x509)', // i18n defer
+      label: i18n.t('Path to Service Provider cert (x509)'),
       cols: [
         {
           namespace: 'sp_cert_path',
@@ -1558,7 +1558,7 @@ export const viewFields = {
   },
   sp_entity_id: (form, meta = {}) => {
     return {
-      label: 'Service Provider entity ID', // i18n defer
+      label: i18n.t('Service Provider entity ID'),
       cols: [
         {
           namespace: 'sp_entity_id',
@@ -1570,7 +1570,7 @@ export const viewFields = {
   },
   sp_key_path: (form, meta = {}) => {
     return {
-      label: 'Path to Service Provider key (x509)', // i18n defer
+      label: i18n.t('Path to Service Provider key (x509)'),
       cols: [
         {
           namespace: 'sp_key_path',
@@ -1582,7 +1582,7 @@ export const viewFields = {
   },
   sponsorship_bcc: (form, meta = {}) => {
     return {
-      label: 'Sponsorship BCC', // i18n defer
+      label: i18n.t('Sponsorship BCC'),
       text: i18n.t('Sponsors requesting access and access confirmation emails are BCC\'ed to this address. Multiple destinations can be comma-separated.'),
       cols: [
         {
@@ -1595,7 +1595,7 @@ export const viewFields = {
   },
   style: (form, meta = {}) => {
     return {
-      label: 'Style', // i18n defer
+      label: i18n.t('Style'),
       cols: [
         {
           namespace: 'style',
@@ -1607,7 +1607,7 @@ export const viewFields = {
   },
   terminal_group_id: (form, meta = {}) => {
     return {
-      label: 'Terminal Group ID', // i18n defer
+      label: i18n.t('Terminal Group ID'),
       text: i18n.t('Terminal Group ID for Mirapay Direct.'),
       cols: [
         {
@@ -1620,7 +1620,7 @@ export const viewFields = {
   },
   terminal_id: (form, meta = {}) => {
     return {
-      label: 'Terminal ID', // i18n defer
+      label: i18n.t('Terminal ID'),
       text: i18n.t('Terminal ID for Mirapay Direct.'),
       cols: [
         {
@@ -1633,7 +1633,7 @@ export const viewFields = {
   },
   test_mode: () => {
     return {
-      label: 'Test mode', // i18n defer
+      label: i18n.t('Test mode'),
       cols: [
         {
           namespace: 'test_mode',
@@ -1647,7 +1647,7 @@ export const viewFields = {
   },
   timeout: (form, meta = {}) => {
     return {
-      label: 'Timeout', // i18n defer
+      label: i18n.t('Timeout'),
       cols: [
         {
           namespace: 'timeout',
@@ -1659,7 +1659,7 @@ export const viewFields = {
   },
   transaction_key: (form, meta = {}) => {
     return {
-      label: 'Transaction key', // i18n defer
+      label: i18n.t('Transaction key'),
       cols: [
         {
           namespace: 'transaction_key',
@@ -1671,7 +1671,7 @@ export const viewFields = {
   },
   twilio_phone_number: (form, meta = {}) => {
     return {
-      label: 'Phone Number (From)', // i18n defer
+      label: i18n.t('Phone Number (From)'),
       text: i18n.t('Twilio provided phone number which will show as the sender.'),
       cols: [
         {
@@ -1684,7 +1684,7 @@ export const viewFields = {
   },
   user_header: (form, meta = {}) => {
     return {
-      label: 'User header ', // i18n defer
+      label: i18n.t('User header '),
       cols: [
         {
           namespace: 'user_header',
@@ -1696,7 +1696,7 @@ export const viewFields = {
   },
   username_attribute: (form, meta = {}) => {
     return {
-      label: 'Attribute of the username in the SAML response.', // i18n defer
+      label: i18n.t('Attribute of the username in the SAML response.'),
       cols: [
         {
           namespace: 'username_attribute',
@@ -1708,7 +1708,7 @@ export const viewFields = {
   },
   usernameattribute: (form, meta = {}) => {
     return {
-      label: 'Username Attribute', // i18n defer
+      label: i18n.t('Username Attribute'),
       text: i18n.t('Main reference attribute that contain the username.'),
       cols: [
         {
@@ -1721,7 +1721,7 @@ export const viewFields = {
   },
   validate_sponsor: () => {
     return {
-      label: 'Sponsor Validation', // i18n defer
+      label: i18n.t('Sponsor Validation'),
       text: i18n.t('Force sponsor to authenticate when validating a guest request.'),
       cols: [
         {
@@ -1736,7 +1736,7 @@ export const viewFields = {
   },
   write_timeout: (form, meta = {}) => {
     return {
-      label: 'Request timeout', // i18n defer
+      label: i18n.t('Request timeout'),
       text: i18n.t('LDAP request timeout.'),
       cols: [
         {
@@ -2348,14 +2348,14 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             {
-              label: 'MiraPay iframe settings', // i18n defer
+              label: i18n.t('MiraPay iframe settings'),
               labelSize: 'lg'
             },
             viewFields.base_url(form, meta),
             viewFields.merchant_id(form, meta),
             viewFields.shared_secret(form, meta),
             {
-              label: 'MiraPay direct settings', // i18n defer
+              label: i18n.t('MiraPay direct settings'),
               labelSize: 'lg'
             },
             viewFields.direct_base_url(form, meta),
@@ -2363,7 +2363,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.shared_secret_direct(form, meta),
             viewFields.terminal_group_id(form, meta),
             {
-              label: 'Additional settings', // i18n defer
+              label: i18n.t('Additional settings'),
               labelSize: 'lg'
             },
             viewFields.service_fqdn(form, meta),

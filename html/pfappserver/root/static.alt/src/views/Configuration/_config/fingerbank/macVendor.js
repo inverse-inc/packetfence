@@ -110,7 +110,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           cols: [
             {
               namespace: 'id',
@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'MAC Vendor', // i18n defer
+          label: i18n.t('MAC Vendor'),
           cols: [
             {
               namespace: 'name',
@@ -131,7 +131,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'OUI', // i18n defer
+          label: i18n.t('OUI'),
           text: i18n.t('The OUI is the first six digits or letters of a MAC address. They must be entered without any space or separator (ex: 001122).'),
           cols: [
             {

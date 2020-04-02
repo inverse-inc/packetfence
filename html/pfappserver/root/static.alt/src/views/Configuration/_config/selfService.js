@@ -101,7 +101,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'Profile Name', // i18n defer
+          label: i18n.t('Profile Name'),
           cols: [
             {
               namespace: 'id',
@@ -116,7 +116,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Description', // i18n defer
+          label: i18n.t('Description'),
           cols: [
             {
               namespace: 'description',
@@ -126,11 +126,11 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Status Page', // i18n defer
+          label: i18n.t('Status Page'),
           labelSize: 'lg'
         },
         {
-          label: 'Allowed roles', // i18n defer
+          label: i18n.t('Allowed roles'),
           text: i18n.t('The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.'),
           cols: [
             {
@@ -141,11 +141,11 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Self Service', // i18n defer
+          label: i18n.t('Self Service'),
           labelSize: 'lg'
         },
         {
-          label: 'Role to assign', // i18n defer
+          label: i18n.t('Role to assign'),
           text: i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.'),
           cols: [
             {
@@ -156,7 +156,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Access duration to assign', // i18n defer
+          label: i18n.t('Access duration to assign'),
           text: i18n.t(`The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.`),
           cols: [
             {
@@ -172,7 +172,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Allowed OS', // i18n defer
+          label: i18n.t('Allowed OS'),
           text: i18n.t('List of OS which will be allowed to be register via the self service portal.'),
           cols: [
             {

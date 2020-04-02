@@ -304,7 +304,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'Detector', // i18n defer
+          label: i18n.t('Detector'),
           cols: [
             {
               namespace: 'id',
@@ -319,7 +319,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Enabled', // i18n defer
+          label: i18n.t('Enabled'),
           cols: [
             {
               namespace: 'status',
@@ -331,7 +331,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Alert pipe', // i18n defer
+          label: i18n.t('Alert pipe'),
           cols: [
             {
               namespace: 'path',
@@ -342,7 +342,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: syslogParserType !== 'regex', // all but 'regex'
-          label: 'Rate limit', // i18n defer
+          label: i18n.t('Rate limit'),
           cols: [
             {
               namespace: 'rate_limit.interval',
@@ -405,12 +405,12 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
-          label: 'Test Syslog Parser', // i18n defer
+          label: i18n.t('Test Syslog Parser'),
           labelSize: 'lg'
         },
         {
           if: ['regex'].includes(syslogParserType), // 'regex' only
-          label: 'Sample Log Lines', // i18n defer
+          label: i18n.t('Sample Log Lines'),
           cols: [
             {
               namespace: 'lines',
@@ -444,7 +444,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfButton,
               attrs: {
                 variant: 'outline-warning',
-                label: 'Test Dry Run', // i18n defer
+                label: i18n.t('Test Dry Run'),
                 class: 'col-sm-2',
                 disabled: !(form.lines && !invalidForm)
               },

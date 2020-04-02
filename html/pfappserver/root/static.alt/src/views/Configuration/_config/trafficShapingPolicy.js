@@ -85,7 +85,7 @@ export const view = (form, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'Traffic Shaping Policy Name', // i18n defer
+          label: i18n.t('Traffic Shaping Policy Name'),
           cols: [
             {
               namespace: 'id',
@@ -106,7 +106,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: 'Upload', // i18n defer
+          label: i18n.t('Upload'),
           text: i18n.t(`Bandwidth must be in the following format 'nXY' where XY is one of the following KB,MB,GB,TB,PB.`),
           cols: [
             {
@@ -118,7 +118,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: 'Download', // i18n defer
+          label: i18n.t('Download'),
           text: i18n.t(`Bandwidth must be in the following format 'nXY' where XY is one of the following KB,MB,GB,TB,PB.`),
           cols: [
             {

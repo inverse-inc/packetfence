@@ -118,7 +118,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           cols: [
             {
               namespace: 'id',
@@ -130,7 +130,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Name', // i18n defer
+          label: i18n.t('Name'),
           cols: [
             {
               namespace: 'name',
@@ -139,7 +139,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Parent device', // i18n defer
+          label: i18n.t('Parent device'),
           cols: [
             {
               namespace: 'parent_id',

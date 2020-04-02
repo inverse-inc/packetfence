@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'MAC Address', // i18n defer
+          label: i18n.t('MAC Address'),
           cols: [
             {
               namespace: 'id',
@@ -137,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'IP Address', // i18n defer
+          label: i18n.t('IP Address'),
           cols: [
             {
               namespace: 'ip',
@@ -147,7 +147,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Native VLAN', // i18n defer
+          label: i18n.t('Native VLAN'),
           text: i18n.t('VLAN in which PacketFence should put the port.'),
           cols: [
             {
@@ -158,7 +158,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Trunk Port', // i18n defer
+          label: i18n.t('Trunk Port'),
           text: i18n.t('The port must be configured as a muti-vlan port.'),
           cols: [
             {
@@ -172,7 +172,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: (trunkPort === 'yes'),
-          label: 'Tagged VLANs', // i18n defer
+          label: i18n.t('Tagged VLANs'),
           text: i18n.t('Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.'),
           cols: [
             {

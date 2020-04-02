@@ -97,7 +97,7 @@ export const config = () => {
 export const viewFields = {
   id: (form = {}, meta = {}) => {
     return {
-      label: 'Maintenance Task Name', // i18n defer
+      label: i18n.t('Maintenance Task Name'),
       cols: [
         {
           namespace: 'id',
@@ -114,7 +114,7 @@ export const viewFields = {
   },
   batch: (form = {}, meta = {}) => {
     return {
-      label: 'Batch', // i18n defer
+      label: i18n.t('Batch'),
       text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
       cols: [
         {
@@ -127,7 +127,7 @@ export const viewFields = {
   },
   certificates: (form = {}, meta = {}) => {
     return {
-      label: 'Certificates', // i18n defer
+      label: i18n.t('Certificates'),
       text: i18n.t('SSL certificate(s) to monitor. Comma-separated list.'),
       cols: [
         {
@@ -145,7 +145,7 @@ export const viewFields = {
   },
   delay: (form = {}, meta = {}) => {
     return {
-      label: 'Delay', // i18n defer
+      label: i18n.t('Delay'),
       text: i18n.t('Minimum gap before certificate expiration date (will the certificate expires in ...).'),
       cols: [
         {
@@ -163,7 +163,7 @@ export const viewFields = {
   },
   delete_window: (form = {}, meta = {}) => {
     return {
-      label: 'Delete window', // i18n defer
+      label: i18n.t('Delete window'),
       text: i18n.t(`How long can an unregistered node be inactive before being deleted.\nThis shouldn't be used if you are using port-security.`),
       cols: [
         {
@@ -181,7 +181,7 @@ export const viewFields = {
   },
   description: (form = {}, meta = {}) => {
     return {
-      label: 'Description', // i18n defer
+      label: i18n.t('Description'),
       cols: [
         {
           namespace: 'description',
@@ -195,7 +195,7 @@ export const viewFields = {
   },
   interval: (form = {}, meta = {}) => {
     return {
-      label: 'Interval', // i18n defer
+      label: i18n.t('Interval'),
       text: i18n.t('Interval (frequency) at which the task is executed.\nRequires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.'),
       cols: [
         {
@@ -213,7 +213,7 @@ export const viewFields = {
   },
   process_switchranges: (form = {}, meta = {}) => {
     return {
-      label: 'Process switchranges', // i18n defer
+      label: i18n.t('Process switchranges'),
       text: i18n.t('Whether or not a switch range should be expanded to process each of its IPs.'),
       cols: [
         {
@@ -228,7 +228,7 @@ export const viewFields = {
   },
   rotate: (form = {}, meta = {}, logName = 'ip4log') => {
     return {
-      label: 'Rotate', // i18n defer
+      label: i18n.t('Rotate'),
       text: i18n.t(`Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive.`),
       cols: [
         {
@@ -243,7 +243,7 @@ export const viewFields = {
   },
   rotate_batch: (form = {}, meta = {}) => {
     return {
-      label: 'Rotate batch', // i18n defer
+      label: i18n.t('Rotate batch'),
       text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
       cols: [
         {
@@ -256,7 +256,7 @@ export const viewFields = {
   },
   rotate_timeout: (form = {}, meta = {}) => {
     return {
-      label: 'Rotate timeout', // i18n defer
+      label: i18n.t('Rotate timeout'),
       text: i18n.t('Maximum amount of time this task can run.'),
       cols: [
         {
@@ -274,7 +274,7 @@ export const viewFields = {
   },
   rotate_window: (form = {}, meta = {}, logName = 'ip4log') => {
     return {
-      label: 'Rotate window', // i18n defer
+      label: i18n.t('Rotate window'),
       text: i18n.t(`How long to keep ${logName} history entry before rotating it to ${logName} archive.`),
       cols: [
         {
@@ -292,7 +292,7 @@ export const viewFields = {
   },
   status: (form = {}, meta = {}) => {
     return {
-      label: 'Enabled', // i18n defer
+      label: i18n.t('Enabled'),
       text: i18n.t('Whether or not this task is enabled.\nRequires a restart of pfmon to be effective.'),
       cols: [
         {
@@ -307,7 +307,7 @@ export const viewFields = {
   },
   timeout: (form = {}, meta = {}) => {
     return {
-      label: 'Timeout', // i18n defer
+      label: i18n.t('Timeout'),
       text: i18n.t('Maximum amount of time this task can run.'),
       cols: [
         {
@@ -325,7 +325,7 @@ export const viewFields = {
   },
   unreg_window: (form = {}, meta = {}) => {
     return {
-      label: 'Unreg window', // i18n defer
+      label: i18n.t('Unreg window'),
       text: i18n.t('How long can a registered node be inactive before it becomes unregistered.'),
       cols: [
         {
@@ -343,7 +343,7 @@ export const viewFields = {
   },
   voip: (form = {}, meta = {}) => {
     return {
-      label: 'VoIP', // i18n defer
+      label: i18n.t('VoIP'),
       text: i18n.t('Whether or not the VoIP devices should be handled by this maintenance task.'),
       cols: [
         {
@@ -358,7 +358,7 @@ export const viewFields = {
   },
   window: (form = {}, meta = {}) => {
     return {
-      label: 'Window', // i18n defer
+      label: i18n.t('Window'),
       text: i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.'),
       cols: [
         {
@@ -376,7 +376,7 @@ export const viewFields = {
   },
   history_batch: (form = {}, meta = {}) => {
     return {
-      label: 'History Batch', // i18n defer
+      label: i18n.t('History Batch'),
       text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
       cols: [
         {
@@ -389,7 +389,7 @@ export const viewFields = {
   },
   history_timeout: (form = {}, meta = {}) => {
     return {
-      label: 'History Timeout', // i18n defer
+      label: i18n.t('History Timeout'),
       text: i18n.t('Maximum amount of time this task can run.'),
       cols: [
         {
@@ -407,7 +407,7 @@ export const viewFields = {
   },
   history_window: (form = {}, meta = {}) => {
     return {
-      label: 'History Window', // i18n defer
+      label: i18n.t('History Window'),
       text: i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.'),
       cols: [
         {

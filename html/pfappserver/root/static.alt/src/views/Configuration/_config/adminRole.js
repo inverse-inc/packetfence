@@ -455,7 +455,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('General'),
       rows: [
         {
-          label: 'Name', // i18n defer
+          label: i18n.t('Name'),
           cols: [
             {
               namespace: 'id',
@@ -470,7 +470,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Description', // i18n defer
+          label: i18n.t('Description'),
           cols: [
             {
               namespace: 'description',
@@ -480,7 +480,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Actions', // i18n defer
+          label: i18n.t('Actions'),
           cols: [
             {
               namespace: 'actions',
@@ -518,7 +518,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('User Options'),
       rows: [
         {
-          label: 'Allowed user access levels', // i18n defer
+          label: i18n.t('Allowed user access levels'),
           text: i18n.t('List of access levels available to the admin user. If none are provided then all access levels are available.'),
           cols: [
             {
@@ -529,7 +529,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Allowed user roles', // i18n defer
+          label: i18n.t('Allowed user roles'),
           text: i18n.t('List of roles available to the admin user to assign to a user. If none are provided then all roles are available.'),
           cols: [
             {
@@ -540,7 +540,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Allowed user access durations', // i18n defer
+          label: i18n.t('Allowed user access durations'),
           text: i18n.t('A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used.'),
           cols: [
             {
@@ -551,7 +551,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Maximum allowed unregistration date', // i18n defer
+          label: i18n.t('Maximum allowed unregistration date'),
           text: i18n.t('The maximal unregistration date that can be set.'),
           cols: [
             {
@@ -569,7 +569,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Allowed actions', // i18n defer
+          label: i18n.t('Allowed actions'),
           text: i18n.t('List of actions available to the admin user. If none are provided then all actions are available.'),
           cols: [
             {
@@ -585,7 +585,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Node Options'),
       rows: [
         {
-          label: 'Allowed node roles', // i18n defer
+          label: i18n.t('Allowed node roles'),
           text: i18n.t('List of roles available to the admin user to assign to a node. If none are provided then all roles are available.'),
           cols: [
             {

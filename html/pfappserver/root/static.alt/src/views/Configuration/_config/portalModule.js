@@ -161,7 +161,7 @@ export const viewFields = {
       isClone = false
     } = meta
     return {
-      label: 'Name', // i18n defer
+      label: i18n.t('Name'),
       cols: [
         {
           namespace: 'id',
@@ -178,7 +178,7 @@ export const viewFields = {
   },
   actions: (form = {}, meta = {}) => {
     return {
-      label: 'Actions', // i18n defer
+      label: i18n.t('Actions'),
       cols: [
         {
           namespace: 'actions',
@@ -203,7 +203,7 @@ export const viewFields = {
   },
   admin_role: (form = {}, meta = {}) => {
     return {
-      label: 'Admin Roles', // i18n defer
+      label: i18n.t('Admin Roles'),
       text: i18n.t('Which roles should have access to this module to select the role'),
       cols: [
         {
@@ -221,7 +221,7 @@ export const viewFields = {
   },
   aup_template: (form = {}, meta = {}) => {
     return {
-      label: 'AUP template', // i18n defer
+      label: i18n.t('AUP template'),
       text: i18n.t('The template to use for the Acceptable Use Policy'),
       cols: [
         {
@@ -234,7 +234,7 @@ export const viewFields = {
   },
   custom_fields: (form = {}, meta = {}) => {
     return {
-      label: 'Mandatory fields', // i18n defer
+      label: i18n.t('Mandatory fields'),
       text: i18n.t('The additionnal fields that should be required for registration'),
       cols: [
         {
@@ -252,7 +252,7 @@ export const viewFields = {
   },
   description: (form = {}, meta = {}) => {
     return {
-      label: 'Description', // i18n defer
+      label: i18n.t('Description'),
       text: i18n.t('The description that will be displayed to users'),
       cols: [
         {
@@ -265,7 +265,7 @@ export const viewFields = {
   },
   fields_to_save: (form = {}, meta = {}) => {
     return {
-      label: 'Fields to save', // i18n defer
+      label: i18n.t('Fields to save'),
       text: i18n.t('These fields will be saved through the registration process'),
       cols: [
         {
@@ -283,7 +283,7 @@ export const viewFields = {
   },
   forced_sponsor: (form = {}, meta = {}) => {
     return {
-      label: 'Forced Sponsor', // i18n defer
+      label: i18n.t('Forced Sponsor'),
       text: i18n.t('Defines the sponsor email used. Leave empty so that the user has to specify a sponsor.'),
       cols: [
         {
@@ -296,7 +296,7 @@ export const viewFields = {
   },
   landing_template: (form = {}, meta = {}) => {
     return {
-      label: 'Landgin template', // i18n defer
+      label: i18n.t('Landgin template'),
       text: i18n.t('The template to use for the signup'),
       cols: [
         {
@@ -309,7 +309,7 @@ export const viewFields = {
   },
   list_role: (form = {}, meta = {}) => {
     return {
-      label: 'Roles', // i18n defer
+      label: i18n.t('Roles'),
       text: i18n.t('Which roles can be select'),
       cols: [
         {
@@ -327,7 +327,7 @@ export const viewFields = {
   },
   message: (form = {}, meta = {}) => {
     return {
-      label: 'Message', // i18n defer
+      label: i18n.t('Message'),
       text: i18n.t('The message that will be displayed to the user. Use with caution as the HTML contained in this field will NOT be escaped.'),
       cols: [
         {
@@ -340,7 +340,7 @@ export const viewFields = {
   },
   modules: (form, meta = {}) => {
     return {
-      label: 'Modules', // i18n defer
+      label: i18n.t('Modules'),
       cols: [
         {
           namespace: 'modules',
@@ -375,7 +375,7 @@ export const viewFields = {
   },
   multi_source_ids: (form, meta = {}) => {
     return {
-      label: 'Authentication Sources', // i18n defer
+      label: i18n.t('Authentication Sources'),
       text: i18n.t('The sources to use in the module. If no sources are specified, all the sources of the connection profile will be used.'),
       cols: [
         {
@@ -408,7 +408,7 @@ export const viewFields = {
   },
   multi_source_auth_classes: (form = {}, meta = {}) => {
     return {
-      label: 'Sources by Auth Class', // i18n defer
+      label: i18n.t('Sources by Auth Class'),
       text: i18n.t('The sources of these authentication classes and part of the connection profile will be added to the available sources'),
       cols: [
         {
@@ -421,7 +421,7 @@ export const viewFields = {
   },
   multi_source_object_classes: (form = {}, meta = {}) => {
     return {
-      label: 'Sources by Class', // i18n defer
+      label: i18n.t('Sources by Class'),
       text: i18n.t('The sources inheriting from these classes and part of the connection profile will be added to the available sources'),
       cols: [
         {
@@ -434,7 +434,7 @@ export const viewFields = {
   },
   multi_source_types: (form = {}, meta = {}) => {
     return {
-      label: 'Sources by type', // i18n defer
+      label: i18n.t('Sources by type'),
       text: i18n.t('The sources of these types and part of the connection profile will be added to the available sources'),
       cols: [
         {
@@ -447,7 +447,7 @@ export const viewFields = {
   },
   pid_field: (form = {}, meta = {}) => {
     return {
-      label: 'PID field', // i18n defer
+      label: i18n.t('PID field'),
       text: i18n.t('Which field should be used as the PID.'),
       cols: [
         {
@@ -460,7 +460,7 @@ export const viewFields = {
   },
   show_first_module_on_default: (form = {}, meta = {}) => {
     return {
-      label: 'Show first module when none is selected', // i18n defer
+      label: i18n.t('Show first module when none is selected'),
       cols: [
         {
           namespace: 'show_first_module_on_default',
@@ -477,7 +477,7 @@ export const viewFields = {
   },
   signup_template: (form = {}, meta = {}) => {
     return {
-      label: 'Signup template', // i18n defer
+      label: i18n.t('Signup template'),
       text: i18n.t('The template to use for the signup'),
       cols: [
         {
@@ -490,7 +490,7 @@ export const viewFields = {
   },
   skipable: (form = {}, meta = {}) => {
     return {
-      label: 'Skippable', // i18n defer
+      label: i18n.t('Skippable'),
       text: i18n.t('Whether or not, this message can be skipped'),
       cols: [
         {
@@ -508,7 +508,7 @@ export const viewFields = {
   },
   source_id: (form = {}, meta = {}) => {
     return {
-      label: 'Authentication Source', // i18n defer
+      label: i18n.t('Authentication Source'),
       text: i18n.t('The source to use in the module. If no source is specified, all the sources of the connection profile will be used.'),
       cols: [
         {
@@ -526,7 +526,7 @@ export const viewFields = {
   },
   ssl_mobileconfig_path: (form = {}, meta = {}) => {
     return {
-      label: 'SSL iOS profile URL', // i18n defer
+      label: i18n.t('SSL iOS profile URL'),
       text: i18n.t('URL of an iOS mobileconfig profile to install the certificate.'),
       cols: [
         {
@@ -539,7 +539,7 @@ export const viewFields = {
   },
   ssl_path: (form = {}, meta = {}) => {
     return {
-      label: 'SSL Certificate URL', // i18n defer
+      label: i18n.t('SSL Certificate URL'),
       text: i18n.t('URL of the SSL certificate in X509 Base64 format.'),
       cols: [
         {
@@ -552,7 +552,7 @@ export const viewFields = {
   },
   stone_roles: (form = {}, meta = {}) => {
     return {
-      label: 'Roles', // i18n defer
+      label: i18n.t('Roles'),
       text: i18n.t('Nodes with the selected roles will be affected'),
       cols: [
         {
@@ -570,7 +570,7 @@ export const viewFields = {
   },
   survey_id: (form = {}, meta = {}) => {
     return {
-      label: 'Survey', // i18n defer
+      label: i18n.t('Survey'),
       text: i18n.t('The survey to use in this portal module. Surveys are defined in survey.conf'),
       cols: [
         {
@@ -583,7 +583,7 @@ export const viewFields = {
   },
   template: (form = {}, meta = {}) => {
     return {
-      label: 'Template', // i18n defer
+      label: i18n.t('Template'),
       cols: [
         {
           namespace: 'template',
@@ -608,7 +608,7 @@ export const viewFields = {
   },
   username: (form = {}, meta = {}) => {
     return {
-      label: 'Username', // i18n defer
+      label: i18n.t('Username'),
       text: i18n.t('Defines the username used for all authentications'),
       cols: [
         {
@@ -621,7 +621,7 @@ export const viewFields = {
   },
   with_aup: (form = {}, meta = {}) => {
     return {
-      label: 'Require AUP', // i18n defer
+      label: i18n.t('Require AUP'),
       text: i18n.t('Require the user to accept the AUP'),
       cols: [
         {

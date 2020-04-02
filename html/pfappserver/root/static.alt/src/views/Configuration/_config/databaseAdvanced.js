@@ -12,7 +12,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'Key buffer size', // i18n defer
+          label: i18n.t('Key buffer size'),
           text: i18n.t('The key_buffer_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -23,7 +23,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'InnoDB buffer pool size', // i18n defer
+          label: i18n.t('InnoDB buffer pool size'),
           text: i18n.t('The innodb_buffer_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -34,7 +34,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'InnoDB additionnal mem pool size', // i18n defer
+          label: i18n.t('InnoDB additionnal mem pool size'),
           text: i18n.t('The innodb_additional_mem_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -45,7 +45,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Query cache size', // i18n defer
+          label: i18n.t('Query cache size'),
           text: i18n.t('The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -56,7 +56,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Thread concurrency', // i18n defer
+          label: i18n.t('Thread concurrency'),
           text: i18n.t('The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -67,7 +67,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Max connections', // i18n defer
+          label: i18n.t('Max connections'),
           text: i18n.t('The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -78,7 +78,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Table cache', // i18n defer
+          label: i18n.t('Table cache'),
           text: i18n.t('The table_cache MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -89,7 +89,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Thread cache size', // i18n defer
+          label: i18n.t('Thread cache size'),
           text: i18n.t('The thread_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -100,7 +100,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Max allowed packets', // i18n defer
+          label: i18n.t('Max allowed packets'),
           text: i18n.t('The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -111,7 +111,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Performance schema', // i18n defer
+          label: i18n.t('Performance schema'),
           text: i18n.t('The performance_schema MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Max connect errors', // i18n defer
+          label: i18n.t('Max connect errors'),
           text: i18n.t('The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.'),
           cols: [
             {
@@ -133,7 +133,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Master/Slave mode', // i18n defer
+          label: i18n.t('Master/Slave mode'),
           text: i18n.t('Enable master/slave replication.'),
           cols: [
             {
@@ -144,7 +144,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Other MySQL Servers', // i18n defer
+          label: i18n.t('Other MySQL Servers'),
           text: i18n.t('Comma delimited IPv4 address of other member MySQL members - used to sync the database.'),
           cols: [
             {

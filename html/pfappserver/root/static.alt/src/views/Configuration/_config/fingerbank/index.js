@@ -12,7 +12,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'API Key', // i18n defer
+          label: i18n.t('API Key'),
           text: i18n.t('API key to interact with upstream Fingerbank project. Changing this value requires to restart the Fingerbank collector.'),
           cols: [
             {
@@ -23,7 +23,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Upstream API host', // i18n defer
+          label: i18n.t('Upstream API host'),
           text: i18n.t('The host on which the Fingerbank API should be reached.'),
           cols: [
             {
@@ -34,7 +34,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Upstream API port', // i18n defer
+          label: i18n.t('Upstream API port'),
           text: i18n.t('The port on which the Fingerbank API should be reached.'),
           cols: [
             {
@@ -45,7 +45,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Upstream API HTTPS', // i18n defer
+          label: i18n.t('Upstream API HTTPS'),
           text: i18n.t('Whether or not HTTPS should be used to communicate with the Fingerbank API.'),
           cols: [
             {
@@ -58,7 +58,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Database API path', // i18n defer
+          label: i18n.t('Database API path'),
           text: i18n.t('Path used to fetch the database on the Fingerbank API.'),
           cols: [
             {
@@ -69,7 +69,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Retention of the upstream sqlite DB', // i18n defer
+          label: i18n.t('Retention of the upstream sqlite DB'),
           text: i18n.t('Amount of upstream databases to retain on disk in db/. Should be at least one in case any running processes are still pointing on the old file descriptor of the database.'),
           cols: [
             {
@@ -80,7 +80,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Collector host', // i18n defer
+          label: i18n.t('Collector host'),
           text: i18n.t('The host on which the Fingerbank collector should be reached.'),
           cols: [
             {
@@ -91,7 +91,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Collector port', // i18n defer
+          label: i18n.t('Collector port'),
           text: i18n.t('The port on which the Fingerbank collector should be reached.'),
           cols: [
             {
@@ -102,7 +102,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Collector HTTPS', // i18n defer
+          label: i18n.t('Collector HTTPS'),
           text: i18n.t('Whether or not HTTPS should be used to communicate with the collector.'),
           cols: [
             {
@@ -115,7 +115,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Inactive endpoints expiration', // i18n defer
+          label: i18n.t('Inactive endpoints expiration'),
           text: i18n.t('Amount of hours after which the information inactive endpoints should be removed from the collector.'),
           cols: [
             {
@@ -126,7 +126,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'ARP lookups by the collector', // i18n defer
+          label: i18n.t('ARP lookups by the collector'),
           text: i18n.t(`Whether or not the collector should perform ARP lookups for devices it doesn't have DHCP information.`),
           cols: [
             {
@@ -139,7 +139,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Network behavior analysis', // i18n defer
+          label: i18n.t('Network behavior analysis'),
           text: i18n.t(`Whether or not the collector should perform network behavior analysis of the endpoints it sees.`),
           cols: [
             {
@@ -152,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Query cache time in the collector', // i18n defer
+          label: i18n.t('Query cache time in the collector'),
           text: i18n.t('Amount of minutes for which the collector API query results are cached.'),
           cols: [
             {
@@ -163,7 +163,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Database persistence interval', // i18n defer
+          label: i18n.t('Database persistence interval'),
           text: i18n.t('Interval in seconds at which the collector will persist its databases.'),
           cols: [
             {
@@ -174,7 +174,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Cluster resync interval', // i18n defer
+          label: i18n.t('Cluster resync interval'),
           text: i18n.t('Interval in seconds at which the collector will fully resynchronize with its peers when in cluster mode. The collector synchronizes in real-time, so this only acts as a safety net when there is a communication error between the collectors.'),
           cols: [
             {
@@ -185,7 +185,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Record Unmatched Parameters', // i18n defer
+          label: i18n.t('Record Unmatched Parameters'),
           text: i18n.t('Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution.'),
           cols: [
             {
@@ -198,7 +198,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Use proxy', // i18n defer
+          label: i18n.t('Use proxy'),
           text: i18n.t('Should Fingerbank interact with WWW using a proxy?'),
           cols: [
             {
@@ -211,7 +211,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Proxy Host', // i18n defer
+          label: i18n.t('Proxy Host'),
           text: i18n.t('Host the proxy is listening on. Only the host must be specified here without any port or protocol.'),
           cols: [
             {
@@ -222,7 +222,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Proxy Port', // i18n defer
+          label: i18n.t('Proxy Port'),
           text: i18n.t('Port the proxy is listening on.'),
           cols: [
             {
@@ -233,7 +233,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Verify SSL', // i18n defer
+          label: i18n.t('Verify SSL'),
           text: i18n.t('Whether or not to verify SSL when using proxying.'),
           cols: [
             {

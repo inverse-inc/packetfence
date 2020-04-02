@@ -97,7 +97,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'Layer2 Network', // i18n defer
+          label: i18n.t('Layer2 Network'),
           cols: [
             {
               namespace: 'id',
@@ -112,7 +112,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Algorithm', // i18n defer
+          label: i18n.t('Algorithm'),
           cols: [
             {
               namespace: 'algorithm',
@@ -127,7 +127,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCP Pool Backend Type', // i18n defer
+          label: i18n.t('DHCP Pool Backend Type'),
           cols: [
             {
               namespace: 'pool_backend',
@@ -142,7 +142,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Starting IP Address', // i18n defer
+          label: i18n.t('Starting IP Address'),
           cols: [
             {
               namespace: 'dhcp_start',
@@ -157,7 +157,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Ending IP Address', // i18n defer
+          label: i18n.t('Ending IP Address'),
           cols: [
             {
               namespace: 'dhcp_end',
@@ -172,7 +172,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Default Lease Time', // i18n defer
+          label: i18n.t('Default Lease Time'),
           cols: [
             {
               namespace: 'dhcp_default_lease_time',
@@ -187,7 +187,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Max Lease Time', // i18n defer
+          label: i18n.t('Max Lease Time'),
           cols: [
             {
               namespace: 'dhcp_max_lease_time',
@@ -202,7 +202,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'IP Addresses reserved', // i18n defer
+          label: i18n.t('IP Addresses reserved'),
           text: i18n.t('Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool.'),
           cols: [
             {
@@ -219,7 +219,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'IP Addresses assigned', // i18n defer
+          label: i18n.t('IP Addresses assigned'),
           text: i18n.t('List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13.'),
           cols: [
             {
@@ -236,7 +236,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Portal FQDN', // i18n defer
+          label: i18n.t('Portal FQDN'),
           text: i18n.t('Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server.'),
           cols: [
             {
@@ -253,7 +253,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: type === 'inlinel2',
-          label: 'Netflow Accounting Enabled', // i18n defer
+          label: i18n.t('Netflow Accounting Enabled'),
           text: i18n.t('Enable Netflow on this network to enable accounting.'),
           cols: [
             {

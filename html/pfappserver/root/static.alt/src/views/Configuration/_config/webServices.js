@@ -12,7 +12,7 @@ export const view = (form, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'Username', // i18n defer
+          label: i18n.t('Username'),
           text: i18n.t('The webservices user name.'),
           cols: [
             {
@@ -23,7 +23,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: 'Password', // i18n defer
+          label: i18n.t('Password'),
           text: i18n.t('The webservices password.'),
           cols: [
             {

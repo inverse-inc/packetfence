@@ -198,7 +198,7 @@ export const viewFields = {
       isClone = false
     } = meta
     return {
-      label: 'IP Address/MAC Address/Range (CIDR)', // i18n defer
+      label: i18n.t('IP Address/MAC Address/Range (CIDR)'),
       cols: [
         {
           namespace: 'id',
@@ -219,7 +219,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['AccessListBasedEnforcement']),
-      label: 'Role by Access List', // i18n defer
+      label: i18n.t('Role by Access List'),
       cols: [
         {
           namespace: 'AccessListMap',
@@ -237,7 +237,7 @@ export const viewFields = {
   },
   cliAccess: (form = {}, meta = {}) => {
     return {
-      label: 'CLI Access Enabled', // i18n defer
+      label: i18n.t('CLI Access Enabled'),
       text: i18n.t('Allow this switch to use PacketFence as a RADIUS server for CLI access.'),
       cols: [
         {
@@ -255,7 +255,7 @@ export const viewFields = {
   },
   cliEnablePwd: (form = {}, meta = {}) => {
     return {
-      label: 'Enable Password', // i18n defer
+      label: i18n.t('Enable Password'),
       cols: [
         {
           namespace: 'cliEnablePwd',
@@ -267,7 +267,7 @@ export const viewFields = {
   },
   cliPwd: (form = {}, meta = {}) => {
     return {
-      label: 'Password', // i18n defer
+      label: i18n.t('Password'),
       cols: [
         {
           namespace: 'cliPwd',
@@ -279,7 +279,7 @@ export const viewFields = {
   },
   cliTransport: (form = {}, meta = {}) => {
     return {
-      label: 'Transport', // i18n defer
+      label: i18n.t('Transport'),
       cols: [
         {
           namespace: 'cliTransport',
@@ -291,7 +291,7 @@ export const viewFields = {
   },
   cliUser: (form = {}, meta = {}) => {
     return {
-      label: 'Username', // i18n defer
+      label: i18n.t('Username'),
       cols: [
         {
           namespace: 'cliUser',
@@ -307,7 +307,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']),
-      label: 'CoA Port', // i18n defer
+      label: i18n.t('CoA Port'),
       text: i18n.t('For CoA request, if we have to send to another port.'),
       cols: [
         {
@@ -324,7 +324,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['WirelessMacAuth', 'WirelessDot1x']),
-      label: 'Controller IP Address', // i18n defer
+      label: i18n.t('Controller IP Address'),
       text: i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.'),
       cols: [
         {
@@ -337,7 +337,7 @@ export const viewFields = {
   },
   deauthMethod: (form = {}, meta = {}) => {
     return {
-      label: 'Deauthentication Method', // i18n defer
+      label: i18n.t('Deauthentication Method'),
       cols: [
         {
           namespace: 'deauthMethod',
@@ -349,7 +349,7 @@ export const viewFields = {
   },
   description: (form = {}, meta = {}) => {
     return {
-      label: 'Description', // i18n defer
+      label: i18n.t('Description'),
       cols: [
         {
           namespace: 'description',
@@ -365,7 +365,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x']),
-      label: 'Disconnect Port', // i18n defer
+      label: i18n.t('Disconnect Port'),
       text: i18n.t('For Disconnect request, if we have to send to another port.'),
       cols: [
         {
@@ -382,7 +382,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['ExternalPortal']),
-      label: 'External Portal Enforcement', // i18n defer
+      label: i18n.t('External Portal Enforcement'),
       text: i18n.t('Enable external portal enforcement when supported by network equipment.'),
       cols: [
         {
@@ -400,7 +400,7 @@ export const viewFields = {
   },
   group: (form = {}, meta = {}) => {
     return {
-      label: 'Switch Group', // i18n defer
+      label: i18n.t('Switch Group'),
       cols: [
         {
           namespace: 'group',
@@ -412,7 +412,7 @@ export const viewFields = {
   },
   inlineTrigger: (form = {}, meta = {}) => {
     return {
-      label: 'Inline Conditions', // i18n defer
+      label: i18n.t('Inline Conditions'),
       text: i18n.t('Set inline mode if any of the conditions are met.'),
       cols: [
         {
@@ -442,7 +442,7 @@ export const viewFields = {
   },
   macSearchesMaxNb: (form = {}, meta = {}) => {
     return {
-      label: 'Maximum MAC addresses', // i18n defer
+      label: i18n.t('Maximum MAC addresses'),
       text: i18n.t('Maximum number of MAC addresses retrived from a port.'),
       cols: [
         {
@@ -455,7 +455,7 @@ export const viewFields = {
   },
   macSearchesSleepInterval: (form = {}, meta = {}) => {
     return {
-      label: 'Sleep interval', // i18n defer
+      label: i18n.t('Sleep interval'),
       text: i18n.t('Sleep interval between queries of MAC addresses.'),
       cols: [
         {
@@ -585,7 +585,7 @@ export const viewFields = {
   },
   mode: (form = {}, meta = {}) => {
     return {
-      label: 'Mode', // i18n defer
+      label: i18n.t('Mode'),
       cols: [
         {
           namespace: 'mode',
@@ -597,7 +597,7 @@ export const viewFields = {
   },
   radiusSecret: (form = {}, meta = {}) => {
     return {
-      label: 'Secret Passphrase', // i18n defer
+      label: i18n.t('Secret Passphrase'),
       cols: [
         {
           namespace: 'radiusSecret',
@@ -613,7 +613,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['RoleBasedEnforcement']),
-      label: 'Role by Switch Role', // i18n defer
+      label: i18n.t('Role by Switch Role'),
       cols: [
         {
           namespace: 'RoleMap',
@@ -631,7 +631,7 @@ export const viewFields = {
   },
   SNMPAuthPasswordRead: (form = {}, meta = {}) => {
     return {
-      label: 'Auth Password Read', // i18n defer
+      label: i18n.t('Auth Password Read'),
       cols: [
         {
           namespace: 'SNMPAuthPasswordRead',
@@ -643,7 +643,7 @@ export const viewFields = {
   },
   SNMPAuthPasswordTrap: (form = {}, meta = {}) => {
     return {
-      label: 'Auth Password Trap', // i18n defer
+      label: i18n.t('Auth Password Trap'),
       cols: [
         {
           namespace: 'SNMPAuthPasswordTrap',
@@ -655,7 +655,7 @@ export const viewFields = {
   },
   SNMPAuthPasswordWrite: (form = {}, meta = {}) => {
     return {
-      label: 'Auth Password Write', // i18n defer
+      label: i18n.t('Auth Password Write'),
       cols: [
         {
           namespace: 'SNMPAuthPasswordWrite',
@@ -667,7 +667,7 @@ export const viewFields = {
   },
   SNMPAuthProtocolRead: (form = {}, meta = {}) => {
     return {
-      label: 'Auth Protocol Read', // i18n defer
+      label: i18n.t('Auth Protocol Read'),
       cols: [
         {
           namespace: 'SNMPAuthProtocolRead',
@@ -679,7 +679,7 @@ export const viewFields = {
   },
   SNMPAuthProtocolTrap: (form = {}, meta = {}) => {
     return {
-      label: 'Auth Protocol Trap', // i18n defer
+      label: i18n.t('Auth Protocol Trap'),
       cols: [
         {
           namespace: 'SNMPAuthProtocolTrap',
@@ -691,7 +691,7 @@ export const viewFields = {
   },
   SNMPAuthProtocolWrite: (form = {}, meta = {}) => {
     return {
-      label: 'Auth Protocol Write', // i18n defer
+      label: i18n.t('Auth Protocol Write'),
       cols: [
         {
           namespace: 'SNMPAuthProtocolWrite',
@@ -703,7 +703,7 @@ export const viewFields = {
   },
   SNMPCommunityRead: (form = {}, meta = {}) => {
     return {
-      label: 'Community Read', // i18n defer
+      label: i18n.t('Community Read'),
       cols: [
         {
           namespace: 'SNMPCommunityRead',
@@ -715,7 +715,7 @@ export const viewFields = {
   },
   SNMPCommunityTrap: (form = {}, meta = {}) => {
     return {
-      label: 'Community Trap', // i18n defer
+      label: i18n.t('Community Trap'),
       cols: [
         {
           namespace: 'SNMPCommunityTrap',
@@ -727,7 +727,7 @@ export const viewFields = {
   },
   SNMPCommunityWrite: (form = {}, meta = {}) => {
     return {
-      label: 'Community Write', // i18n defer
+      label: i18n.t('Community Write'),
       cols: [
         {
           namespace: 'SNMPCommunityWrite',
@@ -739,7 +739,7 @@ export const viewFields = {
   },
   SNMPEngineID: (form = {}, meta = {}) => {
     return {
-      label: 'Engine ID', // i18n defer
+      label: i18n.t('Engine ID'),
       cols: [
         {
           namespace: 'SNMPEngineID',
@@ -751,7 +751,7 @@ export const viewFields = {
   },
   SNMPPrivPasswordRead: (form = {}, meta = {}) => {
     return {
-      label: 'Priv Password Read', // i18n defer
+      label: i18n.t('Priv Password Read'),
       cols: [
         {
           namespace: 'SNMPPrivPasswordRead',
@@ -763,7 +763,7 @@ export const viewFields = {
   },
   SNMPPrivPasswordTrap: (form = {}, meta = {}) => {
     return {
-      label: 'Priv Password Trap', // i18n defer
+      label: i18n.t('Priv Password Trap'),
       cols: [
         {
           namespace: 'SNMPPrivPasswordTrap',
@@ -775,7 +775,7 @@ export const viewFields = {
   },
   SNMPPrivPasswordWrite: (form = {}, meta = {}) => {
     return {
-      label: 'Priv Password Write', // i18n defer
+      label: i18n.t('Priv Password Write'),
       cols: [
         {
           namespace: 'SNMPPrivPasswordWrite',
@@ -787,7 +787,7 @@ export const viewFields = {
   },
   SNMPPrivProtocolRead: (form = {}, meta = {}) => {
     return {
-      label: 'Priv Protocol Read', // i18n defer
+      label: i18n.t('Priv Protocol Read'),
       cols: [
         {
           namespace: 'SNMPPrivProtocolRead',
@@ -799,7 +799,7 @@ export const viewFields = {
   },
   SNMPPrivProtocolTrap: (form = {}, meta = {}) => {
     return {
-      label: 'Priv Protocol Trap', // i18n defer
+      label: i18n.t('Priv Protocol Trap'),
       cols: [
         {
           namespace: 'SNMPPrivProtocolTrap',
@@ -811,7 +811,7 @@ export const viewFields = {
   },
   SNMPPrivProtocolWrite: (form = {}, meta = {}) => {
     return {
-      label: 'Priv Protocol Write', // i18n defer
+      label: i18n.t('Priv Protocol Write'),
       cols: [
         {
           namespace: 'SNMPPrivProtocolWrite',
@@ -823,7 +823,7 @@ export const viewFields = {
   },
   SNMPUserNameWrite: (form = {}, meta = {}) => {
     return {
-      label: 'User Name Write', // i18n defer
+      label: i18n.t('User Name Write'),
       cols: [
         {
           namespace: 'SNMPUserNameWrite',
@@ -835,7 +835,7 @@ export const viewFields = {
   },
   SNMPUserNameRead: (form = {}, meta = {}) => {
     return {
-      label: 'User Name Read', // i18n defer
+      label: i18n.t('User Name Read'),
       cols: [
         {
           namespace: 'SNMPUserNameRead',
@@ -847,7 +847,7 @@ export const viewFields = {
   },
   SNMPUserNameTrap: (form = {}, meta = {}) => {
     return {
-      label: 'User Name Trap', // i18n defer
+      label: i18n.t('User Name Trap'),
       cols: [
         {
           namespace: 'SNMPUserNameTrap',
@@ -859,7 +859,7 @@ export const viewFields = {
   },
   SNMPVersion: (form = {}, meta = {}) => {
     return {
-      label: 'Version', // i18n defer
+      label: i18n.t('Version'),
       cols: [
         {
           namespace: 'SNMPVersion',
@@ -871,7 +871,7 @@ export const viewFields = {
   },
   SNMPVersionTrap: (form = {}, meta = {}) => {
     return {
-      label: 'Version Trap', // i18n defer
+      label: i18n.t('Version Trap'),
       cols: [
         {
           namespace: 'SNMPVersionTrap',
@@ -889,7 +889,7 @@ export const viewFields = {
       switchTemplates = []
     } = meta
     return {
-      label: 'Type', // i18n defer
+      label: i18n.t('Type'),
       cols: [
         {
           namespace: 'type',
@@ -923,7 +923,7 @@ export const viewFields = {
     } = meta
     return {
       if: ((advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x'])) && ((uplinkDynamic && uplinkDynamic !== 'dynamic') || (!uplinkDynamic && placeholder(meta, 'uplink_dynamic') !== 'dynamic'))),
-      label: 'Static Uplinks', // i18n defer
+      label: i18n.t('Static Uplinks'),
       text: i18n.t('Comma-separated list of the switch uplinks.'),
       cols: [
         {
@@ -944,7 +944,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['WiredMacAuth', 'WiredDot1x']),
-      label: 'Dynamic Uplinks', // i18n defer
+      label: i18n.t('Dynamic Uplinks'),
       text: i18n.t('Dynamically lookup uplinks.'),
       cols: [
         {
@@ -971,7 +971,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['ExternalPortal']),
-      label: 'Role by Web Auth URL', // i18n defer
+      label: i18n.t('Role by Web Auth URL'),
       cols: [
         {
           namespace: 'UrlMap',
@@ -989,7 +989,7 @@ export const viewFields = {
   },
   useCoA: (form = {}, meta = {}) => {
     return {
-      label: 'Use CoA', // i18n defer
+      label: i18n.t('Use CoA'),
       text: i18n.t('Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.'),
       cols: [
         {
@@ -1011,7 +1011,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['RadiusDynamicVlanAssignment']),
-      label: 'Role by VLAN ID', // i18n defer
+      label: i18n.t('Role by VLAN ID'),
       cols: [
         {
           namespace: 'VlanMap',
@@ -1033,7 +1033,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['Cdp']),
-      label: 'VoIPCDPDetect', // i18n defer
+      label: i18n.t('VoIPCDPDetect'),
       text: i18n.t('Detect VoIP with a SNMP request in the CDP MIB.'),
       cols: [
         {
@@ -1051,7 +1051,7 @@ export const viewFields = {
   },
   VoIPDHCPDetect: (form = {}, meta = {}) => {
     return {
-      label: 'VoIPDHCPDetect', // i18n defer
+      label: i18n.t('VoIPDHCPDetect'),
       text: i18n.t('Detect VoIP with the DHCP Fingerprint.'),
       cols: [
         {
@@ -1069,7 +1069,7 @@ export const viewFields = {
   },
   VoIPEnabled: (form = {}, meta = {}) => {
     return {
-      label: 'VOIP', // i18n defer
+      label: i18n.t('VOIP'),
       cols: [
         {
           namespace: 'VoIPEnabled',
@@ -1090,7 +1090,7 @@ export const viewFields = {
     } = meta
     return {
       if: advancedMode || supports(form, meta, ['Lldp']),
-      label: 'VoIPLLDPDetect', // i18n defer
+      label: i18n.t('VoIPLLDPDetect'),
       text: i18n.t('Detect VoIP with a SNMP request in the LLDP MIB.'),
       cols: [
         {
@@ -1108,7 +1108,7 @@ export const viewFields = {
   },
   wsPwd: (form = {}, meta = {}) => {
     return {
-      label: 'Password', // i18n defer
+      label: i18n.t('Password'),
       cols: [
         {
           namespace: 'wsPwd',
@@ -1120,7 +1120,7 @@ export const viewFields = {
   },
   wsTransport: (form = {}, meta = {}) => {
     return {
-      label: 'Transport', // i18n defer
+      label: i18n.t('Transport'),
       cols: [
         {
           namespace: 'wsTransport',
@@ -1132,7 +1132,7 @@ export const viewFields = {
   },
   wsUser: (form = {}, meta = {}) => {
     return {
-      label: 'Username', // i18n defer
+      label: i18n.t('Username'),
       cols: [
         {
           namespace: 'wsUser',
@@ -1177,28 +1177,28 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: advancedMode || supports(form, meta, ['RadiusDynamicVlanAssignment']),
-          label: 'Role mapping by VLAN ID', // i18n defer
+          label: i18n.t('Role mapping by VLAN ID'),
           labelSize: 'lg'
         },
         viewFields.VlanMap(form, meta),
         ...viewFields.mapVlan(form, meta),
         {
           if: advancedMode || supports(form, meta, ['RoleBasedEnforcement']),
-          label: 'Role mapping by Switch Role', // i18n defer
+          label: i18n.t('Role mapping by Switch Role'),
           labelSize: 'lg'
         },
         viewFields.RoleMap(form, meta),
         ...viewFields.mapRole(form, meta),
         {
           if: advancedMode || supports(form, meta, ['AccessListBasedEnforcement']),
-          label: 'Role mapping by Access List', // i18n defer
+          label: i18n.t('Role mapping by Access List'),
           labelSize: 'lg'
         },
         viewFields.AccessListMap(form, meta),
         ...viewFields.mapAccessList(form, meta),
         {
           if: advancedMode || supports(form, meta, ['ExternalPortal']),
-          label: 'Role mapping by Web Auth URL', // i18n defer
+          label: i18n.t('Role mapping by Web Auth URL'),
           labelSize: 'lg'
         },
         viewFields.UrlMap(form, meta),

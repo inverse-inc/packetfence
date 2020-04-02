@@ -116,7 +116,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('Settings'),
       rows: [
         {
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           text: i18n.t(`Specify a unique identifier for your configuration.<br/>This doesn't have to be related to your domain.`),
           cols: [
             {
@@ -132,7 +132,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Workgroup', // i18n defer
+          label: i18n.t('Workgroup'),
           cols: [
             {
               namespace: 'workgroup',
@@ -142,7 +142,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DNS name of the domain', // i18n defer
+          label: i18n.t('DNS name of the domain'),
           text: i18n.t('The DNS name (FQDN) of the domain.'),
           cols: [
             {
@@ -164,7 +164,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Sticky DC', // i18n defer
+          label: i18n.t('Sticky DC'),
           text: i18n.t(`This is used to specify a sticky domain controller to connect to. If not specified, default '*' will be used to connect to any available domain controller.`),
           cols: [
             {
@@ -175,7 +175,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Active Directory server', // i18n defer
+          label: i18n.t('Active Directory server'),
           text: i18n.t('The IP address or DNS name of your Active Directory server.'),
           cols: [
             {
@@ -186,7 +186,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DNS server(s)', // i18n defer
+          label: i18n.t('DNS server(s)'),
           text: i18n.t('The IP address(es) of the DNS server(s) for this domain. Comma delimited if multiple.'),
           cols: [
             {
@@ -197,7 +197,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'OU', // i18n defer
+          label: i18n.t('OU'),
           text: i18n.t(`Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a '/'. E.g. "Computers/Servers/Unix". IMPORTANT NOTE: Due to a bug in the current version of samba, you will need to precreate a computer object in the OU you specify above when you're not using the default value ('Computers'). Otherwise you will get the following error: "Failed to join domain: failed to precreate account in ou ou=XYZ,dc=ACME,dc=CORP: No such object"`),
           cols: [
             {
@@ -208,7 +208,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'ntlmv2 only', // i18n defer
+          label: i18n.t('ntlmv2 only'),
           text: i18n.t('If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level'),
           cols: [
             {
@@ -221,7 +221,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Allow on registration', // i18n defer
+          label: i18n.t('Allow on registration'),
           text: i18n.t('If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.'),
           cols: [
             {
@@ -253,7 +253,7 @@ export const view = (form = {}, meta = {}) => {
       tab: i18n.t('NTLM cache'),
       rows: [
         {
-          label: 'NTLM cache', // i18n defer
+          label: i18n.t('NTLM cache'),
           text: i18n.t('Should the NTLM cache be enabled for this domain?'),
           cols: [
             {
@@ -266,7 +266,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Source', // i18n defer
+          label: i18n.t('Source'),
           text: i18n.t('The source to use to connect to your Active Directory server for NTLM caching.'),
           cols: [
             {
@@ -277,7 +277,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'LDAP filter', // i18n defer
+          label: i18n.t('LDAP filter'),
           text: i18n.t('An LDAP query to filter out the users that should be cached.'),
           cols: [
             {
@@ -293,7 +293,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Expiration', // i18n defer
+          label: i18n.t('Expiration'),
           text: i18n.t('The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.'),
           cols: [
             {
@@ -304,7 +304,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'NTLM cache background job', // i18n defer
+          label: i18n.t('NTLM cache background job'),
           text: i18n.t('When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).'),
           cols: [
             {
@@ -317,7 +317,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'NTLM cache background job individual fetch', // i18n defer
+          label: i18n.t('NTLM cache background job individual fetch'),
           text: i18n.t('Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.'),
           cols: [
             {
@@ -330,7 +330,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'NTLM cache on connection', // i18n defer
+          label: i18n.t('NTLM cache on connection'),
           text: i18n.t('When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.'),
           cols: [
             {

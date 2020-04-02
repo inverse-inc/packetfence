@@ -23,7 +23,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'Recipients', // i18n defer
+          label: i18n.t('Recipients'),
           text: i18n.t('Comma-separated list of email addresses to which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message goes to.'),
           cols: [
             {
@@ -37,7 +37,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Sender', // i18n defer
+          label: i18n.t('Sender'),
           text: i18n.t('Email address from which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message are sent. Empty means root@<server-domain-name>.'),
           cols: [
             {
@@ -48,7 +48,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP server', // i18n defer
+          label: i18n.t('SMTP server'),
           text: i18n.t(`Server through which to send messages to the above emailaddr. The default is localhost - be sure you're running an SMTP host locally if you don't change it!`),
           cols: [
             {
@@ -59,7 +59,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Subject prefix', // i18n defer
+          label: i18n.t('Subject prefix'),
           text: i18n.t('Subject prefix for email notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message.'),
           cols: [
             {
@@ -70,7 +70,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP encryption', // i18n defer
+          label: i18n.t('SMTP encryption'),
           text: i18n.t('Encryption style when connecting to the SMTP server.'),
           cols: [
             {
@@ -81,7 +81,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP port', // i18n defer
+          label: i18n.t('SMTP port'),
           text: i18n.t('The port of the SMTP server. If the port is set to 0 then port is calculated by the encryption type. none: 25, ssl: 465, starttls: 587.'),
           cols: [
             {
@@ -92,7 +92,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP username', // i18n defer
+          label: i18n.t('SMTP username'),
           text: i18n.t('The username used to connect to the SMTP server.'),
           cols: [
             {
@@ -103,7 +103,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP password', // i18n defer
+          label: i18n.t('SMTP password'),
           text: i18n.t('The password used to connect to the SMTP server.'),
           cols: [
             {
@@ -114,7 +114,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP Check SSL', // i18n defer
+          label: i18n.t('SMTP Check SSL'),
           text: i18n.t('Verify SSL connection.'),
           cols: [
             {
@@ -127,7 +127,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP timeout', // i18n defer
+          label: i18n.t('SMTP timeout'),
           text: i18n.t('The timeout in seconds for sending an email.'),
           cols: [
             {
@@ -142,7 +142,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SMTP test', // i18n defer
+          label: i18n.t('SMTP test'),
           text: i18n.t('Comma-delimited list of email address(es) to receive test message.'),
           cols: [
             {

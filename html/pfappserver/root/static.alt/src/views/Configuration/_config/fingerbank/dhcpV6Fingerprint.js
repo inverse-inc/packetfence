@@ -103,7 +103,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           cols: [
             {
               namespace: 'id',
@@ -115,7 +115,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCPv6 Fingerprint', // i18n defer
+          label: i18n.t('DHCPv6 Fingerprint'),
           cols: [
             {
               namespace: 'value',

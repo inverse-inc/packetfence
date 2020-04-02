@@ -13,7 +13,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'Domain', // i18n defer
+          label: i18n.t('Domain'),
           text: i18n.t('Domain name of PacketFence system. Changing this requires to restart haproxy-portal.'),
           cols: [
             {
@@ -24,7 +24,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Hostname', // i18n defer
+          label: i18n.t('Hostname'),
           text: i18n.t('Hostname of PacketFence system. This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients. Changing this requires to restart haproxy-portal.'),
           cols: [
             {
@@ -35,7 +35,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCP servers', // i18n defer
+          label: i18n.t('DHCP servers'),
           text: i18n.t('Comma-separated list of DHCP servers.'),
           cols: [
             {
@@ -51,7 +51,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Timezone', // i18n defer
+          label: i18n.t('Timezone'),
           text: i18n.t(`System's timezone in string format. List generated from Perl library DateTime::TimeZone. When left empty, it will use the timezone of the server.`),
           cols: [
             {

@@ -116,7 +116,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           cols: [
             {
               namespace: 'id',
@@ -128,7 +128,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCP Fingerprint', // i18n defer
+          label: i18n.t('DHCP Fingerprint'),
           cols: [
             {
               namespace: 'dhcp_fingerprint_id',
@@ -150,7 +150,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCP Vendor', // i18n defer
+          label: i18n.t('DHCP Vendor'),
           cols: [
             {
               namespace: 'dhcp_vendor_id',
@@ -172,7 +172,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCPv6 Fingerprint', // i18n defer
+          label: i18n.t('DHCPv6 Fingerprint'),
           cols: [
             {
               namespace: 'dhcp6_fingerprint_id',
@@ -194,7 +194,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCPv6 Enterprise', // i18n defer
+          label: i18n.t('DHCPv6 Enterprise'),
           cols: [
             {
               namespace: 'dhcp6_enterprise_id',
@@ -216,7 +216,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'MAC Vendor (OUI)', // i18n defer
+          label: i18n.t('MAC Vendor (OUI)'),
           cols: [
             {
               namespace: 'mac_vendor_id',
@@ -238,7 +238,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'User Agent', // i18n defer
+          label: i18n.t('User Agent'),
           cols: [
             {
               namespace: 'user_agent_id',
@@ -260,7 +260,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Device', // i18n defer
+          label: i18n.t('Device'),
           cols: [
             {
               namespace: 'device_id',
@@ -282,7 +282,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Version', // i18n defer
+          label: i18n.t('Version'),
           cols: [
             {
               namespace: 'version',
@@ -291,7 +291,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Score', // i18n defer
+          label: i18n.t('Score'),
           cols: [
             {
               namespace: 'score',

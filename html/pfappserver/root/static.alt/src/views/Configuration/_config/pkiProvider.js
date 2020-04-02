@@ -127,7 +127,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
-          label: 'PKI Provider Name', // i18n defer
+          label: i18n.t('PKI Provider Name'),
           cols: [
             {
               namespace: 'id',
@@ -155,7 +155,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['scep'].includes(providerType),
-          label: 'Username', // i18n defer
+          label: i18n.t('Username'),
           text: i18n.t('Username to connect to the SCEP PKI Service.'),
           cols: [
             {
@@ -167,7 +167,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['scep'].includes(providerType),
-          label: 'Password', // i18n defer
+          label: i18n.t('Password'),
           text: i18n.t('Password for the username filled in above.'),
           cols: [
             {
@@ -179,7 +179,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki'].includes(providerType),
-          label: 'Template', // i18n defer
+          label: i18n.t('Template'),
           text: i18n.t('Template used for the generation of certificate.'),
           cols: [
             {
@@ -196,7 +196,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki', 'scep'].includes(providerType),
-          label: 'Country', // i18n defer
+          label: i18n.t('Country'),
           text: i18n.t('Country for the certificate.'),
           cols: [
             {
@@ -208,7 +208,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki', 'scep'].includes(providerType),
-          label: 'State', // i18n defer
+          label: i18n.t('State'),
           text: i18n.t('State for the certificate.'),
           cols: [
             {
@@ -220,7 +220,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['scep'].includes(providerType),
-          label: 'Locality', // i18n defer
+          label: i18n.t('Locality'),
           text: i18n.t('Locality for the certificate.'),
           cols: [
             {
@@ -232,7 +232,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki', 'scep'].includes(providerType),
-          label: 'Organization', // i18n defer
+          label: i18n.t('Organization'),
           text: i18n.t('Organization for the certificate.'),
           cols: [
             {
@@ -244,7 +244,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['scep'].includes(providerType),
-          label: 'Organizational unit', // i18n defer
+          label: i18n.t('Organizational unit'),
           text: i18n.t('Organizational unit for the certificate.'),
           cols: [
             {
@@ -256,7 +256,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki', 'scep'].includes(providerType),
-          label: 'Common Name Attribute', // i18n defer
+          label: i18n.t('Common Name Attribute'),
           text: i18n.t('Defines what attribute of the node to use as the common name during the certificate generation.'),
           cols: [
             {
@@ -268,7 +268,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki', 'scep'].includes(providerType),
-          label: 'Common Name Format', // i18n defer
+          label: i18n.t('Common Name Format'),
           text: i18n.t('Defines how the common name will be formated. %s will expand to the defined Common Name Attribute value.'),
           cols: [
             {
@@ -280,7 +280,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_pki'].includes(providerType),
-          label: 'Revoke on unregistration', // i18n defer
+          label: i18n.t('Revoke on unregistration'),
           text: i18n.t('Check this box to have the certificate revoke when the node using it is unregistered. Do not use if multiple devices share the same certificate.'),
           cols: [
             {
@@ -294,7 +294,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_local'].includes(providerType),
-          label: 'Client cert path', // i18n defer
+          label: i18n.t('Client cert path'),
           text: i18n.t('Path of the client cert that will be used to generate the p12.'),
           cols: [
             {
@@ -306,7 +306,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_local'].includes(providerType),
-          label: 'Client key path', // i18n defer
+          label: i18n.t('Client key path'),
           text: i18n.t('Path of the client key that will be used to generate the p12.'),
           cols: [
             {
@@ -318,7 +318,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_local', 'packetfence_pki', 'scep'].includes(providerType),
-          label: 'CA cert path', // i18n defer
+          label: i18n.t('CA cert path'),
           text: i18n.t('Path of the CA certificate used to generate client certificate/key combination.'),
           cols: [
             {
@@ -330,7 +330,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['packetfence_local', 'packetfence_pki', 'scep'].includes(providerType),
-          label: 'Server cert path', // i18n defer
+          label: i18n.t('Server cert path'),
           text: i18n.t('Path of the RADIUS server authentication certificate.'),
           cols: [
             {

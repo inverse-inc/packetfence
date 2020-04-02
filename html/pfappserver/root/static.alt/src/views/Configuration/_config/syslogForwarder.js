@@ -104,7 +104,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'Syslog Name', // i18n defer
+          label: i18n.t('Syslog Name'),
           cols: [
             {
               namespace: 'id',
@@ -120,7 +120,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['server'].includes(form.type),
-          label: 'Protocol', // i18n defer
+          label: i18n.t('Protocol'),
           cols: [
             {
               namespace: 'proto',
@@ -131,7 +131,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['server'].includes(form.type),
-          label: 'Host', // i18n defer
+          label: i18n.t('Host'),
           cols: [
             {
               namespace: 'host',
@@ -142,7 +142,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: ['server'].includes(form.type),
-          label: 'Port', // i18n defer
+          label: i18n.t('Port'),
           cols: [
             {
               namespace: 'port',
@@ -152,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'All logs', // i18n defer
+          label: i18n.t('All logs'),
           cols: [
             {
               namespace: 'all_logs',
@@ -165,7 +165,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           if: form.all_logs === 'disabled',
-          label: 'Logs', // i18n defer
+          label: i18n.t('Logs'),
           cols: [
             {
               namespace: 'logs',

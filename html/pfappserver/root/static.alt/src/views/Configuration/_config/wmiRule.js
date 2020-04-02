@@ -107,7 +107,7 @@ export const view = (form, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'WMI Rule', // i18n defer
+          label: i18n.t('WMI Rule'),
           cols: [
             {
               namespace: 'id',
@@ -122,7 +122,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: 'On node tab', // i18n defer
+          label: i18n.t('On node tab'),
           text: i18n.t('Scan this WMI element while editing a node.'),
           cols: [
             {
@@ -136,7 +136,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: 'Namespace', // i18n defer
+          label: i18n.t('Namespace'),
           cols: [
             {
               namespace: 'namespace',
@@ -146,7 +146,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: 'Request', // i18n defer
+          label: i18n.t('Request'),
           cols: [
             {
               namespace: 'request',
@@ -161,7 +161,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: 'Rules Actions', // i18n defer
+          label: i18n.t('Rules Actions'),
           text: i18n.t('Add an action based on the result of the request.'),
           cols: [
             {

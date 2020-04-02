@@ -100,7 +100,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           if: (!isNew && !isClone),
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           cols: [
             {
               namespace: 'id',
@@ -112,7 +112,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'DHCP Vendor', // i18n defer
+          label: i18n.t('DHCP Vendor'),
           cols: [
             {
               namespace: 'value',

@@ -13,7 +13,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'Enabled', // i18n defer
+          label: i18n.t('Enabled'),
           text: i18n.t('Whether or not the Fingerbank device change feature is enabled.'),
           cols: [
             {
@@ -26,7 +26,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Trigger on device class change', // i18n defer
+          label: i18n.t('Trigger on device class change'),
           text: i18n.t('Whether or not internal::fingerbank_device_change should be triggered when we detect a device class change in Fingerbank.'),
           cols: [
             {
@@ -39,7 +39,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Device class change whitelist', // i18n defer
+          label: i18n.t('Device class change whitelist'),
           text: i18n.t('Which device class changes are allowed in conjunction with trigger_on_device_class_changeComma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.'),
           cols: [
             {
@@ -55,7 +55,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Manual device class change triggers', // i18n defer
+          label: i18n.t('Manual device class change triggers'),
           text: i18n.t('Which changes (changing from a device class to another) should trigger internal::fingerbank_device_change. This setting is independant from trigger_on_device_class_change and allows to specify exactly which transitions should trigger internal::fingerbank_device_change. Comma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.'),
           cols: [
             {

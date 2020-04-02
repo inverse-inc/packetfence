@@ -113,7 +113,7 @@ export const viewFields = {
       isClone = false
     } = meta
     return {
-      label: 'Provisioning ID', // i18n defer
+      label: i18n.t('Provisioning ID'),
       cols: [
         {
           namespace: 'id',
@@ -136,7 +136,7 @@ export const viewFields = {
   },
   access_token: (form = {}, meta = {}) => {
     return {
-      label: 'Access token', // i18n defer
+      label: i18n.t('Access token'),
       cols: [
         {
           namespace: 'access_token',
@@ -149,7 +149,7 @@ export const viewFields = {
   },
   agent_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Agent download URI', // i18n defer
+      label: i18n.t('Agent download URI'),
       cols: [
         {
           namespace: 'agent_download_uri',
@@ -162,7 +162,7 @@ export const viewFields = {
   },
   alt_agent_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Alt agent download URI', // i18n defer
+      label: i18n.t('Alt agent download URI'),
       cols: [
         {
           namespace: 'alt_agent_download_uri',
@@ -175,7 +175,7 @@ export const viewFields = {
   },
   android_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Android download URI', // i18n defer
+      label: i18n.t('Android download URI'),
       cols: [
         {
           namespace: 'android_download_uri',
@@ -188,7 +188,7 @@ export const viewFields = {
   },
   android_agent_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Android agent download URI', // i18n defer
+      label: i18n.t('Android agent download URI'),
       cols: [
         {
           namespace: 'android_agent_download_uri',
@@ -201,7 +201,7 @@ export const viewFields = {
   },
   api_password: (form = {}, meta = {}) => {
     return {
-      label: 'API password', // i18n defer
+      label: i18n.t('API password'),
       cols: [
         {
           namespace: 'api_password',
@@ -214,7 +214,7 @@ export const viewFields = {
   },
   api_username: (form = {}, meta = {}) => {
     return {
-      label: 'API username', // i18n defer
+      label: i18n.t('API username'),
       cols: [
         {
           namespace: 'api_username',
@@ -227,7 +227,7 @@ export const viewFields = {
   },
   api_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Api uri', // i18n defer
+      label: i18n.t('Api uri'),
       cols: [
         {
           namespace: 'api_uri',
@@ -240,7 +240,7 @@ export const viewFields = {
   },
   boarding_host: (form = {}, meta = {}) => {
     return {
-      label: 'Boarding host', // i18n defer
+      label: i18n.t('Boarding host'),
       cols: [
         {
           namespace: 'boarding_host',
@@ -253,7 +253,7 @@ export const viewFields = {
   },
   boarding_port: (form = {}, meta = {}) => {
     return {
-      label: 'Boarding port', // i18n defer
+      label: i18n.t('Boarding port'),
       cols: [
         {
           namespace: 'boarding_port',
@@ -266,7 +266,7 @@ export const viewFields = {
   },
   broadcast: (form = {}, meta = {}) => {
     return {
-      label: 'Broadcast network', // i18n defer
+      label: i18n.t('Broadcast network'),
       text: i18n.t('Uncheck this box if you are using a hidden SSID.'),
       cols: [
         {
@@ -281,7 +281,7 @@ export const viewFields = {
   },
   can_sign_profile: (form = {}, meta = {}) => {
     return {
-      label: 'Sign Profile', // i18n defer
+      label: i18n.t('Sign Profile'),
       cols: [
         {
           namespace: 'can_sign_profile',
@@ -295,7 +295,7 @@ export const viewFields = {
   },
   autoregister: (form = {}, meta = {}) => {
     return {
-      label: 'Auto register', // i18n defer
+      label: i18n.t('Auto register'),
       text: i18n.t('Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.'),
       cols: [
         {
@@ -310,7 +310,7 @@ export const viewFields = {
   },
   sync_pid: (form = {}, meta = {}) => {
     return {
-      label: 'Sync PID', // i18n defer
+      label: i18n.t('Sync PID'),
       text: i18n.t('Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.'),
       cols: [
         {
@@ -325,7 +325,7 @@ export const viewFields = {
   },
   enforce: (form = {}, meta = {}) => {
     return {
-      label: 'Enforce', // i18n defer
+      label: i18n.t('Enforce'),
       text: i18n.t('Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.'),
       cols: [
         {
@@ -340,7 +340,7 @@ export const viewFields = {
   },
   apply_role: (form = {}, meta = {}) => {
     return {
-      label: 'Apply role', // i18n defer
+      label: i18n.t('Apply role'),
       text: i18n.t('When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.'),
       cols: [
         {
@@ -355,7 +355,7 @@ export const viewFields = {
   },
   role_to_apply: (form = {}, meta = {}) => {
     return {
-      label: 'Role to apply', // i18n defer
+      label: i18n.t('Role to apply'),
       text: i18n.t('When "Apply role" is enabled, this defines the role to apply when the device is authorized with the provisioner.'),
       cols: [
         {
@@ -369,7 +369,7 @@ export const viewFields = {
   },
   category: (form = {}, meta = {}) => {
     return {
-      label: 'Roles', // i18n defer
+      label: i18n.t('Roles'),
       text: i18n.t('Nodes with the selected roles will be affected.'),
       cols: [
         {
@@ -383,7 +383,7 @@ export const viewFields = {
   },
   cert_chain: (form = {}, meta = {}) => {
     return {
-      label: 'The certificate chain for the signer certificate', // i18n defer
+      label: i18n.t('The certificate chain for the signer certificate'),
       text: i18n.t('The certificate chain of the signer certificate in PEM format.'),
       cols: [
         {
@@ -402,7 +402,7 @@ export const viewFields = {
   },
   certificate: (form = {}, meta = {}) => {
     return {
-      label: 'The certificate for signing profiles', // i18n defer
+      label: i18n.t('The certificate for signing profiles'),
       text: i18n.t('The certificate for signing in PEM format.'),
       cols: [
         {
@@ -421,7 +421,7 @@ export const viewFields = {
   },
   client_id: (form = {}, meta = {}) => {
     return {
-      label: 'Client Key', // i18n defer
+      label: i18n.t('Client Key'),
       cols: [
         {
           namespace: 'client_id',
@@ -434,7 +434,7 @@ export const viewFields = {
   },
   client_secret: (form = {}, meta = {}) => {
     return {
-      label: 'Client Secret', // i18n defer
+      label: i18n.t('Client Secret'),
       cols: [
         {
           namespace: 'client_secret',
@@ -447,7 +447,7 @@ export const viewFields = {
   },
   applicationID: (form = {}, meta = {}) => {
     return {
-      label: 'Application ID', // i18n defer
+      label: i18n.t('Application ID'),
       cols: [
         {
           namespace: 'applicationID',
@@ -460,7 +460,7 @@ export const viewFields = {
   },
   applicationSecret: (form = {}, meta = {}) => {
     return {
-      label: 'Application Secret', // i18n defer
+      label: i18n.t('Application Secret'),
       cols: [
         {
           namespace: 'applicationSecret',
@@ -473,7 +473,7 @@ export const viewFields = {
   },
   tenantID: (form = {}, meta = {}) => {
     return {
-      label: 'Tenant ID', // i18n defer
+      label: i18n.t('Tenant ID'),
       cols: [
         {
           namespace: 'tenantID',
@@ -486,7 +486,7 @@ export const viewFields = {
   },
   loginUrl: (form = {}, meta = {}) => {
     return {
-      label: 'Login Url', // i18n defer
+      label: i18n.t('Login Url'),
       cols: [
         {
           namespace: 'loginUrl',
@@ -499,7 +499,7 @@ export const viewFields = {
   },
   critical_issues_threshold: (form = {}, meta = {}) => {
     return {
-      label: 'Critical issues threshold', // i18n defer
+      label: i18n.t('Critical issues threshold'),
       text: i18n.t('The minimum number of critical issues a device needs to have before it gets isolated. 0 deactivates it.'),
       cols: [
         {
@@ -519,7 +519,7 @@ export const viewFields = {
   },
   description: (form = {}, meta = {}) => {
     return {
-      label: 'Description', // i18n defer
+      label: i18n.t('Description'),
       cols: [
         {
           namespace: 'description',
@@ -532,7 +532,7 @@ export const viewFields = {
   },
   device_type_detection: (form = {}, meta = {}) => {
     return {
-      label: 'Automatic device detection', // i18n defer
+      label: i18n.t('Automatic device detection'),
       cols: [
         {
           namespace: 'device_type_detection',
@@ -546,7 +546,7 @@ export const viewFields = {
   },
   domains: (form = {}, meta = {}) => {
     return {
-      label: 'Authorized domains', // i18n defer
+      label: i18n.t('Authorized domains'),
       text: i18n.t('A comma-separated list of domains that will be resolved with the correct IP addresses.'),
       cols: [
         {
@@ -560,7 +560,7 @@ export const viewFields = {
   },
   dpsk: (form = {}, meta = {}) => {
     return {
-      label: 'Enable DPSK', // i18n defer
+      label: i18n.t('Enable DPSK'),
       text: i18n.t('Define if the PSK needs to be generated'),
       cols: [
         {
@@ -575,7 +575,7 @@ export const viewFields = {
   },
   eap_type: (form = {}, meta = {}) => {
     return {
-      label: 'EAP type', // i18n defer
+      label: i18n.t('EAP type'),
       text: i18n.t('Select the EAP type of your SSID. Leave empty for no EAP.'),
       cols: [
         {
@@ -589,7 +589,7 @@ export const viewFields = {
   },
   host: (form = {}, meta = {}) => {
     return {
-      label: 'Host', // i18n defer
+      label: i18n.t('Host'),
       cols: [
         {
           namespace: 'host',
@@ -602,7 +602,7 @@ export const viewFields = {
   },
   ios_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'IOS download URI', // i18n defer
+      label: i18n.t('IOS download URI'),
       cols: [
         {
           namespace: 'ios_download_uri',
@@ -615,7 +615,7 @@ export const viewFields = {
   },
   ios_agent_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'IOS agent download URI', // i18n defer
+      label: i18n.t('IOS agent download URI'),
       cols: [
         {
           namespace: 'ios_agent_download_uri',
@@ -628,7 +628,7 @@ export const viewFields = {
   },
   mac_osx_agent_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Mac OSX agent download URI', // i18n defer
+      label: i18n.t('Mac OSX agent download URI'),
       cols: [
         {
           namespace: 'mac_osx_agent_download_uri',
@@ -641,7 +641,7 @@ export const viewFields = {
   },
   non_compliance_security_event: (form = {}, meta = {}) => {
     return {
-      label: 'Non compliance security event', // i18n defer
+      label: i18n.t('Non compliance security event'),
       text: i18n.t('Which security event should be raised when non compliance is detected.'),
       cols: [
         {
@@ -669,7 +669,7 @@ export const viewFields = {
   },
   passcode: (form = {}, meta = {}) => {
     return {
-      label: 'Wifi Key', // i18n defer
+      label: i18n.t('Wifi Key'),
       cols: [
         {
           namespace: 'passcode',
@@ -682,7 +682,7 @@ export const viewFields = {
   },
   password: (form = {}, meta = {}) => {
     return {
-      label: 'Client Secret', // i18n defer
+      label: i18n.t('Client Secret'),
       cols: [
         {
           namespace: 'password',
@@ -695,7 +695,7 @@ export const viewFields = {
   },
   pki_provider: (form = {}, meta = {}) => {
     return {
-      label: 'PKI Provider', // i18n defer
+      label: i18n.t('PKI Provider'),
       cols: [
         {
           namespace: 'pki_provider',
@@ -708,7 +708,7 @@ export const viewFields = {
   },
   port: (form = {}, meta = {}) => {
     return {
-      label: 'Port', // i18n defer
+      label: i18n.t('Port'),
       cols: [
         {
           namespace: 'port',
@@ -721,7 +721,7 @@ export const viewFields = {
   },
   private_key: (form = {}, meta = {}) => {
     return {
-      label: 'The private key for signing profiles', // i18n defer
+      label: i18n.t('The private key for signing profiles'),
       text: i18n.t('The private key for signing in PEM format.'),
       cols: [
         {
@@ -740,7 +740,7 @@ export const viewFields = {
   },
   protocol: (form = {}, meta = {}) => {
     return {
-      label: 'Protocol', // i18n defer
+      label: i18n.t('Protocol'),
       cols: [
         {
           namespace: 'protocol',
@@ -753,7 +753,7 @@ export const viewFields = {
   },
   psk_size: (form = {}, meta = {}) => {
     return {
-      label: 'PSK length', // i18n defer
+      label: i18n.t('PSK length'),
       text: i18n.t('This is the length of the PSK key you want to generate. The minimum length is eight characters.'),
       cols: [
         {
@@ -767,7 +767,7 @@ export const viewFields = {
   },
   query_computers: (form = {}, meta = {}) => {
     return {
-      label: 'Query JAMF computers inventory', // i18n defer
+      label: i18n.t('Query JAMF computers inventory'),
       cols: [
         {
           namespace: 'query_computers',
@@ -781,7 +781,7 @@ export const viewFields = {
   },
   query_mobiledevices: (form = {}, meta = {}) => {
     return {
-      label: 'Query JAMF mobile devices inventory', // i18n defer
+      label: i18n.t('Query JAMF mobile devices inventory'),
       cols: [
         {
           namespace: 'query_mobiledevices',
@@ -795,7 +795,7 @@ export const viewFields = {
   },
   refresh_token: (form = {}, meta = {}) => {
     return {
-      label: 'Refresh token', // i18n defer
+      label: i18n.t('Refresh token'),
       cols: [
         {
           namespace: 'refresh_token',
@@ -808,7 +808,7 @@ export const viewFields = {
   },
   security_type: (form = {}, meta = {}) => {
     return {
-      label: 'Security type', // i18n defer
+      label: i18n.t('Security type'),
       text: i18n.t('Select the type of security applied for your SSID.'),
       cols: [
         {
@@ -822,7 +822,7 @@ export const viewFields = {
   },
   server_certificate_path: (form = {}, meta = {}) => {
     return {
-      label: 'RADIUS server certificate path', // i18n defer
+      label: i18n.t('RADIUS server certificate path'),
       text: i18n.t('The path to the RADIUS server certificate.'),
       cols: [
         {
@@ -849,7 +849,7 @@ export const viewFields = {
   },
   table_for_agent: (form = {}, meta = {}) => {
     return {
-      label: 'Agent table name', // i18n defer
+      label: i18n.t('Agent table name'),
       cols: [
         {
           namespace: 'table_for_agent',
@@ -862,7 +862,7 @@ export const viewFields = {
   },
   table_for_mac: (form = {}, meta = {}) => {
     return {
-      label: 'MAC table name', // i18n defer
+      label: i18n.t('MAC table name'),
       cols: [
         {
           namespace: 'table_for_mac',
@@ -875,7 +875,7 @@ export const viewFields = {
   },
   tenant_code: (form = {}, meta = {}) => {
     return {
-      label: 'Tenant code', // i18n defer
+      label: i18n.t('Tenant code'),
       cols: [
         {
           namespace: 'tenant_code',
@@ -888,7 +888,7 @@ export const viewFields = {
   },
   username: (form = {}, meta = {}) => {
     return {
-      label: 'Username', // i18n defer
+      label: i18n.t('Username'),
       cols: [
         {
           namespace: 'username',
@@ -901,7 +901,7 @@ export const viewFields = {
   },
   win_agent_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Windows agent download URI', // i18n defer
+      label: i18n.t('Windows agent download URI'),
       cols: [
         {
           namespace: 'win_agent_download_uri',
@@ -914,7 +914,7 @@ export const viewFields = {
   },
   windows_agent_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Windows agent download URI', // i18n defer
+      label: i18n.t('Windows agent download URI'),
       cols: [
         {
           namespace: 'windows_agent_download_uri',
@@ -927,7 +927,7 @@ export const viewFields = {
   },
   windows_phone_download_uri: (form = {}, meta = {}) => {
     return {
-      label: 'Windows phone download URI', // i18n defer
+      label: i18n.t('Windows phone download URI'),
       cols: [
         {
           namespace: 'windows_phone_download_uri',

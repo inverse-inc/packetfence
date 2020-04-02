@@ -133,7 +133,7 @@ export const view = (form = {}, meta = {}) => {
       tab: null, // ignore tabs
       rows: [
         {
-          label: 'Identifier', // i18n defer
+          label: i18n.t('Identifier'),
           cols: [
             {
               namespace: 'id',
@@ -148,7 +148,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Description', // i18n defer
+          label: i18n.t('Description'),
           cols: [
             {
               namespace: 'description',
@@ -158,7 +158,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'RADIUS Disconnect', // i18n defer
+          label: i18n.t('RADIUS Disconnect'),
           cols: [
             {
               namespace: 'radiusDisconnect',
@@ -168,7 +168,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'SNMP Disconnect', // i18n defer
+          label: i18n.t('SNMP Disconnect'),
           text: i18n.t(`Use SNMP instead of RADIUS to perform access reevaluation. This will perform an SNMP up/down on the port using the standard MIB.`),
           cols: [
             {
@@ -179,7 +179,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Accept VLAN Scope', // i18n defer
+          label: i18n.t('Accept VLAN Scope'),
           cols: [
             {
               namespace: 'acceptVlan',
@@ -200,7 +200,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Accept Role Scope', // i18n defer
+          label: i18n.t('Accept Role Scope'),
           cols: [
             {
               namespace: 'acceptRole',
@@ -221,7 +221,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Disconnect Scope', // i18n defer
+          label: i18n.t('Disconnect Scope'),
           cols: [
             {
               namespace: 'disconnect',
@@ -242,7 +242,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'CoA Scope', // i18n defer
+          label: i18n.t('CoA Scope'),
           cols: [
             {
               namespace: 'coa',
@@ -263,7 +263,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'Reject Scope', // i18n defer
+          label: i18n.t('Reject Scope'),
           cols: [
             {
               namespace: 'reject',
@@ -284,7 +284,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'VOIP Scope', // i18n defer
+          label: i18n.t('VOIP Scope'),
           cols: [
             {
               namespace: 'voip',
