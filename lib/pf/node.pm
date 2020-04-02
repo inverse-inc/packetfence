@@ -30,6 +30,7 @@ use CHI::Memoize qw(memoized);
 use pf::dal::node;
 use pf::config::tenant;
 use pf::dal::locationlog;
+use pf::client;
 use pf::constants::node qw(
     $STATUS_REGISTERED
     $STATUS_UNREGISTERED
@@ -784,7 +785,7 @@ sub nodes_maintenance {
             'tid'   => 'node_maintenance',
             'type'  => 'internal',
         );
-        $apiclient->call('security_event', %security_event);
+        $apiclient->notify('trigger_security_event', %security_event);
 
         node_deregister($currentMac);
 
