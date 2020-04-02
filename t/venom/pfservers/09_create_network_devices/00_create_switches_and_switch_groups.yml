@@ -1,4 +1,4 @@
-name: Create AD sources
+name: Create switches and switch groups
 version: 2
 testcases:
 - name: create-switch-group

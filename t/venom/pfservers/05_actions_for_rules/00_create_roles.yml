@@ -1,4 +1,4 @@
-name: Create dot1x roles
+name: Create roles
 version: 2
 testcases:
 - name: create-dot1x-roles
