@@ -29,6 +29,33 @@ use pfappserver::Form::Config::Pf;
 use pf::I18N::pfappserver;
 use pf::error qw(is_error);
 use pf::ConfigStore::Pf;
+use pf::ConfigStore::Network;
+use pf::config qw(%Config);
+
+sub _update_domain_networks_conf {
+    my ($self) = @_;
+    if($self->id eq "general" && isenabled($Config{advanced}{configurator}) && $self->get_json->{domain} ne $Config{general}{domain}) {
+        $self->log->info("Domain name is being modified and configurator is active, will refresh the domain name value of all the networks already configured.");
+        my $netcs = pf::ConfigStore::Network->new;
+        for my $network (@{$netcs->readAll("id")}) {
+            $network->{"domain-name"} = $network->{type} . "." . $self->get_json->{domain};
+            $netcs->update($network->{id}, $network);
+        }
+        $netcs->commit();
+    }
+}
+
+sub replace {
+    my ($self) = @_;
+    $self->_update_domain_networks_conf();
+    $self->SUPER::update();
+}
+
+sub update {
+    my ($self) = @_;
+    $self->_update_domain_networks_conf();
+    $self->SUPER::update();
+}
 
 sub form_parameters {
     my ($self, $item) = @_;
