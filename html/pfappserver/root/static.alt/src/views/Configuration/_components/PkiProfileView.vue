@@ -13,9 +13,9 @@
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="d-inline mb-0">
-        <span v-if="!isNew && !isClone" v-html="$t('Profile')"></span>
-        <span v-else-if="isClone" v-html="$t('Clone Profile')"></span>
-        <span v-else>{{ $t('New Profile') }}</span>
+        <span v-if="!isNew && !isClone" v-html="$t('Template')"></span>
+        <span v-else-if="isClone" v-html="$t('Clone Template')"></span>
+        <span v-else>{{ $t('New Template') }}</span>
       </h4>
     </template>
     <template v-slot:footer>
@@ -141,7 +141,7 @@ export default {
           this.$router.push({ name: 'pkiProfile', params: { id } })
         }
       }).catch(e => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Profile: ') + e })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create Template: ') + e })
       })
     },
     save () {
@@ -152,7 +152,7 @@ export default {
           this.close()
         }
       }).catch(e => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not save Profile: ') + e })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not save Template: ') + e })
       })
     }
   },

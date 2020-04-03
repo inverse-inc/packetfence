@@ -19,7 +19,7 @@
         <span class="float-right">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1 text-nowrap" @click.stop.prevent="clipboard(item)">{{ $t('Copy Certificate') }}</b-button>
-          <b-button size="sm" variant="outline-primary" class="mr-1 text-nowrap" :to="{ name: 'newPkiProfile', params: { ca_id: item.ID } }">{{ $t('New Profile') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1 text-nowrap" :to="{ name: 'newPkiProfile', params: { ca_id: item.ID } }">{{ $t('New Template') }}</b-button>
         </span>
       </template>
     </pf-config-list>

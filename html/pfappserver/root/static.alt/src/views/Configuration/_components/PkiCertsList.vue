@@ -10,7 +10,7 @@
       </template>
       <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New Certificate')" variant="outline-primary" :disabled="profiles.length === 0">
-          <b-dropdown-header>{{ $t('Choose Certificate Authority - Profile') }}</b-dropdown-header>
+          <b-dropdown-header>{{ $t('Choose Certificate Authority - Template') }}</b-dropdown-header>
           <b-dropdown-item v-for="profile in profiles" :key="profile.ID" :to="{ name: 'newPkiCert', params: { profile_id: profile.ID } }">{{ profile.ca_name }} - {{ profile.name }}</b-dropdown-item>
         </b-dropdown>
         <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
