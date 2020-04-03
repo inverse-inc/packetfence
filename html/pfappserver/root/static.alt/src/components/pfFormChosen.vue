@@ -21,6 +21,7 @@
         :options="multiselectOptions"
         :options-limit="optionsLimit"
         :placeholder="multiselectPlaceholder"
+        :taggable="taggable"
         :tag-placeholder="multiselectTagPlaceholder"
         :preserve-search="preserveSearch"
         :searchable="searchable"
@@ -159,6 +160,10 @@ export default {
     placeholder: {
       type: String,
       default: null
+    },
+    taggable: {
+      type: Boolean,
+      default: false
     },
     tagPlaceholder: {
       type: String,
@@ -361,7 +366,7 @@ export default {
       }
       (options || []).map(option => {
         const { [this.trackBy]: value, [this.label]: label } = option
-        if (!(value in this.tagCache)) {
+        if (!this.taggable || !(value in this.tagCache)) {
           this.$set(this.tagCache, value, label)
         }
       })
