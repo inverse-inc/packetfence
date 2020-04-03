@@ -12,12 +12,13 @@
         :allow-empty="allowEmpty"
         :clear-on-select="clearOnSelect"
         :disabled="disabled"
+        :group-label="groupLabel"
         :group-values="groupValues"
         :id="id"
-        :internal-search="internalSearch"
+        :internal-search="false"
         :multiple="multiple"
         :label="label"
-        :options="options"
+        :options="multiselectOptions"
         :options-limit="optionsLimit"
         :placeholder="multiselectPlaceholder"
         :tag-placeholder="multiselectTagPlaceholder"
@@ -123,6 +124,9 @@ export default {
       type: Boolean,
       default: false
     },
+    groupLabel: {
+      type: String
+    },
     groupValues: {
       type: String
     },
@@ -182,6 +186,7 @@ export default {
     return {
       isLoading: false,
       isFocus: false,
+      internalSearchQuery: null,
       tagCache: {}
     }
   },
@@ -253,6 +258,50 @@ export default {
         return option[this.trackBy]
       })
     },
+    multiselectOptions () {
+      if (this.internalSearchQuery) {
+        const compoundSearch = (text, compoundQuery = null) => {
+          if (!compoundQuery) return true
+          let [ query, ...rest ] = compoundQuery.split(' ')
+          // case-insensitive and locale-ized
+          const textLocale = text.toLocaleLowerCase(this.$i18n.locale)
+          const queryLocale = query.toLocaleLowerCase(this.$i18n.locale)
+          if (rest.length > 0) {
+            // && with recursion
+            return (textLocale.includes(queryLocale) && compoundSearch(text, rest.join(' ')))
+          }
+          return textLocale.includes(queryLocale)
+        }
+
+        if (this.groupValues) {
+          return this.options.map(group => {
+            const { [this.groupLabel]: groupLabel, [this.groupValues]: groupValues } = group
+            if (compoundSearch(groupLabel, this.internalSearchQuery)) {
+              return group
+            }
+            return {
+              ...group,
+              [this.groupValues]: groupValues.filter(option => {
+                const { [this.label]: text } = option
+                return compoundSearch(text, this.internalSearchQuery)
+              })
+            }
+          }).filter(group => {
+            const { [this.groupValues]: groupValues } = group
+            return groupValues.length > 0
+          })
+        }
+        else {
+          return this.options.filter(option => {
+            const { [this.label]: text } = option
+            return compoundSearch(text, this.internalSearchQuery)
+          })
+        }
+      }
+      else {
+        return this.options
+      }
+    },
     multiselectPlaceholder () {
       return (this.isFocus)
         ? this.placeholder || this.$i18n.t('Enter a new value')
@@ -276,7 +325,10 @@ export default {
       this.onSearchChange(this.inputValue)
     },
     onSearchChange (query) {
-      if (this.optionsSearchFunction) {
+      if (this.internalSearch) {
+        this.internalSearchQuery = query
+      }
+      else if (this.optionsSearchFunction) {
         if (query && query.constructor === Array) { // not a user defined query
           query = ''
         }
