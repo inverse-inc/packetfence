@@ -29,6 +29,7 @@ use pf::file_paths qw(
     $dns_filters_config_file
     $switch_filters_config_file
 );
+
 my %rename = (
     scope => 'scopes',
     status => 'radius_status',
@@ -156,6 +157,7 @@ sub populate {
 
             if ($k =~ qr/(answer|param)(\d+)/) {
                 $k = "$1.$2";
+                $v =~ s/\s*=>\s*/ = /;
             }
 
             if ($k eq 'action') {

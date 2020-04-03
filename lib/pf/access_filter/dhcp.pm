@@ -63,7 +63,7 @@ sub filterRule {
         $self->dispatchActions($rule, $args);
         for my $a (@{$rule->{answers}}) {
             next if $a eq '';
-            my @answer = $a =~ /([.0-9a-zA-Z_-]*)\s*=>\s*(.*)/;
+            my @answer = $a =~ /([.0-9a-zA-Z_-]*)\s*=\s*(.*)/;
             evalAnswer(\@answer,$args,\$dhcp_reply);
         }
     }

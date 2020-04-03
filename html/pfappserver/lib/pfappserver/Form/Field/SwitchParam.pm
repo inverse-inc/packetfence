@@ -45,7 +45,7 @@ has_field value => (
 sub parse_type_value {
     my ($value) = @_;
     my %hash;
-    @hash{qw(type value)} = split(/\s*=>\s*/, $value, 2);
+    @hash{qw(type value)} = split(/\s*=\s*/, $value, 2);
     return \%hash;
 }
 
@@ -73,7 +73,7 @@ deflate the api method spec hash to a string
 
 sub deflate {
     my ($self, $value) = @_;
-    return join("=>", $value->{type}, $value->{value});
+    return join("=", $value->{type}, $value->{value});
 }
 
 =head1 AUTHOR

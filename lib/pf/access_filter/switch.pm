@@ -36,7 +36,7 @@ sub filterRule {
         } elsif ($rule->{'scope'} eq 'radius_authorize' || $rule->{'scope'} eq 'reevaluate') {
             $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
             for my $p (@{$rule->{params} // []}) {
-                my @answer = $p =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/;
+                my @answer = $p =~ /([a-zA-Z_-]*)\s*=\s*(.*)/;
                 evalAnswer(\@answer,$args,\$switch_params);
             }
             return ($switch_params);
