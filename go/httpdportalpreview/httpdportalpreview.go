@@ -82,7 +82,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // UpdateResponse rewrite the portal response
 func (p *Proxy) UpdateResponse(r *http.Response) error {
-
 	var URL []*url.URL
 	var LINK []string
 	location, _ := url.Parse(r.Header.Get("Location"))
@@ -131,11 +130,11 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 
 			r.Header["Content-Length"] = []string{fmt.Sprint(boeuf.Len())}
 			return nil
-		case tt == html.StartTagToken:
+		case tt == html.StartTagToken, tt == html.SelfClosingTagToken:
 			t := z.Token()
-
 			// Check if the token is an <a> or <form> tag
-			isAnchor := (t.Data == "a" || t.Data == "form")
+			isAnchor := (t.Data == "a" || t.Data == "form" || t.Data == "link" || t.Data == "img" || t.Data == "script")
+
 			if !isAnchor {
 				continue
 			}
@@ -168,6 +167,9 @@ func getHref(t html.Token) (ok bool, href string) {
 			href = a.Val
 			ok = true
 		case a.Key == "action":
+			href = a.Val
+			ok = true
+		case a.Key == "src":
 			href = a.Val
 			ok = true
 		}

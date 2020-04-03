@@ -59,11 +59,12 @@ sub generateConfig {
     } else {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
+    my $mgmt_cluster_ip;
     if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
         my $mgmt_int = $management_network->tag('int');
         my $mgmt_cfg = $Config{"interface $mgmt_int"};
         $tags{'mgmt_active_ip'} = pf::cluster::management_cluster_ip() || $mgmt_cfg->{'vip'} || $mgmt_cfg->{'ip'};
-        my $mgmt_cluster_ip = pf::cluster::cluster_ip($mgmt_int) || $mgmt_cfg->{'vip'} || $mgmt_cfg->{'ip'};
+        $mgmt_cluster_ip = pf::cluster::cluster_ip($mgmt_int) || $mgmt_cfg->{'vip'} || $mgmt_cfg->{'ip'};
         my @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
         push @mgmt_backend_ip, '127.0.0.1' if !@mgmt_backend_ip;
 
@@ -218,10 +219,10 @@ EOT
         parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
 
     my $config_file = "passthrough_admin.lua";
-    my $vars;
+    my %vars;
+    $vars{'portal'} = $mgmt_cluster_ip;
     my $tt = Template->new(ABSOLUTE => 1);
-    $tt->process("$conf_dir/$config_file.tt", $vars, "$generated_conf_dir/$config_file") or die $tt->error();
-
+    $tt->process("$conf_dir/$config_file.tt", \%vars, "$generated_conf_dir/$config_file") or die $tt->error();
     return 1;
 }
 
