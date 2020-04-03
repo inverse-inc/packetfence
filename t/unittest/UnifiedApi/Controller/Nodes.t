@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 87;
+use Test::More tests => 96;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -136,6 +136,20 @@ sub test_mac {
     $t->post_ok("/api/v1/node/$mac/apply_security_event" => json => { security_event_id => '1100013' })
       ->status_is(200);
 }
+
+$t->post_ok('/api/v1/nodes' => json => { mac => "" })
+  ->status_is(422);
+
+$t->post_ok('/api/v1/nodes' => json => { mac => undef })
+  ->status_is(422);
+
+$t->delete_ok('/api/v1/node/11:22:33:44:55:66');
+
+$t->post_ok('/api/v1/nodes' => json => { mac => "112233445566" })
+  ->status_is(201);
+
+$t->get_ok('/api/v1/node/11:22:33:44:55:66')
+  ->status_is(200);
 
 =head1 AUTHOR
 

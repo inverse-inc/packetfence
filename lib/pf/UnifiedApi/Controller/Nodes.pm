@@ -34,7 +34,7 @@ use pf::security_event;
 use pf::Connection;
 use pf::nodecategory;
 use pf::SwitchFactory;
-use pf::util qw(valid_ip valid_mac);
+use pf::util qw(valid_ip valid_mac clean_mac);
 use pf::Connection::ProfileFactory;
 use pf::log;
 
@@ -1009,6 +1009,8 @@ sub validate {
     my ($self, $json) = @_;
     my $roles = $self->stash->{admin_roles};
     my ($status, $err) = (200, undef);
+    my @errors;
+
     for my $f (qw(category_id bypass_role_id)) {
         next if !exists $json->{$f};
         my $cat_id = $json->{$f};
@@ -1017,16 +1019,29 @@ sub validate {
         next if !$nc;
         my $name = $nc->{name};
         if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
-            return 422, {
-                    message => 'Invalid role',
-                    errors => [
-                        { field => 'category_id', message => "$name is not allowed" }
-                    ],
-            };
+            push @errors, { field => 'category_id', message => "$name is not allowed" };
         }
     }
 
-    return $status, $err;
+    my $mac = $json->{mac};
+    if (!defined $mac) {
+        if ($self->stash->{action} eq 'create') {
+            push @errors, { field => 'mac', message => "Invalid mac" };
+        }
+    } elsif (!valid_mac($mac)) {
+        push @errors, { field => 'mac', message => "Invalid mac" };
+    }
+
+    if (@errors) {
+            return 422, {
+                    message => 'Invalid request',
+                    errors => \@errors,
+            };
+    }
+    if ($mac) {
+        $json->{mac} = clean_mac($mac);
+    }
+    return 200, undef;
 }
 
 sub status_to_error_msg {
