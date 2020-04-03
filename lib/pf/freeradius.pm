@@ -41,7 +41,7 @@ BEGIN {
     );
 }
 
-use pf::config qw($local_secret);;
+use pf::config qw($local_secret $management_network);
 use pf::db;
 use pf::dal::radius_nas;
 use pf::dal;
@@ -147,7 +147,7 @@ sub freeradius_populate_nas_config {
     }
 
     my @entries = (
-        map { { %{$switch_config->{$_}}, id => $_ } } @switches,
+        (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
         additional_switches(),
     );
     #Looping through all the switches 100 at a time
@@ -165,14 +165,16 @@ sub freeradius_populate_nas_config {
 
 sub additional_switches {
     if ($cluster_enabled) {
+        my $cluster_ip = pf::cluster::management_cluster_ip();
+        my $int = $management_network->{'Tint'};
         return map {
             {
                 id            => $_,
-                radius_secret => $local_secret,
+                radiusSecret  => $local_secret,
                 TenantId      => 1,
                 type          => 'PacketFence'
             }
-        } values %{pf::cluster::members_ips()};
+        } (values %{pf::cluster::members_ips($int)}, $cluster_ip);
     }
 
     return;
