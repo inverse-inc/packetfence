@@ -43,7 +43,7 @@ func setupRadiusDictionary() {
 
 	results := RadiusAttributesResults{}
 
-	d, err := parser.ParseFile("dictionary")
+	d, err := parser.ParseFile("/usr/local/pf/lib/pf/util/combined_dictionary")
 	if err != nil {
 		fmt.Println(err)
 	} else {
