@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `pki_cas` (
   KEY `mail` (`mail`),
   KEY `organisation` (`organisation`),
   KEY `idx_cas_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2;
 
 --
 -- Create the pki table certs
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `pki_certs` (
   KEY `ca_name` (`ca_name`),
   KEY `organisation` (`organisation`),
   KEY `profile_id` (`profile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2;
 
 --
 -- Create the pki table profiles
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `pki_profiles` (
   KEY `idx_profiles_deleted_at` (`deleted_at`),
   KEY `ca_id` (`ca_id`),
   KEY `ca_name` (`ca_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3;
 
 
 --
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `pki_revoked_certs` (
   KEY `ca_name` (`ca_name`),
   KEY `organisation` (`organisation`),
   KEY `revoked` (`revoked`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB;
 
 --
 -- Updating to current version
