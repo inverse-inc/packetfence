@@ -303,7 +303,7 @@ export default {
       if (this.groupValues) {
         let flattened = []
         for (let group of options) {
-          flattened = [ ...flattened, ...group[this.groupValues] ]
+          flattened = [ ...flattened, ...( group[this.groupValues] || []) ]
         }
         options = flattened
       }
