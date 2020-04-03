@@ -61,7 +61,7 @@ func main() {
 		IgnoreUnknownAttributeType: true,
 	}
 
-	d, err := parser.ParseFile("dictionary")
+	d, err := parser.ParseFile("/usr/local/pf/addons/dev-helpers/dictionary")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
