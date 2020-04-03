@@ -1497,7 +1497,8 @@ sub handle_accounting_metadata : Public {
 
     if ($acct_status_type == $ACCOUNTING::STOP) {
         my $profile_name = pf::Connection::ProfileFactory->get_profile_name($mac);
-        if (pf::util::isenabled($pf::config::Profiles_Config{$profile_name}{unreg_on_acct_stop}) && pf::util::isenabled($pf::config::Profiles_Config{$profile_name}{autoregister})) {
+        my $profile = $pf::config::Profiles_Config{$profile_name};
+        if (pf::util::isenabled($profile->{unreg_on_acct_stop}) && pf::util::isenabled($profile->{autoregister})) {
             $logger->info("Unregistering $mac on Accounting-Stop");
             $client->notify("deregister_node", mac => $mac);
         }
