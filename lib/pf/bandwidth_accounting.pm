@@ -28,7 +28,7 @@ sub bandwidth_maintenance {
     my ($batch, $time_limit, $window, $history_batch, $history_timeout, $history_window) = @_;
     process_bandwidth_accounting($batch, $time_limit);
     trigger_bandwidth($batch, $time_limit);
-    bandwidth_aggregation_hourly($batch, $window, $time_limit);
+    bandwidth_aggregation_hourly($batch, $time_limit, $window);
     bandwidth_aggregation_history_daily($batch, $time_limit);
     bandwidth_aggregation_history_monthly($batch, $time_limit);
     bandwidth_accounting_history_cleanup($history_window, $history_batch, $history_timeout);
