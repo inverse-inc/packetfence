@@ -331,7 +331,12 @@ export default {
     },
     onSearchChange (query) {
       if (this.internalSearch) {
-        this.internalSearchQuery = query
+        if (query !== this.inputValue) {
+          this.internalSearchQuery = query
+        }
+        else {
+          this.internalSearchQuery = null
+        }
       }
       else if (this.optionsSearchFunction) {
         if (query && query.constructor === Array) { // not a user defined query
@@ -366,7 +371,7 @@ export default {
       }
       (options || []).map(option => {
         const { [this.trackBy]: value, [this.label]: label } = option
-        if (!this.taggable || !(value in this.tagCache)) {
+        if (!(value in this.tagCache) || value !== label) {
           this.$set(this.tagCache, value, label)
         }
       })
@@ -381,6 +386,7 @@ export default {
     },
     inputValue: {
       handler (a) {
+        this.internalSearchQuery = null
         if (a) {
           if (this.optionsSearchFunction) {
             (((this.multiple) ? a : [a]) || []).map(value => {
