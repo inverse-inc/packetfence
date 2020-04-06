@@ -69,7 +69,7 @@ export default {
       return this.$store.getters['$_bases/isLoading']
     },
     automaticConfiguration () {
-      return this.$store.getters[`${this.storeName}/$formNS`]('automaticDatabaseConfiguration')
+      return this.$store.getters[`${this.formStoreName}/$formNS`]('automaticDatabaseConfiguration')
     }
     // advancedMode: { // mutating this property will re-evaluate view() and validators()
     //   get () {
