@@ -16,7 +16,7 @@ import {
 
 export const view = (form = {}, meta = {}) => {
   let {
-    automaticDatabaseConfiguration: automaticConfiguration = false,
+    automaticDatabaseConfiguration = '0',
     database: {
       db,
       root_pass = ''
@@ -38,6 +38,7 @@ export const view = (form = {}, meta = {}) => {
       assignDatabase = null
     } = {}
   } = meta
+  const automaticConfiguration = !!parseInt(automaticDatabaseConfiguration)
   return [
     {
       tab: null,
@@ -52,7 +53,10 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'automaticDatabaseConfiguration',
-              component: pfFormRangeToggle
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
             }
           ]
         },
@@ -292,7 +296,7 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   const {
-    automaticDatabaseConfiguration: automaticConfiguration = false
+    automaticDatabaseConfiguration = '0'
   } = form
   const {
     database: {
@@ -302,6 +306,7 @@ export const validators = (form = {}, meta = {}) => {
       userIsValid = false
     } = {}
   } = meta
+  const automaticConfiguration = !!parseInt(automaticDatabaseConfiguration)
   return {
     database: {
       // host: validatorsFromMeta(meta, 'database.host', i18n.t('Host')),

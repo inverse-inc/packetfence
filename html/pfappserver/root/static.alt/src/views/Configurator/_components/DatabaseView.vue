@@ -88,6 +88,7 @@ export default {
         createDatabase: this.createDatabase,
         assignDatabase: this.assignDatabase
       }
+      this.$set(this.form, 'automaticDatabaseConfiguration', '0')
       this.$store.dispatch(`${this.formStoreName}/appendMeta`, { database: metaMethods }) // initialize meta for database
       this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
       // Fetch configuration
@@ -197,7 +198,7 @@ export default {
       })
     },
     save () {
-      if (this.automaticConfiguration) {
+      if (parseInt(this.automaticConfiguration)) {
         return this.configureAutomatically().catch(error => {
           // Only show a notification in case of a failure
           const { response: { data: { message = '' } = {} } = {} } = error
