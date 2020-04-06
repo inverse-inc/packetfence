@@ -18,6 +18,7 @@ use Moose;
 use pf::constants;
 use pf::Authentication::constants;
 use List::Util qw(first);
+use pf::config qw(%Config);
 
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
@@ -49,9 +50,8 @@ sub available_attributes {
       TLS-Cert-Subject
       TLS-Cert-Common-Name
       TLS-Client-Cert-Subject-Alt-Name-Dns
-      username
     );
-    return [@$super_attributes, @own_attributes];
+    return [@$super_attributes, @own_attributes, map { {value => $_, type => $Conditions::SUBSTRING} } @{$Config{radius_configuration}{radius_attributes}}];
 }
 
 =head2 available_actions
