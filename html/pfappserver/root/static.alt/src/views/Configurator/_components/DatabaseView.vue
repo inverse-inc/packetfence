@@ -67,6 +67,9 @@ export default {
     },
     isLoading () {
       return this.$store.getters['$_bases/isLoading']
+    },
+    automaticConfiguration () {
+      return this.$store.getters[`${this.storeName}/$formNS`]('automaticDatabaseConfiguration')
     }
     // advancedMode: { // mutating this property will re-evaluate view() and validators()
     //   get () {
@@ -103,21 +106,27 @@ export default {
         this.$set(this.form.database, 'user', 'pf') // default username is "pf"
       }
       this.$store.dispatch('$_bases/testDatabase', { username: 'root' }).then(() => {
-        // No root password -- woohoo!
-        this.$set(this.form.database, 'root_pass', password.generate(this.passwordOptions))
-        // Assign a generated password for root
-        this.secureDatabase()
-      }).catch(() => {
-        // Root password is defined
-        // Check if database name and credentials are valid
-        this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
-          this.$set(this.meta.database, 'databaseExists', true)
-          this.$set(this.meta.database, 'userIsValid', true)
-          this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
-        }).catch(() => {
-          this.$set(this.meta.database, 'setUserPassword', true) // credentials don't work, user probably doesn't exist
+        this.$set(this.meta.database, 'setRootPassword', true) // root has no password -- installation is insecure
+        this.$store.dispatch('$_bases/testDatabase', { username: 'root', database: form.db || 'pf' }).then(() => {
+          this.$set(this.meta.database, 'databaseExists', true) // database exists
         })
       })
+      // Check if user credentials are valid
+      this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
+        this.$set(this.meta.database, 'databaseExists', true)
+        this.$set(this.meta.database, 'userIsValid', true)
+        this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
+      }).catch(() => {
+        this.$set(this.meta.database, 'setUserPassword', true) // credentials don't work, user probably doesn't exist
+      })
+    },
+    configureAutomatically () {
+      // Force default database and username
+      this.$set(this.form.database, 'db', 'pf')
+      this.$set(this.form.database, 'user', 'pf')
+      // Assign a generated password for root
+      this.$set(this.form.database, 'root_pass', password.generate(this.passwordOptions))
+      return this.secureDatabase()
     },
     secureDatabase () {
       const form = this.form.database
@@ -188,16 +197,30 @@ export default {
       })
     },
     save () {
-      return this.$store.dispatch('$_bases/updateDatabase', Object.assign({ quiet: true }, this.form.database)).catch(error => {
-        // Only show a notification in case of a failure
-        const { response: { data: { message = '' } = {} } = {} } = error
-        this.$store.dispatch('notification/danger', {
-          icon: 'exclamation-triangle',
-          url: message,
-          message: this.$i18n.t('An error occured while updating the database configuration.')
+      if (this.automaticConfiguration) {
+        return this.configureAutomatically().catch(error => {
+          // Only show a notification in case of a failure
+          const { response: { data: { message = '' } = {} } = {} } = error
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            url: message,
+            message: this.$i18n.t('An error occured while configuring the database. Please proceed manually.')
+          })
+          this.$set(this.form, 'automaticDatabaseConfiguration', false)
+          throw error
         })
-        throw error
-      })
+      } else {
+        return this.$store.dispatch('$_bases/updateDatabase', Object.assign({ quiet: true }, this.form.database)).catch(error => {
+          // Only show a notification in case of a failure
+          const { response: { data: { message = '' } = {} } = {} } = error
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            url: message,
+            message: this.$i18n.t('An error occured while updating the database configuration.')
+          })
+          throw error
+        })
+      }
     }
   },
   created () {

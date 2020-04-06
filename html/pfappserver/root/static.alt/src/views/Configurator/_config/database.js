@@ -5,6 +5,7 @@ import pfButton from '@/components/pfButton'
 import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   or,
   conditional
@@ -15,6 +16,7 @@ import {
 
 export const view = (form = {}, meta = {}) => {
   let {
+    automaticDatabaseConfiguration: automaticConfiguration = false,
     database: {
       db,
       root_pass = ''
@@ -36,11 +38,24 @@ export const view = (form = {}, meta = {}) => {
       assignDatabase = null
     } = {}
   } = meta
-  db = db || 'pf'
   return [
     {
       tab: null,
       rows: [
+        /**
+         * Automatic configuration toggle
+         */
+        {
+          if: rootPasswordIsRequired && setRootPassword && (!databaseExists || !userIsValid),
+          label: i18n.t('Automatic Configuration'),
+          text: i18n.t('A password will be assigned to the root account of MySQL, the database and a "pf" user will be created.'),
+          cols: [
+            {
+              namespace: 'automaticDatabaseConfiguration',
+              component: pfFormRangeToggle
+            }
+          ]
+        },
         /**
          * Advanced settings
          */
@@ -72,7 +87,7 @@ export const view = (form = {}, meta = {}) => {
          * Root password is empty
          */
         {
-          if: rootPasswordIsRequired && setRootPassword,
+          if: !automaticConfiguration && rootPasswordIsRequired && setRootPassword,
           label: i18n.t('Root Password'),
           text: i18n.t('Define a root password for the MySQL server.'),
           cols: [
@@ -92,7 +107,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: rootPasswordIsRequired && setRootPassword && rootPasswordIsValid,
+          if: !automaticConfiguration && rootPasswordIsRequired && setRootPassword && rootPasswordIsValid,
           label: true, // trick to keep bottom margin in pfConfigView
           cols: [
             {
@@ -122,7 +137,7 @@ export const view = (form = {}, meta = {}) => {
          * Root password is set
          */
         {
-          if: rootPasswordIsRequired && !setRootPassword,
+          if: !automaticConfiguration && rootPasswordIsRequired && !setRootPassword,
           label: i18n.t('Root Password'),
           text: i18n.t('Current root password of the MySQL server.'),
           cols: [
@@ -137,7 +152,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: rootPasswordIsRequired && !(setRootPassword || rootPasswordIsValid),
+          if: !automaticConfiguration && rootPasswordIsRequired && !(setRootPassword || rootPasswordIsValid),
           label: true, // trick to keep bottom margin in pfConfigView
           cols: [
             {
@@ -173,6 +188,7 @@ export const view = (form = {}, meta = {}) => {
          * Database name
          */
         {
+          if: !automaticConfiguration,
           label: i18n.t('Database name'),
           text: i18n.t('Name of the MySQL database used by PacketFence.'),
           cols: [
@@ -187,7 +203,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: !databaseExists,
+          if: !automaticConfiguration && !databaseExists,
           label: true, // trick to keep bottom margin in pfConfigView
           cols: [
             {
@@ -216,6 +232,7 @@ export const view = (form = {}, meta = {}) => {
          * Username and password
          */
         {
+          if: !automaticConfiguration,
           label: i18n.t('User'),
           text: i18n.t('Username of the account with access to the MySQL database used by PacketFence.'),
           cols: [
@@ -243,7 +260,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: !userIsValid,
+          if: !automaticConfiguration && !userIsValid,
           label: true, // trick to keep bottom margin in pfConfigView
           cols: [
             {
@@ -273,7 +290,10 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form, meta = {}) => {
+export const validators = (form = {}, meta = {}) => {
+  const {
+    automaticDatabaseConfiguration: automaticConfiguration = false
+  } = form
   const {
     database: {
       setUserPassword = false,
@@ -287,22 +307,22 @@ export const validators = (form, meta = {}) => {
       // host: validatorsFromMeta(meta, 'database.host', i18n.t('Host')),
       // port: validatorsFromMeta(meta, 'database.port', i18n.t('Port')),
       db: {
-        [i18n.t('Database name required.')]: required
+        [i18n.t('Database name required.')]: or(conditional(automaticConfiguration), required)
       },
       user: {
-        [i18n.t('Database username required.')]: or(conditional(setUserPassword === false), required)
+        [i18n.t('Database username required.')]: or(conditional(!setUserPassword), required)
       },
       pass: {
-        [i18n.t('Database password required.')]: or(conditional(setUserPassword === false), required)
+        [i18n.t('Database password required.')]: or(conditional(!setUserPassword), required)
       },
       root_pass: {
-        [i18n.t('Root password required.')]: or(conditional(!rootPasswordIsRequired), required)
+        [i18n.t('Root password required.')]: or(conditional(automaticConfiguration || !rootPasswordIsRequired), required)
       },
       database_exists: {
-        [i18n.t('Create the database.')]: conditional(databaseExists)
+        [i18n.t('Create the database.')]: conditional(automaticConfiguration || databaseExists)
       },
       user_is_valid: {
-        [i18n.t('Create the database user.')]: conditional(userIsValid)
+        [i18n.t('Create the database user.')]: conditional(automaticConfiguration || userIsValid)
       }
     }
   }
