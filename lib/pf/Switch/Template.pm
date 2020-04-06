@@ -205,7 +205,7 @@ sub radiusDisconnect {
         $response = $DISCONNECT_DISPATCH{$radiusDisconnect}->($self, $mac, $add_attributes_ref);
     } catch {
         chomp;
-        $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
+        $logger->warn("Unable to perform RADIUS Disconnect/CoA Request: $_");
         $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
     };
 
