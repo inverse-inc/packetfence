@@ -767,4 +767,4 @@ history_timeout=10s
 # history_window
 #
 # How long to keep a bandwidth_accounting_history entry before deleting it
-history_window=24h
+history_window=48h
