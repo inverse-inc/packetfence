@@ -229,7 +229,7 @@ export default {
       letsEncryptState: '',
       letsEncryptMsg: '',
       initCerts: ['http', 'radius'],
-      services: { 'http': ['haproxy-portal', 'httpd.admin', 'haproxy-admin'], 'radius': ['radiusd-acct', 'radiusd-auth'] },
+      services: { 'http': ['haproxy-portal', 'httpd.admin', 'haproxy-admin'], 'radius': ['radiusd-auth'] },
       sortedCerts: [],
       editMode: {},
       isModified: {},
