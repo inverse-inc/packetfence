@@ -23,25 +23,6 @@ usage() {
 
 
 configure_and_check() {
-    local dirs=${@:-}
-    # colors
-    NOCOLOR='\033[0m'
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    ORANGE='\033[0;33m'
-    BLUE='\033[0;34m'
-    PURPLE='\033[0;35m'
-    CYAN='\033[0;36m'
-    LIGHTGRAY='\033[0;37m'
-    DARKGRAY='\033[1;30m'
-    LIGHTRED='\033[1;31m'
-    LIGHTGREEN='\033[1;32m'
-    YELLOW='\033[1;33m'
-    LIGHTBLUE='\033[1;34m'
-    LIGHTPURPLE='\033[1;35m'
-    LIGHTCYAN='\033[1;36m'
-    WHITE='\033[1;37m'
-
     # paths
     VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${PWD}/results}"
     VENOM_VARS_DIR=${VARS:-${PWD}/vars}
@@ -55,8 +36,8 @@ configure_and_check() {
     VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:---strict --stop-on-failure}"
 
     echo -e "Using venom using following variables:"
-    echo -e "  VENOM_BINARY=${CYAN}${VENOM_BINARY}${NOCOLOR}"
-    echo -e "  VENOM_FLAGS=${CYAN}${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS}${NOCOLOR}"
+    echo -e "  VENOM_BINARY=${VENOM_BINARY}"
+    echo -e "  VENOM_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS}"
     echo ""
 }
 
