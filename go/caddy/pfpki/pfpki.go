@@ -124,6 +124,13 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	// OCSP responder
 	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")
 
+	go func() {
+		for {
+			pfpki.DB.DB().Ping()
+			time.Sleep(5 * time.Second)
+		}
+	}()
+
 	return pfpki, nil
 }
 
