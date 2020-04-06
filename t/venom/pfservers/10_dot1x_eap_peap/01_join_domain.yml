@@ -1,12 +1,6 @@
 name: Join domain
 version: 2
 testcases:
-- name: add-ad-as-dns-server
-  steps:
-    - type: exec
-      # replace first line of /etc/resolv.conf
-      script: sudo sed -i '1 s/^.*$/nameserver {{.ad_mgmt_ip}}/' /etc/resolv.conf
-
 - name: create-domain
   steps:
   - type: http
