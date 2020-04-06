@@ -181,7 +181,7 @@ sub perform_dynauth {
             return \%return;
 
         } else {
-            record_coa($connection_info, $radius_code, $attributes, $vsa, %return);
+            record_coa($connection_info, $radius_code, $attributes, $vsa, );
             die("Timeout waiting for a reply from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}");
         }
     }
