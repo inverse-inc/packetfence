@@ -14,11 +14,7 @@ const apiCall = axios.create({
 
 function _encodeURL (url) {
   if (Array.isArray(url)) {
-    url = url.map(segment => encodeURIComponent(segment.toString().replace('/', '~'))).join('/')
-  }
-  if (url.slice(0, baseURL.length) === baseURL) {
-    // strip baseURL from prefix
-    return url.slice(baseURL.length - 1)
+    return url.map(segment => encodeURIComponent(segment.toString().replace('/', '~'))).join('/')
   }
   return url
 }
