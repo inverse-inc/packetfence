@@ -878,7 +878,7 @@ sub setup_api_v1_config_admin_roles_routes {
 =cut
 
 sub setup_api_v1_config_bases_routes {
-    my ($self, $root) = @_;
+    my ($self, $root, $db_routes) = @_;
     my ($collection_route, $resource_route) =
       $self->setup_api_v1_std_config_routes(
         $root,
@@ -890,6 +890,7 @@ sub setup_api_v1_config_bases_routes {
 
     $collection_route->register_sub_action({ action => 'test_smtp', method => 'POST'});
 
+    return unless $db_routes;
     my $database_route = $root->any("/base/database")->name("api.v1.Config.Bases");
     $database_route
       ->any(["POST"] => "/test")
@@ -2070,8 +2071,8 @@ setup_api_v1_configurator_routes
 
 sub setup_api_v1_configurator_routes {
     my ($self, $root) = @_;
-    my $config = $root->under("/config");
-    $self->setup_api_v1_config_bases_routes($config);
+    my $config = $root->under("/config")->name("api.v1.Configurator.Config");
+    $self->setup_api_v1_config_bases_routes($config, 1);
     $self->setup_api_v1_config_fingerbank_settings_routes($config);
     $self->setup_api_v1_config_interfaces_routes($config);
     $self->setup_api_v1_config_system_routes($config);
