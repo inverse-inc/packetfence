@@ -41,13 +41,16 @@ configure_and_check() {
     echo ""
 }
 
-pfservers_test_suite() {
-    local pfservers_dir=${1:-.}
-    for sub_dir in $(find ${pfservers_dir}/* -type d); do
+# run all test suite file in each subdirectories of top_dir
+run_nested_test_suites() {
+    local top_dir=${1:-.}
+    for sub_dir in $(find ${top_dir}/* -type d); do
         run_test_suite $sub_dir
     done
 
 }
+
+# run all test suite files in a arg directory or a test suite file (Venom behavior)
 run_test_suite() {
     local test_suite_dir=$(readlink -e ${1:-.})
     local test_suite_name=$(basename $test_suite_dir)
@@ -71,22 +74,22 @@ teardown() {
 [[ $# -lt 1 ]] && usage && exit 1
 configure_and_check
 
-case $1 in
-    # run all test suite file in each subdirectories of pfservers dir
-    # source "env" file to have API token if exist
-    pfservers)
-        export VENOM_RESULT_DIR
-        if [ -f "${VENOM_RESULT_DIR}/env" ]; then
-            source $VENOM_RESULT_DIR/env
-        fi
-        pfservers_test_suite pfservers;;
-    teardown) teardown ;;
-    # run all test suite files in a arg directory
-    # source "env" file to have API token if exist
-    *)
-        export VENOM_RESULT_DIR
-        if [ -f "${VENOM_RESULT_DIR}/env" ]; then
-            source $VENOM_RESULT_DIR/env
-        fi
-        run_test_suite $1 ;;
-esac
+for target in $@; do
+    case $target in
+        # source "env" file to have API token if exist
+        pfservers)
+            export VENOM_RESULT_DIR
+            if [ -f "${VENOM_RESULT_DIR}/env" ]; then
+                source $VENOM_RESULT_DIR/env
+            fi
+            run_nested_test_suites $target ;;
+        teardown) teardown ;;
+        # source "env" file to have API token if exist
+        *)
+            export VENOM_RESULT_DIR
+            if [ -f "${VENOM_RESULT_DIR}/env" ]; then
+                source $VENOM_RESULT_DIR/env
+            fi
+            run_test_suite $target ;;
+    esac
+done
