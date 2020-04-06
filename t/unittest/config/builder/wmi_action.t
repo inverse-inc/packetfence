@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 9;
 
 #This test will running last
 use Test::NoWarnings;
@@ -98,6 +98,38 @@ CONF
                                                                  }, 'pf::condition::key' )
                                          }, 'pf::condition::multi_any' )
                  }, 'pf::filter' ),
+    );
+}
+
+{
+    my $conf = <<'CONF';
+[Google]
+operator = true
+
+[1:Google]
+only_match_when_empty=enabled
+action=trigger_violation
+action_param = mac = $mac, tid = 888888, type = INTERNAL
+CONF
+
+    my ($error, $filters) = build_from_conf($conf);
+    is($error, undef, "No Error found");
+    is(scalar @$filters, 1, "1 filter built");
+    is_deeply(
+        $filters->[0],
+          bless( {
+                   'answer' => {
+                                 'only_match_when_empty' => 'enabled',
+                                 'action_param' => 'mac = $mac, tid = 888888, type = INTERNAL',
+                                 '_rule' => '1:Google',
+                                 'action' => 'trigger_violation'
+                               },
+                   'condition' => bless( {
+                                           'match_on_empty' => 0,
+                                           'condition' => bless( { }, 'pf::condition::true' )
+                                         }, 'pf::condition::multi_any' )
+                 }, 'pf::filter' ),
+        "Filter Building",
     );
 }
 

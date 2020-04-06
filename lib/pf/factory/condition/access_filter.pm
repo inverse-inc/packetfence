@@ -57,6 +57,12 @@ __PACKAGE__->modules;
 
 sub instantiate {
     my ($class, $data) = @_;
+    my $op = $data->{operator};
+    return unless defined $op;
+    if ($op eq 'true') {
+        return pf::condition::true->new();
+    }
+
     my $filter = $data->{filter};
     return unless defined $filter;
 
