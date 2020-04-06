@@ -817,7 +817,7 @@ export const viewFields = {
           attrs: {
             ...attributesFromMeta(meta, 'host'),
             ...{
-              class: 'col-sm-4',
+              class: 'col-sm-4 mr-1 px-0',
               placeholder: i18n.t('Enter a new host'),
               tagPlaceholder: i18n.t('Click to add host')
             }
@@ -825,7 +825,7 @@ export const viewFields = {
         },
         {
           text: ':',
-          class: 'ml-1 font-weight-bold'
+          class: 'mr-1 font-weight-bold'
         },
         {
           namespace: 'port',
@@ -833,7 +833,8 @@ export const viewFields = {
           attrs: {
             ...attributesFromMeta(meta, 'port'),
             ...{
-              class: 'mx-1 col-sm-2'
+              placeholder: i18n.t('Port'),
+              class: 'col-sm-2 mr-1 px-0'
             }
           }
         },
@@ -843,7 +844,8 @@ export const viewFields = {
           attrs: {
             ...attributesFromMeta(meta, 'encryption'),
             ...{
-              class: 'col-sm-2'
+              placeholder: i18n.t('Encryption'),
+              class: 'col-sm-2 mr-1 px-0'
             }
           }
         },

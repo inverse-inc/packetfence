@@ -35,13 +35,13 @@
               <b-input-group align-v="start">
                 <template v-for="col in row.cols">
                   <span v-if="col.text" :key="col.index" class="d-inline py-2" :class="col.class">{{ col.text }}</span>
-                  <component v-show="!('if' in col) || col.if"
+                  <component v-show="(!('if' in col) || col.if) && col.component"
                     v-bind="col.attrs"
                     v-on="kebabCaseListeners(col.listeners)"
                     :form-store-name="formStoreName"
                     :form-namespace="`${(formNamespace) ? `${formNamespace}.` : ''}${col.namespace}`"
                     :key="col.namespace"
-                    :is="col.component || defaultComponent"
+                    :is="col.component"
                     :is-loading="isLoading"
                     :class="getClass(row, col)"
                     :disabled="(col.attrs && col.attrs.disabled) || disabled"
@@ -114,8 +114,7 @@ export default {
     return {
       tabKey: uuidv4(), // control tabs DOM rendering
       tabIndex: this.initialTabIndex,
-      tabErrorCountCache: false,
-      defaultComponent: pfFormInput
+      tabErrorCountCache: false
     }
   },
   computed: {
