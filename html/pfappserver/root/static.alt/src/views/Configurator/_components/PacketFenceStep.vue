@@ -49,12 +49,13 @@ export default {
     save (nextRouteName) {
       const { database, general, alerting, administrator } = this.$refs
       this.isLoading = true
-      Promise.all([
-        database.save(),
-        general.save(),
-        alerting.save(),
-        administrator.save()
-      ]).then(() => {
+      database.save().then(() => {
+        return Promise.all([
+          general.save(),
+          alerting.save(),
+          administrator.save()
+        ])
+      }).then(() => {
         this.$router.push({ name: nextRouteName })
       }).finally(() => {
         this.isLoading = false
