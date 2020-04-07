@@ -26,6 +26,7 @@ configure_and_check() {
     # to distinguish if test is running in CI or not
     # in CI, value is set to "yes"
     INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
+
     # paths
     VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${PWD}/results}"
     VENOM_VARS_DIR=${VARS:-${PWD}/vars}
@@ -38,9 +39,12 @@ configure_and_check() {
     VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --var-from-file ${VENOM_VARS_FILE}}"
     VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:---strict --stop-on-failure}"
 
+    # dirty hack: --exclude is added at end of venom command even if no files are excluded
+    VENOM_EXCLUDE_FLAGS="${VENOM_EXCLUDE_FLAGS:---exclude ''}"
+
     echo -e "Using venom using following variables:"
     echo -e "  VENOM_BINARY=${VENOM_BINARY}"
-    echo -e "  VENOM_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS}"
+    echo -e "  VENOM_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${VENOM_EXCLUDE_FLAGS}"
     echo ""
 }
 
@@ -57,7 +61,7 @@ display_dumps_on_error() {
 run_test_suites() {
     local test_suites=$(readlink -e ${@:-.})
     log_section "Running all test suites"
-    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites}"
+    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites} ${VENOM_EXCLUDE_FLAGS}"
     ${CMD} || display_dumps_on_error
 }
 
