@@ -108,17 +108,22 @@ export default {
       }
       this.$store.dispatch('$_bases/testDatabase', { username: 'root' }).then(() => {
         this.$set(this.meta.database, 'setRootPassword', true) // root has no password -- installation is insecure
+        this.$set(this.form, 'automaticDatabaseConfiguration', '1') // enable automatic configuration
         this.$store.dispatch('$_bases/testDatabase', { username: 'root', database: form.db || 'pf' }).then(() => {
           this.$set(this.meta.database, 'databaseExists', true) // database exists
         })
-      })
-      // Check if user credentials are valid
-      this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
-        this.$set(this.meta.database, 'databaseExists', true)
-        this.$set(this.meta.database, 'userIsValid', true)
-        this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
       }).catch(() => {
-        this.$set(this.meta.database, 'setUserPassword', true) // credentials don't work, user probably doesn't exist
+        // noop
+      }).finally(() => {
+        // Check if user credentials are valid
+        this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
+          this.$set(this.meta.database, 'databaseExists', true)
+          this.$set(this.meta.database, 'userIsValid', true)
+          this.$set(this.meta.database, 'rootPasswordIsRequired', false) // we no longer need the root password
+          this.$set(this.form, 'automaticDatabaseConfiguration', '0') // disable automatic configuration
+        }).catch(() => {
+          this.$set(this.meta.database, 'setUserPassword', true) // credentials don't work, user probably doesn't exist
+        })
       })
     },
     configureAutomatically () {
