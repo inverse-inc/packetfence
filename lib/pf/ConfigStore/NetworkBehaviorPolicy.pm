@@ -17,6 +17,7 @@ use Moo;
 use pf::file_paths qw($network_behavior_policy_config_file);
 use pf::util;
 use pf::constants;
+use pf::fingerbank;
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
 
@@ -54,6 +55,11 @@ sub cleanupBeforeCommit {
 
 sub _fields_expanded {
     return qw(watched_device_attributes device_attributes_diff_threshold_overrides devices_included devices_excluded);
+}
+
+sub commitPfconfig {
+    my ($self) = @_;
+    pf::fingerbank::sync_nba_conf();
 }
 
 =head1 AUTHOR

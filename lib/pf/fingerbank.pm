@@ -28,6 +28,7 @@ use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
 use pf::error qw(is_success);
+use pf::file_paths qw($network_behavior_policy_config_file);
 
 use pf::client;
 use pf::error qw(is_error);
@@ -367,6 +368,10 @@ sub sync_local_db {
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
     clear_cache();
+}
+
+sub sync_nba_conf {
+    pf::cluster::sync_files([$network_behavior_policy_config_file]);
 }
 
 sub clear_cache {
