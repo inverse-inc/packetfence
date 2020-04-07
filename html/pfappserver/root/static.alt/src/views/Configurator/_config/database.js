@@ -47,7 +47,7 @@ export const view = (form = {}, meta = {}) => {
          * Automatic configuration toggle
          */
         {
-          if: rootPasswordIsRequired && setRootPassword && (!databaseExists || !userIsValid),
+          if: rootPasswordIsRequired && setRootPassword && !rootPasswordIsValid && (!databaseExists || !userIsValid),
           label: i18n.t('Automatic Configuration'),
           text: i18n.t('A password will be assigned to the root account of MySQL, the database and a "pf" user will be created.'),
           cols: [
