@@ -18,10 +18,14 @@ cp -a ${SRC_DIR}/t ${PF_DIR}
 
 # Preliminary steps before running Perl and Golang unit tests
 # used MYSQL_PWD env variable
-mysql -uroot < ${PF_DIR}/t/db/smoke_test.sql;
-${PF_DIR}/t/db/setup_test_db.pl
+configure_smoke_db() {
+    echo "Configure pf_smoke_test database"
+    mysql -uroot < ${PF_DIR}/t/db/smoke_test.sql;
+    ${PF_DIR}/t/db/setup_test_db.pl
+}
 
 if [ "$PERL_UNIT_TESTS" = "yes" ]; then
+    configure_smoke_db
     echo "Running Perl unit tests"
 
     declare -p PF_TEST_MGMT_INT
@@ -35,6 +39,7 @@ else
 fi
 
 if [ "$GOLANG_UNIT_TESTS" = "yes" ]; then
+    configure_smoke_db
     echo "Running Golang unit tests"
     make -C ${GO_DIR} test
 else

@@ -1,12 +1,6 @@
 name: Join domain
 version: 2
 testcases:
-- name: add-ad-as-dns-server
-  steps:
-    - type: exec
-      # replace first line of /etc/resolv.conf
-      script: sudo sed -i '1 s/^.*$/nameserver {{.ad_mgmt_ip}}/' /etc/resolv.conf
-
 - name: create-domain
   steps:
   - type: http
@@ -66,18 +60,18 @@ testcases:
 - name: join-domain
   steps:
     - type: exec
-      script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads join -s /etc/samba/{{.ad_domain_id}}.conf -U {{.ad_domain_admin_user}}%{{.ad_domain_admin_password}}'
+      script: '/usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads join -s /etc/samba/{{.ad_domain_id}}.conf -U {{.ad_domain_admin_user}}%{{.ad_domain_admin_password}}'
       retry: 5
       delay: 15
 
 - name: check-domain-join
   steps:
     - type: exec
-      script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads testjoin -s /etc/samba/{{.ad_domain_id}}.conf'
+      script: '/usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads testjoin -s /etc/samba/{{.ad_domain_id}}.conf'
       retry: 5
       delay: 15
 
     - type: exec
-      script: 'sudo /usr/sbin/chroot /chroots/{{.ad_domain_id}} wbinfo -t'
+      script: '/usr/sbin/chroot /chroots/{{.ad_domain_id}} wbinfo -t'
       retry: 5
       delay: 15

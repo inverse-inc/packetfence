@@ -1,7 +1,7 @@
 #!/bin/bash
 set -o nounset -o pipefail
 
-VENOM_BIN_PATH=/usr/local/bin
+VENOM_BIN_PATH=/usr/bin
 VENOM_BINARY=venom
 ROOTUSER_NAME=root
 

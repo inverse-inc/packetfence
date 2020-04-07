@@ -17,30 +17,15 @@ log_subsection() {
 
 # script usage definition
 usage() { 
-    echo "Usage: $(basename $0) <path_to_test_suite> or <path_to_test_suite_dir>"
-    echo "$(basename $0) <pfservers> is specific and will run all test suite in all subdirectories"
+    echo "Usage: $(basename $0) <path_to_test_suite1> [<path_to_test_suite2>]"
+    echo "If you want to run all test suites in subdirectories, use <path_to_test_suite_dir/*>"
 } 
 
 
 configure_and_check() {
-    local dirs=${@:-}
-    # colors
-    NOCOLOR='\033[0m'
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    ORANGE='\033[0;33m'
-    BLUE='\033[0;34m'
-    PURPLE='\033[0;35m'
-    CYAN='\033[0;36m'
-    LIGHTGRAY='\033[0;37m'
-    DARKGRAY='\033[1;30m'
-    LIGHTRED='\033[1;31m'
-    LIGHTGREEN='\033[1;32m'
-    YELLOW='\033[1;33m'
-    LIGHTBLUE='\033[1;34m'
-    LIGHTPURPLE='\033[1;35m'
-    LIGHTCYAN='\033[1;36m'
-    WHITE='\033[1;37m'
+    # to distinguish if test is running in CI or not
+    # in CI, value is set to "yes"
+    INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
 
     # paths
     VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${PWD}/results}"
@@ -54,58 +39,40 @@ configure_and_check() {
     VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --var-from-file ${VENOM_VARS_FILE}}"
     VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:---strict --stop-on-failure}"
 
+    # dirty hack: --exclude is added at end of venom command even if no files are excluded
+    VENOM_EXCLUDE_FLAGS="${VENOM_EXCLUDE_FLAGS:---exclude ''}"
+
     echo -e "Using venom using following variables:"
-    echo -e "  VENOM_BINARY=${CYAN}${VENOM_BINARY}${NOCOLOR}"
-    echo -e "  VENOM_FLAGS=${CYAN}${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS}${NOCOLOR}"
+    echo -e "  VENOM_BINARY=${VENOM_BINARY}"
+    echo -e "  VENOM_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${VENOM_EXCLUDE_FLAGS}"
     echo ""
 }
 
-pfservers_test_suite() {
-    local pfservers_dir=${1:-.}
-    for sub_dir in $(find ${pfservers_dir}/* -type d); do
-        run_test_suite $sub_dir
-    done
-
-}
-run_test_suite() {
-    local test_suite_dir=$(readlink -e ${1:-.})
-    local test_suite_name=$(basename $test_suite_dir)
-    log_section "Running ${test_suite_dir} suite"
-    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suite_dir}"
-    ${CMD} > ${VENOM_RESULT_DIR}/${test_suite_name}.output 2>&1
-
-    # display error logs only on error (need --strict)
-    if [ "$?" -ne 0 ]; then
-        cat ${VENOM_RESULT_DIR}/${test_suite_name}.output
-    else
-        cat ${VENOM_RESULT_DIR}/test_results.${VENOM_FORMAT}
+display_dumps_on_error() {
+    # only display dump if we run in a CI
+    if [ "$INTEGRATION_TESTS" = "yes" ]; then
+        for dump_file in $(find ${VENOM_RESULT_DIR} -name "*.dump"); do
+            cat $dump_file
+        done
     fi
+    die "Error in Venom tests"
 }
 
-teardown() {
-    rm -rf ${VENOM_RESULT_DIR} || die "rm failed: ${VENOM_RESULT_DIR}"
+run_test_suites() {
+    local test_suites=$(readlink -e ${@:-.})
+    log_section "Running all test suites"
+    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites} ${VENOM_EXCLUDE_FLAGS}"
+    ${CMD} || display_dumps_on_error
 }
 
 # Arguments are mandatory
 [[ $# -lt 1 ]] && usage && exit 1
 configure_and_check
 
-case $1 in
-    # run all test suite file in each subdirectories of pfservers dir
-    # source "env" file to have API token if exist
-    pfservers)
-        export VENOM_RESULT_DIR
-        if [ -f "${VENOM_RESULT_DIR}/env" ]; then
-            source $VENOM_RESULT_DIR/env
-        fi
-        pfservers_test_suite pfservers;;
-    teardown) teardown ;;
-    # run all test suite files in a arg directory
-    # source "env" file to have API token if exist
-    *)
-        export VENOM_RESULT_DIR
-        if [ -f "${VENOM_RESULT_DIR}/env" ]; then
-            source $VENOM_RESULT_DIR/env
-        fi
-        run_test_suite $1 ;;
-esac
+# to get token written by setup test suite
+export VENOM_RESULT_DIR
+if [ -f "${VENOM_RESULT_DIR}/env" ]; then
+    source $VENOM_RESULT_DIR/env
+fi
+run_test_suites $@
+
