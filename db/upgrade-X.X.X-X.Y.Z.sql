@@ -226,6 +226,7 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     node_id BIGINT UNSIGNED NOT NULL,
     unique_session_id BIGINT UNSIGNED NOT NULL,
     time_bucket DATETIME NOT NULL,
+    source_type ENUM('net_flow','radius') NOT NULL,
     in_bytes BIGINT SIGNED NOT NULL,
     out_bytes BIGINT SIGNED NOT NULL,
     mac CHAR(17) NOT NULL,
@@ -365,15 +366,17 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `process_bandwidth_accounting`;
 DELIMITER /
 CREATE PROCEDURE `process_bandwidth_accounting` (
+  IN `p_end_bucket` datetime,
   IN `p_batch` int(11) unsigned
 )
 BEGIN
     SET @batch = p_batch;
+    SET @end_bucket = p_end_bucket;
     DROP TABLE IF EXISTS to_process;
     CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting LIMIT 0;
     START TRANSACTION;
-    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT node_id, tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting WHERE processed = 0 LIMIT ?';
-    EXECUTE insert_into_to_process USING @batch;
+    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT node_id, tenant_id, mac, time_bucket, unique_session_id, total_bytes FROM bandwidth_accounting WHERE processed = 0 AND time_bucket < ? LIMIT ?';
+    EXECUTE insert_into_to_process USING @end_bucket, @batch;
     DEALLOCATE PREPARE insert_into_to_process;
     SELECT COUNT(*) INTO @count FROM to_process;
     IF @count > 0 THEN

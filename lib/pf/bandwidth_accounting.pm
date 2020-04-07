@@ -19,7 +19,7 @@ use pf::dal::bandwidth_accounting_history;
 use pf::dal::node;
 use pf::error qw(is_error is_success);
 use pf::log;
-use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH);
+use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH %Config);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::security_event;
 my $logger = get_logger();
@@ -121,8 +121,9 @@ sub process_bandwidth_accounting {
 
 sub call_process_bandwidth_accounting {
     my ($batch) = @_;
-    my $sql = "CALL process_bandwidth_accounting(?);";
-    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $batch);
+    my $accounting_timebucket = 2 * $Config{advanced}{accounting_timebucket_size};
+    my $sql = "CALL process_bandwidth_accounting(SUBDATE(NOW(), INTERVAL ? SECOND) ,?);";
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $accounting_timebucket, $batch);
     if (is_error($status)) {
         $logger->error("Error calling process_bandwidth_accounting");
         return 0;
