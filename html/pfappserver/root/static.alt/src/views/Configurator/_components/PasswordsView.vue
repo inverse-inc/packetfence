@@ -6,15 +6,35 @@
         </b-card-header>
         <div class="card-body">
         <template v-if="database.root_pass">
-            <pf-form-row :column-label="$t('Database Root Account')" label-class="col-form-label-lg offset-sm-3"></pf-form-row>
+            <b-form-group
+              :label="$t('Database Root Account')"
+              label-size="lg"
+              class="m-0"
+              label-class="text-left offset-sm-3"></b-form-group>
             <pf-form-row :column-label="$t('Username')">root</pf-form-row>
             <pf-form-row :column-label="$t('Password')">
               <code>{{ database.root_pass }}</code>
               <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="clipboard(database.root_pass)">{{ $t('Copy to Clipboard') }}</b-button>
             </pf-form-row>
         </template>
+        <template v-if="database.pass">
+            <b-form-group
+              :label="$t('Database User Account')"
+              label-size="lg"
+              class="m-0"
+              label-class="text-left offset-sm-3"></b-form-group>
+            <pf-form-row :column-label="$t('Username')">{{ database.user }}</pf-form-row>
+            <pf-form-row :column-label="$t('Password')">
+              <code>{{ database.pass }}</code>
+              <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="clipboard(database.pass)">{{ $t('Copy to Clipboard') }}</b-button>
+            </pf-form-row>
+        </template>
         <template v-if="administrator.password">
-            <pf-form-row :column-label="$t('Administrator Account')" label-class="col-form-label-lg"></pf-form-row>
+            <b-form-group
+              :label="$t('Administrator Account')"
+              label-size="lg"
+              class="m-0"
+              label-class="text-left offset-sm-3"></b-form-group>
             <pf-form-row :column-label="$t('Username')">{{ administrator.pid }}</pf-form-row>
             <pf-form-row :column-label="$t('Password')">
               <code>{{ administrator.password }}</code>
