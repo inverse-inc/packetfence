@@ -7,7 +7,7 @@ import { pfFieldType as fieldType } from '@/globals/pfField'
 
 const api = {
   doLookup: (path, method = 'post') => {
-    return apiCall[method](path).then(response => {
+    return apiCall[method](path, {}, { baseURL: '', quiet: true }).then(response => {
       return response.data
     })
   }
