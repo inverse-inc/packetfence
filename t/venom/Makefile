@@ -17,8 +17,7 @@ install:
 .PHONY: test
 test:
 	./venom-wrapper.sh setup
-	# run all test suite in each subdirectories of pfservers
-	./venom-wrapper.sh pfservers
+	./venom-wrapper.sh pfservers/*
 
 .PHONY: clean-pfservers
 clean-pfservers:

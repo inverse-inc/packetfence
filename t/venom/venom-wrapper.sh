@@ -17,12 +17,15 @@ log_subsection() {
 
 # script usage definition
 usage() { 
-    echo "Usage: $(basename $0) <path_to_test_suite> or <path_to_test_suite_dir>"
-    echo "$(basename $0) <pfservers> is specific and will run all test suite in all subdirectories"
+    echo "Usage: $(basename $0) <path_to_test_suite1> [<path_to_test_suite2>]"
+    echo "If you want to run all test suites in subdirectories, use <path_to_test_suite_dir/*>"
 } 
 
 
 configure_and_check() {
+    # to distinguish if test is running in CI or not
+    # in CI, value is set to "yes"
+    INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
     # paths
     VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${PWD}/results}"
     VENOM_VARS_DIR=${VARS:-${PWD}/vars}
@@ -41,66 +44,31 @@ configure_and_check() {
     echo ""
 }
 
-# will display:
-# errors if found (when Venom use --strict mode, default here)
-# or
-# test results
-check_failure() {
-    local venom_exit_status=${1}
-
-    if [ "$venom_exit_status" -ne 0 ]; then
-        cat ${VENOM_RESULT_DIR}/${test_suite_name}.output
-        exit $venom_exit_status
-    else
-        # test results file, will be replace at next Venom run
-        cat ${VENOM_RESULT_DIR}/test_results.${VENOM_FORMAT}
+display_dumps_on_error() {
+    # only display dump if we run in a CI
+    if [ "$INTEGRATION_TESTS" = "yes" ]; then
+        for dump_file in $(find ${VENOM_RESULT_DIR} -name "*.dump"); do
+            cat $dump_file
+        done
     fi
+    die "Error in Venom tests"
 }
 
-teardown() {
-    rm -rf ${VENOM_RESULT_DIR} || die "rm failed: ${VENOM_RESULT_DIR}"
-}
-
-
-# run all test suite files in each subdirectories of top_dir
-run_nested_test_suites() {
-    local top_dir=${1:-.}
-    for sub_dir in $(find ${top_dir}/* -type d); do
-        run_test_suite $sub_dir
-    done
-
-}
-
-# run all test suite files in a arg directory or a test suite file (Venom current behavior)
-run_test_suite() {
-    local test_suite=$(readlink -e ${1:-.})
-    local test_suite_name=$(basename $test_suite)
-    log_section "Running ${test_suite} suite"
-    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suite}"
-    ${CMD} > ${VENOM_RESULT_DIR}/${test_suite_name}.output 2>&1
-    check_failure $?
+run_test_suites() {
+    local test_suites=$(readlink -e ${@:-.})
+    log_section "Running all test suites"
+    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites}"
+    ${CMD} || display_dumps_on_error
 }
 
 # Arguments are mandatory
 [[ $# -lt 1 ]] && usage && exit 1
 configure_and_check
 
-for target in $@; do
-    case $target in
-        # source "env" file to have API token if exist
-        pfservers)
-            export VENOM_RESULT_DIR
-            if [ -f "${VENOM_RESULT_DIR}/env" ]; then
-                source $VENOM_RESULT_DIR/env
-            fi
-            run_nested_test_suites $target ;;
-        teardown) teardown ;;
-        # source "env" file to have API token if exist
-        *)
-            export VENOM_RESULT_DIR
-            if [ -f "${VENOM_RESULT_DIR}/env" ]; then
-                source $VENOM_RESULT_DIR/env
-            fi
-            run_test_suite $target ;;
-    esac
-done
+# to get token written by setup test suite
+export VENOM_RESULT_DIR
+if [ -f "${VENOM_RESULT_DIR}/env" ]; then
+    source $VENOM_RESULT_DIR/env
+fi
+run_test_suites $@
+
