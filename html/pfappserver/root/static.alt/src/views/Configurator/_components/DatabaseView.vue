@@ -145,13 +145,21 @@ export default {
         })
         return databaseReady.then(() => {
           // Check if database name and credentials are valid
-          this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
-            this.$set(this.meta.database, 'databaseExists', true)
-            this.$set(this.meta.database, 'userIsValid', true)
-          }).catch(() => {
+          const userReady = new Promise((resolve, reject) => {
+            if (form.pass) {
+              reject()
+            } else {
+              this.$store.dispatch('$_bases/testDatabase', { username: form.user, password: form.pass, database: form.db }).then(() => {
+                this.$set(this.meta.database, 'databaseExists', true)
+                this.$set(this.meta.database, 'userIsValid', true)
+                resolve()
+              }).catch(reject)
+            }
+          })
+          return userReady().catch(() => {
             // Assign a generated password for database user
             this.$set(this.form.database, 'pass', password.generate(this.passwordOptions))
-            this.assignDatabase()
+            return this.assignDatabase()
           })
         })
       })
