@@ -315,10 +315,10 @@ export const validators = (form = {}, meta = {}) => {
         [i18n.t('Database name required.')]: or(conditional(automaticConfiguration), required)
       },
       user: {
-        [i18n.t('Database username required.')]: or(conditional(!setUserPassword), required)
+        [i18n.t('Database username required.')]: or(conditional(automaticConfiguration || !setUserPassword), required)
       },
       pass: {
-        [i18n.t('Database password required.')]: or(conditional(!setUserPassword), required)
+        [i18n.t('Database password required.')]: or(conditional(automaticConfiguration || !setUserPassword), required)
       },
       root_pass: {
         [i18n.t('Root password required.')]: or(conditional(automaticConfiguration || !rootPasswordIsRequired), required)
