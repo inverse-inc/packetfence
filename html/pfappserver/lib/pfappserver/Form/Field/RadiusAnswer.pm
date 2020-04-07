@@ -23,35 +23,35 @@ has_field 'prefix' => (
     options => [
         {
             label => 'Request',
-            value => 'request:'
+            value => 'request'
         },
         {
             label => 'Control',
-            value => 'control:'
+            value => 'control'
         },
         {
             label => 'Reply',
-            value => 'reply:'
+            value => 'reply'
         },
         {
             label => 'Proxy Request',
-            value => 'proxy-request:'
+            value => 'proxy-request'
         },
         {
             label => 'Proxy Reply',
-            value => 'proxy-reply:'
+            value => 'proxy-reply'
         },
         {
             label => 'CoA',
-            value => 'coa:'
+            value => 'coa'
         },
         {
             label => 'Disconnect',
-            value => 'disconnect:'
+            value => 'disconnect'
         },
         {
             label => 'Session State',
-            value => 'session-state:'
+            value => 'session-state'
         },
     ],
 );
@@ -108,7 +108,7 @@ sub deflate {
     my $value = $data->{value};
     my $prefix = $data->{prefix};
     if ($prefix ne '') {
-        $name = $prefix . $name;
+        $name = "${prefix}:$name";
     }
 
     return join(" = ", $name, $value);
