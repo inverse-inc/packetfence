@@ -14,6 +14,7 @@
   >
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+      <div class="alert alert-warning">{{ $t(`Creating or modifying a network behavior policy requires to restart the fingerbank-collector service`) }}</div>
       <h4 class="mb-0">
         <span v-if="!isNew && !isClone" v-html="$t('Network Behavior Policy {id}', { id: $strong(id) })"></span>
         <span v-else-if="isClone" v-html="$t('Clone Network Behavior Policy {id}', { id: $strong(id) })"></span>
@@ -31,6 +32,7 @@
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Network Behavior Policy?')" @on-delete="remove()"/>
+        <pf-button-service service="fingerbank-collector" class="ml-1" restart start stop />
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -40,6 +42,7 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonService from '@/components/pfButtonService'
 import {
   defaultsFromMeta as defaults
 } from '../_config/'
@@ -53,7 +56,8 @@ export default {
   components: {
     pfConfigView,
     pfButtonSave,
-    pfButtonDelete
+    pfButtonDelete,
+    pfButtonService
   },
   props: {
     formStoreName: { // from router
