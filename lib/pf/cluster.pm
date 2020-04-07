@@ -389,6 +389,9 @@ sub sync_storages {
             get_logger->info("Synching storage : $store");
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
+            
+            next unless($pfconfig_namespace);
+
             my $config_file = $cs->configFile;
             my %data = (
                 namespace => $pfconfig_namespace,
