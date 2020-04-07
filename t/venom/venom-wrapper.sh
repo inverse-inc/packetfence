@@ -41,7 +41,28 @@ configure_and_check() {
     echo ""
 }
 
-# run all test suite file in each subdirectories of top_dir
+# will display:
+# errors if found (when Venom use --strict mode, default here)
+# or
+# test results
+check_failure() {
+    local venom_exit_status=${1}
+
+    if [ "$venom_exit_status" -ne 0 ]; then
+        cat ${VENOM_RESULT_DIR}/${test_suite_name}.output
+        exit $venom_exit_status
+    else
+        # test results file, will be replace at next Venom run
+        cat ${VENOM_RESULT_DIR}/test_results.${VENOM_FORMAT}
+    fi
+}
+
+teardown() {
+    rm -rf ${VENOM_RESULT_DIR} || die "rm failed: ${VENOM_RESULT_DIR}"
+}
+
+
+# run all test suite files in each subdirectories of top_dir
 run_nested_test_suites() {
     local top_dir=${1:-.}
     for sub_dir in $(find ${top_dir}/* -type d); do
@@ -50,24 +71,14 @@ run_nested_test_suites() {
 
 }
 
-# run all test suite files in a arg directory or a test suite file (Venom behavior)
+# run all test suite files in a arg directory or a test suite file (Venom current behavior)
 run_test_suite() {
-    local test_suite_dir=$(readlink -e ${1:-.})
-    local test_suite_name=$(basename $test_suite_dir)
-    log_section "Running ${test_suite_dir} suite"
-    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suite_dir}"
+    local test_suite=$(readlink -e ${1:-.})
+    local test_suite_name=$(basename $test_suite)
+    log_section "Running ${test_suite} suite"
+    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suite}"
     ${CMD} > ${VENOM_RESULT_DIR}/${test_suite_name}.output 2>&1
-
-    # display error logs only on error (need --strict)
-    if [ "$?" -ne 0 ]; then
-        cat ${VENOM_RESULT_DIR}/${test_suite_name}.output
-    else
-        cat ${VENOM_RESULT_DIR}/test_results.${VENOM_FORMAT}
-    fi
-}
-
-teardown() {
-    rm -rf ${VENOM_RESULT_DIR} || die "rm failed: ${VENOM_RESULT_DIR}"
+    check_failure $?
 }
 
 # Arguments are mandatory
