@@ -20,6 +20,11 @@ use warnings;
 use base qw(pf::dal::_admin_api_audit_log);
 use pf::StatsD::Timer;
 
+our @INSERTABLE_FIELDS = grep { $_ ne 'created_at' } @pf::dal::_admin_api_audit_log::INSERTABLE_FIELDS;
+sub _insertable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub cleanup {
     my $timer = pf::StatsD::Timer->new( { sample_rate => 0.2 } );
     my ($class, $expire_seconds, $batch, $time_limit) = @_;
