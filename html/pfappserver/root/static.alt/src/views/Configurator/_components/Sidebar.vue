@@ -1,13 +1,10 @@
 <template>
-    <div>
-        <b-row class="text-center my-3">
+    <div class="wizard-sidebar">
+        <b-row class="text-center my-3" no-gutters>
             <b-col :cols="Math.floor(12/stepsCount)" v-for="i in stepsCount" :key="i">
-                <b-button
-                  class="rounded-circle"
-                  size="sm" pill
-                  :to="{ name: routes[i - 1].name }"
-                  :disabled="isInvalidStep(i - 1)"
-                  :variant="isCurrentStep(i - 1)? ( isInvalidStep(i - 1) ? 'warning' : 'primary' ) : 'outline-secondary'">{{ i }}</b-button>
+                <div class="wizard-line" :class="lineClassForStep(i - 1)"></div>
+                <div class="btn btn-sm rounded-circle" :class="classForStep(i - 1)">{{ i }}</div>
+                <div class="wizard-line" :class="lineClassForStep(i)"></div>
             </b-col>
         </b-row>
         <b-col class="text-center">
@@ -54,6 +51,24 @@ export default {
     },
     isInvalidStep (i) {
       return this.invalidStep && i >= this.step
+    },
+    classForStep (i) {
+      if (i === this.step) {
+        return this.invalidStep ? 'bg-warning' : 'btn-outline-primary'
+      } else if (i < this.step) {
+        return 'bg-primary text-white'
+      } else {
+        return 'btn-outline-faded'
+      }
+    },
+    lineClassForStep (i) {
+      if (i > 0 && i < this.stepsCount) {
+        if (i > this.step) {
+          return 'wizard-line-inactive'
+        } else {
+          return 'wizard-line-active'
+        }
+      }
     }
   },
   created () {
@@ -61,3 +76,34 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+$faded-color: $gray-300;
+.wizard-sidebar {
+  .btn {
+    position: relative;
+    z-index: 2;
+    background-color: $body-bg;
+    cursor: default;
+    &.btn-outline-faded {
+      border-color: $faded-color;
+      color: $faded-color;
+    }
+  }
+  .wizard-line {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 50%;
+    &-active {
+      border-bottom: 1px solid $primary;
+    }
+    &-inactive {
+      border-bottom: 1px solid $faded-color;
+    }
+    &:last-child {
+      right: 0;
+    }
+  }
+}
+</style>
