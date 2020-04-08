@@ -1689,6 +1689,56 @@ END/
 
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `bandwidth_accounting_radius_to_history`;
+DELIMITER /
+CREATE PROCEDURE `bandwidth_accounting_radius_to_history` (
+  IN `p_end_bucket` datetime,
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+    SET @batch = p_batch;
+    SET @end_bucket = p_end_bucket;
+    DROP TABLE IF EXISTS to_delete;
+    CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, time_bucket as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
+    START TRANSACTION;
+    PREPARE insert_into_to_delete FROM 'INSERT to_delete SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" LIMIT ?';
+    EXECUTE insert_into_to_delete USING @end_bucket, @batch;
+    DEALLOCATE PREPARE insert_into_to_delete;
+    SELECT COUNT(*) INTO @count FROM to_delete;
+    IF @count > 0 THEN
+
+        INSERT INTO bandwidth_accounting_history
+        (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
+         SELECT
+             node_id,
+             tenant_id,
+             mac,
+             new_time_bucket,
+             sum(in_bytes) AS in_bytes,
+             sum(out_bytes) AS out_bytes
+            FROM to_delete
+            GROUP BY node_id, new_time_bucket
+            ON DUPLICATE KEY UPDATE
+                in_bytes = in_bytes + VALUES(in_bytes),
+                out_bytes = out_bytes + VALUES(out_bytes)
+            ;
+
+        DELETE bandwidth_accounting
+            FROM to_delete INNER JOIN bandwidth_accounting
+            WHERE
+                to_delete.node_id = bandwidth_accounting.node_id AND
+                to_delete.time_bucket = bandwidth_accounting.time_bucket AND
+                to_delete.unique_session_id = bandwidth_accounting.unique_session_id;
+
+    END IF;
+    COMMIT;
+
+    DROP TABLE to_delete;
+    SELECT @count as count;
+END/
+
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS `bandwidth_aggregation_history`;
 DELIMITER /
 CREATE PROCEDURE `bandwidth_aggregation_history` (
