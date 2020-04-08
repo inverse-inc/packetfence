@@ -26,7 +26,7 @@ my $logger = get_logger();
 
 sub bandwidth_maintenance {
     my ($batch, $time_limit, $window, $history_batch, $history_timeout, $history_window) = @_;
-    process_bandwidth_accounting($batch, $time_limit);
+    process_bandwidth_accounting_netflow($batch, $time_limit);
     trigger_bandwidth($batch, $time_limit);
     bandwidth_aggregation('hourly', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? HOUR)', 2);
     bandwidth_aggregation('daily', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? DAY)', 2);
@@ -121,28 +121,28 @@ sub bandwidth_aggregation_history_monthly {
     $logger->info("aggregated $rows_deleted for bandwidth_aggregation_monthly ($start_time $end_time) ");
 }
 
-sub process_bandwidth_accounting {
+sub process_bandwidth_accounting_netflow {
     my ($batch, $time_limit) = @_;
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
     while (1) {
-        my $rows = call_process_bandwidth_accounting($batch);
+        my $rows = call_process_bandwidth_accounting_netflow($batch);
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
     }
 
-    $logger->info("processed $rows_deleted for process_bandwidth_accounting ($start_time $end_time) ");
+    $logger->info("processed $rows_deleted for process_bandwidth_accounting_netflow ($start_time $end_time) ");
 }
 
-sub call_process_bandwidth_accounting {
+sub call_process_bandwidth_accounting_netflow {
     my ($batch) = @_;
-    my $accounting_timebucket = 2 * $Config{advanced}{accounting_timebucket_size};
-    my $sql = "CALL process_bandwidth_accounting(SUBDATE(NOW(), INTERVAL ? SECOND) ,?);";
+    my $accounting_timebucket = $Config{advanced}{accounting_timebucket_size};
+    my $sql = "CALL process_bandwidth_accounting_netflow(SUBDATE(NOW(), INTERVAL ? SECOND) ,?);";
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $accounting_timebucket, $batch);
     if (is_error($status)) {
-        $logger->error("Error calling process_bandwidth_accounting");
+        $logger->error("Error calling process_bandwidth_accounting_netflow");
         return 0;
     } else {
         my ($count) = $sth->fetchrow_array();
