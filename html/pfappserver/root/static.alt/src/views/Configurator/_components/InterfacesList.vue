@@ -221,7 +221,13 @@ export default {
     save () {
       const { gateway, hostname, dns_servers } = this.$store.getters['formNetwork/$form']
       return Promise.all([
-        this.$store.dispatch('system/setGateway', { quiet: true, gateway }).catch(error => {
+        this.$store.dispatch('system/getGateway').then((initialGateway) => {
+          if (initialGateway === gateway) {
+            return Promise.resolve() // no change
+          } else {
+            return this.$store.dispatch('system/setGateway', { quiet: true, gateway })
+          }
+        }).catch(error => {
           // Only show a notification in case of a failure
           const { response: { data: { message = '' } = {} } = {} } = error
           this.$store.dispatch('notification/danger', {
@@ -231,7 +237,13 @@ export default {
           })
           throw error
         }),
-        this.$store.dispatch('system/setHostname', { quiet: true, hostname }).catch(error => {
+        this.$store.dispatch('system/getHostname').then((initialHostname) => {
+          if (initialHostname === hostname) {
+            return Promise.resolve()
+          } else {
+            return this.$store.dispatch('system/setHostname', { quiet: true, hostname })
+          }
+        }).catch(error => {
           // Only show a notification in case of a failure
           const { response: { data: { message = '' } = {} } = {} } = error
           this.$store.dispatch('notification/danger', {
