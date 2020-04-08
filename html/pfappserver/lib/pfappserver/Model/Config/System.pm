@@ -105,7 +105,7 @@ sub setDefaultRoute {
     $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
     # Everything goes as expected
-    if ( defined($status) && $status eq "" ) {
+    if (defined($status)) {
         $status_msg = "New default gateway successfully injected";
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
