@@ -27,23 +27,30 @@
           {{ prependText }}
         </div>
       </b-input-group-prepend>
-      <flat-pickr ref="input"
-        :key="locale"
-        v-model="flatpickrValue"
+      <b-form-input ref="userInput"
+        v-model="inputValue"
         v-bind="$attrs"
-        :config="flatpickrConfig"
         :state="inputState"
-        @input="onInput($event)"
-        @on-change="onChange($event)"
-        @focus.native="onFocus($event)"
-        @blur.native="onBlur($event)"
-      ></flat-pickr>
+        :disabled="disabled"
+        :readonly="readonly"
+        @click="onClick($event)"
+        @focus="onFocus($event)"
+        @blur="onBlur($event)"
+      />
       <b-input-group-append>
-        <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL/CMD] + [CLICK]')">
           <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
         </b-button-group>
-        <b-button class="input-group-text" @click.stop.prevent="open($event)" tabindex="-1"><icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon></b-button>
+        <b-button class="input-group-text" @click.stop.prevent="open($event)" tabindex="-1">
+          <icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon>
+          <!-- hidden -->
+          <flat-pickr ref="flatpickrInput"
+            :key="locale"
+            :value="flatpickrValue"
+            :config="flatpickrConfig"
+            @on-change="onChange($event)"
+          ></flat-pickr>
+        </b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -124,7 +131,6 @@ export default {
         time_24hr: true,
         wrap: true
       },
-      initialValue: undefined,
       isFocus: false
     }
   },
@@ -145,21 +151,31 @@ export default {
         }
       }
     },
+    inputElement () {
+      const { $refs: { userInput } = {} } = this
+      return userInput
+    },
     flatpickrValue: {
       get () {
-        if (this.inputValue === this.options.datetimeFormat.replace(/[a-z]/gi, '0')) {
-          // proxy fix: flatpickr smashes '0000-00-00 00:00:00'
-          return undefined
+        let { inputValue, options: { datetimeFormat } = {} } = this
+        if (inputValue) {
+          inputValue = inputValue.trim()
+          let length = this.inputValue.trim().length
+          let inspect = [...datetimeFormat.match(/[a-z]+/gi).map(set => datetimeFormat.indexOf(set) + set.length)]
+          if (inspect.includes(inputValue.length)) {
+            if (this.inputValue.trim().replace(/[0-9]/g, '0') === datetimeFormat.slice(0, length).replace(/[a-z]/gi, '0')) {
+              return format(this.inputValue.trim(), datetimeFormat)
+            }
+          }
         }
-        return this.inputValue || undefined
+        return undefined
       },
       set (newValue) {
-        // flatpickr mangles partial (invalid) datetime strings, thus disallowing user input
         //  don't do anything here, instead use the `on-change` event => `onChange` method
       }
     },
     flatpickrElement () {
-      const { $refs: { input: { fp } = {} } = {} } = this
+      const { $refs: { flatpickrInput: { fp } = {} } = {} } = this
       return fp
     },
     flatpickrConfig () {
@@ -204,34 +220,45 @@ export default {
     }
   },
   methods: {
-    onFocus (event) {
-      this.isFocus = true
-    },
-    onBlur (event) {
-      this.isFocus = false
-    },
     onChange (event) {
+      if (this.closeTimeout) {
+        clearTimeout(this.closeTimeout)
+      }
       const { 0: newDatetime } = event
-      const now = (new Date()).getTime()
-      const { options: { datetimeFormat } = {} } = this
-      if (newDatetime === undefined || !isValid(parse(newDatetime, datetimeFormat))) { // invalid format
-        this.inputValue = null
-        this.close()
-      } else if (now > newDatetime.getTime() && now - newDatetime.getTime() < 1E3) { // flatpickr is attempting to set current date/time
-        this.inputValue = null
-        this.clear()
-      } else {
-        let formattedDatetime = format(newDatetime, datetimeFormat)
-        if (this.inputValue !== formattedDatetime) {
-          this.inputValue = formattedDatetime
+      if (newDatetime && this.isFocus === false) { // only accept mutations when inputElement is not focused
+        const now = (new Date()).getTime()
+        if (now > newDatetime.getTime() && now - newDatetime.getTime() < 1E3) {
+          // ignore, flatpickr is attempting to set current date/time
+        }
+        else {
+          const { options: { datetimeFormat } = {} } = this
+          this.inputValue = format(newDatetime, datetimeFormat)
         }
       }
     },
-    onInput (event) {
-      if (this.inputValue && !event) { // had value && empty new value
-        this.inputValue = null
-        this.close()
+    onClick () {
+      this.isFocus = true
+      if (this.closeTimeout) {
+        clearTimeout(this.closeTimeout)
       }
+      this.open()
+    },
+    onFocus () {
+      this.isFocus = true
+      if (this.closeTimeout) {
+        clearTimeout(this.closeTimeout)
+      }
+      this.open()
+      this.inputElement.select()
+    },
+    onBlur () {
+      this.isFocus = false
+      if (this.closeTimeout) {
+        clearTimeout(this.closeTimeout)
+      }
+      this.closeTimeout = setTimeout(() => {
+        this.close()
+      }, 500)
     },
     open () {
       this.flatpickrElement.open()
@@ -269,9 +296,6 @@ export default {
         format = format.replace(from, to)
       })
       return format
-    },
-    reset (event) {
-      this.inputValue = this.initialValue
     },
     momentTooltip (index) {
       let [amount, key] = this.moments[index].split(' ', 2)
@@ -357,15 +381,10 @@ export default {
     }
   },
   created () {
-    // dereference inputValue and assign initialValue
     const datetimeFormat = this.options.datetimeFormat
     if (this.inputValue instanceof Date) {
       // instanceof Date, convert to String
       this.inputValue = format(this.inputValue, datetimeFormat)
-    }
-    if (this.inputValue && this.inputValue !== datetimeFormat.replace(/[a-z]/gi, '0')) {
-      // non-zero value, store for reset
-      this.initialValue = format(this.inputValue, datetimeFormat)
     }
     // normalize (floor) min/max
     if (this.min) {
@@ -405,15 +424,15 @@ export default {
       border-bottom-right-radius: $border-radius;
     }
     .flatpickr-input {
-      background-color: transparent;
-      border-right: 2px solid $white;
-      padding: .375rem .75rem;
-      font-size: .9rem;
-      font-weight: 400;
-      line-height: 1.5;
-      color: #4c555a;
-      font-family: inherit;
-      flex: 1;
+      display: flex;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      visibility: hidden;
+      border: 0;
+      margin: 0;
       outline: 0;
     }
   }

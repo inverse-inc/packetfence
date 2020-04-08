@@ -103,8 +103,7 @@
           />
         </b-tab>
 
-        <b-tab title="Actions" v-if="!!form.expiration">
-
+        <b-tab title="Actions">
           <b-form-group label-cols="3" :label="$t('Registration Window')">
             <b-row>
               <b-col>

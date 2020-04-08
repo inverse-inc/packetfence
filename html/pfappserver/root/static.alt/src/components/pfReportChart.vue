@@ -51,7 +51,7 @@
 
 <script>
 import Plotly from 'plotly.js'
-import { format, subSeconds } from 'date-fns'
+import { format, isValid, subSeconds } from 'date-fns'
 import {
   pfReportChartColorsFull as colorsFull,
   pfReportChartColorsNull as colorsNull
@@ -182,14 +182,18 @@ export default {
     },
     datetimeStart (a, b) {
       if (a !== b) {
-        this.$emit('changeDatetimeStart', a)
-        this.minEndDatetime = a
+        if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+          this.$emit('changeDatetimeStart', a)
+          this.minEndDatetime = a
+        }
       }
     },
     datetimeEnd (a, b) {
       if (a !== b) {
-        this.$emit('changeDatetimeEnd', a)
-        this.maxStartDatetime = a
+        if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+          this.$emit('changeDatetimeEnd', a)
+          this.maxStartDatetime = a
+        }
       }
     },
     windowSize: {
