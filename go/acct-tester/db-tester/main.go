@@ -58,7 +58,7 @@ func main() {
     tenant_id SMALLINT NOT NULL,
     processed BOOLEAN NOT NULL DEFAULT 0,
 */
-	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes, mac, tenant_id, processed) VALUES(?, ?, ?, ?, ?, ?, 1, 0)`)
+	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes, mac, tenant_id, source_type) VALUES(?, ?, ?, ?, ?, ?, 1, 'radius')`)
 	sharedutils.CheckError(err)
 
 	rowsPerEndpoint := *rows / *endpointsCount
