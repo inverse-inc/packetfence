@@ -374,8 +374,8 @@ BEGIN
                 to_process.time_bucket = bandwidth_accounting.time_bucket AND
                 to_process.unique_session_id = bandwidth_accounting.unique_session_id;
 
-        COMMIT;
     END IF;
+    COMMIT;
 
     DROP TABLE to_process;
     SELECT @count as count;
@@ -427,8 +427,8 @@ BEGIN
             WHERE
                 to_delete.node_id = bandwidth_accounting_history.node_id AND
                 to_delete.time_bucket = bandwidth_accounting_history.time_bucket;
-        COMMIT;
     END IF;
+    COMMIT;
 
     DROP TABLE to_delete;
     DEALLOCATE PREPARE insert_into_to_delete;
