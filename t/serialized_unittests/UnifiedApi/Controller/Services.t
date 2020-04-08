@@ -33,7 +33,7 @@ $t->get_ok("/api/v1/services" => json => { })
     ->json_has('/items')
     ->status_is(200);
 
-my @services = grep { $_ ne 'iptables'  } @{$t->tx->res->json->{items}};
+my @services = grep { $_ ne 'iptables' && $_ ne "tracking-config" } @{$t->tx->res->json->{items}};
 foreach my $service (@services) {
     
   $t->get_ok("/api/v1/service/$service/status" => json => { }) 
