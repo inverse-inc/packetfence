@@ -1568,9 +1568,18 @@ CREATE TABLE bandwidth_accounting_history (
     KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
 );
 
+CREATE OR REPLACE FUNCTION ROUND_TO_HOUR (d DATETIME)
+    RETURNS DATETIME DETERMINISTIC
+        RETURN DATE_ADD(DATE(d), INTERVAL HOUR(d) HOUR);
+
+CREATE OR REPLACE FUNCTION ROUND_TO_MONTH (d DATETIME)
+    RETURNS DATETIME DETERMINISTIC
+        RETURN DATE_ADD(DATE(d),interval -DAY(d)+1 DAY);
+
 DROP PROCEDURE IF EXISTS `bandwidth_aggregation`;
 DELIMITER /
 CREATE PROCEDURE `bandwidth_aggregation` (
+  IN `p_bucket_size` varchar(255),
   IN `p_end_bucket` datetime,
   IN `p_batch` int(11) unsigned
 )
@@ -1578,31 +1587,36 @@ BEGIN
 
     DROP TABLE IF EXISTS to_delete;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
-    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting LIMIT 0');
+    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0');
     PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
     EXECUTE create_table_to_delete;
     DEALLOCATE PREPARE create_table_to_delete;
-    PREPARE insert_into_to_delete FROM  'INSERT INTO to_delete SELECT node_id, tenant_id, mac, DATE_ADD(DATE(time_bucket), INTERVAL HOUR(time_bucket) HOUR) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes FROM bandwidth_accounting WHERE time_bucket <= ? AND processed = 1 LIMIT ?';
+    SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
+    SET @insert_into_to_delete_stmt = CONCAT('INSERT INTO to_delete SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting WHERE time_bucket <= ? AND processed = 1 AND time_bucket != ',@date_rounding,'(time_bucket) LIMIT ?');
+    PREPARE insert_into_to_delete FROM @insert_into_to_delete_stmt;
 
     START TRANSACTION;
     EXECUTE insert_into_to_delete using @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete;
     IF @count > 0 THEN
 
-        INSERT INTO bandwidth_accounting_history
-        (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
+        INSERT INTO bandwidth_accounting
+        (node_id, unique_session_id, tenant_id, mac, time_bucket, in_bytes, out_bytes, last_updated)
          SELECT
              node_id,
+             unique_session_id,
              tenant_id,
              mac,
              new_time_bucket,
              sum(in_bytes) AS in_bytes,
-             sum(out_bytes) AS out_bytes
+             sum(out_bytes) AS out_bytes,
+             MAX(last_updated)
             FROM to_delete
             GROUP BY node_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
-                out_bytes = out_bytes + VALUES(out_bytes)
+                out_bytes = out_bytes + VALUES(out_bytes),
+                last_updated = GREATEST(last_updated, VALUES(last_updated))
             ;
 
         DELETE bandwidth_accounting
@@ -1670,11 +1684,9 @@ BEGIN
     PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
     EXECUTE create_table_to_delete;
     DEALLOCATE PREPARE create_table_to_delete;
-    IF p_bucket_size = 'monthly' THEN
-        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT node_id, tenant_id, mac, date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != date_add(DATE(time_bucket),interval -DAY(time_bucket)+1 DAY ) LIMIT ?';
-    ELSE
-        PREPARE insert_into_to_delete FROM 'INSERT INTO to_delete SELECT node_id, tenant_id, mac, DATE(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != DATE(time_bucket) LIMIT ?';
-    END IF;
+    SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
+    SET @insert_into_to_delete_stmt = CONCAT('INSERT INTO to_delete SELECT node_id, tenant_id, mac, ', @date_rounding,'(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != ', @date_rounding, '(time_bucket) LIMIT ?');
+    PREPARE insert_into_to_delete FROM @insert_into_to_delete_stmt;
 
     START TRANSACTION;
     EXECUTE insert_into_to_delete using @end_bucket, @batch;
