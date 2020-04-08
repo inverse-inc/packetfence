@@ -66,7 +66,7 @@
     <b-container v-if="warnings.length > 0" class="bg-danger text-white text-center pt-6" fluid>
       <div class="py-2" v-for="(warning, index) in warnings" :key="index">
         <icon class="pr-2" :name="warning.icon"></icon> {{ warning.message }}
-        <b-button v-if="warning.to" size="sm" variant="outline-light" :to="warning.to">{{ warning.toLabel }}</b-button>
+        <b-button v-if="warning.to" size="sm" variant="outline-light" class="ml-2" :to="warning.to">{{ warning.toLabel }}</b-button>
       </div>
     </b-container>
     <b-container :class="[{ 'pt-6': warnings.length === 0, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
