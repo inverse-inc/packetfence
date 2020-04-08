@@ -246,10 +246,13 @@ html_install:
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR_ALT) dirs and files"
+	@echo "install $(SRC_HTML_PFAPPDIR_ALT) dirs and files without $(SRC_HTML_PFAPPDIR_ALT_PUBLIC) dir"
 	for file in $(pfapp_alt_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
+
+	@echo "install $(favicon_file)"
+	install -v -m 0644 $(favicon_file) $(DESTDIR)$(HTML_PFAPPDIR_ALT_DIST)/favicon.ico
 
 	@echo "install symlinks"
 	for link in $(symlink_files); do \
