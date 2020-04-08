@@ -49,9 +49,11 @@ const actions = {
     })
   },
   getNode: ({ state, commit }, mac) => {
+    /* Fix #5334, always fetch a fresh copy
     if (state.nodes[mac]) {
       return Promise.resolve(state.nodes[mac])
     }
+    */
 
     let node = {}
 
