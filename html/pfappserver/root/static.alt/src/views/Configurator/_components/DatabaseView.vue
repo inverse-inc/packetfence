@@ -156,7 +156,7 @@ export default {
               }).catch(reject)
             }
           })
-          return userReady().catch(() => {
+          return userReady.catch(() => {
             // Assign a generated password for database user
             this.$set(this.form.database, 'pass', password.generate(this.passwordOptions))
             return this.assignDatabase()
