@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body>
+  <b-card ref="container" no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
@@ -73,7 +73,7 @@
               </b-dropdown-item>
             </template>
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" no-caret>
+          <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
             <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
