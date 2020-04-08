@@ -752,7 +752,7 @@ timeout=10s
 # window
 #
 # How long to keep a bandwidth_accounting entry before aggregating it
-window=24h
+window=2h
 #
 # history_batch
 #
