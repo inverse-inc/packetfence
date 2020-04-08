@@ -53,6 +53,7 @@ Enhancements
 * HAProxy now serves the admin gui, httpd.admin disabled by default
 * Reports are now tenant-aware
 * Security events can be triggered when running node maintenance task (#4948)
+* Added parameter to prevent external portal requests from updating the ip4log (#5336)
 
 Bug Fixes
 +++++++++
