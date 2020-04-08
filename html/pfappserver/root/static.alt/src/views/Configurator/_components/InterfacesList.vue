@@ -137,7 +137,7 @@ export default {
             if (interfaces.filter(i => i.type === 'management').length === 0) {
               // No interface is of type management -- force one
               let management_interface = interfaces.find(i => {
-                return network.ipv4InSubnet(gateway, network.ipv4NetmaskToSubnet(i.network, i.netmask))
+                return i.network && i.netmask && network.ipv4InSubnet(gateway, network.ipv4NetmaskToSubnet(i.network, i.netmask))
               })
               if (!management_interface) {
                 management_interface = interfaces.find(i => {
