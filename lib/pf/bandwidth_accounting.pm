@@ -34,7 +34,7 @@ sub bandwidth_maintenance {
     bandwidth_accounting_radius_to_history($batch, $time_limit, $window);
     bandwidth_aggregation_history_daily($batch, $time_limit);
     bandwidth_aggregation_history_monthly($batch, $time_limit);
-    #bandwidth_accounting_history_cleanup($history_window, $history_batch, $history_timeout);
+    bandwidth_accounting_history_cleanup($history_window, $history_batch, $history_timeout);
 }
 
 sub trigger_bandwidth {
