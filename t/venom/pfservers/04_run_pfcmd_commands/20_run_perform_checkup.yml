@@ -1,4 +1,5 @@
 name: Run perform checkup
+version: 2
 testcases:
 - name: perform-checkup
   steps:

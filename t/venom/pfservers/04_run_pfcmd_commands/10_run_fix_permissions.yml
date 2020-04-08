@@ -1,4 +1,5 @@
 name: Run fix permissions
+version: 2
 testcases:
 - name: fix-permissions
   steps:
