@@ -18,11 +18,11 @@
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -106,111 +106,109 @@ export default {
       default: null
     }
   },
-  computed: {
-    // Fields must match the database schema
-    fields () {
-      return [ // keys match with b-form-select
+  data () {
+    return {
+      // Fields must match the database schema
+      fields: [ // keys match with b-form-select
         {
           value: 'created_at',
-          text: 'Created',
+          text: 'Created', // i18n defer
           types: [conditionType.DATETIME]
         },
         {
           value: 'mac',
-          text: 'MAC Address',
+          text: 'MAC Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'circuit_id_string',
-          text: 'Circuit ID',
+          text: 'Circuit ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'host',
-          text: 'Host',
+          text: 'Host', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'module',
-          text: 'Module',
+          text: 'Module', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'option82_switch',
-          text: 'Option82 Switch',
+          text: 'Option82 Switch', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'port',
-          text: 'Port',
+          text: 'Port', // i18n defer
           types: [conditionType.INTEGER]
         },
         {
           value: 'switch_id',
-          text: 'Switch ID',
+          text: 'Switch ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'vlan',
-          text: 'VLAN',
+          text: 'VLAN', // i18n defer
           types: [conditionType.INTEGER]
         }
-      ]
-    },
-    columns () {
-      return [
+      ],
+      columns: [
         {
           key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
           required: true,
           sortable: true,
           visible: true
         },
         {
           key: 'circuit_id_string',
-          label: this.$i18n.t('Circuit ID String'),
+          label: 'Circuit ID String', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'host',
-          label: this.$i18n.t('Host'),
+          label: 'Host', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'module',
-          label: this.$i18n.t('Module'),
+          label: 'Module', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'option82_switch',
-          label: this.$i18n.t('Option82 Switch'),
+          label: 'Option82 Switch', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'port',
-          label: this.$i18n.t('Port'),
+          label: 'Port', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'switch_id',
-          label: this.$i18n.t('Switch ID'),
+          label: 'Switch ID', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'vlan',
-          label: this.$i18n.t('DHCP Option 82 VLAN'),
+          label: 'DHCP Option 82 VLAN', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'created_at',
-          label: this.$i18n.t('Created At'),
+          label: 'Created At', // i18n defer
           sortable: true,
           visible: true,
           class: 'text-nowrap',

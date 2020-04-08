@@ -79,11 +79,11 @@
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -176,185 +176,179 @@ export default {
     return {
       tableValues: Array,
       sortBy: 'pid',
-      sortDesc: false
-    }
-  },
-  computed: {
-    // Fields must match the database schema
-    fields () {
-      return [ // keys match with b-form-select
+      sortDesc: false,
+      // Fields must match the database schema
+      fields: [ // keys match with b-form-select
         {
           value: 'tenant_id',
-          text: this.$i18n.t('Tenant'),
+          text: 'Tenant', // i18n defer
           types: [conditionType.INTEGER]
         },
         {
           value: 'pid',
-          text: this.$i18n.t('PID'),
+          text: 'PID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'title',
-          text: this.$i18n.t('Title'),
+          text: 'Title', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'firstname',
-          text: this.$i18n.t('Firstname'),
+          text: 'Firstname', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'lastname',
-          text: this.$i18n.t('Lastname'),
+          text: 'Lastname', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'nickname',
-          text: this.$i18n.t('Nickname'),
+          text: 'Nickname', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'email',
-          text: this.$i18n.t('Email'),
+          text: 'Email', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'sponsor',
-          text: this.$i18n.t('Sponsor'),
+          text: 'Sponsor', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'anniversary',
-          text: this.$i18n.t('Anniversary'),
+          text: 'Anniversary', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'birthday',
-          text: this.$i18n.t('Birthday'),
+          text: 'Birthday', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'address',
-          text: this.$i18n.t('Address'),
+          text: 'Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'apartment_number',
-          text: this.$i18n.t('Apartment Number'),
+          text: 'Apartment Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'building_number',
-          text: this.$i18n.t('Building Number'),
+          text: 'Building Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'room_number',
-          text: this.$i18n.t('Room Number'),
+          text: 'Room Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'company',
-          text: this.$i18n.t('Company'),
+          text: 'Company', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'gender',
-          text: this.$i18n.t('Gender'),
+          text: 'Gender', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'lang',
-          text: this.$i18n.t('Language'),
+          text: 'Language', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'notes',
-          text: this.$i18n.t('Notes'),
+          text: 'Notes', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'portal',
-          text: this.$i18n.t('Portal'),
+          text: 'Portal', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'psk',
-          text: this.$i18n.t('PSK'),
+          text: 'PSK', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'source',
-          text: this.$i18n.t('Source'),
+          text: 'Source', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'cell_phone',
-          text: this.$i18n.t('Cellular Phone Number'),
+          text: 'Cellular Phone Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'telephone',
-          text: this.$i18n.t('Home Telephone Number'),
+          text: 'Home Telephone Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'work_phone',
-          text: this.$i18n.t('Work Telephone Number'),
+          text: 'Work Telephone Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_1',
-          text: this.$i18n.t('Custom Field #1'),
+          text: 'Custom Field #1', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_2',
-          text: this.$i18n.t('Custom Field #2'),
+          text: 'Custom Field #2', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_3',
-          text: this.$i18n.t('Custom Field #3'),
+          text: 'Custom Field #3', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_4',
-          text: this.$i18n.t('Custom Field #4'),
+          text: 'Custom Field #4', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_5',
-          text: this.$i18n.t('Custom Field #5'),
+          text: 'Custom Field #5', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_6',
-          text: this.$i18n.t('Custom Field #6'),
+          text: 'Custom Field #6', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_7',
-          text: this.$i18n.t('Custom Field #7'),
+          text: 'Custom Field #7', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_8',
-          text: this.$i18n.t('Custom Field #8'),
+          text: 'Custom Field #8', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_9',
-          text: this.$i18n.t('Custom Field #9'),
+          text: 'Custom Field #9', // i18n defer
           types: [conditionType.SUBSTRING]
         }
-      ]
-    },
-    columns () {
-      return [
+      ],
+      columns: [
         {
           key: 'actions',
-          label: this.$i18n.t('Actions'),
+          label: 'Actions', // i18n defer
           locked: true,
           formatter: (value, key, item) => {
             return item.mac
@@ -362,191 +356,193 @@ export default {
         },
         {
           key: 'tenant_id',
-          label: this.$i18n.t('Tenant'),
+          label: 'Tenant', // i18n defer
           sortable: true
         },
         {
           key: 'pid',
-          label: this.$i18n.t('Username'),
+          label: 'Username', // i18n defer
           required: true,
           sortable: true,
           visible: true
         },
         {
           key: 'title',
-          label: this.$i18n.t('Title'),
+          label: 'Title', // i18n defer
           sortable: true
         },
         {
           key: 'firstname',
-          label: this.$i18n.t('Firstname'),
+          label: 'Firstname', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'lastname',
-          label: this.$i18n.t('Lastname'),
+          label: 'Lastname', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'nickname',
-          label: this.$i18n.t('Nickname'),
+          label: 'Nickname', // i18n defer
           sortable: true
         },
         {
           key: 'email',
-          label: this.$i18n.t('Email'),
+          label: 'Email', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'sponsor',
-          label: this.$i18n.t('Sponsor'),
+          label: 'Sponsor', // i18n defer
           sortable: true
         },
         {
           key: 'anniversary',
-          label: this.$i18n.t('Anniversary'),
+          label: 'Anniversary', // i18n defer
           sortable: true
         },
         {
           key: 'birthday',
-          label: this.$i18n.t('Birthday'),
+          label: 'Birthday', // i18n defer
           sortable: true
         },
         {
           key: 'address',
-          label: this.$i18n.t('Address'),
+          label: 'Address', // i18n defer
           sortable: true
         },
         {
           key: 'apartment_number',
-          label: this.$i18n.t('Apartment Number'),
+          label: 'Apartment Number', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'building_number',
-          label: this.$i18n.t('Building Number'),
+          label: 'Building Number', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'room_number',
-          label: this.$i18n.t('Room Number'),
+          label: 'Room Number', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'company',
-          label: this.$i18n.t('Company'),
+          label: 'Company', // i18n defer
           sortable: true
         },
         {
           key: 'gender',
-          label: this.$i18n.t('Gender'),
+          label: 'Gender', // i18n defer
           sortable: true
         },
         {
           key: 'lang',
-          label: this.$i18n.t('Language'),
+          label: 'Language', // i18n defer
           sortable: true
         },
         {
           key: 'notes',
-          label: this.$i18n.t('Notes'),
+          label: 'Notes', // i18n defer
           sortable: true
         },
         {
           key: 'portal',
-          label: this.$i18n.t('Portal'),
+          label: 'Portal', // i18n defer
           sortable: true
         },
         {
           key: 'psk',
-          label: this.$i18n.t('PSK'),
+          label: 'PSK', // i18n defer
           sortable: true
         },
         {
           key: 'source',
-          label: this.$i18n.t('Source'),
+          label: 'Source', // i18n defer
           sortable: true
         },
         {
           key: 'cell_phone',
-          label: this.$i18n.t('Cellular Phone Number'),
+          label: 'Cellular Phone Number', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'telephone',
-          label: this.$i18n.t('Home Telephone Number'),
+          label: 'Home Telephone Number', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'work_phone',
-          label: this.$i18n.t('Work Telephone Number'),
+          label: 'Work Telephone Number', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_1',
-          label: this.$i18n.t('Custom Field #1'),
+          label: 'Custom Field #1', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_2',
-          label: this.$i18n.t('Custom Field #2'),
+          label: 'Custom Field #2', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_3',
-          label: this.$i18n.t('Custom Field #3'),
+          label: 'Custom Field #3', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_4',
-          label: this.$i18n.t('Custom Field #4'),
+          label: 'Custom Field #4', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_5',
-          label: this.$i18n.t('Custom Field #5'),
+          label: 'Custom Field #5', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_6',
-          label: this.$i18n.t('Custom Field #6'),
+          label: 'Custom Field #6', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_7',
-          label: this.$i18n.t('Custom Field #7'),
+          label: 'Custom Field #7', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_8',
-          label: this.$i18n.t('Custom Field #8'),
+          label: 'Custom Field #8', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_9',
-          label: this.$i18n.t('Custom Field #9'),
+          label: 'Custom Field #9', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         }
       ]
-    },
+    }
+  },
+  computed: {
     roles () {
       this.$store.dispatch('config/getRoles')
       return this.$store.state.config.roles

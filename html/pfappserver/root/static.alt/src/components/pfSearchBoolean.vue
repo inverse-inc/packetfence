@@ -6,7 +6,7 @@
         <b-input-group-prepend is-text v-if="icon(model.values[0].values[0])">
           <icon :name="icon(model.values[0].values[0])"></icon>
         </b-input-group-prepend>
-        <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
+        <b-form-select v-model="model.values[0].values[0].field" :options="localeFields"></b-form-select>
       </b-input-group>
       <b-form-select class="mr-1" v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
       <b-form-input class="mr-1" type="text" v-model="model.values[0].values[0].value" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
@@ -30,7 +30,7 @@
                 <b-input-group-prepend is-text v-if="icon(rule)">
                   <icon :name="icon(rule)"></icon>
                 </b-input-group-prepend>
-                <b-form-select v-model="rule.field" :options="fields"></b-form-select>
+                <b-form-select v-model="rule.field" :options="localeFields"></b-form-select>
               </b-input-group>
               <b-form-select class="mr-1" v-model="rule.op" :options="operators(rule)"></b-form-select>
               <b-form-input type="text" class="mr-1" v-model="rule.value" v-if="isFieldType(substringValueType, rule)"></b-form-input>
@@ -122,6 +122,13 @@ export default {
         this.model.values.length = 1
         this.model.values[0].values.length = 1
       }
+    }
+  },
+  computed: {
+    localeFields () {
+      return this.fields.map(field => {
+        return { ...field, text: this.$i18n.t(field.text) }
+      })
     }
   },
   methods: {

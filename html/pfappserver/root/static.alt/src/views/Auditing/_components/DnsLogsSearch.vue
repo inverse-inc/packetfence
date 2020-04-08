@@ -27,11 +27,11 @@
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -141,55 +141,49 @@ export default {
     return {
       tableValues: Array,
       sortBy: 'created_at',
-      sortDesc: true
-    }
-  },
-  computed: {
-    // Fields must match the database schema
-    fields () {
-      return [ // keys match with b-form-select
+      sortDesc: true,
+      // Fields must match the database schema
+      fields: [ // keys match with b-form-select
         {
           value: 'created_at',
-          text: this.$i18n.t('Created'),
+          text: 'Created', // i18n defer
           types: [conditionType.DATETIME]
         },
         {
           value: 'ip',
-          text: this.$i18n.t('IP Address'),
+          text: 'IP Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'mac',
-          text: this.$i18n.t('MAC Address'),
+          text: 'MAC Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'qname',
-          text: this.$i18n.t('DNS Request'),
+          text: 'DNS Request', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'qtype',
-          text: this.$i18n.t('DNS Type'),
+          text: 'DNS Type', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'scope',
-          text: this.$i18n.t('Scope'),
+          text: 'Scope', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'answer',
-          text: this.$i18n.t('DNS Answer'),
+          text: 'DNS Answer', // i18n defer
           types: [conditionType.SUBSTRING]
         }
-      ]
-    },
-    columns () {
-      return [
+      ],
+      columns: [
         {
           key: 'actions',
-          label: this.$i18n.t('Actions'),
+          label: 'Actions', // i18n defer
           locked: true,
           formatter: (value, key, item) => {
             return item.id
@@ -197,7 +191,7 @@ export default {
         },
         {
           key: 'created_at',
-          label: this.$i18n.t('Created At'),
+          label: 'Created At', // i18n defer
           sortable: true,
           visible: true,
           class: 'text-nowrap',
@@ -205,41 +199,41 @@ export default {
         },
         {
           key: 'id',
-          label: this.$i18n.t('ID'),
+          label: 'ID', // i18n defer
           required: true,
           sortable: true
         },
         {
           key: 'ip',
-          label: this.$i18n.t('IP Address'),
+          label: 'IP Address', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'qname',
-          label: this.$i18n.t('Qname'),
+          label: 'Qname', // i18n defer
           sortable: false,
           visible: true
         },
         {
           key: 'qtype',
-          label: this.$i18n.t('Qtype'),
+          label: 'Qtype', // i18n defer
           sortable: false
         },
         {
           key: 'scope',
-          label: this.$i18n.t('Scope'),
+          label: 'Scope', // i18n defer
           sortable: false
         },
         {
           key: 'answer',
-          label: this.$i18n.t('Answer'),
+          label: 'Answer', // i18n defer
           sortable: false,
           visible: true
         }

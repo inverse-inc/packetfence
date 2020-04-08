@@ -18,11 +18,11 @@
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -113,61 +113,55 @@ export default {
     return {
       tableValues: Array,
       sortBy: 'created_at',
-      sortDesc: true
-    }
-  },
-  computed: {
-    // Fields must match the database schema
-    fields () {
-      return [ // keys match with b-form-select
+      sortDesc: true,
+      // Fields must match the database schema
+      fields: [ // keys match with b-form-select
         {
           value: 'created_at',
-          text: this.$i18n.t('Created'),
+          text: 'Created', // i18n defer
           types: [conditionType.DATETIME]
         },
         {
           value: 'user_name',
-          text: this.$i18n.t('User Name'),
+          text: 'User Name', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'action',
-          text: this.$i18n.t('Action'),
+          text: 'Action', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'object_id',
-          text: this.$i18n.t('Object ID'),
+          text: 'Object ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'url',
-          text: this.$i18n.t('URL'),
+          text: 'URL', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'method',
-          text: this.$i18n.t('Scope'),
+          text: 'Scope', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'status',
-          text: this.$i18n.t('Status'),
+          text: 'Status', // i18n defer
           types: [conditionType.SUBSTRING]
         }
-      ]
-    },
-    columns () {
-      return [
+      ],
+      columns: [
         {
           key: 'id',
-          label: this.$i18n.t('Log ID'),
+          label: 'Log ID', // i18n defer
           required: true,
           sortable: true
         },
         {
           key: 'created_at',
-          label: this.$i18n.t('Created At'),
+          label: 'Created At', // i18n defer
           sortable: true,
           visible: true,
           class: 'text-nowrap',
@@ -175,35 +169,35 @@ export default {
         },
         {
           key: 'user_name',
-          label: this.$i18n.t('User Name'),
+          label: 'User Name', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'action',
-          label: this.$i18n.t('Action'),
+          label: 'Action', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'object_id',
-          label: this.$i18n.t('Object ID'),
+          label: 'Object ID', // i18n defer
           sortable: false,
           visible: true
         },
         {
           key: 'url',
-          label: this.$i18n.t('URL'),
+          label: 'URL', // i18n defer
           sortable: false
         },
         {
           key: 'method',
-          label: this.$i18n.t('Method'),
+          label: 'Method', // i18n defer
           sortable: false
         },
         {
           key: 'status',
-          label: this.$i18n.t('Status'),
+          label: 'Status', // i18n defer
           sortable: false,
           visible: true
         }

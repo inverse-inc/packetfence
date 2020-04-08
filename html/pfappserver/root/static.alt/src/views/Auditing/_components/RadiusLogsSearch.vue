@@ -18,11 +18,11 @@
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -122,220 +122,214 @@ export default {
   data () {
     return {
       sortBy: 'created_at',
-      sortDesc: true
-    }
-  },
-  computed: {
-    // Fields must match the database schema
-    fields () {
-      return [ // keys match with b-form-select
+      sortDesc: true,
+      // Fields must match the database schema
+      fields: [ // keys match with b-form-select
         {
           value: 'auth_status',
-          text: 'Auth Status',
+          text: 'Auth Status', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'auth_type',
-          text: 'Auth Type',
+          text: 'Auth Type', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'radius_ip',
-          text: 'Server IP',
+          text: 'Server IP', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'auto_reg',
-          text: 'Auto Registration',
+          text: 'Auto Registration', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'called_station_id',
-          text: 'Called Station ID',
+          text: 'Called Station ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'calling_station_id',
-          text: 'Calling Station ID',
+          text: 'Calling Station ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'computer_name',
-          text: 'Computer name',
+          text: 'Computer name', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'profile',
-          text: 'Connection Profile',
+          text: 'Connection Profile', // i18n defer
           types: [conditionType.CONNECTION_PROFILE]
         },
         {
           value: 'connection_type',
-          text: 'Connection Type',
+          text: 'Connection Type', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'created_at',
-          text: 'Created',
+          text: 'Created', // i18n defer
           types: [conditionType.DATETIME]
         },
         {
           value: 'pf_domain',
-          text: 'Domain',
+          text: 'Domain', // i18n defer
           types: [conditionType.DOMAIN]
         },
         {
           value: 'eap_type',
-          text: 'EAP Type',
+          text: 'EAP Type', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'event_type',
-          text: 'Event Type',
+          text: 'Event Type', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'ifindex',
-          text: 'IfIndex',
+          text: 'IfIndex', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'ip',
-          text: 'IP Address',
+          text: 'IP Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'is_phone',
-          text: 'Is a Phone',
+          text: 'Is a Phone', // i18n defer
           types: [conditionType.YESNO]
         },
         {
           value: 'mac',
-          text: 'MAC Address',
+          text: 'MAC Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'nas_identifier',
-          text: 'NAS identifier',
+          text: 'NAS identifier', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'nas_ip_address',
-          text: 'NAS IP Address',
+          text: 'NAS IP Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'nas_port',
-          text: 'NAS Port',
+          text: 'NAS Port', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'nas_port_id',
-          text: 'NAS Port ID',
+          text: 'NAS Port ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'nas_port_type',
-          text: 'NAS Port Type',
+          text: 'NAS Port Type', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'node_status',
-          text: 'Node Status',
+          text: 'Node Status', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'pf_domain',
-          text: 'Domain',
+          text: 'Domain', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'profile',
-          text: 'Profile',
+          text: 'Profile', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'radius_reply',
-          text: 'RADIUS Reply',
+          text: 'RADIUS Reply', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'radius_request',
-          text: 'RADIUS Request',
+          text: 'RADIUS Request', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'radius_source_ip_address',
-          text: 'RADIUS Source IP Address',
+          text: 'RADIUS Source IP Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'realm',
-          text: 'Realm',
+          text: 'Realm', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'reason',
-          text: 'Reason',
+          text: 'Reason', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'request_time',
-          text: 'Request Time',
+          text: 'Request Time', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'role',
-          text: 'Role',
+          text: 'Role', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'source',
-          text: 'Source',
+          text: 'Source', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'ssid',
-          text: 'Wi-Fi Network SSID',
+          text: 'Wi-Fi Network SSID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'stripped_user_name',
-          text: 'Stripped User Name',
+          text: 'Stripped User Name', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'switch_id',
-          text: 'Switch ID',
+          text: 'Switch ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'switch_ip_address',
-          text: 'Switch IP Address',
+          text: 'Switch IP Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'switch_mac',
-          text: 'Switch MAC',
+          text: 'Switch MAC', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'user_name',
-          text: 'User Name',
+          text: 'User Name', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'uuid',
-          text: 'Unique ID',
+          text: 'Unique ID', // i18n defer
           types: [conditionType.SUBSTRING]
         }
-      ]
-    },
-    columns () {
-      return [
+      ],
+      columns: [
         {
           key: 'created_at',
-          label: this.$i18n.t('Created At'),
+          label: 'Created At', // i18n defer
           sortable: true,
           visible: true,
           class: 'text-nowrap',
@@ -343,203 +337,203 @@ export default {
         },
         {
           key: 'id',
-          label: this.$i18n.t('ID'),
+          label: 'ID', // i18n defer
           required: true,
           sortable: true,
           visible: true
         },
         {
           key: 'auth_status',
-          label: this.$i18n.t('Auth Status'),
+          label: 'Auth Status', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'radius_ip',
-          label: this.$i18n.t('Server IP'),
+          label: 'Server IP', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'auth_type',
-          label: this.$i18n.t('Auth Type'),
+          label: 'Auth Type', // i18n defer
           sortable: true
         },
         {
           key: 'auto_reg',
-          label: this.$i18n.t('Auto Reg'),
+          label: 'Auto Reg', // i18n defer
           sortable: true
         },
         {
           key: 'calling_station_id',
-          label: this.$i18n.t('Calling Station ID'),
+          label: 'Calling Station ID', // i18n defer
           sortable: true
         },
         {
           key: 'computer_name',
-          label: this.$i18n.t('Computer Name'),
+          label: 'Computer Name', // i18n defer
           sortable: true
         },
         {
           key: 'eap_type',
-          label: this.$i18n.t('EAP Type'),
+          label: 'EAP Type', // i18n defer
           sortable: true
         },
         {
           key: 'event_type',
-          label: this.$i18n.t('Event Type'),
+          label: 'Event Type', // i18n defer
           sortable: true
         },
         {
           key: 'ip',
-          label: this.$i18n.t('IP Address'),
+          label: 'IP Address', // i18n defer
           sortable: true
         },
         {
           key: 'is_phone',
-          label: this.$i18n.t('Is a Phone'),
+          label: 'Is a Phone', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'node_status',
-          label: this.$i18n.t('Node Status'),
+          label: 'Node Status', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'pf_domain',
-          label: this.$i18n.t('Domain'),
+          label: 'Domain', // i18n defer
           sortable: true
         },
         {
           key: 'profile',
-          label: this.$i18n.t('Profile'),
+          label: 'Profile', // i18n defer
           sortable: true
         },
         {
           key: 'realm',
-          label: this.$i18n.t('Realm'),
+          label: 'Realm', // i18n defer
           sortable: true
         },
         {
           key: 'reason',
-          label: this.$i18n.t('Reason'),
+          label: 'Reason', // i18n defer
           sortable: true
         },
         {
           key: 'role',
-          label: this.$i18n.t('Role'),
+          label: 'Role', // i18n defer
           sortable: true
         },
         {
           key: 'source',
-          label: this.$i18n.t('Source'),
+          label: 'Source', // i18n defer
           sortable: true
         },
         {
           key: 'stripped_user_name',
-          label: this.$i18n.t('Stripped User Name'),
+          label: 'Stripped User Name', // i18n defer
           sortable: true
         },
         {
           key: 'user_name',
-          label: this.$i18n.t('User Name'),
+          label: 'User Name', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'uuid',
-          label: this.$i18n.t('Unique ID'),
+          label: 'Unique ID', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'switch_id',
-          label: this.$i18n.t('Switch'),
+          label: 'Switch', // i18n defer
           sortable: true
         },
         {
           key: 'switch_mac',
-          label: this.$i18n.t('Switch MAC'),
+          label: 'Switch MAC', // i18n defer
           sortable: true
         },
         {
           key: 'switch_ip_address',
-          label: this.$i18n.t('Switch IP Address'),
+          label: 'Switch IP Address', // i18n defer
           sortable: true
         },
         {
           key: 'called_station_id',
-          label: this.$i18n.t('Called Station ID'),
+          label: 'Called Station ID', // i18n defer
           sortable: true
         },
         {
           key: 'connection_type',
-          label: this.$i18n.t('Connection Type'),
+          label: 'Connection Type', // i18n defer
           sortable: true
         },
         {
           key: 'ifindex',
-          label: this.$i18n.t('IfIndex'),
+          label: 'IfIndex', // i18n defer
           sortable: true
         },
         {
           key: 'nas_identifier',
-          label: this.$i18n.t('NAS ID'),
+          label: 'NAS ID', // i18n defer
           sortable: true
         },
         {
           key: 'nas_ip_address',
-          label: this.$i18n.t('NAS IP Address'),
+          label: 'NAS IP Address', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'nas_port',
-          label: this.$i18n.t('NAS Port'),
+          label: 'NAS Port', // i18n defer
           sortable: true
         },
         {
           key: 'nas_port_id',
-          label: this.$i18n.t('NAS Port ID'),
+          label: 'NAS Port ID', // i18n defer
           sortable: true
         },
         {
           key: 'nas_port_type',
-          label: this.$i18n.t('NAS Port Type'),
+          label: 'NAS Port Type', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'radius_source_ip_address',
-          label: this.$i18n.t('RADIUS Source IP Address'),
+          label: 'RADIUS Source IP Address', // i18n defer
           sortable: true
         },
         {
           key: 'ssid',
-          label: this.$i18n.t('SSID'),
+          label: 'SSID', // i18n defer
           sortable: true
         },
         {
           key: 'request_time',
-          label: this.$i18n.t('Request Time'),
+          label: 'Request Time', // i18n defer
           sortable: true
         },
         {
           key: 'radius_request',
-          label: this.$i18n.t('RADIUS Request'),
+          label: 'RADIUS Request', // i18n defer
           sortable: true
         },
         {
           key: 'radius_reply',
-          label: this.$i18n.t('RADIUS Reply'),
+          label: 'RADIUS Reply', // i18n defer
           sortable: true
         }
       ]

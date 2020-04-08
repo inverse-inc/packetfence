@@ -85,7 +85,11 @@ export default {
       }
     },
     visibleColumns () {
-      return this.columns.filter(column => column.locked || column.visible)
+      return this.columns.filter(column => {
+        return column.locked || column.visible
+      }).map(column => {
+        return { ...column, label: this.$i18n.t(column.label) }
+      })
     },
     searchFields () {
       return [...(new Set([ // unique array

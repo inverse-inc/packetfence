@@ -80,11 +80,11 @@
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -227,256 +227,250 @@ export default {
       currentPage: 1,
       pageSizeLimit: 10,
       showBypassVlanModal: false,
-      bypassVlanString: null
-    }
-  },
-  computed: {
-    /**
-     *  Fields on which a search can be defined.
-     *  The names must match the database schema.
-     *  The keys must conform to the format of the b-form-select's options property.
-     */
-    fields () {
-      return [ // keys match with b-form-select
+      bypassVlanString: null,
+      /**
+      *  Fields on which a search can be defined.
+      *  The names must match the database schema.
+      *  The keys must conform to the format of the b-form-select's options property.
+      */
+      fields: [ // keys match with b-form-select
         {
           value: 'tenant_id',
-          text: this.$i18n.t('Tenant'),
+          text: 'Tenant', // i18n defer
           types: [conditionType.INTEGER]
         },
         {
           value: 'status',
-          text: this.$i18n.t('Status'),
+          text: 'Status', // i18n defer
           types: [conditionType.NODE_STATUS],
           icon: 'power-off'
         },
         {
           value: 'mac',
-          text: this.$i18n.t('MAC Address'),
+          text: 'MAC Address', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'id-card'
         },
         {
           value: 'bypass_role_id',
-          text: this.$i18n.t('Bypass Role'),
+          text: 'Bypass Role', // i18n defer
           types: [conditionType.ROLE, conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'bypass_vlan',
-          text: this.$i18n.t('Bypass VLAN'),
+          text: 'Bypass VLAN', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'computername',
-          text: this.$i18n.t('Computer Name'),
+          text: 'Computer Name', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'desktop'
         },
         {
           value: 'locationlog.connection_type',
-          text: this.$i18n.t('Connection Type'),
+          text: 'Connection Type', // i18n defer
           types: [conditionType.CONNECTION_TYPE],
           icon: 'plug'
         },
         {
           value: 'detect_date',
-          text: this.$i18n.t('Detected Date'),
+          text: 'Detected Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'regdate',
-          text: this.$i18n.t('Registered Date'),
+          text: 'Registered Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'unregdate',
-          text: this.$i18n.t('Unregistered Date'),
+          text: 'Unregistered Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_arp',
-          text: this.$i18n.t('Last ARP Date'),
+          text: 'Last ARP Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_dhcp',
-          text: this.$i18n.t('Last DHCP Date'),
+          text: 'Last DHCP Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_seen',
-          text: this.$i18n.t('Last seen Date'),
+          text: 'Last seen Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'device_class',
-          text: this.$i18n.t('Device Class'),
+          text: 'Device Class', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
         {
           value: 'device_manufacturer',
-          text: this.$i18n.t('Device Manufacturer'),
+          text: 'Device Manufacturer', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
         {
           value: 'device_type',
-          text: this.$i18n.t('Device Type'),
+          text: 'Device Type', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
         {
           value: 'ip4log.ip',
-          text: this.$i18n.t('IPv4 Address'),
+          text: 'IPv4 Address', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'ip6log.ip',
-          text: this.$i18n.t('IPv6 Address'),
+          text: 'IPv6 Address', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'machine_account',
-          text: this.$i18n.t('Machine Account'),
+          text: 'Machine Account', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'desktop'
         },
         {
           value: 'notes',
-          text: this.$i18n.t('Notes'),
+          text: 'Notes', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'notes-medical'
         },
         {
           value: 'online',
-          text: this.$i18n.t('Online Status'),
+          text: 'Online Status', // i18n defer
           types: [conditionType.ONLINE],
           icon: 'power-off'
         },
         {
           value: 'pid',
-          text: this.$i18n.t('Owner'),
+          text: 'Owner', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'user'
         },
         {
           value: 'category_id',
-          text: this.$i18n.t('Role'),
+          text: 'Role', // i18n defer
           types: [conditionType.ROLE, conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'locationlog.switch',
-          text: this.$i18n.t('Source Switch Identifier'),
+          text: 'Source Switch Identifier', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.switch_ip',
-          text: this.$i18n.t('Source Switch IP'),
+          text: 'Source Switch IP', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.switch_mac',
-          text: this.$i18n.t('Source Switch MAC'),
+          text: 'Source Switch MAC', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.port',
-          text: this.$i18n.t('Source Switch Port'),
+          text: 'Source Switch Port', // i18n defer
           types: [conditionType.INTEGER],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.ifDesc',
-          text: this.$i18n.t('Source Switch Port Description'),
+          text: 'Source Switch Port Description', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.ifDesc',
-          text: this.$i18n.t('Source Switch Description'),
+          text: 'Source Switch Description', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.ssid',
-          text: this.$i18n.t('SSID'),
+          text: 'SSID', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'wifi'
         },
         {
           value: 'user_agent',
-          text: this.$i18n.t('User Agent'),
+          text: 'User Agent', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'user-secret'
         },
         /* TODO - #3400, #4166
         {
           value: 'security_event.open_security_event_id',
-          text: this.$i18n.t('Security Event Open'),
+          text: 'Security Event Open', // i18n defer
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-triangle'
         },
         {
           value: 'security_event.open_count',
-          text: this.$i18n.t('Security Event Open Count [Issue #3400]'),
+          text: 'Security Event Open Count [Issue #3400]', // i18n defer
           types: [conditionType.INTEGER],
           icon: 'exclamation-triangle'
         },
         {
           value: 'security_event.close_security_event_id',
-          text: this.$i18n.t('Security Event Closed'),
+          text: 'Security Event Closed', // i18n defer
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-circle'
         },
         {
           value: 'security_event.close_count',
-          text: this.$i18n.t('Security Event Close Count [Issue #3400]'),
+          text: 'Security Event Close Count [Issue #3400]', // i18n defer
           types: [conditionType.INTEGER],
           icon: 'exclamation-circle'
         },
         */
         {
           value: 'voip',
-          text: this.$i18n.t('VoIP'),
+          text: 'VoIP', // i18n defer
           types: [conditionType.YESNO],
           icon: 'phone'
         },
         {
           value: 'autoreg',
-          text: this.$i18n.t('Auto Registration'),
+          text: 'Auto Registration', // i18n defer
           types: [conditionType.YESNO],
           icon: 'magic'
         },
         {
           value: 'bandwidth_balance',
-          text: this.$i18n.t('Bandwidth Balance'),
+          text: 'Bandwidth Balance', // i18n defer
           types: [conditionType.PREFIXMULTIPLE],
           icon: 'balance-scale'
         }
-      ]
-    },
-    /**
-     * The columns that can be displayed in the results table.
-     */
-    columns () {
-      return [
+      ],
+      /**
+      * The columns that can be displayed in the results table.
+      */
+      columns: [
         {
           key: 'actions',
-          label: this.$i18n.t('Actions'),
+          label: 'Actions', // i18n defer
           locked: true,
           formatter: (value, key, item) => {
             return item.mac
@@ -484,225 +478,225 @@ export default {
         },
         {
           key: 'tenant_id',
-          label: this.$i18n.t('Tenant'),
+          label: 'Tenant', // i18n defer
           sortable: true
         },
         {
           key: 'status',
-          label: this.$i18n.t('Status'),
+          label: 'Status', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'online',
-          label: this.$i18n.t('Online/Offline'),
+          label: 'Online/Offline', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
           required: true,
           sortable: true,
           visible: true
         },
         {
           key: 'detect_date',
-          label: this.$i18n.t('Detected Date'),
+          label: 'Detected Date', // i18n defer
           sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'regdate',
-          label: this.$i18n.t('Registration Date'),
+          label: 'Registration Date', // i18n defer
           sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'unregdate',
-          label: this.$i18n.t('Unregistration Date'),
+          label: 'Unregistration Date', // i18n defer
           sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'computername',
-          label: this.$i18n.t('Computer Name'),
+          label: 'Computer Name', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'pid',
-          label: this.$i18n.t('Owner'),
+          label: 'Owner', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'ip4log.ip',
-          label: this.$i18n.t('IPv4 Address'),
+          label: 'IPv4 Address', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'ip6log.ip',
-          label: this.$i18n.t('IPv6 Address'),
+          label: 'IPv6 Address', // i18n defer
           sortable: true
         },
         {
           key: 'device_class',
-          label: this.$i18n.t('Device Class'),
+          label: 'Device Class', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'device_manufacturer',
-          label: this.$i18n.t('Device Manufacturer'),
+          label: 'Device Manufacturer', // i18n defer
           sortable: true
         },
         {
           key: 'device_score',
-          label: this.$i18n.t('Device Score'),
+          label: 'Device Score', // i18n defer
           sortable: true
         },
         {
           key: 'device_type',
-          label: this.$i18n.t('Device Type'),
+          label: 'Device Type', // i18n defer
           sortable: true
         },
         {
           key: 'device_version',
-          label: this.$i18n.t('Device Version'),
+          label: 'Device Version', // i18n defer
           sortable: true
         },
         {
           key: 'dhcp6_enterprise',
-          label: this.$i18n.t('DHCPv6 Enterprise'),
+          label: 'DHCPv6 Enterprise', // i18n defer
           sortable: true
         },
         {
           key: 'dhcp6_fingerprint',
-          label: this.$i18n.t('DHCPv6 Fingerprint'),
+          label: 'DHCPv6 Fingerprint', // i18n defer
           sortable: true
         },
         {
           key: 'dhcp_fingerprint',
-          label: this.$i18n.t('DHCP Fingerprint'),
+          label: 'DHCP Fingerprint', // i18n defer
           sortable: true
         },
         {
           key: 'category_id',
-          label: this.$i18n.t('Role'),
+          label: 'Role', // i18n defer
           sortable: true,
           visible: true,
           formatter: formatter.categoryId
         },
         {
           key: 'locationlog.connection_type',
-          label: this.$i18n.t('Connection Type'),
+          label: 'Connection Type', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.session_id',
-          label: this.$i18n.t('Session ID'),
+          label: 'Session ID', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.switch',
-          label: this.$i18n.t('Switch Identifier'),
+          label: 'Switch Identifier', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.switch_ip',
-          label: this.$i18n.t('Switch IP Address'),
+          label: 'Switch IP Address', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.switch_mac',
-          label: this.$i18n.t('Switch MAC Address'),
+          label: 'Switch MAC Address', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.port',
-          label: this.$i18n.t('Switch Port'),
+          label: 'Switch Port', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.ifDesc',
-          label: this.$i18n.t('Switch Port Description'),
+          label: 'Switch Port Description', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.ifDesc',
-          label: this.$i18n.t('Switch Description'),
+          label: 'Switch Description', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.ssid',
-          label: this.$i18n.t('SSID'),
+          label: 'SSID', // i18n defer
           sortable: true
         },
         {
           key: 'locationlog.vlan',
-          label: this.$i18n.t('VLAN'),
+          label: 'VLAN', // i18n defer
           sortable: true
         },
         {
           key: 'bypass_vlan',
-          label: this.$i18n.t('Bypass VLAN'),
+          label: 'Bypass VLAN', // i18n defer
           sortable: true
         },
         {
           key: 'bypass_role_id',
-          label: this.$i18n.t('Bypass Role'),
+          label: 'Bypass Role', // i18n defer
           sortable: true,
           formatter: formatter.bypassRoleId
         },
         {
           key: 'notes',
-          label: this.$i18n.t('Notes'),
+          label: 'Notes', // i18n defer
           sortable: true
         },
         {
           key: 'voip',
-          label: this.$i18n.t('VoIP'),
+          label: 'VoIP', // i18n defer
           sortable: true
         },
         {
           key: 'last_arp',
-          label: this.$i18n.t('Last ARP'),
+          label: 'Last ARP', // i18n defer
           sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'last_dhcp',
-          label: this.$i18n.t('Last DHCP'),
+          label: 'Last DHCP', // i18n defer
           sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'last_seen',
-          label: this.$i18n.t('Last seen'),
+          label: 'Last seen', // i18n defer
           sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'machine_account',
-          label: this.$i18n.t('Machine Account'),
+          label: 'Machine Account', // i18n defer
           sortable: true
         },
         {
           key: 'autoreg',
-          label: this.$i18n.t('Auto Registration'),
+          label: 'Auto Registration', // i18n defer
           sortable: true
         },
         {
           key: 'bandwidth_balance',
-          label: this.$i18n.t('Bandwidth Balance'),
+          label: 'Bandwidth Balance', // i18n defer
           sortable: true,
           formatter: (value) => {
             return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
@@ -710,17 +704,17 @@ export default {
         },
         {
           key: 'time_balance',
-          label: this.$i18n.t('Time Balance'),
+          label: 'Time Balance', // i18n defer
           sortable: true
         },
         {
           key: 'user_agent',
-          label: this.$i18n.t('User Agent'),
+          label: 'User Agent', // i18n defer
           sortable: true
         },
         {
           key: 'security_event.open_security_event_id',
-          label: this.$i18n.t('Security Event Open'),
+          label: 'Security Event Open', // i18n defer
           sortable: true,
           class: 'text-nowrap',
           formatter: (this.$can.apply(null, ['read', 'security_events']))
@@ -730,14 +724,14 @@ export default {
         /* TODO - #4166
         {
           key: 'security_event.open_count',
-          label: this.$i18n.t('Security Event Open Count'),
+          label: 'Security Event Open Count', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         },
         */
         {
           key: 'security_event.close_security_event_id',
-          label: this.$i18n.t('Security Event Closed'),
+          label: 'Security Event Closed', // i18n defer
           sortable: true,
           class: 'text-nowrap',
           formatter: (this.$can.apply(null, ['read', 'security_events']))
@@ -747,13 +741,15 @@ export default {
         /* TODO - #4166
         {
           key: 'security_event.close_count',
-          label: this.$i18n.t('Security Event Closed Count'),
+          label: 'Security Event Closed Count', // i18n defer
           sortable: true,
           class: 'text-nowrap'
         }
         */
       ]
-    },
+    }
+  },
+  computed: {
     roles () {
       this.$store.dispatch('config/getRoles')
       return this.$store.state.config.roles
