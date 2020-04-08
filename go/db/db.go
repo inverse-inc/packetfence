@@ -25,9 +25,17 @@ func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 	}
 }
 
-func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
-	uri := ReturnURI(ctx, dbName)
+func ManualConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, error) {
+	uri := ReturnURI(ctx, user, pass, host, dbName)
+	return ConnectURI(ctx, uri)
+}
 
+func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
+	uri := ReturnURIFromConfig(ctx, dbName)
+	return ConnectURI(ctx, uri)
+}
+
+func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", uri)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to DB: %s", err))
@@ -40,12 +48,21 @@ func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
 	}
 }
 
-func ReturnURI(ctx context.Context, dbName ...string) string {
-
+func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-
 	dbConfig := pfconfigdriver.Config.PfConf.Database
-	host := dbConfig.Host
+
+	var DBName string
+	if len(dbName) > 0 {
+		DBName = dbName[0]
+	} else {
+		DBName = dbConfig.Db
+	}
+
+	return ReturnURI(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, DBName)
+}
+
+func ReturnURI(ctx context.Context, user, pass, host, dbName string) string {
 	proto := "tcp"
 	if host == "localhost" {
 		proto = "unix"
@@ -57,12 +74,6 @@ func ReturnURI(ctx context.Context, dbName ...string) string {
 		}
 	}
 
-	var DBName string
-	if len(dbName) > 0 {
-		DBName = dbName[0]
-	} else {
-		DBName = dbConfig.Db
-	}
-	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", dbConfig.User, dbConfig.Pass, proto, host, DBName)
+	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, dbName)
 	return uri
 }
