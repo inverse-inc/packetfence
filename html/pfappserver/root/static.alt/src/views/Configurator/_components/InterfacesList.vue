@@ -71,7 +71,7 @@
       <pf-form-input :column-label="$t('Default Gateway')"
         form-store-name="formNetwork" form-namespace="gateway"
       />
-      <pf-form-input :column-label="$t('Server Hostname')"
+      <pf-form-input :column-label="$t('Server Hostname')" :text="rebootAlert"
         form-store-name="formNetwork" form-namespace="hostname"
       />
       <pf-form-chosen :column-label="$t('DNS Servers')"
@@ -113,11 +113,18 @@ export default {
     form () {
       return this.$store.getters[`formNetwork/$form`]
     },
+    hostname () {
+      return this.$store.getters[`formNetwork/$formNS`]('hostname')
+    },
+    rebootAlert () {
+      if (this.isInterfacesLoading || typeof this.hostname  !== 'string' || this.$store.state.system.hostname === this.hostname) {
+        return null
+      } else {
+        return `<span class="text-warning">${this.$i18n.t('Please reboot the server at the end of the configuration wizard to apply changes.')}</span>`
+      }
+    },
     isInterfacesLoading () {
       return this.$store.getters[`$_interfaces/isLoading`]
-    },
-    isInterfacesWaiting () {
-      return this.$store.getters[`$_interfaces/isWaiting`]
     },
     fieldsInterface () {
       return columnsInterface
