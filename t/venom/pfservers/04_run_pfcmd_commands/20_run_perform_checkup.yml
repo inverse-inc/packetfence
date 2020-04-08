@@ -1,4 +1,4 @@
-name: Perform checkup
+name: Run perform checkup
 testcases:
 - name: perform-checkup
   steps:
