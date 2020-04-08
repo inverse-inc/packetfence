@@ -256,6 +256,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Update the iplog using the external portal requests'),
+          text: i18n.t('Use the information included in the external portal requests to update the iplog.'),
+          cols: [
+            {
+              namespace: 'update_iplog_with_external_portal_requests',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Close locationlog on accounting stop'),
           text: i18n.t('Close the locationlog for a node on accounting stop.'),
           cols: [
