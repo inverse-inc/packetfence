@@ -85,12 +85,19 @@ sub buildFilter {
         return;
     }
 
-    my $module = ($data->{match} // '') eq 'all' ? 'pf::condition::multi_all' : 'pf::condition::multi_any';
+    my $module;
+    my %args = (condition => $sub_condition);
+    if (isenabled($data->{only_match_when_empty})) {
+        $module = 'pf::condition::multi_empty'
+    } else {
+        $module = ($data->{match} // '') eq 'all' ? 'pf::condition::multi_all' : 'pf::condition::multi_any';
+        $args{match_on_empty} = isenabled($data->{match_on_empty}),
+    }
+
     push @{$build_data->{filters}}, pf::filter->new({
         answer    => $data,
         condition => $module->new(
-            condition => $sub_condition,
-            match_on_empty => isenabled($data->{match_on_empty}),
+            %args
         ),
     });
 }

@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 #This test will running last
 use Test::NoWarnings;
@@ -125,12 +125,13 @@ CONF
                                  'action' => 'trigger_violation'
                                },
                    'condition' => bless( {
-                                           'match_on_empty' => 0,
                                            'condition' => bless( { }, 'pf::condition::true' )
-                                         }, 'pf::condition::multi_any' )
+                                         }, 'pf::condition::multi_empty' )
                  }, 'pf::filter' ),
         "Filter Building",
     );
+
+    isa_ok($filters->[0]{condition}, 'pf::condition::multi_empty');
 }
 
 sub build_from_conf {
