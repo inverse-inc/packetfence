@@ -50,7 +50,7 @@ export const view = (form = {}) => {
               component: pfButton,
               attrs: {
                 label: i18n.t('Copy to Clipboard'),
-                class: 'col-4',
+                class: 'col-sm-7 col-lg-5 col-xl-4',
                 variant: 'outline-primary'
               },
               listeners: {

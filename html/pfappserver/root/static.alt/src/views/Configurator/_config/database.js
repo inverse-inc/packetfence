@@ -118,7 +118,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfButton,
               attrs: {
                 label: i18n.t('Copy to Clipboard'),
-                class: 'col-4',
+                class: 'col-sm-7 col-lg-5 col-xl-4',
                 variant: 'outline-primary'
               },
               listeners: {
@@ -163,7 +163,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfButton,
               attrs: {
                 label: i18n.t('Verify'),
-                class: 'col-2',
+                class: 'col-sm-4 col-lg-3 col-xl-2',
                 variant: rootPasswordIsInvalid ? 'outline-danger' : 'outline-primary',
                 disabled: root_pass.length === 0
               },
@@ -214,7 +214,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfButton,
               attrs: {
                 label: i18n.t('Create'),
-                class: 'col-2',
+                class: 'col-sm-4 col-lg-3 col-xl-2',
                 variant: 'outline-primary',
                 disabled: !rootPasswordIsValid
               },
@@ -271,7 +271,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfButton,
               attrs: {
                 label: i18n.t('Create'),
-                class: 'col-2',
+                class: 'col-sm-4 col-lg-3 col-xl-2',
                 variant: 'outline-primary',
                 disabled: !rootPasswordIsValid
               },

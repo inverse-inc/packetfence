@@ -63,7 +63,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfButton,
               attrs: {
                 label: i18n.t('Verify'),
-                class: 'col-2',
+                class: 'col-sm-4 col-lg-3 col-xl-2',
                 variant: accountIsInvalid ? 'outline-danger' : 'outline-primary',
                 disabled: api_key.length === 0
               },
