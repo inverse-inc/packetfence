@@ -24,6 +24,7 @@ use Hash::Merge qw(merge);
 use UNIVERSAL::require;
 
 use pf::config qw(
+    %Config
     $WEBAUTH
 );
 use pf::ip4log;
@@ -164,7 +165,12 @@ sub handle {
 
     $switch->setCurrentTenant();
 
-    pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
+    if(isenabled($Config{advanced}{update_iplog_with_external_portal_requests})) {
+        pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
+    }
+    else {
+        $params{client_ip} = pf::ip4log::mac2ip($params{client_mac});
+    }
 
     # Updating locationlog if required
     $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $params{'connection_type'}, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
