@@ -134,7 +134,7 @@ export default {
             if (remainder.length > 0) { // has remaining
               if (!target[first]) Vue.set(target, first, {})
             } else { // last iteration
-              Vue.set(target, first, value)
+              Vue.set(target, first, value || null)
               return true
             }
             target = target[first]
