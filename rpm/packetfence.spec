@@ -730,7 +730,7 @@ echo "Starting PacketFence Administration GUI..."
 
 
 echo Installation complete
-echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
 
 #==============================================================================
