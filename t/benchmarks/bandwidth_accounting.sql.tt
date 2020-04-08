@@ -1,9 +1,11 @@
 [%- DEFAULT
 batch = 1000;
 total_nodes = 5000;
-days_back = 1
+days_back = 1 
 -%]
+
 TRUNCATE bandwidth_accounting;
+TRUNCATE bandwidth_accounting_history;
 [% SET
 cur = 1;
 next = batch;
