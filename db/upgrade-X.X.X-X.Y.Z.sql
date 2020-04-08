@@ -295,7 +295,7 @@ BEGIN
     IF @count > 0 THEN
 
         INSERT INTO bandwidth_accounting
-        (node_id, unique_session_id, tenant_id, mac, time_bucket, in_bytes, out_bytes, last_updated)
+        (node_id, unique_session_id, tenant_id, mac, time_bucket, in_bytes, out_bytes, last_updated, source_type)
          SELECT
              node_id,
              unique_session_id,
@@ -304,7 +304,8 @@ BEGIN
              new_time_bucket,
              sum(in_bytes) AS in_bytes,
              sum(out_bytes) AS out_bytes,
-             MAX(last_updated)
+             MAX(last_updated),
+             "radius"
             FROM to_delete
             GROUP BY node_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
