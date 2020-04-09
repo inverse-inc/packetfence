@@ -65,22 +65,19 @@ value = explorer.exe
 action = allow
 EOT
 
-# Detect if FortiClient.exe is not running, if yes the Security Event is triggered
-#[Forticlient-Enable]
-#request=SELECT Name FROM Win32_Process
-#namespace=ROOT\cimv2
-#action= <<EOT
-#[ActiveProcess]
-#attribute = Name
-#operator = match_not
-#value = FortiClient.exe
-
-#[1:ActiveProcess]
-#action=trigger_security_event
-#action_param = mac = $mac, tid = PROCESS_FORTI, type = CUSTOM
-#EOT
-#on_tab=0
-
+[Process_Not_Running-Antivirus]
+request=select Name from Win32_Process WHERE Name='antivirus.exe'
+namespace=ROOT\cimv2
+action= <<EOT
+[antivirus]
+attribute = Name
+operator = true
+value = antivirus.exe
+[1:antivirus]
+action=trigger_security_event
+action_param = mac = $mac, tid = PROCESS_ANTIVIRUS, type = CUSTOM
+only_match_when_empty=enabled
+EOT
 
 # Detect if the SCCM client is installed
 [SCCM]
