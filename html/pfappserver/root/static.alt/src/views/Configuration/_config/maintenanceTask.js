@@ -422,6 +422,55 @@ export const viewFields = {
         }
       ]
     }
+  },
+  session_batch: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Session Batch'),
+      text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
+      cols: [
+        {
+          namespace: 'session_batch',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'session_batch')
+        }
+      ]
+    }
+  },
+  session_timeout: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Session Timeout'),
+      text: i18n.t('Maximum amount of time this task can run.'),
+      cols: [
+        {
+          namespace: 'session_timeout.interval',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'session_timeout.interval')
+        },
+        {
+          namespace: 'session_timeout.unit',
+          component: pfFormChosen,
+          attrs: attributesFromMeta(meta, 'session_timeout.unit')
+        }
+      ]
+    }
+  },
+  session_window: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Session Window'),
+      text: i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.'),
+      cols: [
+        {
+          namespace: 'session_window.interval',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'session_window.interval')
+        },
+        {
+          namespace: 'session_window.unit',
+          component: pfFormChosen,
+          attrs: attributesFromMeta(meta, 'session_window.unit')
+        }
+      ]
+    }
   }
 }
 
@@ -762,7 +811,10 @@ export const view = (form = {}, meta = {}) => {
             viewFields.timeout(form, meta),
             viewFields.history_batch(form, meta),
             viewFields.history_timeout(form, meta),
-            viewFields.history_window(form, meta)
+            viewFields.history_window(form, meta),
+            viewFields.session_batch(form, meta),
+            viewFields.session_timeout(form, meta),
+            viewFields.session_window(form, meta)
           ]
         }
       ]
@@ -864,6 +916,44 @@ export const validatorFields = {
       window: {
         interval: validatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
         unit: validatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
+      }
+    }
+  },
+  session_batch: (form = {}, meta = {}) => {
+    return { session_batch: validatorsFromMeta(meta, 'session_batch', i18n.t('Batch')) }
+  },
+  session_timeout: (form = {}, meta = {}) => {
+    return {
+      session_timeout: {
+        interval: validatorsFromMeta(meta, 'session_timeout.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'session_timeout.unit', i18n.t('Unit'))
+      }
+    }
+  },
+  session_window: (form = {}, meta = {}) => {
+    return {
+      session_window: {
+        interval: validatorsFromMeta(meta, 'session_window.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'session_window.unit', i18n.t('Unit'))
+      }
+    }
+  },
+  history_batch: (form = {}, meta = {}) => {
+    return { history_batch: validatorsFromMeta(meta, 'history_batch', i18n.t('Batch')) }
+  },
+  history_timeout: (form = {}, meta = {}) => {
+    return {
+      history_timeout: {
+        interval: validatorsFromMeta(meta, 'history_timeout.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'history_timeout.unit', i18n.t('Unit'))
+      }
+    }
+  },
+  history_window: (form = {}, meta = {}) => {
+    return {
+      history_window: {
+        interval: validatorsFromMeta(meta, 'history_window.interval', i18n.t('Interval')),
+        unit: validatorsFromMeta(meta, 'history_window.unit', i18n.t('Unit'))
       }
     }
   }
@@ -1075,6 +1165,21 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.description(form, meta),
         ...validatorFields.status(form, meta),
         ...validatorFields.interval(form, meta)
+      }
+    case 'bandwidth_maintenance':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.status(form, meta),
+        ...validatorFields.interval(form, meta),
+        ...validatorFields.batch(form, meta),
+        ...validatorFields.timeout(form, meta),
+        ...validatorFields.history_window(form, meta),
+        ...validatorFields.history_batch(form, meta),
+        ...validatorFields.history_timeout(form, meta),
+        ...validatorFields.session_window(form, meta),
+        ...validatorFields.session_batch(form, meta),
+        ...validatorFields.session_timeout(form, meta)
       }
     default:
       return {}
