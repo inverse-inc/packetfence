@@ -231,7 +231,6 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     out_bytes BIGINT SIGNED NOT NULL,
     mac CHAR(17) NOT NULL,
     tenant_id SMALLINT NOT NULL,
-    processed BOOLEAN NOT NULL DEFAULT 0,
     last_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_bytes BIGINT SIGNED AS (in_bytes + out_bytes) VIRTUAL,
     PRIMARY KEY (node_id, time_bucket, unique_session_id),
@@ -307,7 +306,7 @@ BEGIN
              MAX(last_updated),
              "radius"
             FROM to_delete
-            GROUP BY node_id, new_time_bucket
+            GROUP BY node_id, unique_session_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
                 out_bytes = out_bytes + VALUES(out_bytes),
