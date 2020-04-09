@@ -271,19 +271,16 @@ NOTE: If you use another access switch, you must refer to PacketFence Network De
 Going Through the Configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443/configurator . If you are unsure what IP address you have, run `ip a` in your Linux shell. Perform the following actions:
+First open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443. If you are unsure what IP address you have, run `ip a` in your Linux shell. Perform the following actions:
 
- * Step 1 - Enforcement, choose 'RADIUS enforcement' - this will make PacketFence act as simple RADIUS server
- * Step 2 - Networks, make sure you define only one interface with the Management type. That network interface will be the one for which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network. To set the interface to the Management type, click on the logical name to edit it
- * Step 3 - Database - provide the required information to properly create the PacketFence database
- * Step 4 - PacketFence - provide your domain name, DHCP servers list and other required information
- * Step 5 - Administration - provide the PacketFence's admin username and password to be used
- * Step 6 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
- * Step 7 - Confirmation - start all services.
+ * Step 1 - Configure Network - make sure you define only one interface with the Management type. That network interface will be the one to which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network. To set the interface to the Management type, click on the logical name to edit it
+ * Step 2 - Configure PacketFence - provide the required information to properly create the PacketFence database and also provide your domain name, hostname and other required information. Make you sure to provide the PacketFence's admin username and password to be used
+ * Step 3 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
+ * Step 4 - Confirmation - save the passwords in a secure location and start PacketFence!
 
 Once all services are started, you will automatically be redirected to the
 PacketFence's web admin interface. It is located at
-https://@ip_of_packetfence:1443/admin. Open that link and log in using the username/password specified in Step 5.
+https://@ip_of_packetfence:1443/. Open that link and log in using the username/password specified in Step 2.
 
 Connecting PacketFence to Microsoft Active Directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
