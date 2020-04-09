@@ -73,25 +73,11 @@ const api = {
     return apiCall.post(['system_service', name, 'restart'])
   },
   startSystemService: name => {
-    return apiCall.post(['system_service', name, 'start']).then(response => {
-      const { data: { start = 0 } } = response
-      if (parseInt(start) > 0) {
-        return response.data
-      } else {
-        throw new Error(`Could not start ${name}`)
-      }
-    })
+    return apiCall.post(['system_service', name, 'start'])
   },
   stopSystemService: name => {
-    return apiCall.post(['system_service', name, 'top']).then(response => {
-      const { data: { stop = 0 } } = response
-      if (parseInt(stop) > 0) {
-        return response.data
-      } else {
-        throw new Error(`Could not stop ${name}`)
-      }
-    })
-  },
+    return apiCall.post(['system_service', name, 'top'])
+  }
 }
 
 const types = {
