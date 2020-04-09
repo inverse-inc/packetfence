@@ -30,10 +30,10 @@ const ACCOUNTING_POLICY_TIME = "TimeExpired"
 var radiusDictionary *dictionary.Dictionary
 
 func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
-    switch r.Code {
-    case radius.CodeAccountingRequest:
+	switch r.Code {
+	case radius.CodeAccountingRequest:
 		h.HandleAccounting(w, r)
-    case radius.CodeStatusServer:
+	case radius.CodeStatusServer:
 		h.HandleStatusServer(w, r)
 	}
 }
@@ -87,7 +87,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
 	unique_session_id := h.accountingUniqueSessionId(r)
 	err := h.InsertBandwidthAccounting(
-		mac.NodeId(uint16(switchInfo.TenantId)),
+		node_id,
 		switchInfo.TenantId,
 		mac.String(),
 		unique_session_id,
@@ -373,13 +373,17 @@ func logInfo(ctx context.Context, msg string) {
 }
 
 type RadiusStatements struct {
-	switchLookup              *sql.Stmt
-	insertBandwidthAccounting *sql.Stmt
-	softNodeTimeBalanceUpdate *sql.Stmt
-	nodeTimeBalanceSubtract   *sql.Stmt
-	nodeTimeBalance           *sql.Stmt
-	isNodeTimeBalanceZero     *sql.Stmt
-	closeSession              *sql.Stmt
+	switchLookup                   *sql.Stmt
+	insertBandwidthAccounting      *sql.Stmt
+	softNodeTimeBalanceUpdate      *sql.Stmt
+	nodeTimeBalanceSubtract        *sql.Stmt
+	nodeTimeBalance                *sql.Stmt
+	isNodeTimeBalanceZero          *sql.Stmt
+	softNodeBandwidthBalanceUpdate *sql.Stmt
+	nodeBandwidthBalanceSubtract   *sql.Stmt
+	nodeBandwidthBalance           *sql.Stmt
+	isNodeBandwidthBalanceZero     *sql.Stmt
+	closeSession                   *sql.Stmt
 }
 
 func (rs *RadiusStatements) Setup(db *sql.DB) {
@@ -420,16 +424,56 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 		panic(err)
 	}
 
+	rs.softNodeBandwidthBalanceUpdate, err = db.Prepare(`
+        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance - ? <= 0;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+
 	rs.nodeTimeBalanceSubtract, err = db.Prepare(`
         UPDATE node set time_balance = GREATEST(time_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
     `)
+
+	if err != nil {
+		panic(err)
+	}
+
+	rs.nodeBandwidthBalanceSubtract, err = db.Prepare(`
+        UPDATE node set bandwidth_balance = GREATEST(bandwidth_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
 
 	rs.nodeTimeBalance, err = db.Prepare(`
         SELECT time_balance FROM node WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
     `)
 
+	if err != nil {
+		panic(err)
+	}
+
+	rs.nodeBandwidthBalance, err = db.Prepare(`
+        SELECT bandwidth_balance FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+
 	rs.isNodeTimeBalanceZero, err = db.Prepare(`
         SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND time_balance = 0;
+    `)
+
+	if err != nil {
+		panic(err)
+	}
+
+	rs.isNodeBandwidthBalanceZero, err = db.Prepare(`
+        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance = 0;
     `)
 
 	if err != nil {
