@@ -20,7 +20,7 @@
         :label="label"
         :options="multiselectOptions"
         :options-limit="optionsLimit"
-        :placeholder="multiselectPlaceholder"
+        :placeholder="placeholder"
         :taggable="taggable"
         :tag-placeholder="multiselectTagPlaceholder"
         :preserve-search="preserveSearch"
@@ -306,11 +306,6 @@ export default {
       else {
         return this.options
       }
-    },
-    multiselectPlaceholder () {
-      return (this.isFocus)
-        ? this.placeholder || this.$i18n.t('Enter a new value')
-        : '' // hide placeholder when not in focus
     },
     multiselectTagPlaceholder () {
       return this.tagPlaceholder || this.$i18n.t('Click to add value')
