@@ -2,6 +2,7 @@
   <b-container fluid>
     <b-row>
       <b-col cols="12" md="4" xl="3" class="pf-sidebar">
+        <h6 class="mt-3 px-4 text-muted text-uppercase text-left">{{ $t('Configuration Wizard') }}</h6>
         <sidebar
           :step="step"
           :next-route-name="nextRouteName"
@@ -12,6 +13,7 @@
           :is-loading="isLoading"/>
       </b-col>
       <b-col cols="12" md="8" xl="9" class="mt-3 mb-3">
+        <h6 class="text-muted text-uppercase">{{ $t('Step {nb}', { nb: step + 1 }) }}</h6>
         <slot></slot>
         <b-container class="p-3" fluid>
           <b-row align-v="center" v-if="!disableNavigation">
