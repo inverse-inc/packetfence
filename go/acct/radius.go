@@ -105,6 +105,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 
 	h.sendRadiusAccounting(r)
 	h.handleTimeBalance(r, switchInfo)
+	h.handleBandwidthBalance(r, switchInfo, in_bytes + out_bytes)
 }
 
 func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
@@ -138,6 +139,42 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 		}
 		if ok {
 			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+				logError(ctx, "Notify trigger_security_event: "+err.Error())
+			}
+		}
+	}
+}
+
+func (h *PfAcct) handleBandwidthBalance(r *radius.Request, switchInfo *SwitchInfo, balance int64) {
+    if balance == 0 {
+        return
+    }
+
+	ctx := r.Context()
+	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
+	mac, _ := mac.NewFromString(callingStation)
+	status := rfc2866.AcctStatusType_Get(r.Packet)
+	if status == rfc2866.AcctStatusType_Value_Stop {
+		ok, err := h.NodeBandwidthBalanceSubtract(switchInfo.TenantId, mac, balance)
+		if err != nil {
+			logError(ctx, "NodeBandwidthBalanceSubtract: "+err.Error())
+			return
+		}
+		if ok {
+			if ok, err = h.IsNodeBandwidthBalanceZero(switchInfo.TenantId, mac); ok {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}, switchInfo.TenantId); err != nil {
+					logError(ctx, "IsNodeBandwidthBalanceZero: "+err.Error())
+				}
+			}
+		}
+	} else {
+		ok, err := h.SoftNodeBandwidthBalanceUpdate(switchInfo.TenantId, mac, balance)
+		if err != nil {
+			logError(ctx, "SoftNodeBandwidthBalanceUpdate: "+err.Error())
+			return
+		}
+		if ok {
+			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}, switchInfo.TenantId); err != nil {
 				logError(ctx, "Notify trigger_security_event: "+err.Error())
 			}
 		}
@@ -519,6 +556,38 @@ func (rs *RadiusStatements) SoftNodeTimeBalanceUpdate(tenant_id int, mac mac.Mac
 
 func (rs *RadiusStatements) NodeTimeBalanceSubtract(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
 	result, err := rs.nodeTimeBalanceSubtract.Exec(balance, tenant_id, mac.String())
+	if err != nil {
+		return false, err
+	}
+
+	if count, err := result.RowsAffected(); count <= 0 || err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (rs *RadiusStatements) IsNodeBandwidthBalanceZero(tenant_id int, mac mac.Mac) (bool, error) {
+	found := 0
+	err := rs.isNodeBandwidthBalanceZero.QueryRow(tenant_id, mac).Scan(&found)
+	return found == 1, err
+}
+
+func (rs *RadiusStatements) SoftNodeBandwidthBalanceUpdate(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.softNodeBandwidthBalanceUpdate.Exec(tenant_id, mac.String(), balance)
+	if err != nil {
+		return false, err
+	}
+
+	if count, err := result.RowsAffected(); count <= 0 || err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (rs *RadiusStatements) NodeBandwidthBalanceSubtract(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.nodeBandwidthBalanceSubtract.Exec(balance, tenant_id, mac.String())
 	if err != nil {
 		return false, err
 	}
