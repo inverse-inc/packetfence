@@ -11,6 +11,7 @@ import {
 } from './'
 import {
   and,
+  or,
   not,
   conditional,
   hasRoutedNetworks,
@@ -97,7 +98,8 @@ export const columns = [
 
 export const view = (form = {}, meta = {}) => {
   const {
-    fake_mac_enabled
+    fake_mac_enabled,
+    dhcpd
   } = form
   const {
     isNew = false,
@@ -235,6 +237,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          if: (dhcpd === 'enabled'),
           label: i18n.t('Algorithm'),
           cols: [
             {
@@ -250,6 +253,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          if: (dhcpd === 'enabled'),
           label: i18n.t('DHCP Pool Backend Type'),
           cols: [
             {
@@ -450,6 +454,9 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   const {
+    dhcpd
+  } = form
+  const {
     isNew = false,
     isClone = false
   } = meta
@@ -468,25 +475,74 @@ export const validators = (form = {}, meta = {}) => {
       }
     },
     type: validatorsFromMeta(meta, 'type', i18n.t('Type')),
-    algorithm: validatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm')),
-    pool_backend: validatorsFromMeta(meta, 'pool_backend', i18n.t('DHCP Pool Backend Type')),
+    algorithm: {
+      ...((dhcpd === 'enabled')
+        ? validatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm'))
+        : {}
+      )
+    },
+    pool_backend: {
+      ...((dhcpd === 'enabled')
+        ? {
+          ...validatorsFromMeta(meta, 'pool_backend', i18n.t('DHCP pool backend type')),
+          [i18n.t('Pool backend type required.')]: required
+        }
+        : {}
+      )
+    },
     dhcp_start: {
       ...validatorsFromMeta(meta, 'dhcp_start', 'IP'),
       ...{
         [i18n.t('Invalid IP Address.')]: ipAddress
-      }
+      },
+      ...((dhcpd === 'enabled')
+        ? {
+          [i18n.t('Starting IP address required.')]: required
+        }
+        : {}
+      )
     },
     dhcp_end: {
       ...validatorsFromMeta(meta, 'dhcp_end', 'IP'),
       ...{
         [i18n.t('Invalid IP Address.')]: ipAddress
-      }
+      },
+      ...((dhcpd === 'enabled')
+        ? {
+          [i18n.t('Ending IP address required.')]: required
+        }
+        : {}
+      )
     },
-    dhcp_default_lease_time: validatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time')),
-    dhcp_max_lease_time: validatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time')),
+    dhcp_default_lease_time: {
+      ...validatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time')),
+      ...((dhcpd === 'enabled')
+        ? {
+          [i18n.t('Default lease time required.')]: required
+        }
+        : {}
+      )
+    },
+    dhcp_max_lease_time: {
+      ...validatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time')),
+      ...((dhcpd === 'enabled')
+        ? {
+          [i18n.t('Max lease time required.')]: required
+        }
+        : {}
+      )
+    },
     ip_reserved: validatorsFromMeta(meta, 'ip_reserved', i18n.t('Addresses')),
     ip_assigned: validatorsFromMeta(meta, 'ip_assigned', i18n.t('Addresses')),
-    dns: validatorsFromMeta(meta, 'dns', 'DNS'),
+    dns: {
+      ...validatorsFromMeta(meta, 'dns', 'DNS'),
+      ...((dhcpd === 'enabled')
+        ? {
+          [i18n.t('DNS server required.')]: required
+        }
+        : {}
+      )
+    },
     portal_fqdn: {
       ...validatorsFromMeta(meta, 'portal_fqdn', 'FQDN'),
       ...{
@@ -497,7 +553,13 @@ export const validators = (form = {}, meta = {}) => {
       ...validatorsFromMeta(meta, 'gateway', i18n.t('Gateway')),
       ...{
         [i18n.t('Invalid IP Address.')]: ipAddress
-      }
+      },
+      ...((dhcpd === 'enabled')
+        ? {
+          [i18n.t('Gateway required.')]: required
+        }
+        : {}
+      )
     },
     next_hop: {
       ...validatorsFromMeta(meta, 'next_hop', 'IP'),
