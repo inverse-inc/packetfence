@@ -237,6 +237,29 @@ sub bandwidth_accounting_history_cleanup {
     return $rows;
 }
 
+sub clean_old_sessions {
+    my ($window, $batch, $time_limit ) = @_;
+    my $sql = <<SQL;
+UPDATE
+    bandwidth_accounting,
+    (SELECT node_id, unique_session_id, MAX(last_updated) FROM bandwidth_accounting GROUP BY node_id, unique_session_id HAVING MAX(last_updated) < DATE_SUB(NOW(), INTERVAL ? SECOND) AND MAX(last_updated) > '0000-00-00 00:00:00' LIMIT ?) as old_sessions
+    SET last_updated = '0000-00-00 00:00:00'
+    WHERE (bandwidth_accounting.node_id, bandwidth_accounting.unique_session_id) = (old_sessions.node_id, old_sessions.unique_session_id);
+SQL
+    my $start_time = time;
+    my $end_time;
+    my $rows_updated = 0;
+    while (1) {
+        my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $window, $batch);
+        my $rows = $sth->rows;
+        $end_time = time;
+        $rows_updated+=$rows if $rows > 0;
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
+    }
+
+    $logger->info("processed $rows_updated for bandwidth_close_session ($start_time $end_time) ");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
