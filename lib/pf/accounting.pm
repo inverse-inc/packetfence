@@ -66,7 +66,6 @@ use pf::CHI;
 use pf::dal::radacct_log;
 use pf::dal::radacct;
 use pf::dal::bandwidth_accounting;
-use pf::bandwidth_accounting;
 
 # This parses the specific accounting security_event trigger format
 Readonly our $ACCOUNTING_TRIGGER_RE => qr/
@@ -508,7 +507,6 @@ sub cleanup {
         -no_auto_tenant_id => 1,
     );
     pf::dal::radacct_log->batch_remove(\%params, $time_limit);
-    pf::bandwidth_accounting::clean_old_sessions($expire_seconds, $batch, $time_limit);
     return;
 }
 

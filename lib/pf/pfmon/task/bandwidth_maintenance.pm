@@ -27,6 +27,10 @@ has 'history_batch' => ( is => 'rw', default => "100" );
 has 'history_timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
 has 'history_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
 
+has 'session_batch' => ( is => 'rw', default => "100" );
+has 'session_timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
+has 'session_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
+
 =head2 run
 
 run the inline accounting maintenance task
@@ -42,6 +46,9 @@ sub run {
         $self->history_batch,
         $self->history_timeout,
         $self->history_window,
+        $self->session_batch,
+        $self->session_timeout,
+        $self->session_window,
     );
 }
 

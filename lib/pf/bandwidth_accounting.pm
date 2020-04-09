@@ -25,12 +25,16 @@ use pf::config::security_event;
 my $logger = get_logger();
 
 sub bandwidth_maintenance {
-    my ($batch, $time_limit, $window, $history_batch, $history_timeout, $history_window) = @_;
+    my (
+        $batch, $time_limit, $window,
+        $history_batch, $history_timeout, $history_window,
+        $session_batch, $session_timeout, $session_window) = @_;
     process_bandwidth_accounting_netflow($batch, $time_limit);
     trigger_bandwidth($batch, $time_limit);
     bandwidth_aggregation('hourly', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? HOUR)', 2);
     bandwidth_aggregation('daily', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? DAY)', 2);
     bandwidth_aggregation('monthly', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? MONTH)', 1);
+    clean_old_sessions($session_window, $session_batch, $session_timeout);
     bandwidth_accounting_radius_to_history($batch, $time_limit, $window);
     bandwidth_aggregation_history_daily($batch, $time_limit);
     bandwidth_aggregation_history_monthly($batch, $time_limit);
@@ -288,4 +292,3 @@ USA.
 =cut
 
 1;
-
