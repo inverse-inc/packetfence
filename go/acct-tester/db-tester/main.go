@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/mac"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var rows = flag.Int("rows", 10000, "The amount of rows to insert")
@@ -48,17 +49,17 @@ func main() {
 	}
 
 	db := connectDB()
-/*
-    node_id BIGINT UNSIGNED NOT NULL,
-    unique_session_id BIGINT UNSIGNED NOT NULL,
-    time_bucket DATETIME NOT NULL,
-    in_bytes BIGINT SIGNED NOT NULL,
-    out_bytes BIGINT SIGNED NOT NULL,
-    mac CHAR(17) NOT NULL,
-    tenant_id SMALLINT NOT NULL,
-    processed BOOLEAN NOT NULL DEFAULT 0,
-*/
-	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes, mac, tenant_id, source_type) VALUES(?, ?, ?, ?, ?, ?, 1, 'radius')`)
+	/*
+	   node_id BIGINT UNSIGNED NOT NULL,
+	   unique_session_id BIGINT UNSIGNED NOT NULL,
+	   time_bucket DATETIME NOT NULL,
+	   in_bytes BIGINT SIGNED NOT NULL,
+	   out_bytes BIGINT SIGNED NOT NULL,
+	   mac CHAR(17) NOT NULL,
+	   tenant_id SMALLINT NOT NULL,
+	   processed BOOLEAN NOT NULL DEFAULT 0,
+	*/
+	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes, mac, tenant_id, processed, source_type) VALUES(?, ?, ?, ?, ?, ?, 1, 0, "radius")`)
 	sharedutils.CheckError(err)
 
 	rowsPerEndpoint := *rows / *endpointsCount
@@ -75,7 +76,7 @@ func main() {
 			go func(j int) {
 				wg.Add(1)
 				defer wg.Done()
-				_, err := insertBandwidthAccounting.Exec(mac.NodeId(1), i, startAt.Add(time.Duration(j)*time.Duration(*bucketSize)*time.Second), 1, 1, mac.String())
+				_, err := insertBandwidthAccounting.Exec(mac.NodeId(1), rand.Uint64(), startAt.Add(time.Duration(j)*time.Duration(*bucketSize)*time.Second), 1, 1, mac.String())
 				sharedutils.CheckError(err)
 				<-concurrencyChan
 			}(j)
