@@ -22,6 +22,8 @@ use pf::log;
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH %Config);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::security_event;
+use pf::security_event qw(security_event_trigger);
+
 my $logger = get_logger();
 
 sub bandwidth_maintenance {
