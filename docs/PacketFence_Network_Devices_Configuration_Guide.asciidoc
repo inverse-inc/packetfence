@@ -2502,13 +2502,21 @@ Global config settings:
 
   aaa authentication login "defaultList" local
   authentication enable
+  authentication dynamic-vlan enable
   dot1x system-auth-control
   aaa authentication dot1x default radius
   aaa authorization network default radius
-  dot1x dynamic-vlan enable
-  radius-server key "useStrongerSecret"
-  radius-server host auth 192.168.1.5
+  aaa accounting dot1x default start-stop radius
+  authentication dynamic-vlan enable
+  radius server auth 192.168.1.5
+  key useStrongerSecret
+  usage authmgr
   name "PacketFence"
+  exit
+  radius server acct 192.168.1.5
+  name "PacketFenceAccounting"
+  key useStrongerSecret
+  exit
   snmp-server community "private" rw
   snmp-server community "public" ro
 
@@ -2542,6 +2550,13 @@ On other switch ports not managed by PacketFence:
   switchport general allowed vlan add x
   authentication port-control force-authorized
 
+
+Web-Auth:
+
+  ip access-list registration
+  1000 deny ip any 192.168.1.5 0.0.0.0
+  1010 permit tcp any any eq http
+  1020 permit tcp any any eq 443
 
 N2000 Series (N2024P)
 ^^^^^^^^^^^^^^^^^^^^^
