@@ -44,7 +44,7 @@ func (mtb *MemTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Ti
 
 func (mtb *MemTokenBackend) TenantIdForToken(token string) int {
 	if ti, _ := mtb.TokenInfoForToken(token); ti != nil {
-		return ti.TenantId.id
+		return ti.TenantId.Id
 	} else {
 		return AccessNoTenants
 	}

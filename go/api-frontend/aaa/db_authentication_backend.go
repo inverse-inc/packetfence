@@ -94,7 +94,9 @@ func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser 
 
 	query := fmt.Sprintf("select * from tenant where id = ?")
 
-	rows, err := dab.db.Query(query)
+	tenantid := apiUser.TenantId
+
+	rows, err := dab.db.Query(query, tenantid)
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while executing authentication query %s", err))
@@ -103,7 +105,7 @@ func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser 
 	defer rows.Close()
 	tenant := Tenant{}
 
-	err = rows.Scan(&tenant.id, &tenant.name, &tenant.portal_domain_name, &tenant.domain_name)
+	err = rows.Scan(&tenant.Id, &tenant.Name, &tenant.PortalDomainName, &tenant.DomainName)
 	sharedutils.CheckError(err)
 
 	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: tenant}

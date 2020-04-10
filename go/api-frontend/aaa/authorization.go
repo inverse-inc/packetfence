@@ -168,11 +168,11 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 
 	var tenantId int
 
-	if tokenInfo.TenantId.id == AccessAllTenants && xptid == "" {
+	if tokenInfo.TenantId.Id == AccessAllTenants && xptid == "" {
 		log.LoggerWContext(ctx).Debug("Token wasn't issued for a particular tenant and no X-PacketFence-Tenant-Id was provided. Request will use the default PacketFence tenant")
 	} else if xptid == "" {
 		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to token tenant ID")
-		tenantId = tokenInfo.TenantId.id
+		tenantId = tokenInfo.TenantId.Id
 		r.Header.Set("X-PacketFence-Tenant-Id", strconv.Itoa(tenantId))
 	} else {
 		var err error
@@ -208,12 +208,12 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return authAdminRoles, err
 	}
 
-	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.TenantId.id)
+	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.TenantId.Id)
 	if !authTenant || err != nil {
 		return authTenant, err
 	}
 
-	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, path, tokenInfo.TenantId.id)
+	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, path, tokenInfo.TenantId.Id)
 	if !authConfig || err != nil {
 		return authConfig, err
 	}

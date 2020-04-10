@@ -50,7 +50,7 @@ func (mab *MemAuthenticationBackend) Authenticate(ctx context.Context, username,
 		if password == storedPass {
 			return true, &TokenInfo{
 				AdminRoles: mab.adminRoles,
-				TenantId:   Tenant{id: AccessAllTenants},
+				TenantId:   Tenant{Id: AccessAllTenants},
 			}, nil
 		} else {
 			return false, nil, nil

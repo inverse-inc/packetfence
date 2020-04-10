@@ -28,10 +28,10 @@ type TokenInfo struct {
 }
 
 type Tenant struct {
-	name               string
-	portal_domain_name string
-	domain_name        string
-	id                 int
+	Name             string `json:"name"`
+	PortalDomainName string `json:"portal_domain_name"`
+	DomainName       string `json:"domain_name"`
+	Id               int    `json:"id"`
 }
 
 func (ti *TokenInfo) AdminActions() map[string]bool {
