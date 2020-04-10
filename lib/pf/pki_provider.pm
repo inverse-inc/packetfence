@@ -65,6 +65,24 @@ What organization to use for the certificate
 
 has organization => ( is => 'rw' );
 
+
+=head2 postalcode
+
+What postalcode to use for the certificate
+
+=cut
+
+has postalcode => ( is => 'rw' );
+
+
+=head2 streetaddress
+
+What street address to use for the certificate
+
+=cut
+
+has streetaddress => ( is => 'rw' );
+
 =head2 organizational_unit
 
 What organizational_unit to use for the certificate

@@ -734,7 +734,7 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
-	if err := pfpki.DB.Delete(&cert).Error; err != nil {
+	if err := pfpki.DB.Unscoped().Delete(&cert).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}

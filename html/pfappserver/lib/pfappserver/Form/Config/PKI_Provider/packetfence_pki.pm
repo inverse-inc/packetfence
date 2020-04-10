@@ -93,6 +93,27 @@ has_field 'profile' => (
     },
 );
 
+has_field 'locality' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Locality for the certificate'},
+  );
+
+has_field 'streetaddress' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Street Address for the certificate'},
+  );
+
+has_field 'postalcode' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Postal Code for the certificate'},
+  );
+
 has_field 'country' => (
     type    => 'Country',
     label   => 'Country',

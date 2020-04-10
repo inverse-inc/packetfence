@@ -219,7 +219,31 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          if: ['scep'].includes(providerType),
+          if: ['packetfence_pki'].includes(providerType),
+          label: i18n.t('Street Address'),
+          text: i18n.t('Street address for the certificate.'),
+          cols: [
+            {
+              namespace: 'streetaddress',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'streetaddress')
+            }
+          ]
+        },
+        {
+          if: ['packetfence_pki'].includes(providerType),
+          label: i18n.t('Postal Code'),
+          text: i18n.t('Postal Code for the certificate.'),
+          cols: [
+            {
+              namespace: 'postalcode',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'postalcode')
+            }
+          ]
+        },
+        {
+          if: ['packetfence_pki', 'scep'].includes(providerType),
           label: i18n.t('Locality'),
           text: i18n.t('Locality for the certificate.'),
           cols: [

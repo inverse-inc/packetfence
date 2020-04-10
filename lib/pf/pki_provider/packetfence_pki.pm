@@ -49,16 +49,24 @@ sub get_bundle {
     my $state = $self->state;
     my $profile = $self->profile;
     my $country = $self->country;
+    my $locality = $self->locality;
+    my $street = $self->streetaddress;
+    my $postalcode = $self->postalcode;
+    my $streetaddress = $self->streetaddress;
+
     my $certpwd = $args->{'certificate_pwd'};
 
 
     my $return = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/certs", {
-        "cn"           => $cn,
-        "mail"         => $email,
-        "organisation" => $organisation,
-        "country"      => $country,
-        "state"        => $state,
-        "profile_id"   => $profile,
+        "cn"             => $cn,
+        "mail"           => $email,
+        "organisation"   => $organisation,
+        "country"        => $country,
+        "state"          => $state,
+        "locality"       => $locality,
+        "postal_code"    => $postalcode,
+        "street_address" => $streetaddress,
+        "profile_id"     => $profile,
     });
 
     if ($return->{'status'} eq "422") {
