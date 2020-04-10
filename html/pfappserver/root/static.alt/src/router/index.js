@@ -11,6 +11,7 @@ import NodesRoute from '@/views/Nodes/_router'
 import UsersRoute from '@/views/Users/_router'
 import ConfigurationRoute from '@/views/Configuration/_router'
 import ConfiguratorRoute from '@/views/Configurator/_router'
+import ResetRoute from '@/views/Reset/_router'
 
 Vue.use(Router)
 
@@ -29,6 +30,7 @@ let router = new Router({
     UsersRoute,
     ConfigurationRoute,
     ConfiguratorRoute,
+    ResetRoute,
     DefaultRoute
   ]
 })

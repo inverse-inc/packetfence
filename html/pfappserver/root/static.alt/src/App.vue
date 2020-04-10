@@ -242,7 +242,7 @@ export default {
       else {
         this.$store.dispatch('session/setTenantIdMask', tenant_id)
       }
-      this.$router.go() // reload
+      this.$router.push('/reset') // reset
     }
   },
   created () {
