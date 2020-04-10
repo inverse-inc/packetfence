@@ -47,11 +47,10 @@ router.beforeEach((to, from, next) => {
   /**
    * 3. Ignore everything under /configurator-
    * 4. Ignore login page
-   * 5. Check if the configurator is enabled
-   * 6. Session token loaded from local storage
-   * 7. Configurator is enabled -- go to configurator
-   * 8. Token has expired -- go back to login page
-   * 9. No token -- go back to login page
+   * 5. Session token loaded from local storage
+   * 6. Configurator is enabled -- go to configurator
+   * 7. Token has expired -- go back to login page
+   * 8. No token -- go back to login page
    */
   if (/^configurator-/.test(to.name)) { // [3]
     store.commit('session/CONFIGURATOR_ACTIVE')
@@ -60,20 +59,19 @@ router.beforeEach((to, from, next) => {
     store.commit('session/CONFIGURATOR_INACTIVE')
     if (to.name !== 'login') { // [4]
       store.dispatch('session/load').then(() => {
-        store.dispatch('session/getConfiguratorState') // [5]
-        next() // [6]
+        next() // [5]
       }).catch(() => {
         let currentPath = router.currentRoute.fullPath
         if (currentPath === '/') {
           currentPath = document.location.hash.substring(1)
         }
         axios.get('/api/v1/configurator/config/system/hostname').then(() => {
-          next({ name: 'configurator' }) // [7]
+          next({ name: 'configurator' }) // [6]
         }).catch(() => {
           if (store.state.session.token) {
-            next({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [8]
+            next({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [7]
           } else {
-            next({ name: 'login' }) // [9]
+            next({ name: 'login' }) // [8]
           }
         })
       })

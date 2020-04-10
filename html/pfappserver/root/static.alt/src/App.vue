@@ -39,6 +39,15 @@
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
+          <b-nav-text v-if="tenants.length === 0 || tenant_id !== 0">
+            <icon name="layer-group"></icon> Tenant ({{ tenant_id }})
+          </b-nav-text>
+          <b-nav-item-dropdown right v-else>
+            <template v-slot:button-content>
+              <icon name="layer-group"></icon> Tenant ({{ tenant_id_view_as }})
+            </template>
+            <b-dropdown-item-button v-for="tenant in tenants" :key="tenant.id" :active="tenant_id_view_as === tenant.id" @click="setViewAsTenantId(tenant.id)">{{ tenant.name }}</b-dropdown-item-button>
+          </b-nav-item-dropdown>
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
@@ -150,6 +159,15 @@ export default {
     username () {
       return this.$store.state.session.username
     },
+    tenant_id () {
+      return this.$store.state.session.tenant_id
+    },
+    tenant_id_view_as () {
+      return this.$store.getters['session/tenantId']
+    },
+    tenants () {
+      return this.$store.state.session.tenants
+    },
     apiOK () {
       return this.$store.state.session.api
     },
@@ -216,6 +234,15 @@ export default {
     },
     toggleDocumentationViewer () {
       this.$store.dispatch('documentation/toggleViewer')
+    },
+    setViewAsTenantId (tenant_id) {
+      if (tenant_id === this.tenant_id_view_as) {
+        this.$store.dispatch('session/setViewAsTenantId', this.tenant_id) // reset to default
+      }
+      else {
+        this.$store.dispatch('session/setViewAsTenantId', tenant_id)
+      }
+      this.$router.go() // reload
     }
   },
   created () {

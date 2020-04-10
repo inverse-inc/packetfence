@@ -9,6 +9,7 @@ import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
 
 const STORAGE_TOKEN_KEY = 'user-token'
+const STORAGE_TENANT_ID = 'X-PacketFence-Tenant-Id'
 
 const api = {
   login: user => {
@@ -72,7 +73,8 @@ const state = {
   expired: false,
   oldAdminEnabled: false,
   roles: [],
-  tenant_id: [],
+  tenant_id: null,
+  tenant_id_view_as: localStorage.getItem(STORAGE_TENANT_ID) || null,
   tenants: [],
   languages: [],
   api: true,
@@ -136,7 +138,8 @@ const getters = {
   allowedUserActions: state => state.allowedUserActions || [],
   allowedUserRoles: state => state.allowedUserRoles || [],
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
-  allowedUserUnregDate: state => state.allowedUserUnregDate || []
+  allowedUserUnregDate: state => state.allowedUserUnregDate || [],
+  tenantId: state => state.tenant_id_view_as || state.tenant_id
 }
 
 const actions = {
@@ -157,13 +160,19 @@ const actions = {
     return dispatch('getTokenInfo').then(roles => {
       commit('ROLES_UPDATED', roles)
       setupAcl()
+      dispatch('getConfiguratorState')
+      dispatch('getTenants')
     })
   },
   delete: ({ commit }) => {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
+    localStorage.removeItem(STORAGE_TENANT_ID)
     acl.reset()
     commit('TOKEN_DELETED')
     commit('EXPIRES_AT_DELETED')
+    commit('TENANT_ID_DELETED')
+    commit('TENANT_ID_VIEW_AS_DELETED')
+    commit('TENANTS_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
     commit('ALLOWED_NODE_ROLES_DELETED')
@@ -225,13 +234,18 @@ const actions = {
     return api.getTokenInfo(readonly).then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
       commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
+      commit('TENANT_ID_UPDATED', response.data.item.tenant_id)
       return response.data.item.admin_actions // return ACLs
     })
   },
   getTenants: ({ commit }) => {
-    return api.getTenants().then(response => {
-      commit('TENANTS_UPDATED', response.data)
-    })
+    if (acl.$can('read', 'system')) {
+      return api.getTenants().then(response => {
+        commit('TENANTS_UPDATED', response.data)
+      })
+    } else {
+      return Promise.resolve()
+    }
   },
   setLanguage: ({ state }, params) => {
     if (i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
@@ -331,6 +345,16 @@ const actions = {
       commit('CONFIGURATOR_DISABLED')
     }
   },
+  setViewAsTenantId: ({ state, commit }, tenantId = 0) => {
+    if (state.tenant_id === 0) { // is super admin, can mutate
+      if (!+tenantId) {
+        commit('TENANT_ID_VIEW_AS_DELETED')
+      }
+      else if (+tenantId !== state.tenant_id_view_as) {
+        commit('TENANT_ID_VIEW_AS_UPDATED', tenantId)
+      }
+    }
+  }
 }
 
 const mutations = {
@@ -382,6 +406,26 @@ const mutations = {
   EXPIRES_AT_DELETED: (state) => {
     state.expires_at = null
   },
+  TENANT_ID_UPDATED: (state, tenant_id) => {
+    state.tenant_id = tenant_id
+  },
+  TENANT_ID_DELETED: (state) => {
+    state.tenant_id = null
+  },
+  TENANT_ID_VIEW_AS_UPDATED: (state, tenantId) => {
+    state.tenant_id_view_as = tenantId
+    localStorage.setItem(STORAGE_TENANT_ID, +tenantId)
+  },
+  TENANT_ID_VIEW_AS_DELETED: (state) => {
+    state.tenant_id_view_as = null
+    localStorage.removeItem(STORAGE_TENANT_ID)
+  },
+  TENANTS_UPDATED: (state, data) => {
+    state.tenants = data.items
+  },
+  TENANTS_DELETED: (state) => {
+    state.tenants = []
+  },
   OLDADMIN_ENABLED: (state) => {
     state.oldAdminEnabled = true
   },
@@ -393,9 +437,6 @@ const mutations = {
   },
   ROLES_DELETED: (state) => {
     state.roles = []
-  },
-  TENANTS_UPDATED: (state, data) => {
-    state.tenants = data.items
   },
   API_OK: (state) => {
     state.api = true
