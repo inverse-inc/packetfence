@@ -23,7 +23,7 @@ type PfAuthenticationBackend struct {
 type PfAuthenticationReply struct {
 	Result   int
 	Roles    []string
-	TenantId int `json:"tenant_id"`
+	TenantId Tenant `json:"tenant_id"`
 }
 
 func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert bool) *PfAuthenticationBackend {

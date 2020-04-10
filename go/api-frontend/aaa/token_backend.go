@@ -22,9 +22,16 @@ const (
 
 type TokenInfo struct {
 	AdminRoles map[string]bool
-	TenantId   int
+	TenantId   Tenant
 	Username   string
 	CreatedAt  time.Time
+}
+
+type Tenant struct {
+	name               string
+	portal_domain_name string
+	domain_name        string
+	id                 int
 }
 
 func (ti *TokenInfo) AdminActions() map[string]bool {

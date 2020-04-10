@@ -92,5 +92,19 @@ func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser 
 		adminRolesMap[role] = true
 	}
 
-	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: apiUser.TenantId}
+	query := fmt.Sprintf("select * from tenant where id = ?")
+
+	rows, err := dab.db.Query(query)
+
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while executing authentication query %s", err))
+	}
+
+	defer rows.Close()
+	tenant := Tenant{}
+
+	err = rows.Scan(&tenant.id, &tenant.name, &tenant.portal_domain_name, &tenant.domain_name)
+	sharedutils.CheckError(err)
+
+	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: tenant}
 }
