@@ -74,7 +74,7 @@ const state = {
   oldAdminEnabled: false,
   roles: [],
   tenant_id: null,
-  tenant_id_view_as: localStorage.getItem(STORAGE_TENANT_ID) || null,
+  tenant_id_mask: localStorage.getItem(STORAGE_TENANT_ID) || null,
   tenants: [],
   languages: [],
   api: true,
@@ -139,7 +139,7 @@ const getters = {
   allowedUserRoles: state => state.allowedUserRoles || [],
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
-  tenantId: state => state.tenant_id_view_as || state.tenant_id
+  tenantIdMask: state => state.tenant_id_mask || state.tenant_id
 }
 
 const actions = {
@@ -171,7 +171,7 @@ const actions = {
     commit('TOKEN_DELETED')
     commit('EXPIRES_AT_DELETED')
     commit('TENANT_ID_DELETED')
-    commit('TENANT_ID_VIEW_AS_DELETED')
+    commit('TENANT_ID_MASK_DELETED')
     commit('TENANTS_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
@@ -345,13 +345,13 @@ const actions = {
       commit('CONFIGURATOR_DISABLED')
     }
   },
-  setViewAsTenantId: ({ state, commit }, tenantId = 0) => {
+  setTenantIdMask: ({ state, commit }, tenantId = 0) => {
     if (state.tenant_id === 0) { // is super admin, can mutate
       if (!+tenantId) {
-        commit('TENANT_ID_VIEW_AS_DELETED')
+        commit('TENANT_ID_MASK_DELETED')
       }
-      else if (+tenantId !== state.tenant_id_view_as) {
-        commit('TENANT_ID_VIEW_AS_UPDATED', tenantId)
+      else if (+tenantId !== state.tenant_id_mask) {
+        commit('TENANT_ID_MASK_UPDATED', tenantId)
       }
     }
   }
@@ -412,12 +412,12 @@ const mutations = {
   TENANT_ID_DELETED: (state) => {
     state.tenant_id = null
   },
-  TENANT_ID_VIEW_AS_UPDATED: (state, tenantId) => {
-    state.tenant_id_view_as = tenantId
+  TENANT_ID_MASK_UPDATED: (state, tenantId) => {
+    state.tenant_id_mask = tenantId
     localStorage.setItem(STORAGE_TENANT_ID, +tenantId)
   },
-  TENANT_ID_VIEW_AS_DELETED: (state) => {
-    state.tenant_id_view_as = null
+  TENANT_ID_MASK_DELETED: (state) => {
+    state.tenant_id_mask = null
     localStorage.removeItem(STORAGE_TENANT_ID)
   },
   TENANTS_UPDATED: (state, data) => {
