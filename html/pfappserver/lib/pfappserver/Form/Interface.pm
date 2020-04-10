@@ -118,6 +118,15 @@ has_field 'coa' => (
     label => 'Enable CoA',
 );
 
+has_field 'netflow_accounting_enabled' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   label => 'Enable Net Flow Accounting'
+   );
+
 =head2 options_type
 
 =cut

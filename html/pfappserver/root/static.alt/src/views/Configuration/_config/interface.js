@@ -471,6 +471,20 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          if: ['inlinel2'].includes(type),
+          label: i18n.t('Netflow Accounting Enabled'),
+          text: i18n.t('Enable Netflow on this network to enable accounting.'),
+          cols: [
+            {
+              namespace: 'netflow_accounting_enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           if: ['none', 'management'].includes(type),
           label: i18n.t('High availability'),
           cols: [
