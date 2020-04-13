@@ -1352,6 +1352,7 @@ sub setup_api_v1_config_connection_profiles_files_routes {
     $file_route->any(['PATCH'])->to("$controller#replace_file" => {})->name("${name}.file.replace");
     $file_route->any(['PUT'])->to("$controller#new_file" => {})->name("${name}.file.new");
     $file_route->any(['DELETE'])->to("$controller#delete_file" => {})->name("${name}.file.delete");
+    my $preview_route = $root->get("/preview/*file_name")->to("$controller#preview_file")->name("api.v1.Config.ConnectionProfiles.resource.preview");
 
     return ;
 }
