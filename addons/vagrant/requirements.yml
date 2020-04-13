@@ -1,6 +1,7 @@
 ---
 roles:
   - src: geerlingguy.nodejs
+  - src: geerlingguy.mailhog
   - src: inverse_inc.gitlab_buildpkg_tools
 
 collections:

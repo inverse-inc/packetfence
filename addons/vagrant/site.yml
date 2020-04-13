@@ -67,3 +67,4 @@
 - import_playbook: cumulus.yml
 - import_playbook: nodes.yml
 - import_playbook: venom.yml
+- import_playbook: mailhog.yml
