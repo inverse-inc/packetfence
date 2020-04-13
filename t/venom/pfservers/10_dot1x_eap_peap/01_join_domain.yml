@@ -61,7 +61,8 @@ testcases:
   steps:
     - type: exec
       script: '/usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads join -s /etc/samba/{{.ad_domain_id}}.conf -U {{.ad_domain_admin_user}}%{{.ad_domain_admin_password}}'
-      retry: 5
+      # failed after 3 minutes
+      retry: 12
       delay: 15
 
 - name: check-domain-join
