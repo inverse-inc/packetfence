@@ -167,7 +167,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (form, meta = {}) => {
   return {
     alerting: {
       emailaddr: {

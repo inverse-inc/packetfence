@@ -43,9 +43,7 @@ export default {
             const haproxyReady = new Promise((resolve, reject) => {
               let count = 10 // try to reconnect at most 10 times
               const pingHaproxy = () => {
-                this.$store.dispatch('system/getHostname', { cache: false }).then((hostname) => {
-                  resolve()
-                }).catch(() => {
+                this.$store.dispatch('system/getHostname', { cache: false }).then(resolve).catch(() => {
                   count--
                   if (count > 0) {
                     setTimeout(pingHaproxy, 2000)
@@ -72,7 +70,7 @@ export default {
             })
           })
         })
-      }).catch(err => {
+      }).catch(() => {
         this.progressFeedback = null
       }).finally(() => {
         this.isLoading = false
