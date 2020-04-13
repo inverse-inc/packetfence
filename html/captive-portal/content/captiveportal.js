@@ -66,7 +66,7 @@ $(function() {
   }
 
   function initSvgSprite() {
-    $.get('/common/img/sprite.svg', function(data) {
+    $.get('./common/img/sprite.svg', function(data) {
       document.body.appendChild(data.documentElement);
     });
   }
