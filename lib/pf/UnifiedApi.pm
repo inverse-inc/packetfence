@@ -56,7 +56,7 @@ sub escape_char {
 
 sub pf_unescape_path {
     my ($path) = @_;
-    $path =~ s/\%([a-fA-Z0-9]{2})/escape_char($1)/eg;
+    $path =~ s/\%([a-fA-F0-9]{2})/escape_char($1)/eg;
     return $path;
 }
 
