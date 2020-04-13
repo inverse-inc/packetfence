@@ -183,22 +183,6 @@ Red Hat-based Systems
 
 NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is supported.
 
-Explicitly instruct NetworkManager to never interact with your DNS configuration (https://bugzilla.redhat.com/show_bug.cgi?id=1344303[Source]):
-
-[source,bash]
-----
-echo "[main]
-dns=none" > /etc/NetworkManager/conf.d/99-no-dns.conf
-service NetworkManager restart
-----
-
-You also need to disable systemd-logind and reboot:
-
-[source,bash]
-----
-/usr/bin/systemctl --now mask systemd-logind
-reboot
-----
 
 RHEL 7.x
 ++++++++
