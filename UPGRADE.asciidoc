@@ -1090,26 +1090,27 @@ cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
 == Upgrading from a version prior to X.Y.Z
 
-=== Kernel-devel ===
+=== Kernel development package
 
-In this version we need to have the kernel-devel package that match your current kernel version in order to build the netflow kernel module.
+NOTE: This step need to be done *before* packages upgrade.
 
-Before doing the upgrade you have 2 choices:
+In this version we need to have the kernel development package that match your current kernel version in order to build the Netflow kernel module.
 
-[source,bash]
-----
-yum update
-----
-and reboot the server
-
-or
+==== RHEL / CentOS based systems
 
 [source,bash]
 ----
-yum install "kernel-devel-uname-r == $(uname -r)"
+yum install kernel-devel-$(uname -r)
 ----
 
-=== Timezone ===
+==== Debian based systems
+
+[source,bash]
+----
+apt install linux-headers-$(uname -r)
+----
+
+=== Timezone
 
 The timezone set in pf.conf will be set on the operating system every time PacketFence reloads its configuration.
 For this reason, you should review the timezone setting in the general section of pf.conf (System Configuration -> General Configuration in the admin).
