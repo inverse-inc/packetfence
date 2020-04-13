@@ -197,6 +197,13 @@ sub cleanup_audit_item {
 
 sub fields_to_mask { qw(password) }
 
+sub escape_url_param {
+    my ($self, $param) = @_;
+    return $param unless defined $param;
+    $param =~ s/%2[fF]|~/\//g;
+    return $param;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -22,7 +22,6 @@ use pf::dal::admin_api_audit_log;
 use pf::util qw(expand_csv);
 use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
-use URI::Escape::XS qw(uri_unescape);
 
 our %OP_HAS_SUBQUERIES = (
     'and' => 1,

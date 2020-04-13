@@ -46,7 +46,7 @@ sub invalidate_cache {
 sub id {
     my ($self) = @_;
     my $id = $self->SUPER::id();
-    $id =~ s/~/\//;
+    $id =~ s/%2[fF]|~/\//g;
     return $id;
 }
  

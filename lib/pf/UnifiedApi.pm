@@ -46,6 +46,20 @@ has log => sub {
     return MojoX::Log::Log4perl->new("$log_conf_dir/pfperl-api.conf",5 * 60);
 };
 
+sub escape_char {
+    my ($k) = @_;
+    if ($k eq '2f') {
+        return "\%$k";
+    }
+    return chr(hex($k));
+}
+
+sub pf_unescape_path {
+    my ($path) = @_;
+    $path =~ s/\%([a-fA-Z0-9]{2})/escape_char($1)/eg;
+    return $path;
+}
+
 =head2 startup
 
 Setting up routes
@@ -133,7 +147,8 @@ sub before_dispatch_cb {
     $req->default_charset('UTF-8');
     $c->stash(
         {
-            path        => $req->url->path,
+            path        => pf_unescape_path($req->url->path),
+#            path        => $req->url->path,
             admin_roles => [
                 split(
                     /\s*,\s*/,

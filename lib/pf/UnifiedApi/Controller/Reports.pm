@@ -296,8 +296,7 @@ sub topauthenticationsuccesses_by_computername {
 
 sub _get_datetime {
     my ($self, $datetime) = @_;
-    $datetime = uri_unescape($datetime);
-    return $datetime;
+    return $self->escape_url_param($datetime);
 }
 
 

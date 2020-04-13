@@ -19,7 +19,6 @@ use pf::constants;
 use List::MoreUtils qw(any);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
-use Mojo::Util qw(url_unescape);
 use Mojo::JSON qw(encode_json);
 use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
@@ -319,7 +318,7 @@ sub id {
     my $primary_key = $self->primary_key;
     my $stash = $self->stash;
     if (exists $stash->{$primary_key}) {
-        return url_unescape($stash->{$primary_key});
+        return $stash->{$primary_key};
     }
 
     return undef;

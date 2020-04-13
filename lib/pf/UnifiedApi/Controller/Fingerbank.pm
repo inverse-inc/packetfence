@@ -15,7 +15,6 @@ use warnings;
 use pf::error qw(is_error is_success);
 use pf::util qw(expand_csv);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use Mojo::Util qw(url_unescape);
 use pf::UnifiedApi::Search::Builder::Fingerbank;
 use fingerbank::API;
 use pf::cluster;
