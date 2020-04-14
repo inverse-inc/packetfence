@@ -91,9 +91,13 @@ sub upgrade_filter {
         file => $name,
         rules => [],
         conditions => {},
+        already_migrated => [],
     };
 
-    prep_ctx($cs, $ctx);
+    my $res = prep_ctx($cs, $ctx);
+
+    return ({message => "Detected a condition that was already migrated by this script for $name. Will not process this file..."}, ()) unless($res);
+
     my $new_file = pf::IniFiles->new();
     my @warnings = populate($new_file, $ctx);
     copy($name, "$name.$old_ext");
@@ -106,6 +110,11 @@ sub prep_ctx {
     
     for my $s ($cs->Sections) {
         my $data = make_hash($cs, $s);
+
+        if($data->{condition}) {
+            return 0;
+        }
+
         if ($s =~ /^(.*?):(.*)$/) {
             my $id = $1;
             $data->{condition} = $2;
@@ -115,6 +124,7 @@ sub prep_ctx {
             $ctx->{conditions}{$s} = $data;
         }
     }
+    return 1;
 }
 
 sub populate {
