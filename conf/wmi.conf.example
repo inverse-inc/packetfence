@@ -19,6 +19,7 @@ action=trigger_security_event
 action_param = mac = $mac, tid = GOOGLE_SOFTWARE_INSTALLED, type = CUSTOM
 EOT
 
+# KB from Windows Update installed in the last 30 days 
 [ServicePackUpdated]
 namespace=ROOT\cimv2
 request=SELECT HotFixID,InstalledOn FROM Win32_QuickFixEngineering
@@ -64,12 +65,43 @@ value = explorer.exe
 action = allow
 EOT
 
+[Process_Not_Running-Antivirus]
+request=select Name from Win32_Process WHERE Name='antivirus.exe'
+namespace=ROOT\cimv2
+action= <<EOT
+[antivirus]
+attribute = Name
+operator = true
+value = antivirus.exe
+[1:antivirus]
+action=trigger_security_event
+action_param = mac = $mac, tid = PROCESS_ANTIVIRUS, type = CUSTOM
+only_match_when_empty=enabled
+EOT
+
 # Detect if the SCCM client is installed
 [SCCM]
 request=select * from Win32_Process where name='CcmExec.exe'
 action=[sccm]
 namespace=ROOT\cimv2
 on_tab=1
+
+# Detect if the SCCM client is not running and will trigger a Security Event 
+#[SCCM]
+#request=select * from Win32_Process where name='CcmExec.exe'
+#namespace=ROOT\cimv2
+#action= <<EOT
+#[SCCM]
+#attribute = Name
+#operator = match
+#value = CcmExec.exe
+#
+#[1:SCCM]
+#action=trigger_security_event
+#action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+#EOT
+#on_tab=0
+
 
 # Detect security product like Firewall, Antivirus or Antispyware
 [FireWall]
@@ -94,3 +126,70 @@ request=select * from AntiSpywareProduct
 namespace=ROOT\SecurityCenter2
 action=[antispyware]
 on_tab=1
+
+# Detect if TCP port 25 is open (SMTP)
+# This example can be used for all TCP ports, change the value by the ports you want, example: value = ^(143|465|587)$
+[SMTP Open]
+request=select LocalPort from MSFT_NetTCPConnection
+namespace=ROOT\StandardCIMV2
+action= <<EOT
+[PortOpen]
+attribute = LocalPort
+operator = match
+value = 25
+
+[1:PortOpen]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
+
+# Detect if UDP ports 137,138,139 are open (NetBIOS)
+# This example can be used for all UDP ports, change the value by the ports you want, example for SNMP: value = ^(161|162)$
+[NetBIOS Open]
+request=select LocalPort from MSFT_NetUDPEndpoint
+namespace=ROOT\StandardCIMV2
+action= <<EOT
+[PortOpen]
+attribute = LocalPort
+operator = match
+value = ^(137|138|139)$
+
+[1:PortOpen]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
+
+# Template to check if a specific TCP port is open, you can check the SMTP open example.
+[TCP Open]
+request=select LocalPort from MSFT_NetTCPConnection
+namespace=ROOT\StandardCIMV2
+action= <<EOT
+[PortOpen]
+attribute = LocalPort
+operator = match
+value = *
+
+[1:PortOpen]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
+
+# Template to check if a specific UDP port is open, you can check the NetBios open example.
+[UDP Open]
+request=select LocalPort from MSFT_NetUDPEndpoint
+namespace=ROOT\StandardCIMV2
+action= <<EOT
+[PortOpen]
+attribute = LocalPort
+operator = match
+value = *
+
+[1:PortOpen]
+action=trigger_security_event
+action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
+EOT
+on_tab=0
+
