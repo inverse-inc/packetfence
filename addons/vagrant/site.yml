@@ -13,6 +13,11 @@
       package:
         name: '*'
         state: latest
+      register: site_register_upgrade
+
+    - name: reboot to have latest Linux kernel packages in place when installing PacketFence
+      reboot:
+      when: site_register_upgrade is changed
 
 - hosts: ['nightly', 'dev']
   name: install packetfence development packages
