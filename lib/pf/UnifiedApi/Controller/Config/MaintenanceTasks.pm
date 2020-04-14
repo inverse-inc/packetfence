@@ -46,6 +46,7 @@ use pfappserver::Form::Config::Pfmon::acct_cleanup;
 use pfappserver::Form::Config::Pfmon::dns_audit_log_cleanup;
 use pfappserver::Form::Config::Pfmon::admin_api_audit_log_cleanup;
 use pfappserver::Form::Config::Pfmon::bandwidth_maintenance;
+use pfappserver::Form::Config::Pfmon::bandwidth_maintenance_session;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfmon::$_" } qw(
@@ -73,6 +74,7 @@ our %TYPES_TO_FORMS = (
       acct_cleanup
       admin_api_audit_log_cleanup
       bandwidth_maintenance
+      bandwidth_maintenance_session
     )
 );
 

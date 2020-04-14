@@ -1,47 +1,40 @@
-package pf::pfmon::task::bandwidth_maintenance;
+package pf::pfmon::task::bandwidth_maintenance_session;
 
 =head1 NAME
 
-pf::pfmon::task::bandwidth_maintenance - class for pfmon task inline accounting maintenance
+pf::pfmon::task::bandwidth_maintenance_session - class for pfmon task inline accounting maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::bandwidth_maintenance
+pf::pfmon::task::bandwidth_maintenance_session
 
 =cut
 
 use strict;
 use warnings;
-use pf::bandwidth_accounting qw(bandwidth_maintenance);
-use pf::config qw(%Config);
+use pf::bandwidth_accounting;
 use pf::util qw(isenabled);
 use Moose;
 extends qw(pf::pfmon::task);
 
 has 'batch' => ( is => 'rw');
-has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
 has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
-has 'history_batch' => ( is => 'rw', default => "100" );
-has 'history_timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
-has 'history_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1);
 
 =head2 run
 
-run the inline accounting maintenance task
+run the bandwidth session cleaning tasks
 
 =cut
 
 sub run {
     my ($self) = @_;
-    bandwidth_maintenance(
+    pf::bandwidth_accounting::clean_old_sessions(
+        $self->window,
         $self->batch,
         $self->timeout,
-        $self->window,
-        $self->history_batch,
-        $self->history_timeout,
-        $self->history_window,
     );
 }
 

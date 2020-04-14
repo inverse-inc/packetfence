@@ -1,4 +1,4 @@
-package pfappserver::Form::Config::Pfmon::bandwidth_maintenance;
+package pfappserver::Form::Config::Pfmon::bandwidth_maintenance_session;
 
 =head1 NAME
 
@@ -38,27 +38,6 @@ has_field 'window' => (
              help => \&timeout_help_text },
 );
 
-has_field 'history_batch' => (
-    type => 'PosInteger',
-    default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&batch_help_text },
-);
-
-has_field 'history_timeout' => (
-    type => 'Duration',
-    default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&timeout_help_text },
-);
-
-has_field 'history_window' => (
-    type => 'Duration',
-    default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&timeout_help_text },
-);
-
 =head2 default_type
 
 default value of type
@@ -66,12 +45,12 @@ default value of type
 =cut
 
 sub default_type {
-    return "bandwidth_maintenance";
+    return "bandwidth_maintenance_session";
 }
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval batch window timeout history_batch history_timeout history_window)],
+    render_list => [qw(type status interval batch window timeout)],
   );
 
 

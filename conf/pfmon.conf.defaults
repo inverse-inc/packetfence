@@ -768,18 +768,40 @@ history_timeout=10s
 #
 # How long to keep a bandwidth_accounting_history entry before deleting it
 history_window=48h
+
+[bandwidth_maintenance_session]
 #
-# session_batch
+# type
+#
+# The type of task to perform
+type=bandwidth_maintenance_session
+#
+# description
+#
+# The description of task to perform
+description=Controls the cleanup of the bandwidth accounting sessions.
+#
+# status
+#
+# If the task bandwidth_maintenance_session is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the bandwidth maintenance session cleanup pfmon task
+interval=12h
+#
+# batch
 #
 # How many session to clean up at a time
-session_batch=100
+batch=100
 #
-# session_timeout
+# timeout
 #
 # How long a session cleanup job can run
-session_timeout=10s
+timeout=10s
 #
-# session_window
+# window
 #
 # How long to keep a session open
-session_window=24h
+window=24h

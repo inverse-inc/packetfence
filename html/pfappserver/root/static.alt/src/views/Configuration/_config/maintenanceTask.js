@@ -811,10 +811,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.timeout(form, meta),
             viewFields.history_batch(form, meta),
             viewFields.history_timeout(form, meta),
-            viewFields.history_window(form, meta),
-            viewFields.session_batch(form, meta),
-            viewFields.session_timeout(form, meta),
-            viewFields.session_window(form, meta)
+            viewFields.history_window(form, meta)
           ]
         }
       ]
@@ -916,25 +913,6 @@ export const validatorFields = {
       window: {
         interval: validatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
         unit: validatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
-      }
-    }
-  },
-  session_batch: (form = {}, meta = {}) => {
-    return { session_batch: validatorsFromMeta(meta, 'session_batch', i18n.t('Batch')) }
-  },
-  session_timeout: (form = {}, meta = {}) => {
-    return {
-      session_timeout: {
-        interval: validatorsFromMeta(meta, 'session_timeout.interval', i18n.t('Interval')),
-        unit: validatorsFromMeta(meta, 'session_timeout.unit', i18n.t('Unit'))
-      }
-    }
-  },
-  session_window: (form = {}, meta = {}) => {
-    return {
-      session_window: {
-        interval: validatorsFromMeta(meta, 'session_window.interval', i18n.t('Interval')),
-        unit: validatorsFromMeta(meta, 'session_window.unit', i18n.t('Unit'))
       }
     }
   },

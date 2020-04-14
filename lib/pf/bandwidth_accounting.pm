@@ -38,7 +38,6 @@ sub bandwidth_maintenance {
     bandwidth_aggregation('hourly', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? HOUR)', 2);
     bandwidth_aggregation('daily', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? DAY)', 2);
     bandwidth_aggregation('monthly', $batch, $time_limit, 'DATE_SUB(NOW(), INTERVAL ? MONTH)', 1);
-    clean_old_sessions($session_window, $session_batch, $session_timeout);
     bandwidth_accounting_radius_to_history($batch, $time_limit, $window);
     bandwidth_aggregation_history_daily($batch, $time_limit);
     bandwidth_aggregation_history_monthly($batch, $time_limit);
@@ -247,6 +246,10 @@ sub bandwidth_accounting_history_cleanup {
 
 sub clean_old_sessions {
     my ($window, $batch, $time_limit ) = @_;
+    if ($window eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
+    }
     my $sql = <<SQL;
 UPDATE
     bandwidth_accounting,
