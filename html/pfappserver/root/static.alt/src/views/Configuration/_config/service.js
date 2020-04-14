@@ -155,19 +155,6 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'httpd.parking',
-          text: i18n.t(`Should httpd.parking be started? Keep enabled unless you know what you're doing.`),
-          cols: [
-            {
-              namespace: 'httpd_parking',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'enabled', unchecked: 'disabled' }
-              }
-            }
-          ]
-        },
-        {
           label: 'httpd.portal',
           text: i18n.t(`Should httpd.portal be started? Keep enabled unless you know what you're doing.`),
           cols: [
@@ -246,11 +233,11 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'pfbandwidthd',
-          text: i18n.t('Should pfbandwidthd be managed by PacketFence?'),
+          label: 'pfacct',
+          text: i18n.t(`Should pfacct be started? Keep enabled unless you know what you're doing.`),
           cols: [
             {
-              namespace: 'pfbandwidthd',
+              namespace: 'pfacct',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
@@ -361,6 +348,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: 'pfpki',
+          text: i18n.t(`Should pfpki be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'pfpki',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: 'pfqueue',
           text: i18n.t(`Should pfqueue be started? Keep enabled unless you know what you're doing.`),
           cols: [
@@ -405,6 +405,32 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'radiusd',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: 'radiusd-acct',
+          text: i18n.t(`Should radiusd-acct be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'radiusd_acct',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: 'radiusd-auth',
+          text: i18n.t(`Should radiusd-auth be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'radiusd_auth',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
