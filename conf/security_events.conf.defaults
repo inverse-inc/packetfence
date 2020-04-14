@@ -397,6 +397,6 @@ trigger=DEVICE::143
 trigger=custom::PROCESS_ANTIVIRUS
 actions=email_admin
 window=dynamic
-desc=Check if antivirus.exe runs
+desc=Check if antivirus.exe is running
 enabled=Y
 access_duration=12h
