@@ -442,7 +442,7 @@ sub security_event_add {
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
-        $logger->info("security event $security_event_id added for $mac");
+        $logger->info("security event $security_event_id added for $mac as $data{status}");
         if($data{status} eq 'open') {
             pf::action::action_execute( $mac, $security_event_id, $data{notes} );
             security_event_post_open_action($mac, $security_event_id);
