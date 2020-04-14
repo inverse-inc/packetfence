@@ -990,7 +990,7 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 
 === Merge of all RPM packages into one (RHEL / CentOS only)
 
-NOTE: This step need to be done *before* packages upgrade.
+NOTE: This step needs to be done *before* packages upgrade.
 
 Starting from now, PacketFence will be released as an unique RPM package for
 `x86_64` architectures. To remove properly older RPM packages, you need to follow these steps:
@@ -1025,7 +1025,7 @@ installed, this one has been upgraded to latest version.
 
 === New GPG key for Debian installations (Debian only)
 
-NOTE: This step need to be done *before* packages upgrade.
+NOTE: This step needs to be done *before* packages upgrade.
 
 In order to install new versions of Debian packages, you will need to add a new GPG key to your system: 
 
@@ -1092,7 +1092,7 @@ cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
 === Kernel development package
 
-NOTE: This step need to be done *before* packages upgrade.
+NOTE: This step needs to be done *before* packages upgrade.
 
 In this version we need to have the kernel development package that match your current kernel version in order to build the Netflow kernel module.
 
