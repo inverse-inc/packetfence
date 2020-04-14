@@ -119,6 +119,7 @@ sub options_field_names {
           node_info.sessionid
           node_info.dhcp_vendor
           node_info.unregdate
+          node_info.last_connection_type
           fingerbank_info.device_fq
           fingerbank_info.device_hierarchy_names
           fingerbank_info.device_hierarchy_ids

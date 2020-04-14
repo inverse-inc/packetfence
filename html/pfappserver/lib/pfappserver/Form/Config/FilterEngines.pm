@@ -16,6 +16,7 @@ use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
 use pf::constants::config qw(%connection_type);
+use pf::nodecategory;
 extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -53,10 +54,38 @@ has_field 'scopes' => (
 );
 
 our %ADDITIONAL_FIELD_OPTIONS = (
+    'node_info.category' => {
+        siblings => {
+            value => {
+                allowed_values => [ map { { text => $_->{name}, value => $_->{name} } } nodecategory_view_all() ],
+            },
+        },
+    },
+    'node_info.autoreg' => {
+        siblings => {
+            value => {
+                allowed_values => [ map { { text => $_, value => $_ } } ("yes", "no") ],
+            },
+        },
+    },
+    'node_info.status' => {
+        siblings => {
+            value => {
+                allowed_values => [ map { { text => $_, value => $_ } } ("reg", "unreg", "pending") ],
+            },
+        },
+    },
+    'node_info.last_connection_type' => {
+        siblings => {
+            value => {
+                allowed_values => [ map { { text => $_, value => $_ } } keys %connection_type ],
+            },
+        },
+    },
     connection_type => {
         siblings => {
             value => {
-                allowed_values => [ map { { text => $_, value => $connection_type{$_} } } keys %connection_type ],
+                allowed_values => [ map { { text => $_, value => $_ } } keys %connection_type ],
             },
         },
     },

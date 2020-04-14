@@ -11,6 +11,7 @@
 # To apply this flow to wired, see the example pf_deauth_from_wireless_secure in vlan_filters.conf.example
 
 [pf_deauth_from_wireless_secure]
+description=Prevent an autoregistered 802.1x user to switch to an Open SSID and keep the same level of access
 condition=connection_type == "Wireless-802.11-NoEAP" && node_info.last_connection_type == "Ethernet-EAP" && node_info.status == "reg" && node_info.autoreg == "yes"
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
