@@ -159,7 +159,7 @@ export default {
   },
   methods: {
     valueOptions (namespace) {
-      const { vModel: { [namespace]: field } = {} } = this
+      const { vModel: { [namespace]: { field } = {} } = {} } = this
       if (field) {
         const { options = [] } = this.fieldOperators.find(fieldOperator => {
           const { text, options = [] } = fieldOperator
