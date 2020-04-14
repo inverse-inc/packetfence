@@ -45,6 +45,10 @@ You can find a full working example
 * coa        - Attributes for CoA scope (required if radiusDisconnect is 'coa' or 'coaOrDisconnect')
 * voip       - Attributes for VOIP scope (If VOIP is enabled)
 
+=== Additional parameters
+
+* snmpDisconnect - If SNMP protocol should be use to disconnect (values: `enabled` or `disabled`)
+
 === Comments
 
 The line of a comment must begin with a '#'
