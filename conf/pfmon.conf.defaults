@@ -779,7 +779,7 @@ type=bandwidth_maintenance_session
 # description
 #
 # The description of task to perform
-description=Controls the cleanup of the bandwidth accounting sessions.
+description=Controls the cleanup of the bandwidth accounting sessions. The task has an interval of 0 since it runs manually through a cronjob.
 #
 # status
 #
@@ -789,7 +789,7 @@ status=enabled
 # interval
 #
 # At which interval to run the bandwidth maintenance session cleanup pfmon task
-interval=12h
+interval=0
 #
 # batch
 #

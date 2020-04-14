@@ -130,6 +130,8 @@ backup_db(){
             echo "Not a Galera cluster, nothing to stop"
         fi
 
+        /usr/local/pf/bin/pfcmd pfmon bandwidth_maintenance_session
+
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log

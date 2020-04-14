@@ -154,6 +154,10 @@ exit(0);
 sub registertasks  {
     for my $task_id (keys %ConfigPfmon) {
         my $task = pf::factory::pfmon::task->new($task_id);
+        if($task->interval == 0) {
+            get_logger->info("Skipping job $task_id that has an interval of 0", $task->interval);
+            next;
+        }
         next unless $task->is_enabled;
         register_task($task_id);
     }
