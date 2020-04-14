@@ -402,6 +402,7 @@ const mutations = {
   NODE_REPLACED: (state, data) => {
     state.nodeStatus = 'success'
     if (!('fingerbank' in data)) data.fingerbank = {}
+    if ('unregdate' in data && data.unregdate === '0000-00-00 00:00:00') data.unregdate = ''
     Vue.set(state.nodes, data.mac, data)
     // TODO: update items if found in it
   },
