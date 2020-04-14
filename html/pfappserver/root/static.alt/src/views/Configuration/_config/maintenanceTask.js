@@ -506,6 +506,21 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
+    case 'admin_api_audit_log_cleanup':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.status(form, meta),
+            viewFields.interval(form, meta),
+            viewFields.batch(form, meta),
+            viewFields.timeout(form, meta),
+            viewFields.window(form, meta)
+          ]
+        }
+      ]
     case 'auth_log_cleanup':
       return [
         {
@@ -518,6 +533,53 @@ export const view = (form = {}, meta = {}) => {
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
+          ]
+        }
+      ]
+    case 'bandwidth_maintenance':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.status(form, meta),
+            viewFields.interval(form, meta),
+            viewFields.batch(form, meta),
+            viewFields.window(form, meta),
+            viewFields.timeout(form, meta),
+            viewFields.history_batch(form, meta),
+            viewFields.history_timeout(form, meta),
+            viewFields.history_window(form, meta)
+          ]
+        }
+      ]
+    case 'bandwidth_maintenance_session':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.status(form, meta),
+            viewFields.interval(form, meta),
+            viewFields.batch(form, meta),
+            viewFields.timeout(form, meta),
+            viewFields.window(form, meta)
+          ]
+        }
+      ]
+    case 'certificates_check':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.status(form, meta),
+            viewFields.interval(form, meta),
+            viewFields.delay(form, meta),
+            viewFields.certificates(form, meta)
           ]
         }
       ]
@@ -544,6 +606,21 @@ export const view = (form = {}, meta = {}) => {
             viewFields.description(form, meta),
             viewFields.status(form, meta),
             viewFields.interval(form, meta)
+          ]
+        }
+      ]
+    case 'dns_audit_log_cleanup':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.status(form, meta),
+            viewFields.interval(form, meta),
+            viewFields.batch(form, meta),
+            viewFields.timeout(form, meta),
+            viewFields.window(form, meta)
           ]
         }
       ]
@@ -663,6 +740,18 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
+    case 'password_of_the_day':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.status(form, meta),
+            viewFields.interval(form, meta)
+          ]
+        }
+      ]
     case 'person_cleanup':
       return [
         {
@@ -714,36 +803,6 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
-    case 'dns_audit_log_cleanup':
-      return [
-        {
-          tab: null, // ignore tabs
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.interval(form, meta),
-            viewFields.batch(form, meta),
-            viewFields.timeout(form, meta),
-            viewFields.window(form, meta)
-          ]
-        }
-      ]
-    case 'admin_api_audit_log_cleanup':
-      return [
-        {
-          tab: null, // ignore tabs
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.interval(form, meta),
-            viewFields.batch(form, meta),
-            viewFields.timeout(form, meta),
-            viewFields.window(form, meta)
-          ]
-        }
-      ]
     case 'security_event_maintenance':
       return [
         {
@@ -771,50 +830,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
-    case 'certificates_check':
-      return [
-        {
-          tab: null, // ignore tabs
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.interval(form, meta),
-            viewFields.delay(form, meta),
-            viewFields.certificates(form, meta)
-          ]
-        }
-      ]
-    case 'password_of_the_day':
-      return [
-        {
-          tab: null, // ignore tabs
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.interval(form, meta)
-          ]
-        }
-      ]
-    case 'bandwidth_maintenance':
-      return [
-        {
-          tab: null, // ignore tabs
-          rows: [
-            viewFields.id(form, meta),
-            viewFields.description(form, meta),
-            viewFields.status(form, meta),
-            viewFields.interval(form, meta),
-            viewFields.batch(form, meta),
-            viewFields.window(form, meta),
-            viewFields.timeout(form, meta),
-            viewFields.history_batch(form, meta),
-            viewFields.history_timeout(form, meta),
-            viewFields.history_window(form, meta)
-          ]
-        }
-      ]
+      /* keys are alphabetical, please insert new tasks in order above */
     default:
       return [
         {
@@ -959,6 +975,16 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.status(form, meta),
         ...validatorFields.interval(form, meta)
       }
+    case 'admin_api_audit_log_cleanup':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.status(form, meta),
+        ...validatorFields.interval(form, meta),
+        ...validatorFields.batch(form, meta),
+        ...validatorFields.timeout(form, meta),
+        ...validatorFields.window(form, meta)
+      }
     case 'auth_log_cleanup':
       return {
         ...validatorFields.id(form, meta),
@@ -968,6 +994,37 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.batch(form, meta),
         ...validatorFields.timeout(form, meta),
         ...validatorFields.window(form, meta)
+      }
+    case 'bandwidth_maintenance':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.status(form, meta),
+        ...validatorFields.interval(form, meta),
+        ...validatorFields.batch(form, meta),
+        ...validatorFields.timeout(form, meta),
+        ...validatorFields.history_window(form, meta),
+        ...validatorFields.history_batch(form, meta),
+        ...validatorFields.history_timeout(form, meta)
+      }
+    case 'bandwidth_maintenance_session':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.status(form, meta),
+        ...validatorFields.interval(form, meta),
+        ...validatorFields.batch(form, meta),
+        ...validatorFields.timeout(form, meta),
+        ...validatorFields.window(form, meta)
+      }
+    case 'certificates_check':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.status(form, meta),
+        ...validatorFields.interval(form, meta),
+        ...validatorFields.delay(form, meta),
+        ...validatorFields.certificates(form, meta)
       }
     case 'cleanup_chi_database_cache':
       return {
@@ -984,6 +1041,16 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.description(form, meta),
         ...validatorFields.status(form, meta),
         ...validatorFields.interval(form, meta)
+      }
+    case 'dns_audit_log_cleanup':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.status(form, meta),
+        ...validatorFields.interval(form, meta),
+        ...validatorFields.batch(form, meta),
+        ...validatorFields.timeout(form, meta),
+        ...validatorFields.window(form, meta)
       }
     case 'fingerbank_data_update':
       return {
@@ -1060,6 +1127,13 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.status(form, meta),
         ...validatorFields.interval(form, meta)
       }
+    case 'password_of_the_day':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.status(form, meta),
+        ...validatorFields.interval(form, meta)
+      }
     case 'person_cleanup':
       return {
         ...validatorFields.id(form, meta),
@@ -1091,26 +1165,6 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.timeout(form, meta),
         ...validatorFields.window(form, meta)
       }
-    case 'dns_audit_log_cleanup':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.status(form, meta),
-        ...validatorFields.interval(form, meta),
-        ...validatorFields.batch(form, meta),
-        ...validatorFields.timeout(form, meta),
-        ...validatorFields.window(form, meta)
-      }
-    case 'admin_api_audit_log_cleanup':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.status(form, meta),
-        ...validatorFields.interval(form, meta),
-        ...validatorFields.batch(form, meta),
-        ...validatorFields.timeout(form, meta),
-        ...validatorFields.window(form, meta)
-      }
     case 'security_event_maintenance':
       return {
         ...validatorFields.id(form, meta),
@@ -1128,37 +1182,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.interval(form, meta),
         ...validatorFields.process_switchranges(form, meta)
       }
-    case 'certificates_check':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.status(form, meta),
-        ...validatorFields.interval(form, meta),
-        ...validatorFields.delay(form, meta),
-        ...validatorFields.certificates(form, meta)
-      }
-    case 'password_of_the_day':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.status(form, meta),
-        ...validatorFields.interval(form, meta)
-      }
-    case 'bandwidth_maintenance':
-      return {
-        ...validatorFields.id(form, meta),
-        ...validatorFields.description(form, meta),
-        ...validatorFields.status(form, meta),
-        ...validatorFields.interval(form, meta),
-        ...validatorFields.batch(form, meta),
-        ...validatorFields.timeout(form, meta),
-        ...validatorFields.history_window(form, meta),
-        ...validatorFields.history_batch(form, meta),
-        ...validatorFields.history_timeout(form, meta),
-        ...validatorFields.session_window(form, meta),
-        ...validatorFields.session_batch(form, meta),
-        ...validatorFields.session_timeout(form, meta)
-      }
+      /* keys are alphabetical, please insert new tasks in order above */
     default:
       return {}
   }
