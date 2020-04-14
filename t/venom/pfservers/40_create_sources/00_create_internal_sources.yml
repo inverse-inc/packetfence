@@ -1,0 +1,24 @@
+name: Create internal source 
+version: 2
+testcases:
+- name: create_internal_sources
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "description": "Password Of The Day Test",
+          "id": "PassOfTheDay",
+          "password_email_update": "test@inverse.ca",
+          "password_length": "8",
+          "password_rotation": "12h",
+          "type": "Potd"
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201
+                                           
