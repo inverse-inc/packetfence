@@ -31,6 +31,7 @@
         @search-change="onSearchChange($event)"
         @open="onFocus"
         @close="onBlur"
+        @tag="addTag"
       >
         <template v-slot:singleLabel="{ option }">
           {{ tagCache[option.value] }}
@@ -370,6 +371,16 @@ export default {
           this.$set(this.tagCache, value, label)
         }
       })
+    },
+    addTag (newTag) {
+      const newValue = { [this.label]: newTag, [this.trackBy]: newTag }
+      if (this.multiple) {
+        this.$set(this, 'multiselectValue', [ ...this.multiselectValue, newValue ])
+        this.focus()
+      } else {
+        this.$set(this, 'multiselectValue', newValue)
+        this.blur()
+      }
     }
   },
   watch: {

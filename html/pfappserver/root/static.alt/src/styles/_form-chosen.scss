@@ -53,7 +53,11 @@
   }
   .multiselect__option[data-select=""].multiselect__option--highlight:after,
   .multiselect__option[data-deselect=""].multiselect__option--highlight:after {
-      padding: 0;
+    background: none;
+    font-size: .7875rem;
+    font-weight: 500;
+    line-height: 1.71429;
+    height: 100%;
   }
   .multiselect__tags {
     padding-right: 40px;

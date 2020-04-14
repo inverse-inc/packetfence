@@ -61,6 +61,7 @@
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.value'"
                 :options="valueOptions(formNamespace)"
+                :taggable="true"
                 :allow-empty="false"
                 :disabled="disabled"
                 class="m-1"
