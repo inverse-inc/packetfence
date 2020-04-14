@@ -1136,6 +1136,8 @@ You can disable this service from PacketFence Web admin if you don't want such b
 
 === New PacketFence PKI in Golang
 
+NOTE: If you do not use the PacketFence PKI, you can safely ignore this step
+
 PacketFence-pki is deprecated in favour of the new packetfence pki written in golang.
 If you previously ran the PacketFence-pki you will need to migrate from the sqlite db to mysql.
 To migrate be sure that the database is running and the new pki too and do the following:
