@@ -1103,6 +1103,15 @@ In this version we need to have the kernel development package that match your c
 yum install kernel-devel-$(uname -r)
 ----
 
+The headers for your specific kernel may not be published anymore in the CentOS repository. If that is the case, then perform the following prior to the upgrade:
+
+[source,bash]
+----
+yum update kernel
+reboot
+yum install kernel-devel-$(uname -r)
+----
+
 ==== Debian based systems
 
 [source,bash]
