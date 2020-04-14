@@ -116,7 +116,7 @@ export const view = (form, meta = {}) => {
         text: key,
         types: [fieldType.OPTIONS],
         options: allowed_values.map(option => {
-          return { text: option.name, value: option.value }
+          return { text: option.name, value: option.value.toString() }
         })
       }
     } else {
