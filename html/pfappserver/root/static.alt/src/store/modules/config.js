@@ -333,16 +333,20 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
 const helpers = {
   sortSecurityEvents: (securityEvents) => {
     let sortedIds = Object.keys(securityEvents).sort((a, b) => {
+      var aDesc = securityEvents[a].desc
+      var bDesc = securityEvents[b].desc
       if (a === 'defaults') {
-        return a
-      } else if (!securityEvents[a].desc && !securityEvents[b].desc) {
+        return -1
+      } else if (b === 'defaults') {
+        return 1
+      } else if (!aDesc && !bDesc) {
         return a.localeCompare(b)
       } else if (!securityEvents[b].desc) {
-        return a
+        return -1
       } else if (!securityEvents[a].desc) {
-        return b
+        return 1
       } else {
-        return securityEvents[a].desc.localeCompare(securityEvents[b].desc)
+        return aDesc.localeCompare(bDesc)
       }
     })
     let sortedSecurityEvents = []
