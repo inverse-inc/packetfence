@@ -99,7 +99,7 @@ export const config = () => {
   }
 }
 
-export const view = (form = {}, meta = {}) => {
+export const view = (form, meta = {}) => {
   const {
     isNew = false,
     isClone = false,
@@ -174,7 +174,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'snmpDisconnect',
               component: pfFormRangeToggle,
-              attrs: attributesFromMeta(meta, 'snmpDisconnect')
+              attrs: {
+                ...attributesFromMeta(meta, 'snmpDisconnect'),
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
             }
           ]
         },
