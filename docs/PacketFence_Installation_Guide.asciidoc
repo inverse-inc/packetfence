@@ -130,8 +130,7 @@ Import to VMware Player/Workstation for Linux
 Newer version of VMware Player handles the VLAN trunking a lot better.  Having that said, we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
 
 
-Installing PacketFence on existing Linux
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Installing PacketFence on existing Linux
 
 PacketFence provides packages repository for RHEL / CentOS as well as packages repository fo Debian.
 
@@ -178,30 +177,18 @@ link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
 Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
-Red Hat-based Systems
-^^^^^^^^^^^^^^^^^^^^^
+==== RHEL / CentOS based systems
 
 NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is supported.
 
-Explicitly instruct NetworkManager to never interact with your DNS configuration (https://bugzilla.redhat.com/show_bug.cgi?id=1344303[Source]):
+Install kernel development package:
 
 [source,bash]
 ----
-echo "[main]
-dns=none" > /etc/NetworkManager/conf.d/99-no-dns.conf
-service NetworkManager restart
+yum install kernel-devel-$(uname -r)
 ----
 
-You also need to disable systemd-logind and reboot:
-
-[source,bash]
-----
-/usr/bin/systemctl --now mask systemd-logind
-reboot
-----
-
-RHEL 7.x
-++++++++
+===== RHEL 7.x
 
 NOTE: These are extra steps are required for RHEL 7 systems only, excluding derivatives such as CentOS or Scientific Linux.
 
@@ -213,11 +200,18 @@ subscription-manager repos --enable rhel-7-server-optional-rpms
 subscription-manager repos --enable rhel-7-server-extras-rpms
 ----
 
-Software Installation
-^^^^^^^^^^^^^^^^^^^^^
+==== Debian based systems
 
-RHEL / CentOS
-+++++++++++++
+Install kernel development package:
+
+[source,bash]
+----
+apt install linux-headers-$(uname -r)
+----
+
+==== Software Installation
+
+===== RHEL / CentOS based systems
 
 In order to use the PacketFence repository:
 
@@ -235,8 +229,7 @@ server, DHCP server, RADIUS server) using:
 yum install --enablerepo=packetfence packetfence
 ----
 
-Debian
-++++++
+===== Debian based systems
 
 In order to use the repository, create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
 
