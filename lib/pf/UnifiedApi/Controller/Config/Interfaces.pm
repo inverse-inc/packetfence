@@ -243,10 +243,11 @@ sub handle_management_change {
         my @management_ints = $self->configStore->search_like("type", "management", "id");
         for my $mgmt_int (@management_ints) {
             if($mgmt_int->{id} ne $self->stash->{interface_id}) {
-                $self->log->info("Management interface is currently being changed. Removing management from $mgmt_int->{id}");
+                my $id = delete $mgmt_int->{id};
+                $self->log->info("Management interface is currently being changed. Removing management from $id");
                 my $cs = $self->configStore;
                 $mgmt_int->{type} =~ s/^management,?//g;
-                $cs->update($mgmt_int->{id}, $mgmt_int);
+                $cs->update($id, $mgmt_int);
                 $cs->commit;
             }
         }
