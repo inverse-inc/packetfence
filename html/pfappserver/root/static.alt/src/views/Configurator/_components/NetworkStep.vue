@@ -28,9 +28,6 @@ export default {
     }
   },
   computed: {
-    formNetwork () {
-      return this.$store.getters['formNetwork/$form']
-    },
     interfaces () {
       return this.$store.state.$_interfaces.interfaces // Rely on InterfacesList to fetch the interfaces
     },
@@ -39,9 +36,6 @@ export default {
     },
     invalidFeedback () {
       return this.$store.getters['formNetwork/$feedbackNS']('management_type')
-    },
-    managementTypeCount () {
-      return this.interfaces.filter(i => i.type === 'management').length
     },
     disableNavigation () {
       return this.$route.name !== 'configurator-interfaces'
@@ -61,11 +55,6 @@ export default {
   created () {
     this.$store.dispatch('formNetwork/setForm', {}).then(() => {
       this.$store.dispatch('formNetwork/setFormValidations', networkValidators)
-      this.$watch('managementTypeCount', () => {
-          this.$set(this.formNetwork, 'management_type', this.managementTypeCount)
-        },
-        { immediate: true }
-      )
     })
   }
 }

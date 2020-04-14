@@ -66,6 +66,14 @@
         </template>
       </b-table>
 
+      <pf-form-row>
+        <pf-button
+          v-if="managementTypeCount === 0"
+          variant="outline-primary"
+          class="float-right"
+          @click="detectManagementInterface()">{{ $t('Detect Management Interface') }}</pf-button>
+      </pf-form-row>
+
       <hr/>
 
       <pf-form-input :column-label="$t('Default Gateway')"
@@ -85,11 +93,13 @@
 </template>
 
 <script>
+import pfButton from '@/components/pfButton'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormRow from '@/components/pfFormRow'
 import {
   columns as columnsInterface
 } from '../_config/interface'
@@ -98,11 +108,13 @@ import network from '@/utils/network'
 export default {
   name: 'interfaces-list',
   components: {
+    pfButton,
     pfButtonDelete,
     pfEmptyTable,
     pfFormChosen,
     pfFormInput,
-    pfFormRangeToggle
+    pfFormRangeToggle,
+    pfFormRow
   },
   data () {
     return {
@@ -116,6 +128,9 @@ export default {
     hostname () {
       return this.$store.getters[`formNetwork/$formNS`]('hostname')
     },
+    gateway () {
+      return this.$store.getters[`formNetwork/$formNS`]('gateway')
+    },
     rebootAlert () {
       if (this.isInterfacesLoading || typeof this.hostname  !== 'string' || this.$store.state.system.hostname === this.hostname) {
         return null
@@ -128,6 +143,9 @@ export default {
     },
     fieldsInterface () {
       return columnsInterface
+    },
+    managementTypeCount () {
+      return this.interfaces.filter(i => i.type === 'management').length
     }
   },
   methods: {
@@ -140,22 +158,8 @@ export default {
       })
       this.$store.dispatch('system/getGateway').then((gateway) => {
         this.$store.dispatch(`formNetwork/appendForm`, { gateway })
-        this.$watch('interfaces', (interfaces) => {
-            if (interfaces.filter(i => i.type === 'management').length === 0) {
-              // No interface is of type management -- force one
-              let management_interface = interfaces.find(i => {
-                return i.network && i.netmask && network.ipv4InSubnet(gateway, network.ipv4NetmaskToSubnet(i.network, i.netmask))
-              })
-              if (!management_interface) {
-                management_interface = interfaces.find(i => {
-                  return i.address && i.address.length > 0
-                })
-              }
-              if (management_interface) {
-                management_interface.type = 'management'
-                this.$store.dispatch('$_interfaces/updateInterface', management_interface)
-              }
-            }
+        this.$watch('managementTypeCount', () => {
+            this.$set(this.form, 'management_type', this.managementTypeCount)
           },
           { immediate: true }
         )
@@ -166,6 +170,23 @@ export default {
       this.$store.dispatch('system/getDnsServers').then((dns_servers) => {
         this.$store.dispatch(`formNetwork/appendForm`, { dns_servers })
       })
+    },
+    detectManagementInterface () {
+      if (this.managementTypeCount === 0) {
+        // No interface is of type management -- force one
+        let management_interface = this.interfaces.find(i => {
+          return i.network && i.netmask && network.ipv4InSubnet(this.gateway, network.ipv4NetmaskToSubnet(i.network, i.netmask))
+        })
+        if (!management_interface) {
+          management_interface = this.interfaces.find(i => {
+            return i.address && i.address.length > 0
+          })
+        }
+        if (management_interface) {
+          management_interface.type = 'management'
+          this.$store.dispatch('$_interfaces/updateInterface', management_interface)
+        }
+      }
     },
     /**
      * Interface
