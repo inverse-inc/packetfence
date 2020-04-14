@@ -129,16 +129,16 @@ on_tab=1
 
 # Detect if TCP port 25 is open (SMTP)
 # This example can be used for all TCP ports, change the value by the ports you want, example: value = ^(143|465|587)$
-[SMTP Enabled]
+[SMTP Open]
 request=select LocalPort from MSFT_NetTCPConnection
 namespace=ROOT\StandardCIMV2
 action= <<EOT
-[PortEnabled]
+[PortOpen]
 attribute = LocalPort
 operator = match
 value = 25
 
-[1:PortEnabled]
+[1:PortOpen]
 action=trigger_security_event
 action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
@@ -146,48 +146,48 @@ on_tab=0
 
 # Detect if UDP ports 137,138,139 are open (NetBIOS)
 # This example can be used for all UDP ports, change the value by the ports you want, example for SNMP: value = ^(161|162)$
-[NetBIOS Enabled]
+[NetBIOS Open]
 request=select LocalPort from MSFT_NetUDPEndpoint
 namespace=ROOT\StandardCIMV2
 action= <<EOT
-[PortEnabled]
+[PortOpen]
 attribute = LocalPort
 operator = match
 value = ^(137|138|139)$
 
-[1:PortEnabled]
+[1:PortOpen]
 action=trigger_security_event
 action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
 on_tab=0
 
-# Template to check if a specific TCP port is open, you can check the SMTP Enabled example.
+# Template to check if a specific TCP port is open, you can check the SMTP open example.
 [TCP Open]
 request=select LocalPort from MSFT_NetTCPConnection
 namespace=ROOT\StandardCIMV2
 action= <<EOT
-[PortEnabled]
+[PortOpen]
 attribute = LocalPort
 operator = match
 value = *
 
-[1:PortEnabled]
+[1:PortOpen]
 action=trigger_security_event
 action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
 on_tab=0
 
-# Template to check if a specific UDP port is enabled, you can check the NetBios Enabled example.
+# Template to check if a specific UDP port is open, you can check the NetBios open example.
 [UDP Open]
 request=select LocalPort from MSFT_NetUDPEndpoint
 namespace=ROOT\StandardCIMV2
 action= <<EOT
-[PortEnabled]
+[PortOpen]
 attribute = LocalPort
 operator = match
 value = *
 
-[1:PortEnabled]
+[1:PortOpen]
 action=trigger_security_event
 action_param = mac = $mac, tid = YOUR-CUSTOM-EVENT, type = CUSTOM
 EOT
