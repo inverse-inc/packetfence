@@ -129,7 +129,7 @@ if($master_server){
     foreach my $store (@stores) {
         my $cs = $store->new;
         my $config_file = $cs->configFile;
-        push @files, $config_file;
+        push @files, $config_file if $config_file;
     }
 
     push @files, $config_version_file;
