@@ -223,7 +223,7 @@ sub interfaces_defined {
             }
         }
 
-        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius|dhcp|dns|other)/;
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius|dhcp|dns|other|)/;
         if (defined($type) && $type !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $type for $interface" );
         }
