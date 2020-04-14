@@ -1153,7 +1153,19 @@ The file [filename]`/usr/local/pf/conf/currently-at` is no longer needed, it can
 rm -rf /usr/local/pf/conf/currently-at
 ----
 
-You also need to disable access to configurator by going in `_Configuration -> System configuration -> Main configuration -> Advanced_` menu
+You also need to disable access to configurator by putting:
+
+[source,ini]
+----
+configurator = disabled
+----
+
+in `[advanced]` section of [filename]`pf.conf` file. Then run:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd configreload hard
+----
 
 === Database schema
 
