@@ -237,6 +237,7 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     KEY bandwidth_aggregate_buckets (time_bucket, node_id, unique_session_id, in_bytes, out_bytes),
     KEY bandwidth_source_type_time_bucket (source_type, time_bucket),
     KEY bandwidth_last_updated_source_type (last_updated, source_type),
+    KEY bandwidth_node_id_unique_session_id_last_updated (node_id, unique_session_id, last_updated),
     KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
 );
 
