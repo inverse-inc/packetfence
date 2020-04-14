@@ -13,13 +13,15 @@ pf::bandwidth_accounting
 use strict;
 use warnings;
 use Exporter qw(import);
-our @EXPORT_OK = qw(bandwidth_maintenance);
+our @EXPORT_OK = qw(bandwidth_maintenance node_has_bandwidth_accounting);
+use pf::util qw(make_node_id);
 use pf::dal::bandwidth_accounting;
 use pf::dal::bandwidth_accounting_history;
 use pf::dal::node;
 use pf::error qw(is_error is_success);
 use pf::log;
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH %Config);
+use pf::constants;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::security_event;
 use pf::security_event qw(security_event_trigger);
@@ -264,6 +266,24 @@ SQL
     }
 
     $logger->info("processed $rows_updated for bandwidth_close_session ($start_time $end_time) ");
+}
+
+sub node_has_bandwidth_accounting {
+    my ($mac) = @_;
+    my $tenant_id = pf::config::tenant::get_tenant();
+    my $node_id = make_node_id($tenant_id, $mac);
+
+    my $sql = <<"SQL";
+    select sum(c) as entries from (select count(1) as c from bandwidth_accounting where node_id=? union all select count(1) as c from bandwidth_accounting_history where node_id=?) x;
+SQL
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $node_id, $node_id);
+    if (is_success($status)) {
+        my $tbl_ary_ref = $sth->fetchall_arrayref({});
+        return $tbl_ary_ref->[0]->{entries} > 0;
+    }
+    else {
+        return $FALSE;
+    }
 }
 
 =head1 AUTHOR

@@ -585,7 +585,7 @@ SQL
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $node_id, $node_id);
     if (is_success($status)) {
         my $tbl_ary_ref = $sth->fetchall_arrayref({});
-        return @$tbl_ary_ref;
+        return $tbl_ary_ref->[0];
     }
 
     return
