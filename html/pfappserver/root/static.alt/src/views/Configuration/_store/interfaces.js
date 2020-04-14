@@ -37,9 +37,11 @@ const actions = {
     })
   },
   getInterface: ({ state, commit }, id) => {
+    /* Fix #5363, always fetch a fresh copy
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
+    */
     commit('INTERFACE_REQUEST')
     return api.interface(id).then(item => {
       commit('INTERFACE_REPLACED', { ...item, id })
