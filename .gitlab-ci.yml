@@ -17,7 +17,6 @@ stages:
   - publish
   - test
   - upload
-  - post_upload
 
 ################################################################################
 # VARIABLES
@@ -190,8 +189,8 @@ variables:
     - inverse
     - shell
 
-.post_upload_rpm_packetfence-release_job:
-  stage: post_upload
+.deploy_rpm_packetfence-release_job:
+  stage: upload
   dependencies:
     - sign_dev_and_release
   variables:
@@ -462,6 +461,16 @@ deploy_rpm_dev:
     name: devel/x86_64
     url: ${PUBLIC_REPO_URL}/RHEL7/${CI_ENVIRONMENT_NAME}
 
+# we deploy packetfence-release RPM with
+# a fixed name *outside* a RPM repo
+# for first installation
+deploy_rpm_packetfence-release_dev:
+  extends:
+    - .deploy_rpm_packetfence-release_job
+    - .job_dev_triggers
+  variables:
+    PKG_DEST_NAME: packetfence-release-7.devel.noarch.rpm
+
 deploy_deb_dev:
   extends:
     - .deploy_deb_job
@@ -477,6 +486,16 @@ deploy_rpm_release:
   environment:
     name: x86_64
     url: ${PUBLIC_REPO_URL}/RHEL7/${CI_ENVIRONMENT_NAME}
+
+# we deploy packetfence-release RPM with
+# a fixed name *outside* a RPM repo
+# for first installation
+deploy_rpm_packetfence-release_release:
+  extends:
+    - .deploy_rpm_packetfence-release_job
+    - .job_release_triggers
+  variables:
+    PKG_DEST_NAME: packetfence-release-7.stable.noarch.rpm
 
 deploy_deb_release:
   extends:
@@ -494,23 +513,3 @@ deploy_maintenance:
   environment:
     name: maintenance
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
-
-########################################
-# POST_UPLOAD JOBS
-########################################
-# we deploy packetfence-release RPM with
-# a fixed name *outside* a RPM repo
-# for first installation
-post_upload_rpm_packetfence-release_dev:
-  extends:
-    - .post_upload_rpm_packetfence-release_job
-    - .job_dev_triggers
-  variables:
-    PKG_DEST_NAME: packetfence-release-7.devel.noarch.rpm
-
-post_upload_rpm_packetfence-release_release:
-  extends:
-    - .post_upload_rpm_packetfence-release_job
-    - .job_release_triggers
-  variables:
-    PKG_DEST_NAME: packetfence-release-7.stable.noarch.rpm
