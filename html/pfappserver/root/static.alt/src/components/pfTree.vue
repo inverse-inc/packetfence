@@ -20,7 +20,7 @@
           <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" reverse
             v-if="!item.not_deletable" :confirm="$t('Delete?')" @on-delete="onNodeDelete(path + item.name)"/>
           <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" reverse
-            v-else-if="!item.not_revertible" @on-delete="onNodeDelete(path + item.name)">{{ $t('Revert') }}</pf-button-delete>
+            v-else-if="!item.not_revertible" @on-delete="onNodeDelete(path + '/' + item.name)">{{ $t('Revert') }}</pf-button-delete>
           <b-button size="sm" variant="outline-secondary"
             v-if="previewPath" :href="previewPath(item)" target="_blank">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
         </div>
