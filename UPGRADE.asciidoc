@@ -109,6 +109,33 @@ To do so, run the following commands:
 systemctl stop packetfence-config
 ----
 
+==== Rebooting after services have been stopped
+
+If you reboot a standalone server or one server from a cluster after services
+have been stopped, make sure you set the systemd target to `multi-user.target`
+before rebooting:
+
+[source,bash]
+----
+systemctl set-default multi-user.target
+----
+
+Set it back to previous target after it boots up:
+
+.Cluster
+[source,bash]
+----
+systemctl set-default packetfence-cluster.target
+----
+
+.Standalone
+[source,bash]
+----
+systemctl set-default packetfence.target
+----
+
+This will make sure your services don't start up after the reboot.
+
 === Packages upgrades
 
 IMPORTANT: Again, before starting packages upgrades, make sure to go through (read) the upgrade
@@ -179,32 +206,6 @@ apt install fingerbank
 
 PacketFence and Fingerbank should now be upgraded. However, there may be extra
 steps required depending on the version you are upgrading from.
-
-==== Reboot after an upgrade
-
-If you reboot a standalone server or one server from a cluster after packages
-upgrade, make sure you set the systemd target to `multi-user.target` before rebooting:
-
-[source,bash]
-----
-systemctl set-default multi-user.target
-----
-
-Set it back to previous target after it boots up:
-
-.Cluster
-[source,bash]
-----
-systemctl set-default packetfence-cluster.target
-----
-
-.Standalone
-[source,bash]
-----
-systemctl set-default packetfence.target
-----
-
-This will make sure your services don't start up after the reboot.
 
 ==== New versions of configuration files
 
