@@ -350,7 +350,8 @@ export default {
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
                   params: {
-                    filter_graph: 'events'
+                    filter_graph: 'events',
+                    units: 'packets/s'
                   },
                   cols: 6
                 }
