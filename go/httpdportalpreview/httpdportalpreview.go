@@ -3,23 +3,26 @@ package httpdportalpreview
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"golang.org/x/net/html"
 )
 
 // Proxy structure
 type Proxy struct {
 	Portal string
-	// Scheme string
-	// Host   string
+	Uri    string
+	Ctx    context.Context
 }
 
 // NewProxy creates a new instance of proxy.
@@ -35,17 +38,27 @@ func NewProxy(ctx context.Context) *Proxy {
 // log, authorize and forward requests
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	p.Ctx = ctx
 	host := r.Host
+	previewStatic := false
 
-	queryPortal := r.URL.Query()
-	if queryPortal.Get("PORTAL") != "" {
+	params, _ := getParams(`/config/profile/(?P<Profile>.*)/preview/(?P<File>.*)`, r.RequestURI)
 
-		p.Portal = queryPortal.Get("PORTAL")
+	if _, ok := params["Profile"]; ok {
+		p.Portal = params["Profile"]
+		p.Uri = r.RequestURI
+		previewStatic = true
 	} else {
+		queryPortal := r.URL.Query()
+		if queryPortal.Get("PORTAL") != "" {
 
-		cookiePortal, err := r.Cookie("PF_PORTAL")
-		if err == nil {
-			p.Portal = cookiePortal.Value
+			p.Portal = queryPortal.Get("PORTAL")
+		} else {
+
+			cookiePortal, err := r.Cookie("PF_PORTAL")
+			if err == nil {
+				p.Portal = cookiePortal.Value
+			}
 		}
 	}
 
@@ -53,8 +66,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Scheme: "http",
 		Host:   host,
 	})
-
-	rp.ModifyResponse = p.UpdateResponse
+	// It's not a file preview
+	if previewStatic {
+		rp.ModifyResponse = p.ServeStatic
+	} else {
+		rp.ModifyResponse = p.UpdateResponse
+	}
 
 	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
 	rp.Transport = &http.Transport{
@@ -76,12 +93,25 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	Referer := r.Header.Get("Referer")
 	r.Header.Set("Referer", strings.Replace(Referer, "/portal_preview", "", -1))
 	r.RequestURI = strings.Replace(r.RequestURI, "/portal_preview", "", -1)
-
+	if previewStatic {
+		r.URL = &url.URL{Path: "/"}
+	}
 	rp.ServeHTTP(w, r)
 }
 
+// ServeStatic rewrite the portal response
+func (p *Proxy) ServeStatic(r *http.Response) error {
+	apiClient := unifiedapiclient.NewFromConfig(context.Background())
+	params, _ := getParams(`/config/profile/(?P<Profile>.*)/preview/(?P<File>.*)`, p.Uri)
+
+	buffer, _ := apiClient.CallSimpleHtml(p.Ctx, "GET", "/api/v1/config/connection_profile/"+params["Profile"]+"/preview/"+params["File"], "")
+
+	p.RewriteAnswer(r, buffer)
+	return nil
+}
+
 // UpdateResponse rewrite the portal response
-func (p *Proxy) UpdateResponse(r *http.Response) error {
+func (p *Proxy) RewriteAnswer(r *http.Response, buff []byte) error {
 	var URL []*url.URL
 	var LINK []string
 	location, _ := url.Parse(r.Header.Get("Location"))
@@ -103,9 +133,7 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 
 	r.Header.Add("Set-Cookie", cookie.String())
 
-	buf, _ := ioutil.ReadAll(r.Body)
-
-	bufCopy := bytes.NewBuffer(buf)
+	bufCopy := bytes.NewBuffer(buff)
 
 	z := html.NewTokenizer(bufCopy)
 
@@ -118,13 +146,13 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 			for _, v := range URL {
 				urlOrig := v.String()
 				v.Path = "/portal_preview" + v.EscapedPath()
-				buf = bytes.Replace(buf, []byte("\""+urlOrig+"\""), []byte("\""+v.String()+"\""), -1)
+				buff = bytes.Replace(buff, []byte("\""+urlOrig+"\""), []byte("\""+v.String()+"\""), -1)
 			}
 			for _, v := range LINK {
-				buf = bytes.Replace(buf, []byte("\""+v+"\""), []byte("\""+"/portal_preview"+v+"\""), -1)
+				buff = bytes.Replace(buff, []byte("\""+v+"\""), []byte("\""+"/portal_preview"+v+"\""), -1)
 			}
 			boeuf := bytes.NewBufferString("")
-			boeuf.Write(buf)
+			boeuf.Write(buff)
 
 			r.Body = ioutil.NopCloser(boeuf)
 
@@ -158,6 +186,14 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 	}
 }
 
+// UpdateResponse rewrite the portal response
+func (p *Proxy) UpdateResponse(r *http.Response) error {
+
+	buf, _ := ioutil.ReadAll(r.Body)
+	p.RewriteAnswer(r, buf)
+	return nil
+}
+
 // Helper function to pull the href attribute from a Token
 func getHref(t html.Token) (ok bool, href string) {
 	// Iterate over all of the Token's attributes until we find an "href"
@@ -177,5 +213,20 @@ func getHref(t html.Token) (ok bool, href string) {
 
 	// "bare" return will return the variables (ok, href) as defined in
 	// the function definition
+	return
+}
+
+func getParams(regEx, url string) (paramsMap map[string]string, err error) {
+
+	var compRegEx = regexp.MustCompile(regEx)
+	match := compRegEx.FindStringSubmatch(url)
+	err = errors.New("Doesn't match")
+	paramsMap = make(map[string]string)
+	for i, name := range compRegEx.SubexpNames() {
+		if i > 0 && i <= len(match) {
+			err = nil
+			paramsMap[name] = match[i]
+		}
+	}
 	return
 }

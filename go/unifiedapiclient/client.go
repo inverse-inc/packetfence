@@ -124,6 +124,43 @@ func (c *Client) CallWithStringBody(ctx context.Context, method, path, body stri
 	}
 }
 
+func (c *Client) CallSimpleHtml(ctx context.Context, method, path, body string) ([]byte, error) {
+	r := c.buildRequest(ctx, method, path, body)
+	resp, err := httpClient.Do(r)
+	defer c.ensureRequestComplete(ctx, resp)
+
+	if err != nil {
+		return []byte{}, err
+	}
+
+	// Lower than 400 is a success
+	if resp.StatusCode < 400 {
+		res, err := ioutil.ReadAll(resp.Body)
+		return res, err
+
+		// If we got a 401 and aren't currently logging in then we try to login and retry the request
+	} else if resp.StatusCode == http.StatusUnauthorized && path != API_LOGIN_PATH {
+		log.LoggerWContext(ctx).Info("Request isn't authorized, performing login against the Unified API")
+		err := c.login(ctx)
+
+		if err != nil {
+			return []byte{}, err
+		}
+
+		return c.CallSimpleHtml(ctx, method, path, body)
+	} else {
+		errRep := ErrorReply{}
+		dec := json.NewDecoder(resp.Body)
+		err := dec.Decode(&errRep)
+
+		if err != nil {
+			return []byte{}, errors.New("Error body doesn't follow the Unified API standard, couldn't extract the error message from it.")
+		}
+
+		return []byte{}, errors.New(errRep.Message)
+	}
+}
+
 // Ensures that the full body is read and closes the reader so that the connection can be reused
 func (c *Client) ensureRequestComplete(ctx context.Context, resp *http.Response) {
 	if resp == nil {
