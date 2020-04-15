@@ -73,29 +73,27 @@ tags, see table below for equivalence:
 
 
 .Compatibility between AsciiDoc and Asciidoctor syntax for section titles
-// l means literal
-[cols="d,l,d"]
 |===
 |Level |AsciiDoc syntax (old) |Asciidoctor syntax (new)
 
 |Level 0 (Document title)
-|=====
+|`=====`
 |`=`
 
 |Level 1
-|-----
+|`-----`
 |`==`
 
 |Level 2
-|~~~~~
+|`~~~~~`
 |`===`
 
 |Level 3
-|^^^^^
+|`^^^^^`
 |`====`
 
 |Level 4
-|+++++
+|`+++++`
 |`=====`
 |===
 
