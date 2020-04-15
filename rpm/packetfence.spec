@@ -1284,7 +1284,7 @@ fi
 # Changelog
 #==============================================================================
 %changelog
-* Thu Apr 15 2020 Inverse <info@inverse.ca> - 10.0.0-1
+* Wed Apr 14 2020 Inverse <info@inverse.ca> - 10.0.0-1
 - New release 10.0.0
 
 * Mon Jan 13 2020 Inverse <info@inverse.ca> - 9.3.0-1
