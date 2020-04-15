@@ -37,12 +37,15 @@ core.register_action("admin", { "http-req" }, function(txn)
         txn:set_var("req.path", path)
         txn:set_var("req.action",ip .. "-netdata")
     elseif ( string.match(txn.sf:path(), '^/portal_preview') ) then
-        --local params = parseurl(txn.sf:query())
         local path = txn.sf:path():match("^/portal_preview(.*)")
         txn:set_var("req.path", path)
         txn:set_var("req.action","[% portal %]" .. "-portal")
+    elseif ( string.match(txn.sf:path(), '^/config/profile') ) then
+        local path = txn.sf:path():match("^(.*)")
+        txn:set_var("req.path", path)
+        txn:set_var("req.action","[% portal %]" .. "-portal")
     else
-        -- do nothing, use teh default backend
+        -- do nothing, use the default backend
     end
 end)
 
