@@ -1,0 +1,21 @@
+name: Create nodes
+version: 2
+testcases:
+- name: create_nodes
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/nodes'
+      ignore_verify_ssl: true
+      body: >-
+        { 
+          "mac": "{{.node_mac}}",
+          "status": "reg",
+          "unregdate": "{{.node_unregdate}}"
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201
+
