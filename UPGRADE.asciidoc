@@ -1113,6 +1113,8 @@ reboot
 yum install kernel-devel-$(uname -r)
 ----
 
+NOTE: Be sure to follow instructions in <<_rebooting_after_services_have_been_stopped>> section to ensure services will not restart.
+
 ==== Debian based systems
 
 [source,bash]
