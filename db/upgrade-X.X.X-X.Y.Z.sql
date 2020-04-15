@@ -30,6 +30,31 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 
 --
+-- Updating to current version
+--
+DELIMITER //
+CREATE PROCEDURE ValidateVersion()
+BEGIN
+    DECLARE PREVIOUS_VERSION int(11);
+    DECLARE PREVIOUS_VERSION_STRING varchar(11);
+    DECLARE _message varchar(255);
+    SELECT id, version INTO PREVIOUS_VERSION, PREVIOUS_VERSION_STRING FROM pf_version ORDER BY id DESC LIMIT 1;
+
+      IF PREVIOUS_VERSION != @PREV_VERSION_INT THEN
+        SELECT CONCAT('PREVIOUS VERSION ', PREVIOUS_VERSION_STRING, ' DOES NOT MATCH ', CONCAT_WS('.', @PREV_MAJOR_VERSION, @PREV_MINOR_VERSION, @PREV_SUBMINOR_VERSION)) INTO _message;
+        SIGNAL SQLSTATE VALUE '99999'
+              SET MESSAGE_TEXT = _message;
+      END IF;
+END
+//
+
+DELIMITER ;
+\! echo "Checking PacketFence schema version...";
+call ValidateVersion;
+DROP PROCEDURE IF EXISTS ValidateVersion;
+
+
+--
 -- Create the pki table cas
 --
 
@@ -180,29 +205,6 @@ CREATE TABLE IF NOT EXISTS `pki_revoked_certs` (
   KEY `revoked` (`revoked`)
 ) ENGINE=InnoDB;
 
---
--- Updating to current version
---
-DELIMITER //
-CREATE PROCEDURE ValidateVersion()
-BEGIN
-    DECLARE PREVIOUS_VERSION int(11);
-    DECLARE PREVIOUS_VERSION_STRING varchar(11);
-    DECLARE _message varchar(255);
-    SELECT id, version INTO PREVIOUS_VERSION, PREVIOUS_VERSION_STRING FROM pf_version ORDER BY id DESC LIMIT 1;
-
-      IF PREVIOUS_VERSION != @PREV_VERSION_INT THEN
-        SELECT CONCAT('PREVIOUS VERSION ', PREVIOUS_VERSION_STRING, ' DOES NOT MATCH ', CONCAT_WS('.', @PREV_MAJOR_VERSION, @PREV_MINOR_VERSION, @PREV_SUBMINOR_VERSION)) INTO _message;
-        SIGNAL SQLSTATE VALUE '99999'
-              SET MESSAGE_TEXT = _message;
-      END IF;
-END
-//
-
-DELIMITER ;
-\! echo "Checking PacketFence schema version...";
-call ValidateVersion;
-DROP PROCEDURE IF EXISTS ValidateVersion;
 
 --
 -- Table structure for table `dhcppool`
