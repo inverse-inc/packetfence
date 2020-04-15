@@ -100,7 +100,7 @@ variables:
     - schedules
 
 .job_devel_only_triggers:
-  # run jobs on "devel" branch (push, schedules and web)
+  # run only jobs on "devel" branch (push, schedules and web)
   only:
     - /^devel$/
 

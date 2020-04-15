@@ -10,7 +10,7 @@ packetfence_install__deb:
   repos:
     - debian
     - debian-devel
-    # - debian-branches
+    - debian-branches
 
 # Replace by *exact* name of your package
 packetfence_install__centos_packages:
