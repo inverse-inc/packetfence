@@ -522,12 +522,20 @@ deploy_rpm_packetfence-release_release:
   variables:
     PKG_DEST_NAME: packetfence-release-7.stable.noarch.rpm
 
-deploy_deb_dev:
+deploy_deb_devel:
   extends:
     - .deploy_deb_job
-    - .job_dev_triggers
+    - .job_devel_only_triggers
   environment:
     name: debian-devel
+    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+
+deploy_deb_branches:
+  extends:
+    - .deploy_deb_job
+    - .job_branches_only_triggers
+  environment:
+    name: debian-branches
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
 deploy_deb_release:
