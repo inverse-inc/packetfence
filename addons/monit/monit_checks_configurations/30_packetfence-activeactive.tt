@@ -1,11 +1,5 @@
 # PacketFence active-active clustering checks
 
-CHECK PROCESS packetfence-keepalived MATCHING "keepalived"
-    group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service keepalived restart" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service keepalived stop"
-    if 3 restarts within 10 cycles then alert
-
 CHECK PROCESS packetfence-radiusd-load_balancer MATCHING "pf/raddb -n load_balancer"
     group PacketFence
     start program = "[% SERVICE_BIN %] packetfence-radiusd-load_balancer restart"
