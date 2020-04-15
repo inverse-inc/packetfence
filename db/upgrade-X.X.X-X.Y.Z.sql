@@ -57,7 +57,6 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 --
 -- Create the pki table cas
 --
-
 \! echo "Creating table 'pki_cas'...";
 CREATE TABLE IF NOT EXISTS `pki_cas` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -91,10 +90,10 @@ CREATE TABLE IF NOT EXISTS `pki_cas` (
   KEY `idx_cas_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2;
 
+
 --
 -- Create the pki table certs
 --
-
 \! echo "Creating table 'pki_certs'...";
 CREATE TABLE IF NOT EXISTS `pki_certs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -133,7 +132,6 @@ CREATE TABLE IF NOT EXISTS `pki_certs` (
 --
 -- Create the pki table profiles
 --
-
 \! echo "Creating table 'pki_profiles'...";
 CREATE TABLE IF NOT EXISTS `pki_profiles` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -165,7 +163,6 @@ CREATE TABLE IF NOT EXISTS `pki_profiles` (
 --
 -- Create the pki table revoked_certs
 --
-
 \! echo "Creating table 'pki_revoked_certs'...";
 CREATE TABLE IF NOT EXISTS `pki_revoked_certs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -223,7 +220,11 @@ CREATE TABLE IF NOT EXISTS dhcppool (
   KEY released (released)
 ) ENGINE=INNODB;
 
-\! echo "Adding new table bandwidth_accounting";
+
+--
+-- Table structure for table `bandwidth_accounting`
+--
+\! echo "Creating table 'bandwidth_accounting'...";
 CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     node_id BIGINT UNSIGNED NOT NULL,
     unique_session_id BIGINT UNSIGNED NOT NULL,
@@ -243,16 +244,17 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting (
     KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
 );
 
-\! echo "Alter table radius_nas";
+
+\! echo "Altering table 'radius_nas'...";
 ALTER TABLE radius_nas
   ADD COLUMN IF NOT EXISTS unique_session_attributes varchar(255),
   ADD INDEX IF NOT EXISTS radius_nas_start_ip_end_ip (start_ip, end_ip);
 
+
 --
 -- Table structure for table `bandwidth_accounting_history`
 --
-
-\! echo "Adding new table bandwidth_accounting_history";
+\! echo "Creating table 'bandwidth_accounting_history'...";
 CREATE TABLE IF NOT EXISTS bandwidth_accounting_history (
     node_id BIGINT UNSIGNED NOT NULL,
     time_bucket DATETIME NOT NULL,
@@ -266,6 +268,8 @@ CREATE TABLE IF NOT EXISTS bandwidth_accounting_history (
     KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
 );
 
+
+\! echo "Creating stored procedures for 'bandwidth_accounting'...";
 CREATE OR REPLACE FUNCTION ROUND_TO_HOUR (d DATETIME)
     RETURNS DATETIME DETERMINISTIC
         RETURN DATE_ADD(DATE(d), INTERVAL HOUR(d) HOUR);
@@ -489,8 +493,10 @@ BEGIN
 END /
 DELIMITER ;
 
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+
 
 \! echo "Upgrade completed successfully.";
 
