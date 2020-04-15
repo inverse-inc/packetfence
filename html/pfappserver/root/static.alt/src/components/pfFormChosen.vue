@@ -373,12 +373,11 @@ export default {
       })
     },
     addTag (newTag) {
-      const newValue = { [this.label]: newTag, [this.trackBy]: newTag }
       if (this.multiple) {
-        this.$set(this, 'multiselectValue', [ ...this.multiselectValue, newValue ])
+        this.$set(this, 'inputValue', [ ...this.inputValue, newTag ])
         this.focus()
       } else {
-        this.$set(this, 'multiselectValue', newValue)
+        this.$set(this, 'inputValue', newTag)
         this.blur()
       }
     }
