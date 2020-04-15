@@ -1618,7 +1618,7 @@ MariaDB> truncate TABLE_NAME;
 
 ===== Preliminary steps
 
-First, on stop the galera-autofix service on all the nodes of your cluster
+First, stop the galera-autofix service on all the nodes of your cluster
 
 [source,bash]
 ----
