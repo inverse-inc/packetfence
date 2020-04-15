@@ -94,7 +94,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.Header.Set("Referer", strings.Replace(Referer, "/portal_preview", "", -1))
 	r.RequestURI = strings.Replace(r.RequestURI, "/portal_preview", "", -1)
 	if previewStatic {
-		r.URL = &url.URL{Path: "/"}
+		r.URL = &url.URL{Path: "/captive-portal"}
 	}
 	rp.ServeHTTP(w, r)
 }
