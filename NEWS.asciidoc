@@ -18,7 +18,7 @@ New Features
 ++++++++++++
 * Added support for network anomaly detection through Fingerbank
 * New, fully integrated PacketFence PKI service
-* New service for automatic clustering issues resolution
+* New service for automatic clustering issue resolution
 * New GUI for all filtering engines and switch templates
 * New API and Vue.js based step-by-step configurator
 * Added VMware Airwatch support
@@ -34,9 +34,9 @@ Enhancements
 * Support Aruba switches using Aruba OS 16.10
 * Added a new Meru controller module that supports RADIUS RFC3576 (RADIUS Disconnect)
 * CLI login to Juniper switches
-* Allow to configure VOIP RADIUS atrributes in switch templates
+* Allow to configure VOIP RADIUS attributes in switch templates
 * All configuration files have a copyright without year to avoid useless rpmnew or dpkg-dist files each yearly upgrade
-* Unifi: improve deauthentication using HTTP
+* Improved Unifi deauthentication using HTTP
 * Set TTL to 5 seconds when the host match with a captive portal detection host
 * Enable tracking configuration service by default
 * Better captive portal detection for Samsung devices
@@ -65,9 +65,9 @@ Bug Fixes
 * Some DHCP info triggers use outdated Fingerbank data (#5106)
 * Issue with the timezone in the admin not being honored on the system (#5205)
 * Issue with chrome who don't show the portal on self signed certificate (#5233)
-* Issue with RADIUS CLI access and ldap authentication source where the cache is enabled. (#5018)
-* Distribute pfsnmp trap jobs between queues based off switch id. (#5004)
-* Deleting a portal profile doesn't cleanup it's templates (#793)
+* Issue with RADIUS CLI access and ldap authentication source where the cache is enabled (#5018)
+* Distribute pfsnmp trap jobs between queues based off switch id (#5004)
+* Deleting a portal profile doesn't cleanup its templates (#793)
 * pfacct doesn't report metrics to dashboard (#5267)
 
 Version 9.3.0 released on 2020-01-13
