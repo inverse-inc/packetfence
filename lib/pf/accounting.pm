@@ -78,6 +78,19 @@ Readonly our $ACCOUNTING_TRIGGER_RE => qr/
 Readonly our $DIRECTION_IN => 'IN';
 Readonly our $DIRECTION_OUT => 'OUT';
 
+my %grouping_dates = (
+    daily   => 'DATE(time_bucket)',
+    weekly  => 'DATE_SUB(DATE(time_bucket), INTERVAL WEEKDAY(time_bucket) DAY)',
+    monthly => 'DATE_ADD(DATE(time_bucket),INTERVAL -DAY(time_bucket)+1 DAY)',
+    yearly  => 'DATE_ADD(DATE(time_bucket),INTERVAL -DAYOFYEAR(time_bucket)+1 DAY)',
+);
+
+my %direction_field = (
+    IN  => 'in_bytes',
+    OUT => 'out_bytes',
+    TOT => 'total_bytes',
+);
+
 =head1 SUBROUTINES
 
 =over
@@ -125,28 +138,31 @@ sub acct_maintenance {
             $logger->info("Found timeframed accounting policy : $acct_policy for security_event $security_event_id");
 
             # Grab the list of the mac address first without caring about the security_events
-            my $releaseDate = "0000-00-00 00:00:00";
-            my @results = node_acct_maintenance_bw($direction, $interval, $releaseDate, $bwInBytes);
-            # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last security_event if needed.
-            foreach my $mac (@results) {
-                my $cleanedMac = clean_mac($mac->{'mac'});
+            my $next = 0;
+            my $results;
+            while (defined $next) {
+                ($next, $results) = next_node_acct_maintenance_bw($next, 100, $direction, $interval, $bwInBytes);
+                # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last security_event if needed.
+                foreach my $mac (@$results) {
+                    my $cleanedMac = clean_mac($mac->{'mac'});
 
-                #Do we have a closed security_event for the current mac
-                $logger->info("Looking if we have a closed security_event in the present window for mac $cleanedMac and security_event_id $security_event_id");
+                    #Do we have a closed security_event for the current mac
+                    $logger->info("Looking if we have a closed security_event in the present window for mac $cleanedMac and security_event_id $security_event_id");
 
-                if (security_event_exist_acct($cleanedMac, $security_event_id, $interval)) {
-                    $logger->info("We have a closed security_event in the interval window for node $cleanedMac, need to recalculate using the last security_event release date");
-                    $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
-                    $history_added = $TRUE;
-                    my @security_event = security_event_view_last_closed($cleanedMac,$security_event_id);
-                    $releaseDate = $security_event[0]{'release_date'};
-                    if (node_acct_maintenance_bw_exists($mac->{tenant_id}, $mac->{mac}, $direction, $interval, $releaseDate, $bwInBytes)) {
-                          security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                    if (security_event_exist_acct($cleanedMac, $security_event_id, $interval)) {
+                        $logger->info("We have a closed security_event in the interval window for node $cleanedMac, need to recalculate using the last security_event release date");
+                        $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
+                        $history_added = $TRUE;
+                        my @security_event = security_event_view_last_closed($cleanedMac,$security_event_id);
+                        my $releaseDate = $security_event[0]{'release_date'};
+                        if (node_acct_maintenance_bw_exists($mac->{tenant_id}, $mac->{mac}, $direction, $interval, $releaseDate, $bwInBytes)) {
+                              security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                        }
+                    } else {
+                        $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
+                        $history_added = $TRUE;
+                        security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                     }
-                } else {
-                    $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
-                    $history_added = $TRUE;
-                    security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                 }
             }
         }
@@ -159,6 +175,53 @@ sub acct_maintenance {
     # Commit the data and give 3 times the acct_maintenance interval as a TTL which should be plenty for the next loop to populate this again
     $events_history->commit($events_history_hash, $ConfigPfmon{acct_maintenance}{interval}*3) if $history_added;
     return $TRUE;
+}
+
+sub next_node_acct_maintenance_bw {
+    my ($start, $limit, $direction, $interval, $bytes) = @_;
+    my $find_min_max_sql = <<SQL;
+    SELECT MIN(node_id), MAX(node_id) from (
+    (SELECT node_id FROM bandwidth_accounting node_id WHERE node_id > ? GROUP BY node_id ORDER BY node_id LIMIT ?)
+    UNION (SELECT node_id FROM bandwidth_accounting_history node_id WHERE node_id > ? GROUP BY node_id ORDER BY node_id LIMIT ?)) as x ;
+SQL
+
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($find_min_max_sql, $start, $limit, $start, $limit);
+    my ($min, $max) = $sth->fetchrow_array();
+    $sth->finish;
+    if (!defined $max) {
+        return (undef, undef);
+    }
+    my $field = $direction_field{$direction};
+    my $date = $grouping_dates{$interval};
+    my $sql2 = <<"SQL";
+SELECT
+    tenant_id,
+    mac,
+    SUM($field) as $field FROM (
+        SELECT 
+            $date AS time_bucket,
+            node_id,
+            tenant_id,
+            mac,
+            SUM($field) AS $field 
+        FROM bandwidth_accounting
+        WHERE node_id BETWEEN ? AND ? GROUP BY node_id, $date 
+        UNION ALL SELECT 
+            $date AS time_bucket,
+            node_id,
+            tenant_id,
+            mac,
+            SUM($field) AS $field 
+        FROM bandwidth_accounting_history
+        WHERE node_id BETWEEN ? AND ? GROUP BY node_id, $date 
+        ) AS X GROUP BY node_id, time_bucket HAVING SUM($field) >= ?;
+SQL
+
+    ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql2, $min, $max, $min, $max, $bytes);
+
+    my $r = $sth->fetchall_arrayref({});
+    $sth->finish;
+    return ($max, $r);
 }
 
 =item current_sessionid
@@ -509,19 +572,6 @@ sub cleanup {
     pf::dal::radacct_log->batch_remove(\%params, $time_limit);
     return;
 }
-
-my %grouping_dates = (
-    daily   => 'DATE(time_bucket)',
-    weekly  => 'DATE_SUB(DATE(time_bucket), INTERVAL WEEKDAY(time_bucket) DAY)',
-    monthly => 'DATE_ADD(DATE(time_bucket),INTERVAL -DAY(time_bucket)+1 DAY)',
-    yearly  => 'DATE_ADD(DATE(time_bucket),INTERVAL -DAYOFYEAR(time_bucket)+1 DAY)',
-);
-
-my %direction_field = (
-    IN  => 'in_bytes',
-    OUT => 'out_bytes',
-    TOT => 'total_bytes',
-);
 
 sub node_acct_maintenance_bw {
     my ($direction, $interval, $releaseDate, $bytes) = @_;
