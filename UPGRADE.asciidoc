@@ -1095,7 +1095,7 @@ cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
 NOTE: This step needs to be done *before* packages upgrade.
 
-In this version we need to have the kernel development package that match your current kernel version in order to build the Netflow kernel module.
+In this version we need to have the kernel development package that matches your current kernel version in order to build the Netflow kernel module.
 
 ==== RHEL / CentOS based systems
 
@@ -1133,22 +1133,22 @@ In this case you should ensure that you reboot the server after completing all t
 === Tracking configuration service enabled by default
 
 `packetfence-tracking-config` service is now enabled by default. It means that all
-manual changes to configuration files will be recorded, included passwords.
+manual changes to configuration files will be recorded, including passwords.
 
-You can disable this service from PacketFence Web admin if you don't want such behavior.
+You can disable this service from PacketFence web admin if you don't want such behavior.
 
 === New PacketFence PKI in Golang
 
 NOTE: If you do not use the PacketFence PKI, you can safely ignore this step
 
-PacketFence-pki is deprecated in favour of the new packetfence pki written in golang.
-If you previously ran the PacketFence-pki you will need to migrate from the sqlite db to mysql.
-To migrate be sure that the database is running and the new pki too and do the following:
+PacketFence-pki is deprecated in favour of the new PacketFence PKI written in Golang.
+If you previously used the PacketFence-pki you will need to migrate from the SQLite database to MariaDB.
+To migrate, be sure that the database is running and the new PKI too and do the following:
 
   /usr/local/pf/addons/upgrade/to-10.0-packetfence-pki-migrate.pl
 
-Next edit the pki providers (Configuration -> PKI Providers) and redefined the profile to use.
-And if you use oscp then change the url to use this one:
+Next edit the PKI providers (Configuration -> PKI Providers) and redefine the profile to use.
+Finally, if you use OCSP then change the URL to use this one:
 http://127.0.0.1:22225/api/v1/pki/ocsp
 
 === New MariaDB Galera recovery service
@@ -1188,8 +1188,8 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.3.0-10.0.0.sql
 
 === Database Privileges
 
-Some queries now need CREATE TEMPORARY TABLE priviledge.
-You will be prompted for the mysql root password when running this script;
+Some queries now need CREATE TEMPORARY TABLE privilege.
+You will be prompted for the MariaDB root password when running this script:
 
 [source,bash]
 ----
@@ -1199,7 +1199,7 @@ You will be prompted for the mysql root password when running this script;
 === Filter Engine
 
 We are now using a new format for the VLAN/DNS/DHCP/RADIUS/Switch filters.
-This script will convert the old format to the new one.
+This script will convert the old format to the new one:
 
 [source,bash]
 ----
