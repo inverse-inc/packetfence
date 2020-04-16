@@ -31,6 +31,9 @@ if [ -e "$CURRENT_SCHEMA" ]; then
     LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -1)
 else
     CURRENT_SCHEMA="$PF_DIR/db/pf-schema.sql"
+    if [ ! -f "$CURRENT_SCHEMA" ]; then
+        CURRENT_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -1 )
+    fi
     LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -2 | tail -1)
     UPGRADE_SCRIPT=$(ls $PF_DIR/db/upgrade-[0-9]*sql | sort --version-sort -r | head -1)
 fi
