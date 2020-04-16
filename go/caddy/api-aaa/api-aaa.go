@@ -29,11 +29,12 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminActions []string   `json:"admin_actions"`
-	AdminRoles   []string   `json:"admin_roles"`
-	TenantId     aaa.Tenant `json:"tenant"`
-	Username     string     `json:"username"`
-	ExpiresAt    time.Time  `json:"expires_at"`
+	AdminActions []string     `json:"admin_actions"`
+	AdminRoles   []string     `json:"admin_roles"`
+	TenantId     aaa.Tenant   `json:"tenant"`
+	Tenants      []aaa.Tenant `json:"tenants"`
+	Username     string       `json:"username"`
+	ExpiresAt    time.Time    `json:"expires_at"`
 }
 
 type ApiAAAHandler struct {
@@ -175,6 +176,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 			AdminActions: make([]string, len(info.AdminActions())),
 			AdminRoles:   make([]string, len(info.AdminRoles)),
 			TenantId:     info.TenantId,
+			Tenants:      info.Tenants,
 			Username:     info.Username,
 			ExpiresAt:    expiration,
 		}

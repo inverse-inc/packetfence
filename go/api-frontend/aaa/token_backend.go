@@ -23,7 +23,7 @@ const (
 type TokenInfo struct {
 	AdminRoles map[string]bool
 	TenantId   Tenant
-	Tenents    []Tenant
+	Tenants    []Tenant
 	Username   string
 	CreatedAt  time.Time
 }
