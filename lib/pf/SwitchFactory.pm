@@ -23,7 +23,7 @@ use pf::freeradius;
 use Module::Load;
 use Benchmark qw(:all);
 use List::Util qw(first);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::CHI;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
@@ -211,6 +211,11 @@ sub getTemplateArgs {
     }
 
     return {};
+}
+
+sub isTemplate {
+    my ($type) = @_;
+    return defined $type && exists $TemplateSwitches{$type};
 }
 
 sub config {

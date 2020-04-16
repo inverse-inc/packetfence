@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 62;
+use Test::More tests => 64;
 use Test::NoWarnings;
 
 BEGIN {
@@ -130,6 +130,11 @@ is($switch->{_id}, '192.168.190.217', "Proper id is set for 192.168.190.217");
 $switch = pf::SwitchFactory->instantiate('172.16.8.25');
 isa_ok($switch, 'pf::Switch::Template');
 is(ref($switch->{_template}), 'HASH', "template args are passed");
+
+
+ok(pf::SwitchFactory::isTemplate("AeroHIVE::Access_Point"), "AeroHIVE::Access_Point is a template");
+
+ok(!pf::SwitchFactory::isTemplate("Cisco::Catalyst_2960"), "Cisco::Catalyst_2960 is not a template");
 
 =head1 AUTHOR
 
