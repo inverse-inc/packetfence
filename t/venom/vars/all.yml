@@ -1,5 +1,8 @@
 ---
-# variables assigned based on environment variables
+################################################################################
+# Global variables
+################################################################################
+# Variables assigned based on environment variables
 venom_result_dir: '{{.VENOM_RESULT_DIR}}'
 pfserver_token: '{{.TOKEN}}'
 pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
@@ -18,15 +21,12 @@ ad_domain_admin_user: vagrant-domain
 ad_domain_admin_password: VagrantPass1
 ad_base_dn: dc=example,dc=lan
 
-
 # switchs variables
 switch01_mgmt_ip: 172.17.17.201
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
 
-
-### Actions for rules
 # Roles
 dot1x_user_role.id: user-staff
 dot1x_user_role.notes: Staff
@@ -44,13 +44,6 @@ access_duration.default_choice: "5m"
 access_level_user_and_node.id: user-and-node-manager
 access_level_user_and_node.description: Users and Nodes management
 
-### Sources
-# AD sources
-ad_user_source.name: ad-user-auth
-ad_user_source.description: '{{.ad_mgmt_ip}} user authentication'
-ad_machine_source.name: ad-machine-auth
-ad_machine_source.description: '{{.ad_mgmt_ip}} machine authentication'
-
 ### Network devices
 # Switch group
 cumulus_switch_group.id: cumulus-switch-group
@@ -60,6 +53,15 @@ cumulus_switch_group.radiusSecret: testing123
 # Switch
 cumulus_switch.id: '{{.switch01_mgmt_ip}}'
 cumulus_switch.description: switch01
+
+################################################################################
+# dot1x_eap_peap test suite specific variables
+################################################################################
+# Sources
+dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
+dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+dot1x_eap_peap.sources.ad_machine.name: dot1x_eap_peap_machine_auth
+dot1x_eap_peap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
 
 ### Connection profiles
 # dot1x wired eap
