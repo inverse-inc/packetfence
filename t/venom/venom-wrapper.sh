@@ -36,7 +36,8 @@ configure_and_check() {
     declare -p VENOM_RESULT_DIR VENOM_VARS_FILE
     VENOM_BINARY="${VENOM_BINARY:-`which venom`}"
     VENOM_FORMAT=${VENOM_FORMAT:-tap}
-    VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --var-from-file ${VENOM_VARS_FILE}}"
+    VENOM_PARALLEL_NBER=${VENOM_PARALLEL_NBER:-1}
+    VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --var-from-file ${VENOM_VARS_FILE} --parallel ${VENOM_PARALLEL_NBER}}"
     VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:---strict --stop-on-failure}"
 
     # dirty hack: --exclude is added at end of venom command even if no files are excluded
