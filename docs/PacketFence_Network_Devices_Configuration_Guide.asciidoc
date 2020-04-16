@@ -6377,6 +6377,23 @@ controller so that controller gets link:https://help.ubnt.com/hc/en-us/articles/
 
 ===== PacketFence side
 
+You have two choices to define the APs in PacketFence, by ip address (or range) or by MAC addresses.
+
+By IP address:
+
+If you decide to define the AP by ip then you will need to define the controller as a switch and define the Controller IP and Webservices information (Transport/Username/Password) in his configuration.
+
+Then once done, restart pfmon service and run that to fill the PacketFence cache:
+
+ /usr/local/pf/bin/pfcmd pfmon ubiquiti_ap_mac_to_ip
+
+And verify that you have an entry for each AP
+
+ /usr/local/pf/bin/pfcmd cache switch_distributed list
+
+
+By MAC address:
+
 Once this is done, you will need to define all your APs MAC addresses in the PacketFence switches with a configuration similar to this:
 
   [00:11:22:33:44:55]
@@ -6403,56 +6420,34 @@ In order to configure VLAN enforcement on the Unifi controller, you need first t
 
 Important : You cannot reuse a VLAN ID for dynamic VLAN if it is set as a static value for another SSID on the same AP. So, if you have a SSID set to use VLAN 10, you cannot use VLAN ID 10 for RADIUS controlled VLAN users as those users will not get an IP address.
 
-Note that VLAN enforcement for an open SSID is not supported yet by the controller and access point.
-
 ===== AAA Configuration
 
 
 image::unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile"]
 
+image::unifi-radius2.png[[scaledwidth="100%",alt="Unifi Radius Profile"]
+
+===== Open SSID
+
+Create a open profile:
+
+image::unifi-open.png[scaledwidth="100%",alt="Unifi Open Profile"]
+
+image::unifi-open2.png[[scaledwidth="100%",alt="Unifi Open Profile"]
+
+
 ===== Secure SSID
 
 
-There is a special case when you want to be able to deauthenticate a device when it is connected on the secure SSID.
-
-By default pmksa caching is enabled and applies even when a deauthentication request is sent to the controller, meaning you will not get a new RADIUS request afterwards. To disable this cache you will need to create a file on the controller.
-
-First verify the site where your access point is managed. To do this, under the administration interface of the controller, select the appropriate "Current Site" then in the URI check the value just after site.
-
-In this case the URL is https://192.168.1.6:8443/manage/site/4j4ee7x4/ so the site id is 4j4ee7x4.
-
-Next connect on the controller via SSH and go in /usr/lib/unifi/data/sites/4j4ee7x4 (replace 4j4ee7x4 with your site id) and create a file named config.properties with the following content:
-
- config.system_cfg.1=aaa.1.auth_cache=disabled
- config.system_cfg.2=aaa.4.auth_cache=disabled
-
-The numbers 1 and 4 are the profile id configured on the access point. To be sure you have the correct id, you can connect on the access point via SSH or via the debug terminal and do:
-
-  BZ.v3.9.3# cat /tmp/system.cfg | grep ssid
-  aaa.1.ssid=PacketFence-Secure
-  wireless.1.ssid=PacketFence-Secure
-  wireless.1.hide_ssid=false
-  aaa.2.ssid=PacketFence-Public
-  wireless.2.ssid=PacketFence-Public
-  wireless.2.hide_ssid=false
-  aaa.3.ssid=vport-802AA8863D5B
-  wireless.3.ssid=vport-802AA8863D5B
-  wireless.3.hide_ssid=true
-  aaa.4.ssid=PacketFence-Secure
-  wireless.4.ssid=PacketFence-Secure
-  wireless.4.hide_ssid=false
-  aaa.5.ssid=PacketFence-Public
-  wireless.5.ssid=PacketFence-Public
-  wireless.5.hide_ssid=false
-
-You can see that PacketFence-Secure appears in 1 and 4 (2 radios).
-
-Fore additional details, feel free to ask for support directly in the Ubiquiti forum: https://community.ubnt.com/t5/UniFi-Wireless/Feature-request-disable-pmksa-caching/m-p/2112479#M257628
-
-Next you will need to create a secured profile:
+Create a secured profile:
 
 image::unifi-secure.png[scaledwidth="100%",alt="Unifi Secure SSID"]
 
+image::unifi-secure2.png[scaledwidth="100%",alt="Unifi Secure SSID"]
+
+===== CoA Support
+
+CoA support has been introduced in the new version of the controller (Tested on 5.13.10), so on access reevaluation if you selected RADIUS as disconnect method then PacketFence will try a CoA.
 
 Xirrus
 ~~~~~~
