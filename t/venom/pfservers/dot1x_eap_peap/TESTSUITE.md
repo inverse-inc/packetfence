@@ -1,13 +1,15 @@
 # Test plan
 
-# Global (no impact)
+## Requirements
+
+### Global (no impact)
 1. Create access duration (global)
 1. Create access level (global)
 1. Create dot1x roles (global)
 1. Create switches and switch groups (global)
 1. Checkup (common lib)
 
-# Specific to test suite
+## Test suite
 1. Join domain
 1. Configure REALM
 1. Create sources (common lib), need to pass some parameters

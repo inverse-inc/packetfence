@@ -27,26 +27,17 @@ switch01_mgmt_ip: 172.17.17.201
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
 
-# Roles
-dot1x_user_role.id: user-staff
-dot1x_user_role.notes: Staff
-dot1x_user_role.vlan_id: 100
-
-dot1x_machine_role.id: machine-staff
-dot1x_machine_role.notes: Machine staff
-dot1x_machine_role.vlan_id: 100
-
 # Access durations
 access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
 access_duration.default_choice: "5m"
 
 # Access level
-access_level_user_and_node.id: user-and-node-manager
+access_level_user_and_node.id: user_and_node_manager
 access_level_user_and_node.description: Users and Nodes management
 
 ### Network devices
 # Switch group
-cumulus_switch_group.id: cumulus-switch-group
+cumulus_switch_group.id: cumulus_switch_group
 cumulus_switch_group.description: Cumulus switch group
 cumulus_switch_group.radiusSecret: testing123
 
@@ -57,14 +48,24 @@ cumulus_switch.description: switch01
 ################################################################################
 # dot1x_eap_peap test suite specific variables
 ################################################################################
+# Roles
+dot1x_eap_peap.roles.ad_user.id: user_employee
+dot1x_eap_peap.roles.ad_user.notes: User employee
+
+dot1x_eap_peap.roles.ad_user.vlan_id: 100
+
+dot1x_eap_peap.roles.ad_machine.id: machine_employee
+dot1x_eap_peap.roles.ad_machine.notes: Machine Employee
+
+dot1x_eap_peap.roles.ad_user.vlan_id: 100
+
 # Sources
 dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
 dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
 dot1x_eap_peap.sources.ad_machine.name: dot1x_eap_peap_machine_auth
 dot1x_eap_peap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
 
-### Connection profiles
-# dot1x wired eap
-dot1x_wired_eap_profile.id: catch-dot1x-wired-eap
-dot1x_wired_eap_profile.description: 802.1X wired EAP
-dot1x_wired_eap_profile.filter_match: Ethernet-EAP
+# Connection profiles
+dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap
+dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP
+dot1x_eap_peap.profiles.wired.filter_match: Ethernet-EAP
