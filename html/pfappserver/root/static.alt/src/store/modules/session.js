@@ -73,7 +73,7 @@ const state = {
   expired: false,
   oldAdminEnabled: false,
   roles: [],
-  tenant_id: null,
+  tenant: null,
   tenant_id_mask: localStorage.getItem(STORAGE_TENANT_ID) || null,
   tenants: [],
   languages: [],
@@ -170,7 +170,7 @@ const actions = {
     acl.reset()
     commit('TOKEN_DELETED')
     commit('EXPIRES_AT_DELETED')
-    commit('TENANT_ID_DELETED')
+    commit('TENANT_DELETED')
     commit('TENANT_ID_MASK_DELETED')
     commit('TENANTS_DELETED')
     commit('USERNAME_DELETED')
@@ -234,7 +234,7 @@ const actions = {
     return api.getTokenInfo(readonly).then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
       commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
-      commit('TENANT_ID_UPDATED', response.data.item.tenant_id)
+      commit('TENANT_UPDATED', response.data.item.tenant)
       return response.data.item.admin_actions // return ACLs
     })
   },
@@ -406,11 +406,11 @@ const mutations = {
   EXPIRES_AT_DELETED: (state) => {
     state.expires_at = null
   },
-  TENANT_ID_UPDATED: (state, tenant_id) => {
-    state.tenant_id = tenant_id
+  TENANT_UPDATED: (state, tenant) => {
+    state.tenant = tenant
   },
-  TENANT_ID_DELETED: (state) => {
-    state.tenant_id = null
+  TENANT_DELETED: (state) => {
+    state.tenant = null
   },
   TENANT_ID_MASK_UPDATED: (state, tenantId) => {
     state.tenant_id_mask = tenantId
