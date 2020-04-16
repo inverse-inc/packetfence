@@ -64,7 +64,7 @@ Bug Fixes
 * Sponsor field is missing on sponsored users when using forced sponsor (#5171)
 * Some DHCP info triggers use outdated Fingerbank data (#5106)
 * Issue with the timezone in the admin not being honored on the system (#5205)
-* Issue with chrome who don't show the portal on self signed certificate (#5233)
+* Issue with Chrome not showing the portal on self signed certificates (#5233)
 * Issue with RADIUS CLI access and ldap authentication source where the cache is enabled (#5018)
 * Distribute pfsnmp trap jobs between queues based off switch id (#5004)
 * Deleting a portal profile doesn't cleanup its templates (#793)
