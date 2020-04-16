@@ -1,7 +1,7 @@
 name: Fix permissions
 version: 2
 testcases:
-- name: fix-permissions
+- name: fix_permissions
   steps:
     - type: http
       method: POST

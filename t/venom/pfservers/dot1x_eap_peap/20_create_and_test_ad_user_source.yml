@@ -1,7 +1,7 @@
 name: Create and test AD user source
 version: 2
 testcases:
-- name: create-ad-user-source
+- name: create_ad_user_source
   steps:
   - type: http
     method: POST
@@ -56,7 +56,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: test-ad-user-source
+- name: test_ad_user_source
   steps:
   - type: http
     method: POST

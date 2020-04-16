@@ -1,7 +1,7 @@
 name: Restart RADIUS services
 version: 2
 testcases:
-- name: restart-radius-services
+- name: restart_radius_services
   steps:
   - type: http
     method: POST

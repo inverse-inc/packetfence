@@ -1,7 +1,7 @@
 name: Create switches and switch groups
 version: 2
 testcases:
-- name: create-switch-group
+- name: create_switch_group
   steps:
   - type: http
     method: POST
@@ -113,7 +113,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: create-switch
+- name: create_switch
   steps:
   - type: http
     method: POST

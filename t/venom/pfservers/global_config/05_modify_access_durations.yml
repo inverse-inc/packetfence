@@ -1,7 +1,7 @@
 name: Modify access durations
 version: 2
 testcases:
-- name: modify-access-durations
+- name: modify_access_durations
   steps:
   - type: http
     method: PATCH

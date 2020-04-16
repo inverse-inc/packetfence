@@ -1,7 +1,7 @@
 name: Create access levels
 version: 2
 testcases:
-- name: create-access-levels
+- name: create_access_levels
   steps:
   - type: http
     method: POST

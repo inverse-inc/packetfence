@@ -1,7 +1,7 @@
 name: Create and configure REALMS
 version: 2
 testcases:
-- name: create-realms
+- name: create_realms
   steps:
   - type: http
     method: POST
@@ -67,7 +67,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: modify-builtin-realms
+- name: modify_builtin_realms
   steps:
   - type: http
     method: PATCH

@@ -1,7 +1,7 @@
 name: Create and test AD machine source
 version: 2
 testcases:
-- name: create-ad-machine-source
+- name: create_ad_machine_source
   steps:
   - type: http
     method: POST
@@ -56,7 +56,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: test-ad-machine-source
+- name: test_ad_machine_source
   steps:
   - type: http
     method: POST

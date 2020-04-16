@@ -1,7 +1,7 @@
 version: 2
 name: Setup
 testcases:
-- name: get-login-token
+- name: get_login_token
   steps:
     - type: http
       method: POST
@@ -24,4 +24,4 @@ testcases:
 - name: write-token-to-file
   steps:
     - type: exec
-      script: "echo 'export TOKEN={{.get-login-token.token}}' > {{.venom_result_dir}}/env"
+      script: "echo 'export TOKEN={{.get_login_token.token}}' > {{.venom_result_dir}}/env"

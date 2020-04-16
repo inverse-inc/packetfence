@@ -1,7 +1,7 @@
 name: Create roles
 version: 2
 testcases:
-- name: create-dot1x-eap-peap-roles
+- name: create_dot1x_eap_peap_roles
   steps:
   - type: http
     method: POST

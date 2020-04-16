@@ -1,7 +1,7 @@
 name: Create connection profile
 version: 2
 testcases:
-- name: create-dot1x-wired-eap-connection-profile
+- name: create_dot1x_wired_eap_connection_profile
   steps:
   - type: http
     method: POST

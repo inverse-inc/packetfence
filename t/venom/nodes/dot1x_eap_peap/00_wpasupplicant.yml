@@ -1,7 +1,7 @@
 version: 2
 name: wpasupplicant
 testcases:
-- name: run-wpasupplicant-eap-peap
+- name: run_wpasupplicant_eap_peap
   steps:
   - type: exec
     script: "sudo wpa_supplicant -c /etc/wpa_supplicant/eap_peap/eap_peap_mschapv2.conf -D wired -i eth1 -B"
