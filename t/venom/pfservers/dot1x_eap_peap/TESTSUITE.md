@@ -1,20 +1,21 @@
-# Test plan
+# Test suite
 
 ## Requirements
 
-### Global (no impact)
-1. Create access duration (global)
-1. Create access level (global)
-1. Create dot1x roles (global)
-1. Create switches and switch groups (global)
-1. Checkup (common lib)
+### Global config
+1. Create access duration
+1. Create dot1x roles
+1. Create switches and switch groups
 
 ## Test suite
 1. Join domain
 1. Configure REALM
-1. Create sources (common lib), need to pass some parameters
-1. Create connection profile
-1. Run eapol test (common lib)
-1. Check RADIUS audit log (common lib)
-1. Check node state (common lib)
-1. Teardown (optional) 
+1. Create AD sources
+1. Create connection profile with auto-registration, AD sources and specific filter
+1. Perform Checkup (common test suite)
+1. Start wpa_supplicant *on* node01
+1. Check RADIUS audit log for node01
+1. Check node status for node01
+1. Check VLAN assigned to node01 *on* switch01
+1. Check Internet access *on* node01
+1. Teardown
