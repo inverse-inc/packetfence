@@ -55,7 +55,6 @@ use pf::file_paths qw(
 use pf::util;
 use pf::log;
 use pf::authentication;
-use pf::cluster;
 
 BEGIN {
   use Exporter ();
@@ -398,13 +397,13 @@ Returns the list of host and IP on which the portal is configured to listen
 sub portal_hosts {
     my @hosts;
     foreach my $net (@internal_nets) {
-        push @hosts, values(%{pf::cluster::members_ips($net->{Tint})});
+        push @hosts, values(%{pf::cluster::members_ips($net->{Tint})}) if $cluster_enabled;
         push @hosts, $net->{Tip} if defined($net->{Tip});
         push @hosts, $net->{Tvip} if defined($net->{Tvip});
         push @hosts, $net->{Tipv6_address} if defined($net->{Tipv6_address});
     }
 
-    push @hosts, values(%{pf::cluster::members_ips($management_network->{Tint})});
+    push @hosts, values(%{pf::cluster::members_ips($management_network->{Tint})}) if $cluster_enabled;
     push @hosts, $management_network->{Tip} if defined($management_network->{Tip});
     push @hosts, $management_network->{Tvip} if defined($management_network->{Tvip});
     push @hosts, $fqdn;
