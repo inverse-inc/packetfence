@@ -50,7 +50,7 @@ case "$1" in
             rm $PACKETFENCE/db/pf-schema.sql
         fi
         cd $PACKETFENCE/db
-        VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
+        VERSIONSQL=$(ls pf-schema-* |sort --version-sort -r | head -1)
         ln -f -s $VERSIONSQL ./pf-schema.sql
 
         #Check if log files exist and create them with the correct owner
