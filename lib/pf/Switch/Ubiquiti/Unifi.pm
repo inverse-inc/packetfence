@@ -109,7 +109,12 @@ sub returnSwitchIP {
     if (my $ip = $self->getMACIP($mac)) {
         return $ip;
     }
-    return $self->{_controllerIp};
+    if (ref($self)) {
+        if (exists($self->{_controllerIp}) && $self->{_controllerIp} ne '') {
+            return $self->{_controllerIp};
+        }
+    }
+    return undef;
 }
 
 =head2 parseExternalPortalRequest
@@ -123,7 +128,7 @@ See L<pf::web::externalportal::handle>
 sub parseExternalPortalRequest {
     my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
-    load($self);
+
     # Using a hash to contain external portal parameters
     my %params = ();
 
