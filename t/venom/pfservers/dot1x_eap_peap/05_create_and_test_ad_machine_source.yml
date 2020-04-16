@@ -18,7 +18,7 @@ testcases:
             "actions": [
               {
                 "type": "set_role",
-                "value": "{{.dot1x_machine_role.id}}"
+                "value": "{{.dot1x_eap_peap.roles.ad_machine.id}}"
               },
               {
                 "type": "set_access_duration",
@@ -64,6 +64,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
+        "basedn": "{{.ad_base_dn}}",
         "binddn": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
         "connection_timeout": 1,
         "description": "{{.dot1x_eap_peap.sources.ad_machine.description}}",

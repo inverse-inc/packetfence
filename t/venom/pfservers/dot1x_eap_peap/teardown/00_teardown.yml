@@ -68,7 +68,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_wired_eap_profile.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_eap_peap.profiles.wired.id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -80,7 +80,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.ad_user_source.name}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_user.name}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -90,7 +90,7 @@ testcases:
 
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.ad_machine_source.name}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_machine.name}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"

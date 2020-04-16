@@ -51,13 +51,11 @@ cumulus_switch.description: switch01
 # Roles
 dot1x_eap_peap.roles.ad_user.id: user_employee
 dot1x_eap_peap.roles.ad_user.notes: User employee
-
 dot1x_eap_peap.roles.ad_user.vlan_id: 100
 
 dot1x_eap_peap.roles.ad_machine.id: machine_employee
 dot1x_eap_peap.roles.ad_machine.notes: Machine Employee
-
-dot1x_eap_peap.roles.ad_user.vlan_id: 100
+dot1x_eap_peap.roles.ad_machine.vlan_id: 100
 
 # Sources
 dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
