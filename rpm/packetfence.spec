@@ -530,7 +530,7 @@ curdir=`pwd`
 #pf-schema.sql symlinks to current schema
 if [ ! -h "%{buildroot}/usr/local/pf/db/pf-schema.sql" ]; then
     cd %{buildroot}/usr/local/pf/db
-    VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
+    VERSIONSQL=$(ls pf-schema-* |sort --version-sort -r | head -1)
     ln -f -s $VERSIONSQL ./pf-schema.sql
 fi
 
