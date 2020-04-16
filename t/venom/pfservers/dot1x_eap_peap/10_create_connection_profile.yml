@@ -47,8 +47,7 @@ testcases:
         "sms_pin_retry_limit": 0,
         "sms_request_limit": 0,
         "sources": [
-          "{{.ad_machine_source.name}}",
-          "{{.ad_user_source.name}}"
+          "{{.AD_USER_SOURCE_ID}}"
         ],
         "status": "enabled",
         "unreg_on_acct_stop": "disabled",
