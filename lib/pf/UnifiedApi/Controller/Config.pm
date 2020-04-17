@@ -1204,13 +1204,14 @@ sub bulk_import {
     if ($count == 0) {
         return $self->render(json => { items => [] });
     }
+    my $cs = $self->config_store;
 
     my $stopOnError = $data->{stopOnFirstError};
     my @results;
     $#results = $count - 1;
     my $i;
     for ($i=0;$i<$count;$i++) {
-        my $result = $self->import_item($data, $items->[$i]);
+        my $result = $self->import_item($data, $items->[$i], $cs);
         $results[$i] = $result;
         $status = $result->{status} // 200;
         if ($stopOnError && $status == 422) {
@@ -1228,40 +1229,53 @@ sub bulk_import {
             $result->{errors} = \@errors;
         }
     }
+    $cs->commit;
 
     return $self->render(json => { items => \@results });
 }
 
 sub import_item {
-    my ($self, $request, $item) = @_;
-    my @errors = $self->import_item_check_for_errors($request, $item);
-    if (@errors) {
-        return { item => $item, errors => \@errors, message => 'Cannot save node', status => 422 };
+    my ($self, $request, $item, $cs) = @_;
+    my $id = $item->{id};
+    if (!defined $id) {
+        return { field => 'id', message => 'Field id missing', status => 422 };
     }
-
-    my $old_item;
+    my $old_item = $self->item_from_store($item->{id});
+    my @errors = $self->import_item_check_for_errors($request, $item, $old_item);
+    if (@errors) {
+        return @errors;
+    }
+    
     if ($old_item) {
         if ($request->{ignoreUpdateIfExists}) {
             return { item => $item, status => 409, message => "Skip already exists", isNew => $self->json_false} ;
         }
+
     } else {
         if ($request->{ignoreInsertIfNotExists}) {
             return { item => $item, status => 404, message => "Skip does not exists", isNew => $self->json_true} ;
         }
     }
 
+    delete $item->{id};
+    if ($old_item) {
+        $cs->update($id, $item);
+    } else {
+        $cs->create($id, $item);
+    }
+
     return { item => $item, status => 200, isNew => ( defined $old_item ? $self->json_false : $self->json_true ) };
 }
 
 sub import_item_check_for_errors {
-    my ($self, $request, $item) = @_;
-    my @errors;
-    my $id = $item->{id};
-    if (!defined $id) {
-        push @errors, { field => 'id', message => 'Field id missing', status => 422 };
+    my ($self, $request, $item, $old_item) = @_;
+    my $new_item = {%{$old_item // {}}, %$item};
+    my ($status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $new_data;
     }
 
-    return @errors;
+    return;
 }
 
 =head1 AUTHOR

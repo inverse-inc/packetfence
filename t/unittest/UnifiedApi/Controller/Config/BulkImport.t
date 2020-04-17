@@ -57,7 +57,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Mojo;
 use Utils;
 
