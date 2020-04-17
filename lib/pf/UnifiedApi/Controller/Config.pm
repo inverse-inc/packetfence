@@ -1210,6 +1210,7 @@ sub bulk_import {
     my @results;
     $#results = $count - 1;
     my $i;
+    my $changed = 0;
     for ($i=0;$i<$count;$i++) {
         my $result = $self->import_item($data, $items->[$i], $cs);
         $results[$i] = $result;
@@ -1218,6 +1219,8 @@ sub bulk_import {
             $i++;
             last;
         }
+
+        $changed |= 1;
     }
 
     for (;$i<$count;$i++) {
@@ -1229,7 +1232,9 @@ sub bulk_import {
             $result->{errors} = \@errors;
         }
     }
-    $cs->commit;
+    if ($changed) {
+        $cs->commit;
+    }
 
     return $self->render(json => { items => \@results });
 }
