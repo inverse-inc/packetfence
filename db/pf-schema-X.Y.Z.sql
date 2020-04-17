@@ -27,6 +27,8 @@ CREATE TABLE `tenant` (
   UNIQUE KEY tenant_domain_name (`domain_name`)
 );
 
+SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
+    INSERT INTO `tenant` VALUES (0, 'global', NULL, NULL);
 INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL);
 
 --
