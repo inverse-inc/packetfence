@@ -265,6 +265,10 @@ sub _update_from_actions {
         $data,$actions,$Actions::SET_BANDWIDTH_BALANCE,
         'bandwidth_balance',undef
     );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_TENANT_ID,
+        'allowed_tenant_id',undef
+    );
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
