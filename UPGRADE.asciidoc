@@ -1206,6 +1206,20 @@ This script will convert the old format to the new one:
 /usr/local/pf/addons/upgrade/to-10.0-filter_engines.pl
 ----
 
+== Upgrading from a version prior to X.Y.Z
+
+=== Database schema
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the X.X.X schema to X.Y.Z.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+----
+
 == Archived upgrade notes
 
 include::{extra_path}upgrade-notes/archived_upgrade_notes.asciidoc[]
