@@ -1177,7 +1177,7 @@ printf '\n[advanced]\nconfigurator=disabled\n' >> /usr/local/pf/conf/pf.conf
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
+An SQL upgrade script has been provided to upgrade the database from the 9.3 schema to 10.0.
 
 To upgrade the database schema, run the following command:
 
