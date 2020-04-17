@@ -51,6 +51,12 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Altering password table"
+--
+-- Altering password table
+--
+ALTER TABLE password
+    ADD COLUMN IF NOT EXISTS `allowed_tenant_id` int DEFAULT NULL;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
