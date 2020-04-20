@@ -267,7 +267,7 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	if !ok {
 		macStr = ""
 	} else {
-		mac, err := mac.NewFromString(string(attr[0:17]))
+		mac, err := mac.NewFromString(string(attr))
 		if err != nil {
 			macStr = ""
 		} else {
