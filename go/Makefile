@@ -71,6 +71,13 @@ radius-tester:
 	cd - && \
 	mv acct-tester/radius-tester/radius-tester radius-tester
 
+.PHONY: pfcertmanager
+pfacct:
+	cd certmanager && \
+        go build && \
+        cd - && \
+        mv certmanager/certmanager pfcertmanager
+
 .PHONY: db-tester
 db-tester:
 	cd acct-tester/db-tester && \
