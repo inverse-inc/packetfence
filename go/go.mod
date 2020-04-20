@@ -49,6 +49,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.11.3 // indirect
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20171214222146-0e7658f8ee99
+	github.com/hanwen/go-fuse/v2 v2.0.3
 	github.com/hashicorp/go-syslog v1.0.0
 	github.com/hpcloud/tail v1.0.0
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
@@ -64,7 +65,6 @@ require (
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
 	github.com/kr/pretty v0.1.0
 	github.com/krolaw/dhcp4 v0.0.0-20171222085133-4abfceffa76a
-	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
 	github.com/lucas-clemente/quic-go v0.11.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
