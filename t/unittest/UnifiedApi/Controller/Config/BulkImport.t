@@ -39,6 +39,8 @@ my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
         messages =>
           { required => 'Field description is required.' },
     );
+    has_field 'value_1' => ();
+    has_field 'value_2' => ();
 }
 
 {
@@ -46,7 +48,7 @@ my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
     use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
     has 'config_store_class' => 'ConfigStore::BulkImport';
     has 'form_class' => 'Form::BulkImport';
-    has 'primary_key' => 'bulk_import';
+    has 'primary_key' => 'bulk_import_id';
 }
 
 BEGIN {
@@ -56,8 +58,7 @@ BEGIN {
     use setup_test_config;
 }
 
-
-use Test::More tests => 9;
+use Test::More tests => 31;
 use Test::Mojo;
 use Utils;
 
@@ -75,19 +76,48 @@ $app->setup_api_v1_std_config_routes(
 );
 
 my $collection_base_url = '/api/v1/config/bulk_imports';
+my $resource_base_url = '/api/v1/config/bulk_import';
 
 $t->post_ok("$collection_base_url/bulk_import" => json => {})
   ->status_is(200);
 
 $t->post_ok( "$collection_base_url/bulk_import" => json =>
-      { items => [ { id => "id_1", description => "Description 1" } ] } )
-  ->status_is(200);
+      { items => [ { id => "id_1", description => "Description 1", value_1 => "1" } ] } )
+  ->status_is(200)
+  ->json_is('/items/0/status', 200)
+  ->json_is('/items/0/isNew', 1)
+  ->json_is('/items/0/item/id', 'id_1')
+  ->json_is('/items/0/item/description', 'Description 1')
+  ->json_is('/items/0/item/value_1', '1')
+  ->json_is('/items/0/item/value_2', undef)
+  ;
+
+$t->post_ok( "$collection_base_url/bulk_import" => json =>
+      { items => [ { id => "id_1", value_1 => "a", value_2 => '2' } ] } )
+  ->status_is(200)
+  ->json_is('/items/0/status', 200)
+  ->json_is('/items/0/isNew', 0)
+  ->json_is('/items/0/item/id', 'id_1');
+
+$t->get_ok("${resource_base_url}/id_1")
+  ->status_is(200)
+  ->json_is("/item/id", "id_1")
+  ->json_is("/item/description", "Description 1")
+  ->json_is("/item/value_1", "a")
+  ->json_is("/item/value_2", "2")
+  ;
 
 $t->get_ok($collection_base_url)
   ->status_is(200)
   ->json_is("/items/0/id", "id_1")
   ->json_is("/items/0/description", "Description 1");
 
+$t->post_ok( "$collection_base_url/bulk_import" => json =>
+      {ignoreUpdateIfExists => \1, items => [ { id => "id_1", description => "Description 1" } ] } )
+  ->status_is(200)
+  ->json_is('/items/0/status', 409)
+  ->json_is('/items/0/item/description', 'Description 1')
+  ->json_is('/items/0/item/id', 'id_1');
 
 =head1 AUTHOR
 
@@ -117,4 +147,3 @@ USA.
 =cut
 
 1;
-
