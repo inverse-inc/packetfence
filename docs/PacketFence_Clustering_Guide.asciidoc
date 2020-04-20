@@ -1166,6 +1166,7 @@ Then you need to be sure that the root user exist in the remote database and hav
  SELECT * FROM mysql.user WHERE User='root' and host ='%'\G
  GRANT GRANT OPTION  ON *.* TO root@'%' identified by 'password';
  GRANT SELECT ON *.* TO root@'%' identified by 'password';
+ FLUSH PRIVILEGES;
 
 Alternatively, to start the slave manually refer to the following:
 
