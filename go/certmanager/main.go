@@ -29,8 +29,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 			var ca []byte
 			var bundle []byte
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
-				cert = append(cert, []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert)...)
-				cert = append(cert, []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate)...)
+				cert = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate)})
 				key = append(key, []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)...)
 				ca = append(ca, []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Ca)...)
 
@@ -62,9 +61,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 				r.AddChild(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType+"_"+eapkey+"_"+tlskey+".pem", cafile, false)
 
 			} else if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "http" {
-				bundle = append(cert, []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert)...)
-				bundle = append(cert, []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate)...)
-				bundle = append(key, []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)...)
+				bundle = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)})
 				bundlefile := r.NewPersistentInode(
 					ctx, &fs.MemRegularFile{
 						Data: bundle,
@@ -144,4 +141,14 @@ func (r *CertStore) Refresh(ctx context.Context) {
 	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.EAPConfiguration) {
 		log.LoggerWContext(ctx).Info("Reloading EAP configuration and flushing cache")
 	}
+}
+
+func concatAppend(slices [][]byte) []byte {
+	var tmp []byte
+	for _, s := range slices {
+		tmp = append(tmp, s...)
+		tmp = append(tmp, byte('\r'))
+		tmp = append(tmp, byte('\n'))
+	}
+	return tmp
 }
