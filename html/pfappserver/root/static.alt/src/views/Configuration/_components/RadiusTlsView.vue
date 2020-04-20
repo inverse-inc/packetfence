@@ -112,7 +112,7 @@ export default {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
-          const { ID: id } = item
+          const { id } = item
           this.$router.push({ name: 'radiusTls', params: { id } })
         }
       }).catch(e => {

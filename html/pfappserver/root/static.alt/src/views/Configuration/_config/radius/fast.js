@@ -1,4 +1,5 @@
 import i18n from '@/utils/locale'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
@@ -10,6 +11,12 @@ export const columns = [
   {
     key: 'id',
     label: 'Identifier', // i18n defer
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'tls',
+    label: 'TLS', // i18n defer
     sortable: true,
     visible: true
   },
@@ -78,6 +85,36 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'id')
+            }
+          ]
+        },
+        {
+          label: i18n.t('TLS Profile'),
+          cols: [
+            {
+              namespace: 'tls',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'root_module')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Authority Identity'),
+          cols: [
+            {
+              namespace: 'authority_identity',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'authority_identity')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Key'),
+          cols: [
+            {
+              namespace: 'pac_opaque_key',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'pac_opaque_key')
             }
           ]
         }

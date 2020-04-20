@@ -1,6 +1,7 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
       <template v-slot:pageHeader>
