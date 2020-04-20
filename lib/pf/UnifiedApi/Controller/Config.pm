@@ -375,7 +375,7 @@ sub create {
 
     (my $status, $item) = $self->validate_item($item);
     if (is_error($status)) {
-        $self->render(status => $status, json => $item);
+        return $self->render(status => $status, json => $item);
     }
 
     delete $item->{id};
