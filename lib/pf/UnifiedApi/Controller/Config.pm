@@ -1269,6 +1269,7 @@ sub import_item {
         $cs->create($id, $item);
     }
 
+    $item->{id} = $id;
     return { item => $item, status => 200, isNew => ( defined $old_item ? $self->json_false : $self->json_true ) };
 }
 
