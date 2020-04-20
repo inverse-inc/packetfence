@@ -78,6 +78,7 @@ type configStruct struct {
 		Configuration PfConfDns
 	}
 	UnifiedApiSystemUser UnifiedApiSystemUser
+	EAPConfiguration     EAPConfiguration
 }
 
 var Config configStruct
@@ -588,4 +589,53 @@ type PfConfRadiusConfiguration struct {
 	RadiusAttributes                   []string `json:"radius_attributes"`
 	UsernameAttributes                 []string `json:"username_attributes"`
 	ForwardKeyBalanced                 string   `json:"forward_key_balanced"`
+}
+
+type Certificate struct {
+	Cert         string `json:"cert"`
+	CertType     string `json:"type"`
+	Key          string `json:"key"`
+	Ca           string `json:"ca"`
+	Intermediate string `json:"Intermediate"`
+}
+
+type OCSP struct {
+	ocsp_softfail          string `json:"ocsp_softfail"`
+	ocsp_timeout           string `json:"ocsp_timeout"`
+	ocsp_use_nonce         string `json:"ocsp_use_nonce"`
+	ocsp_enable            string `json:"ocsp_enable"`
+	ocsp_override_cert_url string `json:"ocsp_override_cert_url"`
+	ocsp_url               string `json:"ocsp_url"`
+}
+
+type TLS struct {
+	certificate_profile Certificate
+	dh_file             string `json:"dh_file"`
+	ca_path             string `json:"ca_path"`
+	ecdh_curve          string `json:"ecdh_curve"`
+	cipher_list         string `json:"cipher_list"`
+	ocsp                OCSP
+}
+
+type EAP struct {
+	DefaultEAPType             string `json:"default_eap_type"`
+	TLS                        []TLS
+	TTLSProfile                string `json:"ttls_tlsprofile"`
+	TLSProfile                 string `json:"tls_tlsprofile"`
+	TimerExpire                string `json:"timer_expire"`
+	CiscoAccountingUsernameBug string `json:"cisco_accounting_username_bug"`
+	PEAPProfile                string `json:"peap_tlsprofile"`
+	EAPAuthenticationTypes     string `json:"eap_authentication_types"`
+	MaxSessions                string `json:"max_sessions"`
+	FastConfig                 string `json:"fast_config"`
+	IgnoreUnknownEAPTypes      string `json:"ignore_unknown_eap_types"`
+}
+
+type EAPConfiguration struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::eap_config"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 EAP
 }
