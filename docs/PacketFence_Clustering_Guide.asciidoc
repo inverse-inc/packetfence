@@ -9,11 +9,22 @@ ifdef::env-github[]
 :imagesdir: images
 endif::[]
 
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Clustering_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
 This guide has been created to give a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalived for advanced features.
+
+The latest version of this guide is available at https://packetfence.org/documentation/
 
 === Other sources of information
 
