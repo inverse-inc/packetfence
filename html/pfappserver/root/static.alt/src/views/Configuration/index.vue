@@ -154,7 +154,19 @@ export default {
               ]
             },
             { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' },
-            { name: this.$i18n.t('RADIUS Configuration'), path: '/configuration/radius' },
+            /* OLD */
+            { name: this.$i18n.t('RADIUS Configuration'), path: '/configuration/radius_old' },
+            /* NEW */
+            { name: this.$i18n.t('RADIUS'),
+              items: [
+                { name: this.$i18n.t('General'), path: '/configuration/radius' },
+                { name: this.$i18n.t('EAP'), path: '/configuration/radius/eap' },
+                { name: this.$i18n.t('TLS'), path: '/configuration/radius/tls' },
+                { name: this.$i18n.t('Fast'), path: '/configuration/radius/fast' },
+                { name: this.$i18n.t('SSL'), path: '/configuration/radius/ssl' },
+                { name: this.$i18n.t('OCSP'), path: '/configuration/radius/ocsp' }
+              ]
+            },
             { name: this.$i18n.t('DNS Configuration'), path: '/configuration/dns' },
             { name: this.$i18n.t('Admin Access'), path: '/configuration/admin_roles' },
             { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
