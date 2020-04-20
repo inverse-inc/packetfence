@@ -1174,18 +1174,6 @@ You also need to disable access to configurator by running:
 printf '\n[advanced]\nconfigurator=disabled\n' >> /usr/local/pf/conf/pf.conf
 ----
 
-=== Database schema
-
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 9.3 schema to 10.0.
-
-To upgrade the database schema, run the following command:
-
-[source,bash]
-----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.3.0-10.0.0.sql
-----
-
 === Database Privileges
 
 Some queries now need CREATE TEMPORARY TABLE privilege.
@@ -1204,6 +1192,18 @@ This script will convert the old format to the new one:
 [source,bash]
 ----
 /usr/local/pf/addons/upgrade/to-10.0-filter_engines.pl
+----
+
+=== Database schema
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 9.3 schema to 10.0.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.3.0-10.0.0.sql
 ----
 
 == Upgrading from a version prior to X.Y.Z
