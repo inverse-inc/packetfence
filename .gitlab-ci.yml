@@ -266,7 +266,7 @@ pfbuild_test:
     - /^feature/packer-.*$/
 
 # build a docker image at release
-# used to build release packages, maintenance artifacts for maintenance
+# used to build release packages and maintenance artifacts for maintenance
 pfbuild_release:
   extends:
     - .pfbuild_job
@@ -278,16 +278,15 @@ pfbuild_release:
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
     ACTIVE_BUILDS: 'pfbuild-centos-7,pfbuild-stretch'
-    DOCKER_TAGS: ${CI_COMMIT_TAG}
   script:
     # extra tag to release images: maintenance-X-Y
     # permit to simplify definition of maintenance jobs below
     # based on their branch name using CI_COMMIT_REF_SLUG
     # CI_COMMIT_TAG contains vX.Y.Z
     # PF_RELEASE_REV contains X.Y
-    # DOCKER_EXTRA_TAG contains maintenance-X-Y
+    # DOCKER_TAGS contains vX.Y.Z,maintenance-X-Y
     - PF_RELEASE_REV=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' conf/pf-release)
-    - export DOCKER_EXTRA_TAG=maintenance-${PF_RELEASE_REV/./-}
+    - export DOCKER_TAGS="${CI_COMMIT_TAG},maintenance-${PF_RELEASE_REV/./-}"
     - make -e -C ${PACKERDIR} pfbuild
 
 ########################################
