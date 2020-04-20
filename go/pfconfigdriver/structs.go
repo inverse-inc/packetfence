@@ -596,7 +596,7 @@ type Certificate struct {
 	CertType     string `json:"type"`
 	Key          string `json:"key"`
 	Ca           string `json:"ca"`
-	Intermediate string `json:"Intermediate"`
+	Intermediate string `json:"intermediate"`
 }
 
 type OCSP struct {
