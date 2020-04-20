@@ -1133,6 +1133,14 @@ sub setup_api_v1_config_radiusd_routes {
         "api.v1.Config.Radiusd.FastProfiles"
     );
 
+      $self->setup_api_v1_std_config_routes(
+        $radiusd_route,
+        "Config::Radiusd::OCSPProfiles",
+        "/ocsp_profiles",
+        "/ocsp_profile/#ocsp_profile_id",
+        "api.v1.Config.Radiusd.OCSPProfiles"
+    );
+
     return ($collection_route, $resource_route);
 }
 
