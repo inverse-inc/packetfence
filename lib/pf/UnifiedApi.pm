@@ -318,6 +318,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_switch_groups_routes($root);
     $self->setup_api_v1_config_syslog_forwarders_routes($root);
     $self->setup_api_v1_config_syslog_parsers_routes($root);
+    $self->setup_api_v1_config_ssl_certificates_routes($root);
     $self->setup_api_v1_config_template_switches_routes($root);
     $self->setup_api_v1_config_system_routes($root);
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
@@ -2005,6 +2006,26 @@ sub setup_api_v1_config_wmi_rules_routes {
         "/wmi_rules",
         "/wmi_rule/#wmi_rule_id",
         "api.v1.Config.WMIRules"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_ssl_certificates_routes
+
+setup_api_v1_config_ssl_certificates_routes
+
+=cut
+
+sub setup_api_v1_config_ssl_certificates_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::SSLCertificates",
+        "/ssl_certificates",
+        "/ssl_certificate/#ssl_certificate_id",
+        "api.v1.Config.SSLCertificates"
     );
 
     return ($collection_route, $resource_route);
