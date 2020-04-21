@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"os/signal"
 	"sync"
 	"syscall"
 	"time"
@@ -81,6 +84,12 @@ var _ = (fs.NodeOnAdder)((*CertStore)(nil))
 var ctx = context.Background()
 
 func main() {
+
+	sigs := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
 	log.SetProcessName("Certmanager")
 	ctx = log.LoggerNewContext(ctx)
 
@@ -108,6 +117,16 @@ func main() {
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Mount fail: %v\n", err)
 	}
+
+	go func() {
+		sig := <-sigs
+		fmt.Println()
+		fmt.Println(sig)
+		server.Unmount()
+		done <- true
+		os.Exit(0)
+	}()
+	<-done
 	server.Wait()
 }
 
