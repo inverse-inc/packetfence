@@ -34,6 +34,9 @@
 import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
 import {
+  defaultsFromMeta as defaults
+} from '../_config/'
+import {
   view,
   validators
 } from '../_config/radius/eap'
@@ -88,15 +91,26 @@ export default {
   },
   methods: {
     init () {
-      const { isNew, isClone } = this
-      this.$store.dispatch(`${this.formStoreName}/setMeta`, { isNew, isClone })
+      const { isNew, isClone, isDeletable } = this
+      this.$store.dispatch(`${this.formStoreName}/clearForm`)
+      this.$store.dispatch(`${this.formStoreName}/clearMeta`)
       if (this.id) {
         // existing
-        this.$store.dispatch('$_radius_eap/getRadiusEap', this.id).then(form => {
-          this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+        this.$store.dispatch('$_radius_eap/options', this.id).then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch('$_radius_eap/getRadiusEap', this.id).then(form => {
+            if (isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable } })
+          })
         })
       } else {
-        this.$store.dispatch(`${this.formStoreName}/clearForm`)
+        // new
+        this.$store.dispatch('$_radius_eap/options').then(options => {
+          const { meta = {} } = options
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable } })
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta))
+        })
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
