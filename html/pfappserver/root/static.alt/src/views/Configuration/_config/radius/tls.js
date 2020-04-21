@@ -146,7 +146,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Disable TLS'),
+          label: i18n.t('Disable TLSv1.2'),
           cols: [
             {
               namespace: 'disable_tlsv1_2',
