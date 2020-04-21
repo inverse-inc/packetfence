@@ -21,56 +21,63 @@ type CertStore struct {
 	refreshLauncher *sync.Once
 	eap             pfconfigdriver.EAPConfiguration
 	certificates    map[string]map[string]map[string][]byte
+	RegularFile     map[string]map[string]map[string]map[string]*MemRegularFile
 }
 
 func (r *CertStore) OnAdd(ctx context.Context) {
+	RegularFile := make(map[string]map[string]map[string]map[string]*MemRegularFile)
 
 	for eapkey, element := range r.eap.Element {
-
+		RegularFile[eapkey] = make(map[string]map[string]map[string]*MemRegularFile)
 		for tlskey, tls := range element.TLS {
+			RegularFile[eapkey][tlskey] = make(map[string]map[string]*MemRegularFile)
 			certType := tls.CertificateProfile.CertType
 			if certType == "radius" {
+				RegularFile[eapkey][tlskey][certType] = make(map[string]*MemRegularFile)
 
-				certfile := r.NewPersistentInode(
-					ctx, &MemRegularFile{
-						Data: r.certificates[eapkey][tlskey]["cert"],
-						Attr: fuse.Attr{
-							Mode: 0644,
-						},
-					}, fs.StableAttr{Ino: 2})
+				RegularFile[eapkey][tlskey][certType]["cert"] = &MemRegularFile{
+					Data: r.certificates[eapkey][tlskey]["cert"],
+					Attr: fuse.Attr{
+						Mode: 0644,
+					},
+				}
+				certfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["cert"], fs.StableAttr{Ino: 2})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", certfile, false)
 
-				keyfile := r.NewPersistentInode(
-					ctx, &MemRegularFile{
-						Data: r.certificates[eapkey][tlskey]["key"],
-						Attr: fuse.Attr{
-							Mode: 0644,
-						},
-					}, fs.StableAttr{Ino: 2})
+				RegularFile[eapkey][tlskey][certType]["key"] = &MemRegularFile{
+					Data: r.certificates[eapkey][tlskey]["key"],
+					Attr: fuse.Attr{
+						Mode: 0644,
+					},
+				}
+				keyfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["key"], fs.StableAttr{Ino: 2})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", keyfile, false)
 
-				cafile := r.NewPersistentInode(
-					ctx, &MemRegularFile{
-						Data: r.certificates[eapkey][tlskey]["ca"],
-						Attr: fuse.Attr{
-							Mode: 0644,
-						},
-					}, fs.StableAttr{Ino: 2})
+				RegularFile[eapkey][tlskey][certType]["pem"] = &MemRegularFile{
+					Data: r.certificates[eapkey][tlskey]["ca"],
+					Attr: fuse.Attr{
+						Mode: 0644,
+					},
+				}
+				cafile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: 2})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", cafile, false)
 
 			} else if certType == "http" {
+				RegularFile[eapkey][tlskey][certType] = make(map[string]*MemRegularFile)
 
-				bundlefile := r.NewPersistentInode(
-					ctx, &MemRegularFile{
-						Data: r.certificates[eapkey][tlskey]["bundle"],
-						Attr: fuse.Attr{
-							Mode: 0644,
-						},
-					}, fs.StableAttr{Ino: 2})
+				RegularFile[eapkey][tlskey][certType]["pem"] = &MemRegularFile{
+					Data: r.certificates[eapkey][tlskey]["bundle"],
+					Attr: fuse.Attr{
+						Mode: 0644,
+					},
+				}
+
+				bundlefile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: 2})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", bundlefile, false)
 			}
 		}
 	}
+	r.RegularFile = RegularFile
 }
 
 func (r *CertStore) Getattr(ctx context.Context, fh fs.FileHandle, out *fuse.AttrOut) syscall.Errno {
@@ -98,8 +105,6 @@ func main() {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.EAPConfiguration)
 	configEAP := pfconfigdriver.Config.EAPConfiguration
 
-	spew.Dump(configEAP)
-
 	opts := &fs.Options{}
 
 	var certStore = &CertStore{}
@@ -108,14 +113,14 @@ func main() {
 
 	certStore.refreshLauncher = &sync.Once{}
 
-	// certStore.Init(ctx)
-
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, certStore)
+	certStore.Init(ctx)
 
 	server, err := fs.Mount(mountpoint, certStore, opts)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Mount fail: %v\n", err)
 	}
+
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, certStore)
 
 	go func(server *fuse.Server) {
 		sig := <-sigs
@@ -159,22 +164,20 @@ func (r *CertStore) RefreshPfconfig(ctx context.Context) {
 func (r *CertStore) Refresh(ctx context.Context) {
 	// If some of the EAP configuration were changed, we should reload
 
-	// if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.EAPConfiguration) {
-	log.LoggerWContext(ctx).Info("Reloading EAP configuration and flushing cache")
+	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.EAPConfiguration) {
+		log.LoggerWContext(ctx).Info("Reloading EAP configuration and flushing cache")
+		spew.Dump("Brout")
+		r.Init(ctx)
 
-	r.Init(ctx)
-	for key, value := range r.Children() {
-		spew.Dump(key)
-		spew.Dump(value)
-
+		r.Reload(ctx)
 	}
-
-	// r.OnAdd(ctx)
-
 }
 
 func (r *CertStore) Init(ctx context.Context) {
 	certificate := make(map[string]map[string]map[string][]byte)
+	// Read Fresh configuration
+	r.eap = pfconfigdriver.Config.EAPConfiguration
+
 	for eapkey, _ := range r.eap.Element {
 		certificate[eapkey] = make(map[string]map[string][]byte)
 		for tlskey, _ := range r.eap.Element[eapkey].TLS {
@@ -193,6 +196,24 @@ func (r *CertStore) Init(ctx context.Context) {
 	}
 	r.certificates = certificate
 }
+
+func (r *CertStore) Reload(ctx context.Context) {
+
+	for eapkey, _ := range r.eap.Element {
+
+		for tlskey, _ := range r.eap.Element[eapkey].TLS {
+			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
+				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["cert"].SetData(r.certificates[eapkey][tlskey]["cert"])
+				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["key"].SetData(r.certificates[eapkey][tlskey]["key"])
+				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["key"].SetData(r.certificates[eapkey][tlskey]["ca"])
+			} else if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "http" {
+				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["pem"].SetData(r.certificates[eapkey][tlskey]["bundle"])
+			}
+		}
+	}
+
+}
+
 func concatAppend(slices [][]byte) []byte {
 	var tmp []byte
 	for _, s := range slices {
