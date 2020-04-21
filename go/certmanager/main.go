@@ -26,7 +26,7 @@ type CertStore struct {
 func (r *CertStore) OnAdd(ctx context.Context) {
 
 	for eapkey, _ := range r.eap.Element {
-		spew.Dump(eapkey)
+
 		for tlskey, _ := range r.eap.Element[eapkey].TLS {
 
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
@@ -100,8 +100,6 @@ func main() {
 
 	spew.Dump(configEAP)
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.EAPConfiguration)
-
 	opts := &fs.Options{}
 
 	var certStore = &CertStore{}
@@ -110,23 +108,30 @@ func main() {
 
 	certStore.refreshLauncher = &sync.Once{}
 
-	certStore.Init(ctx)
+	// certStore.Init(ctx)
 
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, certStore)
+
 	server, err := fs.Mount(mountpoint, certStore, opts)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Mount fail: %v\n", err)
 	}
 
-	go func() {
+	go func(server *fuse.Server) {
 		sig := <-sigs
 		fmt.Println()
 		fmt.Println(sig)
 		server.Unmount()
 		done <- true
 		os.Exit(0)
+	}(server)
+
+	go func() {
+		<-done
 	}()
-	<-done
+
+	certStore.RefreshPfconfig(ctx)
+
 	server.Wait()
 }
 
@@ -153,10 +158,19 @@ func (r *CertStore) RefreshPfconfig(ctx context.Context) {
 
 func (r *CertStore) Refresh(ctx context.Context) {
 	// If some of the EAP configuration were changed, we should reload
-	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.EAPConfiguration) {
-		log.LoggerWContext(ctx).Info("Reloading EAP configuration and flushing cache")
-		r.Init(ctx)
+
+	// if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.EAPConfiguration) {
+	log.LoggerWContext(ctx).Info("Reloading EAP configuration and flushing cache")
+
+	r.Init(ctx)
+	for key, value := range r.Children() {
+		spew.Dump(key)
+		spew.Dump(value)
+
 	}
+
+	// r.OnAdd(ctx)
+
 }
 
 func (r *CertStore) Init(ctx context.Context) {
