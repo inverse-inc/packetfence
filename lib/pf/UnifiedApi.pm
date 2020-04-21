@@ -1150,6 +1150,14 @@ sub setup_api_v1_config_radiusd_routes {
         "api.v1.Config.Radiusd.OCSPProfiles"
     );
 
+      $self->setup_api_v1_std_config_routes(
+        $radiusd_route,
+        "Config::Radiusd::EAPProfiles",
+        "/eap_profiles",
+        "/eap_profile/#ocsp_profile_id",
+        "api.v1.Config.Radiusd.EAPProfiles"
+    );
+
     return ($collection_route, $resource_route);
 }
 
