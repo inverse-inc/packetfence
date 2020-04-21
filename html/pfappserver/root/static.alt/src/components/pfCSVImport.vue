@@ -819,6 +819,7 @@ export default {
           }
           this.importProgress.done = items.length < length
 
+          // eslint-disable-next-line no-async-promise-executor
           await new Promise(async (resolve, reject) => {
             if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Sending data')
             this.importProgress.promise = { resolve, reject } // stash promise

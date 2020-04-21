@@ -48,7 +48,7 @@ const constants = {
   margin: 3
 }
 const contains = (object, title) => {
-  return typeof object === 'object' && object.hasOwnProperty(title)
+  return typeof object === 'object' && Object.prototype.hasOwnProperty.call(object, title)
 }
 const px = v => v + 'px'
 export default {
