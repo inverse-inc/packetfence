@@ -28,6 +28,24 @@ sub pfconfigNamespace {'config::EAP'}
 
 sub importConfigFile { $eap_default_config_file }
 
+sub _fields_expanded { qw( eap_authentication_types) }
+
+sub cleanupAfterRead {
+    my ($self, $id, $profile) = @_;
+    $self->expand_list($profile, $self->_fields_expanded);
+}
+
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $profile) = @_;
+    $self->flatten_list($profile, $self->_fields_expanded);
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
