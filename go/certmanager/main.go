@@ -66,7 +66,6 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 					}, fs.StableAttr{Ino: 2})
 				r.AddChild(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType+"_"+eapkey+"_"+tlskey+".pem", bundlefile, false)
 			}
-
 		}
 	}
 }
@@ -137,14 +136,16 @@ func (r *CertStore) Refresh(ctx context.Context) {
 	// If some of the EAP configuration were changed, we should reload
 	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.EAPConfiguration) {
 		log.LoggerWContext(ctx).Info("Reloading EAP configuration and flushing cache")
+		r.Init(ctx)
 	}
 }
 
 func (r *CertStore) Init(ctx context.Context) {
 	certificate := make(map[string]map[string]map[string][]byte)
 	for eapkey, _ := range r.eap.Element {
+		certificate[eapkey] = make(map[string]map[string][]byte)
 		for tlskey, _ := range r.eap.Element[eapkey].TLS {
-
+			certificate[eapkey][tlskey] = make(map[string][]byte)
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
 
 				certificate[eapkey][tlskey]["cert"] = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate)})
@@ -157,6 +158,7 @@ func (r *CertStore) Init(ctx context.Context) {
 
 		}
 	}
+	r.certificates = certificate
 }
 func concatAppend(slices [][]byte) []byte {
 	var tmp []byte
