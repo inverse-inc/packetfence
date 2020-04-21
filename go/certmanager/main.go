@@ -25,49 +25,49 @@ type CertStore struct {
 
 func (r *CertStore) OnAdd(ctx context.Context) {
 
-	for eapkey, _ := range r.eap.Element {
+	for eapkey, element := range r.eap.Element {
 
-		for tlskey, _ := range r.eap.Element[eapkey].TLS {
-
-			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
+		for tlskey, tls := range element.TLS {
+			certType := tls.CertificateProfile.CertType
+			if certType == "radius" {
 
 				certfile := r.NewPersistentInode(
-					ctx, &fs.MemRegularFile{
+					ctx, &MemRegularFile{
 						Data: r.certificates[eapkey][tlskey]["cert"],
 						Attr: fuse.Attr{
 							Mode: 0644,
 						},
 					}, fs.StableAttr{Ino: 2})
-				r.AddChild(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType+"_"+eapkey+"_"+tlskey+".crt", certfile, false)
+				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", certfile, false)
 
 				keyfile := r.NewPersistentInode(
-					ctx, &fs.MemRegularFile{
+					ctx, &MemRegularFile{
 						Data: r.certificates[eapkey][tlskey]["key"],
 						Attr: fuse.Attr{
 							Mode: 0644,
 						},
 					}, fs.StableAttr{Ino: 2})
-				r.AddChild(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType+"_"+eapkey+"_"+tlskey+".key", keyfile, false)
+				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", keyfile, false)
 
 				cafile := r.NewPersistentInode(
-					ctx, &fs.MemRegularFile{
+					ctx, &MemRegularFile{
 						Data: r.certificates[eapkey][tlskey]["ca"],
 						Attr: fuse.Attr{
 							Mode: 0644,
 						},
 					}, fs.StableAttr{Ino: 2})
-				r.AddChild(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType+"_"+eapkey+"_"+tlskey+".pem", cafile, false)
+				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", cafile, false)
 
-			} else if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "http" {
+			} else if certType == "http" {
 
 				bundlefile := r.NewPersistentInode(
-					ctx, &fs.MemRegularFile{
+					ctx, &MemRegularFile{
 						Data: r.certificates[eapkey][tlskey]["bundle"],
 						Attr: fuse.Attr{
 							Mode: 0644,
 						},
 					}, fs.StableAttr{Ino: 2})
-				r.AddChild(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType+"_"+eapkey+"_"+tlskey+".pem", bundlefile, false)
+				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", bundlefile, false)
 			}
 		}
 	}
