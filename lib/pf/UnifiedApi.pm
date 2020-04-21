@@ -48,7 +48,7 @@ has log => sub {
 
 sub escape_char {
     my ($k) = @_;
-    if ($k eq '2f') {
+    if ($k eq '2f' || $k eq '2F') {
         return "\%$k";
     }
     return chr(hex($k));
