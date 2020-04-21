@@ -15,6 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Radiusd::TLSProfile;
 use pf::ConfigStore::Radiusd::FastProfile;
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 ## Definition
@@ -27,8 +28,12 @@ has_field 'id' => (
 
 has_field default_eap_type => (
     type     => 'Select',
-    label => 'Default EAP Type',
+    label    => 'Default EAP Type',
     required => 1,
+    options  => [
+        map { { value => lc($_), label => $_ } }
+        grep { $RADIUS_EAP_TYPE_2_VALUES{$_} } keys %RADIUS_EAP_TYPE_2_VALUES
+    ],
 );
 
 has_field timer_expire => (
