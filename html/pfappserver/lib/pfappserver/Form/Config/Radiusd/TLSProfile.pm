@@ -1,19 +1,19 @@
-package pfappserver::Form::Config::Radiusd::FastProfile;
+package pfappserver::Form::Config::Radiusd::TLSProfile;
 
 =head1 NAME
 
-pfappserver::Form::Config::Radiusd::FastProfile -
+pfappserver::Form::Config::Radiusd::TLSProfile -
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Radiusd::FastProfile
+pfappserver::Form::Config::Radiusd::TLSProfile
 
 =cut
 
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-use pf::ConfigStore::Radiusd::TLSProfile;
+use pf::ConfigStore::Radiusd::OCSPProfile;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 ## Definition
@@ -22,38 +22,42 @@ has_field 'id' =>
    type => 'Text',
    label => 'Profile Name',
    required => 1,
-   messages => { required => 'Please specify the name of the fast profile.' },
+   messages => { required => 'Please specify the name of the tls profile.' },
   );
 
-has_field 'tls' =>
-  (
-   type => 'Select',
-   required => 1,
-   options_method => \&options_tls,
-  );
-
-has_field 'authority_identity' =>
-  (
-   type => 'Text',
-   required => 1,
-  );
-
-has_field 'pac_opaque_key' => (
-    type     => 'Text',
+has_field certificate_profile => (
+    type => 'Text',
     required => 1,
-    apply    => [
-        {
-            check   => sub { $_[0] =~ /^[0-9a-fA-F]+$/ },
-            message => sub {
-                my ( $value, $field ) = @_;
-                return $field->name . " must be hexadecimal";
-            },
-        }
-    ]
 );
 
-sub options_tls {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TLSProfile->new->readAllIds};
+has_field dh_file => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field ca_path => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field cipher_list => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field ecdh_curve => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field ocsp => (
+    type => 'Select',
+    required => 1,
+    options_method => \&options_ocsp,
+);
+
+sub options_ocsp {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::OCSPProfile->new->readAllIds};
 }
 
 =head1 AUTHOR
@@ -84,4 +88,3 @@ USA.
 =cut
 
 1;
-
