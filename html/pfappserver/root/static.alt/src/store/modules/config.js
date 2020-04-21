@@ -123,6 +123,9 @@ const api = {
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
+  getNetworkBehaviorPolicies () {
+    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
+  },
   getPkiCas () {
     return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
   },
@@ -132,9 +135,6 @@ const api = {
   getPkiCerts () {
     return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
   },
-  getNetworkBehaviorPolicies () {
-    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
-  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -143,6 +143,18 @@ const api = {
   },
   getProvisionings () {
     return apiCall({ url: 'config/provisionings', method: 'get' })
+  },
+  getRadiusEaps () {
+    return apiCall({ url: 'config/radiusd/eap_profiles', method: 'get' })
+  },
+  getRadiusFasts () {
+    return apiCall({ url: 'config/radiusd/fast_profiles', method: 'get' })
+  },
+  getRadiusOcsps () {
+    return apiCall({ url: 'config/radiusd/ocsp_profiles', method: 'get' })
+  },
+  getRadiusTlss () {
+    return apiCall({ url: 'config/radiusd/tls_profiles', method: 'get' })
   },
   getRealms () {
     return apiCall({ url: 'config/realms', method: 'get' })
@@ -293,6 +305,14 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     portalModulesStatus: '',
     provisionings: false,
     provisioningsStatus: '',
+    radiusEaps: false,
+    radiusEapsStatus: '',
+    radiusFasts: false,
+    radiusFastsStatus: '',
+    radiusOcsps: false,
+    radiusOcspsStatus: '',
+    radiusTlss: false,
+    radiusTlssStatus: '',
     realms: false,
     realmsStatus: '',
     roles: false,
@@ -486,6 +506,18 @@ const getters = {
   },
   isLoadingProvisionings: state => {
     return state.provisioningsStatus === types.LOADING
+  },
+  isLoadingRadiusEaps: state => {
+    return state.radiusEapsStatus === types.LOADING
+  },
+  isLoadingRadiusFasts: state => {
+    return state.radiusFastsStatus === types.LOADING
+  },
+  isLoadingRadiusOcsps: state => {
+    return state.radiusOcspsStatus === types.LOADING
+  },
+  isLoadingRadiusTlss: state => {
+    return state.radiusTlssStatus === types.LOADING
   },
   isLoadingRealms: state => {
     return state.realmsStatus === types.LOADING
@@ -1271,6 +1303,62 @@ const actions = {
       return Promise.resolve(state.provisionings)
     }
   },
+  getRadiusEaps: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusEaps) {
+      return Promise.resolve(state.radiusEaps)
+    }
+    if (!state.radiusEaps) {
+      commit('RADIUS_EAPS_REQUEST')
+      return api.getRadiusEaps().then(response => {
+        commit('RADIUS_EAPS_UPDATED', response.data.items)
+        return state.radiusEaps
+      })
+    } else {
+      return Promise.resolve(state.radiusEaps)
+    }
+  },
+  getRadiusFasts: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusFasts) {
+      return Promise.resolve(state.radiusFasts)
+    }
+    if (!state.radiusFasts) {
+      commit('RADIUS_FASTS_REQUEST')
+      return api.getRadiusFasts().then(response => {
+        commit('RADIUS_FASTS_UPDATED', response.data.items)
+        return state.radiusFasts
+      })
+    } else {
+      return Promise.resolve(state.radiusFasts)
+    }
+  },
+  getRadiusOcsps: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusOcsps) {
+      return Promise.resolve(state.radiusOcsps)
+    }
+    if (!state.radiusOcsps) {
+      commit('RADIUS_OCSPS_REQUEST')
+      return api.getRadiusOcsps().then(response => {
+        commit('RADIUS_OCSPS_UPDATED', response.data.items)
+        return state.radiusOcsps
+      })
+    } else {
+      return Promise.resolve(state.radiusOcsps)
+    }
+  },
+  getRadiusTlss: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusTlss) {
+      return Promise.resolve(state.radiusTlss)
+    }
+    if (!state.radiusTlss) {
+      commit('RADIUS_TLSS_REQUEST')
+      return api.getRadiusTlss().then(response => {
+        commit('RADIUS_TLSS_UPDATED', response.data.items)
+        return state.radiusTlss
+      })
+    } else {
+      return Promise.resolve(state.radiusTlss)
+    }
+  },
   getRealms: ({ state, getters, commit }) => {
     if (getters.isLoadingRealms) {
       return Promise.resolve(state.realms)
@@ -1731,13 +1819,6 @@ const mutations = {
     state.connectionProfiles = connectionProfiles
     state.connectionProfilesStatus = types.SUCCESS
   },
-  SELF_SERVICES_REQUEST: (state) => {
-    state.selfServicesStatus = types.LOADING
-  },
-  SELF_SERVICES_UPDATED: (state, selfServices) => {
-    state.selfServices = selfServices
-    state.selfServicesStatus = types.SUCCESS
-  },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING
   },
@@ -1855,6 +1936,34 @@ const mutations = {
     state.provisionings = provisionings
     state.provisioningsStatus = types.SUCCESS
   },
+  RADIUS_EAPS_REQUEST: (state) => {
+    state.radiusEapsStatus = types.LOADING
+  },
+  RADIUS_EAPS_UPDATED: (state, eaps) => {
+    state.radiusEaps = eaps
+    state.radiusEapsStatus = types.SUCCESS
+  },
+  RADIUS_FASTS_REQUEST: (state) => {
+    state.radiusFastsStatus = types.LOADING
+  },
+  RADIUS_FASTS_UPDATED: (state, eaps) => {
+    state.radiusFasts = eaps
+    state.radiusFastsStatus = types.SUCCESS
+  },
+  RADIUS_OCSPS_REQUEST: (state) => {
+    state.radiusOcspsStatus = types.LOADING
+  },
+  RADIUS_OCSPS_UPDATED: (state, eaps) => {
+    state.radiusOcsps = eaps
+    state.radiusOcspsStatus = types.SUCCESS
+  },
+  RADIUS_TLSS_REQUEST: (state) => {
+    state.radiusTlssStatus = types.LOADING
+  },
+  RADIUS_TLSS_UPDATED: (state, eaps) => {
+    state.radiusTlss = eaps
+    state.radiusTlssStatus = types.SUCCESS
+  },
   REALMS_REQUEST: (state) => {
     state.realmsStatus = types.LOADING
   },
@@ -1893,6 +2002,13 @@ const mutations = {
     }
     state.securityEvents = ref
     state.securityEventsStatus = types.SUCCESS
+  },
+  SELF_SERVICES_REQUEST: (state) => {
+    state.selfServicesStatus = types.LOADING
+  },
+  SELF_SERVICES_UPDATED: (state, selfServices) => {
+    state.selfServices = selfServices
+    state.selfServicesStatus = types.SUCCESS
   },
   SOURCES_REQUEST: (state) => {
     state.sourcesStatus = types.LOADING

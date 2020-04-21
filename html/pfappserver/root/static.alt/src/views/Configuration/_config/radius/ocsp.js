@@ -7,6 +7,16 @@ import {
   attributesFromMeta,
   validatorsFromMeta
 } from '../'
+import {
+  and,
+  not,
+  conditional,
+  hasRadiusOcsps,
+  radiusOcspExists
+} from '@/globals/pfValidators'
+import {
+  required
+} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -174,8 +184,17 @@ export const view = (form = {}, meta = {}) => {
 }
 
 export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
   return {
-    id: validatorsFromMeta(meta, 'id', i18n.t('Identifier')),
+    id: {
+      ...validatorsFromMeta(meta, 'id', i18n.t('Identifier')),
+      ...{
+        [i18n.t('OCSP profile exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusOcsps, radiusOcspExists))
+      }
+    },
     ocsp_url: validatorsFromMeta(meta, 'ocsp_url', i18n.t('URL')),
     ocsp_timeout: {
       interval: validatorsFromMeta(meta, 'ocsp_timeout.interval', i18n.t('Interval')),

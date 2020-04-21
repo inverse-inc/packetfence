@@ -2520,7 +2520,7 @@ const route = {
         if (!store.state.formRadiusOcsp) { // Register store module only once
           store.registerModule('formRadiusOcsp', FormStore)
         }
-        store.dispatch('$_radius_ocsp/getOcsp', to.params.id).then(() => {
+        store.dispatch('$_radius_ocsp/getRadiusOcsp', to.params.id).then(() => {
           next()
         })
       }

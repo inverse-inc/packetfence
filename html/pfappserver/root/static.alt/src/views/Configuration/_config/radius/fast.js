@@ -6,6 +6,16 @@ import {
   attributesFromMeta,
   validatorsFromMeta
 } from '../'
+import {
+  and,
+  not,
+  conditional,
+  hasRadiusFasts,
+  radiusFastExists
+} from '@/globals/pfValidators'
+import {
+  required
+} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -124,7 +134,16 @@ export const view = (form = {}, meta = {}) => {
 }
 
 export const validators = (form = {}, meta = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = meta
   return {
-    id: validatorsFromMeta(meta, 'id', i18n.t('Identifier'))
+    id: {
+      ...validatorsFromMeta(meta, 'id', i18n.t('Identifier')),
+      ...{
+        [i18n.t('Fast profile exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusFasts, radiusFastExists))
+      }
+    }
   }
 }
