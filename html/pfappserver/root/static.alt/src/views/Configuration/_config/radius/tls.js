@@ -1,5 +1,7 @@
 import i18n from '@/utils/locale'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   attributesFromMeta,
@@ -10,6 +12,18 @@ export const columns = [
   {
     key: 'id',
     label: 'Identifier', // i18n defer
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'certificate_profile',
+    label: 'Certificate Profile', // i18n defer
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'ocsp',
+    label: 'OCSP Profile', // i18n defer
     sortable: true,
     visible: true
   },
@@ -78,6 +92,78 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'id',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'id')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Certificate Profile'),
+          cols: [
+            {
+              namespace: 'certificate_profile',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'certificate_profile')
+            }
+          ]
+        },
+        {
+          label: i18n.t('DH File'),
+          cols: [
+            {
+              namespace: 'dh_file',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'dh_file')
+            }
+          ]
+        },
+        {
+          label: i18n.t('CA Path'),
+          cols: [
+            {
+              namespace: 'ca_path',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'ca_path')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Cipher List'),
+          cols: [
+            {
+              namespace: 'cipher_list',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'cipher_list')
+            }
+          ]
+        },
+        {
+          label: i18n.t('ECDH Curve'),
+          cols: [
+            {
+              namespace: 'ecdh_curve',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'ecdh_curve')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Disable TLS'),
+          cols: [
+            {
+              namespace: 'disable_tlsv1_2',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'yes', unchecked: 'no' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('OCSP Profile'),
+          cols: [
+            {
+              namespace: 'ocsp',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'ocsp'),
             }
           ]
         }
