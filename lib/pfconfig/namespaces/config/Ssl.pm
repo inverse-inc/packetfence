@@ -28,62 +28,26 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
 
+    $self->{file} = $ssl_config_file;
+
     $self->{child_resources} = [
         'resource::eap_config'
     ];
 
-    $self->{_scoped_by_tenant_id} = 1;
-    $self->{ini} = pf::IniFiles->new(
-        -file       => $ssl_config_file,
-        -import     => pf::IniFiles->new(-file => $ssl_default_config_file),
-        -allowempty => 1,
-    );
+    my $defaults = Config::IniFiles->new( -file => $ssl_default_config_file );
+    $self->{added_params}->{'-import'} = $defaults;
+
 }
 
-sub build {
+sub build_child {
     my ($self) = @_;
-    return {
-        map {
-            my $id = $_;
-            $id => $self->build_tenant_sections($id)
-        } $self->tenant_ids()
-    };
+
+    my %tmp_cfg = %{ $self->{cfg} };
+
+    return \%tmp_cfg;
+
 }
 
-sub tenant_ids {
-    my ($self) = @_;
-    return $self->{ini}->Groups();
-}
-
-sub build_tenant_sections {
-    my ($self, $tenant_id) = @_;
-    return {
-        map {
-            my $section = $_;
-            my $name = $section;
-            $name =~ s/^\Q$tenant_id \E//;
-            $name = lc($name);
-            $name => $self->get_params($section)
-        } $self->sections_for_tenant($tenant_id)
-    };
-}
-
-sub sections_for_tenant {
-    my ($self, $tenant_id) = @_;
-    return $self->{ini}->GroupMembers($tenant_id);
-}
-
-sub get_params {
-    my ($self, $section) = @_;
-    my $ini = $self->{ini};
-    my %data;
-    for my $param ($ini->Parameters($section)) {
-        $data{$param} = $ini->val($section, $param);
-    }
-
-    $self->expand_list(\%data, qw(categories));
-    return \%data;
-}
 
 =head1 AUTHOR
 
