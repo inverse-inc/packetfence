@@ -72,7 +72,7 @@ radius-tester:
 	mv acct-tester/radius-tester/radius-tester radius-tester
 
 .PHONY: pfcertmanager
-pfacct:
+pfcertmanager:
 	cd certmanager && \
         go build && \
         cd - && \
