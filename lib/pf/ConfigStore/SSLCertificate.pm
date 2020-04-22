@@ -23,7 +23,7 @@ sub configFile { $ssl_config_file };
 
 sub importConfigFile { $ssl_default_config_file }
 
-sub pfconfigNamespace {'config::SSL'}
+sub pfconfigNamespace {'config::Ssl'}
 
 =head2 cleanupAfterRead
 
