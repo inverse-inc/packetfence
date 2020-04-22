@@ -25,6 +25,70 @@ type CertStore struct {
 	RegularFile     map[string]map[string]map[string]map[string]*MemRegularFile
 }
 
+func main() {
+
+	sigs := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	log.SetProcessName("Certmanager")
+	ctx = log.LoggerNewContext(ctx)
+
+	mountpoint := "/usr/local/pf/conf/certmanager"
+
+	configEAP := pfconfigdriver.Config.EAPConfiguration
+
+	opts := &fs.Options{}
+
+	var certStore = &CertStore{}
+
+	certStore.eap = configEAP
+
+	certStore.refreshLauncher = &sync.Once{}
+
+	certStore.Init(ctx)
+
+	server, err := fs.Mount(mountpoint, certStore, opts)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Mount fail: %v\n", err)
+	}
+
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, certStore)
+
+	go func(server *fuse.Server) {
+		sig := <-sigs
+		fmt.Println()
+		fmt.Println(sig)
+		server.Unmount()
+		done <- true
+		os.Exit(0)
+	}(server)
+
+	go func() {
+		<-done
+	}()
+
+	certStore.RefreshPfconfig(ctx)
+
+	daemon.SdNotify(false, "READY=1")
+
+	go func() {
+		interval, err := daemon.SdWatchdogEnabled(false)
+		if err != nil || interval == 0 {
+			return
+		}
+		for {
+			daemon.SdNotify(false, "WATCHDOG=1")
+			time.Sleep(interval / 3)
+		}
+	}()
+
+	defer NotifySystemd("STOPPING=1")
+
+	server.Wait()
+}
+
 // OnAdd Initialize the filesystem
 func (r *CertStore) OnAdd(ctx context.Context) {
 	RegularFile := make(map[string]map[string]map[string]map[string]*MemRegularFile)
@@ -116,70 +180,6 @@ var _ = (fs.NodeGetattrer)((*CertStore)(nil))
 var _ = (fs.NodeOnAdder)((*CertStore)(nil))
 
 var ctx = context.Background()
-
-func main() {
-
-	sigs := make(chan os.Signal, 1)
-	done := make(chan bool, 1)
-
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	log.SetProcessName("Certmanager")
-	ctx = log.LoggerNewContext(ctx)
-
-	mountpoint := "/usr/local/pf/conf/certmanager"
-
-	configEAP := pfconfigdriver.Config.EAPConfiguration
-
-	opts := &fs.Options{}
-
-	var certStore = &CertStore{}
-
-	certStore.eap = configEAP
-
-	certStore.refreshLauncher = &sync.Once{}
-
-	certStore.Init(ctx)
-
-	server, err := fs.Mount(mountpoint, certStore, opts)
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Mount fail: %v\n", err)
-	}
-
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, certStore)
-
-	go func(server *fuse.Server) {
-		sig := <-sigs
-		fmt.Println()
-		fmt.Println(sig)
-		server.Unmount()
-		done <- true
-		os.Exit(0)
-	}(server)
-
-	go func() {
-		<-done
-	}()
-
-	certStore.RefreshPfconfig(ctx)
-
-	daemon.SdNotify(false, "READY=1")
-
-	go func() {
-		interval, err := daemon.SdWatchdogEnabled(false)
-		if err != nil || interval == 0 {
-			return
-		}
-		for {
-			daemon.SdNotify(false, "WATCHDOG=1")
-			time.Sleep(interval / 3)
-		}
-	}()
-
-	defer NotifySystemd("STOPPING=1")
-
-	server.Wait()
-}
 
 func NotifySystemd(msg string) {
 	_, err := daemon.SdNotify(false, msg)
