@@ -9,13 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+// CertStore truct
 type CertStore struct {
 	fs.Inode
 	refreshLauncher *sync.Once
@@ -24,9 +24,10 @@ type CertStore struct {
 	RegularFile     map[string]map[string]map[string]map[string]*MemRegularFile
 }
 
+// OnAdd Initialize the filesystem
 func (r *CertStore) OnAdd(ctx context.Context) {
 	RegularFile := make(map[string]map[string]map[string]map[string]*MemRegularFile)
-
+	Inode := uint64(2)
 	for eapkey, element := range r.eap.Element {
 		RegularFile[eapkey] = make(map[string]map[string]map[string]*MemRegularFile)
 		for tlskey, tls := range element.TLS {
@@ -41,17 +42,20 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Mode: 0644,
 					},
 				}
-				certfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["cert"], fs.StableAttr{Ino: 2})
+
+				certfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["cert"], fs.StableAttr{Ino: Inode})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", certfile, false)
 
+				Inode++
 				RegularFile[eapkey][tlskey][certType]["key"] = &MemRegularFile{
 					Data: r.certificates[eapkey][tlskey]["key"],
 					Attr: fuse.Attr{
 						Mode: 0644,
 					},
 				}
-				keyfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["key"], fs.StableAttr{Ino: 2})
+				keyfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["key"], fs.StableAttr{Ino: Inode})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", keyfile, false)
+				Inode++
 
 				RegularFile[eapkey][tlskey][certType]["pem"] = &MemRegularFile{
 					Data: r.certificates[eapkey][tlskey]["ca"],
@@ -59,9 +63,9 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Mode: 0644,
 					},
 				}
-				cafile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: 2})
+				cafile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: Inode})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", cafile, false)
-
+				Inode++
 			} else if certType == "http" {
 				RegularFile[eapkey][tlskey][certType] = make(map[string]*MemRegularFile)
 
@@ -72,14 +76,16 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 					},
 				}
 
-				bundlefile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: 2})
+				bundlefile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: Inode})
 				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", bundlefile, false)
+				Inode++
 			}
 		}
 	}
 	r.RegularFile = RegularFile
 }
 
+// Getattr function
 func (r *CertStore) Getattr(ctx context.Context, fh fs.FileHandle, out *fuse.AttrOut) syscall.Errno {
 	out.Mode = 0755
 	return 0
@@ -102,7 +108,6 @@ func main() {
 
 	mountpoint := "/usr/local/pf/conf/certmanager"
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.EAPConfiguration)
 	configEAP := pfconfigdriver.Config.EAPConfiguration
 
 	opts := &fs.Options{}
@@ -140,6 +145,7 @@ func main() {
 	server.Wait()
 }
 
+// RefreshPfconfig refresh the pfconfig pool
 func (r *CertStore) RefreshPfconfig(ctx context.Context) {
 	id, err := pfconfigdriver.PfconfigPool.ReadLock(ctx)
 	if err == nil {
@@ -161,33 +167,32 @@ func (r *CertStore) RefreshPfconfig(ctx context.Context) {
 	}
 }
 
+// Refresh the content of the files if something changed
 func (r *CertStore) Refresh(ctx context.Context) {
 	// If some of the EAP configuration were changed, we should reload
 
 	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.EAPConfiguration) {
 		log.LoggerWContext(ctx).Info("Reloading EAP configuration and flushing cache")
-		spew.Dump("Brout")
 		r.Init(ctx)
-
 		r.Reload(ctx)
 	}
 }
 
+// Init initialze the certificates map
 func (r *CertStore) Init(ctx context.Context) {
 	certificate := make(map[string]map[string]map[string][]byte)
 	// Read Fresh configuration
+	pfconfigdriver.FetchDecodeSocketCache(ctx, &pfconfigdriver.Config.EAPConfiguration)
 	r.eap = pfconfigdriver.Config.EAPConfiguration
 
-	for eapkey, _ := range r.eap.Element {
+	for eapkey := range r.eap.Element {
 		certificate[eapkey] = make(map[string]map[string][]byte)
-		for tlskey, _ := range r.eap.Element[eapkey].TLS {
+		for tlskey := range r.eap.Element[eapkey].TLS {
 			certificate[eapkey][tlskey] = make(map[string][]byte)
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
-
 				certificate[eapkey][tlskey]["cert"] = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate)})
 				certificate[eapkey][tlskey]["key"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)
 				certificate[eapkey][tlskey]["ca"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Ca)
-
 			} else if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "http" {
 				certificate[eapkey][tlskey]["bundle"] = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)})
 			}
@@ -197,11 +202,12 @@ func (r *CertStore) Init(ctx context.Context) {
 	r.certificates = certificate
 }
 
+// Reload the content the content of the files
 func (r *CertStore) Reload(ctx context.Context) {
 
-	for eapkey, _ := range r.eap.Element {
+	for eapkey := range r.eap.Element {
 
-		for tlskey, _ := range r.eap.Element[eapkey].TLS {
+		for tlskey := range r.eap.Element[eapkey].TLS {
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
 				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["cert"].SetData(r.certificates[eapkey][tlskey]["cert"])
 				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["key"].SetData(r.certificates[eapkey][tlskey]["key"])
