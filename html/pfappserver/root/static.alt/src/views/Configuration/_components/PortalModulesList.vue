@@ -1,5 +1,5 @@
 <template>
-  <b-card class="h-100" no-body ref="container">
+  <b-card no-body ref="container">
     <b-card-header>
       <h4 class="mb-0">
         {{ $t('Portal Modules') }}
@@ -7,7 +7,7 @@
       </h4>
     </b-card-header>
     <!-- Visual representation of portal modules -->
-    <b-tabs class="tab-pane-scroll flex-grow-1" :class="{ minimize: minimize }" v-model="tabIndex" card>
+    <b-tabs class="flex-grow-1" :class="{ minimize: minimize }" v-scroll-100 v-model="tabIndex" card>
       <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
         <b-form-row class="justify-content-end">
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
@@ -79,6 +79,7 @@ import PortalModule from './PortalModule'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import scroll100 from '@/directives/scroll-100'
 import {
   columns,
   fields,
@@ -97,6 +98,9 @@ export default {
     pfButtonHelp,
     pfButtonSave,
     pfButtonDelete
+  },
+  directives: {
+    scroll100
   },
   props: {
     searchableOptions: {
@@ -128,8 +132,7 @@ export default {
       minimize: false,
       requestPage: 1,
       currentPage: 1,
-      pageSizeLimit: 1000,
-      parentNodes: []
+      pageSizeLimit: 1000
     }
   },
   computed: {
@@ -253,34 +256,11 @@ export default {
         })
       }
     }
-  },
-  mounted () {
-    if (this.parentNodes.length === 0) {
-      // Find all parent DOM nodes
-      let parentNode = this.$el.parentNode
-      while (parentNode && 'classList' in parentNode) {
-        this.parentNodes.push(parentNode)
-        parentNode = parentNode.parentNode
-      }
-    }
-    // Force all parent nodes to take 100% of the window height
-    this.parentNodes.forEach(node => {
-      node.classList.add('h-100')
-    })
-  },
-  beforeDestroy () {
-    // Remove height constraint on all parent nodes
-    this.parentNodes.forEach(node => {
-      node.classList.remove('h-100')
-    })
   }
 }
 </script>
 
 <style lang="scss">
-.tab-pane-scroll {
-  overflow: auto;
-}
 .card-bg {
   color: $card-bg;
 }
@@ -313,6 +293,7 @@ export default {
 
 .card-footer-fixed {
   overflow: auto;
+  overflow-y: hidden;
   height: 20vh;
   min-height: 12rem;
   padding: 0;
