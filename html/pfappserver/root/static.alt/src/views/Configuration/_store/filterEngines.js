@@ -49,7 +49,7 @@ const actions = {
   },
   getCollection: ({ state, commit, dispatch }, collection) => {
     if (state.cache[collection] && 'items' in state.cache[collection]) {
-      return Promise.resolve(state.cache[collection]).then(collection => collection)
+      return Promise.resolve(state.cache[collection])
     }
     return dispatch('getCollections').then(() => {
       commit('COLLECTION_REQUEST')
