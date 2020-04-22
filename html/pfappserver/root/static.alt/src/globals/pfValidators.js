@@ -456,6 +456,14 @@ export const hasRadiusOcsps = () => {
   })
 }
 
+export const hasRadiusSsls = () => {
+  return store.dispatch('config/getRadiusSsls').then(response => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasRadiusTlss = () => {
   return store.dispatch('config/getRadiusTlss').then(response => {
     return (response.length > 0)
@@ -845,6 +853,16 @@ export const radiusOcspExists = (value) => {
   return store.dispatch('config/getRadiusOcsps').then(response => {
     if (response.length === 0) return true
     else return response.filter(ocsp => ocsp.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
+  })
+}
+
+export const radiusSslExists = (value) => {
+  if (!value) return true
+  return store.dispatch('config/getRadiusSsls').then(response => {
+    if (response.length === 0) return true
+    else return response.filter(ssl => ssl.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

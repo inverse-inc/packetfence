@@ -153,6 +153,9 @@ const api = {
   getRadiusOcsps () {
     return apiCall({ url: 'config/radiusd/ocsp_profiles', method: 'get' })
   },
+  getRadiusSsls () {
+    return apiCall({ url: 'config/ssl_certificates', method: 'get' })
+  },
   getRadiusTlss () {
     return apiCall({ url: 'config/radiusd/tls_profiles', method: 'get' })
   },
@@ -311,6 +314,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusFastsStatus: '',
     radiusOcsps: false,
     radiusOcspsStatus: '',
+    radiusSsls: false,
+    radiusSslsStatus: '',
     radiusTlss: false,
     radiusTlssStatus: '',
     realms: false,
@@ -515,6 +520,9 @@ const getters = {
   },
   isLoadingRadiusOcsps: state => {
     return state.radiusOcspsStatus === types.LOADING
+  },
+  isLoadingRadiusSsls: state => {
+    return state.radiusSslsStatus === types.LOADING
   },
   isLoadingRadiusTlss: state => {
     return state.radiusTlssStatus === types.LOADING
@@ -1345,6 +1353,20 @@ const actions = {
       return Promise.resolve(state.radiusOcsps)
     }
   },
+  getRadiusSsls: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusSsls) {
+      return Promise.resolve(state.radiusSsls)
+    }
+    if (!state.radiusSsls) {
+      commit('RADIUS_SSLS_REQUEST')
+      return api.getRadiusSsls().then(response => {
+        commit('RADIUS_SSLS_UPDATED', response.data.items)
+        return state.radiusSsls
+      })
+    } else {
+      return Promise.resolve(state.radiusSsls)
+    }
+  },
   getRadiusTlss: ({ state, getters, commit }) => {
     if (getters.isLoadingRadiusTlss) {
       return Promise.resolve(state.radiusTlss)
@@ -1956,6 +1978,13 @@ const mutations = {
   RADIUS_OCSPS_UPDATED: (state, eaps) => {
     state.radiusOcsps = eaps
     state.radiusOcspsStatus = types.SUCCESS
+  },
+  RADIUS_SSLS_REQUEST: (state) => {
+    state.radiusSslsStatus = types.LOADING
+  },
+  RADIUS_SSLS_UPDATED: (state, eaps) => {
+    state.radiusSsls = eaps
+    state.radiusSslsStatus = types.SUCCESS
   },
   RADIUS_TLSS_REQUEST: (state) => {
     state.radiusTlssStatus = types.LOADING
