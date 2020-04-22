@@ -326,12 +326,12 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 					vsaTyp, vsaLen := vsa[0], vsa[1]
 					data := vsa[2:int(vsaLen)]
 					a := dictionary.AttributeByOID(v.Attributes, []int{int(vsaTyp)})
+					vsa = vsa[int(vsaLen):]
 					if a == nil {
 						continue
 					}
 
 					addAttributeToMap(ctx, attributes, a, radius.Attribute(data))
-					vsa = vsa[int(vsaLen):]
 				}
 			}
 		} else {
