@@ -15,9 +15,9 @@ use warnings;
 
 use pf::log;
 use pf::api::jsonrpcclient;
-use pf::constants::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
-use pf::util qw(isenabled);
+use pf::util qw(isenabled connection_type_to_str);
+use Scalar::Util qw(looks_like_number);
 use pf::factory::condition::access_filter;
 use pf::filter_engine;
 use pf::filter;
@@ -70,6 +70,7 @@ sub test {
 
 sub filter {
     my ($self, $scope, $args) = @_;
+    $args = $self->adjustCommonParams($args);
     my $rule = $self->test($scope, $args);
     return $self->filterRule($rule, $args);
 }
@@ -167,6 +168,15 @@ sub _replaceParamsDeep {
         return '';
     }
     return $hash->{$param} // '';
+}
+
+sub adjustCommonParams {
+    my ($self, $args) = @_;
+    if(exists($args->{connection_type}) && looks_like_number($args->{connection_type})) {
+        $args = { %$args, connection_type => connection_type_to_str($args->{connection_type}) };
+    }
+
+    return $args;
 }
 
 
