@@ -84,6 +84,10 @@ export const config = () => {
 }
 
 export const view = (form = {}, meta = {}) => {
+  const {
+    isDefault = false
+  } = meta
+
   return [
     {
       tab: null,
@@ -94,7 +98,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'id',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'id')
+              attrs: {
+                ...attributesFromMeta(meta, 'id'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -104,7 +111,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'tls',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'root_module')
+              attrs: {
+                ...attributesFromMeta(meta, 'tls'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -114,7 +124,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'authority_identity',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'authority_identity')
+              attrs: {
+                ...attributesFromMeta(meta, 'authority_identity'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -124,7 +137,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'pac_opaque_key',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'pac_opaque_key')
+              attrs: {
+                ...attributesFromMeta(meta, 'pac_opaque_key'),
+                disabled: isDefault
+              }
             }
           ]
         }

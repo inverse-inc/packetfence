@@ -79,6 +79,10 @@ export const config = () => {
 }
 
 export const view = (form = {}, meta = {}) => {
+  const {
+    isDefault = false
+  } = meta
+
   return [
     {
       tab: null,
@@ -89,7 +93,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'id',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'id')
+              attrs: {
+                ...attributesFromMeta(meta, 'id'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -101,7 +108,8 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ocsp_enable',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
+                values: { checked: 'yes', unchecked: 'no' },
+                disabled: isDefault
               }
             }
           ]
@@ -114,7 +122,8 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ocsp_override_cert_url',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
+                values: { checked: 'yes', unchecked: 'no' },
+                disabled: isDefault
               }
             }
           ]
@@ -127,7 +136,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ocsp_url',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'ocsp_url')
+              attrs: {
+                ...attributesFromMeta(meta, 'ocsp_url'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -139,7 +151,8 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ocsp_use_nonce',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
+                values: { checked: 'yes', unchecked: 'no' },
+                disabled: isDefault
               }
             }
           ]
@@ -151,16 +164,18 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ocsp_timeout.interval',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'ocsp_timeout.interval')
+              attrs: {
+                ...attributesFromMeta(meta, 'ocsp_timeout.interval'),
+                disabled: isDefault
+              }
             },
             {
               namespace: 'ocsp_timeout.unit',
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'ocsp_timeout.unit'),
-                ...{
-                  allowEmpty: false
-                }
+                disabled: isDefault,
+                allowEmpty: false
               }
             }
           ]
@@ -173,7 +188,8 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ocsp_softfail',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
+                values: { checked: 'yes', unchecked: 'no' },
+                disabled: isDefault
               }
             }
           ]

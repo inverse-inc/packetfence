@@ -109,6 +109,10 @@ export const config = () => {
 }
 
 export const view = (form = {}, meta = {}) => {
+  const {
+    isDefault = false
+  } = meta
+
   return [
     {
       tab: null,
@@ -119,7 +123,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'id',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'id')
+              attrs: {
+                ...attributesFromMeta(meta, 'id'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -129,7 +136,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'default_eap_type',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'default_eap_type')
+              attrs: {
+                ...attributesFromMeta(meta, 'default_eap_type'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -139,7 +149,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'expire_time',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'expire_time')
+              attrs: {
+                ...attributesFromMeta(meta, 'expire_time'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -150,7 +163,8 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'ignore_unknown_eap_types',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
+                values: { checked: 'yes', unchecked: 'no' },
+                disabled: isDefault
               }
             }
           ]
@@ -162,7 +176,8 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'cisco_accounting_username_bug',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
+                values: { checked: 'yes', unchecked: 'no' },
+                disabled: isDefault
               }
             }
           ]
@@ -173,7 +188,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'max_sessions',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'max_sessions')
+              attrs: {
+                ...attributesFromMeta(meta, 'max_sessions'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -183,7 +201,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'eap_authentication_types',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'eap_authentication_types')
+              attrs: {
+                ...attributesFromMeta(meta, 'eap_authentication_types'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -193,7 +214,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'tls_tlsprofile',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'tls_tlsprofile')
+              attrs: {
+                ...attributesFromMeta(meta, 'tls_tlsprofile'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -203,7 +227,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ttls_tlsprofile',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'ttls_tlsprofile')
+              attrs: {
+                ...attributesFromMeta(meta, 'ttls_tlsprofile'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -213,7 +240,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'peap_tlsprofile',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'peap_tlsprofile')
+              attrs: {
+                ...attributesFromMeta(meta, 'peap_tlsprofile'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -223,7 +253,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'fast_config',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'fast_config')
+              attrs: {
+                ...attributesFromMeta(meta, 'fast_config'),
+                disabled: isDefault
+              }
             }
           ]
         }

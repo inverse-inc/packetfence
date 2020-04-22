@@ -91,6 +91,10 @@ export const config = () => {
 }
 
 export const view = (form = {}, meta = {}) => {
+  const {
+    isDefault = false
+  } = meta
+
   return [
     {
       tab: null,
@@ -101,7 +105,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'id',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'id')
+              attrs: {
+                ...attributesFromMeta(meta, 'id'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -111,7 +118,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'certificate_profile',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'certificate_profile')
+              attrs: {
+                ...attributesFromMeta(meta, 'certificate_profile'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -121,7 +131,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'dh_file',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'dh_file')
+              attrs: {
+                ...attributesFromMeta(meta, 'dh_file'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -131,7 +144,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ca_path',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'ca_path')
+              attrs: {
+                ...attributesFromMeta(meta, 'ca_path'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -141,7 +157,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'cipher_list',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'cipher_list')
+              attrs: {
+                ...attributesFromMeta(meta, 'cipher_list'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -151,7 +170,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ecdh_curve',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'ecdh_curve')
+              attrs: {
+                ...attributesFromMeta(meta, 'ecdh_curve'),
+                disabled: isDefault
+              }
             }
           ]
         },
@@ -162,7 +184,8 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'disable_tlsv1_2',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
+                values: { checked: 'yes', unchecked: 'no' },
+                disabled: isDefault
               }
             }
           ]
@@ -173,7 +196,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'ocsp',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'ocsp'),
+              attrs: {
+                ...attributesFromMeta(meta, 'ocsp'),
+                disabled: isDefault
+              }
             }
           ]
         }

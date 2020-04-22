@@ -101,7 +101,7 @@ export default {
           this.$store.dispatch('$_radius_eap/getRadiusEap', this.id).then(form => {
             if (isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable } })
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, isDefault: (this.id === 'default' && !isClone) } })
           })
         })
       } else {
