@@ -37,36 +37,56 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 			if certType == "radius" {
 				RegularFile[eapkey][tlskey][certType] = make(map[string]*MemRegularFile)
 
-				RegularFile[eapkey][tlskey][certType]["cert"] = &MemRegularFile{
-					Data: r.certificates[eapkey][tlskey]["cert"],
-					Attr: fuse.Attr{
-						Mode: 0644,
-					},
-				}
+				if eapkey == "default" && (tlskey == "tls-eap-fast" || (tlskey == "tls-common")) {
 
-				certfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["cert"], fs.StableAttr{Ino: Inode})
-				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", certfile, false)
+					cert := r.NewPersistentInode(ctx, &fs.MemSymlink{
+						Data: r.certificates[eapkey][tlskey]["cert"],
+					}, fs.StableAttr{Mode: syscall.S_IFLNK})
+					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", cert, false)
 
-				Inode++
-				RegularFile[eapkey][tlskey][certType]["key"] = &MemRegularFile{
-					Data: r.certificates[eapkey][tlskey]["key"],
-					Attr: fuse.Attr{
-						Mode: 0644,
-					},
-				}
-				keyfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["key"], fs.StableAttr{Ino: Inode})
-				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", keyfile, false)
-				Inode++
+					key := r.NewPersistentInode(ctx, &fs.MemSymlink{
+						Data: r.certificates[eapkey][tlskey]["key"],
+					}, fs.StableAttr{Mode: syscall.S_IFLNK})
+					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", key, false)
 
-				RegularFile[eapkey][tlskey][certType]["pem"] = &MemRegularFile{
-					Data: r.certificates[eapkey][tlskey]["ca"],
-					Attr: fuse.Attr{
-						Mode: 0644,
-					},
+					ca := r.NewPersistentInode(ctx, &fs.MemSymlink{
+						Data: r.certificates[eapkey][tlskey]["ca"],
+					}, fs.StableAttr{Mode: syscall.S_IFLNK})
+					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", ca, false)
+
+				} else {
+
+					RegularFile[eapkey][tlskey][certType]["cert"] = &MemRegularFile{
+						Data: r.certificates[eapkey][tlskey]["cert"],
+						Attr: fuse.Attr{
+							Mode: 0644,
+						},
+					}
+
+					certfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["cert"], fs.StableAttr{Ino: Inode})
+					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", certfile, false)
+
+					Inode++
+					RegularFile[eapkey][tlskey][certType]["key"] = &MemRegularFile{
+						Data: r.certificates[eapkey][tlskey]["key"],
+						Attr: fuse.Attr{
+							Mode: 0644,
+						},
+					}
+					keyfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["key"], fs.StableAttr{Ino: Inode})
+					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", keyfile, false)
+					Inode++
+
+					RegularFile[eapkey][tlskey][certType]["pem"] = &MemRegularFile{
+						Data: r.certificates[eapkey][tlskey]["ca"],
+						Attr: fuse.Attr{
+							Mode: 0644,
+						},
+					}
+					cafile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: Inode})
+					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", cafile, false)
+					Inode++
 				}
-				cafile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: Inode})
-				r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", cafile, false)
-				Inode++
 			} else if certType == "http" {
 				RegularFile[eapkey][tlskey][certType] = make(map[string]*MemRegularFile)
 
@@ -213,9 +233,15 @@ func (r *CertStore) Init(ctx context.Context) {
 		for tlskey := range r.eap.Element[eapkey].TLS {
 			certificate[eapkey][tlskey] = make(map[string][]byte)
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
-				certificate[eapkey][tlskey]["cert"] = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate)})
-				certificate[eapkey][tlskey]["key"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)
-				certificate[eapkey][tlskey]["ca"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Ca)
+				if eapkey == "default" && (tlskey == "tls-eap-fast" || (tlskey == "tls-common")) {
+					certificate[eapkey][tlskey]["cert"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert)
+					certificate[eapkey][tlskey]["key"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)
+					certificate[eapkey][tlskey]["ca"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Ca)
+				} else {
+					certificate[eapkey][tlskey]["cert"] = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate)})
+					certificate[eapkey][tlskey]["key"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)
+					certificate[eapkey][tlskey]["ca"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Ca)
+				}
 			} else if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "http" {
 				certificate[eapkey][tlskey]["bundle"] = concatAppend([][]byte{[]byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Intermediate), []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)})
 			}
@@ -232,9 +258,11 @@ func (r *CertStore) Reload(ctx context.Context) {
 
 		for tlskey := range r.eap.Element[eapkey].TLS {
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
-				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["cert"].SetData(r.certificates[eapkey][tlskey]["cert"])
-				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["key"].SetData(r.certificates[eapkey][tlskey]["key"])
-				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["key"].SetData(r.certificates[eapkey][tlskey]["ca"])
+				if !(eapkey == "default" && (tlskey == "tls-eap-fast" || (tlskey == "tls-common"))) {
+					r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["cert"].SetData(r.certificates[eapkey][tlskey]["cert"])
+					r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["key"].SetData(r.certificates[eapkey][tlskey]["key"])
+					r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["key"].SetData(r.certificates[eapkey][tlskey]["ca"])
+				}
 			} else if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "http" {
 				r.RegularFile[eapkey][tlskey][r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType]["pem"].SetData(r.certificates[eapkey][tlskey]["bundle"])
 			}
