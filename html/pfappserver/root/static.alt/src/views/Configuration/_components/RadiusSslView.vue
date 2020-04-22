@@ -12,9 +12,9 @@
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="d-inline mb-0">
-        <span v-if="!isNew && !isClone" v-html="$t('SSL Configuration')"></span>
-        <span v-else-if="isClone" v-html="$t('Clone SSL Configuration')"></span>
-        <span v-else>{{ $t('New SSL Configuration') }}</span>
+        <span v-if="!isNew && !isClone" v-html="$t('SSL Certificate')"></span>
+        <span v-else-if="isClone" v-html="$t('Clone SSL Certificate')"></span>
+        <span v-else>{{ $t('New SSL Certificate') }}</span>
       </h4>
     </template>
     <template v-slot:footer>

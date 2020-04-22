@@ -6,20 +6,20 @@
     >
       <template v-slot:pageHeader>
         <b-card-header>
-          <h4 class="mb-0">{{ $t('RADIUS OCSP') }}</h4>
+          <h4 class="mb-0">{{ $t('OCSP Profiles') }}</h4>
         </b-card-header>
       </template>
       <template v-slot:buttonAdd>
-        <b-button variant="outline-primary" :to="{ name: 'newRadiusOcsp' }">{{ $t('New OCSP Configuration') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newRadiusOcsp' }">{{ $t('New OCSP Profile') }}</b-button>
         <pf-button-service service="radiusd-acct" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
         <pf-button-service service="radiusd-auth" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No OCSP configurations found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No OCSP profiles found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Configuration?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Profile?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>

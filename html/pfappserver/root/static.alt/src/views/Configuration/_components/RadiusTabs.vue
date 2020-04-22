@@ -7,19 +7,19 @@
       <b-tab :title="$t('General')" @click="changeTab('radiusGeneral')">
         <radius-general-view />
       </b-tab>
-      <b-tab :title="$t('EAP')" @click="changeTab('radiusEaps')">
+      <b-tab :title="$t('EAP Profiles')" @click="changeTab('radiusEaps')">
         <radius-eap-list />
       </b-tab>
-      <b-tab :title="$t('TLS')" @click="changeTab('radiusTlss')">
+      <b-tab :title="$t('TLS Profiles')" @click="changeTab('radiusTlss')">
         <radius-tls-list />
       </b-tab>
-      <b-tab :title="$t('Fast')" @click="changeTab('radiusFasts')">
+      <b-tab :title="$t('Fast Profiles')" @click="changeTab('radiusFasts')">
         <radius-fast-list />
       </b-tab>
-      <b-tab :title="$t('SSL')" @click="changeTab('radiusSsls')">
+      <b-tab :title="$t('SSL Certificates')" @click="changeTab('radiusSsls')">
         <radius-ssl-list />
       </b-tab>
-      <b-tab :title="$t('OCSP')" @click="changeTab('radiusOcsps')">
+      <b-tab :title="$t('OCSP Profiles')" @click="changeTab('radiusOcsps')">
         <radius-ocsp-list />
       </b-tab>
     </b-tabs>

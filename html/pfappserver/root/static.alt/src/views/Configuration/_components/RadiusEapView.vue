@@ -12,9 +12,9 @@
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="d-inline mb-0">
-        <span v-if="!isNew && !isClone" v-html="$t('EAP Configuration')"></span>
-        <span v-else-if="isClone" v-html="$t('Clone EAP Configuration')"></span>
-        <span v-else>{{ $t('New EAP Configuration') }}</span>
+        <span v-if="!isNew && !isClone" v-html="$t('EAP Profile')"></span>
+        <span v-else-if="isClone" v-html="$t('Clone EAP Profile')"></span>
+        <span v-else>{{ $t('New EAP Profile') }}</span>
       </h4>
     </template>
     <template v-slot:footer>
