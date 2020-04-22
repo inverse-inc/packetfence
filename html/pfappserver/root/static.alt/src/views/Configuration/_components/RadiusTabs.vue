@@ -4,8 +4,8 @@
       <h4 class="mb-0" v-t="'RADIUS'"></h4>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
-      <b-tab :title="$t('General')" @click="changeTab('radiusGeneral')">
-        <radius-general-view />
+      <b-tab :title="$t('General Configuration')" @click="changeTab('radiusGeneral')">
+        <radius-general-view form-store-name="formRadiusGeneral" />
       </b-tab>
       <b-tab :title="$t('EAP Profiles')" @click="changeTab('radiusEaps')">
         <radius-eap-list />
@@ -59,6 +59,11 @@ export default {
   methods: {
     changeTab (name) {
       this.$router.push({ name })
+    }
+  },
+  beforeMount () {
+    if (!this.$store.state.formRadiusGeneral) { // Register store module only once
+      this.$store.registerModule('formRadiusGeneral', FormStore)
     }
   }
 }

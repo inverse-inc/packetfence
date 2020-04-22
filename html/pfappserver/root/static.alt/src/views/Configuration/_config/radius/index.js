@@ -11,41 +11,8 @@ import {
 export const view = (form = {}, meta = {}) => {
   return [
     {
-      tab: i18n.t('General'),
+      tab: null,
       rows: [
-        {
-          label: i18n.t('EAP Auth Types'),
-          text: i18n.t('Supported EAP Authentication Methods.'),
-          cols: [
-            {
-              namespace: 'eap_authentication_types',
-              component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'eap_authentication_types')
-            }
-          ]
-        },
-        {
-          label: i18n.t('EAP FAST Key'),
-          text: i18n.t('EAP-FAST Opaque Key (32 randomized bytes).'),
-          cols: [
-            {
-              namespace: 'eap_fast_opaque_key',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'eap_fast_opaque_key')
-            }
-          ]
-        },
-        {
-          label: i18n.t('EAP FAST Authority Identity'),
-          text: i18n.t('EAP-FAST authority ID.'),
-          cols: [
-            {
-              namespace: 'eap_fast_authority_identity',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'eap_fast_authority_identity')
-            }
-          ]
-        },
         {
           label: i18n.t('Record accounting in SQL tables'),
           text: i18n.t('Record the accounting data in the SQL tables. Requires a restart of radiusd to be effective.'),
@@ -193,92 +160,6 @@ export const view = (form = {}, meta = {}) => {
                 ...{
                   rows: 5
                 }
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      tab: 'OCSP',
-      rows: [
-        {
-          label: i18n.t('Enable'),
-          text: i18n.t('Enable OCSP checking.'),
-          cols: [
-            {
-              namespace: 'ocsp_enable',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Override Responder URL'),
-          text: i18n.t('Override the OCSP Responder URL from the certificate.'),
-          cols: [
-            {
-              namespace: 'ocsp_override_cert_url',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
-              }
-            }
-          ]
-        },
-        {
-          if: form.ocsp_override_cert_url === 'yes',
-          label: i18n.t('Responder URL'),
-          text: i18n.t('The overridden OCSP Responder URL.'),
-          cols: [
-            {
-              namespace: 'ocsp_url',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'ocsp_url')
-            }
-          ]
-        },
-        {
-          label: i18n.t('Use nonce'),
-          text: i18n.t('If the OCSP Responder can not cope with nonce in the request, then it can be disabled here.'),
-          cols: [
-            {
-              namespace: 'ocsp_use_nonce',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Response timeout'),
-          text: i18n.t('Number of seconds to wait for the OCSP response. 0 uses system default.'),
-          cols: [
-            {
-              namespace: 'ocsp_timeout',
-              component: pfFormInput,
-              attrs: {
-                ...attributesFromMeta(meta, 'ocsp_timeout'),
-                ...{
-                  type: 'number',
-                  step: 1
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Response softfail'),
-          text: i18n.t(`Treat OCSP response errors as 'soft' failures and still accept the certificate.`),
-          cols: [
-            {
-              namespace: 'ocsp_softfail',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
               }
             }
           ]
