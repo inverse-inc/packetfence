@@ -365,7 +365,7 @@ export default {
     })
   },
   filterEnginesCollection: collection => {
-    return apiCall.getQuiet(['config', 'filter_engines', collection]).then(response => {
+    return apiCall.get(['config', 'filter_engines', collection], { params: { limit: 1000 } }).then(response => {
       return response.data
     }).catch(err => {
       throw err
