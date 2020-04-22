@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"os/user"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -93,6 +95,11 @@ func main() {
 func (r *CertStore) OnAdd(ctx context.Context) {
 	RegularFile := make(map[string]map[string]map[string]map[string]*MemRegularFile)
 	Inode := uint64(2)
+	User, _ := user.Lookup("pf")
+	Uid, _ := strconv.Atoi(User.Uid)
+	Gid, _ := strconv.Atoi(User.Gid)
+	Owner := fuse.Owner{Uid: uint32(Uid), Gid: uint32(Gid)}
+
 	for eapkey, element := range r.eap.Element {
 		RegularFile[eapkey] = make(map[string]map[string]map[string]*MemRegularFile)
 		for tlskey, tls := range element.TLS {
@@ -105,16 +112,28 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 
 					cert := r.NewPersistentInode(ctx, &fs.MemSymlink{
 						Data: r.certificates[eapkey][tlskey]["cert"],
+						Attr: fuse.Attr{
+							Mode:  0664,
+							Owner: Owner,
+						},
 					}, fs.StableAttr{Mode: syscall.S_IFLNK})
 					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", cert, false)
 
 					key := r.NewPersistentInode(ctx, &fs.MemSymlink{
 						Data: r.certificates[eapkey][tlskey]["key"],
+						Attr: fuse.Attr{
+							Mode:  0664,
+							Owner: Owner,
+						},
 					}, fs.StableAttr{Mode: syscall.S_IFLNK})
 					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", key, false)
 
 					ca := r.NewPersistentInode(ctx, &fs.MemSymlink{
 						Data: r.certificates[eapkey][tlskey]["ca"],
+						Attr: fuse.Attr{
+							Mode:  0664,
+							Owner: Owner,
+						},
 					}, fs.StableAttr{Mode: syscall.S_IFLNK})
 					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", ca, false)
 
@@ -123,7 +142,8 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 					RegularFile[eapkey][tlskey][certType]["cert"] = &MemRegularFile{
 						Data: r.certificates[eapkey][tlskey]["cert"],
 						Attr: fuse.Attr{
-							Mode: 0644,
+							Mode:  0664,
+							Owner: Owner,
 						},
 					}
 
@@ -134,7 +154,8 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 					RegularFile[eapkey][tlskey][certType]["key"] = &MemRegularFile{
 						Data: r.certificates[eapkey][tlskey]["key"],
 						Attr: fuse.Attr{
-							Mode: 0644,
+							Mode:  0664,
+							Owner: Owner,
 						},
 					}
 					keyfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["key"], fs.StableAttr{Ino: Inode})
@@ -144,7 +165,8 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 					RegularFile[eapkey][tlskey][certType]["pem"] = &MemRegularFile{
 						Data: r.certificates[eapkey][tlskey]["ca"],
 						Attr: fuse.Attr{
-							Mode: 0644,
+							Mode:  0664,
+							Owner: Owner,
 						},
 					}
 					cafile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: Inode})
@@ -157,7 +179,8 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 				RegularFile[eapkey][tlskey][certType]["pem"] = &MemRegularFile{
 					Data: r.certificates[eapkey][tlskey]["bundle"],
 					Attr: fuse.Attr{
-						Mode: 0644,
+						Mode:  0664,
+						Owner: Owner,
 					},
 				}
 
