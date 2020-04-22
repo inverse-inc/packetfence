@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Radiusd::OCSPProfile;
+use pf::ConfigStore::SSLCertificate;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 ## Definition
@@ -26,7 +27,8 @@ has_field 'id' =>
   );
 
 has_field certificate_profile => (
-    type => 'Text',
+    type => 'Select',
+    options_method => \&options_certificate_profile,
     required => 1,
 );
 
@@ -55,6 +57,10 @@ has_field ocsp => (
     required => 1,
     options_method => \&options_ocsp,
 );
+
+sub options_certificate_profile {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::SSLCertificate->new->readAllIds};
+}
 
 sub options_ocsp {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::OCSPProfile->new->readAllIds};
