@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/coreos/go-systemd/daemon"
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -142,7 +143,29 @@ func main() {
 
 	certStore.RefreshPfconfig(ctx)
 
+	daemon.SdNotify(false, "READY=1")
+
+	go func() {
+		interval, err := daemon.SdWatchdogEnabled(false)
+		if err != nil || interval == 0 {
+			return
+		}
+		for {
+			daemon.SdNotify(false, "WATCHDOG=1")
+			time.Sleep(interval / 3)
+		}
+	}()
+
+	defer NotifySystemd("STOPPING=1")
+
 	server.Wait()
+}
+
+func NotifySystemd(msg string) {
+	_, err := daemon.SdNotify(false, msg)
+	if err != nil {
+		log.LoggerWContext(context.Background(), fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
+	}
 }
 
 // RefreshPfconfig refresh the pfconfig pool
