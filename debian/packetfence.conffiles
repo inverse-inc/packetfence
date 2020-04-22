@@ -77,6 +77,11 @@
 /usr/local/pf/conf/radiusd/eduroam-cluster
 /usr/local/pf/conf/radiusd/eduroam.conf
 /usr/local/pf/conf/radiusd/mschap.conf
+/usr/local/pf/conf/radiusd/eap_profiles.conf
+/usr/local/pf/conf/radiusd/fast.conf
+/usr/local/pf/conf/radiusd/ocsp.conf
+/usr/local/pf/conf/radiusd/tls.conf
+/usr/local/pf/conf/ssl.conf
 /usr/local/pf/conf/switch_filters.conf
 /usr/local/pf/conf/snmptrapd.conf
 /usr/local/pf/conf/security_events.conf

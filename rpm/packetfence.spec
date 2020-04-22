@@ -1002,6 +1002,21 @@ fi
                         /usr/local/pf/conf/radiusd/eduroam.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
                         /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/eap_profiles.conf
+%config                 /usr/local/pf/conf/radiusd/eap_profiles.conf.defaults
+                        /usr/local/pf/conf/radiusd/eap_profiles.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/fast.conf
+%config                 /usr/local/pf/conf/radiusd/fast.conf.defaults
+                        /usr/local/pf/conf/radiusd/fast.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/ocsp.conf
+%config                 /usr/local/pf/conf/radiusd/ocsp.conf.defaults
+                        /usr/local/pf/conf/radiusd/ocsp.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/tls.conf
+%config                 /usr/local/pf/conf/radiusd/tls.conf.defaults
+                        /usr/local/pf/conf/radiusd/tls.conf.example
+%config(noreplace)      /usr/local/pf/conf/ssl.conf
+%config                 /usr/local/pf/conf/ssl.conf.defaults
+                        /usr/local/pf/conf/ssl.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config                 /usr/local/pf/conf/realm.conf.defaults
