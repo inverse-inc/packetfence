@@ -79,7 +79,6 @@ our @patchable_binaries = (
     "pfdetect",
     "galera-autofix",
     "pfacct",
-    "pfpki",
 );
 
 GetOptions(
