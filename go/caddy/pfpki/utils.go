@@ -45,7 +45,7 @@ func (h Handler) email(cert Cert, profile Profile, file []byte, password string)
 	message.DefaultCatalog = cat
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", alerting.EmailAddr)
+	m.SetHeader("From", alerting.FromAddr)
 	m.SetHeader("To", cert.Mail)
 	m.SetHeader("Subject", profile.P12MailSubject)
 
