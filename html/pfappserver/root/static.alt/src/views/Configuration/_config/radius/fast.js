@@ -85,7 +85,7 @@ export const config = () => {
 
 export const view = (form = {}, meta = {}) => {
   const {
-    isDefault = false
+    isDeletable = false
   } = meta
 
   return [
@@ -100,7 +100,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'id'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -113,7 +113,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'tls'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -126,7 +126,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'authority_identity'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -139,7 +139,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'pac_opaque_key'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]

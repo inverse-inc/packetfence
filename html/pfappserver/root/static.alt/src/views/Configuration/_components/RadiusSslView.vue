@@ -82,6 +82,13 @@ export default {
     isLoading () {
       return this.$store.getters['$_radius_ssl/isLoading']
     },
+    isDeletable () {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
+        return false
+      }
+      return true
+    },
     actionKey () {
       return this.$store.getters['events/actionKey']
     },

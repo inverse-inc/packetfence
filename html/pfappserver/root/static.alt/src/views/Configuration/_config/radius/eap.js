@@ -110,7 +110,7 @@ export const config = () => {
 
 export const view = (form = {}, meta = {}) => {
   const {
-    isDefault = false
+    isDeletable = false
   } = meta
 
   return [
@@ -125,7 +125,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'id'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -138,7 +138,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'default_eap_type'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -147,11 +147,20 @@ export const view = (form = {}, meta = {}) => {
           label: i18n.t('Expires'),
           cols: [
             {
-              namespace: 'expire_time',
+              namespace: 'timer_expire.interval',
               component: pfFormInput,
               attrs: {
-                ...attributesFromMeta(meta, 'expire_time'),
-                disabled: isDefault
+                ...attributesFromMeta(meta, 'timer_expire.interval'),
+                disabled: isDeletable
+              }
+            },
+            {
+              namespace: 'timer_expire.unit',
+              component: pfFormChosen,
+              attrs: {
+                ...attributesFromMeta(meta, 'timer_expire.unit'),
+                disabled: isDeletable,
+                allowEmpty: false
               }
             }
           ]
@@ -164,7 +173,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' },
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -177,7 +186,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' },
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -190,7 +199,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'max_sessions'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -203,7 +212,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'eap_authentication_types'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -216,7 +225,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'tls_tlsprofile'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -229,7 +238,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'ttls_tlsprofile'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -242,7 +251,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'peap_tlsprofile'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
@@ -255,7 +264,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'fast_config'),
-                disabled: isDefault
+                disabled: isDeletable
               }
             }
           ]
