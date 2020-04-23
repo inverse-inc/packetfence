@@ -45,7 +45,7 @@ configure_and_check() {
 
     echo -e "Using venom using following variables:"
     echo -e "  VENOM_BINARY=${VENOM_BINARY}"
-    echo -e "  VENOM_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${VENOM_EXCLUDE_FLAGS}"
+    echo -e "  VENOM_ALL_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${VENOM_EXCLUDE_FLAGS}"
     echo ""
 }
 
@@ -61,7 +61,7 @@ display_dumps_on_error() {
 
 run_test_suites() {
     local test_suites=$(readlink -e ${@:-.})
-    log_section "Running all test suites"
+    log_section "Running ${test_suites} test suite(s)"
     CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites} ${VENOM_EXCLUDE_FLAGS}"
     ${CMD} || display_dumps_on_error
 }
