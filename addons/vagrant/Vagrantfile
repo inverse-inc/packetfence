@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # temp, see https://github.com/hashicorp/vagrant/issues/11539
-  config.winrm.timeout = 120
+  config.winrm.timeout = 600
   
   # use same private key on all machines
   config.ssh.insert_key = false
