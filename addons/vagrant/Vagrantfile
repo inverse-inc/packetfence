@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # temp, see https://github.com/hashicorp/vagrant/issues/11539
-  config.winrm.timeout = 120
+  config.winrm.timeout = 600
   
   # use same private key on all machines
   config.ssh.insert_key = false
@@ -193,7 +193,6 @@ Vagrant.configure("2") do |config|
                      :libvirt__forward_mode => networks[0]['forward_mode']
 
       srv.vm.provider "libvirt" do |v|
-        v.random_hostname = true
         v.cpus = details['cpus']
         v.memory = details['memory']
       end
