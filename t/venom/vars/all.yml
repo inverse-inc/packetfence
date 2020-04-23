@@ -7,6 +7,9 @@ venom_result_dir: '{{.VENOM_RESULT_DIR}}'
 pfserver_token: '{{.TOKEN}}'
 pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
 
+# ssh executor variables
+ssh_user: vagrant
+
 # pfserver variables
 pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
 pfserver_default_admin_user: admin
@@ -26,6 +29,7 @@ switch01_mgmt_ip: 172.17.17.201
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
+nodes_test_suite_dir: /src/t/venom/nodes
 
 # Access durations
 access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
