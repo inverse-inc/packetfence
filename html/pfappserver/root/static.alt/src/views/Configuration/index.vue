@@ -154,9 +154,6 @@ export default {
               ]
             },
             { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' },
-            /* OLD */
-            { name: this.$i18n.t('RADIUS Configuration'), path: '/configuration/radius_old' },
-            /* NEW */
             { name: this.$i18n.t('RADIUS'),
               items: [
                 { name: this.$i18n.t('General'), path: '/configuration/radius' },

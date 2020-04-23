@@ -130,9 +130,6 @@ const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_compo
 const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */ '../_components/MaintenanceTaskView')
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
-// OLD
-const RadiusView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusView')
-// NEW
 const RadiusTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTabs')
 const RadiusGeneralView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusGeneralView')
 const RadiusEapList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusEapList')
@@ -2273,18 +2270,6 @@ const route = {
       beforeEnter: (to, from, next) => {
         if (!store.state.formActiveActive) { // Register store module only once
           store.registerModule('formActiveActive', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'radius_old',
-      name: 'radiusOld',
-      component: RadiusView,
-      props: (route) => ({ formStoreName: 'formRadius', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formRadius) { // Register store module only once
-          store.registerModule('formRadius', FormStore)
         }
         next()
       }
