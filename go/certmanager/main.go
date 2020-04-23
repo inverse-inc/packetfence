@@ -25,6 +25,7 @@ type CertStore struct {
 	eap             pfconfigdriver.EAPConfiguration
 	certificates    map[string]map[string]map[string][]byte
 	RegularFile     map[string]map[string]map[string]map[string]*MemRegularFile
+	Owner           fuse.Owner
 }
 
 func main() {
@@ -48,6 +49,16 @@ func main() {
 	certStore.eap = configEAP
 
 	certStore.refreshLauncher = &sync.Once{}
+
+	User, _ := user.Lookup("pf")
+	Uid, _ := strconv.Atoi(User.Uid)
+	Gid, _ := strconv.Atoi(User.Gid)
+
+	certStore.Owner = fuse.Owner{Uid: uint32(Uid), Gid: uint32(Gid)}
+	opts.GID = certStore.Owner.Gid
+	opts.UID = certStore.Owner.Uid
+
+	opts.MountOptions = fuse.MountOptions{AllowOther: true}
 
 	certStore.Init(ctx)
 
@@ -95,10 +106,6 @@ func main() {
 func (r *CertStore) OnAdd(ctx context.Context) {
 	RegularFile := make(map[string]map[string]map[string]map[string]*MemRegularFile)
 	Inode := uint64(2)
-	User, _ := user.Lookup("pf")
-	Uid, _ := strconv.Atoi(User.Uid)
-	Gid, _ := strconv.Atoi(User.Gid)
-	Owner := fuse.Owner{Uid: uint32(Uid), Gid: uint32(Gid)}
 
 	for eapkey, element := range r.eap.Element {
 		RegularFile[eapkey] = make(map[string]map[string]map[string]*MemRegularFile)
@@ -114,7 +121,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Data: r.certificates[eapkey][tlskey]["cert"],
 						Attr: fuse.Attr{
 							Mode:  0664,
-							Owner: Owner,
+							Owner: r.Owner,
 						},
 					}, fs.StableAttr{Mode: syscall.S_IFLNK})
 					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".crt", cert, false)
@@ -123,7 +130,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Data: r.certificates[eapkey][tlskey]["key"],
 						Attr: fuse.Attr{
 							Mode:  0664,
-							Owner: Owner,
+							Owner: r.Owner,
 						},
 					}, fs.StableAttr{Mode: syscall.S_IFLNK})
 					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".key", key, false)
@@ -132,7 +139,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Data: r.certificates[eapkey][tlskey]["ca"],
 						Attr: fuse.Attr{
 							Mode:  0664,
-							Owner: Owner,
+							Owner: r.Owner,
 						},
 					}, fs.StableAttr{Mode: syscall.S_IFLNK})
 					r.AddChild(certType+"_"+eapkey+"_"+tlskey+".pem", ca, false)
@@ -143,7 +150,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Data: r.certificates[eapkey][tlskey]["cert"],
 						Attr: fuse.Attr{
 							Mode:  0664,
-							Owner: Owner,
+							Owner: r.Owner,
 						},
 					}
 
@@ -155,7 +162,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Data: r.certificates[eapkey][tlskey]["key"],
 						Attr: fuse.Attr{
 							Mode:  0664,
-							Owner: Owner,
+							Owner: r.Owner,
 						},
 					}
 					keyfile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["key"], fs.StableAttr{Ino: Inode})
@@ -166,7 +173,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 						Data: r.certificates[eapkey][tlskey]["ca"],
 						Attr: fuse.Attr{
 							Mode:  0664,
-							Owner: Owner,
+							Owner: r.Owner,
 						},
 					}
 					cafile := r.NewPersistentInode(ctx, RegularFile[eapkey][tlskey][certType]["pem"], fs.StableAttr{Ino: Inode})
@@ -180,7 +187,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 					Data: r.certificates[eapkey][tlskey]["bundle"],
 					Attr: fuse.Attr{
 						Mode:  0664,
-						Owner: Owner,
+						Owner: r.Owner,
 					},
 				}
 
