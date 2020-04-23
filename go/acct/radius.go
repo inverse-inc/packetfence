@@ -29,6 +29,14 @@ const ACCOUNTING_POLICY_TIME = "TimeExpired"
 
 var radiusDictionary *dictionary.Dictionary
 
+func (h *PfAcct) AddProxyState(packet *radius.Packet, r *radius.Request) *radius.Packet {
+	state, err := rfc2865.ProxyState_Lookup(r.Packet)
+	if err == nil {
+		rfc2865.ProxyState_Add(packet, state)
+	}
+	return packet
+}
+
 func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
 	switch r.Code {
 	case radius.CodeAccountingRequest:
@@ -43,7 +51,7 @@ func (h *PfAcct) hasher() hash.Hash64 {
 }
 
 func (h *PfAcct) HandleStatusServer(w radius.ResponseWriter, r *radius.Request) {
-	w.Write(r.Response(radius.CodeAccessAccept))
+	w.Write(h.AddProxyState(r.Response(radius.CodeAccessAccept), r))
 }
 
 func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
@@ -59,7 +67,7 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 	switchInfo := iSwitchInfo.(*SwitchInfo)
 	h.handleAccountingRequest(r, switchInfo)
 	//	h.Dispatcher.SubmitJob(Work(func() { h.handleAccountingRequest(r, switchInfo) }))
-	w.Write(outPacket)
+	w.Write(h.AddProxyState(outPacket, r))
 }
 
 func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
@@ -105,7 +113,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 
 	h.sendRadiusAccounting(r)
 	h.handleTimeBalance(r, switchInfo)
-	h.handleBandwidthBalance(r, switchInfo, in_bytes + out_bytes)
+	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
 }
 
 func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
@@ -146,9 +154,9 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 }
 
 func (h *PfAcct) handleBandwidthBalance(r *radius.Request, switchInfo *SwitchInfo, balance int64) {
-    if balance == 0 {
-        return
-    }
+	if balance == 0 {
+		return
+	}
 
 	ctx := r.Context()
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
