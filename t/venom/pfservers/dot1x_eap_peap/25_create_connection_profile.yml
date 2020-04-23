@@ -1,7 +1,7 @@
 name: Create connection profile
 version: 2
 testcases:
-- name: create_dot1x_wired_eap_connection_profile
+- name: create_dot1x_wired_eap_peap_mschapv2connection_profile
   steps:
   - type: http
     method: POST
@@ -26,8 +26,12 @@ testcases:
         "filter": [
           {
             "type": "connection_type",
-            "match": "{{.dot1x_eap_peap.profiles.wired.filter_match}}"
-          }
+            "match": "{{.dot1x_eap_peap.profiles.wired.filters.connection_type}}"
+          },
+          {
+            "type": "connection_sub_type",
+            "match": "{{.dot1x_eap_peap.profiles.wired.filters.connection_sub_type}}"
+          }          
         ],
         "filter_match_style": "any",
         "id": "{{.dot1x_eap_peap.profiles.wired.id}}",

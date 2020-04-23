@@ -68,6 +68,7 @@ dot1x_eap_peap.sources.ad_machine.name: dot1x_eap_peap_machine_auth
 dot1x_eap_peap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
 
 # Connection profiles
-dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap
-dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP
-dot1x_eap_peap.profiles.wired.filter_match: Ethernet-EAP
+dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap_peap_mschapv2
+dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP-PEAP-MSCHAPv2
+dot1x_eap_peap.profiles.wired.filters.connection_type: Ethernet-EAP
+dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
