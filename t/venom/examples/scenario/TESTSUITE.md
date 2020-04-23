@@ -2,11 +2,11 @@
 
 ## Requirements
 
-### Global config
+### Global config steps
 Add steps
 
-## Test suite
+## Scenario steps
 Add steps
 
-## Teardown
+## Teardown steps
 Add steps
