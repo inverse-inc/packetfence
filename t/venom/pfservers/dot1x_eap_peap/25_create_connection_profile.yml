@@ -1,7 +1,7 @@
 name: Create connection profile
 version: 2
 testcases:
-- name: create-dot1x-wired-eap-connection-profile
+- name: create_dot1x_wired_eap_peap_mschapv2connection_profile
   steps:
   - type: http
     method: POST
@@ -19,18 +19,22 @@ testcases:
           "unit": "m"
         },
         "default_psk_key": null,
-        "description": "{{.dot1x_wired_eap_profile.description}}",
+        "description": "{{.dot1x_eap_peap.profiles.wired.description}}",
         "dot1x_recompute_role_from_portal": "enabled",
         "dot1x_unset_on_unmatch": "disabled",
         "dpsk": "disabled",
         "filter": [
           {
             "type": "connection_type",
-            "match": "{{.dot1x_wired_eap_profile.filter_match}}"
-          }
+            "match": "{{.dot1x_eap_peap.profiles.wired.filters.connection_type}}"
+          },
+          {
+            "type": "connection_sub_type",
+            "match": "{{.dot1x_eap_peap.profiles.wired.filters.connection_sub_type}}"
+          }          
         ],
         "filter_match_style": "any",
-        "id": "{{.dot1x_wired_eap_profile.id}}",
+        "id": "{{.dot1x_eap_peap.profiles.wired.id}}",
         "locale": null,
         "login_attempt_limit": 0,
         "logo": null,
@@ -47,8 +51,8 @@ testcases:
         "sms_pin_retry_limit": 0,
         "sms_request_limit": 0,
         "sources": [
-          "{{.ad_machine_source.name}}",
-          "{{.ad_user_source.name}}"
+          "{{.dot1x_eap_peap.sources.ad_machine.name}}",
+          "{{.dot1x_eap_peap.sources.ad_user.name}}"
         ],
         "status": "enabled",
         "unreg_on_acct_stop": "disabled",

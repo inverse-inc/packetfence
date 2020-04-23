@@ -1,7 +1,7 @@
 name: Create and configure REALMS
 version: 2
 testcases:
-- name: create-realms
+- name: create_realms
   steps:
   - type: http
     method: POST
@@ -67,7 +67,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: modify-builtin-realms
+- name: modify_builtin_realms
   steps:
   - type: http
     method: PATCH
@@ -91,28 +91,6 @@ testcases:
       {
         "domain": "{{.ad_domain_id}}"
       }
-    headers:
-      "Authorization": "{{.pfserver_token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      
-- name: restart-radius-services
-  steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/service/radiusd-auth/restart'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.pfserver_token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/service/pfacct/restart'
-    ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"

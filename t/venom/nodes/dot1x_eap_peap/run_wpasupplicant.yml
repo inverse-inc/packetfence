@@ -1,0 +1,10 @@
+name: Run wpasupplicant for EAP/PEAP
+version: 2
+testcases:
+- name: run_wpasupplicant_eap_peap
+  steps:
+  - type: exec
+    script: "sudo wpa_supplicant -c /etc/wpa_supplicant/eap_peap/eap_peap_mschapv2.conf -D wired -i eth1 -B"
+    timeout: 10
+    assertions:
+      - result.systemout ShouldContainSubstring "Successfully initialized wpa_supplicant"

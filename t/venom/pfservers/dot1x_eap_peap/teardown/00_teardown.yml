@@ -1,6 +1,6 @@
 name: Teardown
 testcases:
-- name: Unset domain on built-in REALMS
+- name: unset_domain_on_builtin_realms
   steps:
   - type: http
     method: PATCH
@@ -30,7 +30,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: Delete REALMS
+- name: delete_realms
   steps:
   - type: http
     method: DELETE
@@ -52,7 +52,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: Delete domain
+- name: delete_domain
   steps:
   - type: http
     method: DELETE
@@ -64,11 +64,11 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: Delete connection profile
+- name: delete_connection_profile
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_wired_eap_profile.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_eap_peap.profiles.wired.id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -76,11 +76,11 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: Delete sources
+- name: delete_sources
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.ad_user_source.name}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_user.name}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -90,31 +90,7 @@ testcases:
 
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.ad_machine_source.name}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.pfserver_token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-
-- name: Delete switch
-  steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.pfserver_token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-
-- name: Delete switch group
-  steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_group/{{.cumulus_switch_group.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_machine.name}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"

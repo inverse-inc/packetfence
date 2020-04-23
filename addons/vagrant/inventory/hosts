@@ -33,6 +33,14 @@ all:
             pfcen8dev: {}
             pfdeb9dev: {}
             pfdeb10dev: {}
+    service_mailhog:
+      children:
+        dev:
+          hosts:
+            pfcen7dev: {}
+            pfcen8dev: {}
+            pfdeb9dev: {}
+            pfdeb10dev: {}
     stable_and_nightly:
       children:
         stable:

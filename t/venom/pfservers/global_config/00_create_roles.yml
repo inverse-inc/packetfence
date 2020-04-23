@@ -1,7 +1,7 @@
 name: Create roles
 version: 2
 testcases:
-- name: create-dot1x-roles
+- name: create_dot1x_eap_peap_roles
   steps:
   - type: http
     method: POST
@@ -9,9 +9,9 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id":"{{.dot1x_user_role.id}}",
+        "id":"{{.dot1x_eap_peap.roles.ad_user.id}}",
         "max_nodes_per_pid":0,
-        "notes":"{{.dot1x_user_role.notes}}"
+        "notes":"{{.dot1x_eap_peap.roles.ad_user.notes}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -25,9 +25,9 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id":"{{.dot1x_machine_role.id}}",
+        "id":"{{.dot1x_eap_peap.roles.ad_machine.id}}",
         "max_nodes_per_pid":0,
-        "notes":"{{.dot1x_machine_role.notes}}"
+        "notes":"{{.dot1x_eap_peap.roles.ad_machine.notes}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
