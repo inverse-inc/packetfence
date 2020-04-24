@@ -30,6 +30,8 @@ func (ts *TailingSession) Touch() {
 func (ts *TailingSession) Start(sessionId string, publishTo *golongpoll.LongpollManager) error {
 	ts.doneChan = make(chan int, len(ts.files))
 
+	ts.Touch()
+
 	for _, file := range ts.files {
 		config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{Offset: -10, Whence: os.SEEK_END}}
 		t, err := tail.TailFile(file, config)

@@ -42,6 +42,7 @@ type LogTailerHandler struct {
 	router              *gin.Engine
 	eventsManager       *golongpoll.LongpollManager
 	sessions            map[string]*TailingSession
+	sessionsLock        *sync.RWMutex
 	maintenanceLauncher *sync.Once
 }
 
@@ -79,6 +80,7 @@ func buildLogTailerHandler(ctx context.Context) (LogTailerHandler, error) {
 	sharedutils.CheckError(err)
 
 	logTailer.sessions = map[string]*TailingSession{}
+	logTailer.sessionsLock = &sync.RWMutex{}
 
 	logTailer.maintenanceLauncher = &sync.Once{}
 
@@ -98,6 +100,26 @@ func (h LogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
+
+	h.maintenanceLauncher.Do(func() {
+		go func() {
+			ctx := r.Context()
+			for {
+				func() {
+					h.sessionsLock.Lock()
+					defer h.sessionsLock.Unlock()
+					expireAt := time.Now().Add(-maxSessionIdleTime)
+					for sessionId, session := range h.sessions {
+						if session.lastUsedAt.Before(expireAt) {
+							log.LoggerWContext(ctx).Info("Deleting inactive tailing session " + sessionId)
+							h._deleteSession(sessionId, session)
+						}
+					}
+				}()
+				time.Sleep(1 * time.Second)
+			}
+		}()
+	})
 
 	if handledPath.MatchString(r.URL.Path) {
 		h.router.ServeHTTP(w, r)

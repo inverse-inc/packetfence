@@ -13,6 +13,9 @@ import (
 )
 
 func (h LogTailerHandler) createNewSession(c *gin.Context) {
+	h.sessionsLock.Lock()
+	defer h.sessionsLock.Unlock()
+
 	params := struct {
 		Files []string `json:"files"`
 	}{}
@@ -34,8 +37,10 @@ func (h LogTailerHandler) createNewSession(c *gin.Context) {
 }
 
 func (h LogTailerHandler) getSession(c *gin.Context) {
-	var err error
+	h.sessionsLock.RLock()
+	defer h.sessionsLock.RUnlock()
 
+	var err error
 	sessionId := c.Param("id")
 
 	if _, ok := h.sessions[sessionId]; !ok {
@@ -55,16 +60,26 @@ func (h LogTailerHandler) getSession(c *gin.Context) {
 
 	c.Request.URL, err = url.Parse(c.Request.URL.String() + char + "category=" + sessionId + "&since_time=0" + timeout)
 	sharedutils.CheckError(err)
+
+	h.sessions[sessionId].Touch()
+
 	h.eventsManager.SubscriptionHandler(c.Writer, c.Request)
 }
 
 func (h LogTailerHandler) deleteSession(c *gin.Context) {
+	h.sessionsLock.Lock()
+	defer h.sessionsLock.Unlock()
+
 	sessionId := c.Param("id")
 	if session, ok := h.sessions[sessionId]; ok {
-		session.Stop()
-		delete(h.sessions, sessionId)
+		h._deleteSession(sessionId, session)
 		c.JSON(http.StatusOK, gin.H{"message": "Deleted the session"})
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find this session"})
 	}
+}
+
+func (h LogTailerHandler) _deleteSession(sessionId string, session *TailingSession) {
+	session.Stop()
+	delete(h.sessions, sessionId)
 }
