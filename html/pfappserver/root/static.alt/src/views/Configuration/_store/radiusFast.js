@@ -86,10 +86,10 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusFast: ({ commit }, data) => {
+  deleteRadiusFast: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusFast(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.deleteRadiusFast(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

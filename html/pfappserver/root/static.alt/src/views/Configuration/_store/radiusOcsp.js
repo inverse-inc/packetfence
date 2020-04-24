@@ -86,10 +86,10 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusOcsp: ({ commit }, data) => {
+  deleteRadiusOcsp: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusOcsp(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.deleteRadiusOcsp(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

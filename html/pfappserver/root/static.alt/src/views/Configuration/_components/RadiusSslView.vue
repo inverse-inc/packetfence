@@ -8,6 +8,8 @@
     :view="view"
     @close="close"
     @create="create"
+    @save="save"
+    @remove="remove"
   >
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
@@ -19,18 +21,22 @@
     </template>
     <template v-slot:footer>
       <b-card-footer>
-        <pf-button-save v-if="isNew || isClone" :disabled="invalidForm" :isLoading="isLoading">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <b-button v-if="isNew || isClone" :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
-        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete SSL Certificate?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
 import {
@@ -44,6 +50,7 @@ import {
 export default {
   name: 'radius-ssl-view',
   components: {
+    pfButtonDelete,
     pfButtonSave,
     pfConfigView
   },
@@ -138,6 +145,19 @@ export default {
         }
       }).catch(e => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not create SSL configuration: ') + e })
+      })
+    },
+    remove () {
+      this.$store.dispatch('$_radius_ssl/deleteRadiusSsl', this.id).then(response => {
+        this.close()
+      })
+    },
+    save () {
+      const actionKey = this.actionKey
+      this.$store.dispatch('$_radius_ssl/updateRadiusSsl', this.form).then(response => {
+        if (actionKey) { // [CTRL] key pressed
+          this.close()
+        }
       })
     }
   },

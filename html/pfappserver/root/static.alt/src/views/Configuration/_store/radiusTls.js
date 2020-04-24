@@ -86,10 +86,10 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusTls: ({ commit }, data) => {
+  deleteRadiusTls: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusTls(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.deleteRadiusTls(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

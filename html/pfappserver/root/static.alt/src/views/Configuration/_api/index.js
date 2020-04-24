@@ -1170,7 +1170,7 @@ export default {
     })
   },
   updateRadiusEap: data => {
-    return apiCall.patch(['config', 'radiusd', 'eap_profiles', data.id], data).then(response => {
+    return apiCall.patch(['config', 'radiusd', 'eap_profile', data.id], data).then(response => {
       return response.data
     })
   },
@@ -1203,7 +1203,7 @@ export default {
     })
   },
   updateRadiusFast: data => {
-    return apiCall.patch(['config', 'radiusd', 'fast_profiles', data.id], data).then(response => {
+    return apiCall.patch(['config', 'radiusd', 'fast_profile', data.id], data).then(response => {
       return response.data
     })
   },
@@ -1236,7 +1236,7 @@ export default {
     })
   },
   updateRadiusSsl: data => {
-    return apiCall.patch(['config', 'ssl_certificates', data.id], data).then(response => {
+    return apiCall.patch(['config', 'ssl_certificate', data.id], data).then(response => {
       return response.data
     })
   },
@@ -1269,7 +1269,7 @@ export default {
     })
   },
   updateRadiusTls: data => {
-    return apiCall.patch(['config', 'radiusd', 'tls_profiles', data.id], data).then(response => {
+    return apiCall.patch(['config', 'radiusd', 'tls_profile', data.id], data).then(response => {
       return response.data
     })
   },
@@ -1302,7 +1302,7 @@ export default {
     })
   },
   updateRadiusOcsp: data => {
-    return apiCall.patch(['config', 'radiusd', 'ocsp_profiles', data.id], data).then(response => {
+    return apiCall.patch(['config', 'radiusd', 'ocsp_profile', data.id], data).then(response => {
       return response.data
     })
   },
