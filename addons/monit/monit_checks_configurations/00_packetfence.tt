@@ -211,6 +211,13 @@ CHECK PROCESS packetfence-pfacct MATCHING "pfacct"
     stop program  = "/usr/local/pf/bin/pfcmd service pfacct stop"
     if 3 restarts within 10 cycles then alert
 
+CHECK PROCESS packetfence-pfacct MATCHING "pfcertmanager"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfcertmanager start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfcertmanager stop"
+    if 3 restarts within 10 cycles then alert
+
+
 CHECK PROCESS packetfence-pfpki MATCHING "pfpki"
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service pfpki start" with timeout 60 seconds

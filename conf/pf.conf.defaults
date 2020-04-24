@@ -631,6 +631,17 @@ pfacct=enabled
 #
 # Location of the pfacct binary.
 pfacct_binary=/usr/local/pf/sbin/pfacct
+
+# services.pfcertmanager
+#
+# Should pfcertmanager be managed by PacketFence?
+pfcertmanager=enabled
+#
+# services.pfcertmanager_binary
+#
+# Location of the pfcertmanager binary.
+pfacct_binary=/usr/local/pf/sbin/pfcertmanager
+
 #
 # services.api-frontend
 #

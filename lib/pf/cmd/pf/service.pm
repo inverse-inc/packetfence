@@ -33,6 +33,7 @@ Services managed by PacketFence:
   netdata                | Monitoring service
   pfacct                 | Netflow and Radius Accounting service
   pf                     | all services that should be running based on your config
+  pfcertmanager          | Certificate Manager Service
   pfdetect               | PF snort alert parser
   pfdhcp                 | dhcpd daemon
   pfdhcplistener         | PF DHCP monitoring daemon

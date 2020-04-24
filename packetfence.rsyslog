@@ -94,6 +94,10 @@ if $programname == "pfconfig" then -/usr/local/pf/logs/pfconfig.log
 if $programname == "pfacct" then -/usr/local/pf/logs/pfacct.log
 & stop
 
+# PFCERTMANAGER
+if $programname == "pfcertmanager" then -/usr/local/pf/logs/pfcertmanager.log
+& stop
+
 # PFDNS
 if $programname == "pfdns" then -/usr/local/pf/logs/pfdns.log
 & stop
