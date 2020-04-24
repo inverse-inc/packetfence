@@ -39,15 +39,19 @@
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
-          <b-nav-text v-if="tenants.length === 0 || tenant.id !== 0">
+          <b-nav-item-dropdown right v-if="tenant && tenant.id === 0">
+            <template v-slot:button-content>
+              <icon name="layer-group"></icon> {{ tenant_mask_name }}
+            </template>
+            <b-dropdown-item-button v-for="tenant in tenants" :key="tenant.id"
+              :active="+tenant_id_mask === +tenant.id"
+              :disabled="+tenant_id_mask === 0 && +tenant.id === 0"
+              @click="setTenantIdMask(tenant.id)"
+            >{{ tenant.name }}</b-dropdown-item-button>
+          </b-nav-item-dropdown>
+          <b-nav-text v-else-if="tenant">
             <icon name="layer-group"></icon> {{ tenant.name }}
           </b-nav-text>
-          <b-nav-item-dropdown right v-else>
-            <template v-slot:button-content>
-              <icon name="layer-group"></icon> {{ tenants.find(t => t.id === tenant.id).name }}
-            </template>
-            <b-dropdown-item-button v-for="tenant in tenants" :key="tenant.id" :active="tenant_id_mask === tenant.id" @click="setTenantIdMask(tenant.id)">{{ tenant.name }}</b-dropdown-item-button>
-          </b-nav-item-dropdown>
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
@@ -164,6 +168,13 @@ export default {
     },
     tenant_id_mask () {
       return this.$store.getters['session/tenantIdMask']
+    },
+    tenant_mask_name () {
+      const tenant = this.tenants.find(tenant => {
+        return +tenant.id === +this.tenant_id_mask
+      })
+      const { name } = tenant || {}
+      return name || this.$i18n.t('Unknown')
     },
     tenants () {
       return this.$store.state.session.tenants

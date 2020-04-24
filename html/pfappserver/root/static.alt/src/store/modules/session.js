@@ -139,7 +139,7 @@ const getters = {
   allowedUserRoles: state => state.allowedUserRoles || [],
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
-  tenantIdMask: state => state.tenant_id_mask || state.tenant_id
+  tenantIdMask: state => state.tenant_id_mask || state.tenant.id
 }
 
 const actions = {
@@ -346,7 +346,7 @@ const actions = {
     }
   },
   setTenantIdMask: ({ state, commit }, tenantId = 0) => {
-    if (state.tenant_id === 0) { // is super admin, can mutate
+    if (state.tenant.id === 0) { // is super admin, can mutate
       if (!+tenantId) {
         commit('TENANT_ID_MASK_DELETED')
       }
