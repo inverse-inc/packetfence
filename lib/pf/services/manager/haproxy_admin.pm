@@ -75,6 +75,7 @@ sub generateConfig {
 
 
         my $portal_preview_ip = portal_preview_ip();
+        my $mgmt_ip = portal_preview_ip();
         my $mgmt_backend_ip_config;
         my $mgmt_backend_ip_api_config;
         my $mgmt_srv_netdata .= <<"EOT";
@@ -143,6 +144,38 @@ $mgmt_backend_ip_api_config
 
 frontend admin-https-$mgmt_cluster_ip
         bind $mgmt_cluster_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        errorfile 502 /usr/local/pf/html/pfappserver/root/static/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/static/503.json.http
+        capture request header Host len 40
+        reqadd X-Forwarded-Proto:\\ https
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        http-request lua.admin
+        use_backend %[var(req.action)]
+        http-request redirect location /admin/alt if { lua.redirect 1 }
+EOT
+            if (isenabled($Config{services}{httpd_admin})) {
+        $tags{'http_admin'} .= <<"EOT";
+        default_backend  $mgmt_cluster_ip-admin
+
+backend $mgmt_cluster_ip-admin
+        balance source
+        option httpclose
+        option forwardfor
+$mgmt_backend_ip_config
+
+EOT
+            } else {
+        $tags{'http_admin'} .= <<"EOT";
+        default_backend static
+EOT
+           }
+
+$tags{'http_admin'} .= <<"EOT";
+
+frontend admin-https-$mgmt_ip
+        bind $mgmt_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         errorfile 502 /usr/local/pf/html/pfappserver/root/static/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/static/503.json.http
         capture request header Host len 40
