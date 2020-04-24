@@ -681,8 +681,9 @@ var directives = []string{
 	"api",
 
 	//PACKETFENCE
-	// Job status that takes precedence over proxying
+	// These that takes precedence over proxying
 	"job-status",
+	"log-tailer",
 
 	"redir",
 	"status",
