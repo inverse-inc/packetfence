@@ -82,13 +82,6 @@ export default {
     isLoading () {
       return this.$store.getters['$_radius_eap/isLoading']
     },
-    isDeletable () {
-      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
-      if (isNew || isClone || notDeletable) {
-        return false
-      }
-      return true
-    },
     actionKey () {
       return this.$store.getters['events/actionKey']
     },
@@ -98,7 +91,7 @@ export default {
   },
   methods: {
     init () {
-      const { isNew, isClone, isDeletable } = this
+      const { isNew, isClone } = this
       this.$store.dispatch(`${this.formStoreName}/clearForm`)
       this.$store.dispatch(`${this.formStoreName}/clearMeta`)
       if (this.id) {
@@ -108,14 +101,14 @@ export default {
           this.$store.dispatch('$_radius_eap/getRadiusEap', this.id).then(form => {
             if (isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable } })
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
           })
         })
       } else {
         // new
         this.$store.dispatch('$_radius_eap/options').then(options => {
           const { meta = {} } = options
-          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable } })
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
           this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta))
         })
       }

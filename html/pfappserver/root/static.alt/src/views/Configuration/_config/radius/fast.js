@@ -85,8 +85,13 @@ export const config = () => {
 
 export const view = (form = {}, meta = {}) => {
   const {
-    isDeletable = false
+    isNew = false,
+    isClone = false
   } = meta
+  const {
+    not_deletable: notDeletable = false
+  } = form
+  const isEditable = (isNew || isClone || !notDeletable)
 
   return [
     {
@@ -100,7 +105,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'id'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -113,7 +118,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'tls'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -126,7 +131,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'authority_identity'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -139,7 +144,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'pac_opaque_key'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]

@@ -80,8 +80,13 @@ export const config = () => {
 
 export const view = (form = {}, meta = {}) => {
   const {
-    isDeletable = false
+    isNew = false,
+    isClone = false
   } = meta
+  const {
+    not_deletable: notDeletable = false
+  } = form
+  const isEditable = (isNew || isClone || !notDeletable)
 
   return [
     {
@@ -95,7 +100,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'id'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -109,7 +114,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' },
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -123,7 +128,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' },
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -138,7 +143,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'ocsp_url'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -152,7 +157,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' },
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -166,7 +171,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'ocsp_timeout.interval'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             },
             {
@@ -174,7 +179,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'ocsp_timeout.unit'),
-                disabled: isDeletable,
+                disabled: !isEditable,
                 allowEmpty: false
               }
             }
@@ -189,7 +194,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' },
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]

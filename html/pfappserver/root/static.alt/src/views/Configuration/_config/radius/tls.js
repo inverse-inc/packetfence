@@ -92,8 +92,13 @@ export const config = () => {
 
 export const view = (form = {}, meta = {}) => {
   const {
-    isDeletable = false
+    isNew = false,
+    isClone = false
   } = meta
+  const {
+    not_deletable: notDeletable = false
+  } = form
+  const isEditable = (isNew || isClone || !notDeletable)
 
   return [
     {
@@ -107,7 +112,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'id'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -120,7 +125,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'certificate_profile'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -133,7 +138,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'dh_file'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -146,7 +151,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'ca_path'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -159,7 +164,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'cipher_list'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -172,7 +177,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormInput,
               attrs: {
                 ...attributesFromMeta(meta, 'ecdh_curve'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -185,7 +190,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'yes', unchecked: 'no' },
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
@@ -198,7 +203,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'ocsp'),
-                disabled: isDeletable
+                disabled: !isEditable
               }
             }
           ]
