@@ -130,7 +130,7 @@ eap [% key -%] {
         #  In that case, this CA file should contain
         #  *one* CA certificate.
         #
-        ca_file = /usr/local/pf/conf/certmanager/radius_[% $key %]_[% $tls %].pem
+        ca_file = /usr/local/pf/conf/certmanager/radius_[% key %]_[% tls %].pem
         #ca_file = [% eap.$key.tls.$tls.certificate_profile.ca_file %]
 
         #  OpenSSL will automatically create certificate chains,
