@@ -135,7 +135,22 @@ const administrationRuleActions = (form, meta = {}) => {
       ? [pfActions.set_access_durations]
       : []
     )
-  ]
+  ].map(action => {
+    // try to merge all actions with allowed options from meta `*_action`
+    const { value } = action
+    const { [`${value}_action`]: { allowed } = {} } = meta
+    if (allowed) {
+      return {
+        ...action,
+        attrs: {
+          options: allowed.map(o => {
+            return { name: o.text, value: o.value }
+          })
+        }
+      }
+    }
+    return action
+  })
 }
 
 const authenticationRuleActions = (form, meta = {}) => {
@@ -153,7 +168,22 @@ const authenticationRuleActions = (form, meta = {}) => {
       ? [pfActions.set_role_on_not_found]
       : []
     )
-   ]
+  ].map(action => {
+    // try to merge all actions with allowed options from meta `*_action`
+    const { value } = action
+    const { [`${value}_action`]: { allowed } = {} } = meta
+    if (allowed) {
+      return {
+        ...action,
+        attrs: {
+          options: allowed.map(o => {
+            return { name: o.text, value: o.value }
+          })
+        }
+      }
+    }
+    return action
+  })
 }
 
 export const viewFields = {
