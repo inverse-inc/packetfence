@@ -104,7 +104,7 @@ eap [% key -%] {
     tls-config [% tls -%] {
 
         #private_key_password = whatever
-        private_key_file = /usr/local/pf/conf/certmanager/[% key %]_[% tls %].key
+        private_key_file = /usr/local/pf/conf/certmanager/radius_[% key %]_[% tls %].key
         #private_key_file = [% eap.$key.tls.$tls.certificate_profile.key_file %]
 
         #  If Private key & Certificate are located in
@@ -117,7 +117,7 @@ eap [% key -%] {
         #  only the server certificate, but ALSO all
         #  of the CA certificates used to sign the
         #  server certificate.
-        certificate_file = /usr/local/pf/conf/certmanager/[% key %]_[% tls %].crt
+        certificate_file = /usr/local/pf/conf/certmanager/radius_[% key %]_[% tls %].crt
         #certificate_file = [% eap.$key.tls.$tls.certificate_profile.cert_file %]
 
         #  Trusted Root CA list
@@ -130,7 +130,7 @@ eap [% key -%] {
         #  In that case, this CA file should contain
         #  *one* CA certificate.
         #
-        ca_file = /usr/local/pf/conf/certmanager/[% $key %]_[% $tls %].pem
+        ca_file = /usr/local/pf/conf/certmanager/radius_[% $key %]_[% $tls %].pem
         #ca_file = [% eap.$key.tls.$tls.certificate_profile.ca_file %]
 
         #  OpenSSL will automatically create certificate chains,
