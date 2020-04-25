@@ -115,7 +115,7 @@ func (r *CertStore) OnAdd(ctx context.Context) {
 			if certType == "radius" {
 				RegularFile[eapkey][tlskey][certType] = make(map[string]*MemRegularFile)
 
-				if eapkey == "default" && (tlskey == "tls-eap-fast" || (tlskey == "tls-common")) {
+				if tlskey == "tls-eap-fast" || (tlskey == "tls-common") {
 
 					cert := r.NewPersistentInode(ctx, &fs.MemSymlink{
 						Data: r.certificates[eapkey][tlskey]["cert"],
@@ -263,7 +263,7 @@ func (r *CertStore) Init(ctx context.Context) {
 		for tlskey := range r.eap.Element[eapkey].TLS {
 			certificate[eapkey][tlskey] = make(map[string][]byte)
 			if r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.CertType == "radius" {
-				if eapkey == "default" && (tlskey == "tls-eap-fast" || (tlskey == "tls-common")) {
+				if tlskey == "tls-eap-fast" || (tlskey == "tls-common") {
 					certificate[eapkey][tlskey]["cert"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Cert)
 					certificate[eapkey][tlskey]["key"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Key)
 					certificate[eapkey][tlskey]["ca"] = []byte(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Ca)
