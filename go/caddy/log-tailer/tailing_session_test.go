@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"testing"
 	"time"
 
@@ -19,7 +20,7 @@ func TestTailingSession(t *testing.T) {
 
 	files := []string{"/usr/local/pf/logs/packetfence.log", "/var/log/messages"}
 
-	ts := NewTailingSession(files)
+	ts := NewTailingSession(files, regexp.MustCompile(`.*`))
 	ts.Start("test", eventsManager)
 
 	pid := os.Getpid()
