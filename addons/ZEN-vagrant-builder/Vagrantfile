@@ -71,6 +71,12 @@ Vagrant.configure("2") do |config|
     v.memory = "2048"
   end
 
+  config.vm.provision "shell", reboot: true, inline: <<-SHELL
+    echo "Upgrade OS and reboot"
+
+    yum upgrade -y
+  SHELL
+
   config.vm.provision "shell", inline: <<-SHELL
     export PFREPO="#{ENV['PFREPO'] || "packetfence"}"
     export PFPACKAGE="#{ENV['PFPACKAGE'] || "packetfence"}"
