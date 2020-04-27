@@ -108,7 +108,7 @@ func TestMultiSamples(t *testing.T) {
 				},
 			},
 		},
-		&FlowSamples{
+		&FlowSample{
 			SequenceNumber: 502632,
 			SourceId:       2,
 			SamplingRate:   2000,
@@ -156,7 +156,7 @@ func TestMultiSamples(t *testing.T) {
 				},
 			},
 		},
-		&FlowSamples{
+		&FlowSample{
 			SequenceNumber: 502633,
 			SourceId:       2,
 			SamplingRate:   2000,
@@ -173,7 +173,7 @@ func TestMultiSamples(t *testing.T) {
 				},
 			},
 		},
-		&FlowSamples{
+		&FlowSample{
 			SequenceNumber: 125329,
 			SourceId:       1,
 			SamplingRate:   2000,
@@ -190,7 +190,7 @@ func TestMultiSamples(t *testing.T) {
 				},
 			},
 		},
-		&FlowSamples{
+		&FlowSample{
 			SequenceNumber: 420146,
 			SourceId:       20,
 			SamplingRate:   1000,
@@ -207,7 +207,7 @@ func TestMultiSamples(t *testing.T) {
 				},
 			},
 		},
-		&FlowSamples{
+		&FlowSample{
 			SequenceNumber: 82435,
 			SourceId:       3,
 			SamplingRate:   2000,
@@ -224,7 +224,7 @@ func TestMultiSamples(t *testing.T) {
 				},
 			},
 		},
-		&FlowSamples{
+		&FlowSample{
 			SequenceNumber: 363347,
 			SourceId:       24,
 			SamplingRate:   1000,
@@ -244,73 +244,6 @@ func TestMultiSamples(t *testing.T) {
 	}); diff != nil {
 		t.Error(diff)
 	}
-}
-
-const (
-	CounterSamplesType = 2
-	FlowSamplesType    = 1
-)
-
-
-func (df *DataFormat) ParseSample(data []byte) (Sample, []byte) {
-	var sample Sample
-	switch df.Format {
-	case CounterSamplesType:
-		sample = &CounterSamples{}
-	case FlowSamplesType:
-		sample = &FlowSamples{}
-	}
-
-	if sample != nil {
-		sample.Parse(data)
-	}
-
-	return sample, data[df.Length:]
-}
-
-func (df *DataFormat) ParseCounter(data []byte) (Counter, []byte) {
-	var counter Counter
-	switch df.Format {
-	case 1:
-		counter = &IfCounter{}
-	case 2:
-		counter = &EthernetIfCounter{}
-	}
-
-	if counter != nil {
-		counter.Parse(data)
-	}
-
-	return counter, data[df.Length:]
-}
-
-func (df *DataFormat) ParseFlow(data []byte) (Flow, []byte) {
-	var flow Flow
-	switch df.Format {
-	case 1:
-		flow = &RawPacket{}
-	}
-
-	if flow != nil {
-		flow.Parse(data)
-	}
-
-	return flow, data[df.Length:]
-}
-
-func (h *Header) ParseSamples(data []byte) ([]Sample, error) {
-	dfs := []DataFormat{}
-	samples := []Sample{}
-	var sample Sample
-	for i := uint32(0); i < h.NumSamples; i++ {
-		df := DataFormat{}
-		data = df.Parse(data)
-		dfs = append(dfs, df)
-		sample, data = df.ParseSample(data)
-		samples = append(samples, sample)
-	}
-
-	return samples, nil
 }
 
 func CheckUint32(t *testing.T, name string, got, expected uint32) {

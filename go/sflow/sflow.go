@@ -4,19 +4,26 @@ import (
 	"encoding/binary"
 )
 
+const (
+	FlowSampleType             = 1
+	CounterSamplesType         = 2
+	FlowSampleExpandedType     = 3
+	CountersSampleExpandedType = 4
+)
+
 type Sample interface {
 	SampleType() int
 	Parse([]byte)
 }
 
 type Counter interface {
-	Parse([]byte)
 	CounterType() int
+	Parse([]byte)
 }
 
 type Flow interface {
-	Parse([]byte)
 	FlowType() int
+	Parse([]byte)
 }
 
 type Header struct {
@@ -62,4 +69,67 @@ func (h *CountersSample) Parse(data []byte) []byte {
 	h.SourceId = binary.BigEndian.Uint32(data[4:8])
 	h.NumSamples = binary.BigEndian.Uint32(data[8:12])
 	return data[12:]
+}
+
+func (df *DataFormat) ParseFlow(data []byte) (Flow, []byte) {
+	var flow Flow
+	switch df.Format {
+	case 1:
+		flow = &RawPacket{}
+	}
+
+	if flow != nil {
+		flow.Parse(data)
+	}
+
+	return flow, data[df.Length:]
+}
+
+func (h *Header) ParseSamples(data []byte) ([]Sample, error) {
+	dfs := []DataFormat{}
+	samples := []Sample{}
+	var sample Sample
+	for i := uint32(0); i < h.NumSamples; i++ {
+		df := DataFormat{}
+		data = df.Parse(data)
+		dfs = append(dfs, df)
+		sample, data = df.ParseSample(data)
+		samples = append(samples, sample)
+	}
+
+	return samples, nil
+}
+
+func (df *DataFormat) ParseSample(data []byte) (Sample, []byte) {
+	var sample Sample
+	switch df.Format {
+	case CounterSamplesType:
+		sample = &CounterSamples{}
+	case FlowSampleType:
+		sample = &FlowSample{}
+	case FlowSampleExpandedType:
+		sample = &FlowSampleExpanded{}
+	}
+
+	if sample != nil {
+		sample.Parse(data)
+	}
+
+	return sample, data[df.Length:]
+}
+
+func (df *DataFormat) ParseCounter(data []byte) (Counter, []byte) {
+	var counter Counter
+	switch df.Format {
+	case 1:
+		counter = &IfCounter{}
+	case 2:
+		counter = &EthernetIfCounter{}
+	}
+
+	if counter != nil {
+		counter.Parse(data)
+	}
+
+	return counter, data[df.Length:]
 }
