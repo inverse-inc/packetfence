@@ -103,8 +103,7 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 ...attributesFromMeta(meta, 'cert'),
                 rows: 6,
-                maxRows: 6,
-                disabled: true
+                maxRows: 6
               }
             }
           ]
