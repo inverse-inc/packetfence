@@ -1,14 +1,14 @@
-package pfconfig::namespaces::config::Eap;
+package pfconfig::namespaces::config::EAP;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Eap
+pfconfig::namespaces::config::EAP
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Eap
+pfconfig::namespaces::config::EAP
 
 This module creates the configuration hash associated to eap_profiles.conf
 

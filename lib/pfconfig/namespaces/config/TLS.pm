@@ -1,14 +1,14 @@
-package pfconfig::namespaces::config::Tls;
+package pfconfig::namespaces::config::TLS;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Tls
+pfconfig::namespaces::config::TLS
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Tls
+pfconfig::namespaces::config::TLS
 
 This module creates the configuration hash associated to tls.conf
 

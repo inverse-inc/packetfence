@@ -17,20 +17,20 @@ use warnings;
 use pf::util;
 
 use base 'pfconfig::namespaces::resource';
-use pfconfig::namespaces::config::Tls;
+use pfconfig::namespaces::config::TLS;
 use pfconfig::namespaces::config::Ssl;
 use pfconfig::namespaces::config::Ocsp;
 use pfconfig::namespaces::config::Fast;
-use pfconfig::namespaces::config::Eap;
+use pfconfig::namespaces::config::EAP;
 
 sub init {
     my ($self) = @_;
 
-    $self->{eap} = $self->{cache}->get_cache("config::Eap");
+    $self->{eap} = $self->{cache}->get_cache("config::EAP");
     $self->{fast} = $self->{cache}->get_cache("config::Fast");
     $self->{ssl} = $self->{cache}->get_cache("config::Ssl");
     $self->{ocsp} = $self->{cache}->get_cache("config::Ocsp");
-    $self->{tls} = $self->{cache}->get_cache("config::Tls");
+    $self->{tls} = $self->{cache}->get_cache("config::TLS");
 
 }
 
