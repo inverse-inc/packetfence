@@ -207,6 +207,16 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Private Key Password if needed'),
+          cols: [
+            {
+              namespace: 'private_key_password',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'private_key_password')
+            }
+          ]
+        },
+        {
           label: i18n.t('Intermediate CA certificate(s)'),
           cols: [
             {

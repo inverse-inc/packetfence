@@ -103,7 +103,12 @@ eap [% key -%] {
 
     tls-config [% tls -%] {
 
-        #private_key_password = whatever
+[% IF eap.$key.tls.$tls.certificate_profile.private_key_password == "" %]
+        #private_key_password = [% eap.$key.tls.$tls.certificate_profile.private_key_password %]
+[% ELSE %]
+        private_key_password = "[% eap.$key.tls.$tls.certificate_profile.private_key_password %]"
+[% END %]
+
         private_key_file = /usr/local/pf/conf/certmanager/radius_[% key %]_[% tls %].key
         #private_key_file = [% eap.$key.tls.$tls.certificate_profile.key_file %]
 

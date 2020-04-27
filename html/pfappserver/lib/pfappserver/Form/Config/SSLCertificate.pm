@@ -26,18 +26,9 @@ use List::MoreUtils qw(all);
 ## Definition
 has_field 'id' => (
     type     => 'Text',
-    label    => 'Role Name',
+    label    => 'SSL Profile Name',
     required => 1,
-    messages => { required => 'Please specify the name of the admin role.' },
-);
-
-has_field 'type' => (
-    type     => 'Select',
-    required => 1,
-    options  => [
-        { value => 'http',   label => 'http' },
-        { value => 'radius', label => 'radius' },
-    ],
+    messages => { required => 'Please specify the profile name.' },
 );
 
 for my $f (qw(cert key intermediate)) {
@@ -49,6 +40,12 @@ for my $f (qw(cert key intermediate)) {
 
 has_field ca => (
     type     => 'TextArea',
+);
+
+has_field 'private_key_password' => (
+    type     => 'Text',
+    label    => 'Private Key Password',
+    required => 0,
 );
 
 =head1 COPYRIGHT
