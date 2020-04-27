@@ -23,6 +23,11 @@ has 'primary_key' => 'ssl_certificate_id';
 
 use pf::ConfigStore::SSLCertificate;
 use pfappserver::Form::Config::SSLCertificate;
+
+sub item_shown {
+    my ($self, $item) = @_;
+    return $item->{id} ne 'radius';
+}
  
 =head1 AUTHOR
 
