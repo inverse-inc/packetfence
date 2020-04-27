@@ -135,8 +135,10 @@ cleanup_items
 
 sub cleanup_items {
     my ($self, $items) = @_;
-    return [map {$self->cleanup_item($_, $self->cached_form($_)) } @$items];
+    return [grep { $self->item_shown($_) } map {$self->cleanup_item($_, $self->cached_form($_)) } @$items];
 }
+
+sub item_shown { 1 }
 
 =head2 do_search
 
