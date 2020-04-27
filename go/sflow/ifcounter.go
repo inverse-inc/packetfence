@@ -30,7 +30,7 @@ type IfCounter struct {
 	PromiscuousMode  uint32
 }
 
-func (ic *IfCounter) CounterType() int {
+func (ic *IfCounter) CounterType() uint32 {
 	return 1
 }
 

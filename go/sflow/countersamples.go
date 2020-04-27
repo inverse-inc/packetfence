@@ -10,7 +10,7 @@ type CounterSamples struct {
 	Records        []Counter
 }
 
-func (cs *CounterSamples) SampleType() int {
+func (cs *CounterSamples) SampleType() uint32 {
 	return CounterSamplesType
 }
 
@@ -34,7 +34,7 @@ type CountersSampleExpanded struct {
 	Records        []Counter
 }
 
-func (cs *CountersSampleExpanded) SampleType() int {
+func (cs *CountersSampleExpanded) SampleType() uint32 {
 	return CountersSampleExpandedType
 }
 

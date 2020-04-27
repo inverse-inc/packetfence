@@ -5,44 +5,47 @@ import (
 )
 
 const (
-	FlowSampleType             = 1
-	CounterSamplesType         = 2
-	FlowSampleExpandedType     = 3
-	CountersSampleExpandedType = 4
+	FlowSampleType uint32 = iota + 1
+	CounterSamplesType
+	FlowSampleExpandedType
+	CountersSampleExpandedType
 )
 
 const (
-    SampledHeaderType = iota + 1
-    SampledEthernetType
-    SampledIPV4Type
-    SampledIPV6Type
+	SampledUnknownType uint32 = iota
+	SampledHeaderType
+	SampledEthernetType
+	SampledIPV4Type
+	SampledIPV6Type
+)
 
-    ExtendedSwitchType = 1001
-    ExtendedRouterType
-    ExtendedGatewayType
-    ExtendedUserType
-    ExtendedURLType
-    ExtendedMPLSType
-    ExtendedNATType
-    ExtendedMPLSTunnelType
-    ExtendedMPLSVCType
-    ExtendedMPLSFTNType
-    ExtendedMPLSLDPFECType
-    ExtendedVLANTunnelType
+const (
+	ExtendedSwitchType uint32 = iota + 1001
+	ExtendedRouterType
+	ExtendedGatewayType
+	ExtendedUserType
+	ExtendedURLType
+	ExtendedMPLSType
+	ExtendedNATType
+	ExtendedMPLSTunnelType
+	ExtendedMPLSVCType
+	ExtendedMPLSFTNType
+	ExtendedMPLSLDPFECType
+	ExtendedVLANTunnelType
 )
 
 type Sample interface {
-	SampleType() int
+	SampleType() uint32
 	Parse([]byte)
 }
 
 type Counter interface {
-	CounterType() int
+	CounterType() uint32
 	Parse([]byte)
 }
 
 type Flow interface {
-	FlowType() int
+	FlowType() uint32
 	Parse([]byte)
 }
 
@@ -94,6 +97,8 @@ func (h *CountersSample) Parse(data []byte) []byte {
 func (df *DataFormat) ParseFlow(data []byte) (Flow, []byte) {
 	var flow Flow
 	switch df.Format {
+    default:
+        flow = &SampledUnknown{Type:df.Format}
 	case SampledHeaderType:
 		flow = &SampledHeader{}
 	}

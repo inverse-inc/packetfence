@@ -15,7 +15,7 @@ type FlowSample struct {
 	Records        []Flow
 }
 
-func (fs *FlowSample) SampleType() int {
+func (fs *FlowSample) SampleType() uint32 {
 	return FlowSampleType
 }
 
@@ -62,7 +62,7 @@ type FlowSampleExpanded struct {
 	Records        []Flow
 }
 
-func (fs *FlowSampleExpanded) SampleType() int {
+func (fs *FlowSampleExpanded) SampleType() uint32 {
 	return FlowSampleExpandedType
 }
 

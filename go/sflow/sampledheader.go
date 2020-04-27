@@ -19,6 +19,6 @@ func (rp *SampledHeader) Parse(data []byte) {
 	rp.OriginalPacketLength = binary.BigEndian.Uint32(data[12:16])
 }
 
-func (rp *SampledHeader) FlowType() int {
+func (rp *SampledHeader) FlowType() uint32 {
 	return SampledHeaderType
 }

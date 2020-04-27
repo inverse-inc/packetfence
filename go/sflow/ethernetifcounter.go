@@ -20,7 +20,7 @@ type EthernetIfCounter struct {
 	SymbolErrors              uint32
 }
 
-func (eic *EthernetIfCounter) CounterType() int {
+func (eic *EthernetIfCounter) CounterType() uint32 {
 	return 2
 }
 
