@@ -101,6 +101,10 @@ func (df *DataFormat) ParseFlow(data []byte) (Flow, []byte) {
 		flow = &SampledUnknown{Type: df.Format}
 	case SampledHeaderType:
 		flow = &SampledHeader{}
+	case SampledIPV4Type:
+		flow = &SampledIPV4{}
+	case SampledIPV6Type:
+		flow = &SampledIPV6{}
 	}
 
 	if flow != nil {
