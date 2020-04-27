@@ -122,7 +122,7 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'certificate_profile',
-              component: pfFormInput,
+              component: pfFormChosen,
               attrs: {
                 ...attributesFromMeta(meta, 'certificate_profile'),
                 disabled: !isEditable
