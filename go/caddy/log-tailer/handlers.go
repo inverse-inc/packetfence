@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -17,7 +18,9 @@ func (h LogTailerHandler) createNewSession(c *gin.Context) {
 	defer h.sessionsLock.Unlock()
 
 	params := struct {
-		Files []string `json:"files"`
+		Files          []string `json:"files"`
+		Filter         string   `json:"filter"`
+		FilterIsRegexp bool     `json:"filter_is_regexp"`
 	}{}
 
 	sessionId := uuid.New().String()
@@ -27,7 +30,17 @@ func (h LogTailerHandler) createNewSession(c *gin.Context) {
 		return
 	}
 
-	h.sessions[sessionId] = NewTailingSession(params.Files)
+	var filterRe *regexp.Regexp
+	if params.Filter == "" {
+		filterRe = regexp.MustCompile(`.*`)
+	} else if params.FilterIsRegexp {
+		filterRe = regexp.MustCompile(`(?i)` + params.Filter)
+	} else {
+		// Simple match
+		filterRe = regexp.MustCompile(`(?i).*` + regexp.QuoteMeta(params.Filter) + `.*`)
+	}
+
+	h.sessions[sessionId] = NewTailingSession(params.Files, filterRe)
 	if err := h.sessions[sessionId].Start(sessionId, h.eventsManager); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("Unable to start tailing session: %s", err)})
 		return

@@ -2,6 +2,7 @@ package logtailer
 
 import (
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +12,16 @@ import (
 
 type TailingSession struct {
 	files      []string
+	filter     *regexp.Regexp
 	tailers    []*tail.Tail
 	doneChan   chan int
 	lastUsedAt time.Time
 }
 
-func NewTailingSession(files []string) *TailingSession {
+func NewTailingSession(files []string, filterRe *regexp.Regexp) *TailingSession {
 	ts := &TailingSession{
-		files: files,
+		files:  files,
+		filter: filterRe,
 	}
 	return ts
 }
@@ -33,7 +36,7 @@ func (ts *TailingSession) Start(sessionId string, publishTo *golongpoll.Longpoll
 	ts.Touch()
 
 	for _, file := range ts.files {
-		config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{Offset: -10, Whence: os.SEEK_END}}
+		config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{Offset: 0, Whence: os.SEEK_END}}
 		t, err := tail.TailFile(file, config)
 		if err != nil {
 			ts.Stop()
@@ -47,7 +50,9 @@ func (ts *TailingSession) Start(sessionId string, publishTo *golongpoll.Longpoll
 					t.Stop()
 					return
 				case line := <-t.Lines:
-					publishTo.Publish(sessionId, gin.H{"raw": line.Text})
+					if ts.filter.MatchString(line.Text) {
+						publishTo.Publish(sessionId, gin.H{"raw": line.Text})
+					}
 				}
 			}
 		}(t)
