@@ -20,5 +20,5 @@ func (rp *SampledHeader) Parse(data []byte) {
 }
 
 func (rp *SampledHeader) FlowType() int {
-	return 1
+	return SampledHeaderType
 }
