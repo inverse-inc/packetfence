@@ -97,8 +97,8 @@ func (h *CountersSample) Parse(data []byte) []byte {
 func (df *DataFormat) ParseFlow(data []byte) (Flow, []byte) {
 	var flow Flow
 	switch df.Format {
-    default:
-        flow = &SampledUnknown{Type:df.Format}
+	default:
+		flow = &SampledUnknown{Type: df.Format}
 	case SampledHeaderType:
 		flow = &SampledHeader{}
 	}
