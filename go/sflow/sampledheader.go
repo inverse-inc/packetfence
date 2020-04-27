@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 )
 
-type RawPacketHeader struct {
+type SampledHeader struct {
 	Protocol             uint32
 	FrameLength          uint32
 	PayloadRemoved       uint32
@@ -12,13 +12,13 @@ type RawPacketHeader struct {
 
 }
 
-func (rp *RawPacketHeader) Parse(data []byte) {
+func (rp *SampledHeader) Parse(data []byte) {
 	rp.Protocol = binary.BigEndian.Uint32(data[0:4])
 	rp.FrameLength = binary.BigEndian.Uint32(data[4:8])
 	rp.PayloadRemoved = binary.BigEndian.Uint32(data[8:12])
 	rp.OriginalPacketLength = binary.BigEndian.Uint32(data[12:16])
 }
 
-func (rp *RawPacketHeader) FlowType() int {
+func (rp *SampledHeader) FlowType() int {
 	return 1
 }

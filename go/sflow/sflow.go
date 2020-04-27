@@ -11,6 +11,26 @@ const (
 	CountersSampleExpandedType = 4
 )
 
+const (
+    SampledHeaderType = iota + 1
+    SampledEthernetType
+    SampledIPV4Type
+    SampledIPV6Type
+
+    ExtendedSwitchType = 1001
+    ExtendedRouterType
+    ExtendedGatewayType
+    ExtendedUserType
+    ExtendedURLType
+    ExtendedMPLSType
+    ExtendedNATType
+    ExtendedMPLSTunnelType
+    ExtendedMPLSVCType
+    ExtendedMPLSFTNType
+    ExtendedMPLSLDPFECType
+    ExtendedVLANTunnelType
+)
+
 type Sample interface {
 	SampleType() int
 	Parse([]byte)
@@ -74,8 +94,8 @@ func (h *CountersSample) Parse(data []byte) []byte {
 func (df *DataFormat) ParseFlow(data []byte) (Flow, []byte) {
 	var flow Flow
 	switch df.Format {
-	case 1:
-		flow = &RawPacketHeader{}
+	case SampledHeaderType:
+		flow = &SampledHeader{}
 	}
 
 	if flow != nil {
