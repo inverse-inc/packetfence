@@ -117,7 +117,7 @@ func TestMultiSamples(t *testing.T) {
 			Input:          2,
 			Output:         3,
 			Records: []Flow{
-				&RawPacket{
+				&RawPacketHeader{
 					Protocol:             1,
 					FrameLength:          78,
 					PayloadRemoved:       4,
@@ -165,7 +165,7 @@ func TestMultiSamples(t *testing.T) {
 			Input:          2,
 			Output:         1,
 			Records: []Flow{
-				&RawPacket{
+				&RawPacketHeader{
 					Protocol:             1,
 					FrameLength:          88,
 					PayloadRemoved:       4,
@@ -182,7 +182,7 @@ func TestMultiSamples(t *testing.T) {
 			Input:          2,
 			Output:         1,
 			Records: []Flow{
-				&RawPacket{
+				&RawPacketHeader{
 					Protocol:             1,
 					FrameLength:          88,
 					PayloadRemoved:       4,
@@ -199,7 +199,7 @@ func TestMultiSamples(t *testing.T) {
 			Input:          22,
 			Output:         20,
 			Records: []Flow{
-				&RawPacket{
+				&RawPacketHeader{
 					Protocol:             1,
 					FrameLength:          1044,
 					PayloadRemoved:       4,
@@ -216,7 +216,7 @@ func TestMultiSamples(t *testing.T) {
 			Input:          2,
 			Output:         3,
 			Records: []Flow{
-				&RawPacket{
+				&RawPacketHeader{
 					Protocol:             1,
 					FrameLength:          350,
 					PayloadRemoved:       4,
@@ -233,7 +233,7 @@ func TestMultiSamples(t *testing.T) {
 			Input:          23,
 			Output:         24,
 			Records: []Flow{
-				&RawPacket{
+				&RawPacketHeader{
 					Protocol:             1,
 					FrameLength:          1114,
 					PayloadRemoved:       4,

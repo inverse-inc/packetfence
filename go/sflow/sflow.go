@@ -75,7 +75,7 @@ func (df *DataFormat) ParseFlow(data []byte) (Flow, []byte) {
 	var flow Flow
 	switch df.Format {
 	case 1:
-		flow = &RawPacket{}
+		flow = &RawPacketHeader{}
 	}
 
 	if flow != nil {
