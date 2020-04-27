@@ -353,18 +353,66 @@ sub isIptablesManaged {
    return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
-sub restartService {
-    stopService(@_);
-    local $SERVICE_HEADER = '';
-    return startService(@_);
-}
-
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
     foreach my $manager (@managers) {
         $manager->print_status;
     }
+}
+
+sub restartService {
+    local $SERVICE_HEADER = '';
+    return _restartService(@_);
+}
+
+
+sub _doRestart {
+    my ($manager) = @_;
+    $manager->restart;
+    $manager->print_status;
+}
+
+sub _restartService {
+    my ($service,@services) = @_;
+    use sort qw(stable);
+    my @managers = pf::services::getManagers(\@services,JUST_MANAGED);
+
+    if ( !@managers ) {
+        print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
+        return $EXIT_SUCCESS;
+    }
+
+    my $count = 0;
+    postPfStartService(\@managers) if $service eq 'pf';
+
+    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
+
+    if($noCheckupManagers && @$noCheckupManagers) {
+        foreach my $manager (@$noCheckupManagers) {
+            _doRestart($manager);
+        }
+    }
+    # Just before the checkup we make sure that the configuration is correct in the cluster if applicable
+
+    if($cluster_enabled && $service eq 'pf') {
+        pf::cluster::handle_config_conflict();
+    }
+
+    if($checkupManagers && @$checkupManagers) {
+        checkup( map {$_->name} @$checkupManagers);
+        foreach my $manager (@$checkupManagers) {
+            if ($manager->isManaged()) {
+                _doRestart($manager);
+                _doStopSubServices() if ($manager->name eq 'pf');
+            } else {
+                _doUpdateSystemd($manager, $TRUE);
+                # Force stop
+                $manager->stop;
+            }
+        }
+    }
+    return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
