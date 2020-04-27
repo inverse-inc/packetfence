@@ -27,12 +27,6 @@ export const columns = [
     visible: true
   },
   {
-    key: 'type',
-    label: 'Type', // i18n defer
-    sortable: true,
-    visible: true
-  },
-  {
     key: 'buttons',
     label: '',
     locked: true
@@ -101,16 +95,6 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Type'),
-          cols: [
-            {
-              namespace: 'type',
-              component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'type')
-            }
-          ]
-        },
-        {
           label: i18n.t('Certificate'),
           cols: [
             {
@@ -119,7 +103,8 @@ export const view = (form = {}, meta = {}) => {
               attrs: {
                 ...attributesFromMeta(meta, 'cert'),
                 rows: 6,
-                maxRows: 6
+                maxRows: 6,
+                disabled: true
               }
             }
           ]
