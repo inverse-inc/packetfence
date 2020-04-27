@@ -85,6 +85,6 @@ func (si *SampledIPV6) Parse(data []byte) {
 	si.ToS = binary.BigEndian.Uint32(data[52:56])
 }
 
-func (u *SampledIPV4) FlowType() uint32 {
+func (u *SampledIPV6) FlowType() uint32 {
 	return SampledIPV4Type
 }
