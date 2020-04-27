@@ -177,7 +177,7 @@ eap [% key -%] {
         #
         #   openssl dhparam -out certs/dh 2048
         #
-        dh_file = ${certdir}/dh
+        dh_file = [% eap.$key.tls.$tls.dh_file %]
 
         #
         #  If your system doesn't have /dev/urandom,
@@ -261,7 +261,7 @@ eap [% key -%] {
         # Set this option to specify the allowed
         # TLS cipher suites.  The format is listed
         # in "man 1 ciphers".
-        cipher_list = "DEFAULT"
+        cipher_list = "[% eap.$key.tls.$tls.cipher_list %]"
 
         # Work-arounds for OpenSSL nonsense
         # OpenSSL 1.0.1f and 1.0.1g do not calculate
@@ -276,7 +276,7 @@ eap [% key -%] {
         #
         #  Only for OpenSSL >= 0.9.8.f
         #
-        ecdh_curve = "prime256v1"
+        ecdh_curve = "[% eap.$key.tls.$tls.ecdh_curve %]"
 
         #
         #  Session resumption / fast reauthentication
