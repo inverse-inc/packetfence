@@ -594,7 +594,7 @@ type PfConfRadiusConfiguration struct {
 type Certificate struct {
 	StructConfig
 	Cert         string `json:"cert"`
-	CertType     string `json:"type"`
+	Default      string `json:"default"`
 	Key          string `json:"key"`
 	Ca           string `json:"ca"`
 	Intermediate string `json:"intermediate"`

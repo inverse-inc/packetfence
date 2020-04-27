@@ -1,13 +1,5 @@
-[http]
-type = http
-cert = /usr/local/pf/conf/ssl/server.crt
-key = /usr/local/pf/conf/ssl/server.key
-ca = /usr/local/pf/conf/ssl/server.pem
-intermediate = /usr/local/pf/conf/ssl/intermediate.crt
-
 [radius]
-type = radius
+default = yes
 cert = /usr/local/pf/raddb/certs/server.crt
 ca = /usr/local/pf/raddb/certs/ca.pem
 key = /usr/local/pf/raddb/certs/server.key
-intermediate = /usr/local/pf/raddb/certs/intermadiate.crt
