@@ -9,10 +9,12 @@
 # That will make sure, the user will be presented the captive portal if he switches from secure to open
 # We do *NOT* apply this logic to wired as supplicant failures would unregister the device
 # To apply this flow to wired, see the example pf_deauth_from_wireless_secure in vlan_filters.conf.example
-
 [pf_deauth_from_wireless_secure]
+run_actions=enabled
+status=enabled
 description=Prevent an autoregistered 802.1x user to switch to an Open SSID and keep the same level of access
 condition=connection_type == "Wireless-802.11-NoEAP" && node_info.last_connection_type == "Wireless-802.11-EAP" && node_info.status == "reg" && node_info.autoreg == "yes"
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
 role = registration
+
