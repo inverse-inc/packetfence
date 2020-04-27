@@ -50,7 +50,7 @@ export const config = () => {
     searchPlaceholder: i18n.t('Search by identifier'),
     searchableOptions: {
       searchApiEndpoint: 'config/radiusd/ocsp_profiles',
-      defaultSortKeys: ['id'],
+      defaultSortKeys: ['id', 'not_deletable'],
       defaultSearchCondition: {
         op: 'and',
         values: [{

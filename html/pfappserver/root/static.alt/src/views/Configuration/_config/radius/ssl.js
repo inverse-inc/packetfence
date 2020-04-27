@@ -51,7 +51,7 @@ export const config = () => {
     searchPlaceholder: i18n.t('Search by identifier'),
     searchableOptions: {
       searchApiEndpoint: 'config/ssl_certificates',
-      defaultSortKeys: ['id'],
+      defaultSortKeys: ['id', 'not_deletable'],
       defaultSearchCondition: {
         op: 'and',
         values: [{
