@@ -1,0 +1,731 @@
+
+
+
+
+
+
+sFlow.org                                                    Peter Phaal
+http://www.sFlow.org/                                        InMon Corp.
+info@sflow.org
+                                                           Robert Jordan
+                                                     ImageMovers Digital
+
+
+
+
+                                                               July 2010
+
+
+                         sFlow Host Structures
+
+
+
+Copyright Notice
+
+Copyright (C) sFlow.org (2010). All Rights Reserved.
+
+Abstract
+
+This memo describes sFlow version 5 structures for exporting host
+related data.
+
+Table of Contents
+
+1. Overview ......................................................  1
+2. Reference Model ...............................................  2
+3. sFlow Datagram Extensions .....................................  3
+4. References .................................................... 12
+5. Author's Addresses ............................................ 13
+
+1. Overview
+   This document describes additional structures that allow an sFlow
+   agent to export information about host resources.
+
+   Current trends toward virtualization and convergence tightly link
+   networking and system performance and blur the line between the
+   network and the servers. For example, virtualization places switching
+   and routing functions on servers. Monitoring the network in this
+   environment requires that the servers are also monitored. Similarly
+   anyone concerned with application and server performance must now
+   also be concerned about network performance since the application
+   features (such as virtual machine migration) can significantly affect
+   and be affected by network performance.
+
+   Currently, performance monitoring of servers and applications is
+
+
+
+FINAL                           sFlow.org                       [Page 1]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   highly fragmented. Each server vendor, operating system vendor and
+   application developer creates agents and software for performance
+   monitoring, none of which interoperate. Monitoring performance of a
+   server might require the same (or similar but incompatible metrics)
+   be monitored more than once since each management application
+   requires its own agent. In addition, there may be other agents
+   monitoring different hardware and software elements within the
+   server.
+
+   Host sFlow extends sFlow's scalable measurement protocol to include
+   server performance monitoring. An interoperable standard for
+   exporting host performance metrics breaks the linkage between agents
+   and performance analysis applications, providing a standard set of
+   metrics that can be collected once and shared among different
+   performance analysis tools.
+
+   Extending sFlow to monitor servers unifies network and system
+   performance monitoring, delivering the real-time, integrated view of
+   performance needed to manage converged services.
+
+   sFlow version 5 is an extensible protocol that allows the addition of
+   new data structures without impacting existing collectors. This
+   document does not change the sFlow version 5 protocol [1], it simply
+   defines additional, optional, data structures that a host device can
+   use to report on host resources.
+
+2. Reference Model
+   The figure below shows the basic elements of a host.  In this
+   abstract model a host consists of one or more physical machines (PM),
+   each of which may contain zero or more virtual machines (VM) and/or
+   application services (AS).
+
+   +--------------------------------------+
+   |   +------------------------------+   |
+   |   | PM 1  +------+     +------+  |   |
+   |   |       | AS 1 | ... | AS J |  |   |
+   |   |       +------+     +------+  |   |
+   |   |       +------+     +------+  |   |
+   |   |       | VM 1 | ... | VM K |  |   |
+   |   |       +------+     +------+  |   |
+   |   +------------------------------+   |
+   |                     .                |
+   |                     .                |
+   |                     .                |
+   |   +------------------------------+   |
+   |   | PM I                         |   |
+   |   +------------------------------+   |
+   +--------------------------------------+
+
+
+
+FINAL                           sFlow.org                       [Page 2]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   The term application service is used to refer to applications
+   providing networked services. Examples would include: a web server
+   implementing the HTTP protocol [2], a storage array supporting the
+   NFS protocol [3], a distributed cache implementing the memcached
+   protocol [4], or a distributed computing facility such as Hadoop [5].
+
+   A stand-alone server would just have a single physical machine. A
+   blade server may have a large number of physical machines (one per
+   blade).
+
+   Physical machines are indicated as PM 1 .. PM I. Application services
+   are indicated as AS 1 .. AS J. Virtual machines are indicated as VM 1
+   .. VM K.
+
+   Each physical machine, application service and virtual machine is
+   monitored by at least one sFlow data source. In this model there is a
+   strict containment hierarchy, each physical machine contains
+   application services and/or virtual machines. Each virtual machine
+   may in turn contain application services.
+
+   The objective of Host sFlow is to export statistics relating to the
+   PM, AS and VM entities using a unified data model that permits
+   correlation between the host statistics and network statistics
+   provided by sFlow agents residing in physical and virtual switches.
+
+   The sFlow version 5 standard requires the implementation of Packet
+   Flow Sampling and Counter Sampling within the packet forwarding
+   function of a device. In order to be compliant, a host must implement
+   sFlow within any physical or virtual switching functions implemented
+   within the host.
+
+   However, in the case where no switching function is performed by the
+   host, either because it does not contain virtual machines or because
+   the inter-VM switching function has been offloaded to the adjacent
+   switch (see Edge Virtual Bridging [6]) then the host is not required
+   to perform the sFlow Packet Flow Sampling function. The combination
+   of sFlow from the adjacent switch and sFlow performance metrics from
+   the host provides a complete picture of network and server
+   performance.
+
+3. sFlow Datagram Extensions
+
+   The SNMP Entity-MIB [7] can be used to describe the physical and
+   logical containment hierarchy of host resources. Physical machines
+   (PMs) can be modeled as physical entities, an already supported sFlow
+   data source type.  Application services (ASs) and virtual machines
+   (VMs) can be modeled as logical entities. Extending sFlow support for
+   logical entities provides a means of exporting data related to
+
+
+
+FINAL                           sFlow.org                       [Page 3]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   application services and virtual machines.
+
+   The sFlow MIB [1] identifies data sources by SNMP OID, so the only
+   change needed is a comment indicating that a logical entity is a
+   valid data source type:
+
+        - entLogicalEntry.<L>
+          An SFlowDataSource of this form refers to a logical entity
+          within the agent and is called a 'logical-entity-based'
+          dataSource.
+
+   In addition, a mapping for logical entity data sources in the sFlow
+   datagram needs to be specified:
+
+        3 = entLogicalEntry
+
+   These changes are backward compatible with existing sFlow agents. An
+   sFlow collector must be able to ignore and skip over the MIB entries
+   and data structures related to the logical data source type.
+
+   However, since there is very little functional overlap between Host
+   sFlow and existing switch based sFlow, sending Host sFlow to a
+   collector that does not support the standard should be avoided. As
+   Host sFlow becomes more common, it is likely that many sFlow
+   analyzers will be extended to support the new structures in order to
+   provide integrated network and system monitoring functionality.
+
+   SNMP[8] is a standard management protocol for network equipment and
+   sFlow monitoring of switches is often augmented by additional
+   information obtained by SNMP (e.g. ifName, ifStack etc.). However,
+   SNMP is much less frequently used in host monitoring. It is important
+   that the Host sFlow structures define an internally consistent model
+   of the host without depending on SNMP for critical information.
+   However, when an SNMP agent is present on the host, the sFlow logical
+   and physical entity data sources and their containment hierarchy must
+   be consistent with data exported via SNMP.
+
+   The host_parent structure is used to describe the containment
+   hierarchy between application services, virtual machines and physical
+   machines.
+
+   The host_adapter structure provides the link between host performance
+   statistics and sFlow implemented in network equipment. Identifying
+   the MAC addresses associated with a physical or virtual network
+   adapter allows traffic generated by that adapter to be identified on
+   the network.
+
+   Physical machine data sources must export counter_sample structures
+
+
+
+FINAL                           sFlow.org                       [Page 4]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   containing host performance statistics (host_cpu, host_memory,
+   host_disk_io, host_net_io). Each counter_sample must also include
+   host_adapter and host_descr structures.
+
+   If the physical machine is hosting virtual machines then network
+   connectivity to the virtual machines is typically provided by a
+   virtual switching function. The virtual switch function connects one
+   or more of the physical server's physical network adapters with
+   virtual network adapters associated with each virtual machine. The
+   virtual switch must export sFlow counter_sample and flow_sample
+   structures, providing exactly the data that would be available from a
+   physical switch. The data sources defined for a switch are typically
+   ifIndex data sources and in the case of a virtual switch would
+   represent each of the physical and virtual network adapters
+   associated with the switch. Again, if an SNMP agent is running on the
+   server, the ifIndex numbers exported via sFlow must correspond to the
+   ifIndex numbers exported via SNMP.
+
+   A data source associated with each of the virtual machines must
+   export counter_sample structures containing performance metrics for
+   that virtual machine (virt_cpu, virt_memory, virt_disk_io,
+   virt_net_io). Each counter_sample must also include host_adapter,
+   host_parent and host_descr structures.  Installing an sFlow agent on
+   each virtual machine is not required. Implementing sFlow as part of
+   the hypervisor functionality provides access to the virtual switch
+   and performance counters for all the virtual machines.  However, if
+   an sFlow agent is running on a virtual machine, it must export its
+   own "physical server" statistics.
+
+   Application services may export both counter_sample structures and
+   flow_sample structures. When sampling at the application level,
+   transactions do not have a simple correspondence with network
+   packets. A single packet may contain more than one application level
+   transaction, or an application level transaction may span many
+   packets.  Application level sampling operates on the stream of
+   application transactions, sampling a random selection of completed
+   transactions and reporting on their attributes.
+
+   For example, a data source monitoring a web server randomly samples
+   1-in-N HTTP requests, capturing information about each completed
+   request and exports the information as a flow_sample structure.  In
+   addition, the data source maintains counters of request totals, types
+   and errors and export these counters periodically using a
+   counter_sample structure.
+
+   The socket extended_flow structures provide the link between
+   application level flow_sample structures and traffic measurements
+   made using sFlow in network devices. Each application flow_sample
+
+
+
+FINAL                           sFlow.org                       [Page 5]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   must include a socket structure describing the socket on which the
+   sampled transaction was received.
+
+   This document creates a framework for exporting application service
+   metrics. However, it does not specify application service
+   counter_sample or flow_sample structures. Each application service
+   will have its own metrics and these will be defined in separate
+   documents.
+
+   The goal of sFlow monitoring is to provide a consistent, network wide
+   view of performance. In order to achieve this goal with system
+   performance monitoring a common set of metrics needs to be defined
+   that can be collected in multi-vendor, multi-OS environments.
+
+   The Ganglia Monitoring System [9] has defined a basic set of system
+   performance metrics and developed a portable library, libmetrics,
+   that allows these metrics to be obtained on a wide variety of
+   platforms. Making use of Ganglia's metric definitions to specify the
+   sFlow performance counter structures simplifies the implementation of
+   a Host sFlow agent, building on a mature and widely accepted set of
+   metrics and tools.
+
+   While the sFlow structure definitions are designed to permit an sFlow
+   performance monitoring system to yield results that are compatible
+   with Ganglia measurements, there are significant architectural
+   differences between the two technologies that require some
+   explanation.
+
+   The Ganglia agent periodically polls systems counters and computes
+   rates.  For example packet counters are polled and packet rates are
+   exported (e.g. delta packets / delta time).  In the sFlow
+   architecture the sFlow agent exports raw counter values and the sFlow
+   analyzer computes deltas and rates.
+
+   Just as Ganglia's libmetrics library defines a set of portable
+   metrics for physical server performance monitoring, the libvert
+   library [10] defines a standard set of metrics for virtual server
+   performance monitoring.  Defining sFlow counter structures based on
+   the libvert library simplifies the implementation of a Host sFlow
+   agent, making use of a standard library that has been implemented on
+   a wide variety of host operating systems and hypervisors. Exporting
+   libvert metrics ensures consistency between sFlow performance
+   monitoring and other tools making use of libvert.
+
+   The Host sFlow agent [11] is an open source implementation of the
+   Host sFlow specification that demonstrates the relationship between
+   Host sFlow structures. A single physical entity data source
+   periodically exports an sFlow counters_sample containing a
+
+
+
+FINAL                           sFlow.org                       [Page 6]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   host_descr, host_adapters, host_cpu, host_memory, host_disk_io and
+   host_net_io structure. If virtual machines are present, the physical
+   entity data source includes a virt_node structure in its set of
+   counters. In addition, a logical entity data source corresponding to
+   each virtual machine periodically exports an sFlow counters_sample
+   containing a host_descr, host_adapters, host_parent, virt_cpu,
+   virt_memory, virt_disk_io and virt_net_io structure.
+
+   The following sFlow structures are defined to export performance and
+   dependency information related to physical machines, virtual machines
+   and applications:
+
+/* Data structures for exporting Host statistics relating to
+   logical and physical entities */
+
+/* The machine_type enumeration may be expanded over time.
+   Applications receiving sFlow must be prepared to receive
+   host_descr structures with unknown machine_type values.
+
+   The authoritative list of machine types will be maintained
+   at www.sflow.org */
+
+enum machine_type {
+   unknown = 0,
+   other   = 1,
+   x86     = 2,
+   x86_64  = 3,
+   ia64    = 4,
+   sparc   = 5,
+   alpha   = 6,
+   powerpc = 7,
+   m68k    = 8,
+   mips    = 9,
+   arm     = 10,
+   hppa    = 11,
+   s390    = 12
+}
+
+/* The os_name enumeration may be expanded over time.
+   Applications receiving sFlow must be prepared to receive
+   host_descr structures with unknown machine_type values.
+
+   The authoritative list of machine types will be maintained
+   at www.sflow.org */
+
+enum os_name {
+   unknown   = 0,
+   other     = 1,
+
+
+
+FINAL                           sFlow.org                       [Page 7]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   linux     = 2,
+   windows   = 3,
+   darwin    = 4,
+   hpux      = 5,
+   aix       = 6,
+   dragonfly = 7,
+   freebsd   = 8,
+   netbsd    = 9,
+   openbsd   = 10,
+   osf       = 11,
+   solaris   = 12
+}
+
+/* Physical or virtual host description */
+/* opaque = counter_data; enterprise = 0; format = 2000 */
+struct host_descr {
+   string hostname<64>;       /* hostname, empty if unknown */
+   opaque uuid<16>;           /* 16 bytes binary UUID, empty if unknown */
+   machine_type machine_type; /* the processor family */
+   os_name os_name;           /* Operating system */
+   string os_release<32>;     /* e.g. 2.6.9-42.ELsmp,xp-sp3, empty if unknown */
+}
+
+/* Physical or virtual network adapter NIC/vNIC */
+struct host_adapter {
+   unsigned int ifIndex;     /* ifIndex associated with adapter
+                                Must match ifIndex of vSwitch
+                                port if vSwitch is exporting sFlow
+                                0 = unknown */
+   mac mac_address<>;        /* Adapter MAC address(es) */
+}
+
+/* Set of adapters associated with entity.
+   A physical server will identify the physical network adapters
+   associated with it and a virtual server will identify its virtual
+   adapters. */
+/* opaque = counter_data; enterprise = 0; format = 2001 */
+
+struct host_adapters {
+   adapter adapters<>;              /* adapter(s) associated with entity */
+}
+
+/* Define containment hierarchy between logical and physical
+   entities. Only a single, strict containment tree is permitted,
+   each entity must be contained within a single parent, but a parent
+   may contain more than one child. The host_parent record is used
+   by the child to identify its parent. Physical entities form the roots
+   of the tree and do not send host_parent structures. */
+
+
+
+FINAL                           sFlow.org                       [Page 8]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+/* opaque = counter_data; enterprise = 0; format = 2002 */
+
+struct host_parent {
+   unsigned int container_type;     /* sFlowDataSource type */
+   unsigned int container_index;    /* sFlowDataSource index */
+}
+
+/* Extended socket information,
+   Must be filled in for all application transactions associated with a network socket
+   Omit if transaction associated with non-network IPC  */
+
+/* IPv4 Socket */
+/* opaque = flow_data; enterprise = 0; format = 2100 */
+struct extended_socket_ipv4 {
+   unsigned int protocol;     /* IP Protocol type
+                                 (for example, TCP = 6, UDP = 17) */
+   ip_v4 local_ip;            /* local IP address */
+   ip_v4 remote_ip;           /* remote IP address */
+   unsigned int local_port;   /* TCP/UDP local port number or equivalent */
+   unsigned int remote_port;  /* TCP/UDP remote port number of equivalent */
+}
+
+/* IPv6 Socket */
+/* opaque = flow_data; enterprise = 0; format = 2101 */
+struct extended_socket_ipv6 {
+   unsigned int protocol;     /* IP Protocol type
+                                 (for example, TCP = 6, UDP = 17) */
+   ip_v6 local_ip;            /* local IP address */
+   ip_v6 remote_ip;           /* remote IP address */
+   unsigned int local_port;   /* TCP/UDP local port number or equivalent */
+   unsigned int remote_port;  /* TCP/UDP remote port number of equivalent */
+}
+
+/*
+  Physical server performance metrics
+*/
+
+/* Physical Server CPU */
+/* opaque = counter_data; enterprise = 0; format = 2003 */
+
+struct host_cpu {
+   float load_one;              /* 1 minute load avg., -1.0 = unknown */
+   float load_five;             /* 5 minute load avg., -1.0 = unknown */
+   float load_fifteen;          /* 15 minute load avg., -1.0 = unknown */
+   unsigned int proc_run;       /* total number of running processes */
+   unsigned int proc_total;     /* total number of processes */
+   unsigned int cpu_num;        /* number of CPUs */
+   unsigned int cpu_speed;      /* speed in MHz of CPU */
+
+
+
+FINAL                           sFlow.org                       [Page 9]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   unsigned int uptime;         /* seconds since last reboot */
+   unsigned int cpu_user;       /* user time (ms) */
+   unsigned int cpu_nice;       /* nice time (ms) */
+   unsigned int cpu_system;     /* system time (ms) */
+   unsigned int cpu_idle;       /* idle time (ms) */
+   unsigned int cpu_wio;        /* time waiting for I/O to complete (ms) */
+   unsigned int cpu_intr;       /* time servicing interrupts (ms) */
+   unsigned int cpu_sintr;      /* time servicing soft interrupts (ms) */
+   unsigned int interrupts;     /* interrupt count */
+   unsigned int contexts;       /* context switch count */
+}
+
+/* Physical Server Memory */
+/* opaque = counter_data; enterprise = 0; format = 2004 */
+
+struct host_memory {
+    unsigned hyper mem_total;   /* total bytes */
+    unsigned hyper mem_free;    /* free bytes */
+    unsigned hyper mem_shared;  /* shared bytes */
+    unsigned hyper mem_buffers; /* buffers bytes */
+    unsigned hyper mem_cached;  /* cached bytes */
+    unsigned hyper swap_total;  /* swap total bytes */
+    unsigned hyper swap_free;   /* swap free bytes */
+    unsigned int page_in;       /* page in count */
+    unsigned int page_out;      /* page out count */
+    unsigned int swap_in;       /* swap in count */
+    unsigned int swap_out;      /* swap out count */
+}
+
+/* Physical Server Disk I/O */
+/* opaque = counter_data; enterprise = 0; format = 2005 */
+
+struct host_disk_io {
+   unsigned hyper disk_total;    /* total disk size in bytes */
+   unsigned hyper disk_free;     /* total disk free in bytes */
+   percentage  part_max_used;    /* utilization of most utilized partition */
+   unsigned int reads;           /* reads issued */
+   unsigned hyper bytes_read;    /* bytes read */
+   unsigned int read_time;       /* read time (ms) */
+   unsigned int writes;          /* writes completed */
+   unsigned hyper bytes_written; /* bytes written */
+   unsigned int write_time;      /* write time (ms) */
+}
+
+/* Physical Server Network I/O */
+/* opaque = counter_data; enterprise = 0; format = 2006 */
+
+struct host_net_io {
+
+
+
+FINAL                           sFlow.org                      [Page 10]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+   unsigned hyper bytes_in;  /* total bytes in */
+   unsigned int pkts_in;     /* total packets in */
+   unsigned int errs_in;     /* total errors in */
+   unsigned int drops_in;    /* total drops in */
+   unsigned hyper bytes_out; /* total bytes out */
+   unsigned int packets_out; /* total packets out */
+   unsigned int errs_out;    /* total errors out */
+   unsigned int drops_out;   /* total drops out */
+}
+
+/*
+  Hypervisor and virtual machine performance metrics
+*/
+
+/* Virtual Node Statistics */
+/* See libvirt, struct virtNodeInfo */
+/* opaque = counter_data; enterprise = 0; format = 2100 */
+
+struct virt_node {
+   unsigned int mhz;           /* expected CPU frequency */
+   unsigned int cpus;          /* the number of active CPUs */
+   unsigned hyper memory;      /* memory size in bytes */
+   unsigned hyper memory_free; /* unassigned memory in bytes */
+   unsigned int num_domains;   /* number of active domains */
+}
+
+/* Virtual Domain CPU statistics */
+/* See libvirt, struct virtDomainInfo */
+/* opaque = counter_data; enterprise = 0; format = 2101 */
+
+struct virt_cpu {
+   unsigned int state;         /* virtDomainState */
+   unsigned int cpuTime;       /* the CPU time used (ms) */
+   unsigned int nrVirtCpu;     /* number of virtual CPUs for the domain */
+}
+
+/* Virtual Domain Memory statistics */
+/* See libvirt, struct virtDomainInfo */
+/* opaque = counter_data; enterprise = 0; format = 2102 */
+
+struct virt_memory {
+   unsigned hyper memory;      /* memory in bytes used by domain */
+   unsigned hyper maxMemory;   /* memory in bytes allowed */
+}
+
+/* Virtual Domain Disk statistics */
+/* See libvirt, struct virtDomainBlockInfo */
+/* See libvirt, struct virtDomainBlockStatsStruct */
+
+
+
+FINAL                           sFlow.org                      [Page 11]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+/* opaque = counter_data; enterprise = 0; format = 2103 */
+
+struct virt_disk_io {
+   unsigned hyper capacity;   /* logical size in bytes */
+   unsigned hyper allocation; /* current allocation in bytes */
+   unsigned hyper available;  /* remaining free bytes */
+   unsigned int rd_req;       /* number of read requests */
+   unsigend hyper rd_bytes;   /* number of read bytes */
+   unsigned int wr_req;       /* number of write requests */
+   unsigned hyper wr_bytes;   /* number of  written bytes */
+   unsigned int errs;         /* read/write errors */
+}
+
+/* Virtual Domain Network statistics */
+/* See libvirt, struct virtDomainInterfaceStatsStruct */
+/* opaque = counter_data; enterprise = 0; format = 2104 */
+
+struct virt_net_io {
+   unsigned hyper rx_bytes;  /* total bytes received */
+   unsigned int rx_packets;  /* total packets received */
+   unsigned int rx_errs;     /* total receive errors */
+   unsigned int rx_drop;     /* total receive drops */
+   unsigned hyper tx_bytes;  /* total bytes transmitted */
+   unsigned int tx_packets;  /* total packets transmitted */
+   unsigned int tx_errs;     /* total transmit errors */
+   unsigned int tx_drop;     /* total transmit drops */
+}
+
+
+4. References
+
+[1]  Phaal, P. and Lavine, M., "sFlow Version 5",
+     http://www.sflow.org/sflow_version_5.txt, July 2006
+
+[2]  IETF, "RFC 2616: Hypertext Transfer Protocol -- HTTP/1.1", June
+     1999
+
+[3]  IETF, "RFC 1813: NFS Version 3 Protocol Specification", June 1995
+
+[4]  "Memcached", http://memcached.org/
+
+[5]  "Hadoop", http://hadoop.apache.org/
+
+[6]  IEEE, "802.1Qbg - Edge Virtual Bridging"
+
+[7]  IETF, "RFC 2737: Entity MIB (Version 2)", December 1999
+
+
+
+
+
+FINAL                           sFlow.org                      [Page 12]
+
+FINAL                     sFlow Host Structures                July 2010
+
+
+[8]  Case, J., Fedor, M., Schoffstall, M., and J. Davin, "Simple Network
+     Management Protocol", STD 15, RFC 1157, May 1990.
+
+[9]  "Ganglia Monitoring System", http://ganglia.sourceforge.net/
+
+[10] "libvirt: virtualization API", http://libvirt.org/
+
+[11] "Host sFlow", http://host-sflow.sourceforge.net/
+
+5. Author's Address
+
+   Peter Phaal
+   InMon Corp.
+   580 California Street, 5th Floor
+   San Francisco, CA 94104
+
+   Phone: (415) 283-3263
+   EMail: peter.phaal@inmon.com
+
+   Robert Jordan
+   ImageMovers Digital
+   9 Hamilton Landing
+   Novato, CA 94949
+
+   Phone: (415) 475-5800
+   EMail: rjordan@imagemoversdigital.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FINAL                           sFlow.org                      [Page 13]
+
