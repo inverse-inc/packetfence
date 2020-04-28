@@ -26,12 +26,13 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $fast_config_file;
+    $self->{default_section} = 'default';
 
     $self->{child_resources} = [
         'resource::eap_config'
     ];
 
-    my $defaults = Config::IniFiles->new( -file => $fast_default_config_file );
+    my $defaults = Config::IniFiles->new( -file => $fast_default_config_file, -default => 'default' );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

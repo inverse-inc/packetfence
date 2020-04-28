@@ -26,12 +26,13 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $tls_config_file;
+    $self->{default_section} = "tls-common";
 
     $self->{child_resources} = [
         'resource::eap_config'
     ];
 
-    my $defaults = Config::IniFiles->new( -file => $tls_default_config_file );
+    my $defaults = Config::IniFiles->new( -file => $tls_default_config_file, -default => 'tls-common' );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

@@ -26,6 +26,8 @@ sub configFile { $fast_config_file }
 
 sub pfconfigNamespace {'config::Fast'}
 
+sub default_section { 'default' }
+
 sub importConfigFile { $fast_default_config_file }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

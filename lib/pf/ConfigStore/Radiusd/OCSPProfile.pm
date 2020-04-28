@@ -26,6 +26,8 @@ sub configFile { $ocsp_config_file }
 
 sub pfconfigNamespace {'config::Ocsp'}
 
+sub default_section { 'default' }
+
 sub importConfigFile { $ocsp_default_config_file }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

@@ -26,6 +26,8 @@ sub configFile { $tls_config_file }
 
 sub pfconfigNamespace {'config::TLS'}
 
+sub default_section { 'tls-common' }
+
 sub importConfigFile { $tls_default_config_file }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

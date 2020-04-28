@@ -28,6 +28,8 @@ sub pfconfigNamespace {'config::EAP'}
 
 sub importConfigFile { $eap_default_config_file }
 
+sub default_section { 'default' }
+
 sub _fields_expanded { qw( eap_authentication_types) }
 
 sub cleanupAfterRead {
