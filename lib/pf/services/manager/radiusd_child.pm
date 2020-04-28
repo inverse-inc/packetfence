@@ -488,7 +488,7 @@ EOT
             }
 EOT
         } else {
-            $tags{'local_realm_exception'} .= 'reject';
+            $tags{'local_realm_exception'} .= '            reject';
         }
         if ($found_acct) {
             $tags{'local_realm_acct'} .= '        }';
