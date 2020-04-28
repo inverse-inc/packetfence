@@ -28,7 +28,6 @@ has_field 'id' => (
 has_field default_eap_type => (
     type     => 'Select',
     label    => 'Default EAP Type',
-    required => 1,
     options  => [
         map { { value => lc($_), label => $_ } }
           qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS)
@@ -37,7 +36,6 @@ has_field default_eap_type => (
 
 has_field timer_expire => (
     type => 'Duration',
-    required => 1,
 );
 
 for my $f (qw(ignore_unknown_eap_types cisco_accounting_username_bug)) {
@@ -51,7 +49,6 @@ for my $f (qw(ignore_unknown_eap_types cisco_accounting_username_bug)) {
 
 has_field 'max_sessions' => (
     type     => 'Text',
-    required => 1,
 );
 
 has_field eap_authentication_types => (
@@ -66,14 +63,12 @@ has_field eap_authentication_types => (
 for my $f (qw(tls_tlsprofile ttls_tlsprofile peap_tlsprofile)) {
     has_field $f => (
         type => 'Select',
-        required => 1,
         options_method => \&options_tls,
     );
 }
 
 has_field fast_config => (
     type => 'Select',
-    required => 1,
     options_method => \&options_fast,
 );
 

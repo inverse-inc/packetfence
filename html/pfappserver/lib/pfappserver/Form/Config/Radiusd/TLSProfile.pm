@@ -29,32 +29,26 @@ has_field 'id' =>
 has_field certificate_profile => (
     type => 'Select',
     options_method => \&options_certificate_profile,
-    required => 1,
 );
 
 has_field dh_file => (
     type => 'Text',
-    required => 1,
 );
 
 has_field ca_path => (
     type => 'Text',
-    required => 1,
 );
 
 has_field cipher_list => (
     type => 'Text',
-    required => 1,
 );
 
 has_field ecdh_curve => (
     type => 'Text',
-    required => 1,
 );
 
 has_field ocsp => (
     type => 'Select',
-    required => 1,
     options_method => \&options_ocsp,
 );
 

@@ -28,19 +28,16 @@ has_field 'id' =>
 has_field 'tls' =>
   (
    type => 'Select',
-   required => 1,
    options_method => \&options_tls,
   );
 
 has_field 'authority_identity' =>
   (
    type => 'Text',
-   required => 1,
   );
 
 has_field 'pac_opaque_key' => (
     type     => 'Text',
-    required => 1,
     apply    => [
         {
             check   => sub { $_[0] =~ /^[0-9a-fA-F]+$/ },
