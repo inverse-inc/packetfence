@@ -148,11 +148,11 @@ func (lme *LogMetaEngine) ExtractMeta(log string) (lm LogMeta) {
 }
 
 type LogMeta struct {
-	Timestamp  time.Time
-	Hostname   string
-	LogLevel   string
-	Process    string
-	SyslogName string
+	Timestamp  time.Time `json:"timestamp"`
+	Hostname   string    `json:"hostname"`
+	LogLevel   string    `json:"log_level"`
+	Process    string    `json:"process"`
+	SyslogName string    `json:"syslog_name"`
 }
 
 type LogMetaExtractor struct {
