@@ -85,18 +85,21 @@ sub dynamic_routing_module { 'Authentication::Login' }
 =cut
 
 sub available_attributes {
-  my $self = shift;
+    my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes;
-  my @ldap_attributes = $self->ldap_attributes;
+    my $super_attributes = $self->SUPER::available_attributes;
+    my @ldap_attributes = $self->ldap_attributes;
 
-  # We check if our username attribute is present, if not we add it.
-  my $usernameattribute = $self->{'usernameattribute'};
-  if ( length ($usernameattribute) && !grep {$_->{value} eq $usernameattribute } @ldap_attributes ) {
-    push (@ldap_attributes, { value => $usernameattribute, type => $Conditions::LDAP_ATTRIBUTE });
-  }
+    # We check if our username attribute is present, if not we add it.
+    my $usernameattribute = $self->{'usernameattribute'};
+    if ( length ($usernameattribute) && !grep {$_->{value} eq $usernameattribute } @ldap_attributes ) {
+        push (@ldap_attributes, { value => $usernameattribute, type => $Conditions::LDAP_ATTRIBUTE });
+    }
+    push(@$super_attributes, @ldap_attributes);
+    my %seen;
+    @$super_attributes = grep { ! $seen{$_->{value}}++ } @$super_attributes;
 
-  return [@$super_attributes, { value => $Conditions::LDAP_FILTER, type => $Conditions::LDAP_FILTER  }, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
+    return [{ value => $Conditions::LDAP_FILTER, type => $Conditions::LDAP_FILTER  }, sort { lc($a->{value}) cmp lc($b->{value}) } @$super_attributes]
 }
 
 =head2 ldap_attributes
@@ -108,6 +111,34 @@ get the ldap attributes
 sub ldap_attributes {
     my ($self) = @_;
     return map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @{$Config{advanced}->{ldap_attributes}};
+}
+
+=head2 radius_attributes
+
+get the radius attributes
+
+=cut
+
+sub radius_attributes {
+    my ($self) = @_;
+    my @radius_attributes = map { {value => $_, type => $Conditions::SUBSTRING}} qw(
+        TLS-Client-Cert-Serial
+        TLS-Client-Cert-Expiration
+        TLS-Client-Cert-Issuer
+        TLS-Client-Cert-Subject
+        TLS-Client-Cert-Common-Name
+        TLS-Client-Cert-Filename
+        TLS-Client-Cert-Subject-Alt-Name-Email
+        TLS-Client-Cert-X509v3-Extended-Key-Usage
+        TLS-Cert-Serial
+        TLS-Cert-Expiration
+        TLS-Cert-Issuer
+        TLS-Cert-Subject
+        TLS-Cert-Common-Name
+        TLS-Client-Cert-Subject-Alt-Name-Dns
+    );
+    push(@radius_attributes, map { {value => $_, type => $Conditions::SUBSTRING}} @{$Config{radius_configuration}->{radius_attributes}});
+    return @radius_attributes;
 }
 
 =head2 authenticate
@@ -316,6 +347,23 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     my $id = $self->id;
+
+    my $return_radius = undef;
+    my $return_ldap = undef;
+
+    my $radius_params = $params->{radius_request};
+    # If match any we just want the first
+    my @conditions;
+    if ($rule->match eq $Rules::ANY) {
+        my $c = first { $self->match_condition($_, $radius_params) } @$own_conditions;
+        push @conditions, $c if $c;
+    }
+    else {
+        @conditions = grep { $self->match_condition($_, $radius_params) } @$own_conditions;
+    }
+    push @$matching_conditions, @conditions if @conditions;
+    $return_radius = $params->{'username'} if @conditions;
+
     if (! defined($filter)) {
         $logger->error("[$id] Missing parameters to construct LDAP filter");
         $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
@@ -323,7 +371,13 @@ sub match_in_subclass {
     }
     my $rule_id = $rule->id;
     $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
-    return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
+    $return_ldap = $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
+
+    if (defined($return_ldap)) {
+        return $return_ldap;
+    } else {
+        return $return_radius;
+    }
 }
 
 =head2 _match_in_subclass
