@@ -87,6 +87,7 @@ func buildLogTailerHandler(ctx context.Context) (LogTailerHandler, error) {
 	router := gin.Default()
 	logTailerApi := router.Group("/api/v1/logs/tail")
 
+	logTailerApi.OPTIONS("", logTailer.optionsSessions)
 	logTailerApi.POST("", logTailer.createNewSession)
 	logTailerApi.GET("/:id", logTailer.getSession)
 	logTailerApi.DELETE("/:id", logTailer.deleteSession)
