@@ -63,6 +63,15 @@ func (u *SampledIPV4) FlowType() uint32 {
 	return SampledIPV4Type
 }
 
+func (si *SampledIPV4) ParseFromIPHeader(data []byte) {
+	copy(si.SrcIP[:], data[12:16])
+	copy(si.DstIP[:], data[16:20])
+	si.Protocol = uint32(data[9])
+	length := int((data[0] & 0xF) * 4)
+	si.SrcPort = uint32(binary.BigEndian.Uint16(data[length : length+2]))
+	si.DstPort = uint32(binary.BigEndian.Uint16(data[length+2 : length+4]))
+}
+
 type SampledIPV6 struct {
 	Length   uint32
 	Protocol uint32
