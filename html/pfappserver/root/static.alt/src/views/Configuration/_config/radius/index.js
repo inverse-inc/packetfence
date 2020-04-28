@@ -105,6 +105,58 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Use RADIUS filters in eduroam authorize'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.authorize section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_authorize',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Use RADIUS filters in eduroam pre_proxy'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.pre_proxy section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_pre_proxy',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Use RADIUS filters in eduroam post_proxy'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.post_proxy section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_post_proxy',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Use RADIUS filters in eduroam preacct'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.preacct section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_preacct',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+	{
           label: i18n.t('NTLM Redis cache'),
           text: i18n.t('Enables a Redis driven cache for NTLM authentication.In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD. Refer to the Administration guide for more details. Applying this requires a restart of radiusd.'),
           cols: [

@@ -524,6 +524,64 @@ EOT
         }
 EOT
         }
+        $tags{'authentication_auth_type'} = "";
+
+        $tags{'authorize_eap_choice'} .= <<"EOT";
+
+        switch "%{%{control:PacketFence-Auth-Type}:-False}" {
+EOT
+            foreach my $key (keys %ConfigEAP) {
+                next if $key eq 'default';
+
+                $tags{'authorize_eap_choice'} .= <<"EOT";
+            case "$key" {
+                $key {
+                    ok = return
+                }
+            }
+EOT
+                $tags{'authentication_auth_type'} .= <<"EOT";
+        Auth-Type $key {
+            $key
+        }
+EOT
+        }
+            $tags{'authorize_eap_choice'} .= <<"EOT";
+            case {
+                eap {
+                    ok = return
+                }
+            }
+        }
+EOT
+
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_authorize})){
+        $tags{'authorize_filter'} .= <<"EOT";
+        rest
+
+EOT
+        }
+        else {
+            $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        }
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_pre_proxy})){
+            $tags{'pre_proxy_filter'} = "rest";
+        }
+        else {
+            $tags{'pre_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        }
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_post_proxy})){
+            $tags{'post_proxy_filter'} = "rest";
+        }
+        else {
+            $tags{'post_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        }
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_preacct})){
+            $tags{'preacct_filter'} = "rest";
+        }
+        else {
+            $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        }
         parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
         symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
 

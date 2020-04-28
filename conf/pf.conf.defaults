@@ -1232,6 +1232,30 @@ filter_in_packetfence_accounting=disabled
 # Requires a restart of radiusd to be effective.
 filter_in_packetfence-tunnel_authorize=disabled
 #
+# advanced.filter_in_eduroam_authorize
+#
+# Send the radius request in the radius filter from the radius eduroam.authorize section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_authorize=disabled
+#
+# radius_configuration.filter_in_eduroam_pre_proxy
+#
+# Send the radius request in the radius filter from the radius eduroam.pre_proxy section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_pre_proxy=disabled
+#
+# radius_configuration.filter_in_eduroam_post_proxy
+#
+# Send the radius request in the radius filter from the radius eduroam.post_proxy section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_post_proxy=disabled
+#
+# radius_configuration.filter_in_eduroam_preacct
+#
+# Send the radius request in the radius filter from the radius eduroam.preacct section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_preacct=disabled
+#
 # radius_configuration.ntlm_redis_cache
 #
 # Enables a Redis driven cache for NTLM authentication. 
