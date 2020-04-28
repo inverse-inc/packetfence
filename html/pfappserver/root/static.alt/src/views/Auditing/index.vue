@@ -43,6 +43,11 @@ export default {
           path: '/auditing/admin_api_audit_logs/search',
           saveSearchNamespace: 'admin_api_audit_logs',
           can: 'read admin_api_audit_log'
+        },
+        {
+          name: this.$i18n.t('Live Logs'),
+          path: '/auditing/live/',
+          can: 'read system'
         }
       ]
     }
