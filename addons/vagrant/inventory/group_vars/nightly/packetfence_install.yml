@@ -1,7 +1,8 @@
 ---
 packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.devel.noarch.rpm'
 packetfence_install__centos:
-  repo: packetfence-devel
+  repos:
+    - packetfence-devel
 
 packetfence_install__deb:
   repos:

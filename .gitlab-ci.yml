@@ -17,7 +17,6 @@ stages:
   - publish
   - test
   - upload
-  - post_upload
 
 ################################################################################
 # VARIABLES
@@ -100,6 +99,24 @@ variables:
   only:
     - schedules
 
+.job_devel_only_triggers:
+  # run only jobs on "devel" branch (push, schedules and web)
+  only:
+    - /^devel$/
+
+.job_branches_only_triggers:
+  # run jobs on any branches/tags only via "Run pipeline", except:
+  # - devel branch
+  # - vX.Y.Z tag
+  # - maintenance/X.Y branches
+  # - feature/packer-.* branches
+  only:
+    - web
+  except:
+    - /^devel$/
+    - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
+    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
+    - /^feature/packer-.*$/    
 ########################################    
 # JOBS
 ########################################
@@ -190,8 +207,8 @@ variables:
     - inverse
     - shell
 
-.post_upload_rpm_packetfence-release_job:
-  stage: post_upload
+.deploy_rpm_packetfence-release_job:
+  stage: upload
   dependencies:
     - sign_dev_and_release
   variables:
@@ -454,21 +471,38 @@ test_pkg_nightly_debian_stretch:
 ########################################
 # UPLOAD JOBS
 ########################################
-deploy_rpm_dev:
+deploy_rpm_devel:
   extends:
     - .deploy_rpm_job
-    - .job_dev_triggers
+    - .job_devel_only_triggers
   environment:
     name: devel/x86_64
     url: ${PUBLIC_REPO_URL}/RHEL7/${CI_ENVIRONMENT_NAME}
 
-deploy_deb_dev:
+# we deploy packetfence-release RPM with
+# a fixed name *outside* a RPM repo
+# for first installation
+deploy_rpm_packetfence-release_devel:
   extends:
-    - .deploy_deb_job
-    - .job_dev_triggers
+    - .deploy_rpm_packetfence-release_job
+    - .job_devel_only_triggers
+  variables:
+    PKG_DEST_NAME: packetfence-release-7.devel.noarch.rpm
+
+deploy_rpm_branches:
+  extends:
+    - .deploy_rpm_job
+    - .job_branches_only_triggers
   environment:
-    name: debian-devel
-    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+    name: branches/x86_64
+    url: ${PUBLIC_REPO_URL}/RHEL7/${CI_ENVIRONMENT_NAME}
+
+deploy_rpm_packetfence-release_branches:
+  extends:
+    - .deploy_rpm_packetfence-release_job
+    - .job_branches_only_triggers
+  variables:
+    PKG_DEST_NAME: packetfence-release-7.branches.noarch.rpm
 
 deploy_rpm_release:
   extends:
@@ -477,6 +511,32 @@ deploy_rpm_release:
   environment:
     name: x86_64
     url: ${PUBLIC_REPO_URL}/RHEL7/${CI_ENVIRONMENT_NAME}
+
+# we deploy packetfence-release RPM with
+# a fixed name *outside* a RPM repo
+# for first installation
+deploy_rpm_packetfence-release_release:
+  extends:
+    - .deploy_rpm_packetfence-release_job
+    - .job_release_triggers
+  variables:
+    PKG_DEST_NAME: packetfence-release-7.stable.noarch.rpm
+
+deploy_deb_devel:
+  extends:
+    - .deploy_deb_job
+    - .job_devel_only_triggers
+  environment:
+    name: debian-devel
+    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+
+deploy_deb_branches:
+  extends:
+    - .deploy_deb_job
+    - .job_branches_only_triggers
+  environment:
+    name: debian-branches
+    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
 deploy_deb_release:
   extends:
@@ -494,23 +554,3 @@ deploy_maintenance:
   environment:
     name: maintenance
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
-
-########################################
-# POST_UPLOAD JOBS
-########################################
-# we deploy packetfence-release RPM with
-# a fixed name *outside* a RPM repo
-# for first installation
-post_upload_rpm_packetfence-release_dev:
-  extends:
-    - .post_upload_rpm_packetfence-release_job
-    - .job_dev_triggers
-  variables:
-    PKG_DEST_NAME: packetfence-release-7.devel.noarch.rpm
-
-post_upload_rpm_packetfence-release_release:
-  extends:
-    - .post_upload_rpm_packetfence-release_job
-    - .job_release_triggers
-  variables:
-    PKG_DEST_NAME: packetfence-release-7.stable.noarch.rpm
