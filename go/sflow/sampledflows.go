@@ -38,14 +38,14 @@ func (u *SampledUnknown) FlowType() uint32 {
 }
 
 type SampledIPV4 struct {
-   Length uint32
-   Protocol uint32
-   SrcIP [4]byte
-   DstIP [4]byte
-   SrcPort uint32
-   DstPort uint32
-   TCPFlags uint32
-   ToS uint32
+	Length   uint32
+	Protocol uint32
+	SrcIP    [4]byte
+	DstIP    [4]byte
+	SrcPort  uint32
+	DstPort  uint32
+	TCPFlags uint32
+	ToS      uint32
 }
 
 func (si *SampledIPV4) Parse(data []byte) {
@@ -64,14 +64,14 @@ func (u *SampledIPV4) FlowType() uint32 {
 }
 
 type SampledIPV6 struct {
-   Length uint32
-   Protocol uint32
-   SrcIP [16]byte
-   DstIP [16]byte
-   SrcPort uint32
-   DstPort uint32
-   TCPFlags uint32
-   ToS uint32
+	Length   uint32
+	Protocol uint32
+	SrcIP    [16]byte
+	DstIP    [16]byte
+	SrcPort  uint32
+	DstPort  uint32
+	TCPFlags uint32
+	ToS      uint32
 }
 
 func (si *SampledIPV6) Parse(data []byte) {

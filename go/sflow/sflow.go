@@ -34,6 +34,18 @@ const (
 	ExtendedVLANTunnelType
 )
 
+const (
+	IfCountersType uint32 = iota + 1
+	EthernetCountersType
+	TokenringCountersType
+	VGCountersType
+	VlanCountersType
+)
+
+const (
+	ProcessorType = 1001
+)
+
 type Sample interface {
 	SampleType() uint32
 	Parse([]byte)
@@ -150,10 +162,20 @@ func (df *DataFormat) ParseSample(data []byte) (Sample, []byte) {
 func (df *DataFormat) ParseCounter(data []byte) (Counter, []byte) {
 	var counter Counter
 	switch df.Format {
-	case 1:
+	default:
+		counter = &CounterUnknown{Type: df.Format}
+	case IfCountersType:
 		counter = &IfCounter{}
-	case 2:
-		counter = &EthernetIfCounter{}
+	case EthernetCountersType:
+		counter = &EthernetCounter{}
+	case TokenringCountersType:
+		counter = &TokenringCounters{}
+	case VGCountersType:
+		counter = &VGCounters{}
+	case VlanCountersType:
+		counter = &VlanCounters{}
+	case ProcessorType:
+		counter = &Processor{}
 	}
 
 	if counter != nil {

@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 )
 
-type EthernetIfCounter struct {
+type EthernetCounter struct {
 	AlignmentErrors           uint32
 	FCSErrors                 uint32
 	SingleCollisionFrames     uint32
@@ -20,11 +20,11 @@ type EthernetIfCounter struct {
 	SymbolErrors              uint32
 }
 
-func (eic *EthernetIfCounter) CounterType() uint32 {
-	return 2
+func (eic *EthernetCounter) CounterType() uint32 {
+	return EthernetCountersType
 }
 
-func (eic *EthernetIfCounter) Parse(data []byte) {
+func (eic *EthernetCounter) Parse(data []byte) {
 	eic.AlignmentErrors = binary.BigEndian.Uint32(data[0:4])
 	eic.FCSErrors = binary.BigEndian.Uint32(data[4:8])
 	eic.SingleCollisionFrames = binary.BigEndian.Uint32(data[8:12])

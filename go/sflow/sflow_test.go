@@ -103,7 +103,7 @@ func TestMultiSamples(t *testing.T) {
 					OutErrors:        0,
 					PromiscuousMode:  0,
 				},
-				&EthernetIfCounter{
+				&EthernetCounter{
 					AlignmentErrors: 0,
 				},
 			},
@@ -150,7 +150,7 @@ func TestMultiSamples(t *testing.T) {
 					OutErrors:        0,
 					PromiscuousMode:  0,
 				},
-				&EthernetIfCounter{
+				&EthernetCounter{
 					AlignmentErrors: 0,
 					FCSErrors:       1,
 				},

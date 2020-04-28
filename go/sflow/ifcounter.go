@@ -31,7 +31,7 @@ type IfCounter struct {
 }
 
 func (ic *IfCounter) CounterType() uint32 {
-	return 1
+	return IfCountersType
 }
 
 func (ic *IfCounter) Parse(data []byte) {
