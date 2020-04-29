@@ -286,6 +286,38 @@ EOT
 EOT
     }
 
+    $tags{'authorize_eap_choice'} = "";
+    $tags{'authentication_auth_type'} = "";
+
+    $tags{'authorize_eap_choice'} .= <<"EOT";
+
+        switch "%{%{control:PacketFence-Auth-Type}:-False}" {
+EOT
+        foreach my $key (keys %ConfigEAP) {
+            next if $key eq 'default';
+
+            $tags{'authorize_eap_choice'} .= <<"EOT";
+            case "$key" {
+                $key {
+                    ok = return
+                }
+            }
+EOT
+            $tags{'authentication_auth_type'} .= <<"EOT";
+        Auth-Type $key {
+            $key
+        }
+EOT
+        }
+        $tags{'authorize_eap_choice'} .= <<"EOT";
+            case {
+                eap {
+                    ok = return
+                }
+            }
+        }
+EOT
+
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
 
