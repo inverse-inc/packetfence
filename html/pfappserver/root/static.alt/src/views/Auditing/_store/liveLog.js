@@ -69,15 +69,16 @@ const mutations = {
     if (events) {
       state.events = [ ...state.events, ...events ]
       for (let event of events) {
-        const { data: { meta: { timestamp, ...meta } = {} } = {} } = event
+        const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
         for (let key of Object.keys(meta)) {
-          if (meta[key]) {
-            if (!(key in state.scopes)) {
-              state.scopes[key] = [ meta[key] ]
-            }
-            else if (!(meta[key] in state.scopes[key])) {
-              state.scope[key].push(meta[key])
-            }
+          if (!(key in state.scopes)) {
+            state.scopes[key] = { [meta[key]]: 1 }
+          }
+          else if (!(meta[key] in state.scopes[key])) {
+            state.scopes[key][meta[key]] = 1
+          }
+          else {
+            state.scopes[key][meta[key]]++
           }
         }
       }

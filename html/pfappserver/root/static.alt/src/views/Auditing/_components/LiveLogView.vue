@@ -15,8 +15,10 @@
 
         </b-col>
         <b-col sm="10">
-          <div editable="true" readonly="true" class="log">
-            {{ JSON.stringify(events, null, 2) }}
+          <div editable="true" readonly="true" class="h-100 log">
+            <div v-for="event in events" :key="event">
+              {{ event }}
+            </div>
           </div>
         </b-col>
       </b-row>
@@ -81,7 +83,7 @@ export default {
 
 <style lang="scss">
 .log {
-  max-heigth: 100%;
   overflow-y: scroll;
+  overflow-x: auto;
 }
 </style>
