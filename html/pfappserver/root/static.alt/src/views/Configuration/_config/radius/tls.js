@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   attributesFromMeta,
@@ -88,6 +88,11 @@ export const config = () => {
       }
     }
   }
+}
+
+export const placeholder = (meta = {}, key = null) => {
+  const { [key]: { placeholder = null } = {} } = meta
+  return placeholder
 }
 
 export const view = (form = {}, meta = {}) => {
@@ -187,9 +192,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'disable_tlsv1_2',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' },
+                tooltip: false,
+                values: { checked: 'yes', unchecked: 'no', default: placeholder(meta, 'disable_tlsv1_2') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder(meta, 'disable_tlsv1_2') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('yes'), unchecked: i18n.t('no'), default: i18n.t('Default ({default})', { default: placeholder(meta, 'disable_tlsv1_2') }) },
                 disabled: !isEditable
               }
             }

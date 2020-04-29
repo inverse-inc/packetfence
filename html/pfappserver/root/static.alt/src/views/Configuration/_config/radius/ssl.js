@@ -206,7 +206,8 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Private Key Password if needed'),
+          label: i18n.t('Private Key Password'),
+          text: i18n.t('Only if needed.'),
           cols: [
             {
               namespace: 'private_key_password',

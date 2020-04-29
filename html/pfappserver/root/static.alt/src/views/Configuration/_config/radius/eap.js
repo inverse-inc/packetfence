@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   attributesFromMeta,
@@ -108,6 +108,11 @@ export const config = () => {
   }
 }
 
+export const placeholder = (meta = {}, key = null) => {
+  const { [key]: { placeholder = null } = {} } = meta
+  return placeholder
+}
+
 export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
@@ -175,9 +180,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'ignore_unknown_eap_types',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' },
+                tooltip: false,
+                values: { checked: 'yes', unchecked: 'no', default: placeholder(meta, 'ignore_unknown_eap_types') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder(meta, 'ignore_unknown_eap_types') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('yes'), unchecked: i18n.t('no'), default: i18n.t('Default ({default})', { default: placeholder(meta, 'ignore_unknown_eap_types') }) },
                 disabled: !isEditable
               }
             }
@@ -188,9 +197,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'cisco_accounting_username_bug',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' },
+                tooltip: false,
+                values: { checked: 'yes', unchecked: 'no', default: placeholder(meta, 'cisco_accounting_username_bug') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder(meta, 'cisco_accounting_username_bug') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('yes'), unchecked: i18n.t('no'), default: i18n.t('Default ({default})', { default: placeholder(meta, 'cisco_accounting_username_bug') }) },
                 disabled: !isEditable
               }
             }

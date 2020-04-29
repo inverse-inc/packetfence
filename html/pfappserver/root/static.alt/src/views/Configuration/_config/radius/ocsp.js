@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   attributesFromMeta,
@@ -78,6 +78,11 @@ export const config = () => {
   }
 }
 
+export const placeholder = (meta = {}, key = null) => {
+  const { [key]: { placeholder = null } = {} } = meta
+  return placeholder
+}
+
 export const view = (form = {}, meta = {}) => {
   const {
     isNew = false,
@@ -111,9 +116,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'ocsp_enable',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' },
+                tooltip: false,
+                values: { checked: 'yes', unchecked: 'no', default: placeholder(meta, 'ocsp_enable') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder(meta, 'ocsp_enable') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('yes'), unchecked: i18n.t('no'), default: i18n.t('Default ({default})', { default: placeholder(meta, 'ocsp_enable') }) },
                 disabled: !isEditable
               }
             }
@@ -125,9 +134,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'ocsp_override_cert_url',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' },
+                tooltip: false,
+                values: { checked: 'yes', unchecked: 'no', default: placeholder(meta, 'ocsp_override_cert_url') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder(meta, 'ocsp_override_cert_url') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('yes'), unchecked: i18n.t('no'), default: i18n.t('Default ({default})', { default: placeholder(meta, 'ocsp_override_cert_url') }) },
                 disabled: !isEditable
               }
             }
@@ -154,9 +167,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'ocsp_use_nonce',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' },
+                tooltip: false,
+                values: { checked: 'yes', unchecked: 'no', default: placeholder(meta, 'ocsp_use_nonce') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder(meta, 'ocsp_use_nonce') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('yes'), unchecked: i18n.t('no'), default: i18n.t('Default ({default})', { default: placeholder(meta, 'ocsp_use_nonce') }) },
                 disabled: !isEditable
               }
             }
@@ -191,9 +208,13 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'ocsp_softfail',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'yes', unchecked: 'no' },
+                tooltip: false,
+                values: { checked: 'yes', unchecked: 'no', default: placeholder(meta, 'ocsp_softfail') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder(meta, 'ocsp_softfail') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('yes'), unchecked: i18n.t('no'), default: i18n.t('Default ({default})', { default: placeholder(meta, 'ocsp_softfail') }) },
                 disabled: !isEditable
               }
             }
