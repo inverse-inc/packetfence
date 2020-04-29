@@ -52,8 +52,8 @@ func (h LogTailerHandler) optionsSessions(c *gin.Context) {
 							"value": pflog("httpd.aaa.access"),
 						},
 						gin.H{
-							"text":  "httpd.portal Apache error log",
-							"value": pflog("httpd.portal.error"),
+							"text":  "httpd.portal Apache access log",
+							"value": pflog("httpd.portal.access"),
 						},
 						gin.H{
 							"text":  "httpd.portal Apache error log",
