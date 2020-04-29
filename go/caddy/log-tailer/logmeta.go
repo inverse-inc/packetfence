@@ -15,11 +15,12 @@ const (
 )
 
 type LogMetaEngine struct {
-	SyslogMap          map[string]*LogMetaExtractor
-	GlobalExtractionRe *regexp.Regexp
-	TimestampPos       int
-	HostnamePos        int
-	SyslogNamePos      int
+	SyslogMap           map[string]*LogMetaExtractor
+	GlobalExtractionRe  *regexp.Regexp
+	TimestampPos        int
+	HostnamePos         int
+	SyslogNamePos       int
+	LogWithoutPrefixPos int
 }
 
 func reExtractor(re *regexp.Regexp, capturePosition int) func(string, string) string {
@@ -113,6 +114,7 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 			"packetfence_httpd.aaa":         &log4perlMetaExtractor,
 			"packetfence_httpd.portal":      &log4perlMetaExtractor,
 			"packetfence_httpd.webservices": &log4perlMetaExtractor,
+			"packetfence_winbindd-wrapper":  &log4perlMetaExtractor,
 			"pfacct":                        &golangMetaExtractor,
 			"pfdhcp":                        &golangMetaExtractor,
 			"pfdhcplistener":                &log4perlMetaExtractor,
@@ -125,10 +127,11 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 			"pfsso":                         &golangMetaExtractor,
 			"pfstats":                       &golangMetaExtractor,
 		},
-		GlobalExtractionRe: regexp.MustCompile(`(?i)^([a-z]+\s*[0-9]{1,2}\s*[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s(.+?)\s(.+?)(:|\[)`),
-		TimestampPos:       1,
-		HostnamePos:        2,
-		SyslogNamePos:      3,
+		GlobalExtractionRe:  regexp.MustCompile(`(?i)^([a-z]+\s*[0-9]{1,2}\s*[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s(.+?)\s(.+?)(:|\[)(.+)`),
+		TimestampPos:        1,
+		HostnamePos:         2,
+		SyslogNamePos:       3,
+		LogWithoutPrefixPos: 5,
 	}
 }
 
@@ -137,6 +140,7 @@ func (lme *LogMetaEngine) ExtractMeta(log string) (lm LogMeta) {
 		lm.Timestamp, _ = time.ParseInLocation("Jan _2 15:04:05 2006", fmt.Sprintf("%s %d", m[0][lme.TimestampPos], time.Now().Year()), time.Local)
 		lm.Hostname = m[0][lme.HostnamePos]
 		lm.SyslogName = m[0][lme.SyslogNamePos]
+		lm.LogWithoutPrefix = strings.Trim(m[0][lme.LogWithoutPrefixPos], " ")
 		if extractor := lme.SyslogMap[lm.SyslogName]; extractor != nil {
 			extractor.ExtractMeta(lm.SyslogName, log, &lm)
 		}
@@ -148,11 +152,12 @@ func (lme *LogMetaEngine) ExtractMeta(log string) (lm LogMeta) {
 }
 
 type LogMeta struct {
-	Timestamp  time.Time `json:"timestamp"`
-	Hostname   string    `json:"hostname"`
-	LogLevel   string    `json:"log_level"`
-	Process    string    `json:"process"`
-	SyslogName string    `json:"syslog_name"`
+	Timestamp        time.Time `json:"timestamp"`
+	Hostname         string    `json:"hostname"`
+	LogLevel         string    `json:"log_level"`
+	Process          string    `json:"process"`
+	SyslogName       string    `json:"syslog_name"`
+	LogWithoutPrefix string    `json:"log_without_prefix"`
 }
 
 type LogMetaExtractor struct {
