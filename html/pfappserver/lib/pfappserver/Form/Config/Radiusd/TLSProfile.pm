@@ -52,6 +52,13 @@ has_field ocsp => (
     options_method => \&options_ocsp,
 );
 
+has_field disable_tlsv1_2 => (
+        type            => 'Toggle',
+        checkbox_value  => 'yes',
+        unchecked_value => 'no',
+        default         => 'no',
+);
+
 sub options_certificate_profile {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::SSLCertificate->new->readAllIds};
 }

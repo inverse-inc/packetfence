@@ -4,6 +4,7 @@ dh_file = ${certdir}/dh
 ca_path = ${cadir}
 cipher_list = DEFAULT
 ecdh_curve = prime256v1
+disable_tlsv1_2 = yes
 ocsp=default
 
 [tls-eap-fast]
