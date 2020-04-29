@@ -1,0 +1,21 @@
+[acct_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=pfmon
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the acct maintenance pfmon task
+cronspec=@every 1m
+#
+# description
+#
+# The description of task to perform
+description=Task that controls the inline accounting maintenance (bandwidth checks).
