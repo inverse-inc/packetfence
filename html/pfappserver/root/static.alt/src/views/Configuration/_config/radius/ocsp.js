@@ -237,10 +237,14 @@ export const validators = (form = {}, meta = {}) => {
         [i18n.t('OCSP profile exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusOcsps, radiusOcspExists))
       }
     },
-    ocsp_url: validatorsFromMeta(meta, 'ocsp_url', i18n.t('URL')),
+    ocsp_enable: validatorsFromMeta(meta, 'ocsp_enable', i18n.t('Enable')),
+    ocsp_override_cert_url: validatorsFromMeta(meta, 'ocsp_override_cert_url', i18n.t('URL')),
+    ocsp_softfail: validatorsFromMeta(meta, 'ocsp_softfail', i18n.t('Response')),
     ocsp_timeout: {
       interval: validatorsFromMeta(meta, 'ocsp_timeout.interval', i18n.t('Interval')),
       unit: validatorsFromMeta(meta, 'ocsp_timeout.unit', i18n.t('Unit'))
-    }
+    },
+    ocsp_url: validatorsFromMeta(meta, 'ocsp_url', i18n.t('URL')),
+    ocsp_use_nonce: validatorsFromMeta(meta, 'ocsp_use_nonce', i18n.t('Nonce'))
   }
 }

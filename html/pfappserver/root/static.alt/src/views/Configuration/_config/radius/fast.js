@@ -165,6 +165,9 @@ export const validators = (form = {}, meta = {}) => {
       ...{
         [i18n.t('Fast profile exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusFasts, radiusFastExists))
       }
-    }
+    },
+    authority_identity: validatorsFromMeta(meta, 'authority_identity', i18n.t('Authority Identity')),
+    pac_opaque_key: validatorsFromMeta(meta, 'pac_opaque_key', i18n.t('Key')),
+    tls: validatorsFromMeta(meta, 'tls', i18n.t('TLS Profile'))
   }
 }

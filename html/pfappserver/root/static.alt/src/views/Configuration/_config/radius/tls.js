@@ -233,6 +233,12 @@ export const validators = (form = {}, meta = {}) => {
       ...{
         [i18n.t('TLS profile exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusTlss, radiusTlsExists))
       }
-    }
+    },
+    ca_path: validatorsFromMeta(meta, 'ca_path', i18n.t('CA Path')),
+    certificate_profile: validatorsFromMeta(meta, 'certificate_profile', i18n.t('Certificate Profile')),
+    cipher_list: validatorsFromMeta(meta, 'cipher_list', i18n.t('Cipher List')),
+    dh_file: validatorsFromMeta(meta, 'dh_file', i18n.t('DH File')),
+    ecdh_curve: validatorsFromMeta(meta, 'ecdh_curve', i18n.t('ECDH Curve')),
+    ocsp: validatorsFromMeta(meta, 'ocsp', i18n.t('OCSP Profile'))
   }
 }

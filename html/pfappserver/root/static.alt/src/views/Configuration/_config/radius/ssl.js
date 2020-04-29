@@ -269,6 +269,11 @@ export const validators = (form = {}, meta = {}) => {
       ...{
         [i18n.t('SSL certificate exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusSsls, radiusSslExists))
       }
-    }
+    },
+    ca: validatorsFromMeta(meta, 'ca', i18n.t('Certificate Authority')),
+    cert: validatorsFromMeta(meta, 'cert', i18n.t('Certificate')),
+    intermediate: validatorsFromMeta(meta, 'intermediate', i18n.t('Intermediate')),
+    key: validatorsFromMeta(meta, 'key', i18n.t('Private Key')),
+    private_key_password: validatorsFromMeta(meta, 'private_key_password', i18n.t('Private Key Password'))
   }
 }

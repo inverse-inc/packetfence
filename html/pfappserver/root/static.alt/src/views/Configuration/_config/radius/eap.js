@@ -303,6 +303,19 @@ export const validators = (form = {}, meta = {}) => {
       ...{
         [i18n.t('EAP profile exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusEaps, radiusEapExists))
       }
-    }
+    },
+    cisco_accounting_username_bug: validatorsFromMeta(meta, 'cisco_accounting_username_bug', i18n.t('Username Bug')),
+    default_eap_type: validatorsFromMeta(meta, 'default_eap_type', i18n.t('EAP Type')),
+    eap_authentication_types: validatorsFromMeta(meta, 'eap_authentication_types', i18n.t('EAP Authentication Types')),
+    fast_config: validatorsFromMeta(meta, 'fast_config', i18n.t('Fast Profile')),
+    ignore_unknown_eap_types: validatorsFromMeta(meta, 'ignore_unknown_eap_types', i18n.t('Ignore Unknown')),
+    max_sessions: validatorsFromMeta(meta, 'max_sessions', i18n.t('Max Sessions')),
+    peap_tlsprofile: validatorsFromMeta(meta, 'peap_tlsprofile', i18n.t('PEAP Profile')),
+    timer_expire: {
+      unit: validatorsFromMeta(meta, 'timer_expire.unit', i18n.t('Unit')),
+      interval: validatorsFromMeta(meta, 'timer_expire.interval', i18n.t('Interval'))
+    },
+    tls_tlsprofile: validatorsFromMeta(meta, 'tls_tlsprofile', i18n.t('TLS Profile')),
+    ttls_tlsprofile: validatorsFromMeta(meta, 'ttls_tlsprofile', i18n.t('TTLS Profile'))
   }
 }
