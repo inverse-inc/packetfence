@@ -119,5 +119,10 @@ export default {
     return apiCall.get(`logs/tail/${id}`).then(response => {
       return response.data
     })
+  },
+  optionsLogTailSession: () => {
+    return apiCall.options('logs/tail').then(response => {
+      return response.data
+    })
   }
 }

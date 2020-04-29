@@ -26,6 +26,16 @@ const getters = {
 }
 
 const actions = {
+  optionsSession: ({ commit }) => {
+    commit('LOG_SESSION_REQUEST')
+    return api.optionsLogTailSession().then(response => {
+      commit('LOG_SESSION_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('LOG_SESSION_ERROR', err.response)
+      return err
+    })
+  },
   createSession: ({ commit }, form) => {
     commit('LOG_SESSION_REQUEST')
     return api.createLogTailSession(form).then(response => {
@@ -64,6 +74,9 @@ const mutations = {
   LOG_SESSION_STOP: (state, id) => {
     state.status = 'success'
     store.unregisterModule(['$_live_logs', id])
+  },
+  LOG_SESSION_SUCCESS: (state) => {
+    state.status = 'success'
   },
   LOG_SESSION_ERROR: (state, response) => {
     state.status = 'error'

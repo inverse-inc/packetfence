@@ -17,7 +17,7 @@
             />
             <pf-form-chosen :column-label="$t('Log Files')"
               v-model="form.files"
-              :placeholder="$t('Choose file(s)')"
+              :placeholder="$t('Choose log file(s)')"
               :options="files"
               :multiple="true"
               :state="state('files')"
@@ -85,16 +85,20 @@ export default {
         filter: null,
         filter_is_regexp: false
       },
-      files: [
-        '/usr/local/pf/logs/packetfence.log',
-        '/usr/local/pf/logs/http.portal.access'
-      ].map(file => {
-        let split = file.split('/')
-        return { name: split[split.length - 1], value: file }
-      })
+      files: []
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch(`${this.storeName}/optionsSession`, this.form).then(response => {
+        const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
+        if (allowed) {
+          this.files = allowed.map(item => {
+            return { name: item.text, value: item.value }
+          })
+        }
+      })
+    },
     create () {
       this.$store.dispatch(`${this.storeName}/createSession`, this.form).then(response => {
         // noop
@@ -150,6 +154,9 @@ export default {
         }
       }
     }
+  },
+  mounted () {
+    this.init()
   }
 }
 </script>
