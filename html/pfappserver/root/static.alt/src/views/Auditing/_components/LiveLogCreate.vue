@@ -12,12 +12,16 @@
           <b-col sm="12">
             <pf-form-input :column-label="$t('Name')"
               v-model="form.name"
+              :state="state('name')"
+              :invalid-feedback="invalidFeedback('name')"
             />
             <pf-form-chosen :column-label="$t('Log Files')"
               v-model="form.files"
               :placeholder="$t('Choose file(s)')"
               :options="files"
               :multiple="true"
+              :state="state('files')"
+              :invalid-feedback="invalidFeedback('files')"
               label="name" track-by="value"
             />
             <pf-form-input :column-label="$t('Filter')"
@@ -46,6 +50,16 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import liveLogTabs from './LiveLogTabs'
 
+import { validationMixin } from 'vuelidate'
+import {
+  required
+} from 'vuelidate/lib/validators'
+import {
+  and,
+  not,
+  conditional
+} from '@/globals/pfValidators'
+
 export default {
   name: 'live-log-create',
   components: {
@@ -54,6 +68,9 @@ export default {
     pfFormInput,
     pfFormRangeToggle
   },
+  mixins: [
+    validationMixin
+  ],
   props: {
     storeName: {
       type: String,
@@ -82,6 +99,56 @@ export default {
       this.$store.dispatch(`${this.storeName}/createSession`, this.form).then(response => {
         // noop
       })
+    }
+  },
+  computed: {
+    invalidForm () {
+      const { $v: { $invalid = false } = {} } = this
+      return $invalid
+    },
+    invalidFeedback () {
+      return (key) => {
+        const { $v: { form: { [key]: { $params } = {} } = {} } = {} } = this
+        let feedback = []
+        for (let param in $params) {
+          const { $v: { form: { [key]: { [param]: valid = true } = {} } = {} } = {} } = this
+          if (!valid) {
+            feedback.push(param)
+          }
+        }
+        return feedback.join(' ')
+      }
+    },
+    state () {
+      return (key) => {
+        const { $v: { form: { [key]: { $invalid = false } = {} } = {} } = {} } = this
+        return ($invalid) ? false : null
+      }
+    },
+    sessions () {
+      return this.$store.getters['$_live_logs/sessions']
+    }
+  },
+  validations () {
+    const hasSessions = () => {
+      return this.sessions.length > 0
+    }
+    const sessionExists = (value) => {
+      let sessionIndex = this.sessions.findIndex(session => {
+        return session.name === value
+      })
+      return sessionIndex > -1
+    }
+    return {
+      form: {
+        name: {
+          [this.$i18n.t('Session name required.')]: required,
+          [this.$i18n.t('Session exists.')]: not(and(required, hasSessions, sessionExists))
+        },
+        files: {
+          [this.$i18n.t('Log file(s) required.')]: required
+        }
+      }
     }
   }
 }
