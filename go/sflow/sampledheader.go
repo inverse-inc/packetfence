@@ -26,7 +26,8 @@ func (*SampledHeader) FlowType() uint32 {
 
 func (sh *SampledHeader) SampledIPv4() *SampledIPV4 {
 	var sampleIPv4 *SampledIPV4
-	if sh.Protocol == 1 {
+	switch sh.Protocol {
+	case 1:
 		ethernetHeaderSize := 14
 		header := sh.Header
 		switch binary.BigEndian.Uint16(header[12:14]) {
@@ -37,6 +38,9 @@ func (sh *SampledHeader) SampledIPv4() *SampledIPV4 {
 		}
 		sampleIPv4 = &SampledIPV4{}
 		sampleIPv4.ParseFromIPHeader(header[ethernetHeaderSize:])
+	case 11:
+		sampleIPv4 = &SampledIPV4{}
+		sampleIPv4.ParseFromIPHeader(sh.Header)
 	}
 
 	return sampleIPv4
