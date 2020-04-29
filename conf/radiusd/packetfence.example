@@ -30,6 +30,13 @@ authorize {
 	packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
+
+	if ( "%{client:shortname}" =~ /eduroam_tlrs/ ) {
+		update request {
+			PacketFence-ShortName := "%{client:shortname}"
+		}
+	}
+
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
