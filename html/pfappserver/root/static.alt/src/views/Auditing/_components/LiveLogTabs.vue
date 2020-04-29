@@ -4,7 +4,10 @@
       @click="go(index)"
     >
       <template v-slot:title>
-        <span v-if="index > 0" class="float-right text-secondary ml-2" @click.prevent.stop="destroy(tab.session_id)"
+        <span v-if="index > 0 && isLoading" class="float-right text-secondary ml-2">
+          <icon name="circle-notch" scale="1.5" spin></icon>
+        </span>
+        <span v-else-if="index > 0" class="float-right text-secondary ml-2" @click.prevent.stop="destroy(tab.session_id)"
           v-b-tooltip.hover.top.d300 :title="$t('Close Session')"
         >
           <icon name="times" scale="1.5"></icon>
@@ -20,6 +23,9 @@
 export default {
   name: 'live-log-tabs',
   computed: {
+    isLoading () {
+      return this.$store.getters['$_live_logs/isLoading']
+    },
     tabIndex () {
       const { params: { id } = {} } = this.$route
       if (id) {

@@ -22,6 +22,7 @@
               :multiple="true"
               :state="state('files')"
               :invalid-feedback="invalidFeedback('files')"
+              :close-on-select="false"
               label="name" track-by="value"
             />
             <pf-form-input :column-label="$t('Filter')"
@@ -37,7 +38,7 @@
       </b-form>
     </b-card-body>
     <b-card-footer>
-      <b-button variant="primary" :disabled="invalidForm" @click="create()">
+      <b-button variant="primary" :disabled="isLoading || invalidForm" @click="create()">
         <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Start Session') }}
       </b-button>
     </b-card-footer>
@@ -106,6 +107,9 @@ export default {
     }
   },
   computed: {
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isLoading`]
+    },
     invalidForm () {
       const { $v: { $invalid = false } = {} } = this
       return $invalid
