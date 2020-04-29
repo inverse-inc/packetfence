@@ -280,6 +280,9 @@ post-auth {
 			&request:PacketFence-NTCacheHash := &control:PacketFence-NTCacheHash
 		}
 	}
+	update {
+		&request:PacketFence-Outer-User := "%{outer.request:User-Name}"
+	}
 	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
 		rest
 	}
