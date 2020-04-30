@@ -414,7 +414,7 @@ our %OP_BINARY = (
     "==" => 'equals',
     "!=" => 'not_equals',
     "=~" => 'regex',
-    "!~" => 'regex_not',
+    "!~" => 'not_regex',
     ">"  => 'greater',
     ">=" => 'greater_equals',
     "<"  => 'lower',
