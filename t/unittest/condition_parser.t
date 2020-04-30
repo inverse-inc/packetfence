@@ -306,7 +306,7 @@ BEGIN {
                 'AND',
                 [ '=~', 'a', '^bob' ],
                 [ 'OR', [ '==', 'c', 'd' ], [ '==', 'c', 'e' ] ]
-            ]
+            ],
         ],
         [ "a == __NULL__ ", [ '==', 'a', '__NULL__' ] ],
         [ "a != __NULL__ ", [ '!=', 'a', '__NULL__' ] ],
@@ -353,6 +353,15 @@ BEGIN {
                 value => "19",
             }
         ],
+        [
+            'a !~ "^bob"',
+            ['!~', 'a', '^bob'],
+            {
+                op => 'not_regex',
+                field => 'a',
+                value => '^bob',
+            }
+        ]
     );
 
     @VALID_IDS = (
@@ -414,6 +423,14 @@ BEGIN {
             },
             '!(contains(c, "d"))',
         ],
+        [
+            {
+                op     => "not_regex",
+                value => "^bob",
+                field => 'a',
+            },
+            'a !~ "^bob"'
+        ]
     );
 
     $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS) + (scalar @OBJECT_TO_STR_TESTS);
