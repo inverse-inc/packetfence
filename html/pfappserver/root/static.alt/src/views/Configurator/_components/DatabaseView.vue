@@ -92,7 +92,7 @@ export default {
       this.$store.dispatch(`${this.formStoreName}/appendMeta`, { database: metaMethods }) // initialize meta for database
       this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
       // Make sure the database server is running
-      this.$store.dispatch('services/startSystemService', 'packetfence-mariadb').then(() => {
+      this.$store.dispatch('services/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(() => {
         // Fetch configuration
         this.$store.dispatch('$_bases/getDatabase').then(form => {
           this.$store.dispatch(`${this.formStoreName}/appendForm`, { database: form })

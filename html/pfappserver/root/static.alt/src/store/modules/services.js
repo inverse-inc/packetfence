@@ -69,14 +69,17 @@ const api = {
   updateSystemd: name => {
     return apiCall.post(['service', name, 'update_systemd'])
   },
-  restartSystemService: name => {
-    return apiCall.post(['system_service', name, 'restart'])
+  restartSystemService: ({ id, quiet }) => {
+    const post = quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['system_service', id, 'restart'])
   },
-  startSystemService: name => {
-    return apiCall.post(['system_service', name, 'start'])
+  startSystemService: ({ id, quiet }) => {
+    const post = quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['system_service', id, 'start'])
   },
-  stopSystemService: name => {
-    return apiCall.post(['system_service', name, 'top'])
+  stopSystemService: ({ id, quiet }) => {
+    const post = quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['system_service', id, 'top'])
   }
 }
 
@@ -189,9 +192,11 @@ const actions = {
   updateSystemd: (context, id) => {
     return api.updateSystemd(id)
   },
-  restartSystemService: ({ state, commit }, id) => {
+  restartSystemService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
     commit('SERVICE_RESTARTING', id)
-    return api.restartSystemService(id).then(response => {
+    return api.restartSystemService(body).then(response => {
       commit('SERVICE_RESTARTED', { id, response })
       return state.cache[id]
     }).catch((err) => {
@@ -200,9 +205,11 @@ const actions = {
       throw err
     })
   },
-  startSystemService: ({ state, commit }, id) => {
+  startSystemService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
     commit('SERVICE_STARTING', id)
-    return api.startSystemService(id).then(response => {
+    return api.startSystemService(body).then(response => {
       commit('SERVICE_STARTED', { id, response })
       return state.cache[id]
     }).catch((err) => {
@@ -211,9 +218,11 @@ const actions = {
       throw err
     })
   },
-  stopSystemService: ({ state, commit }, id) => {
+  stopSystemService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
     commit('SERVICE_STOPPING', id)
-    return api.stopSystemService(id).then(() => {
+    return api.stopSystemService(body).then(() => {
       commit('SERVICE_STOPPED', { id })
       return state.cache[id]
     }).catch((err) => {
