@@ -213,6 +213,11 @@ export const pfActions = {
     text: i18n.t('Role'),
     types: [fieldType.ROLE_BY_ACL_USER]
   },
+  set_role_on_not_found: {
+    value: 'set_role_on_not_found',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE_BY_NAME]
+  },
   set_tenant_id: {
     value: 'set_tenant_id',
     text: i18n.t('Tenant ID'),

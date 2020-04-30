@@ -82,7 +82,7 @@ sub match_in_subclass {
         @conditions = grep { $self->match_condition($_, $radius_params) } @$own_conditions;
     }
     push @$matching_conditions, @conditions;
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 =head1 AUTHOR

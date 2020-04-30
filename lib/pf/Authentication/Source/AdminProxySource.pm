@@ -120,7 +120,7 @@ sub match_in_subclass {
             }
         }
     }
-    return $group_header;
+    return ($group_header, undef);
 }
 
 =head1 AUTHOR

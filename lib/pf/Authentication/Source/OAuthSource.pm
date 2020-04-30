@@ -69,7 +69,7 @@ sub match_in_subclass {
             }
         }
     }
-    return $username;
+    return ($username, undef);
 }
 
 =head2 lookup_from_provider_info

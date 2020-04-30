@@ -95,7 +95,7 @@ sub match_in_subclass {
             }
         }
     }
-    return $username;
+    return ($username, undef);
 }
 
 sub verify_url {

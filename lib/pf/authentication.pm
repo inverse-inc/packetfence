@@ -324,7 +324,7 @@ sub match {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        my $rule = $source->match($params, $action, $extra);
+        my ($rule, $ignored_action) = $source->match($params, $action, $extra);
         unless (defined $rule) {
             $logger->trace(sub {"Skipped " . $source->id });
             next;
@@ -410,21 +410,24 @@ sub match2 {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        my $rule = $source->match($params, undef, $extra);
+        my ($rule, $ignored_action) = $source->match($params, undef, $extra);
         next unless defined $rule;
         my %values;
         $actions = $rule->{actions};
+        my @new_actions;
         foreach my $action (@$actions) {
-            my $value = $action->value;
             my $type  = $action->type;
+            next if defined $ignored_action && $ignored_action eq $type;
+            my $value = $action->value;
             $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
             $type = $Actions::MAPPED_ACTIONS{$type} if exists $Actions::MAPPED_ACTIONS{$type};
             $values{$type} = $value;
+            push @new_actions, $action;
         }
 
         return {
             source_id => $source->id,
-            actions => $actions,
+            actions => \@new_actions,
             values => \%values,
             rule_id => $rule->{id},
         };
