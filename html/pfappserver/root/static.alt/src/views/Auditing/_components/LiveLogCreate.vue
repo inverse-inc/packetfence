@@ -10,11 +10,6 @@
       <b-form @submit.prevent="create()">
         <b-form-row align-v="center">
           <b-col sm="12">
-            <pf-form-input :column-label="$t('Name')"
-              v-model="form.name"
-              :state="state('name')"
-              :invalid-feedback="invalidFeedback('name')"
-            />
             <pf-form-chosen :column-label="$t('Log Files')"
               v-model="form.files"
               :placeholder="$t('Choose log file(s)')"
@@ -101,7 +96,15 @@ export default {
       })
     },
     create () {
-      this.$store.dispatch(`${this.storeName}/createSession`, this.form).then(response => {
+      const nameFromFiles = (files) => {
+        let name = files[0].split('/').reverse()[0]
+        if (files.length > 1) {
+          name += `...(+${files.length - 1} ${this.$i18n.t('more')})` // '...(+n more)'
+        }
+        return name
+      }
+      const form = { ...this.form, name: nameFromFiles(this.form.files) }
+      this.$store.dispatch(`${this.storeName}/createSession`, form).then(response => {
         // noop
       })
     }
@@ -138,21 +141,8 @@ export default {
     }
   },
   validations () {
-    const hasSessions = () => {
-      return this.sessions.length > 0
-    }
-    const sessionExists = (value) => {
-      let sessionIndex = this.sessions.findIndex(session => {
-        return session.name === value
-      })
-      return sessionIndex > -1
-    }
     return {
       form: {
-        name: {
-          [this.$i18n.t('Session name required.')]: required,
-          [this.$i18n.t('Session exists.')]: not(and(required, hasSessions, sessionExists))
-        },
         files: {
           [this.$i18n.t('Log file(s) required.')]: required
         }

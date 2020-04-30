@@ -22,7 +22,10 @@ const getters = {
   isLoading: state => state.status === 'loading',
   session: state => state.session,
   events: state => state.events,
-  scopes: state => state.scopes
+  scopes: state => state.scopes,
+  name: state => {
+    const { files } = state
+  }
 }
 
 const actions = {
