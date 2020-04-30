@@ -52,6 +52,7 @@ const actions = {
       commit('LOG_SESSION_STOP', id)
       return response
     }).catch(err => {
+      commit('LOG_SESSION_STOP', id)
       commit('LOG_SESSION_ERROR', err.response)
       return err
     })
