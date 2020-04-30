@@ -231,11 +231,12 @@ sub match_rule {
     # has been found in the source.
     my ($matched, $ignored_action) = $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions, $extra);
     if ($matched) {
+      my $match = $rule->match;
       # We compare the matched conditions with how many we had
-      if ($rule->match eq $Rules::ANY &&
+      if ($match eq $Rules::ANY &&
           scalar @matching_conditions > 0) {
           push(@matching_rules, $rule);
-      } elsif ($rule->match eq $Rules::ALL &&
+      } elsif ($match eq $Rules::ALL &&
                scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
           push(@matching_rules, $rule);
       }
