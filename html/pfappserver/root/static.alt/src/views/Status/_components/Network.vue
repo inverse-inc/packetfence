@@ -611,7 +611,7 @@ export default {
             }
           }
         }
-      }).then(response => {
+      }).then(() => {
         this.saveSearchString = ''
         this.showSaveSearchModal = false
       })
@@ -643,18 +643,18 @@ export default {
   },
   watch: {
     advancedCondition: {
-      handler: function (a, b) {
+      handler: function () {
         this.setDimensions()
       },
       deep: true
     },
     advancedMode: {
-      handler: function (a, b) {
+      handler: function () {
         this.setDimensions()
       }
     },
     'dimensions.fit': {
-      handler: function (a, b) {
+      handler: function () {
         this.setDimensions()
       }
     },
@@ -667,7 +667,7 @@ export default {
       deep: true
     },
     query: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (a) {
           // Import search parameters from URL query
           this.advancedCondition = JSON.parse(a)
@@ -701,7 +701,7 @@ export default {
       deep: true
     },
     liveMode: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (this.liveModeInterval) {
           clearInterval(this.liveModeInterval)
         }
@@ -713,7 +713,7 @@ export default {
       }
     },
     liveModeIntervalMs: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (this.liveModeInterval) {
           clearInterval(this.liveModeInterval)
         }
