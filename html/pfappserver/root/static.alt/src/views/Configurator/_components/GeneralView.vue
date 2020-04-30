@@ -59,15 +59,23 @@ export default {
       this.$store.dispatch(`${this.formStoreName}/appendFormValidations`, validators)
     },
     save () {
-      return this.$store.dispatch('$_bases/updateGeneral', Object.assign({ quiet: true }, this.form.general)).catch(error => {
-        // Only show a notification in case of a failure
-        const { response: { data: { message = '' } = {} } = {} } = error
-        this.$store.dispatch('notification/danger', {
-          icon: 'exclamation-triangle',
-          url: message,
-          message: this.$i18n.t('An error occured while updating the general configuration.')
+      const { general: { timezone } } = this.form
+      return this.$store.dispatch('$_bases/getGeneral').then(({ timezone: initialTimezone }) => {
+        let restartMariaDB = (initialTimezone !== timezone)
+        return this.$store.dispatch('$_bases/updateGeneral', Object.assign({ quiet: true }, this.form.general)).then(() => {
+          if (restartMariaDB) {
+            return this.$store.dispatch('services/restartSystemService', { id: 'packetfence-mariadb', quiet: true })
+          }
+        }).catch(error => {
+          // Only show a notification in case of a failure
+          const { response: { data: { message = '' } = {} } = {} } = error
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            url: message,
+            message: this.$i18n.t('An error occured while updating the general configuration.')
+          })
+          throw error
         })
-        throw error
       })
     }
   },
