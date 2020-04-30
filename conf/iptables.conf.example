@@ -59,9 +59,11 @@
 # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
 # -A input-management-if --protocol tcp --match tcp --dport 9292 --jump ACCEPT
 
-# Fingerbank collector (replication + API)
+# Fingerbank collector (replication, Netflow, API, sFlow)
 -A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 2055 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 4723 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 6343 --jump ACCEPT
 
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
