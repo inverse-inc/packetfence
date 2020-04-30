@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 
 #This test will running last
 use Test::NoWarnings;
@@ -326,6 +326,59 @@ CONF
                             answer => {
                                 status => 'enabled',
                                 condition => 'contains(bob.jones, "bob")',
+                                scopes    => ['RegisteredRole'],
+                                _rule     => 'pf_deauth_from_wireless_secure',
+                                role    => 'registration',
+                                params  => [],
+                                answers => [],
+                                actions => [
+                                    {
+                                        api_method => 'modify_node',
+                                        api_parameters => 'mac, $mac, status = unreg, autoreg = no'
+                                    },
+                                ],
+                            },
+                        })
+                    ],
+                }
+            )
+        },
+        "Build simple condition filter with nested key"
+    );
+}
+
+{
+
+    my $conf = <<'CONF';
+[pf_deauth_from_wireless_secure]
+status=enabled
+condition=a =~ "^bob"
+scopes = RegisteredRole
+action.0=modify_node: mac, $mac, status = unreg, autoreg = no
+role = registration
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            RegisteredRole => pf::filter_engine->new(
+                {
+                    filters => [
+                        pf::filter->new({
+                            'condition' => pf::condition::key->new({
+                                key         => 'a',
+                                'condition' => bless(
+                                    {
+                                        'value' => '^bob'
+                                    },
+                                    'pf::condition::regex_not'
+                                ),
+                            }),
+                            answer => {
+                                status => 'enabled',
+                                condition => 'a =~ "^bob"',
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
