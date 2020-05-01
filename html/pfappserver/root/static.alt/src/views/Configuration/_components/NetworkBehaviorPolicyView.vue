@@ -14,7 +14,6 @@
   >
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <div class="alert alert-warning">{{ $t(`Creating or modifying a network behavior policy requires to restart the fingerbank-collector service`) }}</div>
       <h4 class="mb-0">
         <span v-if="!isNew && !isClone" v-html="$t('Network Behavior Policy {id}', { id: $strong(id) })"></span>
         <span v-else-if="isClone" v-html="$t('Clone Network Behavior Policy {id}', { id: $strong(id) })"></span>
@@ -23,6 +22,7 @@
     </template>
     <template v-slot:footer>
       <b-card-footer>
+        <div class="alert alert-warning">{{ $t(`Creating or modifying a network behavior policy requires to restart the fingerbank-collector service`) }}</div>
         <pf-button-save :disabled="isDisabled" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
