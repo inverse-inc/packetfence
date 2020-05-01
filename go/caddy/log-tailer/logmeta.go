@@ -158,6 +158,7 @@ type LogMeta struct {
 	Process          string    `json:"process"`
 	SyslogName       string    `json:"syslog_name"`
 	LogWithoutPrefix string    `json:"log_without_prefix"`
+	Filename         string    `json:"filename"`
 }
 
 type LogMetaExtractor struct {

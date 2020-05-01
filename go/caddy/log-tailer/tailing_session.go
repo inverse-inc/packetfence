@@ -53,7 +53,9 @@ func (ts *TailingSession) Start(sessionId string, publishTo *golongpoll.Longpoll
 					return
 				case line := <-t.Lines:
 					if ts.filter.MatchString(line.Text) {
-						publishTo.Publish(sessionId, gin.H{"raw": line.Text, "meta": metaEngine.ExtractMeta(line.Text)})
+						meta := metaEngine.ExtractMeta(line.Text)
+						meta.Filename = t.Filename
+						publishTo.Publish(sessionId, gin.H{"raw": line.Text, "meta": meta})
 					}
 				}
 			}
