@@ -215,7 +215,7 @@ export const pfActions = {
   },
   set_role_on_not_found: {
     value: 'set_role_on_not_found',
-    text: i18n.t('Role'),
+    text: i18n.t('Role On Not Found'),
     types: [fieldType.ROLE_BY_NAME]
   },
   set_tenant_id: {

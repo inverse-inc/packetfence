@@ -138,7 +138,8 @@ const administrationRuleActions = (form, meta = {}) => {
   ]
 }
 
-const authenticationRuleActions = () => {
+const authenticationRuleActions = (form, meta = {}) => {
+  const { sourceType = null } = meta
   return [
     ...[
         pfActions.set_role_by_name,
