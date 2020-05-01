@@ -1,0 +1,14 @@
+name: Delete wired mac authentication connection profile
+version: 2
+testcases:
+- name: delete_wired_mac_authentication_connection_profile
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.mac_authentication.profiles.wired.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
