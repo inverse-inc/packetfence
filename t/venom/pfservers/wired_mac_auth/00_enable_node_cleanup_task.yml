@@ -1,0 +1,37 @@
+name: Enable node_cleanup maintenance task and change the delete_window to 1 minute
+version: 2
+testcases:
+- name: enable_node_cleanup_task
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/maintenance_task/node_cleanup'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "status": "enabled"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    
+- name: change_delete_window_to_1M
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/maintenance_task/node_cleanup'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "delete_window": {
+          "interval": "1",
+          "unit": "m"
+        }
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
