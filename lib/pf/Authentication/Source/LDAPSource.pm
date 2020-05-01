@@ -567,7 +567,7 @@ sub replaceVar {
         }
     }
 
-    return exists $params->{$last_part} ? $params->{$last_part} : '';
+    return escape_filter_value(exists $params->{$last_part} ? $params->{$last_part} : '');
 }
 
 sub update_template {
