@@ -13,6 +13,7 @@ const scopes = {
 // Default values
 const state = () => {
   return {
+    running: true,
     session: {},
     events: [],
     filters: {},
@@ -38,7 +39,7 @@ const state = () => {
         values: {}
       }
     },
-    size: 1000,
+    size: 500,
     lines: 0,
     debouncer: false,
     debouncerMs: 300, // 300ms
@@ -49,6 +50,7 @@ const state = () => {
 
 const getters = {
   isLoading: state => state.status === 'loading',
+  isStopping: state => state.status === 'stopping',
   session: state => state.session,
   events: state => state.events,
   scopes: state => state.scopes,
@@ -75,24 +77,38 @@ const getters = {
     })
   },
   size: state => state.size,
-  lines: state => state.lines
+  lines: state => state.lines,
+  isRunning: state => state.running
 }
 
 const actions = {
   setSession: ({ commit, dispatch }, session) => {
-    commit('SET_SESSION', { session, dispatch })
+    commit('SET_SESSION', session)
+    dispatch('getSession')
   },
-  getSession: ({ state, commit, dispatch }) => {
-    commit('LOG_SESSION_REQUEST')
-    return api.getLogTailSession(state.session.session_id).then(response => {
-      commit('LOG_SESSION_RESPONSE', response)
-      commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+  stopSession: ({ state, commit }) => {
+    commit('LOG_SESSION_STOPPING')
+    return api.deleteLogTailSession(state.session.session_id).then(response => {
+      commit('LOG_SESSION_STOPPED')
       return response
     }).catch(err => {
       commit('LOG_SESSION_ERROR', err.response)
-      //commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
       return err
     })
+  },
+  getSession: ({ state, commit, dispatch }) => {
+    if (state.running) {
+      commit('LOG_SESSION_REQUEST')
+      return api.getLogTailSession(state.session.session_id).then(response => {
+        commit('LOG_SESSION_RESPONSE', response)
+        commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+        return response
+      }).catch(err => {
+        commit('LOG_SESSION_ERROR', err.response)
+        //commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+        return err
+      })
+    }
   },
   toggleFilter: ({ state, getters, commit }, { scope, key }) => {
     if (getters.isFiltered(scope, key)) { // disable
@@ -105,7 +121,7 @@ const actions = {
     }
   },
   setSize: ({ state, commit }, size) => {
-    commit('UPDATE_SIZE', size)
+    commit('UPDATE_SIZE', +size)
   }
 }
 
@@ -141,9 +157,8 @@ const delMeta = (scopes, event) => {
 }
 
 const mutations = {
-  SET_SESSION: (state, { session, dispatch }) => {
+  SET_SESSION: (state, session) => {
     state.session = session
-    dispatch('getSession')
   },
   LOG_SESSION_QUEUE: (state, dispatch) => {
     if (!state.debouncer) {
@@ -178,8 +193,16 @@ const mutations = {
       }
     }
   },
+  LOG_SESSION_STOPPING: (state) => {
+    state.status = 'stopping'
+  },
+  LOG_SESSION_STOPPED: (state) => {
+    state.status = 'success'
+    state.running = false
+  },
   LOG_SESSION_ERROR: (state, response) => {
     state.status = 'error'
+    state.running = false
     if (response && response.data) {
       state.message = response.data.message
     }

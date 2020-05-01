@@ -57,7 +57,7 @@
                 >
                   <icon v-if="isStarting" name="circle-notch" class="mr-2" spin></icon>
                   <icon v-else name="play" class="mr-2"></icon>
-                  {{ $i18n.t('Start Session') }}
+                  {{ $i18n.t('Reset Session') }}
                 </b-button>
               </b-list-group-item>
             </b-list-group>
@@ -128,10 +128,6 @@ export default {
     pfFormRangeToggle
   },
   props: {
-    storeName: {
-      type: String,
-      default: null
-    },
     id: {
       type: String,
       default: null
@@ -147,12 +143,18 @@ export default {
         { name: '1000', value: 1000 },
         { name: '2500', value: 2500 },
         { name: '5000', value: 5000 }
-      ]
+      ],
+      isStarting: false
     }
   },
   computed: {
-    session () {
-      return this.$store.getters[`$_live_logs/${this.id}/session`]
+    session: {
+      get () {
+        return this.$store.getters[`$_live_logs/${this.id}/session`]
+      },
+      set (newSession) {
+        this.$store.dispatch(`$_live_logs/${this.id}/setSession`, newSession)
+      }
     },
     events () {
       return this.$store.getters[`$_live_logs/${this.id}/eventsFiltered`]
@@ -173,9 +175,6 @@ export default {
     },
     isLoading () {
       return this.$store.getters[`$_live_logs/${this.id}/isLoading`]
-    },
-    isStarting () {
-      return this.$store.getters[`$_live_logs/${this.id}/isStarting`]
     },
     isStopping () {
       return this.$store.getters[`$_live_logs/${this.id}/isStopping`]
@@ -206,8 +205,20 @@ export default {
       })
     },
     startSession () {
-      this.$store.dispatch(`$_live_logs/${this.id}/startSession`).then(() => {
-        // noop
+      this.isStarting = true
+      const { session: { session_id, ...form } = {} } = this
+      this.$store.dispatch(`$_live_logs/createSession`, form).then(response => {
+        const { session_id } = response
+        if (session_id) {
+          this.$store.dispatch(`$_live_logs/${session_id}/setSize`, this.size)
+          this.$nextTick(() => {
+            this.$store.dispatch('$_live_logs/destroySession', this.id)
+          })
+          this.$router.push({ name: 'live_log', params: { id: session_id } })
+        }
+        this.isStarting = false
+      }).catch(() => {
+        this.isStarting = false
       })
     }
   },

@@ -68,10 +68,6 @@ export default {
     validationMixin
   ],
   props: {
-    storeName: {
-      type: String,
-      default: null
-    }
   },
   data () {
     return {
@@ -86,7 +82,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/optionsSession`, this.form).then(response => {
+      this.$store.dispatch(`$_live_logs/optionsSession`, this.form).then(response => {
         const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
         if (allowed) {
           this.files = allowed.map(item => {
@@ -96,22 +92,17 @@ export default {
       })
     },
     create () {
-      const nameFromFiles = (files) => {
-        let name = files[0].split('/').reverse()[0]
-        if (files.length > 1) {
-          name += `...(+${files.length - 1} ${this.$i18n.t('more')})` // '...(+n more)'
+      this.$store.dispatch(`$_live_logs/createSession`, this.form).then(response => {
+        const { session_id } = response
+        if (session_id) {
+          this.$router.push({ name: 'live_log', params: { id: session_id } })
         }
-        return name
-      }
-      const form = { ...this.form, name: nameFromFiles(this.form.files) }
-      this.$store.dispatch(`${this.storeName}/createSession`, form).then(response => {
-        // noop
       })
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters[`$_live_logs/isLoading`]
     },
     invalidForm () {
       const { $v: { $invalid = false } = {} } = this

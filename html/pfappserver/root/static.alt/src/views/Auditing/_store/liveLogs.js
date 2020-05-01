@@ -4,6 +4,7 @@
 import store from '@/store'
 import api from '../_api'
 import LiveLogStore from './liveLog'
+import i18n from '@/utils/locale'
 
 // Default values
 const state = () => {
@@ -47,15 +48,20 @@ const actions = {
     })
   },
   destroySession: ({ commit }, id) => {
-    commit('LOG_SESSION_REQUEST')
-    return api.deleteLogTailSession(id).then(response => {
+    if (!store.getters[`$_live_logs/${id}/isRunning`]) {
       commit('LOG_SESSION_STOP', id)
-      return response
-    }).catch(err => {
-      commit('LOG_SESSION_STOP', id)
-      commit('LOG_SESSION_ERROR', err.response)
-      return err
-    })
+    }
+    else {
+      commit('LOG_SESSION_REQUEST')
+      return api.deleteLogTailSession(id).then(response => {
+        commit('LOG_SESSION_STOP', id)
+        return response
+      }).catch(err => {
+        commit('LOG_SESSION_STOP', id)
+        commit('LOG_SESSION_ERROR', err.response)
+        return err
+      })
+    }
   }
 }
 
@@ -68,8 +74,15 @@ const mutations = {
     state.status = 'success'
     const { session_id } = response
     if (session_id) {
+      const nameFromFiles = (files) => {
+        let name = files[0].split('/').reverse()[0]
+        if (files.length > 1) {
+          name += `...(+${files.length - 1} ${i18n.t('more')})` // '...(+n more)'
+        }
+        return name
+      }
       store.registerModule(['$_live_logs', session_id], LiveLogStore)
-      store.dispatch(`$_live_logs/${session_id}/setSession`, { ...form, session_id })
+      store.dispatch(`$_live_logs/${session_id}/setSession`, { ...form, session_id, name: nameFromFiles(form.files) })
     }
   },
   LOG_SESSION_STOP: (state, id) => {

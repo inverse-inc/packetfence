@@ -145,7 +145,7 @@ const route = {
       path: 'live/',
       name: 'live_logs',
       component: LiveLogCreate,
-      props: (route) => ({ storeName: '$_live_logs', query: route.query.query }),
+      props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read system',
         fail: '/auditing'
@@ -155,7 +155,7 @@ const route = {
       path: 'live/:id',
       name: 'live_log',
       component: LiveLogView,
-      props: (route) => ({ storeName: `$_live_log/${route.params.id}`, id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
         if (!(to.params.id in store.state.$_live_logs)) {
           next('/auditing/live')
