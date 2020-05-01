@@ -107,6 +107,7 @@ Readonly::Scalar our $TIME => 'time';
 Readonly::Scalar our $TIME_PERIOD => 'time_period';
 Readonly::Scalar our $CONNECTION => 'connection';
 Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
+Readonly::Scalar our $LDAP_FILTER => 'ldapfilter';
 
 Readonly::Array our @TYPES => (
     $SUBSTRING,
@@ -116,6 +117,7 @@ Readonly::Array our @TYPES => (
     $TIME_PERIOD,
     $CONNECTION,
     $LDAP_ATTRIBUTE,
+    $LDAP_FILTER,
 );
 
 =item OPERATORS
