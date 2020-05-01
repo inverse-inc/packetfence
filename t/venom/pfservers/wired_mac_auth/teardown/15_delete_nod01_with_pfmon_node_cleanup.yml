@@ -1,0 +1,8 @@
+name: Delete node01 by running pfmon node_cleanup task
+version: 2
+testcases:
+- name: delete_nod01_with_pfmon_node_cleanup
+  steps:
+  - script: /usr/local/pf/bin/pfcmd pfmon node_cleanup
+    assertions:
+    - result.code ShouldEqual 0
