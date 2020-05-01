@@ -52,9 +52,10 @@ export default {
       database.save().then(() => {
         return Promise.all([
           general.save(),
-          alerting.save(),
-          administrator.save()
-        ])
+          alerting.save()
+        ]).then(() => {
+          return administrator.save()
+        })
       }).then(() => {
         this.$router.push({ name: nextRouteName })
       }).finally(() => {
