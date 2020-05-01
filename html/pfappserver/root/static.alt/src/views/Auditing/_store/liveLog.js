@@ -19,27 +19,23 @@ const state = () => {
     scopes: {
       hostname: {
         label: i18n.t('Hostname'),
-        values: {
-          "": { count: 0 }
-        }
+        values: {}
+      },
+      filename: {
+        label: i18n.t('Log Name'),
+        values: {}
       },
       log_level: {
         label: i18n.t('Log Level'),
-        values: {
-          "": { count: 0 }
-        }
+        values: {}
       },
       process: {
         label: i18n.t('Process Name'),
-        values: {
-          "": { count: 0 }
-        }
+        values: {}
       },
       syslog_name: {
         label: i18n.t('Syslog Name'),
-        values: {
-          "": { count: 0 }
-        }
+        values: {}
       }
     },
     size: 1000,
@@ -78,7 +74,8 @@ const getters = {
       return event
     })
   },
-  size: state => state.size
+  size: state => state.size,
+  lines: state => state.lines
 }
 
 const actions = {
