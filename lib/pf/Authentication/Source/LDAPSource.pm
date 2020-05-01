@@ -505,7 +505,7 @@ sub ldap_filter_for_conditions {
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 7});
   if (my $advance = firstval { $_->operator eq 'advance' } @{$conditions // []}) {
-       return $advance->value; 
+       return $self->update_template($advance->value, $params);
   }
 
   my (@ldap_conditions, $expression);
@@ -553,6 +553,27 @@ sub ldap_filter_for_conditions {
   }
 
   return $expression;
+}
+
+sub replaceVar {
+    my ($name, $params) = @_;
+    my @parts = split(/\./, $name);
+    my $last_part = pop @parts;
+    for my $part (@parts) {
+        if (ref $params eq 'HASH' && exists $params->{$part}) {
+            $params = $params->{$part}
+        } else {
+            return ''
+        }
+    }
+
+    return exists $params->{$last_part} ? $params->{$last_part} : '';
+}
+
+sub update_template {
+    my ($self, $template, $params) = @_;
+    $template =~ s/\${([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)}/replaceVar($1, $params)/ge;
+    return $template;
 }
 
 =head2 search based on a attribute
