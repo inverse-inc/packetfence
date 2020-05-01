@@ -1,0 +1,53 @@
+name: Check if node01 has been correctly deleted
+version: 2
+testcases:
+- name: check_node01_removed
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/nodes/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "mac",
+          "status",
+          "online",
+          "computername",
+          "pid",
+          "ip4log.ip",
+          "device_class",
+          "category_id"
+        ],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "contains",
+                  "value": "{{.node01_eth1_mac_address}}"
+                },
+                {
+                  "field": "pid",
+                  "op": "contains",
+                  "value": "{{.node01_eth1_mac_address}}"
+                }
+              ]
+            }
+          ]
+        },
+        "sort": [
+          "mac"
+        ]
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldNotContainSubstring '{{.node01_eth1_mac_address}}'
