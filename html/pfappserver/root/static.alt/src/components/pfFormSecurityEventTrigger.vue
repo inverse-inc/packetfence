@@ -201,10 +201,17 @@ export default {
       return state.$invalid && !state.$pending
     },
     eventDescription () {
-      const { event: { typeValue: { type, value } = {} } = {} } = this.formStoreValue || {}
-      return (type && value)
-        ? `${triggerFields[type].text}: ${value}`
-        : this.$i18n.t('Any event')
+      const { event: { typeValue: { type, value } = {}, fingerbank_network_behavior_policy = '' } = {} } = this.formStoreValue || {}
+      let description
+      if (type && value) {
+        description = `${triggerFields[type].text}: ${value}`
+        if (fingerbank_network_behavior_policy) {
+          description += ` (${fingerbank_network_behavior_policy})`
+        }
+      } else {
+        description = this.$i18n.t('Any event')
+      }
+      return description
     },
     eventInvalid () {
       const state = this.$store.getters[`${this.formStoreName}/$stateNS`](`${this.formNamespace}.event`)
