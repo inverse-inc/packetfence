@@ -14,7 +14,11 @@ const scopes = {
 const state = () => {
   return {
     running: true,
-    session: {},
+    session: {
+      files: [],
+      filter: null,
+      filter_is_regexp: false
+    },
     events: [],
     filters: {},
     scopes: {

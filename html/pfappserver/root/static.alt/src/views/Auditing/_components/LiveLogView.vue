@@ -9,12 +9,12 @@
     <b-card-body>
       <b-row>
         <b-col sm="3">
-          <div class="scopes">
+          <div class="scopes pr-3">
             <small :key="scope" class="ml-1">{{ $i18n.t('Session Options') }}</small>
             <b-list-group :key="children" class="mt-1 mb-3">
               <b-list-group-item variant="light">
                 <small :key="scope" class="ml-1">{{ $i18n.t('Log Files') }}</small>
-                <pf-form-chosen
+                <pf-form-chosen v-if="session && 'files' in session"
                   v-model="session.files"
                   :disabled="isRunning"
                   :placeholder="$t('Choose log file(s)')"
@@ -22,12 +22,14 @@
                   :multiple="true"
                   :allow-empty="false"
                   :close-on-select="false"
+                  :state="state('files')"
+                  :invalid-feedback="invalidFeedback('files')"
                   class="mb-3"
                   label="name" track-by="value"
                 />
 
                 <small :key="scope" class="ml-1">{{ $i18n.t('Filter') }}</small>
-                <pf-form-input
+                <pf-form-input v-if="session && 'filter' in session"
                   v-model="session.filter"
                   :disabled="isRunning"
                   class="mt-1 mb-3"
@@ -35,7 +37,7 @@
                 />
 
                 <small :key="scope" class="ml-1">{{ $i18n.t('Regular Expression') }}</small>
-                <pf-form-range-toggle
+                <pf-form-range-toggle v-if="session && 'filter_is_regexp' in session"
                   v-model="session.filter_is_regexp"
                   :disabled="isRunning"
                   :values="{checked: true, unchecked: false}"
@@ -52,7 +54,7 @@
                   {{ $i18n.t('Stop Session') }}
                 </b-button>
                 <b-button v-else
-                  :disabled="isStarting"
+                  :disabled="isStarting || invalidForm"
                   variant="success" class="float-right mb-1" @click="startSession()"
                 >
                   <icon v-if="isStarting" name="circle-notch" class="mr-2" spin></icon>
@@ -61,6 +63,18 @@
                 </b-button>
               </b-list-group-item>
             </b-list-group>
+
+            <b-row>
+              <b-col cols="4">
+
+              </b-col>
+              <b-col cols="4">
+
+              </b-col>
+              <b-col cols="4">
+
+              </b-col>
+            </b-row>
 
             <small :key="scope" class="ml-1">{{ $i18n.t('Buffer Size') }}</small>
             <pf-form-chosen
@@ -98,12 +112,17 @@
             </template>
           </div>
         </b-col>
-        <b-col sm="9">
+        <b-col sm="9" class="pl-0">
           <div editable="true" readonly="true" class="log scroll-reverse">
             <div class="scroll-reverse-only-child">
+              <div class="text-raw" v-if="events" v-html="events.map(event => event.data.raw).join('<br/>')" />
+            <!--
               <div v-for="event in events" :key="event">
-                {{ event }}
+                <div class="line text-raw">
+                  {{ event.data.raw }}
+                </div>
               </div>
+            -->
             </div>
           </div>
         </b-col>
@@ -119,6 +138,11 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
+import { validationMixin } from 'vuelidate'
+import {
+  required
+} from 'vuelidate/lib/validators'
+
 export default {
   name: 'live-log-view',
   components: {
@@ -127,6 +151,9 @@ export default {
     pfFormInput,
     pfFormRangeToggle
   },
+  mixins: [
+    validationMixin
+  ],
   props: {
     id: {
       type: String,
@@ -181,6 +208,29 @@ export default {
     },
     isRunning () {
       return this.$store.getters[`$_live_logs/${this.id}/isRunning`]
+    },
+    invalidForm () {
+      const { $v: { $invalid = false } = {} } = this
+      return $invalid
+    },
+    invalidFeedback () {
+      return (key) => {
+        const { $v: { session: { [key]: { $params } = {} } = {} } = {} } = this
+        let feedback = []
+        for (let param in $params) {
+          const { $v: { session: { [key]: { [param]: valid = true } = {} } = {} } = {} } = this
+          if (!valid) {
+            feedback.push(param)
+          }
+        }
+        return feedback.join(' ')
+      }
+    },
+    state () {
+      return (key) => {
+        const { $v: { session: { [key]: { $invalid = false } = {} } = {} } = {} } = this
+        return ($invalid) ? false : null
+      }
     }
   },
   methods: {
@@ -224,6 +274,15 @@ export default {
   },
   mounted () {
     this.init()
+  },
+  validations () {
+    return {
+      session: {
+        files: {
+          [this.$i18n.t('Log file(s) required.')]: required
+        }
+      }
+    }
   }
 }
 </script>

@@ -50,11 +50,6 @@ import { validationMixin } from 'vuelidate'
 import {
   required
 } from 'vuelidate/lib/validators'
-import {
-  and,
-  not,
-  conditional
-} from '@/globals/pfValidators'
 
 export default {
   name: 'live-log-create',
@@ -67,8 +62,6 @@ export default {
   mixins: [
     validationMixin
   ],
-  props: {
-  },
   data () {
     return {
       form: {
