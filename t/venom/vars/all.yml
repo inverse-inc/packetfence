@@ -29,6 +29,8 @@ switch01_mgmt_ip: 172.17.17.201
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
+node01_unreg_date: '2020-04-20 13:37:00'
+node01_eth1_mac_address: 00:03:00:11:11:01
 nodes_test_suite_dir: /src/t/venom/nodes
 
 # Access durations

@@ -1,0 +1,24 @@
+name: Create node01 with the mac 00:03:00:11:11:01, assign the role headless_device and an unregdate of 1 minute
+version: 2
+testcases:
+- name: create_node01
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/nodes'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "category_id": "30",
+        "mac": "{{.node01_eth1_mac_address}}",
+        "notes": "node01 eth1",
+        "pid": null,
+        "status": "reg",
+        "unreg_date": null,
+        "unregdate": "{{.node01_unreg_date}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
