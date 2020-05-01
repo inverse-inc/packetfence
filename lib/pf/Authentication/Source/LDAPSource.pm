@@ -21,7 +21,7 @@ use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config qw(%Config);
-use List::MoreUtils qw(uniq any);
+use List::MoreUtils qw(uniq any firstval);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
@@ -504,6 +504,9 @@ sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 7});
+  if (my $advance = firstval { $_->operator eq 'advance' } @{$conditions // []}) {
+       return $advance->value; 
+  }
 
   my (@ldap_conditions, $expression);
 
@@ -520,7 +523,6 @@ sub ldap_filter_for_conditions {
           my $operator = $condition->{'operator'};
           my $value = escape_filter_value($condition->{'value'});
           my $attribute = $condition->{'attribute'};
-
           if ($operator eq $Conditions::EQUALS) {
               $str = "${attribute}=${value}";
           } elsif ($operator eq $Conditions::NOT_EQUALS) {
@@ -531,6 +533,10 @@ sub ldap_filter_for_conditions {
               $str = "${attribute}=${value}*";
           } elsif ($operator eq $Conditions::ENDS) {
               $str = "${attribute}=*${value}";
+          } elsif ($operator eq 'advance') {
+              @ldap_conditions = ();
+              $expression = $condition->{'value'};
+              last;
           }
 
           if ($str) {
