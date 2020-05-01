@@ -81,3 +81,8 @@ dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
 # Create user for db
 backup_db_and_restore.user: adminvenom
 backup_db_and_restore.backup_dir: /root/backup
+
+mac_authentication.profiles.wired.id: catch_wired_mac_authentication
+mac_authentication.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
+mac_authentication.profiles.wired.filters.connection_type: Ethernet-NoEAP
+

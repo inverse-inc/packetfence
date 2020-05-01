@@ -1,0 +1,58 @@
+name: Create wired mac authentication connection profile with unreg_on_accounting_stop
+version: 2
+testcases:
+- name: create_mac_authentication_connection_profile
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profiles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "access_registration_when_registered": null,
+        "advanced_filter": null,
+        "always_use_redirecturl": null,
+        "autoregister": null,
+        "billing_tiers": null,
+        "block_interval": {
+          "interval": "10",
+          "unit": "m"
+        },
+        "default_psk_key": null,
+        "description": "{{.mac_authentication.profiles.wired.description}}",
+        "dot1x_recompute_role_from_portal": "enabled",
+        "dot1x_unset_on_unmatch": "disabled",
+        "dpsk": "disabled",
+        "filter": [
+          {
+            "match": "{{.mac_authentication.profiles.wired.filters.connection_type}}",
+            "type": "connection_type"
+          }
+        ],
+        "filter_match_style": "any",
+        "id": "{{.mac_authentication.profiles.wired.id}}",
+        "locale": null,
+        "login_attempt_limit": 0,
+        "logo": null,
+        "mac_auth_recompute_role_from_portal": "disabled",
+        "network_logoff": null,
+        "network_logoff_popup": null,
+        "preregistration": null,
+        "provisioners": null,
+        "redirecturl": null,
+        "reuse_dot1x_credentials": null,
+        "root_module": "default_policy",
+        "scans": null,
+        "self_service": null,
+        "sms_pin_retry_limit": 0,
+        "sms_request_limit": 0,
+        "sources": null,
+        "status": "enabled",
+        "unreg_on_acct_stop": "enabled",
+        "vlan_pool_technique": "username_hash"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
