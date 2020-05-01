@@ -16,6 +16,7 @@ use pf::error qw(is_error is_success);
 use pf::util qw(expand_csv);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::UnifiedApi::Search::Builder::Fingerbank;
+use List::MoreUtils qw(any);
 use fingerbank::API;
 use pf::cluster;
 use pf::fingerbank;
@@ -335,7 +336,8 @@ sub update_upstream_db {
 
 sub can_use_nba_endpoints {
     my ($self) = @_;
-    my $result = fingerbank::API->new_from_config->can_use_nba_endpoints;
+    my $account = fingerbank::API->new_from_config->account_info;
+    my $result = any { $_ eq "NBA" } split(/\s*,\s*/, $account->{roles});
     $self->render(status => 200, json => { result => \$result});
 }
 
