@@ -126,8 +126,8 @@ sub validate {
     }
 
     if ($class eq 'authentication') {
-        unless ($typesCount{$Actions::SET_ROLE}) {
-            $actions->add_error("You must set a role.");
+        unless ($typesCount{$Actions::SET_ROLE} || $typesCount{$Actions::SET_ROLE_ON_NOT_FOUND}) {
+            $actions->add_error("You must set a role or a role on not found.");
         }
 
         if (!$typesCount{$Actions::SET_UNREG_DATE} && !$typesCount{$Actions::SET_ACCESS_DURATION}) {
