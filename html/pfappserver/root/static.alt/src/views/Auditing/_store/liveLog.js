@@ -42,6 +42,8 @@ const state = () => {
         }
       }
     },
+    size: 1000,
+    lines: 0,
     debouncer: false,
     debouncerMs: 300, // 300ms
     message: '',
@@ -75,7 +77,8 @@ const getters = {
       }
       return event
     })
-  }
+  },
+  size: state => state.size
 }
 
 const actions = {
@@ -103,6 +106,40 @@ const actions = {
       commit('LOG_FILTER_ENABLE', { scope, key })
       commit('UPDATE_FILTERS')
     }
+  },
+  setSize: ({ state, commit }, size) => {
+    commit('UPDATE_SIZE', size)
+  }
+}
+
+const addMeta = (scopes, event) => {
+  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
+  for (let key of Object.keys(meta)) {
+    if (!(key in scopes)) {
+      scopes[key].values = { [meta[key]]: { count: 1 } }
+    }
+    else if (!(meta[key] in scopes[key].values)) {
+      scopes[key].values = Object.entries({
+        ...scopes[key].values,
+        [meta[key]]: { count: 1 }
+      }).sort(([a], [b]) => {
+        if (!a) return -1
+        if (!b) return 1
+        return +a - +b
+      }).reduce((r, [k, v]) => {
+        return { ...r, [k]: v }
+      }, {})
+    }
+    else {
+      scopes[key].values[meta[key]].count++
+    }
+  }
+}
+
+const delMeta = (scopes, event) => {
+  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
+  for (let key of Object.keys(meta)) {
+    scopes[key].values[meta[key]].count--
   }
 }
 
@@ -131,28 +168,16 @@ const mutations = {
     const { events } = response
     if (events) {
       state.events = [ ...state.events, ...events ]
-      for (let event of events) {
-        const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-        for (let key of Object.keys(meta)) {
-          if (!(key in state.scopes)) {
-            state.scopes[key].values = { [meta[key]]: { count: 1 } }
-          }
-          else if (!(meta[key] in state.scopes[key].values)) {
-            state.scopes[key].values = Object.entries({
-              ...state.scopes[key].values,
-              [meta[key]]: { count: 1 }
-            }).sort(([a], [b]) => {
-              if (!a) return -1
-              if (!b) return 1
-              return +a - +b
-            }).reduce((r, [k, v]) => {
-              return { ...r, [k]: v }
-            }, {})
-          }
-          else {
-            state.scopes[key].values[meta[key]].count++
-          }
+      state.lines += events.length
+      if (state.lines > state.size) {
+        for (let event of state.events.slice(0, state.lines - state.size)) { // truncate counts
+          delMeta(state.scopes, event)
         }
+        state.events = state.events.slice(-state.size) // truncate events
+        state.lines = state.size
+      }
+      for (let event of events) {
+        addMeta(state.scopes, event)
       }
     }
   },
@@ -178,6 +203,16 @@ const mutations = {
         ...((v.length > 0) ? { [k]: v } : {})
       }
     }, {})
+  },
+  UPDATE_SIZE: (state, size) => {
+    state.size = size
+    if (state.lines > state.size) {
+      for (let event of state.events.slice(0, state.lines - state.size)) { // truncate counts
+        delMeta(state.scopes, event)
+      }
+      state.events = state.events.slice(-state.size) // truncate events
+      state.lines = state.size
+    }
   }
 }
 
