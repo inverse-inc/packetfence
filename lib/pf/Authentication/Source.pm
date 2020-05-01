@@ -99,6 +99,8 @@ sub common_attributes {
           { value => "realm", type => $Conditions::SUBSTRING },
           { value => "switch_id", type => $Conditions::SUBSTRING },
           { value => "switch_group", type => $Conditions::SUBSTRING },
+          { value => "username", type => $Conditions::SUBSTRING },
+          { value => "stripped_user_name", type => $Conditions::SUBSTRING },
           ];
 }
 
