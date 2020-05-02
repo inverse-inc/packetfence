@@ -18,6 +18,7 @@ use pf::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use List::Util qw(none);
+use Hash::Flatten qw(flatten);
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 
@@ -182,6 +183,7 @@ sub match {
     $params->{current_date} //= $current_date;
     $params->{current_time} //= $current_time;
     $params->{current_time_period} //= $time;
+    $params = flatten($params);
 
     $self->preMatchProcessing;
 
