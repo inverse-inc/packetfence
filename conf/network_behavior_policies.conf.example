@@ -51,7 +51,7 @@ blacklisted_ip_hosts_window=10s
 
 [printers_non_printing_traffic]
 blacklisted_ip_hosts_threshold=1
-blacklisted_ports=1-24,26-79,81-136,139-160,163-200,207-212,214-514,516-529,531-720,732-1999,2001-2500,2504-3000,3002-6868,6870-9099
+blacklisted_ports=1-24,26-66,69-79,81-136,139-160,163-200,207-212,214-514,516-529,531-720,732-1999,2001-2500,2504-3000,3002-6868,6870-9099
 device_attributes_diff_score=0
 description=Printers doing non-printing traffic
 blacklisted_ports_window=1m
