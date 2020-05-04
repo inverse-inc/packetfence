@@ -96,7 +96,7 @@ sub available_attributes {
     push (@ldap_attributes, { value => $usernameattribute, type => $Conditions::LDAP_ATTRIBUTE });
   }
 
-  return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
+  return [@$super_attributes, { value => $Conditions::LDAP_FILTER, type => $Conditions::LDAP_FILTER  }, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
 }
 
 =head2 ldap_attributes
