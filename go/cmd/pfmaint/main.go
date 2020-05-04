@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/robfig/cron/v3"
 	"os"
 	"sync"
@@ -10,18 +9,16 @@ import (
 	"github.com/inverse-inc/packetfence/go/maint"
 	"os/signal"
 	"syscall"
+    "fmt"
 )
 
 func main() {
 	log.SetProcessName("pfmaint")
 	c := cron.New(cron.WithSeconds())
-	for _, job := range getJobs() {
-		id, err := c.AddJob(job.Spec(), job)
-		if err != nil {
-			fmt.Printf("Error: %s\n", err.Error())
-		} else {
-			fmt.Printf("Id:%v\n", id)
-		}
+	for _, setupConfig := range maint.GetConfiguredJobs() {
+		id := c.Schedule(setupConfig.Schedule, setupConfig.Job)
+        _ = id
+        fmt.Printf("Job id %d", id)
 	}
 	w := sync.WaitGroup{}
 	w.Add(1)
@@ -37,8 +34,3 @@ func main() {
 	<-doneCtx.Done()
 }
 
-func getJobs() []maint.Job {
-	return []maint.Job{
-		maint.NewPfmonJob("acct_maintenance", "@every 1m"),
-	}
-}

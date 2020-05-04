@@ -6,11 +6,10 @@ import (
 
 type PfmonJob struct {
     Name string
-    TimeSpec string
 }
 
-func NewPfmonJob(name string, timeSpec string) *PfmonJob {
-    return &PfmonJob{Name:name, TimeSpec: timeSpec}
+func NewPfmonJob(name string) *PfmonJob {
+    return &PfmonJob{Name:name}
 }
 
 func (j *PfmonJob) Run() {
@@ -19,6 +18,3 @@ func (j *PfmonJob) Run() {
     _ = err
 }
 
-func (j *PfmonJob) Spec() string {
-    return j.TimeSpec
-}
