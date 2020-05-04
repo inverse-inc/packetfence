@@ -20,7 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* New action for AD/LDAP sources to set role when user is not found
 
 Bug Fixes
 +++++++++
