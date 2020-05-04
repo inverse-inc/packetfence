@@ -121,7 +121,7 @@ sub deflate {
 sub validate {
     my ($self) = @_;
     my $value = $self->value;
-    if ($value->{operator} eq 'advance') {
+    if ($value->{operator} eq $Conditions::MATCH_FILTER) {
         my $filter = Net::LDAP::Filter->new($value->{value});
         if (!defined $filter) {
             $self->field('value')->add_error(Net::LDAP::Filter::errstr());
