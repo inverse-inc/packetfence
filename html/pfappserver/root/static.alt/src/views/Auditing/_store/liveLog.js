@@ -14,6 +14,7 @@ const scopes = {
 const state = () => {
   return {
     running: true,
+    paused: false,
     session: {
       files: [],
       filter: null,
@@ -55,6 +56,8 @@ const state = () => {
 const getters = {
   isLoading: state => state.status === 'loading',
   isStopping: state => state.status === 'stopping',
+  isRunning: state => state.running,
+  isPaused: state => state.paused,
   session: state => state.session,
   events: state => state.events,
   scopes: state => state.scopes,
@@ -81,8 +84,7 @@ const getters = {
     })
   },
   size: state => state.size,
-  lines: state => state.lines,
-  isRunning: state => state.running
+  lines: state => state.lines
 }
 
 const actions = {
@@ -105,13 +107,28 @@ const actions = {
       commit('LOG_SESSION_REQUEST')
       return api.getLogTailSession(state.session.session_id).then(response => {
         commit('LOG_SESSION_RESPONSE', response)
-        commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+        if (!state.paused) {
+          commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+        }
         return response
       }).catch(err => {
         commit('LOG_SESSION_ERROR', err.response)
         //commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
         return err
       })
+    }
+  },
+  pauseSession: ({ state, commit }) => {
+    if (!state.paused) {
+      commit('LOG_SESSION_PAUSE')
+    }
+  },
+  unpauseSession: ({ state, commit, dispatch }) => {
+    if (state.paused) {
+      commit('LOG_SESSION_UNPAUSE')
+      if (state.running) {
+        commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
+      }
     }
   },
   toggleFilter: ({ state, getters, commit }, { scope, key }) => {
@@ -126,6 +143,10 @@ const actions = {
   },
   setSize: ({ state, commit }, size) => {
     commit('UPDATE_SIZE', +size)
+  },
+  clearEvents: ({ commit }) => {
+    commit('CLEAR_EVENTS')
+    commit('CLEAR_COUNTS')
   }
 }
 
@@ -204,6 +225,12 @@ const mutations = {
     state.status = 'success'
     state.running = false
   },
+  LOG_SESSION_PAUSE: (state) => {
+    state.paused = true
+  },
+  LOG_SESSION_UNPAUSE: (state) => {
+    state.paused = false
+  },
   LOG_SESSION_ERROR: (state, response) => {
     state.status = 'error'
     state.running = false
@@ -236,6 +263,16 @@ const mutations = {
       }
       state.events = state.events.slice(-state.size) // truncate events
       state.lines = state.size
+    }
+  },
+  CLEAR_EVENTS: (state) => {
+    state.events = []
+  },
+  CLEAR_COUNTS: (state) => {
+    for(let [k1 , { values = {} }] of Object.entries(state.scopes)) {
+      for(let [k2 , { count = 0 } ] of Object.entries(values)) {
+        Vue.set(state.scopes[k1].values[k2], 'count', 0)
+      }
     }
   }
 }

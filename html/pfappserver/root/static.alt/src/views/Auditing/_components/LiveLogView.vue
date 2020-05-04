@@ -45,36 +45,45 @@
                   class="mt-1 mb-3"
                 />
 
-                <b-button v-if="isRunning"
-                  :disabled="isStopping"
-                  variant="danger" class="float-right mb-1" @click="stopSession()"
-                >
-                  <icon v-if="isStopping" name="circle-notch" class="mr-2" spin></icon>
-                  <icon v-else name="stop" class="mr-2"></icon>
-                  {{ $i18n.t('Stop Session') }}
-                </b-button>
-                <b-button v-else
-                  :disabled="isStarting || invalidForm"
-                  variant="success" class="float-right mb-1" @click="startSession()"
-                >
-                  <icon v-if="isStarting" name="circle-notch" class="mr-2" spin></icon>
-                  <icon v-else name="play" class="mr-2"></icon>
-                  {{ $i18n.t('Reset Session') }}
-                </b-button>
+                <b-button-group class="mt-3 btn-block">
+
+                  <b-button v-if="isRunning && !isPaused"
+                    variant="primary" class="mb-1" @click="pauseSession()"
+                  >
+                    <icon name="pause" class="mr-2"></icon>
+                    {{ $i18n.t('Pause') }}
+                  </b-button>
+                  <b-button v-if="isRunning && isPaused"
+                    variant="primary" class="mb-1" @click="unpauseSession()"
+                  >
+                    <icon name="play" class="mr-2"></icon>
+                    {{ $i18n.t('Unpause') }}
+                  </b-button>
+                  <b-button v-if="isRunning"
+                    :disabled="isStopping"
+                    variant="danger" class="float-right mb-1" @click="stopSession()"
+                  >
+                    <icon v-if="isStopping" name="circle-notch" class="mr-2" spin></icon>
+                    <icon v-else name="stop" class="mr-2"></icon>
+                    {{ $i18n.t('Stop') }}
+                  </b-button>
+                  <b-button v-if="!isRunning"
+                    :disabled="isStarting || invalidForm"
+                    variant="success" class="float-right mb-1" @click="startSession()"
+                  >
+                    <icon v-if="isStarting" name="circle-notch" class="mr-2" spin></icon>
+                    <icon v-else name="play" class="mr-2"></icon>
+                    {{ $i18n.t('Reset') }}
+                  </b-button>
+                </b-button-group>
               </b-list-group-item>
             </b-list-group>
 
-            <b-row>
-              <b-col cols="4">
-
-              </b-col>
-              <b-col cols="4">
-
-              </b-col>
-              <b-col cols="4">
-
-              </b-col>
-            </b-row>
+            <b-button-group class="mb-3 btn-block">
+              <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy Log') }}</b-button>
+              <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save Log') }}</b-button>
+              <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear Log') }}</b-button>
+            </b-button-group>
 
             <small :key="scope" class="ml-1">{{ $i18n.t('Buffer Size') }}</small>
             <pf-form-chosen
@@ -209,6 +218,9 @@ export default {
     isRunning () {
       return this.$store.getters[`$_live_logs/${this.id}/isRunning`]
     },
+    isPaused () {
+      return this.$store.getters[`$_live_logs/${this.id}/isPaused`]
+    },
     invalidForm () {
       const { $v: { $invalid = false } = {} } = this
       return $invalid
@@ -270,6 +282,47 @@ export default {
       }).catch(() => {
         this.isStarting = false
       })
+    },
+    pauseSession () {
+      this.$store.dispatch(`$_live_logs/${this.id}/pauseSession`).then(() => {
+        // noop
+      })
+    },
+    unpauseSession () {
+      this.$store.dispatch(`$_live_logs/${this.id}/unpauseSession`).then(() => {
+        // noop
+      })
+    },
+    clearEvents () {
+      this.$store.dispatch(`$_live_logs/${this.id}/clearEvents`).then(response => {
+        this.$store.dispatch('notification/info', { message: i18n.t('Cleared logs.') })
+      })
+    },
+    copyEvents () {
+      try {
+        navigator.clipboard.writeText(this.events.map(event => event.data.raw).join('\n')).then(() => {
+          this.$store.dispatch('notification/info', { message: i18n.t('Logs copied to clipboard.') })
+        }).catch(() => {
+          this.$store.dispatch('notification/danger', { message: i18n.t('Could not copy logs to clipboard.') })
+        })
+      } catch (e) {
+        this.$store.dispatch('notification/danger', { message: i18n.t('Clipboard not supported.') })
+      }
+    },
+    saveEvents () {
+      // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`)) // doesn't allow naming
+      let blob = new Blob([this.events.map(event => event.data.raw).join('\r\n')], { type: 'text/plain' })
+      let filename = this.session.name + (this.session.name.slice(-4) === '.log') ? '' : '.log'
+      if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename)
+      } else {
+        var elem = window.document.createElement('a')
+        elem.href = window.URL.createObjectURL(blob)
+        elem.download = filename
+        document.body.appendChild(elem)
+        elem.click()
+        document.body.removeChild(elem)
+      }
     }
   },
   mounted () {
