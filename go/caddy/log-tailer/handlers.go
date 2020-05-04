@@ -179,31 +179,33 @@ func (h LogTailerHandler) createNewSession(c *gin.Context) {
 }
 
 func (h LogTailerHandler) getSession(c *gin.Context) {
-	h.sessionsLock.RLock()
-	defer h.sessionsLock.RUnlock()
+	func() {
+		h.sessionsLock.RLock()
+		defer h.sessionsLock.RUnlock()
 
-	var err error
-	sessionId := c.Param("id")
+		var err error
+		sessionId := c.Param("id")
 
-	if _, ok := h.sessions[sessionId]; !ok {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find a session with this identifier"})
-		return
-	}
+		if _, ok := h.sessions[sessionId]; !ok {
+			c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find a session with this identifier"})
+			return
+		}
 
-	char := "?"
-	if strings.Contains(c.Request.URL.String(), "?") {
-		char = "&"
-	}
+		char := "?"
+		if strings.Contains(c.Request.URL.String(), "?") {
+			char = "&"
+		}
 
-	timeout := ""
-	if _, ok := c.GetQuery("timeout"); !ok {
-		timeout = fmt.Sprintf("&timeout=%d", defaultPollTimeout/time.Second)
-	}
+		timeout := ""
+		if _, ok := c.GetQuery("timeout"); !ok {
+			timeout = fmt.Sprintf("&timeout=%d", defaultPollTimeout/time.Second)
+		}
 
-	c.Request.URL, err = url.Parse(c.Request.URL.String() + char + "category=" + sessionId + "&since_time=0" + timeout)
-	sharedutils.CheckError(err)
+		c.Request.URL, err = url.Parse(c.Request.URL.String() + char + "category=" + sessionId + "&since_time=0" + timeout)
+		sharedutils.CheckError(err)
 
-	h.sessions[sessionId].Touch()
+		h.sessions[sessionId].Touch()
+	}()
 
 	h.eventsManager.SubscriptionHandler(c.Writer, c.Request)
 }
