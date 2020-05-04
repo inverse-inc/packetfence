@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hpcloud/tail"
 	"github.com/jcuga/golongpoll"
+	"github.com/nxadm/tail"
 )
 
 var metaEngine = NewRsyslogMetaEngine()
@@ -38,14 +38,14 @@ func (ts *TailingSession) Start(sessionId string, publishTo *golongpoll.Longpoll
 	ts.Touch()
 
 	for _, file := range ts.files {
-		config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{Offset: 0, Whence: os.SEEK_END}}
+		config := tail.Config{Follow: true, ReOpen: true, Poll: true, Location: &tail.SeekInfo{Offset: 0, Whence: os.SEEK_END}}
 		t, err := tail.TailFile(file, config)
 		if err != nil {
 			ts.Stop()
 			return err
 		}
 
-		go func(t *tail.Tail) {
+		go func(sessionId string, t *tail.Tail) {
 			for {
 				select {
 				case <-ts.doneChan:
@@ -59,7 +59,7 @@ func (ts *TailingSession) Start(sessionId string, publishTo *golongpoll.Longpoll
 					}
 				}
 			}
-		}(t)
+		}(sessionId, t)
 	}
 
 	return nil
