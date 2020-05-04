@@ -12,10 +12,10 @@ status=enabled
 #
 # interval
 #
-# At which interval to run the acct maintenance pfmon task
+# The interval to run the maintenance task
 cronspec=@every 1m
 #
 # description
 #
-# The description of task to perform
+# The description of task
 description=Task that controls the inline accounting maintenance (bandwidth checks).
