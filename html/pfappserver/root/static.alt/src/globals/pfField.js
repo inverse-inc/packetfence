@@ -30,6 +30,7 @@ export const pfFieldType = {
   HIDDEN:                              'hidden',
   NODE_STATUS:                         'node_status',
   LDAPATTRIBUTE:                       'ldapattribute',
+  LDAPFILTER:                          'ldapfilter',
   PREFIXMULTIPLIER:                    'prefixmultiplier',
   RADIUSATTRIBUTE:                     'radiusattribute',
   SELECTONE:                           'selectone',
@@ -84,6 +85,7 @@ export const pfFieldTypeComponent = {
   [pfFieldType.DURATIONS]:             pfComponentType.SELECTMANY,
   [pfFieldType.GENDER]:                pfComponentType.SELECTONE,
   [pfFieldType.LDAPATTRIBUTE]:         pfComponentType.SUBSTRING,
+  [pfFieldType.LDAPFILTER]:            pfComponentType.SUBSTRING,
   [pfFieldType.NODE_STATUS]:           pfComponentType.SELECTONE,
   [pfFieldType.OPTIONS]:               pfComponentType.SELECTONE,
   [pfFieldType.RADIUSATTRIBUTE]:       pfComponentType.SUBSTRING,
@@ -118,6 +120,9 @@ export const pfFieldTypeOperators = {
     { text: 'ends', value: 'ends' },
     { text: 'matches regexp', value: 'matches regexp' },
     { text: 'is member of', value: 'is member of' }
+  ],
+  [pfFieldType.LDAPFILTER]: [
+    { text: 'match_fitler', value: 'match_filter' }
   ],
   [pfFieldType.SUBSTRING]: [
     { text: 'starts', value: 'starts' },
