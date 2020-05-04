@@ -504,8 +504,8 @@ sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 7});
-  if (my $advance = firstval { $_->operator eq 'advance' } @{$conditions // []}) {
-       return $self->update_template($advance->value, $params);
+  if (my $filter = firstval { $_->operator eq $Conditions::MATCH_FILTER } @{$conditions // []}) {
+       return $self->update_template($filter->value, $params);
   }
 
   my (@ldap_conditions, $expression);
