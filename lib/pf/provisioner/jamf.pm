@@ -31,6 +31,8 @@ use pf::node;
 use pf::person;
 use pf::util qw(isenabled);
 
+use Encode qw(encode);
+
 
 Readonly our $JAMF_COMPUTERS_INVENTORY => 'computers';
 Readonly our $JAMF_MOBILEDEVICES_INVENTORY => 'mobiledevices';
@@ -264,6 +266,7 @@ sub parse_device_information {
     my ( $self, $device_type, $device_information ) = @_;
     my $logger = get_logger;
 
+    $device_information = encode('UTF-8', $device_information);
     my $json = decode_json($device_information);
  
     if ( $device_type eq $JAMF_COMPUTERS_INVENTORY ) {
