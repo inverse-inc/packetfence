@@ -17,7 +17,7 @@ use warnings;
 
 use pf::security_event qw (security_event_view_top);
 use pf::locationlog qw(locationlog_set_session);
-use pf::util qw(isenabled generate_session_id);
+use pf::util qw(isenabled generate_session_id random_from_range);
 use pf::CHI;
 use pf::radius::constants;
 use Scalar::Util qw(reftype);
@@ -142,7 +142,7 @@ evaluate all the variables
 
 sub evalParam {
     my ($answer, $args) = @_;
-    $answer = _random($answer) if rangeValidator($answer);
+    $answer = random_from_range($answer) if rangeValidator($answer);
     $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
     $answer =~ s/\$\{([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)\}/&_replaceParamsDeep($1,$args)/ge;
     return $answer;
@@ -172,20 +172,6 @@ sub rangeValidator {
          )/x;
     return 0 if ($range =~ m/$validation/g);
     return 1;
-}
-
-=head2 _random
-
-return random int in a range
-
-=cut
-
-sub _random {
-    my ($value) = @_;
-    my $range = Number::Range->new($value);
-    my $count = $range->size;
-    my @array = $range->range;
-    return $array[rand($count)];
 }
 
 =head2 _replaceParamsDeep
