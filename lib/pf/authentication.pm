@@ -333,7 +333,7 @@ sub match {
         if (defined $allowed_actions) {
 
             # Return the value only if the action matches
-            my $found_action = first {my $t = $_->type;;(!(defined $ignored_action) || $ignored_action ne $t) && exists $allowed_actions->{$t} && $allowed_actions->{$t}} @{$actions};
+            my $found_action = first {my $t = $_->type;(!(defined $ignored_action) || $ignored_action ne $t) && exists $allowed_actions->{$t} && $allowed_actions->{$t}} @{$actions};
             if (defined $found_action) {
                 $logger->debug(
                     sub {
