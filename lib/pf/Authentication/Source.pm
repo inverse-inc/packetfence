@@ -99,6 +99,8 @@ sub common_attributes {
           { value => "realm", type => $Conditions::SUBSTRING },
           { value => "switch_id", type => $Conditions::SUBSTRING },
           { value => "switch_group", type => $Conditions::SUBSTRING },
+          { value => "username", type => $Conditions::SUBSTRING },
+          { value => "stripped_user_name", type => $Conditions::SUBSTRING },
           ];
 }
 
@@ -189,16 +191,17 @@ sub match {
             next;
         }
 
-        if ($self->match_rule($rule, $params, $extra)) {
+        my ($matched, $ignore_action) = $self->match_rule($rule, $params, $extra);
+        if ($matched) {
             $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
             $self->postMatchProcessing;
-            return $rule;
+            return ($rule, $ignore_action);
         }
 
     } # foreach my $rule ( @{$self->{'rules'}} ) {
     $self->postMatchProcessing;
 
-    return undef;
+    return (undef, undef);
 }
 
 sub match_rule {
@@ -228,12 +231,14 @@ sub match_rule {
 
     # We always check if at least the returned value is defined. That means the username
     # has been found in the source.
-    if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions, $extra)) {
+    my ($matched, $ignored_action) = $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions, $extra);
+    if ($matched) {
+      my $match = $rule->match;
       # We compare the matched conditions with how many we had
-      if ($rule->match eq $Rules::ANY &&
+      if ($match eq $Rules::ANY &&
           scalar @matching_conditions > 0) {
           push(@matching_rules, $rule);
-      } elsif ($rule->match eq $Rules::ALL &&
+      } elsif ($match eq $Rules::ALL &&
                scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
           push(@matching_rules, $rule);
       }
@@ -243,9 +248,10 @@ sub match_rule {
     # so let's keep the @matching_rules array for now.
     if (scalar @matching_rules == 1) {
         $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
-        return $TRUE;
+        return ($TRUE, $ignored_action);
     }
-    return $FALSE;
+
+    return ($FALSE, undef);
 }
 
 =head2 match_in_subclass
@@ -255,7 +261,7 @@ sub match_rule {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
-    return undef;
+    return (undef, undef);
 }
 
 =head2 match_condition

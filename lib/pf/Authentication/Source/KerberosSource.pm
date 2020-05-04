@@ -66,7 +66,7 @@ sub authenticate {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 

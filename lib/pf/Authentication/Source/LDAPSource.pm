@@ -252,10 +252,11 @@ match_rule
 sub match_rule {
     my ($self, $rule, $params, $extra) = @_;
     if ($self->is_rule_cacheable($rule)) {
-        return $self->cache->compute_with_undef($self->rule_cache_key($rule, $params, $extra), sub {
+        my $results = $self->cache->compute_with_undef($self->rule_cache_key($rule, $params, $extra), sub {
             $pf::StatsD::statsd->increment("pf::Authentication::Source::LDAPSource::match_rule.$self->{id}.cache_miss.count" );
-            return $self->SUPER::match_rule($rule, $params, $extra);
+            return [$self->SUPER::match_rule($rule, $params, $extra)];
         });
+        return @{$results // []};
     }
     return $self->SUPER::match_rule($rule, $params, $extra);
 }
@@ -318,7 +319,7 @@ sub match_in_subclass {
     if (! defined($filter)) {
         $logger->error("[$id] Missing parameters to construct LDAP filter");
         $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
-        return undef;
+        return (undef, undef);
     }
     my $rule_id = $rule->id;
     $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
@@ -346,7 +347,7 @@ sub _match_in_subclass {
     unless ( $cached_connection ) {
         my ($connection, $LDAPServer, $LDAPServerPort) = $self->_connect();
         if (! defined($connection)) {
-            return undef;
+            return (undef, undef);
         }
 
         $cached_connection = [$connection, $LDAPServer, $LDAPServerPort];
@@ -368,11 +369,12 @@ sub _match_in_subclass {
     if ($result->is_error) {
         $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return undef;
+        return (undef, undef);
     }
 
-    $logger->debug("[$self->{'id'} $rule->{'id'}] Found ".$result->count." results");
-    if ($result->count == 1) {
+    my $result_count = $result->count;
+    $logger->debug("[$self->{'id'} $rule->{'id'}] Found $result_count results");
+    if ($result_count == 1) {
         my $entry = $result->pop_entry();
         my $dn = $entry->dn;
         my $entry_matches = 1;
@@ -440,17 +442,21 @@ sub _match_in_subclass {
             # That is normal, as we used them all to build our LDAP filter.
             $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
             push @{ $matching_conditions }, @{ $own_conditions };
-            return $params->{'username'} || $params->{'email'};
+            return ($params->{'username'} || $params->{'email'}, $Actions::SET_ROLE_ON_NOT_FOUND);
         }
     }
-    elsif($result->count > 1) {
+    elsif($result_count > 1) {
         $logger->warn("[$self->{'id'} $rule->{'id'}] Found more than 1 match. Ignoring all of them. Make sure your filtering rules (on username and on email) can only return a single result");
     }
     else {
         $logger->debug("[$self->{'id'} $rule->{'id'}] No match found for this LDAP filter");
+        if (any {$_->type eq $Actions::SET_ROLE_ON_NOT_FOUND } @{$rule->{actions} // []} ) {
+            push @{ $matching_conditions }, @{ $own_conditions };
+            return ($params->{'username'} || $params->{'email'}, $Actions::SET_ROLE);
+        }
     }
 
-    return undef;
+    return (undef, undef);
 }
 
 =head2 test
@@ -648,6 +654,7 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
 
 # vim: set shiftwidth=4:

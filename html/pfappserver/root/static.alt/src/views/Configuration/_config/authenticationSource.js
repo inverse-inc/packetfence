@@ -138,14 +138,21 @@ const administrationRuleActions = (form, meta = {}) => {
   ]
 }
 
-const authenticationRuleActions = () => {
+const authenticationRuleActions = (form, meta = {}) => {
+  const { sourceType = null } = meta
   return [
-    pfActions.set_role_by_name,
-    pfActions.set_access_duration,
-    pfActions.set_unreg_date,
-    pfActions.set_time_balance,
-    pfActions.set_bandwidth_balance
-  ]
+    ...[
+        pfActions.set_role_by_name,
+        pfActions.set_access_duration,
+        pfActions.set_unreg_date,
+        pfActions.set_time_balance,
+        pfActions.set_bandwidth_balance
+      ],
+    ...((['AD', 'LDAP'].includes(sourceType))
+      ? [pfActions.set_role_on_not_found]
+      : []
+    )
+   ]
 }
 
 export const viewFields = {

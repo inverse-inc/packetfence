@@ -78,7 +78,7 @@ sub available_actions {
     return \@actions;
 }
 
-=head2 match_in_subclass
+=head2 match
 
 =cut
 
