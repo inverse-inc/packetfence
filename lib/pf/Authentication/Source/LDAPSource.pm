@@ -533,10 +533,6 @@ sub ldap_filter_for_conditions {
               $str = "${attribute}=${value}*";
           } elsif ($operator eq $Conditions::ENDS) {
               $str = "${attribute}=*${value}";
-          } elsif ($operator eq 'advance') {
-              @ldap_conditions = ();
-              $expression = $condition->{'value'};
-              last;
           }
 
           if ($str) {
