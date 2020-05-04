@@ -122,7 +122,7 @@ export const pfFieldTypeOperators = {
     { text: 'is member of', value: 'is member of' }
   ],
   [pfFieldType.LDAPFILTER]: [
-    { text: 'match_filter', value: 'match_filter' }
+    { text: 'match filter', value: 'match filter' }
   ],
   [pfFieldType.SUBSTRING]: [
     { text: 'starts', value: 'starts' },
