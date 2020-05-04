@@ -79,7 +79,7 @@
               </b-list-group-item>
             </b-list-group>
 
-            <b-button-group class="mb-3 btn-block">
+            <b-button-group class="mb-3 btn-block" :disabled="!events || !events.length">
               <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy Log') }}</b-button>
               <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save Log') }}</b-button>
               <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear Log') }}</b-button>
@@ -122,6 +122,7 @@
           </div>
         </b-col>
         <b-col sm="9" class="pl-0">
+
           <div editable="true" readonly="true" class="log scroll-reverse">
             <div class="scroll-reverse-only-child">
               <div class="text-raw" v-if="events" v-html="events.map(event => event.data.raw).join('<br/>')" />
@@ -134,6 +135,7 @@
             -->
             </div>
           </div>
+
         </b-col>
       </b-row>
     </b-card-body>
@@ -312,7 +314,7 @@ export default {
     saveEvents () {
       // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`)) // doesn't allow naming
       let blob = new Blob([this.events.map(event => event.data.raw).join('\r\n')], { type: 'text/plain' })
-      let filename = this.session.name + (this.session.name.slice(-4) === '.log') ? '' : '.log'
+      let filename = this.session.name + ((this.session.name.slice(-4) === '.log') ? '' : '.log')
       if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(blob, filename)
       } else {

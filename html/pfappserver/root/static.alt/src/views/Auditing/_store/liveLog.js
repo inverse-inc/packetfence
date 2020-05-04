@@ -154,10 +154,10 @@ const addMeta = (scopes, event) => {
   const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
   for (let key of Object.keys(meta)) {
     if (!(key in scopes)) {
-      scopes[key].values = { [meta[key]]: { count: 1 } }
+      Vue.set(scopes[key], 'values', { [meta[key]]: { count: 1 } })
     }
     else if (!(meta[key] in scopes[key].values)) {
-      scopes[key].values = Object.entries({
+      Vue.set(scopes[key], 'values', Object.entries({
         ...scopes[key].values,
         [meta[key]]: { count: 1 }
       }).sort(([a], [b]) => {
@@ -166,10 +166,10 @@ const addMeta = (scopes, event) => {
         return +a - +b
       }).reduce((r, [k, v]) => {
         return { ...r, [k]: v }
-      }, {})
+      }, {}))
     }
     else {
-      scopes[key].values[meta[key]].count++
+      Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count + 1)
     }
   }
 }
@@ -177,7 +177,7 @@ const addMeta = (scopes, event) => {
 const delMeta = (scopes, event) => {
   const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
   for (let key of Object.keys(meta)) {
-    scopes[key].values[meta[key]].count--
+    Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count - 1)
   }
 }
 
@@ -269,9 +269,9 @@ const mutations = {
     state.events = []
   },
   CLEAR_COUNTS: (state) => {
-    for(let [k1 , { values = {} }] of Object.entries(state.scopes)) {
-      for(let [k2 , { count = 0 } ] of Object.entries(values)) {
-        Vue.set(state.scopes[k1].values[k2], 'count', 0)
+    for(let [scope, { values = {} }] of Object.entries(state.scopes)) {
+      for(let [key, { count = 0 } ] of Object.entries(values)) {
+        Vue.set(state.scopes[scope].values[key], 'count', 0)
       }
     }
   }
