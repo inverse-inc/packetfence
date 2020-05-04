@@ -99,6 +99,7 @@ testcases:
         "{{.dot1x_eap_peap.roles.ad_machine.id}}Role": null,
         "{{.dot1x_eap_peap.roles.ad_machine.id}}Url": null,
         "{{.dot1x_eap_peap.roles.ad_machine.id}}Vlan": "{{.dot1x_eap_peap.roles.ad_machine.vlan_id}}",
+        "{{.role_headless_device}}Vlan": "{{.vlan_headless_device}}",
         "voiceAccessList": null,
         "voiceRole": null,
         "voiceUrl": null,

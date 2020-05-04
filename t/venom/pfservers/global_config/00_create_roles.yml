@@ -35,3 +35,22 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201      
     
+- name: create_role_headless_device
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.role_headless_device}}",
+        "max_nodes_per_pid":0,
+        "notes":"Venom test"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+
