@@ -123,8 +123,8 @@ sub validate {
     my $value = $self->value;
     if ($value->{operator} eq 'advance') {
         my $filter = Net::LDAP::Filter->new($value->{value});
-        if (!defined $field) {
-            $self->field('value')->add_error($Net::LDAP::Filter::ErrStr);
+        if (!defined $filter) {
+            $self->field('value')->add_error(Net::LDAP::Filter::errstr());
         }
     }
 }
