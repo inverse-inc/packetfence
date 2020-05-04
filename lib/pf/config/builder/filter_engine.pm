@@ -194,6 +194,10 @@ sub buildCondition {
         die "op '$op' not handled";
     }
 
+    if ($ast eq 'true') {
+        return pf::condition::true->new;
+    }
+
     die "condition '$ast' not defined\n";
 }
 
