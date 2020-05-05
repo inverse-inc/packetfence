@@ -151,7 +151,6 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'regex',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'regex')
-              }
             }
           ]
         },
