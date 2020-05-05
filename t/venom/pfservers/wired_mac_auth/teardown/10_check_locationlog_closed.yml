@@ -1,0 +1,30 @@
+name: Check if node01 latest locationlog is closed
+version: 2
+testcases:
+- name: check_node01_locationlog_closed
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/locationlogs/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": "0",
+        "limit": 100,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "field": "mac",
+              "op": "equals",
+              "value": "{{.node01_eth1_mac_address}}"
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldNotContainSubstring '0000-00-00 00:00:00'
