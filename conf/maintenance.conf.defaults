@@ -15,10 +15,10 @@ status=enabled
 # The description of task
 description=Task that controls the inline accounting maintenance (bandwidth checks).
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 
 [auth_log_cleanup]
 # 
@@ -37,10 +37,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the auth_log table. Entries older than the window will be removed from the table.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -74,10 +74,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the CHI cache database storage.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 10s
+schedule=@every 10s
 #
 # batch
 #
@@ -106,10 +106,10 @@ status=enabled
 # The description of task
 description=Task that checks the health state of the cluster and attempts to resolve any detected conflicts.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 1m
+schedule=@every 1m
 
 [fingerbank_data_update]
 # 
@@ -128,10 +128,10 @@ status=enabled
 # The description of task
 description=Task that controls updates of the local Fingerbank data from the cloud API.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 24h
+schedule=@every 24h
 
 [inline_accounting_maintenance]
 # 
@@ -150,10 +150,10 @@ status=enabled
 # The description of task
 description=Task that controls the inline accounting maintenance (bandwidth checks).
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 
 [ip4log_cleanup]
 # 
@@ -172,10 +172,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup and rotation of IP entries in IPv4 tables.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -229,10 +229,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup and rotation of IP entries in IPv6 tables.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -286,10 +286,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the locationlog table. Entries older than the window will be removed from the table.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -323,10 +323,10 @@ status=disabled
 # The description of task
 description=Controls the actions made on inactive nodes (based on the last_seen attribute of the node).
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # window
 #
@@ -360,10 +360,10 @@ status=enabled
 # The description of task
 description=Task to unregister nodes that have an unregistration date older than the current date and time.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 
 [option82_query]
 # 
@@ -382,10 +382,10 @@ status=enabled
 # The description of task
 description=Task to query compatible switches for DHCP Option 82 switch MAC address.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 23h
+schedule=@every 23h
 
 [person_cleanup]
 # 
@@ -404,10 +404,10 @@ status=disabled
 # The description of task
 description=Task to delete users that do not own any device. Locally created users will only be deleted when their account expires.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 
 [populate_ntlm_redis_cache]
 # 
@@ -426,10 +426,10 @@ status=disabled
 # The description of task
 description=Task to control the population of the Active Directory NTLM cache.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 0s
+schedule=@every 0s
 
 [provisioning_compliance_poll]
 # 
@@ -448,10 +448,10 @@ status=enabled
 # The description of task
 description=Task that runs the polling enforcement on the provisioners.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 300s
+schedule=@every 300s
 
 [radius_audit_log_cleanup]
 # 
@@ -470,10 +470,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the radius_audit_log table. Entries older than the window will be removed from the table.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -507,10 +507,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the dns_audit_log table. Entries older than the window will be removed from the table.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -544,10 +544,10 @@ status=enabled
 # The description of task
 description=Task that controls the execution of delayed security_event.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -576,10 +576,10 @@ status=enabled
 # The description of task
 description=Cache switches LLDP local port descriptions
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 12h
+schedule=@every 12h
 #
 # process_switchranges
 #
@@ -603,10 +603,10 @@ status=enabled
 # The description of task
 description=Check for SSL certificates validity
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 12h
+schedule=@every 12h
 #
 # delay
 #
@@ -635,10 +635,10 @@ status=enabled
 # The description of task
 description=Task to generate password of the day.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 
 [acct_cleanup]
 # 
@@ -657,10 +657,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the accounting tables (radacct and radacct_log). Entries older than the window will be removed from the table.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -694,10 +694,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the admin_api_audit_log table. Entries older than the window will be removed from the table.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 1h
+schedule=@every 1h
 #
 # batch
 #
@@ -731,10 +731,10 @@ status=enabled
 # The description of task
 description=Controls the aggregation of the bandwidth accounting records.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 60s
+schedule=@every 60s
 #
 # batch
 #
@@ -783,10 +783,10 @@ status=enabled
 # The description of task
 description=Controls the cleanup of the bandwidth accounting sessions. The task has an interval of 0 since it runs manually through a cronjob.
 # 
-# cronspec
+# schedule
 # 
 # The schedule of task
-cronspec=@every 0s
+schedule=@every 0s
 #
 # batch
 #
