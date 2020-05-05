@@ -160,7 +160,7 @@ sub _parse_var {
         return _optimize([['S', '$'], _optimize( _parse_text($_[0]) )]);
     }
     
-    if (/\G\{/gc) {
+    if (/\G\{\s*/gc) {
         my @names = _parse_var_names();
         if (@names == 0) {
             die format_parse_error("Invalid variable name", $_, pos);
