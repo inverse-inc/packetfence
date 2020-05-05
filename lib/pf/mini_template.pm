@@ -42,22 +42,23 @@ sub new {
 }
 
 sub process {
-    my ($self, $vars) = @_;
-    return join('', $self->process_tmpl($self->{tmpl}, $vars));
+    my ($self, $vars, $funcs) = @_;
+    $funcs //= \%FUNCS;
+    return join('', $self->process_tmpl($self->{tmpl}, $vars, $funcs));
 }
 
 sub process_tmpl {
-    my ($self, $tmpl, $vars) = @_;
+    my ($self, $tmpl, $vars, $funcs) = @_;
     my $type = $tmpl->[0];
     if (!ref ($type)) {
-        return $self->process_simple_tmpl($tmpl, $vars);
+        return $self->process_simple_tmpl($tmpl, $vars, $funcs);
     }
 
-    return map {my $t = $_; $self->process_tmpl($t, $vars)} @$tmpl;
+    return map {my $t = $_; $self->process_tmpl($t, $vars, $funcs)} @$tmpl;
 }
 
 sub process_simple_tmpl {
-    my ($self, $tmpl, $vars) = @_;
+    my ($self, $tmpl, $vars, $funcs) = @_;
     my $type = $tmpl->[0];
     if ($type eq 'S') {
         return $tmpl->[1];
@@ -83,11 +84,11 @@ sub process_simple_tmpl {
         return $v->{$last};
     } elsif ($type eq 'F') {
         my $n = $tmpl->[1];
-        if (!exists $FUNCS{$n}) {
+        if (!exists $funcs->{$n}) {
             die "func $n is not defined\n";
         }
 
-        return $FUNCS{$n}->(map {my $t = $_;$self->process_simple_tmpl($t, $vars)} @{$tmpl->[2]});
+        return $funcs->{$n}->(map {my $t = $_;$self->process_simple_tmpl($t, $vars, $funcs)} @{$tmpl->[2]});
     }
 
     return '';
