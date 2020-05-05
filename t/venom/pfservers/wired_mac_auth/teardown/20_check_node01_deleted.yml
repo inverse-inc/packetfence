@@ -45,6 +45,9 @@ testcases:
           "mac"
         ]
       }
+    # failed after 3 tries of 5 seconds
+    retry: 3
+    delay: 5
     headers:
       "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
