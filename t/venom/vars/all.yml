@@ -72,3 +72,10 @@ dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap_peap_mschapv2
 dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP-PEAP-MSCHAPv2
 dot1x_eap_peap.profiles.wired.filters.connection_type: Ethernet-EAP
 dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
+
+################################################################################
+## backup db and restore test suite specific variables
+#################################################################################
+# Create user for db
+backup_db_and_restore.create_user: adminvenom
+

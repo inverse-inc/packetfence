@@ -1,0 +1,63 @@
+name: Backup db and restore 
+version: 2
+testcases:
+- name: create_users
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/users'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "pid": "{{.backup_db_and_restore.create_user}}",
+          "sponsor": "admin",
+          "actions": [
+            {
+              "type": "set_access_level",
+              "value": "NONE"
+            }
+          ]
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201
+
+- name: Backup
+  steps:
+  - script: /usr/local/pf/addons/backup-and-maintenance.sh
+
+- name: get_backup_name
+  steps:
+  - script: 'find /root/backup/ -name "packetfence-db-dump-*.sql.gz" -mmin -5'
+    vars: 
+      backup_name:
+        from: result.systemout
+
+- name: unzip_db_backup
+  steps:
+  - script: 'gunzip {{.get_backup_name.backup_name}}'
+
+- name: remove_db_pf
+  steps:
+  - script: mysql -u root -p{{.MYSQL_PWD}} -e "drop database pf;"
+
+- name: create_db_pf
+  steps:
+  - script: mysql -u root -p{{.MYSQL_PWD}} -e "create database pf;"
+
+- name: restore_schema
+  steps:
+  - script: 'mysql -u root -p{{.MYSQL_PWD}} pf < /usr/local/pf/db/pf-schema-10.0.0.sql'
+
+- name: get_backup_name_uncompressed
+  steps:
+  - script: 'find /root/backup/ -name "packetfence-db-dump-*.sql" -mmin -5'
+    vars:
+      backup_name_uncompressed:
+        from: result.systemout
+
+- name: inject_backup_db
+  steps:
+  - script: 'mysql -u root -p{{.MYSQL_PWD}} pf < {{.get_backup_name_uncompressed.backup_name_uncompressed}}'
