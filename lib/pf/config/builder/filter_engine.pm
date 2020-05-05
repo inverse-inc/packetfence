@@ -69,14 +69,31 @@ sub buildEntry {
     expand_ordered_array($entry, 'actions', 'action');
     expand_ordered_array($entry, 'answers', 'answer');
     expand_ordered_array($entry, 'params', 'param');
-    $entry->{actions} = [
+    $entry->{actions} = $self->updateActions($buildData, $id, $entry, $entry->{actions});
+    $entry->{answers} = $self->updateAnswers($buildData, $id, $entry, $entry->{answers});
+    $entry->{params} = $self->updateParams($buildData, $id, $entry, $entry->{params});
+    $self->buildFilter($buildData, $conditions, $entry);
+    return undef;
+}
+
+sub updateParams {
+    my ($self, $buildData, $id, $entry, $params) = @_;
+    return $params;
+}
+
+sub updateAnswers {
+    my ($self, $buildData, $id, $entry, $answers) = @_;
+    return $answers;
+}
+
+sub updateActions {
+    my ($self, $buildData, $id, $entry, $actions) = @_;
+    return [
         map {
             my ( $err, $spec ) = pf::action_spec::parse_action_spec($_);
             $err ? () : ($spec)
-        } @{ $entry->{actions} }
+        } @{$actions}
     ];
-    $self->buildFilter($buildData, $conditions, $entry);
-    return undef;
 }
 
 =head2 _error
