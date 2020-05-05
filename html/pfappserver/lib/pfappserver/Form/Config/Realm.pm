@@ -35,6 +35,15 @@ has_field 'id' =>
    },
   );
 
+has field 'regex' =>
+  (
+   type => 'Text',
+   label => 'Regex Realm',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'You can define here a regex that define the realm' },
+  );
+
 has_field 'options' =>
   (
    type => 'TextArea',

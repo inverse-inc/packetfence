@@ -29,6 +29,11 @@ export const columns = [
     visible: true
   },
   {
+    key: 'regex',
+    label: 'Regex Realm', // i18n defer
+    visible: true
+  },
+  {
     key: 'domain',
     label: 'Domain', // i18n defer
     sortable: true,
@@ -135,6 +140,17 @@ export const view = (form = {}, meta = {}) => {
                 ...{
                   disabled: (!isNew && !isClone)
                 }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Regex Realm'),
+          cols: [
+            {
+              namespace: 'regex',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'regex')
               }
             }
           ]
