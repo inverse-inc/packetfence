@@ -146,6 +146,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Regex Realm'),
+          text: i18n.t('You can define a regex realm if needed.'),
           cols: [
             {
               namespace: 'regex',

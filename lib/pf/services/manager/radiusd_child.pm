@@ -691,10 +691,16 @@ sub generate_radiusd_proxy {
     $tags{'radius_sources'} = '';
     my @radius_sources;
 
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( keys %pf::config::ConfigRealm ) {
         my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
+        my $real_realm;
+        if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+            $real_realm = "\"".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
+        } else {
+            $real_realm = $realm;
+        }
         $tags{'config'} .= <<"EOT";
-realm $realm {
+realm $real_realm {
 $options
 EOT
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
