@@ -17,7 +17,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
     
-- name: change_delete_window_to_1M
+- name: change_delete_window_to_1m
   steps:
   - type: http
     method: PATCH
