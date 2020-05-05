@@ -87,9 +87,6 @@ backup_db_and_restore.backup_dir: /root/backup
 #################################################################################
 role_headless_device: headless_device
 vlan_headless_device: 20
-
-
-mac_authentication.profiles.wired.id: catch_wired_mac_authentication
-mac_authentication.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
-mac_authentication.profiles.wired.filters.connection_type: Ethernet-NoEAP
-
+wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
+wired_mac_auth.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
+wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
