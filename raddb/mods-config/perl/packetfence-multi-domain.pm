@@ -61,13 +61,24 @@ sub authorize {
     my $realm_config;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
     if ($user_name =~ /^host\/([0-9a-zA-Z-_]+)\.(.*)$/) {
-        $realm_config = $ConfigRealm{lc($2)};
+        if (exists $ConfigRealm{lc($2)}) {
+            $realm_config = $ConfigRealm{lc($2)};
+        }
     } elsif (defined $RAD_REQUEST{"Realm"}) {
-        $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+        if (exists $ConfigRealm{$RAD_REQUEST{"Realm"}}) {
+            $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+        }
     }
 
     if ( !defined($realm_config) && defined($ConfigRealm{"default"}) ) {
-        $realm_config = $ConfigRealm{"default"};
+        foreach my $key (keys %ConfigRealm) {
+            if (defined($ConfigRealm{$key}->{regex}) && $user_name =~ /$ConfigRealm{$key}->{regex}/) {
+                $realm_config = $ConfigRealm{$key};
+            }
+        }
+        unless (defined $realm_config) {
+            $realm_config = $ConfigRealm{"default"};
+        }
     }
 
     #use Data::Dumper;
