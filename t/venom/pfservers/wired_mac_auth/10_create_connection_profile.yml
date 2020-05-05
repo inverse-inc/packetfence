@@ -48,7 +48,7 @@ testcases:
         "sms_request_limit": 0,
         "sources": null,
         "status": "enabled",
-        "unreg_on_acct_stop": "enabled",
+        "unreg_on_acct_stop": "{{.wired_mac_auth.profiles.wired.unreg_on_acct_stop}}",
         "vlan_pool_technique": "username_hash"
       }
     headers:
