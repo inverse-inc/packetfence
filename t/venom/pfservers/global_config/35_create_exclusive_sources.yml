@@ -1,0 +1,20 @@
+name: Create exclusive sources
+version: 2
+testcases:
+- name: create_exclusive_sources
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
+      ignore_verify_ssl: true
+      body: >-
+        { 
+          "description": "{{.description_exclusive_sources}}",
+          "id": "{{.id_exclusive_sources}}",
+          "type": "Blackhole"
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201

@@ -30,6 +30,9 @@ switch01_mgmt_ip: 172.17.17.201
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
 nodes_test_suite_dir: /src/t/venom/nodes
+node_mac: aa:aa:aa:bb:bb:11
+node_unregdate: 2020-07-23 12:00:00
+
 
 # Access durations
 access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
@@ -48,6 +51,26 @@ cumulus_switch_group.radiusSecret: testing123
 # Switch
 cumulus_switch.id: '{{.switch01_mgmt_ip}}'
 cumulus_switch.description: switch01
+
+# User
+create_user: venomuser
+password_user: qwerty
+mail_user: test@inverse.ca
+registration_user: 2020-04-13 00:00:00
+expliration_user: 2020-07-23 12:00:00
+
+# Internal source
+id_internal_sources: pass_of_the_day
+description_password_of_the_day: password_of_the_day_test
+
+# External source
+id_external_sources: null_test
+description_null_source: null_test
+
+# Exclusive source
+id_exclusive_sources: blackhole_test
+description_exclusive_sources: blackhole_test
+
 
 ################################################################################
 # dot1x_eap_peap test suite specific variables
@@ -72,3 +95,5 @@ dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap_peap_mschapv2
 dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP-PEAP-MSCHAPv2
 dot1x_eap_peap.profiles.wired.filters.connection_type: Ethernet-EAP
 dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
+
+

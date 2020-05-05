@@ -1,0 +1,20 @@
+name: Create external source 
+version: 2
+testcases:
+- name: create_external_sources
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "description": "{{.description_null_source}}",
+          "id": "{{.id_external_sources}}",
+          "type": "Null"
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201

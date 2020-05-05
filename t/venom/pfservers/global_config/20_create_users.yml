@@ -1,0 +1,61 @@
+name: Create users
+version: 2
+testcases:
+- name: create_users
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/users'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "pid_overwrite": "0",
+          "pid": "{{.create_user}}",
+          "email": "{{.mail_user}}",
+          "sponsor": "admin",
+          "password": "{{.password_user}}",
+          "valid_from": "{{.registration_user}}",
+          "expiration": "{{.expliration_user}}",
+          "actions": [ 
+            {
+              "type": "set_access_level",
+              "value": "NONE"
+            }   
+          ]
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201
+    
+- name: create_password
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/user/{{.create_user}}/password'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "quiet": "true",
+          "pid_overwrite": "0",
+          "pid": "{{.create_user}}",
+          "email": "{{.mail_user}}",
+          "sponsor": "admin",
+          "password": "{{.password_user}}",
+          "valid_from": "{{.registration_user}}",
+          "expiration": "{{.expliration_user}}",
+          "access_level": "NONE",
+          "actions": [
+            {
+              "type": "set_access_level",
+              "value": "NONE"
+            }
+          ]
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201
+
