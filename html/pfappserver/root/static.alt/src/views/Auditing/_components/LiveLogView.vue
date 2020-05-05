@@ -85,6 +85,56 @@
               <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear Log') }}</b-button>
             </b-button-group>
 
+            <b-row class="mb-3">
+              <b-col cols="6">
+                <b-button-group class="btn-block" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
+                  <b-button @click="options.background = 'white'" :active="options.background === 'white'" variant="outline-dark">
+                    <icon name="font" class="text-dark" />
+                  </b-button>
+                  <b-button @click="options.background = 'black'" :active="options.background === 'black'" variant="dark">
+                    <icon name="font" class="text-white" />
+                  </b-button>
+                </b-button-group>
+              </b-col>
+              <b-col cols="6">
+                <small>
+                  <pf-form-range-toggle
+                    v-model="options.output"
+                    :values="{checked: 'color', unchecked: 'raw'}"
+                    :colors="{checked: 'var(--primary)', unchecked: 'var(--secondary)'}"
+                    :rightLabels="{checked: $t('Color'), unchecked: $t('Raw')}"
+                    class="text-nowrap"
+                  />
+                </small>
+              </b-col>
+            </b-row>
+            <b-row class="mb-3">
+              <b-col cols="6">
+                <b-button-group class="btn-block" :title="$i18n.t('Choose size')" v-b-tooltip.hover.top.d300>
+                  <b-button @click="options.size = 'small'" :active="options.size === 'small'" variant="outline-secondary">
+                    <icon name="font" scale="0.75" />
+                  </b-button>
+                  <b-button @click="options.size = 'normal'" :active="options.size === 'normal'" variant="outline-secondary">
+                    <icon name="font" scale="1" />
+                  </b-button>
+                  <b-button @click="options.size = 'large'" :active="options.size === 'large'" variant="outline-secondary">
+                    <icon name="font" scale="1.25" />
+                  </b-button>
+                </b-button-group>
+              </b-col>
+              <b-col cols="6">
+                <small>
+                  <pf-form-range-toggle
+                    v-model="options.order"
+                    :values="{checked: 'reverse', unchecked: 'forward'}"
+                    :colors="{checked: 'var(--primary)', unchecked: 'var(--secondary)'}"
+                    :rightLabels="{checked: $t('Bottom to top'), unchecked: $t('Top to bottom')}"
+                    class="text-nowrap"
+                  />
+                </small>
+              </b-col>
+            </b-row>
+
             <small :key="scope" class="ml-1">{{ $i18n.t('Buffer Size') }}</small>
             <pf-form-chosen
               v-model="size"
@@ -123,16 +173,34 @@
         </b-col>
         <b-col sm="9" class="pl-0">
 
-          <div editable="true" readonly="true" class="log scroll-reverse">
-            <div class="scroll-reverse-only-child">
-              <div class="text-raw" v-if="events" v-html="events.map(event => event.data.raw).join('<br/>')" />
-            <!--
-              <div v-for="event in events" :key="event">
-                <div class="line text-raw">
-                  {{ event.data.raw }}
+          <div editable="true" readonly="true" class="log" :class="{
+            'scroll-forward': options.order === 'forward',
+            'scroll-reverse': options.order === 'reverse',
+            'background-white': options.background === 'white',
+            'background-black': options.background === 'black',
+            'size-small': options.size === 'small',
+            'size-normal': options.size === 'normal',
+            'size-large': options.size === 'large'
+          }">
+            <div class="scroll-only-child">
+              <div v-if="events && options.output === 'raw'"
+                class="text-raw px-3 py-1" v-html="events.map(event => event.data.raw).join('<br/>')" />
+
+              <div v-else-if="events && options.output === 'color'" class="text-raw px-2 py-1">
+                <div v-for="event in events" :key="event">
+                  <span class="log-timestamp" v-if="event.data.meta.timestamp"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.timestamp }}</span>
+                  <span class="log-hostname" v-if="event.data.meta.hostname"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.hostname }}</span>
+                  <span class="log-syslog" v-if="event.data.meta.syslog_name"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.syslog_name }}</span>
+                  <span class="log-process" v-if="event.data.meta.process"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.process }}</span>
+                  <span class="log-level" v-if="event.data.meta.log_level"
+                  :class="`text-line log-level-${(event.data.meta.log_level) ? event.data.meta.log_level : 'none'}`">{{ event.data.meta.log_level }}</span>
+                  {{ event.data.meta.log_without_prefix }}
                 </div>
               </div>
-            -->
             </div>
           </div>
 
@@ -194,8 +262,18 @@ export default {
         this.$store.dispatch(`$_live_logs/${this.id}/setSession`, newSession)
       }
     },
+    options: {
+      get () {
+        return this.$store.getters[`$_live_logs/${this.id}/options`]
+      },
+      set (newOptions) {
+        this.$store.dispatch(`$_live_logs/${this.id}/setOptions`, newOptions)
+      }
+    },
     events () {
-      return this.$store.getters[`$_live_logs/${this.id}/eventsFiltered`]
+      return (this.options.order === 'reverse')
+        ? this.$store.getters[`$_live_logs/${this.id}/eventsFiltered`].slice().reverse()
+        : this.$store.getters[`$_live_logs/${this.id}/eventsFiltered`]
     },
     scopes () {
       return this.$store.getters[`$_live_logs/${this.id}/scopes`]
@@ -351,18 +429,89 @@ export default {
 .log {
   display: flex;
   align-items: flex-end;
+
+  &.background-black {
+    color: rgba(255, 255, 255, 1);
+    background: rgba(0, 0, 0, 1);
+
+    .log-timestamp,
+    .log-hostname,
+    .log-level,
+    .log-process,
+    .log-syslog {
+      color: rgba(0, 0, 0, 1);
+    }
+  }
+  &.background-white {
+    color: rgba(0, 0, 0, 1);
+    background: rgba(255, 255, 255, 1);
+
+    .log-timestamp,
+    .log-hostname,
+    .log-level,
+    .log-process,
+    .log-syslog {
+      color: rgba(255, 255, 255, 1);
+    }
+  }
+  &.size-small {
+    font-size: 0.75em;
+  }
+  &.size-normal {
+    font-size: 1em;
+  }
+  &.size-large {
+    font-size: 1.5em;
+  }
+
+  .text-line {
+    line-height: 1.5rem;
+    margin: .25rem 0;
+
+    &.log-level-none {
+      background: var(--secondary);
+    }
+    &.log-level-info {
+      background: var(--info);
+    }
+    &.log-level-warn {
+      background: var(--warning);
+    }
+    &.log-level-error {
+      background: var(--danger);
+    }
+
+    &.log-timestamp,
+    &.log-hostname,
+    &.log-level,
+    &.log-process,
+    &.log-syslog {
+      margin: 0 .5rem 0 0;
+      padding: .25rem .5rem;
+      border: 1px solid;
+      border-radius: .25rem;
+    }
+
+
+  }
+
 }
 
 /*
  reverse content, pin vertical scrollbar to the bottom,
    reverses content only on immediate children
 */
-.scroll-reverse {
+.scroll-forward {
   flex-direction: column-reverse;
+}
+.scroll-reverse {
+  flex-direction: column;
 }
 
 /*
   placeholder, only immediate children are reversed
 */
-.scroll-reverse-only-child {}
+.scroll-only-child {
+  width: 100%
+}
 </style>

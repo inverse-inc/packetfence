@@ -20,6 +20,12 @@ const state = () => {
       filter: null,
       filter_is_regexp: false
     },
+    options: {
+      background: 'white',
+      size: 'normal',
+      order: 'forward',
+      output: 'raw'
+    },
     events: [],
     filters: {},
     scopes: {
@@ -84,13 +90,17 @@ const getters = {
     })
   },
   size: state => state.size,
-  lines: state => state.lines
+  lines: state => state.lines,
+  options: state => state.options
 }
 
 const actions = {
   setSession: ({ commit, dispatch }, session) => {
     commit('SET_SESSION', session)
     dispatch('getSession')
+  },
+  setOptions: ({ commit }, options) => {
+    commit('SET_OPTIONS', options)
   },
   stopSession: ({ state, commit }) => {
     commit('LOG_SESSION_STOPPING')
@@ -184,6 +194,9 @@ const delMeta = (scopes, event) => {
 const mutations = {
   SET_SESSION: (state, session) => {
     state.session = session
+  },
+  SET_OPTIONS: (state, options) => {
+    state.options = options
   },
   LOG_SESSION_QUEUE: (state, dispatch) => {
     if (!state.debouncer) {
