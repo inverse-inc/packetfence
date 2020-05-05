@@ -54,7 +54,7 @@ sub build {
         return {};
     }
 
-    my $builder = pf::config::builder::filter_engine->new;
+    my $builder = $self->builder();
     my ($errors, $accessScopes) = $builder->build($ini);
     for my $err (@{ $errors // [] }) {
         my $error_msg =  "$file: $err->{rule}) $err->{message}";
@@ -64,6 +64,10 @@ sub build {
 
     $self->{errors} = $errors;
     return $accessScopes;
+}
+
+sub builder {
+    return pf::config::builder::filter_engine->new;
 }
 
 =head1 AUTHOR
