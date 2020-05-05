@@ -235,9 +235,9 @@ EOT
             }
             $flag = $FALSE;
             if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                $tags{'userPrincipalName'} .= "if (User-Name =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/) {");
+                $tags{'userPrincipalName'} .= "if (User-Name =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/) {";
             } else {
-                $tags{'userPrincipalName'} .= "if (Realm == \"$realm\") {");
+                $tags{'userPrincipalName'} .= "if (Realm == \"$realm\") {";
             }
             $tags{'userPrincipalName'} .= <<"EOT";
             $pf::config::ConfigRealm{$realm}->{ldap_source}
@@ -464,10 +464,10 @@ EOT
         $tags{'reject_realm'} = '';
         my @reject_realms;
         foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
-                 if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                     push (@reject_realms, "User-Name =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
+                 if (defined $pf::config::ConfigRealm{$reject_realm}->{'regex'} && $pf::config::ConfigRealm{$reject_realm}->{'regex'} ne '') {
+                     push (@reject_realms, "User-Name =~ /$pf::config::ConfigRealm{$reject_realm}->{'regex'}/");
                  } else {
-                     push (@reject_realms, "Realm == \"$realm\"");
+                     push (@reject_realms, "Realm == \"$reject_realm\"");
                  }
         }
         if (@reject_realms) {
