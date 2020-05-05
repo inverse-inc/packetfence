@@ -35,7 +35,7 @@ has_field 'id' =>
    },
   );
 
-has field 'regex' =>
+has_field 'regex' =>
   (
    type => 'Text',
    label => 'Regex Realm',
