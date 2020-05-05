@@ -1,6 +1,13 @@
 name: Create node01 with the mac 00:03:00:11:11:01, assign the role headless_device and an unregdate of 1 minute
 version: 2
 testcases:
+- name: get_unreg_date
+  steps:
+  - type: exec
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='next minute'"
+    vars:
+      node01_unreg_date:
+        from: result.systemout   
 - name: create_node01
   steps:
   - type: http
@@ -15,7 +22,7 @@ testcases:
         "pid": null,
         "status": "reg",
         "unreg_date": null,
-        "unregdate": "{{.node01_unreg_date}}"
+        "unregdate": "{{.get_unreg_date.node01_unreg_date}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
