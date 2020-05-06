@@ -13,6 +13,60 @@ pf::config::builder::filter_engine::radius
 use strict;
 use warnings;
 use base qw(pf::config::builder::filter_engine);
+use pf::mini_template;
+use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
+
+sub updateAnswers {
+    my ($self, $buildData, $id, $entry, $answers) = @_;
+    my ($errors, $attrs) = make_radius_attribute_set($answers);
+    return $attrs;
+}
+
+sub make_radius_attribute_set {
+    my ($radius_attr_set) = @_;
+    my @errors;
+    my @set = map { make_radius_attribute(\@errors, $_)  } @$radius_attr_set;
+    return (@errors ? \@errors : undef ), \@set;
+}
+
+=head2 make_radius_attribute
+
+make_radius_attribute
+
+=cut
+
+sub make_radius_attribute {
+    my ($errors, $ra) = @_;
+    my ($n, $tmpl_text) = split /\s*=\s*/, $ra, 2;
+    if (!defined $tmpl_text) {
+        push @{$errors}, { name => 'unknown', text => $ra, message => "is not a valid radius attribute" };
+        return;
+    }
+
+    my $v;
+    if ($n =~ /([^:]+):(.*)/) {
+        $n = $2;
+        $v = $1;
+    } else {
+        if (exists $RADIUS_DICTIONARY->{avendors}{$n}) {
+            $v = $RADIUS_DICTIONARY->{avendors}{$n};
+        }
+    }
+
+    my $attr = {
+        name => $n, (defined $v ? (vendor => $v ) : () )
+    };
+
+    my $tmpl = eval {
+        pf::mini_template->new($tmpl_text)
+    };
+    if ($@) {
+        push @{$errors}, { %$attr, message => $@, text => $ra };
+        return;
+    }
+    $attr->{tmpl} = $tmpl;
+    return $attr;
+}
 
 =head1 AUTHOR
 
