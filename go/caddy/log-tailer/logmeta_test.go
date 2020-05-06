@@ -106,3 +106,20 @@ func TestApacheErrorMetaExtractor(t *testing.T) {
 		t.Error("Unexpected process name", res.Process)
 	}
 }
+
+func TestLogWithoutPrefix(t *testing.T) {
+	line := "May  5 15:17:20 packetfence pfipset[5249]: t=2020-05-05T15:17:20-0400 lvl=info msg=\"Reloading ipsets\" pid=5249"
+	res := NewRsyslogMetaEngine().ExtractMeta(line)
+
+	if res.LogWithoutPrefix != "t=2020-05-05T15:17:20-0400 lvl=info msg=\"Reloading ipsets\" pid=5249" {
+		t.Error("Unexpected value for LogWithoutPrefix", res.LogWithoutPrefix)
+	}
+
+	line = `Apr 27 08:36:13 vpf1 httpd_aaa_err: Use of uninitialized value $roleName in hash element at /usr/local/pf/lib/pf/Switch.pm line 591.`
+	res = NewRsyslogMetaEngine().ExtractMeta(line)
+
+	if res.LogWithoutPrefix != "Use of uninitialized value $roleName in hash element at /usr/local/pf/lib/pf/Switch.pm line 591." {
+		t.Error("Unexpected value for LogWithoutPrefix", res.LogWithoutPrefix)
+	}
+
+}

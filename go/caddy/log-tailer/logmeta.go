@@ -127,7 +127,7 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 			"pfsso":                         &golangMetaExtractor,
 			"pfstats":                       &golangMetaExtractor,
 		},
-		GlobalExtractionRe:  regexp.MustCompile(`(?i)^([a-z]+\s*[0-9]{1,2}\s*[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s(.+?)\s(.+?)(:|\[)(.+)`),
+		GlobalExtractionRe:  regexp.MustCompile(`(?i)^([a-z]+\s*[0-9]{1,2}\s*[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s(.+?)\s(.+?)(:|\[\d+\]:)(.+)`),
 		TimestampPos:        1,
 		HostnamePos:         2,
 		SyslogNamePos:       3,
