@@ -162,7 +162,7 @@ EOT
 
     $tags{'local_realm'} = '';
     my @realms;
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( keys %pf::config::ConfigRealm ) {
         if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'})) {
             if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
                 push (@realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
@@ -222,7 +222,7 @@ EOT
 
     $tags{'userPrincipalName'} = '';
     my $flag = $TRUE;
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( keys %pf::config::ConfigRealm ) {
         if (isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'}) && (scalar @{$ConfigAuthenticationLdap{$pf::config::ConfigRealm{$realm}->{ldap_source}}->{searchattributes}})) {
             if ($flag) {
                 $tags{'userPrincipalName'} .= <<"EOT";
@@ -902,7 +902,7 @@ EOT
     undef %tags;
     my $real_realm;
 
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( keys %pf::config::ConfigRealm ) {
         if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
             $real_realm = "\"".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
         } else {
