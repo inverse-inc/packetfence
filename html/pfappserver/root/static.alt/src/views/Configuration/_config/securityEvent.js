@@ -937,7 +937,8 @@ export const triggerEventView = (form, meta = {}) => {
               attrs: {
                 columnLabel: i18n.t('Policy'),
                 class: 'w-100 mb-1',
-                options: networkBehaviorPolicies
+                options: networkBehaviorPolicies,
+                loading: store.getters['$_network_behavior_policies/isLoading']
               }
             }
           ]
