@@ -127,23 +127,7 @@ export default class SearchableStore {
         }
       },
       setResultSorting: ({ state, commit }, event) => {
-        const { oldIndex, newIndex } = event // shifted, not swapped
-        let sortableResults = state.results.filter(item => !item.not_sortable)
-        const tmp = sortableResults[oldIndex]
-        if (oldIndex > newIndex) {
-          // shift down (not swapped)
-          for (let i = oldIndex; i > newIndex; i--) {
-            sortableResults[i] = sortableResults[i - 1]
-          }
-        } else {
-          // shift up (not swapped)
-          for (let i = oldIndex; i < newIndex; i++) {
-            sortableResults[i] = sortableResults[i + 1]
-          }
-        }
-        sortableResults[newIndex] = tmp
-        const results = [ ...state.results.filter(item => item.not_sortable), ...sortableResults ]
-        commit('ITEMS_SORTED', results)
+        commit('ITEMS_SORTED', event)
         return state.results
       },
       getItem: ({ state, commit }, id) => {
@@ -208,8 +192,23 @@ export default class SearchableStore {
       VISIBLE_COLUMNS_UPDATED: (state, columns) => {
         state.visibleColumns = columns
       },
-      ITEMS_SORTED: (state, data) => {
-        Vue.set(state, 'results', data)
+      ITEMS_SORTED: (state, event) => {
+        const { oldIndex, newIndex } = event // shifted, not swapped
+        let results = JSON.parse(JSON.stringify(state.results))
+        const tmp = results[oldIndex]
+        if (oldIndex > newIndex) {
+          // shift down (not swapped)
+          for (let i = oldIndex; i > newIndex; i--) {
+            results[i] = results[i - 1]
+          }
+        } else {
+          // shift up (not swapped)
+          for (let i = oldIndex; i < newIndex; i++) {
+            results[i] = results[i + 1]
+          }
+        }
+        results[newIndex] = tmp
+        Vue.set(state, 'results', results)
       },
       ITEM_REQUEST: (state) => {
         state.itemStatus = types.LOADING
