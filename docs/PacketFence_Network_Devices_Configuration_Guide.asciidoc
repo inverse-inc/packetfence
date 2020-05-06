@@ -2493,10 +2493,10 @@ On each interface (not uplink)
   voice vlan 100
   exit
 
-N1500 Series (FW >= 6.6.0.2)
+N1500 Series (FW >= 6.6.0.17)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This configuration has been tested with firmware 6.6.0.2
+This configuration has been tested with firmware 6.6.0.17
 
 Global config settings:
 

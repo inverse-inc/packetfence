@@ -8,6 +8,7 @@ pf::Switch::Dell::N1500
 =head1 SYNOPSIS
 
 pf::Switch::Dell::N1500 module manages access to Dell N1500 Series
+Tested on Firmware >= 6.6.0.17
 
 =head1 STATUS
 
