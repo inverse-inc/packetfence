@@ -25,14 +25,19 @@ const getters = {
 }
 
 const actions = {
-  all: ({ state }) => {
+  all: ({ state, commit }) => {
     const params = {
       sort: 'id',
       fields: ['id', 'description'].join(',')
     }
     if (!state.policiesPromise) {
+      commit('ITEM_REQUEST')
       state.policiesPromise = api.networkBehaviorPolicies(params).then(response => {
+        commit('ITEM_SUCCESS')
         return response.items
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
       })
     }
     return state.policiesPromise
