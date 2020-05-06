@@ -419,6 +419,12 @@ Find sources for a specific realm
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
     my $matched_realm = $realm;
+    foreach my $realm_key ( keys %pf::config::ConfigRealm ) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+            $realm = $realm_key;
+            last;
+        }
+    }
     $matched_realm //= 'null';
     my @found = grep { $_->realmIsAllowed($realm) } @{$sources};
     if (@found == 0 && $realm ne 'default' && !(exists $pf::config::ConfigRealm{$realm})) {
