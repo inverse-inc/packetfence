@@ -321,7 +321,7 @@ export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
     searchPlaceholder: $i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/connection_profiles',
-      defaultSortKeys: ['id'],
+      defaultSortKeys: [], // use natural order
       defaultSearchCondition: {
         op: 'and',
         values: [{
