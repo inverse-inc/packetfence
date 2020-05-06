@@ -16,6 +16,7 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
+import { format } from 'date-fns'
 import {
   view,
   validators
@@ -66,6 +67,8 @@ export default {
     },
     save () {
       let savePromise = new Promise((resolve, reject) => {
+        const now = format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+        this.form.administrator.valid_from = now
         if (this.userExists) {
           this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form.administrator)).then(resolve, reject)
         } else {
