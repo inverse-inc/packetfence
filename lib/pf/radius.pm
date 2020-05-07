@@ -375,8 +375,12 @@ sub accounting {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request, $headers) = @_;
     my $logger = $self->logger;
-
-    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('fixup', $args);
+    if ($rule) {
+        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
+        %$radius_request = %$reply;
+    }
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip }, {radius_request => $radius_request} );
