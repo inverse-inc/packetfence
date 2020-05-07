@@ -382,16 +382,7 @@ sub deauthenticateMacDefault {
 sub updateArgsVariablesForSet {
     my ($self, $args, $set) = @_;
     return if !defined $set;
-    my @vars;
-    for my $s (@$set) {
-        push @vars, keys %{$s->{tmpl}{info}{vars}//{}};
-    }
-    @vars = uniq @vars;
-    for my $v (@vars) {
-        if (!exists $args->{$v} && exists $LOOKUP{$v}) {
-            $args->{$v} = $LOOKUP{$v}->($self, $args);
-        }
-    }
+    pf::mini_template::update_variables_for_set($set, \%LOOKUP, $args, $self, $args);
 }
 
 =head2 getVoipVsa
