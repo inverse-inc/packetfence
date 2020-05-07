@@ -92,7 +92,7 @@ export const config = (context = {}) => {
     searchPlaceholder: i18n.t('Search by name'),
     searchableOptions: {
       searchApiEndpoint: 'config/realms',
-      defaultSortKeys: ['id'],
+      defaultSortKeys: [], // use natural ordering
       defaultSearchCondition: {
         op: 'and',
         values: [{

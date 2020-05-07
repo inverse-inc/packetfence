@@ -95,6 +95,19 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  sortRealms: ({ commit }, data) => {
+    const params = {
+      items: data
+    }
+    commit('ITEM_REQUEST', types.LOADING)
+    return api.sortRealms(params).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 

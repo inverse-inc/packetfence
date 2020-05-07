@@ -2,6 +2,8 @@
   <pf-config-list
     ref="pfConfigList"
     :config="config"
+    :sortable="true"
+    @sort="sort"
   >
     <template v-slot:pageHeader>
       <h4 class="mb-0 p-4">
@@ -76,6 +78,11 @@ export default {
       this.$store.dispatch('$_realms/deleteRealm', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
+      })
+    },
+    sort (items) {
+      this.$store.dispatch('$_realms/sortRealms', items.map(item => item.id)).then(response => {
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Realms resorted.') })
       })
     }
   }
