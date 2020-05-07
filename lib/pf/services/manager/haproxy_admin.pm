@@ -75,7 +75,7 @@ sub generateConfig {
 
 
         my $portal_preview_ip = portal_preview_ip();
-        my $mgmt_ip = portal_preview_ip();
+        my $mgmt_ip = $tags{'management_ip'};
         my $mgmt_backend_ip_config;
         my $mgmt_backend_ip_api_config;
         my $mgmt_srv_netdata .= <<"EOT";
