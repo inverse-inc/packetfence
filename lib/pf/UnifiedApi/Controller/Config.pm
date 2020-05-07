@@ -405,7 +405,7 @@ sub validate_item {
     my ($self, $item) = @_;
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
-        return $status, { message => "Unable to validate invalid no valid formater"};
+        return $status, { message => $form };
     }
 
     $form->process($self->form_process_parameters_for_validation($item));
