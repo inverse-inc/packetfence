@@ -110,6 +110,13 @@ sub authorize {
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
     my ($do_auto_reg, %autoreg_node_defaults, $action);
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('fixup', $args);
+    if ($rule) {
+        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
+        %$radius_request = %$reply;
+    }
+
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
