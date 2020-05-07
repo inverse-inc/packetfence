@@ -279,7 +279,9 @@ reads a section
 sub read {
     my ($self, $id, $idKey) = @_;
     my $data = $self->readRaw($id, $idKey);
-    $self->cleanupAfterRead($id, $data);
+    if ($data) {
+        $self->cleanupAfterRead($id, $data);
+    }
     return $data;
 }
 
