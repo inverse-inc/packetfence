@@ -1234,9 +1234,9 @@ sub bulk_import {
         my $item = $items->[$i];
         my $result = { item => $item, status => 424, message => "Skipped" };
         $results[$i] =  $result;
-        my @errors = $self->import_item_check_for_errors($data, $item);
-        if (@errors) {
-            $result->{errors} = \@errors;
+        my $error = $self->import_item_check_for_errors($data, $item);
+        if ($error) {
+            %$result = (%$result, %$error);
         }
     }
     if ($changed) {
@@ -1253,9 +1253,9 @@ sub import_item {
         return { field => 'id', message => 'Field id missing', status => 422 };
     }
     my $old_item = $self->item_from_store($item->{id});
-    my @errors = $self->import_item_check_for_errors($request, $item, $old_item);
-    if (@errors) {
-        return @errors;
+    my $error = $self->import_item_check_for_errors($request, $item, $old_item);
+    if ($error) {
+        return { %$error,  item => $item,  status => 422, };
     }
     
     if ($old_item) {
