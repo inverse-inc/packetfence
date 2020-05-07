@@ -134,12 +134,7 @@ export const viewFields = {
         {
           namespace: 'id',
           component: pfFormInput,
-          attrs: {
-            ...attributesFromMeta(meta, 'id'),
-            ...{
-              disabled: (!isNew && !isClone)
-            }
-          }
+          attrs: attributesFromMeta(meta, 'id')
         }
       ]
     }
@@ -493,7 +488,7 @@ export const validators = (form = {}, meta = {}) => {
     run_actions
   } = form
   // meta indicates which fields are preset
-  return Object.keys(meta).filter(field => {
+  return [ 'id', ...Object.keys(meta) ].filter(field => {
     switch (field) {
       case 'actions':
         return run_actions === 'enabled'
