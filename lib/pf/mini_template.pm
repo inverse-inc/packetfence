@@ -13,6 +13,7 @@ pf::mini_template
 use strict;
 use warnings;
 use Scalar::Util qw(reftype);
+use List::MoreUtils qw(uniq);
 use pf::log;
 use Data::Dumper;
 our %FUNCS = (
@@ -294,6 +295,21 @@ sub _parse_func_arg {
     }
 
     die format_parse_error("Invalid function arg", $_, pos);
+}
+
+sub update_variables_for_set {
+    my ($set, $lookup, $vars, @args) = @_;
+    return if !defined $set;
+    my @vars;
+    for my $s (@$set) {
+        push @vars, keys %{$s->{tmpl}{info}{vars}//{}};
+    }
+    @vars = uniq @vars;
+    for my $v (@vars) {
+        if (!exists $vars->{$v} && exists $lookup->{$v}) {
+            $vars->{$v} = $lookup->{$v}->(@args);
+        }
+    }
 }
 
 =head1 AUTHOR
