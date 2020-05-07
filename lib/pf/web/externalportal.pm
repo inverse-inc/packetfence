@@ -37,6 +37,7 @@ use pf::web::util;
 use pf::constants;
 use pf::access_filter::switch;
 use pf::dal;
+use pf::dal::tenant;
 
 # Some vendors don't support some charatcters in their redirect URL
 # This here below allows to map some URLs to a specific switch module
@@ -81,6 +82,7 @@ sub handle {
     my $params = $req->param;
     my $headers_in = $r->headers_in();
 
+    $self->_setup_tenant($req);
 
     my $args = {
         uri => $uri,
@@ -202,6 +204,17 @@ sub _setup_session {
     }
     return $portalSession;
 
+}
+
+sub _setup_tenant {
+    my ($self, $req) = @_;
+    my $hostname = $req->get_server_name;
+    my $logger = get_logger();
+    $logger->trace("Trying to find tenant for hostname $hostname");
+    if(my $tenant = pf::dal::tenant->search(-where => { portal_domain_name => $hostname })->next()) {
+        $logger->debug("Found tenant for portal domain name $hostname");
+        pf::dal->set_tenant($tenant->id);
+    }
 }
 
 
