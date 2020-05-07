@@ -365,7 +365,7 @@ export const view = (form = {}, meta = {}) => {
     {
       tab: null,
       // meta indicates which fields are preset
-      rows: Object.keys(meta).sort((a, b) => {
+      rows: [ 'id', ...Object.keys(meta) ].sort((a, b) => {
         if (formKeyOrder.includes(a) && formKeyOrder.includes(b)) {
           return formKeyOrder.indexOf(a) - formKeyOrder.indexOf(b)
         } else if (formKeyOrder.includes(a)) {
