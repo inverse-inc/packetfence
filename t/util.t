@@ -417,6 +417,10 @@ for my $test (@MAC2DEC) {
 
 }
 
+{
+    is(extract("j.domain.com", "(.*?)\.domain.com", '$1'), 'j', 'Extract');
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
