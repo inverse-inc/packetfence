@@ -422,7 +422,7 @@ export default {
 
 <style lang="scss">
 .log, .scopes {
-  height: 75vh;
+  height: 70vh;
   overflow-y: scroll;
   overflow-x: auto;
 }
