@@ -80,9 +80,9 @@
             </b-list-group>
 
             <b-button-group class="mb-3 btn-block" :disabled="!events || !events.length">
-              <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy Log') }}</b-button>
-              <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save Log') }}</b-button>
-              <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear Log') }}</b-button>
+              <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy') }}</b-button>
+              <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save') }}</b-button>
+              <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear') }}</b-button>
             </b-button-group>
 
             <b-row class="mb-3">
