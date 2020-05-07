@@ -1057,7 +1057,13 @@ bulk_update
 
 sub bulk_update {
     my ($self) = @_;
-    return $self->bulk_action("bulk_update_callback");
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error( 400, "Bad Request : $error" );
+    }
+
+    my $items = $data->{items} // [];
+    return $self->bulk_action($items, "bulk_update_callback");
 }
 
 =head2 bulk_update_callback
@@ -1094,7 +1100,14 @@ bulk_delete
 
 sub bulk_delete {
     my ($self) = @_;
-    return $self->bulk_action("bulk_delete_callback");
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error( 400, "Bad Request : $error" );
+    }
+
+    my $items = $data->{items} // [];
+    $items = [map { { id => $_ }  } @$items];
+    return $self->bulk_action($items, "bulk_delete_callback");
 }
 
 =head2 bulk_delete_callback
@@ -1114,13 +1127,7 @@ sub bulk_delete_callback {
 }
 
 sub bulk_action {
-    my ($self, $action) = @_;
-    my ($error, $data) = $self->get_json;
-    if (defined $error) {
-        return $self->render_error( 400, "Bad Request : $error" );
-    }
-
-    my $items = $data->{items} // [];
+    my ($self, $items, $action) = @_;
     my $cs = $self->config_store;
     my @results;
     my $i = 0;
