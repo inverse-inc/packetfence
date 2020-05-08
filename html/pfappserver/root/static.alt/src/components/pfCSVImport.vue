@@ -576,6 +576,13 @@ export default {
         isSlotError = false
       } = this
       return importMappingError || staticMappingError || previewError || isSlotError
+    },
+    fieldsAssociated () {
+      return this.fields.reduce((fields, field) => {
+        const { value } = field
+        fields[value] = field
+        return fields
+      }, {})
     }
   },
   methods: {
@@ -801,7 +808,13 @@ export default {
               items.push({
                 ...data.reduce((line, value, index) => {
                   if (this.importMapping[index]) {
-                    line[this.importMapping[index]] = value
+                    const { fieldsAssociated: { [this.importMapping[index]]: { formatter } = {} } = {} } = this
+                    if (formatter) {
+                      line[this.importMapping[index]] = formatter(value)
+                    }
+                    else {
+                      line[this.importMapping[index]] = value
+                    }
                   }
                   return line
                 }, {}),
