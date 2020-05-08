@@ -31,6 +31,7 @@ use pf::config qw(
     $UNKNOWN
     $management_network
     %ConfigRealm
+    @ConfigOrderedRealm
     $HTTPS
     $HTTP
 );
@@ -419,7 +420,7 @@ Find sources for a specific realm
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
     my $matched_realm = $realm;
-    foreach my $realm_key ( keys %pf::config::ConfigRealm ) {
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
         if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
             $realm = $realm_key;
             last;
