@@ -43,18 +43,8 @@ sub make_radius_attribute {
         return;
     }
 
-    my $v;
-    if ($n =~ /([^:]+):(.*)/) {
-        $n = $2;
-        $v = $1;
-    } else {
-        if (exists $RADIUS_DICTIONARY->{avendors}{$n}) {
-            $v = $RADIUS_DICTIONARY->{avendors}{$n};
-        }
-    }
-
     my $attr = {
-        name => $n, (defined $v ? (vendor => $v ) : () )
+        name => $n,
     };
 
     my $tmpl = eval {
