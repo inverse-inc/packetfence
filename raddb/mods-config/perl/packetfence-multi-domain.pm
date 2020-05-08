@@ -34,6 +34,7 @@ use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::config::tenant;
 tie our %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+tie our @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
 tie our %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain', tenant_id_scoped => 1;
 
 require 5.8.8;
@@ -71,7 +72,7 @@ sub authorize {
     }
 
     if ( !defined($realm_config) && defined($ConfigRealm{"default"}) ) {
-        foreach my $key (keys %ConfigRealm) {
+        foreach my $key ( @ConfigOrderedRealm ) {
             if (defined($ConfigRealm{$key}->{regex}) && $user_name =~ /$ConfigRealm{$key}->{regex}/) {
                 $realm_config = $ConfigRealm{$key};
             }
