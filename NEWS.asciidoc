@@ -11,6 +11,25 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 10.0.1 released on 2020-05-08
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+* Fix issue with out of bound array in pfacct
+* Fix handling of VSA in pfacct
+* Fix handling of wireless secure to open SSID VLAN filter
+* Fix limit of 25 filters in filter engines GUI (#5379)
+* Fix the "from address" when sending emails through the pfpki
+* Adjustments to the default anomaly detection policies
+* Add missing sFlow and netflow ports in the iptables configuration
+* Fix detection of the anomaly detection capabilities of the current Fingerbank account
+* Improve anomaly detection triggers display in security events (#5402)
+* Handle JAMF provisioner responses that aren't UTF-8 encoded
+* Fix admin account validity when changing the timezone in the configurator (#5390)
+* Restart packetfence-mariadb in the configurator after changing the timezone (#5390)
+* Fix multi-tenancy detection when performing web-authentication (#5418)
+
 Version 10.0.0 released on 2020-04-16
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
