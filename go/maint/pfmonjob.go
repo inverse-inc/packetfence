@@ -1,20 +1,26 @@
 package maint
 
 import (
-    "os/exec"
+	"os/exec"
 )
 
 type PfmonJob struct {
-    Name string
-}
-
-func NewPfmonJob(name string) *PfmonJob {
-    return &PfmonJob{Name:name}
+	Task
 }
 
 func (j *PfmonJob) Run() {
-    cmd := exec.Command("/usr/local/pf/bin/pfcmd", "pfmon", j.Name)
-    err := cmd.Run()
-    _ = err
+	cmd := exec.Command("/usr/local/pf/bin/pfcmd", "pfmon", j.Type)
+	err := cmd.Run()
+	_ = err
 }
 
+func NewPfmonJob(config map[string]interface{}) JobSetupConfig {
+	return &PfmonJob{
+		Task: Task{
+			Type:         config["type"].(string),
+			Status:       config["status"].(string),
+			Description:  config["description"].(string),
+			ScheduleSpec: config["schedule"].(string),
+		},
+	}
+}
