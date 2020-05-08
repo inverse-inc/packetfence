@@ -46,6 +46,10 @@ sub build_child {
         foreach my $key (keys %$task_data) {
             $task_data->{$key} = normalize_time($task_data->{$key}) + 0 if exists $TIME_ATTR{$key};
         }
+
+        if (exists $task_data->{batch}) {
+            $task_data->{batch} += 0;
+        }
     }
 
     return $tmp_cfg;
