@@ -1,14 +1,14 @@
-package pfconfig::namespaces::config::Pfmon;
+package pfconfig::namespaces::config::Maintenance;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Pfmon
+pfconfig::namespaces::config::Maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Pfmon
+pfconfig::namespaces::config::Maintenance
 
 This module creates the configuration hash associated to pfmon.conf
 
