@@ -5,20 +5,21 @@ import (
 	"os"
 	"sync"
 	//	"github.com/coreos/go-systemd/daemon"
+	"context"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/maint"
 	"os/signal"
 	"syscall"
-    "fmt"
 )
 
 func main() {
 	log.SetProcessName("pfmaint")
+	ctx := context.Background()
+	logger := log.LoggerWContext(ctx)
 	c := cron.New(cron.WithSeconds())
 	for _, setupConfig := range maint.GetConfiguredJobs() {
 		id := c.Schedule(setupConfig.Schedule, setupConfig.Job)
-        _ = id
-        fmt.Printf("Job id %d", id)
+		logger.Info("Job id %d", id)
 	}
 	w := sync.WaitGroup{}
 	w.Add(1)
@@ -33,4 +34,3 @@ func main() {
 	doneCtx := c.Stop()
 	<-doneCtx.Done()
 }
-
