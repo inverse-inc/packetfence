@@ -31,7 +31,7 @@ export const pfFormatters = {
   },
   categoryIdFromIntOrString: (value) => {
     if (!value) return null
-    if (!/\d+/.test(value)) {
+    if (!/^\d+$/.test(value)) {
       if (acl.$can('read', 'nodes')) {
         store.dispatch('config/getRoles')
         return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id)[0] // string
