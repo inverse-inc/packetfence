@@ -17,6 +17,7 @@ stages:
   - publish
   - test
   - upload
+  - build_zen
 
 ################################################################################
 # VARIABLES
@@ -27,12 +28,14 @@ variables:
   CIDIR: ci
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
+  ZENDIR: $PACKERDIR/zen
   MAINTDIR: $CILIBDIR/maintenance
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
   RPM_DIR: rpm
   DEB_DIR: debian
   PUBLIC_REPO_URL: http://packetfence.org/downloads/PacketFence
+  SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   # env variables
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
@@ -219,6 +222,16 @@ variables:
     url: ${PUBLIC_REPO_URL}/RHEL7
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-release
+  tags:
+    - shell
+
+.build_zen_job:
+  stage: build_zen
+  environment:
+    name: sourceforge
+    url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
+  after_script:
+    - make -e -C ${ZENDIR} clean
   tags:
     - shell
 
@@ -554,3 +567,31 @@ deploy_maintenance:
   environment:
     name: maintenance
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+
+########################################
+# BUILD_ZEN JOBS
+########################################
+build_zen_devel:
+  extends:
+    - .build_zen_job
+    - .job_devel_only_triggers
+  script:
+    - make -e -C ${ZENDIR} zen-devel
+  when: manual
+
+build_zen_devel_nightly:
+  extends:
+    - .build_zen_job
+  script:
+    - make -e -C ${ZENDIR} zen-devel
+  # only run this job during a schedule pipeline, on devel branch with RUN_BUILD_ZEN set to yes
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "devel" && $RUN_BUILD_ZEN == "yes"'
+
+build_zen_release:
+  extends:
+    - .build_zen_job
+    - .job_release_triggers
+  script:
+    - make -e -C ${ZENDIR} zen-release
+  when: manual
