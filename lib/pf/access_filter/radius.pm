@@ -17,7 +17,7 @@ use warnings;
 
 use pf::security_event qw (security_event_view_top);
 use pf::locationlog qw(locationlog_set_session);
-use pf::util qw(isenabled generate_session_id random_from_range);
+use pf::util qw(isenabled generate_session_id random_from_range extract);
 use List::MoreUtils qw(uniq);
 use pf::CHI;
 use pf::radius::constants;
@@ -41,6 +41,7 @@ our %FUNCS = (
     macToEUI48 => sub { my $m = shift; $m =~ s/:/-/g; return uc($m) },
     random_from_range => \&random_from_range,
     log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
+    BuildFromMatch => \&extract,
 );
 
 =head1 SUBROUTINES

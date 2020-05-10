@@ -250,7 +250,7 @@ use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
-    plan tests => 42 +
+    plan tests => 43 +
       ((scalar @NODE_ID_TESTS) * 3) +
       scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
       scalar @INVALID_DATES +
@@ -419,6 +419,7 @@ for my $test (@MAC2DEC) {
 
 {
     is(extract("j.domain.com", "(.*?)\.domain.com", '$1'), 'j', 'Extract');
+    is(extract('[inverse-test@staff.it.acme.edu](mailto:inverse-test@staff.it.acme.edu)','@(\w+)','$1.VLAN'), "staff.VLAN")
 }
 
 =head1 AUTHOR
