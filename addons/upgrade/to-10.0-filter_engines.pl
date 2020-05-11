@@ -184,12 +184,19 @@ sub populate {
 
 sub new_condition {
     my ($ctx, $ast) = @_;
+    my $condition = _new_condition($ctx, $ast);
+    $condition =~ s/^\((.*)\)$/$1/;
+    return $condition;
+}
+
+sub _new_condition {
+    my ($ctx, $ast) = @_;
     if (ref $ast) {
         my ($op, @rest) = @$ast;
         if ($op eq 'OR') {
-            return join(" || ", map { new_condition($ctx, $_) } @rest);
+            return '(' . join(" || ", map { _new_condition($ctx, $_) } @rest) . ')';
         } elsif ($op eq 'AND') {
-            return join(" && ", map { new_condition($ctx, $_) } @rest);
+            return '(' . join(" && ", map { _new_condition($ctx, $_) } @rest) . ')';
         } else {
             return "!(" . new_condition($ctx, @rest) . ")";
         }
