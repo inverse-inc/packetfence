@@ -697,7 +697,7 @@ description=Controls the cleanup of the admin_api_audit_log table. Entries older
 # schedule
 # 
 # The schedule of task
-schedule=@every 1h
+schedule=@every 15s
 #
 # batch
 #
@@ -776,7 +776,7 @@ type=bandwidth_maintenance_session
 # status
 # 
 # If the task is enabled
-status=enabled
+status=disabled
 # 
 # description
 # 
@@ -786,7 +786,7 @@ description=Controls the cleanup of the bandwidth accounting sessions. The task 
 # schedule
 # 
 # The schedule of task
-schedule=@every 0s
+schedule=@every 1h
 #
 # batch
 #
