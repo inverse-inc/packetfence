@@ -111,6 +111,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Status'),
+          text: i18n.t('Whether or not the policy should be enabled'),
+          cols: [
+            {
+              namespace: 'status',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              },
+            }
+          ]
+        },
+        {
           label: i18n.t('Description'),
           cols: [
             {
