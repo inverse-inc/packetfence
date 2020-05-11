@@ -218,7 +218,6 @@ sub match_rule {
     foreach my $condition ( @{$rule->{'conditions'}} ) {
         if (grep { $_->{value} eq $condition->attribute } @$common_attributes) {
             # A condition on a common attribute
-            $condition->{value} = $self->update_template($condition->{value}, $params);
             my $r = $self->match_condition($condition, $params);
 
             if ($r) {
@@ -339,17 +338,6 @@ sub realmIsAllowed {
 }
 
 sub lookupRole { undef }
-
-sub replaceVar {
-    my ($name, %params) = @_;
-    return exists $params{$name} ? $params{$name} : '';
-}
-
-sub update_template {
-    my ($self, $template, %params) = @_;
-    $template =~ s/\${([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)}/replaceVar($1, %params)/ge;
-    return $template;
-}
 
 =head1 AUTHOR
 
