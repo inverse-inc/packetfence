@@ -1346,8 +1346,9 @@ sub fingerbank_nba_webhook :Public :RestPath(/fingerbank/nba/webhook){
 
     my $mac = pf::util::clean_mac($args->{mac});
     for my $event (@{$args->{data}->{events}}) {
-        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event), 'type' => "internal" } );
-        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event)."_".$args->{data}->{policy}, 'type' => "internal" } );
+        my $notes = "\nTriggered via Network Anomaly Detection policy '$args->{data}->{policy}'\n";
+        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event), 'type' => "internal", "notes" => $notes } );
+        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event)."_".$args->{data}->{policy}, 'type' => "internal", "notes" => $notes } );
     }
     return "ok";
 }
