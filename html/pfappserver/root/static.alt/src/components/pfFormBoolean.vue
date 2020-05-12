@@ -67,7 +67,7 @@
         </pf-form-boolean>
 
         <!-- recurse -->
-        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="index" :isRoot="false" :dataBus="dataBus" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
+        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="value" :isRoot="false" :dataBus="dataBus" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
           @addOperator="addOperator(index)"
           @cloneOperator="cloneOperator(index)"
           @deleteOperator="deleteOperator(index)"
