@@ -61,7 +61,7 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "username") {
-            if ( $condition->matches("username", $params->{'username'}) ) {
+            if ( $condition->matches("username", $params->{'username'}, $params) ) {
                 push(@{ $matching_conditions }, $condition);
             }
         }
