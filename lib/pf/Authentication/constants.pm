@@ -93,6 +93,7 @@ Readonly::Scalar our $IN_TIME_PERIOD => 'in_time_period';
 Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 Readonly::Scalar our $IS_MEMBER => 'is member of';
+Readonly::Scalar our $MATCH_FILTER => 'match filter';
 
 =item SUBSTRING, NUMBER, DATE, TIME
 
@@ -107,6 +108,7 @@ Readonly::Scalar our $TIME => 'time';
 Readonly::Scalar our $TIME_PERIOD => 'time_period';
 Readonly::Scalar our $CONNECTION => 'connection';
 Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
+Readonly::Scalar our $LDAP_FILTER => 'ldapfilter';
 
 Readonly::Array our @TYPES => (
     $SUBSTRING,
@@ -116,6 +118,7 @@ Readonly::Array our @TYPES => (
     $TIME_PERIOD,
     $CONNECTION,
     $LDAP_ATTRIBUTE,
+    $LDAP_FILTER,
 );
 
 =item OPERATORS
@@ -133,6 +136,7 @@ Readonly::Hash our %OPERATORS =>
    $TIME_PERIOD => [$IN_TIME_PERIOD],
    $CONNECTION => [$IS, $IS_NOT],
    $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
+   $LDAP_FILTER => [$MATCH_FILTER],
   );
 
 =back

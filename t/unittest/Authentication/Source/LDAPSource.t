@@ -114,7 +114,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 5 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 8 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
@@ -154,6 +154,26 @@ for my $rule (@NON_CACHEABLE_RULES) {
 
 ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
 
+{
+    my $source_id = 'LDAPADVANCED';
+
+    my $source = getAuthenticationSource($source_id);
+
+    ok($source, "Got source id $source_id");
+
+    BAIL_OUT("Cannot get $source_id") unless $source;
+
+    my $rule = $source->rules->[0];
+
+    ok($rule, "Got rule for $source_id");
+    my $filter = $source->ldap_filter_for_conditions($rule->conditions, $rule->match, $source->{usernameattribute}, { username => 'bob', radius => { username => "bobette" } });
+    is(
+        $filter,
+        '(&(|(cn=bob)(samaccountname=bobette))(|(memberof=student)(memberof=staff)))',
+        "Use the advanced filter"
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -182,4 +202,3 @@ USA.
 =cut
 
 1;
-

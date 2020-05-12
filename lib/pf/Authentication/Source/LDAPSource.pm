@@ -21,7 +21,7 @@ use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config qw(%Config);
-use List::MoreUtils qw(uniq any);
+use List::MoreUtils qw(uniq any firstval);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
@@ -96,7 +96,7 @@ sub available_attributes {
     push (@ldap_attributes, { value => $usernameattribute, type => $Conditions::LDAP_ATTRIBUTE });
   }
 
-  return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
+  return [@$super_attributes, { value => $Conditions::LDAP_FILTER, type => $Conditions::LDAP_FILTER  }, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
 }
 
 =head2 ldap_attributes
@@ -510,6 +510,9 @@ sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 7});
+  if (my $filter = firstval { $_->operator eq $Conditions::MATCH_FILTER } @{$conditions // []}) {
+       return $self->update_template($filter->value, $params);
+  }
 
   my (@ldap_conditions, $expression);
 
@@ -526,7 +529,6 @@ sub ldap_filter_for_conditions {
           my $operator = $condition->{'operator'};
           my $value = escape_filter_value($condition->{'value'});
           my $attribute = $condition->{'attribute'};
-
           if ($operator eq $Conditions::EQUALS) {
               $str = "${attribute}=${value}";
           } elsif ($operator eq $Conditions::NOT_EQUALS) {
@@ -553,6 +555,27 @@ sub ldap_filter_for_conditions {
   }
 
   return $expression;
+}
+
+sub replaceVar {
+    my ($name, $params) = @_;
+    my @parts = split(/\./, $name);
+    my $last_part = pop @parts;
+    for my $part (@parts) {
+        if (ref $params eq 'HASH' && exists $params->{$part}) {
+            $params = $params->{$part}
+        } else {
+            return ''
+        }
+    }
+
+    return escape_filter_value(exists $params->{$last_part} ? $params->{$last_part} : '');
+}
+
+sub update_template {
+    my ($self, $template, $params) = @_;
+    $template =~ s/\${([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)}/replaceVar($1, $params)/ge;
+    return $template;
 }
 
 =head2 search based on a attribute
