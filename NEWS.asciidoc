@@ -25,7 +25,8 @@ Enhancements
 
 Bug Fixes
 +++++++++
-
+* Fixes FortiGate returnAuthorizeVPN function (#5409)
+* Barracuda NG firewall SSO SSH fail (#4828)
 
 Version 10.0.0 released on 2020-04-16
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
