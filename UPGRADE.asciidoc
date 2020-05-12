@@ -148,18 +148,12 @@ Run the following command to update PacketFence:
 
 [source,bash]
 ----
-yum update packetfence packetfence-release --enablerepo=packetfence
+yum update --enablerepo=packetfence
 ----
 
-Since PacketFence heavily relies on Fingerbank, it is recommended to make sure you are running the latest version:
-
-[source,bash]
-----
-yum update fingerbank --enablerepo=packetfence
-----
-
-PacketFence and Fingerbank should now be upgraded. However, there may be extra
-steps required depending on the version you are upgrading from.
+PacketFence, Fingerbank and all their dependencies should now be
+upgraded. However, there may be extra steps required depending on the version
+you are upgrading from.
 
 ===== Upgrade to RHEL / CentOS 7.7 before 9.1.0
 
