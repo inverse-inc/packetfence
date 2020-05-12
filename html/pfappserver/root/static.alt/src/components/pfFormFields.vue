@@ -27,7 +27,7 @@
         @end="onDragEnd"
       >
         <b-container
-          v-for="(_, index) in inputValue" :key="index"
+          v-for="(value, index) in inputValue" :key="value"
           class="mx-0 px-1 pf-form-field-component-container"
           @mouseleave="onMouseLeave()"
         >
@@ -38,7 +38,7 @@
             v-model="inputValue[index]"
             v-bind="field.attrs"
             v-on="field.listeners"
-            :key="index"
+            :key="value"
             :drag="drag"
             :disabled="disabled"
             @mouseenter="onMouseEnter(index)"
