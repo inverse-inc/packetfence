@@ -21,6 +21,7 @@ New Features
 Enhancements
 ++++++++++++
 * New action for AD/LDAP sources to set role when user is not found
+* Provide an advanced LDAP condition to allow custom LDAP queries
 
 Bug Fixes
 +++++++++
