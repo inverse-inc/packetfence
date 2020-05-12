@@ -223,7 +223,7 @@ Return radius attributes to allow VPN access
 
 =cut
 
-sub returnRadiusAuthorizeVPN {
+sub returnAuthorizeVPN {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
