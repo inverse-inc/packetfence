@@ -2,6 +2,7 @@ import i18n from '@/utils/locale'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
+import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
@@ -1131,6 +1132,9 @@ export const viewFields = {
 
 export const view = (form = {}, meta = {}) => {
   const {
+    type
+  } = form
+  const {
     advancedMode = false
   } = meta
   return [
@@ -1160,6 +1164,21 @@ export const view = (form = {}, meta = {}) => {
     {
       tab: i18n.t('Roles'),
       rows: [
+        {
+          if: !advancedMode && !type,
+          label: i18n.t('Role'),
+          cols: [
+            {
+              component: pfFormHtml,
+              attrs: {
+                html: `<div class="alert alert-warning">
+                  <strong>${i18n.t('Note')}</strong>
+                  ${i18n.t('Choose a Switch type, or enable advanced mode to manage roles.')}
+                </div>`
+              }
+            }
+          ]
+        },
         {
           if: advancedMode || supports(form, meta, ['RadiusDynamicVlanAssignment']),
           label: i18n.t('Role mapping by VLAN ID'),
