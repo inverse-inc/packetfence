@@ -361,6 +361,15 @@ BEGIN {
                 field => 'a',
                 value => '^bob',
             }
+        ],
+        [
+            'not_defined(node_info.category, "")',
+            ['FUNC', 'not_defined', ['node_info.category', ""]],
+            {
+                op => 'not_defined',
+                field => 'node_info.category',
+                value => '',
+            }
         ]
     );
 

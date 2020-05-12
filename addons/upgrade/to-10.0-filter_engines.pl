@@ -15,7 +15,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
 use File::Copy;
-use pf::condition_parser qw(parse_condition_string);
+use pf::condition_parser qw(parse_condition_string ast_to_object);
 use pf::util::console;
 
 my $COLORS = pf::util::console::colors();
@@ -134,6 +134,8 @@ sub populate {
         my $id = delete $rule->{id};
         my $condition = delete $rule->{condition};
         my ($ast, $err) = parse_condition_string($condition);
+        my $top_op;
+        my $object = ast_to_object($ast);
         if ($err) {
             delete $err->{message};
             push @errors,
@@ -145,7 +147,13 @@ sub populate {
             next;
         }
 
+        my $op = $object->{op};
+        unless ($op eq 'and' || $op eq 'or' || $op eq 'not_or' || $op eq 'not_and') {
+            $top_op = 'and';
+        }
+
         $condition = eval {new_condition($ctx, $ast)};
+
         if ($@) {
             push @errors, make_error($ctx, $@, rule => $id);
             next;
@@ -155,7 +163,13 @@ sub populate {
         while (my ($k, $v) = each %new_fields) {
             $new_file->newval($id, $k, $v);
         }
+
+        $new_file->newval($id, 'description', "Rule $id");
         $new_file->newval($id, 'condition', $condition);
+        if ($top_op) {
+            $new_file->newval($id, 'top_op', $top_op);
+        }
+
         while (my ($k, $v) = each %$rule) {
             if (exists $skipped{$k}) {
                 next;
@@ -221,7 +235,7 @@ sub build_condition {
     my $condition = $ctx->{conditions}{$name};
     my $op = $condition->{operator};
     my $filter = $condition->{filter};
-    my $val = $condition->{value};
+    my $val = $condition->{value} // '';
     $val =~ s/(["\\])/\\$1/g;
     if ($filter eq 'time') {
         if ($op eq 'is') {

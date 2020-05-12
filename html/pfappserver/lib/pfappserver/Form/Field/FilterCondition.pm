@@ -72,18 +72,17 @@ has_field 'op' => (
               ends_with
               regex
               includes
-              defined
               fingerbank_device_is_a
               date_is_before
               date_is_after)
         ),
+        make_options_with_not( [qw(field)], qw(defined) ),
         make_options( [qw(value)], qw(time_period not_time_period) )
       ],
 );
 
 has_field values => (
     type => 'Repeatable',
-    default_method => sub { [] },
 );
 
 has_field 'values.contains' => (
