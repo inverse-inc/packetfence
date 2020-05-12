@@ -173,7 +173,7 @@ sub generateRoutes {
         my %net = %{$NetworkConfig{$network}};
         my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
         my $dev = $NetworkConfig{$network}{'interface'}{'int'};
-        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
+        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) && defined($dev) ) {
             $routes .= "$current_network via $net{'next_hop'} dev $dev\n"
         } else {
             if ( isenabled($NetworkConfig{$network}{'dhcpd'}) ) {
