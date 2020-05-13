@@ -94,7 +94,7 @@ Override the Switch method so that the controller IP is inserted as the switch_i
 sub synchronize_locationlog {
     my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
     # Set the switch IP to the controller IP so that the locationlog entry has the proper switch_ip entry
-    $self->{_ip} = $self->returnSwitchIP($self->{_switchMac});
+    $self->{_ip} = $self->returnSwitchIP($self->{_switchMac}) if ($connection_type == $WEBAUTH_WIRELESS);
     $self->SUPER::synchronize_locationlog($ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
 }
 
