@@ -414,6 +414,17 @@ export const validatorFields = {
       }
     }
   },
+  answers: (form, meta = {}) => {
+    return {
+      answers: {
+        $each: {
+          prefix: validatorsFromMeta(meta, 'answers.prefix', i18n.t('Prefix')),
+          type: validatorsFromMeta(meta, 'answers.type', i18n.t('Type')),
+          value: validatorsFromMeta(meta, 'answers.value', i18n.t('calue'))
+        }
+      }
+    }
+  },
   condition: (form, meta = {}) => {
     const requiresFieldsAssociated = valueOperatorsFromMeta(meta).reduce((associated, item) => {
         const { value, requires } = item
