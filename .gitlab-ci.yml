@@ -28,7 +28,7 @@ variables:
   CIDIR: ci
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
-  ZENDIR: $PACKERDIR/zen
+  ZENDIR: $CIDIR/packer/zen
   MAINTDIR: $CILIBDIR/maintenance
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
