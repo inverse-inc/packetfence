@@ -157,7 +157,8 @@ our %FUNC_OPS = (
     'date_is_before'         => 'pf::condition::date_before',
     'date_is_after'          => 'pf::condition::date_after',
     'fingerbank_device_is_a' => 'pf::condition::fingerbank::device_is_a',
-    'time_period' =>            'pf::condition::time_period',
+    'time_period'            => 'pf::condition::time_period',
+    'true'                   => 'pf::condition::true',
 );
 
 =head2 buildCondition
@@ -200,6 +201,10 @@ sub buildCondition {
                 die "op '$func' not handled" unless ($func =~ s/^not_//);
                 die "op 'not_$func' not handled" unless exists $FUNC_OPS{$func};
                 $wrap_in_not = 1;
+            }
+
+            if ($func eq 'true') {
+                return pf::condition::true->new();
             }
 
             my ($key, $val) = @$params;
