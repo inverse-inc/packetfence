@@ -41,7 +41,7 @@ has_field 'regex' =>
    label => 'Regex Realm',
    required => 0,
    tags => { after_element => \&help,
-             help => 'You can define here a regex that define the realm' },
+             help => 'PacketFence will use this Realm configuration if the regex match with the UserName (optional)' },
   );
 
 has_field 'options' =>

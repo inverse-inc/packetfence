@@ -146,7 +146,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Regex Realm'),
-          text: i18n.t('You can define a regex realm if needed.'),
+          text: i18n.t('PacketFence will use this Realm configuration if the regex match with the UserName (optional).'),
           cols: [
             {
               namespace: 'regex',
