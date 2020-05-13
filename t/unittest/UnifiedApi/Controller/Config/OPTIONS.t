@@ -163,13 +163,13 @@ meta => {
         type        => "string"
     },
     rules => {
-        default => undef,
+        default => [],
         item    => {
             default     => undef,
             placeholder => undef,
             properties  => {
                 actions => {
-                    default => undef,
+                    default => [],
                     item    => {
                         default     => undef,
                         placeholder => undef,

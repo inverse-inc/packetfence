@@ -627,7 +627,7 @@ sub field_meta {
         type        => $type,
         required    => $self->field_is_required($field),
         placeholder => $self->field_placeholder($field, $parent_meta->{placeholder}),
-        default     => $self->field_default($field, $parent_meta->{default}),
+        default     => $self->field_default($field, $parent_meta->{default}, $type),
     };
     my %extra = $self->field_extra_meta($field, $meta, $parent_meta);
     %$meta = (%$meta, %extra);
@@ -846,7 +846,10 @@ Get the default value of a field
 =cut
 
 sub field_default {
-    my ($self, $field, $inheritedValues) = @_;
+    my ($self, $field, $inheritedValues, $type) = @_;
+    if ($type eq 'array') {
+        return [];
+    }
     my $default = $field->get_default_value;
     return $default // (ref($inheritedValues) eq 'HASH' ? $inheritedValues->{$field->name} : $inheritedValues);
 }
