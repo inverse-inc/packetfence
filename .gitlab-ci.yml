@@ -232,6 +232,7 @@ variables:
     url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
   after_script:
     - make -e -C ${ZENDIR} clean
+    - make -e -C ${ZENDIR} clean_cache
   tags:
     - shell
 

@@ -28,6 +28,10 @@ zen:
 clean:
 	rm -rf $(RESULT_DIR)
 
+.PHONY: clean_cache
+clean_cache:
+	rm -rf packer_cache
+
 .PHONY: zen-release
 zen-release:
 	make \
