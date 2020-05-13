@@ -120,6 +120,7 @@ $t->options_ok("/api/v1/config/syslog_parsers")
               value => "suricata"
             }
           ],
+          allow_custom => $false,
           type => "string"
         }
       },
@@ -343,7 +344,8 @@ meta => {
                                 default     => undef,
                                 placeholder => undef,
                                 required    => $true,
-                                type        => "string"
+                                type        => "string",
+                                allow_custom => $false,
                             },
                             api_parameters => {
                                 default     => undef,
@@ -426,7 +428,8 @@ meta => {
                             default     => "s",
                             placeholder => undef,
                             required => $false,
-                            type => "string"
+                            type => "string",
+                            allow_custom => $false,
                         }
                     },
                     required => $false,
@@ -499,6 +502,7 @@ $t->options_ok("/api/v1/config/base/general")
                         map { { text => $_, value => $_ }  }  DateTime::TimeZone->all_names()
                     )
                 ],
+                allow_custom => $false,
                 default     => undef,
                 placeholder => '',
                 required    => $false,
