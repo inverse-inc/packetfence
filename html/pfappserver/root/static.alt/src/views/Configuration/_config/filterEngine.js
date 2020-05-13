@@ -117,7 +117,7 @@ const valuesOperatorsFromMeta = (meta = {}) => {
   const { condition: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
   return allowed.filter(allowed => {
     const { requires = [] } = allowed
-    return requires.includes('values')
+    return requires.includes('values') || requires.length === 0
   }).map(allowed => {
     const { value } = allowed
     return value

@@ -5,6 +5,7 @@ export const pfOperators = {
   not_and: i18n.t('NOT ALL (NAND)'),
   or: i18n.t('ANY (OR)'),
   not_or: i18n.t('NONE (NOR)'),
+  true: i18n.t('TRUE'),
 
   contains: i18n.t('contains'),
   not_contains: i18n.t('not contains'),
