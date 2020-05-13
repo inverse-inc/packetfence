@@ -5,7 +5,13 @@ source "virtualbox-iso" "centos-7" {
   guest_os_type = "RedHat_64"
   hard_drive_interface = "scsi"
   headless = "true"
-  vboxmanage = [
+
+  # hardware used to **build VM**
+  cpus = "2"
+  memory = "2048"
+
+  # change hardware configuration before exporting VM
+  vboxmanage_post = [
     ["modifyvm", "{{.Name}}", "--cpus", "4"],
     ["modifyvm", "{{.Name}}", "--memory", "12288"],
     ["modifyvm", "{{.Name}}", "--uartmode1", "disconnected"]
