@@ -69,6 +69,7 @@ has_field 'type' => (
                 value_name  => 'name',
             }
         },
+        allow_custom => 1,
     },
 );
 
