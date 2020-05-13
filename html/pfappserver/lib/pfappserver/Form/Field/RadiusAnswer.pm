@@ -61,15 +61,21 @@ has_field 'type' => (
     widget_wrapper => 'None',
     do_label       => 0,
     required       => 1,
-    tags => {
+    tags           => {
         allowed_lookup => sub {
             {
                 search_path => "/api/v1/radius_attributes",
                 field_name  => "name",
                 value_name  => 'name',
-            }
+            };
         },
-        allow_custom => 1,
+        allow_custom   => 1,
+        option_pattern => sub {
+            {
+                message => "A RADIUS attribute name",
+                regex => "^[0-9A-Za-z-\.:_-]+\$",
+            };
+          }
     },
 );
 
