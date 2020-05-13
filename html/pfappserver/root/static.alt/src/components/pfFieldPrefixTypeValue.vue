@@ -22,6 +22,7 @@
     <b-col :sm="($slots.prepend && $slots.append) ? 3 : (($slots.prepend || $slots.append) ? 3 : 4)" align-self="start">
 
       <pf-form-chosen ref="type"
+        v-bind="typeAttrs"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.type`"
         v-on="forwardListeners"
@@ -124,6 +125,10 @@ export default {
     typeLabel: {
       type: String
     },
+    typeAttrs: {
+      type: Object,
+      default: () => { return {} }
+    },
     valueLabel: {
       type: String
     },
@@ -170,7 +175,7 @@ export default {
     },
     field () {
       if (this.localType) return this.fields.find(field => field.value === this.localType)
-      return null
+      return {}
     },
     fieldIndex () {
       if (this.localType) {
@@ -187,8 +192,8 @@ export default {
       if (!this.localType) return []
       let options = []
       if (this.fieldIndex >= 0) {
-        const field = this.field
-        for (const type of field.types) {
+        const { field: { types = [] } = {} } = this
+        for (const type of types) {
           if (type in fieldTypeValues) options.push(...fieldTypeValues[type](this))
         }
       }
@@ -217,11 +222,13 @@ export default {
   },
   methods: {
     isComponentType (componentTypes) {
-      if (this.field) {
+      const { field: { types = [] } = {}  } = this
+      if (types.length > 0) {
         for (let t = 0; t < componentTypes.length; t++) {
-          if (this.field.types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
+          if (types.map(type => fieldTypeComponent[type]).includes(componentTypes[t])) return true
         }
       }
+      if (componentTypes.includes(componentType.SUBSTRING)) return true // default to SUBSTRING
       return false
     },
     focus () {
@@ -234,7 +241,12 @@ export default {
         }
       }
       else {
-        this.focusPrefix()
+        if (this.localType) {
+          this.focusValue()
+        }
+        else {
+          this.focusPrefix()
+        }
       }
     },
     focusPrefix () {

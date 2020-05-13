@@ -35,11 +35,11 @@
         @tag="addTag"
       >
         <template v-slot:singleLabel="{ option }">
-          {{ tagCache[option.value] }}
+          {{ tagCache[option.value] || option.value }}
         </template>
         <template v-slot:tag="{ option }">
           <span class="multiselect__tag" :class="(isFocus && optionsList.includes(option.value)) ? 'bg-primary' : 'bg-secondary'">
-            <span>{{ tagCache[option.value] }}</span>
+            <span>{{ tagCache[option.value] || option.value }}</span>
             <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="removeTag(option.value)"></i>
           </span>
         </template>
@@ -325,6 +325,10 @@ export default {
     onFocus () {
       this.isFocus = true
       this.onSearchChange(this.inputValue)
+    },
+    blur () {
+      const { $refs: { multiselect: { $el } = {} } = {} } = this
+      $el.blur()
     },
     onBlur () {
       this.isFocus = false
