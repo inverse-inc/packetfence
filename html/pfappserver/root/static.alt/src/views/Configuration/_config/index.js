@@ -63,12 +63,13 @@ export const attributesFromMeta = (meta = {}, key = null) => {
         meta = _meta // swap ref to child
       }
     }
-    let { [key]: { allowed, allowed_lookup: allowedLookup, placeholder, type, item } = {} } = meta
+    let { [key]: { allowed, allow_custom, allowed_lookup: allowedLookup, placeholder, type, item } = {} } = meta
     switch (type) {
       case 'array':
         attrs.multiple = true // pfFormChosen
         attrs.clearOnSelect = false // pfFormChosen
         attrs.closeOnSelect = false // pfFormChosen
+        if (allow_custom) attrs.taggable = true // pfFormChosen
         if (item) {
           const { allowed: itemAllowed, allowed_lookup: itemAllowedLookup } = item
           if (itemAllowed) allowed = itemAllowed
@@ -81,6 +82,7 @@ export const attributesFromMeta = (meta = {}, key = null) => {
         break
     }
     if (placeholder) attrs.placeholder = placeholder
+    if (allow_custom) attrs.taggable = true // pfFormChosen
     if (allowed) attrs.options = allowed
     else if (allowedLookup) {
       attrs.searchable = true
@@ -195,6 +197,7 @@ export const validatorsFromMeta = (meta = {}, key = null, fieldName = 'Value') =
           case 'default': // ignore
           case 'placeholder': // ignore
           case 'allowed_lookup': // ignore
+          case 'allow_custom': // ignore
             break
           case 'item': // ignore
             // TODO
