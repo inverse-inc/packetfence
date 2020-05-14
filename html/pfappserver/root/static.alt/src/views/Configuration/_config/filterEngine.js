@@ -106,10 +106,10 @@ const valueOperatorsFromMeta = (meta = {}) => {
   const { condition: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
   return allowed.filter(allowed => {
     const { requires = [] } = allowed
-    return requires.includes('value')
+    return !requires.includes('values')
   }).map(allowed => {
-    const { value } = allowed
-    return value
+    const { requires = [], value } = allowed
+    return { requires, value }
   })
 }
 
@@ -215,9 +215,9 @@ export const viewFields = {
           component: pfFormFilterEngineCondition,
           attrs: {
             fieldOperators: fieldOperatorsFromMeta(meta),
-            valueOperators: valueOperatorsFromMeta(meta).map(value => {
+            valueOperators: valueOperatorsFromMeta(meta).map(({ requires, value }) => {
               const { [value]: text = value } = pfOperators
-              return { text, value }
+              return { text, value, requires }
             }),
             valuesOperators: valuesOperatorsFromMeta(meta).map(value => {
               const { [value]: text = value } = pfOperators
@@ -414,6 +414,12 @@ export const validatorFields = {
     }
   },
   condition: (form, meta = {}) => {
+    const requiresFieldsAssociated = valueOperatorsFromMeta(meta).reduce((associated, item) => {
+        const { value, requires } = item
+        associated[value] = requires
+        return associated
+      }, {})
+
     const validator = (meta = {}, condition = {}, level = 0) => {
       const { field, op, value, values } = condition
       if (values && values.constructor === Array) { // op
@@ -434,15 +440,24 @@ export const validatorFields = {
           }
         }
       } else { // value
+        const { [op]: requires = [] } = requiresFieldsAssociated
+        const showField = (!op || requires.includes('field'))
+        const showValue = (!op || requires.includes('value'))
         return {
           field: {
-            [i18n.t('Field required.')]: required
+            ...((showField)
+              ? { [i18n.t('Field required.')]: required }
+              : {}
+            )
           },
           op: {
             [i18n.t('Operator required.')]: required
           },
           value: {
-            [i18n.t('Value required.')]: required
+            ...((showValue)
+              ? { [i18n.t('Value required.')]: required }
+              : {}
+            )
           }
         }
       }
