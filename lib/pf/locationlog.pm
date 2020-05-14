@@ -541,15 +541,12 @@ Return the last locationlog entry for a mac even if it's open or close.
 =cut
 
 sub locationlog_last_entry_mac {
-   my ($mac) = @_;
-   $mac = clean_mac($mac);
-   return _db_item({
-       -where => {
-           mac => $mac,
-       },
-       -order_by => { -desc => 'start_time' },
-       -limit => 1,
-   });
+    my ($mac) = @_;
+    my %where = (
+        mac => $mac,
+    );
+    my $columns = pf::dal::locationlog->table_field_names;
+    return _locationlog_last(\%where, $columns);
 }
 
 sub _db_item {
@@ -595,16 +592,31 @@ Return the last locationlog entry for a mac that is not inline even if it's open
 =cut
 
 sub locationlog_last_entry_non_inline_mac {
-   my ($mac) = @_;
-   $mac = clean_mac($mac);
-   return _db_item({
-       -where => {
-           mac => $mac,
-           connection_type => { "!=" => $connection_type_to_str{$INLINE} },
-       },
-       -order_by => { -desc => 'start_time' },
-       -limit => 1,
-   });
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    my %where = (
+        mac             => $mac,
+        connection_type => { "!=" => $connection_type_to_str{$INLINE} },
+    );
+    my $columns = pf::dal::locationlog->table_field_names;
+    return _locationlog_last(\%where, $columns);
+}
+
+sub _locationlog_last {
+    my ($where, $columns) = @_;
+    return _db_item({
+        -columns => $columns,
+        -where => {%$where},
+        -union_all => [
+             pf::dal::locationlog_history->update_params_for_select(
+                 -columns => $columns,
+                 -from => 'locationlog_history',
+                 -where => {%$where},
+            )
+         ],
+        -order_by => { -desc => 'start_time' },
+        -limit => 1,
+    });
 }
 
 =back
