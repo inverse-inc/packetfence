@@ -13,9 +13,9 @@
         <b-col sm="10"
           class="collapse-handle d-flex align-items-center"
           :class="{
-            'text-primary': inputValue.status === 'enabled' && inputState !== false,
-            'text-danger': inputValue.status === 'enabled' && inputState === false,
-            'text-secondary': inputValue.status === 'disabled'
+            'text-primary': inputValue && inputValue.status === 'enabled' && inputState !== false,
+            'text-secondary': inputValue && inputValue.status === 'disabled' && inputState !== false,
+            'text-danger': inputState === false
           }"
           @click.prevent="click($event)"
         >
