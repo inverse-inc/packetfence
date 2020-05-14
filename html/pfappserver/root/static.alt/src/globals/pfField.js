@@ -75,8 +75,8 @@ export const pfFieldTypeComponent = {
   [pfFieldType.TOGGLE]:                pfComponentType.TOGGLE,
 
   /* additional component types */
-  [pfFieldType.ADMINROLE]:             pfComponentType.SELECTONE,
-  [pfFieldType.ADMINROLE_BY_ACL_USER]: pfComponentType.SELECTONE,
+  [pfFieldType.ADMINROLE]:             pfComponentType.SELECTMANY,
+  [pfFieldType.ADMINROLE_BY_ACL_USER]: pfComponentType.SELECTMANY,
   [pfFieldType.CONNECTION]:            pfComponentType.SELECTONE,
   [pfFieldType.CONNECTION_TYPE]:       pfComponentType.SELECTONE,
   [pfFieldType.CONNECTION_SUB_TYPE]:   pfComponentType.SELECTONE,
