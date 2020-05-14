@@ -207,6 +207,19 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
               validators: pfConfigurationValidatorsFromMeta(meta, 'username_attributes', i18n.t('Attributes'))
             }
           ]
+        },
+        {
+          label: i18n.t('Forward key balanced'),
+          text: i18n.t(`Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server.`),
+          cols: [
+            {
+              namespace: 'forward_key_balanced',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
         }
       ]
     },
