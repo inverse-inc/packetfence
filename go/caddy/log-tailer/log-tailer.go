@@ -90,6 +90,7 @@ func buildLogTailerHandler(ctx context.Context) (LogTailerHandler, error) {
 	logTailerApi.OPTIONS("", logTailer.optionsSessions)
 	logTailerApi.POST("", logTailer.createNewSession)
 	logTailerApi.GET("/:id", logTailer.getSession)
+	logTailerApi.POST("/:id/touch", logTailer.touchSession)
 	logTailerApi.DELETE("/:id", logTailer.deleteSession)
 
 	logTailer.router = router

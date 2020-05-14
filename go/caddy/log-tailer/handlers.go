@@ -210,6 +210,22 @@ func (h LogTailerHandler) getSession(c *gin.Context) {
 	h.eventsManager.SubscriptionHandler(c.Writer, c.Request)
 }
 
+func (h LogTailerHandler) touchSession(c *gin.Context) {
+	h.sessionsLock.RLock()
+	defer h.sessionsLock.RUnlock()
+
+	sessionId := c.Param("id")
+
+	if _, ok := h.sessions[sessionId]; !ok {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find a session with this identifier"})
+		return
+	}
+
+	h.sessions[sessionId].Touch()
+
+	c.JSON(http.StatusOK, gin.H{"message": "Touched session"})
+}
+
 func (h LogTailerHandler) deleteSession(c *gin.Context) {
 	h.sessionsLock.Lock()
 	defer h.sessionsLock.Unlock()
