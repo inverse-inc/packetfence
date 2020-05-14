@@ -54,6 +54,8 @@ const state = () => {
     lines: 0,
     debouncer: false,
     debouncerMs: 300, // 300ms
+    touch: false,
+    touchMs: 15000, // 15s
     message: '',
     status: ''
   }
@@ -123,14 +125,13 @@ const actions = {
         return response
       }).catch(err => {
         commit('LOG_SESSION_ERROR', err.response)
-        //commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
         return err
       })
     }
   },
-  pauseSession: ({ state, commit }) => {
+  pauseSession: ({ state, commit, dispatch }) => {
     if (!state.paused) {
-      commit('LOG_SESSION_PAUSE')
+      commit('LOG_SESSION_PAUSE', dispatch)
     }
   },
   unpauseSession: ({ state, commit, dispatch }) => {
@@ -139,6 +140,18 @@ const actions = {
       if (state.running) {
         commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
       }
+    }
+  },
+  touchSession: ({ state, commit }) => {
+    if (state.paused) {
+      commit('LOG_SESSION_REQUEST')
+      return api.touchLogTailSession(state.session.session_id).then(response => {
+        commit('LOG_SESSION_SUCCESS')
+        return response
+      }).catch(err => {
+        commit('LOG_SESSION_ERROR', err.response)
+        return err
+      })
     }
   },
   toggleFilter: ({ state, getters, commit }, { scope, key }) => {
@@ -233,16 +246,31 @@ const mutations = {
   },
   LOG_SESSION_STOPPING: (state) => {
     state.status = 'stopping'
+    if (state.touch) {
+      clearInterval(state.touch)
+    }
   },
   LOG_SESSION_STOPPED: (state) => {
     state.status = 'success'
     state.running = false
   },
-  LOG_SESSION_PAUSE: (state) => {
+  LOG_SESSION_PAUSE: (state, dispatch) => {
     state.paused = true
+    if (state.touch) {
+      clearInterval(state.touch)
+    }
+    state.touch = setInterval(() => {
+      dispatch('touchSession')
+    }, state.touchMs)
   },
   LOG_SESSION_UNPAUSE: (state) => {
     state.paused = false
+    if (state.touch) {
+      clearInterval(state.touch)
+    }
+  },
+  LOG_SESSION_SUCCESS: (state) => {
+    state.status = 'success'
   },
   LOG_SESSION_ERROR: (state, response) => {
     state.status = 'error'

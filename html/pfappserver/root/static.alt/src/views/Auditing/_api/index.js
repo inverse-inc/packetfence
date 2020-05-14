@@ -124,5 +124,10 @@ export default {
     return apiCall.options('logs/tail').then(response => {
       return response.data
     })
+  },
+  touchLogTailSession: id => {
+    return apiCall.postQuiet(['logs', 'tail', id, 'touch']).then(response => {
+      return response.data
+    })
   }
 }
