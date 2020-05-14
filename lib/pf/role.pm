@@ -694,6 +694,7 @@ sub shouldAutoRegister {
             get_logger->debug("Provisioner $id is setup to autoreg on matching devices. Checking state of node for autoregistration");
             my $role = $provisioner->authorize_apply_role($args->{mac});
             if(defined($role)) {
+                $args->{node_info}->{notes} = "AUTO-REGISTERED via provisioner $id";
                 get_logger->info("Device is authorized in provisioner, autoregistering the device.");
                 return $TRUE
             }
