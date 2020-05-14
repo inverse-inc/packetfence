@@ -196,6 +196,19 @@ export const view = (form = {}, meta = {}) => {
               }
             }
           ]
+        },
+        {
+          label: i18n.t('Forward key balanced'),
+          text: i18n.t(`Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server.`),
+          cols: [
+            {
+              namespace: 'forward_key_balanced',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
         }
       ]
     },
