@@ -47,7 +47,6 @@ BEGIN {
         sponsor
         unregdate
         login_remaining
-        allowed_tenant_id
     );
 
     %DEFAULTS = (
@@ -62,7 +61,6 @@ BEGIN {
         sponsor => '0',
         unregdate => '0000-00-00 00:00:00',
         login_remaining => undef,
-        allowed_tenant_id => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -77,7 +75,6 @@ BEGIN {
         sponsor
         unregdate
         login_remaining
-        allowed_tenant_id
     );
 
     %FIELDS_META = (
@@ -147,12 +144,6 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        allowed_tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -172,7 +163,6 @@ BEGIN {
         password.sponsor
         password.unregdate
         password.login_remaining
-        password.allowed_tenant_id
     );
 
 }

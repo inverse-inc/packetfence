@@ -147,11 +147,7 @@ sub match {
 
     }
 
-    my $allowed_tenant_id = $result->{'allowed_tenant_id'};
-    if (defined $allowed_tenant_id) {
-        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $allowed_tenant_id});
-
-    }
+    push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $result->{tenant_id}});
 
     return pf::Authentication::Rule->new(
         id => "default",

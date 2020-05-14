@@ -267,7 +267,7 @@ sub _update_from_actions {
     );
     _update_field_for_action(
         $data,$actions,$Actions::SET_TENANT_ID,
-        'allowed_tenant_id',undef
+        'tenant_id',undef
     );
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {

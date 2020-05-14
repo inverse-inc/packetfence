@@ -51,13 +51,6 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
-\! echo "Altering password table"
---
--- Altering password table
---
-ALTER TABLE password
-    ADD COLUMN IF NOT EXISTS `allowed_tenant_id` int DEFAULT NULL;
-
 \! echo "Creating the global tenant"
 SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
     INSERT IGNORE INTO `tenant` VALUES (0, 'global', NULL, NULL);
