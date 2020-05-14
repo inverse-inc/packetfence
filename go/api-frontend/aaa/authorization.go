@@ -10,7 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var apiPrefix = "/api/v1"
@@ -20,6 +22,28 @@ var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefi
 type adminRoleMapping struct {
 	prefix string
 	role   string
+}
+
+var multipleTenants = false
+
+func init() {
+	pfdb, err := db.DbFromConfig(context.Background())
+	sharedutils.CheckError(err)
+	defer pfdb.Close()
+
+	res, err := pfdb.Query(`select count(1) from tenant`)
+	sharedutils.CheckError(err)
+	defer res.Close()
+
+	for res.Next() {
+		var count int
+		err := res.Scan(&count)
+		sharedutils.CheckError(err)
+		if count > 2 {
+			log.Logger().Info("Running in multi-tenant mode")
+			multipleTenants = true
+		}
+	}
 }
 
 const ALLOW_ANY = "*"
@@ -294,7 +318,7 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context
 		return true, nil
 	}
 
-	if tokenTenantId != AccessAllTenants {
+	if multipleTenants && tokenTenantId != AccessAllTenants {
 		return false, errors.New(fmt.Sprintf("Token is not allowed to access the configuration namespace because it is scoped to a single tenant."))
 	} else {
 		return true, nil
