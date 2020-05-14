@@ -40,7 +40,7 @@
           </template>
           <template v-slot:value="{ formStoreName, formNamespace, disabled }">
             <div class="pf-form-filter-engine-condition-value">
-              <pf-form-chosen
+              <pf-form-chosen v-show="showField(formNamespace)"
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.field'"
                 :options="fieldOperators"
@@ -57,7 +57,7 @@
                 class="m-1"
               />
               <!-- `value` w/ options -->
-              <pf-form-chosen v-show="valueOptions(formNamespace).length > 0"
+              <pf-form-chosen v-show="showValue(formNamespace) && valueOptions(formNamespace).length > 0"
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.value'"
                 :options="valueOptions(formNamespace)"
@@ -67,7 +67,7 @@
                 class="m-1"
               />
               <!-- `value` w/o options -->
-              <pf-form-input v-show="valueOptions(formNamespace).length === 0"
+              <pf-form-input v-show="showValue(formNamespace) && valueOptions(formNamespace).length === 0"
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.value'"
                 :disabled="disabled"
@@ -155,6 +155,27 @@ export default {
       },
       set (newValue) {
         this.form.condition = newValue
+      }
+    },
+    requiresFieldsAssociated () {
+      return this.valueOperators.reduce((associated, item) => {
+        const { value, requires } = item
+        associated[value] = requires
+        return associated
+      }, {})
+    },
+    showField () {
+      return (namespace) => {
+        const { vModel: { [namespace]: { op } = {} } = {} } = this
+        const { requiresFieldsAssociated: { [op]: requires = [] } = {} } = this
+        return (!op || requires.includes('field'))
+      }
+    },
+    showValue () {
+      return (namespace) => {
+        const { vModel: { [namespace]: { op } = {} } = {} } = this
+        const { requiresFieldsAssociated: { [op]: requires = [] } = {} } = this
+        return (!op || requires.includes('value'))
       }
     }
   },
