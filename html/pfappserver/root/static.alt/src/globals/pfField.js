@@ -113,6 +113,7 @@ export const pfFieldTypeOperators = {
     { text: 'is not', value: 'is not' }
   ],
   [pfFieldType.LDAPATTRIBUTE]: [
+    { text: 'is', value: 'is' },
     { text: 'starts', value: 'starts' },
     { text: 'equals', value: 'equals' },
     { text: 'not_equals', value: 'not_equals' },

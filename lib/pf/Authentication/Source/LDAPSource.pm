@@ -349,16 +349,20 @@ match_in_subclass
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    my $basedn = $self->{'basedn'};
+    my ($filter, $forcedbasedn) = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     my $id = $self->id;
     if (! defined($filter)) {
         $logger->error("[$id] Missing parameters to construct LDAP filter");
         $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
         return (undef, undef);
     }
+    if (defined($forcedbasedn) && $forcedbasedn ne '') {
+        $basedn = $forcedbasedn;
+    }
     my $rule_id = $rule->id;
-    $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
-    return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
+    $logger->warn("[$id $rule_id] Searching for $filter, from $basedn, with scope $self->{'scope'}");
+    return $self->_match_in_subclass($basedn, $filter, $params, $rule, $own_conditions, $matching_conditions);
 }
 
 =head2 _match_in_subclass
@@ -369,12 +373,14 @@ C<$rule> is the rule instance that defines the conditions.
 
 C<$own_conditions> are the conditions specific to an LDAP source.
 
+C<$basedn> is the basedn of the search
+
 Conditions that match are added to C<$matching_conditions>.
 
 =cut
 
 sub _match_in_subclass {
-    my ($self, $filter, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my ($self, $basedn, $filter, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
 
@@ -397,7 +403,7 @@ sub _match_in_subclass {
     my $result = do {
         my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
         $connection->search(
-          base => $self->{'basedn'},
+          base => $basedn,
           filter => $filter,
           scope => $self->{'scope'},
           attrs => \@attributes
@@ -405,7 +411,7 @@ sub _match_in_subclass {
     };
 
     if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
+        $logger->error("[$self->{'id'}] Unable to execute search $filter from $basedn on $LDAPServer:$LDAPServerPort, we skip the rule.");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
         return (undef, undef);
     }
@@ -571,6 +577,10 @@ sub ldap_filter_for_conditions {
           my $operator = $condition->{'operator'};
           my $value = escape_filter_value($condition->{'value'});
           my $attribute = $condition->{'attribute'};
+          if ($attribute eq "basedn") {
+              $basedn = $attribute;
+              next;
+          }
           if ($operator eq $Conditions::EQUALS) {
               $str = "${attribute}=${value}";
           } elsif ($operator eq $Conditions::NOT_EQUALS) {
@@ -596,7 +606,7 @@ sub ldap_filter_for_conditions {
       }
   }
 
-  return $expression;
+  return ($expression, $basedn);
 }
 
 sub replaceVar {
