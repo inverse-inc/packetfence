@@ -26,6 +26,7 @@ const (
 
 func main() {
 	ctx := context.Background()
+	ctx = log.LoggerNewContext(ctx)
 	go seqnoReporting(ctx)
 
 	log.LoggerWContext(ctx).Info(fmt.Sprintf("Waiting %s before we start checking for DB issues", startWait))
