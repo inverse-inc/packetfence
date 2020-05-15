@@ -435,7 +435,7 @@ pages:
 ########################################
 # TEST JOBS
 ########################################
-test_pkg_dev_and_release_centos_7:
+test_pkg_devel_centos_7:
   variables:
     PF_VM_NAME: pfcen7dev
     PERL_UNIT_TESTS: 'yes'
@@ -444,8 +444,21 @@ test_pkg_dev_and_release_centos_7:
   extends:
     - .test_job
     - .test_script
-    - .job_dev_and_release_triggers
+    - .job_dev_triggers
   when: manual
+
+test_pkg_release_centos_7:
+  variables:
+    PF_VM_NAME: pfcen7dev
+    PERL_UNIT_TESTS: 'no'
+    GOLANG_UNIT_TESTS: 'no'
+    INTEGRATION_TESTS: 'no'
+    # only install packages, don't run tests
+    RUN_TESTS: 'yes'
+  extends:
+    - .test_job
+    - .test_script
+    - .job_release_triggers
 
 test_pkg_nigthly_centos_7:
   variables:
@@ -458,7 +471,7 @@ test_pkg_nigthly_centos_7:
     - .test_script
     - .job_nightly_triggers
 
-test_pkg_dev_and_release_debian_stretch:
+test_pkg_devel_debian_stretch:
   variables:
     PF_VM_NAME: pfdeb9dev
     PERL_UNIT_TESTS: 'no'
@@ -467,8 +480,21 @@ test_pkg_dev_and_release_debian_stretch:
   extends:
     - .test_job
     - .test_script
-    - .job_dev_and_release_triggers
+    - .job_dev_triggers
   when: manual
+
+test_pkg_release_debian_stretch:
+  variables:
+    PF_VM_NAME: pfdeb9dev
+    PERL_UNIT_TESTS: 'no'
+    GOLANG_UNIT_TESTS: 'no'
+    INTEGRATION_TESTS: 'no'
+    # only install packages, don't run tests
+    RUN_TESTS: 'yes'
+  extends:
+    - .test_job
+    - .test_script
+    - .job_release_triggers
 
 test_pkg_nightly_debian_stretch:
   variables:

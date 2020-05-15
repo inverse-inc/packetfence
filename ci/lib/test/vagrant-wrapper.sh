@@ -40,7 +40,7 @@ configure_and_check() {
     PERL_UNIT_TESTS=${PERL_UNIT_TESTS:-}
     GOLANG_UNIT_TESTS=${GOLANG_UNIT_TESTS:-}
     INTEGRATION_TESTS=${INTEGRATION_TESTS:-}
-    RUN_TESTS=no
+    RUN_TESTS=${RUN_TESTS:-no}
     if [ "$PERL_UNIT_TESTS" = "yes" ]; then
         RUN_TESTS=${PERL_UNIT_TESTS}
     fi
