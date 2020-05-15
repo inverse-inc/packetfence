@@ -335,6 +335,8 @@ sub realmIsAllowed {
     return $FALSE;
 }
 
+sub lookupRole { undef }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
