@@ -69,6 +69,7 @@ our @excludes = (
     "docs/*",
     "src/*",
     "t/*",
+    "ci/*",
 );
 
 our @patchable_binaries = (
