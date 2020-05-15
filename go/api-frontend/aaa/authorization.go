@@ -152,6 +152,19 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/wmi_rules", role: "WMI"},
 }
 
+var allTenantsPaths = []string{
+	configApiPrefix + "/security_events",
+	configApiPrefix + "/security_event/",
+	configApiPrefix + "/base/guests_admin_registration",
+	configApiPrefix + "/admin_roles",
+}
+
+var multiTenantDenyPaths = []string{
+	apiPrefix + "/queues",
+	apiPrefix + "/services",
+	apiPrefix + "/service",
+}
+
 var methodSuffixMap = map[string]string{
 	"GET":     "_READ",
 	"OPTIONS": "_READ",
@@ -237,7 +250,7 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return authTenant, err
 	}
 
-	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, path, tokenInfo.TenantId.Id)
+	authConfig, err := tam.isAuthorizedMultiTenant(ctx, method, path, tokenInfo.TenantId.Id)
 	if !authConfig || err != nil {
 		return authConfig, err
 	}
@@ -312,13 +325,48 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, path string, tokenTenantId int) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) isAuthorizedMultiTenant(ctx context.Context, method string, path string, tokenTenantId int) (bool, error) {
+	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, method, path, tokenTenantId)
+	if !authConfig || err != nil {
+		return authConfig, err
+	}
+
+	authMultiTenant, err := tam.isAuthorizedPathMultiTenant(ctx, method, path, tokenTenantId)
+	if !authMultiTenant || err != nil {
+		return authMultiTenant, err
+	}
+
+	return true, nil
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedPathMultiTenant(ctx context.Context, method string, path string, tokenTenantId int) (bool, error) {
+	if multipleTenants && tokenTenantId != AccessAllTenants {
+		for _, base := range multiTenantDenyPaths {
+			if strings.HasPrefix(path, base) {
+				return false, errors.New(fmt.Sprintf("Token is not allowed to access this namespace because it is scoped to a single tenant."))
+			}
+		}
+		return true, nil
+	} else {
+		return true, nil
+	}
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, method string, path string, tokenTenantId int) (bool, error) {
 	// If we're not hitting the config namespace, then there is no need to enforce anything below
 	if !configNamespaceRe.MatchString(path) {
 		return true, nil
 	}
 
 	if multipleTenants && tokenTenantId != AccessAllTenants {
+		if method == "GET" || method == "OPTIONS" {
+			for _, base := range allTenantsPaths {
+				if strings.HasPrefix(path, base) {
+					return true, nil
+				}
+			}
+		}
+
 		return false, errors.New(fmt.Sprintf("Token is not allowed to access the configuration namespace because it is scoped to a single tenant."))
 	} else {
 		return true, nil
