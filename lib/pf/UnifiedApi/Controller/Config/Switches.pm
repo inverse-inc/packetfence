@@ -32,10 +32,10 @@ invalidate switch cache
 
 sub invalidate_cache {
     my ($self) = @_;
-    my $switch_id = $self->item;
+    my $switch_id = $self->id;
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     unless ( ref($switch) ) {
-        return $self->render_error(status => 422, "Cannot instantiate switch $switch");
+        return $self->render_error(422, "Cannot instantiate switch $switch");
     }
 
     $switch->invalidate_distributed_cache();
