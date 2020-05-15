@@ -38,6 +38,10 @@ authorize {
 	#
 	filter_username
 
+        update {
+                &request:PacketFence-Outer-User := "%{outer.request:User-Name}"
+        }
+
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge
@@ -279,9 +283,6 @@ post-auth {
 		update {
 			&request:PacketFence-NTCacheHash := &control:PacketFence-NTCacheHash
 		}
-	}
-	update {
-		&request:PacketFence-Outer-User := "%{outer.request:User-Name}"
 	}
 	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
 		rest
