@@ -1,5 +1,5 @@
 Name:       packetfence-release
-Version:    2.0.0
+Version:    2.1.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
@@ -38,6 +38,18 @@ enabled=0
 [packetfence-extra]
 name=PacketFence Extra Repository
 baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/extra/\$basearch
+gpgcheck=0
+enabled=0
+
+[packetfence-branches]
+name=PacketFence Branches Repository
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/\$basearch
+gpgcheck=0
+enabled=0
+
+[packetfence-gitlab]
+name=PacketFence GitLab Repository
+baseurl=http://inverse-inc.gitlab.io/packetfence/centos/\$releasever/\$basearch
 gpgcheck=0
 enabled=0
 
@@ -96,8 +108,15 @@ cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pk
 
 
 %changelog
+* Wed Apr 15 2020 Nicolas Quiniou-Briand <nqb@inverse.ca> - 2.1.0-1
+- Add packetfence-branches and packetfence-gitlab repositories
+
 * Sat Jul 13 2019 Nicolas Quiniou-Briand <nqb@inverse.ca> - 2.0.0-1
 - Adapt spec file to CI
+
+* Sat Jul 13 2019 Nicolas Quiniou-Briand <nqb@inverse.ca> - 2.0.0-1
+- Adapt spec file to CI
+
 * Wed Apr 12 2017 Inverse inc. <info@inverse.ca> - 1.2-7
 - Permission fix. 
 
