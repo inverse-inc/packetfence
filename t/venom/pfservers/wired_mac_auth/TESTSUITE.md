@@ -1,6 +1,7 @@
 # wired_mac_auth
 
 Register a node with RADIUS in order to test MAC Authentication on Wired
+
 ## Requirements
 
 ### Switch side
@@ -14,8 +15,7 @@ Register a node with RADIUS in order to test MAC Authentication on Wired
 1. Enable node_cleanup task with following parameters:
 - delete_windows=1M
 1. Create a node with MAC address of node01 (eth1) : 00:03:00:11:11:01
-- set a short unregdate
-- assign the role headless_device
+- assign the role headless_device without unreg date
 - add a notes
 1. Create connection profile with specific filter Ethernet-NoEAP and unreg_on_accounting_stop
 1. Send a MAC Auth RADIUS request to PacketFence from switch01

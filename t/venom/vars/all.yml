@@ -87,7 +87,7 @@ backup_db_and_restore.backup_dir: /root/backup
 # Roles
 wired_mac_auth.roles.headless_device.id: headless_device
 wired_mac_auth.roles.headless_device.notes: Headless device
-wired_mac_auth.roles.headless_deivce.vlan_id: 100
+wired_mac_auth.roles.headless_device.vlan_id: 100
 
 # Connection profiles
 wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
