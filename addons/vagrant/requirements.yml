@@ -9,4 +9,5 @@ collections:
   - name: debops.debops
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
+    version: 1.1.0-1
 
