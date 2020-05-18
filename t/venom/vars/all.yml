@@ -82,10 +82,14 @@ backup_db_and_restore.user: adminvenom
 backup_db_and_restore.backup_dir: /root/backup
 
 ################################################################################
-## wired_mac_auth variables
+## wired_mac_auth test suite specific variables
 #################################################################################
-role_headless_device: headless_device
-vlan_headless_device: 20
+# Roles
+wired_mac_auth.roles.headless_device.id: headless_device
+wired_mac_auth.roles.headless_device.notes: Headless device
+wired_mac_auth.roles.headless_deivce.vlan_id: 100
+
+# Connection profiles
 wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
 wired_mac_auth.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
 wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
