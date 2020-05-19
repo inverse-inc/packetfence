@@ -95,6 +95,16 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  invalidateSwitchCache: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.invalidateSwitchCache(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 

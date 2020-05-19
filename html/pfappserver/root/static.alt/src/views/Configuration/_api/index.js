@@ -1146,6 +1146,9 @@ export default {
   deleteSwitch: id => {
     return apiCall.delete(['config', 'switch', id])
   },
+  invalidateSwitchCache: id => {
+    return apiCall.post(['config', 'switch', id, 'invalidate_cache'])
+  },
 
   /**
    * SwitchGroups
