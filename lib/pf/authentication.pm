@@ -375,7 +375,7 @@ sub match {
 
 sub role_from_source {
     my ($role_info, $source, $params, $extra) = @_;
-    return undef;
+    return $source->lookupRole($role_info, $params, $extra);
 }
 
 =item match2
