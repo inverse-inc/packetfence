@@ -38,7 +38,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 #This test will running last
 use Test::NoWarnings;
