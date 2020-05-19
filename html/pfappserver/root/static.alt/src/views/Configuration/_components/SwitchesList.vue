@@ -24,6 +24,7 @@
     <template v-slot:cell(buttons)="item">
       <span class="float-right text-nowrap text-right">
         <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Switch?')" @on-delete="remove(item)" reverse/>
+        <b-button size="sm" variant="outline-secondary" class="mr-1" @click.stop.prevent="invalidate(item)">{{ $t('Invalidate Cache') }}</b-button>
         <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
       </span>
     </template>
@@ -75,6 +76,15 @@ export default {
       this.$store.dispatch('$_switches/deleteSwitch', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
+      })
+    },
+    invalidate (item) {
+      this.$store.dispatch('$_switches/invalidateSwitchCache', item.id).then(() => {
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Switch <code>{id}</code> cache invalidated', item) })
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
+      }).catch(() => {
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Switch <code>{id}</code> cache could not be invalidated', item) })
       })
     }
   },
