@@ -135,22 +135,22 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_switch_groups/options', this.id).then(options => {
-        const { meta = {} } = options
-        const { isNew, isClone, roles } = this
-        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, roles } })
-        if (this.id) { // existing
-          this.$store.dispatch('$_switch_groups/getSwitchGroup', this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-          })
-        } else { // new
-          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
-        }
-      })
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
       this.$store.dispatch('$_roles/all').then(data => {
         this.roles = data
+        this.$store.dispatch('$_switch_groups/options', this.id).then(options => {
+          const { meta = {} } = options
+          const { isNew, isClone, roles } = this
+          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, roles } })
+          if (this.id) { // existing
+            this.$store.dispatch('$_switch_groups/getSwitchGroup', this.id).then(form => {
+              if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+              this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+            })
+          } else { // new
+            this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(meta)) // set defaults
+          }
+        })
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
       })
     },
     close () {
