@@ -284,8 +284,9 @@ If source_id_ref is defined then it will be set to the matching source_id
 =cut
 
 our %ACTION_VALUE_FILTERS = (
-    $Actions::SET_ACCESS_DURATION => \&pf::config::access_duration,
-    $Actions::SET_UNREG_DATE => \&pf::config::dynamic_unreg_date,
+    $Actions::SET_ACCESS_DURATION => sub { pf::config::access_duration($_[0]) },
+    $Actions::SET_UNREG_DATE => sub { pf::config::dynamic_unreg_date($_[0]) },
+    $Actions::SET_ROLE_FROM_SOURCE => \&role_from_source,
 );
 
 sub match {
@@ -372,6 +373,11 @@ sub match {
     return undef;
 }
 
+sub role_from_source {
+    my ($role_info, $source, $params, $extra) = @_;
+    return undef;
+}
+
 =item match2
 
 This method tries to match a set of params in one or multiple sources.
@@ -428,7 +434,14 @@ sub match2 {
             my $type  = $action->type;
             next if defined $ignored_action && $ignored_action eq $type;
             my $value = $action->value;
-            $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
+            if (exists $ACTION_VALUE_FILTERS{$type}) {
+                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra);
+                if (!defined $value) {
+                    #Setting action to undef to avoid the wrong actions to be returned
+                    $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
+                    next;
+                }
+            }
             $type = $Actions::MAPPED_ACTIONS{$type} if exists $Actions::MAPPED_ACTIONS{$type};
             $values{$type} = $value;
             push @new_actions, $action;
