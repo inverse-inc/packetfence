@@ -662,7 +662,7 @@ status=enabled
 #
 # interval
 #
-# At which interval to run the auth log cleanup pfmon task
+# At which interval to run the acct cleanup pfmon task
 interval=60s
 #
 # batch
