@@ -1979,7 +1979,10 @@ Once that is configured, make sure you have the right Root portal module on the 
 Exploring the collected data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All the data that is collected in the example survey will be stored in a table named `survey_survey1`. You can create 'Custom Reports' on your survey tables via `/usr/local/pf/conf/report.conf`. Here is an example for the survey created above:
+All the data that is collected in the example survey will be stored in a table
+named `survey_survey1`. You can create 'Dynamic Reports' on your survey tables
+via `/usr/local/pf/conf/report.conf`. Here is an example for the survey
+created above:
 
 [source,ini,numbered]
 ----
@@ -1991,7 +1994,7 @@ columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as "
 
 NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
 
-Refer to the 'Custom Reports' section of this document for advanced configuration.
+Refer to the <<_dynamic_reports>> section of this document for advanced configuration.
 
 Cleaning up
 ^^^^^^^^^^^
@@ -5491,8 +5494,7 @@ This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-e
 TIP: More information on `etcd` failures can be found at https://github.com/coreos/etcd/blob/master/Documentation/op-guide/failures.md
 
 
-Advanced Topics
----------------
+== Advanced Topics
 
 This section covers advanced topics in PacketFence. Note that it is also possible to configure PacketFence manually using its configuration files instead of its Web administrative interface. It is still recommended to use the Web interface.
 
@@ -5506,16 +5508,18 @@ In order to override a default parameter, define it and set it in `pf.conf`.
 
 All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
 
-Custom Reports
-~~~~~~~~~~~~~~
+=== Dynamic Reports
 
-Using the `report.conf` configuration file, you can define reports that create SQL queries to view tables in the PacketFence database. These reports will appear under the 'Reports -> Custom Reports' menu of the administration interface.
+Using the `report.conf` configuration file, you can define reports that create
+SQL queries to view tables in the PacketFence database. These reports will
+appear under the 'Reports -> Dynamic Reports' menu of the administration
+interface.
 
 In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf` and add a section that will define your report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
 
 The following attributes are available to define your report (the ones that have an asterisk are mandatory):
 [options="compact"]
-* * `type`: Determines what type of report this is. Setting `type=built-in` will make this report appear in "Other reports", omitting it will display it in "Custom reports" when viewing it in the administration interface. When in doubt, simply omit this parameter.
+* * `type`: Determines what type of report this is. Setting `type=built-in` will make this report appear in _Other reports_, omitting it will display it in _Dynamic reports_ when viewing it in the administration interface. When in doubt, simply omit this parameter.
 * * `description` : The user friendly description that will display for this report
 * * `base_table` : The base SQL table that will be used to create the view
 * * `columns` : The columns to select from the table(s) (ex: `node.mac`).
@@ -5537,8 +5541,7 @@ WARNING: Replace operators `IS` and `<>` by `=` and `!=`, respectively.
 
 NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 
-Examples:
-^^^^^^^^^
+==== Examples
 
 View of the auth_log table:
 
@@ -5582,13 +5585,11 @@ View of the opened security events:
 
 In the example above, you can see that the security_event table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the security events are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
 
-Admin Access
-~~~~~~~~~~~~
+=== Admin Access
 
 You can manage which access you give to PacketFence administrators. To do that go through 'Configuration->System Configuration->Admin Access'. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
 
-Built-in roles
-^^^^^^^^^^^^^^
+==== Built-in roles
 
  * ALL: Provides the user with all the admin roles without any exception.
  * ALL_PF_ONLY: Provides the user with all the admin roles related to the PacketFence deployment (excludes switch login rights).
@@ -5596,8 +5597,7 @@ Built-in roles
  * User Manager: Provides the user the ability to manage other users.
  * Security Event Manager: Provides the user the ability to manage the security events (trigger, open, close) for the nodes.
 
-Guest pre-registration
-~~~~~~~~~~~~~~~~~~~~~~
+=== Guest pre-registration
 
 Pre-registration is disabled by default. Once enabled, PacketFence's firewall and Apache ACLs allow access to the `/signup` page on the portal even from a remote location. All that should be required from the administrators is to open up their perimeter firewall to allow access to PacketFence's management interface IP on port 443 and make sure a domain name to reach said IP is configured (and that the SSL cert matches it). Then you can promote the pre-registration link from your extranet web site: https://<hostname>/signup.
 
@@ -5615,8 +5615,8 @@ CAUTION: Pre-registration increases the attack surface of the PacketFence system
 NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
 
-Content-Security-Policy (CSP)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Content-Security-Policy (CSP)
+
 The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for both the captive portal and the admin interfaces and enforces that everything the browser executes comes from within PacketFence, with the exception of the configured network detection host that is by default the Inverse IP address.
 
 If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
