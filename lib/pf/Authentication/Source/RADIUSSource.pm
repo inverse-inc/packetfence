@@ -22,6 +22,7 @@ use Authen::Radius;
 Authen::Radius->load_dictionary("/usr/share/freeradius/dictionary");
 
 use Moose;
+use List::Util qw(first);
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
@@ -186,22 +187,31 @@ sub match_in_subclass {
     my $username =  $params->{'username'};
 
     foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq "username") {
+        my $name = $condition->{'attribute'};
+        if ($name eq "username") {
             if ( $condition->matches("username", $username) ) {
                 push(@{ $matching_conditions }, $condition);
             }
-        }
-        if (defined($extra)) {
-            for my $attribute (@{ $extra->{attributes}} ) {
-                if ($condition->{'attribute'} eq $attribute->{'Name'} ) {
-                    if ( $condition->matches($condition->{'attribute'}, $attribute->{'Value'}) ) {
-                        push(@{ $matching_conditions }, $condition);
-                    }
-                }
+        } elsif (defined($extra)) {
+            my $attribute = first { $_->{Name} eq $name } @{ $extra->{attributes}};
+            if ($attribute && $condition->matches($name, $attribute->{'Value'}) ) {
+                push(@{ $matching_conditions }, $condition);
             }
         }
     }
     return ($username, undef);
+}
+
+sub lookupRole {
+    my ($self, $role_info, $params, $extra) = @_;
+    if (defined $extra) {
+        my $attribute = first { $_->{Name} eq $role_info } @{ $extra->{attributes}};
+        if ($attribute) {
+            return $attribute->{Value};
+        }
+    }
+
+    return undef;
 }
 
 =head1 AUTHOR

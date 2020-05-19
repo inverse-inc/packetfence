@@ -653,6 +653,11 @@ sub _makefilter {
     }
 }
 
+sub lookupRole {
+    my ($self, $role_info, $params, $extra) = @_;
+    return undef;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
