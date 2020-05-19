@@ -26,6 +26,9 @@ ad_base_dn: dc=example,dc=lan
 
 # switchs variables
 switch01_mgmt_ip: 172.17.17.201
+switch01_api_url: "https://{{.switch01_mgmt_ip}}:8080"
+switch01_api_user: cumulus
+switch01_api_password: CumulusLinux!
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
