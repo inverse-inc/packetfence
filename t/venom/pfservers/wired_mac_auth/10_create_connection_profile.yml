@@ -19,18 +19,18 @@ testcases:
           "unit": "m"
         },
         "default_psk_key": null,
-        "description": "{{.mac_authentication.profiles.wired.description}}",
+        "description": "{{.wired_mac_auth.profiles.wired.description}}",
         "dot1x_recompute_role_from_portal": "enabled",
         "dot1x_unset_on_unmatch": "disabled",
         "dpsk": "disabled",
         "filter": [
           {
-            "match": "{{.mac_authentication.profiles.wired.filters.connection_type}}",
+            "match": "{{.wired_mac_auth.profiles.wired.filters.connection_type}}",
             "type": "connection_type"
           }
         ],
         "filter_match_style": "any",
-        "id": "{{.mac_authentication.profiles.wired.id}}",
+        "id": "{{.wired_mac_auth.profiles.wired.id}}",
         "locale": null,
         "login_attempt_limit": 0,
         "logo": null,
