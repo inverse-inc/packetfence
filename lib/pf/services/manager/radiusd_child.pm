@@ -761,19 +761,24 @@ sub generate_radiusd_ldap {
             $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
         }
         $ldap_config = $TRUE;
+        my $server_list;
+        my @ldap_server = split(',',$ConfigAuthenticationLdap{$ldap}->{host});
+        foreach my $ldap_server (@ldap_server) {
+            $server_list .= "    server          = $ldap_server\n";
+        }
         $tags{'servers'} .= <<"EOT";
 
 ldap $ldap {
-    server          = "$ConfigAuthenticationLdap{$ldap}->{host}"
+$server_list
     port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
-    password        = $ConfigAuthenticationLdap{$ldap}->{password}
+    password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
     base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
     filter          = "(userPrincipalName=%{User-Name})"
     scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
     base_filter     = "(objectclass=user)"
-    rebind          = yes
-    chase_referrals = yes
+    rebind          = "yes"
+    chase_referrals = "yes"
     update {
         control:AD-Samaccountname := 'sAMAccountName'
         request:PacketFence-UserNameAttribute := "$ConfigAuthenticationLdap{$ldap}->{usernameattribute}"
