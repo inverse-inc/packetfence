@@ -130,18 +130,17 @@ sub process {
             $query_success = $FALSE;
         }
 
-        # Processing the device class based on it's parents
-        my ( $top_level_parent, $parents ) = _parse_parents($query_result);
-        $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
-
-        if(!defined($query_result->{device_class})) {
-            $logger->error("Issue figuring out device class.");
-            $query_success = $FALSE;
-        }
-
-        $query_result->{parents} = $parents;
-
         if($query_success) {
+            # Processing the device class based on it's parents
+            my ( $top_level_parent, $parents ) = _parse_parents($query_result);
+            $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
+
+            if(!defined($query_result->{device_class})) {
+                $logger->error("Issue figuring out device class.");
+                $query_success = $FALSE;
+            }
+            $query_result->{parents} = $parents;
+
             record_result($mac, $query_args, $query_result);
         }
     
