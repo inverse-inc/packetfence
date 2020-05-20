@@ -24,7 +24,7 @@ const ADMIN_ROLES_ACTIONS = [
   'write'
 ]
 
-export const aclContext = () => store.state.session.roles
+export const aclContext = () => store.getters['session/aclContext']
 
 const acl = new Acl()
 acl.$can = (verb, action) => {

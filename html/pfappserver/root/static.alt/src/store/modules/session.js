@@ -139,7 +139,10 @@ const getters = {
   allowedUserRoles: state => state.allowedUserRoles || [],
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
-  tenantIdMask: state => state.tenant_id_mask || state.tenant.id
+  tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
+  aclContext: state => {
+    return state.roles
+  }
 }
 
 const actions = {
