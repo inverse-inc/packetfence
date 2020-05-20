@@ -126,11 +126,56 @@ sub options_field_names {
           fingerbank_info.score
           fingerbank_info.version
           fingerbank_info.mobile
+          switch._ExternalPortalEnforcement
+          switch._RoleMap
+          switch._SNMPAuthPasswordRead
+          switch._SNMPAuthPasswordTrap
+          switch._SNMPAuthPasswordWrite
+          switch._SNMPAuthProtocolRead
+          switch._SNMPAuthProtocolTrap
+          switch._SNMPAuthProtocolWrite
+          switch._SNMPCommunityRead
+          switch._SNMPCommunityTrap
+          switch._SNMPCommunityWrite
+          switch._SNMPEngineID
+          switch._SNMPPrivPasswordRead
+          switch._SNMPPrivPasswordTrap
+          switch._SNMPPrivPasswordWrite
+          switch._SNMPPrivProtocolRead
+          switch._SNMPPrivProtocolTrap
+          switch._SNMPPrivProtocolWrite
+          switch._SNMPUserNameRead
+          switch._SNMPUserNameTrap
+          switch._SNMPUserNameWrite
+          switch._SNMPVersion
+          switch._SNMPVersionTrap
+          switch._TenantId
+          switch._UrlMap
+          switch._VlanMap
+          switch._VoIPEnabled
+          switch._cliEnablePwd
+          switch._cliPwd
+          switch._cliTransport
+          switch._cliUser
+          switch._coaPort
+          switch._controllerIp
+          switch._deauthMethod
+          switch._disconnectPort
+          switch._id
+          switch._inlineTrigger
+          switch._ip
+          switch._macSearchesMaxNb
+          switch._macSearchesSleepInterval
+          switch._mode
+          switch._roles
           switch._switchIp
-          switch._ip
-          switch._portalURL
           switch._switchMac
-          switch._ip
+          switch._uplink
+          switch._useCoA
+          switch._vlans
+          switch._wsPwd
+          switch._wsTransport
+          switch._wsUser
           ifIndex
           mac
           connection_type
