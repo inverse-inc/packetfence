@@ -96,7 +96,7 @@ authorize {
 	#files
 
 	# Accept any non-eap request and send it to the packetfence module for authorization
-	if ( !EAP-Message || Control: Auth-type != "MS-CHAP") {
+	if ( !EAP-Message || Control:Auth-type != "MS-CHAP") {
 		update {
 			&control:Auth-Type := Accept
 		}
