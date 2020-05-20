@@ -193,6 +193,8 @@ sub populate {
             $new_file->newval($id, $k, $v);
         }
 
+        $new_file->newval($id, "description", $id);
+
     }
     return @errors;
 }
