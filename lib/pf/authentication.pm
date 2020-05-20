@@ -344,19 +344,17 @@ sub match {
                           . "' for username " . ( $params->{'username'} // "undef" )
                     }
                 );
-                $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
                 my $value = $found_action->value;
                 my $type  = $found_action->type;
                 if (exists $ACTION_VALUE_FILTERS{$type}) {
                     $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra);
                     if (!defined $value) {
-                        #Setting action to undef to avoid the wrong actions to be returned
-                        $actions = undef;
                         $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
                         next;
                     }
                 }
 
+                $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
                 return $value;
             }
 
