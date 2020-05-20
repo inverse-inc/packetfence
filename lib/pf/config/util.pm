@@ -421,7 +421,7 @@ sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
     my $matched_realm = $realm;
     foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
-        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
             $realm = $realm_key;
             last;
         }
