@@ -235,13 +235,14 @@ EOT
             }
             $flag = $FALSE;
             if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                $tags{'userPrincipalName'} .= "if (Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/) {";
+                $tags{'userPrincipalName'} .= "            if (Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/) {";
             } else {
-                $tags{'userPrincipalName'} .= "if (Realm == \"$realm\") {";
+                $tags{'userPrincipalName'} .= "            if (Realm == \"$realm\") {";
             }
             $tags{'userPrincipalName'} .= <<"EOT";
-            $pf::config::ConfigRealm{$realm}->{ldap_source}
-        }
+
+                $pf::config::ConfigRealm{$realm}->{ldap_source}
+            }
 EOT
         }
     }
