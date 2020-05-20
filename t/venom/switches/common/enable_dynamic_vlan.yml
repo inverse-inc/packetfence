@@ -1,7 +1,7 @@
 name: Commit changes in configuration
 version: 2
 testcases:
-- name: commit_configuration
+- name: enable_dynamic_vlan_on_switch01
   steps:
   - type: http
     method: POST
@@ -11,7 +11,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-       "cmd": "commit"
+       "cmd": "add dot1x dynamic-vlan"
       }
     headers:
       "Content-Type": "application/json"
