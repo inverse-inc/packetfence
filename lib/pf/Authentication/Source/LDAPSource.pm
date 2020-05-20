@@ -441,8 +441,12 @@ sub _match_in_subclass {
             # If we found a result, we push all conditions as matched ones.
             # That is normal, as we used them all to build our LDAP filter.
             $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
-            push @{ $matching_conditions }, @{ $own_conditions };
-            return ($params->{'username'} || $params->{'email'}, $Actions::SET_ROLE_ON_NOT_FOUND);
+            if (any {$_->type eq $Actions::SET_ROLE } @{$rule->{actions} // []} ) {
+                push @{ $matching_conditions }, @{ $own_conditions };
+                return ($params->{'username'} || $params->{'email'}, $Actions::SET_ROLE_ON_NOT_FOUND);
+            } else {
+                $logger->trace("[$self->{'id'} $rule->{'id'}] match ($dn) but no set role action, continue");
+            }
         }
     }
     elsif($result_count > 1) {
