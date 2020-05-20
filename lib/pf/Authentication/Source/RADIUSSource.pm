@@ -199,7 +199,7 @@ sub match_in_subclass {
             }
         }
     }
-    return ($username ? $TRUE : $FALSE, undef);
+    return ($username, undef);
 }
 
 sub lookupRole {

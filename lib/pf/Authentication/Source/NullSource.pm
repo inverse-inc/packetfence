@@ -93,7 +93,7 @@ sub match_in_subclass {
             }
         }
     }
-    return ($username ? $TRUE : $FALSE, undef);
+    return ($username, undef);
 }
 
 =head2 mandatoryFields

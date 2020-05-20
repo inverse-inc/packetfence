@@ -261,7 +261,7 @@ sub match_rule {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
-    return ($FALSE, undef);
+    return (undef, undef);
 }
 
 =head2 match_condition

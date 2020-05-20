@@ -12,8 +12,6 @@ Abstract class for OAuth sources.
 
 use pf::log;
 use Moose;
-use pf::Authentication::constants;
-use pf::constants qw($TRUE $FALSE);
 extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'abstact');
@@ -71,7 +69,7 @@ sub match_in_subclass {
             }
         }
     }
-    return ($username ? $TRUE : $FALSE, undef);
+    return ($username, undef);
 }
 
 =head2 lookup_from_provider_info

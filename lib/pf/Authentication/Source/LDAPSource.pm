@@ -319,7 +319,7 @@ sub match_in_subclass {
     if (! defined($filter)) {
         $logger->error("[$id] Missing parameters to construct LDAP filter");
         $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
-        return ($FALSE, undef);
+        return (undef, undef);
     }
     my $rule_id = $rule->id;
     $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
@@ -347,18 +347,15 @@ sub _match_in_subclass {
     unless ( $cached_connection ) {
         my ($connection, $LDAPServer, $LDAPServerPort) = $self->_connect();
         if (! defined($connection)) {
-            return ($FALSE, undef);
+            return (undef, undef);
         }
 
         $cached_connection = [$connection, $LDAPServer, $LDAPServerPort];
         $self->_cached_connection($cached_connection);
     }
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
-    my @attributes = map { $_->{'attribute'} } @{$own_conditions};
-    if (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$self->{actions} // []}) {
-        push @attributes, $action->value;
-    }
 
+    my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     my $result = do {
         my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
         $connection->search(
@@ -372,7 +369,7 @@ sub _match_in_subclass {
     if ($result->is_error) {
         $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return ($FALSE, undef);
+        return (undef, undef);
     }
 
     my $result_count = $result->count;
@@ -402,7 +399,6 @@ sub _match_in_subclass {
         }
 
         # Perform match on a static group condition since they require a second LDAP search
-        my $dn_search = escape_filter_value($dn);
         foreach $condition (grep { $_->{'operator'} eq $Conditions::IS_MEMBER } @{$own_conditions}) {
             $value = escape_filter_value($condition->{'value'});
             $attribute = $entry->get_value($condition->{'attribute'}) // '';
@@ -411,6 +407,7 @@ sub _match_in_subclass {
             # - groupOfNames       => member (dn)
             # - groupOfUniqueNames => uniqueMember (dn)
             # - posixGroup         => memberUid (uid)
+            my $dn_search = escape_filter_value($dn);
             $filter = "(|(member=${dn_search})(uniqueMember=${dn_search})(memberUid=${attribute}))";
             $logger->debug("[$self->{'id'} $rule->{'id'}] Searching is_member filter $filter");
             $result = $connection->search
@@ -459,11 +456,11 @@ sub _match_in_subclass {
         $logger->debug("[$self->{'id'} $rule->{'id'}] No match found for this LDAP filter");
         if (any {$_->type eq $Actions::SET_ROLE_ON_NOT_FOUND } @{$rule->{actions} // []} ) {
             push @{ $matching_conditions }, @{ $own_conditions };
-            return ($params->{'username'} || $params->{'email'} ? $TRUE : $FALSE, $Actions::SET_ROLE);
+            return ($params->{'username'} || $params->{'email'}, $Actions::SET_ROLE);
         }
     }
 
-    return ($FALSE, undef);
+    return (undef, undef);
 }
 
 =head2 test
