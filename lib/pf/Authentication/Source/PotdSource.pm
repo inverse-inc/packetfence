@@ -66,7 +66,7 @@ sub match_in_subclass {
             }
         }
     }
-    return ($params->{'username'}, undef);
+    return ($params->{'username'} ? $TRUE : $FALSE, undef);
 }
 
 

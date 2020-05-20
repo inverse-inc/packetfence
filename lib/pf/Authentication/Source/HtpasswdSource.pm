@@ -96,11 +96,11 @@ sub match_in_subclass {
                     }
                 }
             }
-            return ($username, undef);
+            return ($username ? $TRUE : $FALSE, undef);
         }
     }
 
-    return (undef, undef);
+    return ($FALSE, undef);
 }
 
 =head1 AUTHOR

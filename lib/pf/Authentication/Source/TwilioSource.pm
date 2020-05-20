@@ -83,7 +83,7 @@ sub mandatoryFields {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return ($params->{'username'}, undef);
+    return ($params->{'username'} ? $TRUE : $FALSE, undef);
 }
 
 

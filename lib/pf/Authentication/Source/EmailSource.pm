@@ -78,11 +78,11 @@ sub match_in_subclass {
         if ($condition->{'attribute'} eq "user_email") {
             if ( $condition->matches("user_email", $params->{user_email}) ) {
                 push(@{ $matching_conditions }, $condition);
-                return $params->{user_email};
+                return ($params->{user_email} ? $TRUE : $FALSE, undef);
             }
         }
     }
-    return ($params->{'username'}, undef);
+    return ($params->{'username'} ? $TRUE : $FALSE, undef);
 }
 
 =head2 mandatoryFields
