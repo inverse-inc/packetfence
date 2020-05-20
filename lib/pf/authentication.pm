@@ -325,7 +325,7 @@ sub match {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        my ($rule, $ignored_action) = $source->match($params, $action, $extra);
+        my ($rule, $ignored_action, $matched) = $source->match($params, $action, $extra);
         unless (defined $rule) {
             $logger->trace(sub {"Skipped " . $source->id });
             next;
@@ -347,7 +347,7 @@ sub match {
                     }
                 );
                 if (exists $ACTION_VALUE_FILTERS{$type}) {
-                    $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra);
+                    $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra, $matched);
                     if (!defined $value) {
                         $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
                         next;
@@ -372,8 +372,8 @@ sub match {
 }
 
 sub role_from_source {
-    my ($role_info, $source, $params, $extra) = @_;
-    return $source->lookupRole($role_info, $params, $extra);
+    my ($role_info, $source, $params, $extra, $matched) = @_;
+    return $source->lookupRole($role_info, $params, $extra, $matched);
 }
 
 =item match2
@@ -423,7 +423,7 @@ sub match2 {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        my ($rule, $ignored_action) = $source->match($params, undef, $extra);
+        my ($rule, $ignored_action, $matched) = $source->match($params, undef, $extra);
         next unless defined $rule;
         my %values;
         $actions = $rule->{actions};
@@ -433,7 +433,7 @@ sub match2 {
             next if defined $ignored_action && $ignored_action eq $type;
             my $value = $action->value;
             if (exists $ACTION_VALUE_FILTERS{$type}) {
-                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra);
+                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra, $matched);
                 if (!defined $value) {
                     #Setting action to undef to avoid the wrong actions to be returned
                     $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
