@@ -336,16 +336,16 @@ sub match {
             # Return the value only if the action matches
             my $found_action = first {my $t = $_->type;(!(defined $ignored_action) || $ignored_action ne $t) && exists $allowed_actions->{$t} && $allowed_actions->{$t}} @{$actions};
             if (defined $found_action) {
+                my $value = $found_action->value;
+                my $type  = $found_action->type;
                 $logger->debug(
                     sub {
                         "[" . $source->id . "] Returning '"
-                          . ( $found_action->value // "undef" )
+                          . ( $value // "undef" )
                           . "' for action '" . ( $action // "undef" )
                           . "' for username " . ( $params->{'username'} // "undef" )
                     }
                 );
-                my $value = $found_action->value;
-                my $type  = $found_action->type;
                 if (exists $ACTION_VALUE_FILTERS{$type}) {
                     $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra);
                     if (!defined $value) {
