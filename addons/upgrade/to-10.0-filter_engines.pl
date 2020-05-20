@@ -180,7 +180,8 @@ sub populate {
             }
 
             if ($k =~ qr/(answer|param)(\d+)/) {
-                $k = "$1.$2";
+                my $i = $2 - 1;
+                $k = "$1.$i";
                 $v =~ s/\s*=>\s*/ = /;
             }
 
