@@ -39,6 +39,7 @@ Test all the rules
 sub test {
     my ($self, $scope, $args) = @_;
     my $engine = $self->getEngineForScope($scope);
+    $args = $self->adjustCommonParams($args);
     if ($engine) {
         $args->{'security_event'} =  security_event_view_top($args->{'mac'});
         my $answer = $engine->match_first($args);
