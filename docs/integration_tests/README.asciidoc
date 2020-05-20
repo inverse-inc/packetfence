@@ -135,7 +135,8 @@ aware-bridge] to manage VLAN on interfaces (recommended approach)
 `hostapd` is the daemon responsible to send 802.1X and MAC Authentication
 requests to RADIUS server (as described in
 link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/Layer-1-and-Switch-Ports/802.1X-Interfaces/[802.1X
-Cumulus Linux documentation]). We configured this daemon using Ansible.
+Cumulus Linux documentation]). We configured this daemon using Ansible with RADIUS server informations.
+However, daemon will be started during integration tests when switch interfaces are involved.
 
 ===== Node01
 
