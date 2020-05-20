@@ -105,28 +105,15 @@ sub build_child {
                 }
                 elsif ( $parameter =~ m/action(\d+)/ ) {
                     my ( $type, $value ) = split( '=', $config_value, 2 );
-
-                    if ( defined $value ) {
-                        $current_rule->add_action(
-                            pf::Authentication::Action->new(
-                                {   type  => $type,
-                                    value => $value,
-                                    class => pf::Authentication::Action->getRuleClassForAction($type),
-                                }
-                            )
-                        );
-                    }
-                    else {
-                        $current_rule->add_action(
-                            pf::Authentication::Action->new(
-                                {
-                                    type    => $type,
-                                    class   => pf::Authentication::Action->getRuleClassForAction($type),
-                                }
-                            )
-                        );
-                    }
-
+                    $current_rule->add_action(
+                        pf::Authentication::Action->new(
+                            {
+                                type  => $type,
+                                (defined $value ? (value => $value) : ()),
+                                class => pf::Authentication::Action->getRuleClassForAction($type),
+                            },
+                        )
+                    );
                     $current_rule_config{'actions'}{$parameter} = $config_value;
                 } else {
                     $current_rule->{$parameter} = $current_rule_config{$parameter} = $config_value;
