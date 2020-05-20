@@ -18,6 +18,7 @@ use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
 use pf::config qw(%Config);
 use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
+use pf::constants::filters qw(@BASE_FIELDS @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS);
 extends 'pfappserver::Form::Config::FilterEngines';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -91,102 +92,10 @@ sub _additional_field_options {
 
 sub options_field_names {
     (
-        qw(
-          node_info.autoreg
-          node_info.status
-          node_info.bypass_vlan
-          node_info.bandwidth_balance
-          node_info.regdate
-          node_info.bypass_role
-          node_info.device_class
-          node_info.device_type
-          node_info.device_version
-          node_info.device_score
-          node_info.pid
-          node_info.machine_account
-          node_info.category
-          node_info.mac
-          node_info.last_arp
-          node_info.lastskip
-          node_info.last_dhcp
-          node_info.user_agent
-          node_info.computername
-          node_info.dhcp_fingerprint
-          node_info.detect_date
-          node_info.voip
-          node_info.notes
-          node_info.time_balance
-          node_info.sessionid
-          node_info.dhcp_vendor
-          node_info.unregdate
-          node_info.last_connection_type
-          fingerbank_info.device_fq
-          fingerbank_info.device_hierarchy_names
-          fingerbank_info.device_hierarchy_ids
-          fingerbank_info.score
-          fingerbank_info.version
-          fingerbank_info.mobile
-          switch._ExternalPortalEnforcement
-          switch._RoleMap
-          switch._SNMPAuthPasswordRead
-          switch._SNMPAuthPasswordTrap
-          switch._SNMPAuthPasswordWrite
-          switch._SNMPAuthProtocolRead
-          switch._SNMPAuthProtocolTrap
-          switch._SNMPAuthProtocolWrite
-          switch._SNMPCommunityRead
-          switch._SNMPCommunityTrap
-          switch._SNMPCommunityWrite
-          switch._SNMPEngineID
-          switch._SNMPPrivPasswordRead
-          switch._SNMPPrivPasswordTrap
-          switch._SNMPPrivPasswordWrite
-          switch._SNMPPrivProtocolRead
-          switch._SNMPPrivProtocolTrap
-          switch._SNMPPrivProtocolWrite
-          switch._SNMPUserNameRead
-          switch._SNMPUserNameTrap
-          switch._SNMPUserNameWrite
-          switch._SNMPVersion
-          switch._SNMPVersionTrap
-          switch._TenantId
-          switch._UrlMap
-          switch._VlanMap
-          switch._VoIPEnabled
-          switch._cliEnablePwd
-          switch._cliPwd
-          switch._cliTransport
-          switch._cliUser
-          switch._coaPort
-          switch._controllerIp
-          switch._deauthMethod
-          switch._disconnectPort
-          switch._id
-          switch._inlineTrigger
-          switch._ip
-          switch._macSearchesMaxNb
-          switch._macSearchesSleepInterval
-          switch._mode
-          switch._roles
-          switch._switchIp
-          switch._switchMac
-          switch._uplink
-          switch._useCoA
-          switch._vlans
-          switch._wsPwd
-          switch._wsTransport
-          switch._wsUser
-          ifIndex
-          mac
-          connection_type
-          username
-          ssid
-          vlan
-          wasInline
-          user_role
-          violation
-          time
-        ),
+        @BASE_FIELDS,
+        @NODE_INFO_FIELDS,
+        @FINGERBANK_FIELDS,
+        @SWITCH_FIELDS,
         (
            map { "radius_request.$_" } (
                @{$Config{radius_configuration}{radius_attributes} // []}
