@@ -1,4 +1,4 @@
-name: Commit changes in configuration
+name: Enable dynamic VLAN on switch01
 version: 2
 testcases:
 - name: enable_dynamic_vlan_on_switch01

@@ -18,15 +18,16 @@ Register a node with RADIUS in order to test MAC Authentication on Wired
 - assign the role headless_device without unreg date
 - add a notes
 1. Create connection profile with specific filter Ethernet-NoEAP and unreg_on_accounting_stop
-1. Send a MAC Auth RADIUS request to PacketFence from switch01
+1. Configure MAC authentication and dynamic VLAN on dot1x interface on
+   switch01: will trigger a RADIUS request
 1. Check RADIUS audit log for node01
 1. Check data received from accounting: Start
 1. Check VLAN assigned to node01 *on* switch01
 1. Check Internet access *on* node01
 
 ## Teardown steps
-1. Send a RADIUS accounting stop request from switch01 to PacketFence in order
-   to close locationlog => ifdown
+1. Unconfigure switch port and dynamic VLAN: will trigger a RADIUS accounting
+   stop and close locationlog
 1. Verify that node is unregistered
 1. Verify that latest locationlog is closed
 1. Delete node by running pfmon node_cleanup
