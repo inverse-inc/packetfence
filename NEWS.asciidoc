@@ -26,11 +26,13 @@ Enhancements
 * Added ability to enable/disable a network anomaly detection policy (#5403)
 * Inline setup, reg device, return the portal ip if the qname match one of the portal fqdn
 * Individual source rules can be disabled
+* Support for Dell n1500 starting from 6.6.0.10
 
 Bug Fixes
 +++++++++
 * Fixes FortiGate returnAuthorizeVPN function (#5409)
 * Barracuda NG firewall SSO SSH fail (#4828)
+* Impossible to set multiple access level in administration rule (#5440)
 
 Version 10.0.0 released on 2020-04-16
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
