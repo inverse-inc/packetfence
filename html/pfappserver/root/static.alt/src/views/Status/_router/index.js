@@ -15,7 +15,7 @@ const route = {
   component: StatusView,
   meta: {
     can: () => {
-      return acl.$some('read', ['tenant_master', 'nodes', 'services']) // has ACL for 1+ children
+      return acl.can('master tenant') || acl.$some('read', ['nodes', 'services']) // has ACL for 1+ children
     },
     fail: { path: '/reports', replace: true }, // no ACL in this view, redirect to next sibling
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
@@ -44,7 +44,7 @@ const route = {
         }).catch(() => next())
       },
       meta: {
-        can: 'read tenant_master',
+        can: 'master tenant',
         fail: { name: 'statusNetwork', replace: true } // redirect to next sibling
       }
     },
@@ -74,7 +74,7 @@ const route = {
       component: Queue,
       props: { storeName: 'pfqueue' },
       meta: {
-        can: 'read tenant_master',
+        can: 'master tenant',
         fail: { name: 'statusCluster', replace: true } // redirect to next sibling
       }
     },

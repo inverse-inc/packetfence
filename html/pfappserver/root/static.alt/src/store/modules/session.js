@@ -154,9 +154,9 @@ const getters = {
         })
       }
       else {
-        //  temporary, push `TENANT_MASTER_*` to roles
+        //  temporary, push `TENANT_MASTER` to roles
         return [
-          ...ADMIN_ROLES_ACTIONS.map(action => `TENANT_MASTER_${action.toUpperCase()}`),
+          'TENANT_MASTER',
           ...state.roles
         ]
       }

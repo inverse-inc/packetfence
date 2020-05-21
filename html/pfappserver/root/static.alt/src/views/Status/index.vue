@@ -23,7 +23,7 @@ export default {
         {
           name: this.$i18n.t('Dashboard'),
           path: '/status/dashboard',
-          can: 'read tenant_master'
+          can: 'master tenant'
         },
         {
           name: this.$i18n.t('Network View'),
@@ -39,7 +39,7 @@ export default {
         {
           name: this.$i18n.t('Local Queue'),
           path: '/status/queue',
-          can: 'read tenant_master'
+          can: 'master tenant'
         }
       ]
     },

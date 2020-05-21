@@ -21,7 +21,8 @@ export const ADMIN_ROLES_ACTIONS = [
   'set_time_balance',
   'set_unreg_date',
   'update',
-  'write'
+  'write',
+  'master'
 ]
 
 export const aclContext = () => store.getters['session/aclContext']
