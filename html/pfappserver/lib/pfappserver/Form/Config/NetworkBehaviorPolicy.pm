@@ -32,6 +32,14 @@ has_field 'description' =>
    messages => { required => 'Please specify the description of the Network Behavior Policy Portal entry.' },
   );
 
+has_field 'status' => (
+   type            => 'Toggle',
+   checkbox_value  => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+   required => 1,
+);
+
 has_field 'devices_included' =>
   (
    type => 'FingerbankSelect',
