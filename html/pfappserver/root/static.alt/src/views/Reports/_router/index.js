@@ -1,3 +1,4 @@
+import acl from '@/utils/acl'
 import store from '@/store'
 import ReportsIndex from '../'
 import ReportsStore from '../_store'
@@ -10,6 +11,13 @@ const route = {
   name: 'reports',
   redirect: '/reports/standard/chart/os',
   component: ReportsIndex,
+  meta: {
+    can: () => {
+      return acl.$some('read', ['reports']) // has ACL for 1+ children
+    },
+    fail: { path: '/auditing', replace: true }, // no ACL in this view, redirect to next sibling
+    transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
+  },
   beforeEnter: (to, from, next) => {
     if (!store.state.$_reports) {
       // Register store module only once
@@ -29,7 +37,7 @@ const route = {
       }),
       meta: {
         can: 'read reports',
-        fail: { path: '/auditing', replace: true }
+        fail: { name: 'dynamicReportChart', replace: true } // redirect to next sibling
       }
     },
     {
@@ -44,7 +52,7 @@ const route = {
       },
       meta: {
         can: 'read reports',
-        fail: { path: '/auditing', replace: true }
+        fail: { name: 'standardReportChart', replace: true } // redirect to first sibling
       }
     }
   ]

@@ -3,7 +3,7 @@
  */
 import qs from 'qs'
 import { types } from '@/store'
-import acl, { setupAcl } from '@/utils/acl'
+import acl, { ADMIN_ROLES_ACTIONS, setupAcl } from '@/utils/acl'
 import apiCall, { pfappserverCall } from '@/utils/api'
 import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
@@ -141,7 +141,29 @@ const getters = {
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
   tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
   aclContext: state => {
-    return state.roles
+    if (state.tenant && state.tenant.id === 0) { // is tenant master
+      if (state.tenant_id_mask) { // tenant is masked
+        //  strip configuration_main and services roles
+        return state.roles.filter(role => {
+          switch (true) {
+            case new RegExp("^CONFIGURATION_MAIN").test(role):
+            case new RegExp("^SERVICES").test(role):
+              return false // prohibit ACL
+          }
+          return role
+        })
+      }
+      else {
+        //  temporary, push `TENANT_MASTER_*` to roles
+        return [
+          ...ADMIN_ROLES_ACTIONS.map(action => `TENANT_MASTER_${action.toUpperCase()}`),
+          ...state.roles
+        ]
+      }
+    }
+    else { // is not tenant master
+      return state.roles
+    }
   }
 }
 
@@ -349,13 +371,17 @@ const actions = {
     }
   },
   setTenantIdMask: ({ state, commit }, tenantId = 0) => {
-    if (state.tenant.id === 0) { // is super admin, can mutate
-      if (!+tenantId) {
-        commit('TENANT_ID_MASK_DELETED')
+    if (tenantId !== state.tenant_id_mask) {
+      if (state.tenant.id === 0) { // is multi-tenant, can mutate
+        if (!+tenantId) {
+          commit('TENANT_ID_MASK_DELETED')
+        }
+        else if (+tenantId !== state.tenant_id_mask) {
+          commit('TENANT_ID_MASK_UPDATED', tenantId)
+        }
       }
-      else if (+tenantId !== state.tenant_id_mask) {
-        commit('TENANT_ID_MASK_UPDATED', tenantId)
-      }
+      acl.reset()
+      setupAcl()
     }
   }
 }

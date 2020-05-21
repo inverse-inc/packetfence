@@ -1,3 +1,4 @@
+import acl from '@/utils/acl'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
@@ -136,6 +137,10 @@ const route = {
   redirect: '/configuration/policies_access_control',
   component: ConfigurationView,
   meta: {
+    can: () => {
+      return acl.$can('read', 'configuration_main') // has ACL for 1+ children
+    },
+    fail: { path: '/status', replace: true }, // no ACL in this view, redirect to first sibling
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -250,11 +255,7 @@ const route = {
      */
     {
       path: 'policies_access_control',
-      component: PoliciesAccessControlSection,
-      meta: {
-        can: 'read configuration_main',
-        fail: '/'
-      }
+      component: PoliciesAccessControlSection
     },
     {
       path: 'roles',

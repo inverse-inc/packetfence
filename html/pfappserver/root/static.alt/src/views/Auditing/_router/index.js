@@ -1,3 +1,4 @@
+import acl from '@/utils/acl'
 import store from '@/store'
 import RadiusLogsStore from '../_store/radiusLogs'
 import DhcpOption82LogsStore from '../_store/dhcpOption82Logs'
@@ -20,6 +21,10 @@ const route = {
   redirect: '/auditing/radiuslogs/search',
   component: AuditingView,
   meta: {
+    can: () => {
+      return acl.$some('read', ['radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log']) // has ACL for 1+ children
+    },
+    fail: { path: '/nodes', replace: true }, // no ACL in this view, redirect to next sibling
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -45,7 +50,7 @@ const route = {
       props: (route) => ({ storeName: '$_radius_logs', query: route.query.query }),
       meta: {
         can: 'read radius_log',
-        fail: '/auditing/dhcpoption82s/search'
+        fail: { name: 'dhcpoption82s', replace: true } // redirect to next sibling
       }
     },
     {
@@ -59,7 +64,8 @@ const route = {
         })
       },
       meta: {
-        can: 'read radius_log'
+        can: 'read radius_log',
+        fail: { name: 'dhcpoption82s', replace: true } // redirect to next sibling
       }
     },
     {
@@ -69,7 +75,7 @@ const route = {
       props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query }),
       meta: {
         can: 'read dhcp_option_82',
-        fail: '/nodes'
+        fail: { name: 'dnslogs', replace: true } // redirect to next sibling,
       }
     },
     {
@@ -83,7 +89,8 @@ const route = {
         })
       },
       meta: {
-        can: 'read dhcp_option_82'
+        can: 'read dhcp_option_82',
+        fail: { name: 'dnslogs', replace: true } // redirect to next sibling
       }
     },
     {
@@ -93,7 +100,7 @@ const route = {
       props: (route) => ({ storeName: '$_dns_logs', query: route.query.query }),
       meta: {
         can: 'read dns_log',
-        fail: '/auditing/dhcpoption82s/search'
+        fail: { name: 'admin_api_audit_logs', replace: true } // redirect to next sibling
       }
     },
     {
@@ -107,7 +114,8 @@ const route = {
         })
       },
       meta: {
-        can: 'read dns_log'
+        can: 'read dns_log',
+        fail: { name: 'admin_api_audit_logs', replace: true } // redirect to next sibling
       }
     },
     {
@@ -117,7 +125,7 @@ const route = {
       props: (route) => ({ storeName: '$_admin_api_audit_logs', query: route.query.query }),
       meta: {
         can: 'read admin_api_audit_log',
-        fail: '/auditing/dnslogs/search'
+        fail: { name: 'radiuslogs', replace: true } // redirect to first sibling
       }
     },
     {
@@ -131,7 +139,8 @@ const route = {
         })
       },
       meta: {
-        can: 'read admin_api_audit_log'
+        can: 'read admin_api_audit_log',
+        fail: { name: 'radiuslogs', replace: true } // redirect to first sibling
       }
     }
   ]

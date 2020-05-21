@@ -17,7 +17,7 @@ Vue.use(Router)
 
 const DefaultRoute = {
   path: '*',
-  redirect: '/status/dashboard'
+  redirect: '/status'
 }
 
 let router = new Router({

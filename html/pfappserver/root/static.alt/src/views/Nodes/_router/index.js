@@ -1,3 +1,4 @@
+import acl from '@/utils/acl'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import NodesView from '../'
@@ -14,8 +15,14 @@ const route = {
   name: 'nodes',
   redirect: '/nodes/search',
   component: NodesView,
+  meta: {
+    can: () => {
+      return acl.$can('read', 'nodes') || acl.$can('create', 'nodes') // has ACL for 1+ children
+    },
+    fail: { path: '/users', replace: true }, // no ACL in this view, redirect to next sibling
+    transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
+  },
   props: { storeName: '$_nodes' },
-  meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   beforeEnter: (to, from, next) => {
     if (!store.state.$_nodes) {
       // Register store module only once
@@ -30,16 +37,17 @@ const route = {
   children: [
     {
       path: 'search',
-      name: 'search',
+      name: 'nodeSearch',
       component: NodesSearch,
       props: (route) => ({ storeName: '$_nodes', query: route.query.query }),
       meta: {
         can: 'read nodes',
-        fail: { path: '/users', replace: true }
+        fail: { name: 'nodeCreate', replace: true } // redirect to next sibling
       }
     },
     {
       path: 'create',
+      name: 'nodeCreate',
       component: NodesCreate,
       props: { formStoreName: 'formNodesCreate' },
       beforeEnter: (to, from, next) => {
@@ -49,14 +57,17 @@ const route = {
         next()
       },
       meta: {
-        can: 'create nodes'
+        can: 'create nodes',
+        fail: { name: 'nodeImport', replace: true } // redirect to next sibling
       }
     },
     {
       path: 'import',
+      name: 'nodeImport',
       component: NodesImport,
       meta: {
-        can: 'create nodes'
+        can: 'create nodes',
+        fail: { name: 'nodeSearch', replace: true } // redirect to first sibling
       }
     },
     {
@@ -73,7 +84,8 @@ const route = {
         })
       },
       meta: {
-        can: 'read nodes'
+        can: 'read nodes',
+        fail: { name: 'nodeSearch', replace: true } // redirect to first sibling
       }
     }
   ]

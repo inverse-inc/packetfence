@@ -5,7 +5,7 @@ import router from '@/router'
 import store from '@/store'
 
 // See https://github.com/inverse-inc/packetfence/blob/devel/lib/pf/constants/admin_roles.pm#L22-L206
-const ADMIN_ROLES_ACTIONS = [
+export const ADMIN_ROLES_ACTIONS = [
   'create',
   'create_overwrite',
   'create_multiple',
@@ -29,6 +29,16 @@ export const aclContext = () => store.getters['session/aclContext']
 const acl = new Acl()
 acl.$can = (verb, action) => {
   return acl.can(aclContext, verb, action)
+}
+acl.$some = (verb, actions) => {
+  return actions.reduce((can, action) => {
+    return can || acl.$can(verb, action)
+  }, false)
+}
+acl.$every = (verb, actions) => {
+  return actions.reduce((can, action) => {
+    return can && acl.$can(verb, action)
+  }, true)
 }
 
 export const setupAcl = () => {
