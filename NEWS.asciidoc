@@ -25,6 +25,7 @@ Enhancements
 * The captive-portal can now feed HTTP client hints to the Fingerbank collector
 * Added ability to enable/disable a network anomaly detection policy (#5403)
 * Inline setup, reg device, return the portal ip if the qname match one of the portal fqdn
+* Individual source rules can be disabled
 
 Bug Fixes
 +++++++++
