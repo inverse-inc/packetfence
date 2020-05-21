@@ -58,6 +58,7 @@ authorize {
 	#  'raddb/huntgroups' files.
 	preprocess
 
+	mschap
 
 	#
 	#  If you are using multiple kinds of realms, you probably
@@ -95,10 +96,13 @@ authorize {
 	#files
 
 	# Accept any non-eap request and send it to the packetfence module for authorization
-	if ( !EAP-Message ) {
+	if ( !EAP-Message || Control:Auth-type != "MS-CHAP") {
 		update {
 			&control:Auth-Type := Accept
 		}
+	}
+	if (Control:Auth-type == "MS-CHAP") {
+		packetfence-multi-domain
 	}
 	packetfence-eap-mac-policy
 
@@ -172,7 +176,7 @@ authenticate {
 	#
 	#  MSCHAP authentication.
 	Auth-Type MS-CHAP {
-		mschap
+		packetfence-mschap-authenticate
 	}
 
 
