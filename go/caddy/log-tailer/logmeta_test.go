@@ -3,14 +3,11 @@ package logtailer
 import (
 	"testing"
 	"time"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 func TestRsyslogMetaEngine(t *testing.T) {
 	line := `Apr 07 17:12:00 pf pfipset[2126]: lvl=info msg="Request isn't authorized, performing login against the Unified API" pid=2126 request-uuid=90505d47-8880-11ea-95cd-0050569c7a2d`
 	res := NewRsyslogMetaEngine().ExtractMeta(line)
-	spew.Dump(res)
 	if res.Timestamp.Year() != time.Now().Year() {
 		t.Error("Unexpected timestamp year", res.Timestamp.Year())
 	}
