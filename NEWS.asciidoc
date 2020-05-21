@@ -16,7 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* Enable mschap authentication for CLI/VPN access
 
 Enhancements
 ++++++++++++
