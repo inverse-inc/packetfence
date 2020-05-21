@@ -213,6 +213,7 @@ sub run_scan {
     
     # If no scan detected then we abort
     if (!$scanner) {
+        $logger->info("No scan engine found for $host_mac");
         return $FALSE;
     }
     # Preparing the scan attributes
