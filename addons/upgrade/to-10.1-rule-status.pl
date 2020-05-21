@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-to-10-filter_engines.pl
+to-10.1-rule-status.pl
 
 =head1 DESCRIPTION
 
-Upgrades the filter engines format
+Upgrades the sources rules with the new "status" configuration parameter
 
 =cut
 
