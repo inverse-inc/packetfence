@@ -144,8 +144,6 @@ func (lme *LogMetaEngine) ExtractMeta(log string) (lm LogMeta) {
 		if extractor := lme.SyslogMap[lm.SyslogName]; extractor != nil {
 			extractor.ExtractMeta(lm.SyslogName, log, &lm)
 		}
-	} else {
-		//fmt.Println("Unable to parse log line", lme)
 	}
 
 	return lm
