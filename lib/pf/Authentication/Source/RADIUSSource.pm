@@ -203,7 +203,7 @@ sub match_in_subclass {
 }
 
 sub lookupRole {
-    my ($self, $role_info, $params, $extra) = @_;
+    my ($self, $rule, $role_info, $params, $extra) = @_;
     if (defined $extra) {
         my $attribute = first { $_->{Name} eq $role_info } @{ $extra->{attributes}};
         if ($attribute) {

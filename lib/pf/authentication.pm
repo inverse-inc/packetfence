@@ -347,7 +347,7 @@ sub match {
                     }
                 );
                 if (exists $ACTION_VALUE_FILTERS{$type}) {
-                    $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra, $matched);
+                    $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched);
                     if (!defined $value) {
                         $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
                         next;
@@ -372,8 +372,8 @@ sub match {
 }
 
 sub role_from_source {
-    my ($role_info, $source, $params, $extra, $matched) = @_;
-    return $source->lookupRole($role_info, $params, $extra, $matched);
+    my ($role_info, $source, $rule, $params, $extra, $matched) = @_;
+    return $source->lookupRole($rule, $role_info, $params, $extra, $matched);
 }
 
 =item match2
@@ -433,7 +433,7 @@ sub match2 {
             next if defined $ignored_action && $ignored_action eq $type;
             my $value = $action->value;
             if (exists $ACTION_VALUE_FILTERS{$type}) {
-                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $params, $extra, $matched);
+                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched);
                 if (!defined $value) {
                     #Setting action to undef to avoid the wrong actions to be returned
                     $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });

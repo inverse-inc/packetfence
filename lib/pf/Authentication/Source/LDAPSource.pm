@@ -657,8 +657,8 @@ sub _makefilter {
 }
 
 sub lookupRole {
-    my ($self, $role_info, $params, $extra, $entry) = @_;
-    if (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$self->{actions} // []}) {
+    my ($self, $rule, $role_info, $params, $extra, $entry) = @_;
+    if (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$rule->{actions} // []}) {
         return scalar $entry->get_value($action->value);
     }
 
