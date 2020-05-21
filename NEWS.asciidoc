@@ -22,6 +22,7 @@ Enhancements
 ++++++++++++
 * New action for AD/LDAP sources to set role when user is not found
 * Provide an advanced LDAP condition to allow custom LDAP queries
+* The captive-portal can now feed HTTP client hints to the Fingerbank collector
 
 Bug Fixes
 +++++++++
