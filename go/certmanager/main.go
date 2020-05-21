@@ -221,7 +221,7 @@ func (r *CertStore) RefreshPfconfig(ctx context.Context) {
 			}(ctx)
 		})
 	} else {
-		panic("Unable to obtain pfconfigpool lock in certmanager")
+		log.LoggerWContext(context.Background(), "Unable to obtain pfconfigpool lock in certmanager")
 	}
 }
 
