@@ -446,7 +446,7 @@ sub _match_in_subclass {
             $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
             if (any {$_->type eq $Actions::SET_ROLE } @{$rule->{actions} // []} ) {
                 push @{ $matching_conditions }, @{ $own_conditions };
-                return (($params->{'username'} || $params->{'email'}) ? $entry : undef, $Actions::SET_ROLE_ON_NOT_FOUND);
+                return ((($params->{'username'} || $params->{'email'}) ? $entry : undef), $Actions::SET_ROLE_ON_NOT_FOUND);
             } else {
                 $logger->trace("[$self->{'id'} $rule->{'id'}] match ($dn) but no set role action, continue");
             }
@@ -658,7 +658,7 @@ sub _makefilter {
 
 sub lookupRole {
     my ($self, $rule, $role_info, $params, $extra, $entry) = @_;
-    if (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$rule->{actions} // []}) {
+    if (ref($entry) && (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$rule->{actions} // []})) {
         return scalar $entry->get_value($action->value);
     }
 
