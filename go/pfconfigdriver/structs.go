@@ -555,3 +555,15 @@ type ClusterServer struct {
 	ManagementIp string `json:"management_ip"`
 	Host         string `json:"host"`
 }
+
+type SyslogFiles struct {
+	StructConfig
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"resource::syslog_files"`
+	PfconfigArray  string `val:"yes"`
+	Element        []struct {
+		Description string   `json:"description"`
+		Name        string   `json:"name"`
+		Conditions  []string `json:"conditions"`
+	}
+}
