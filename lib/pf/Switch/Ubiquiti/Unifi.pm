@@ -106,7 +106,7 @@ return the SwitchIP
 
 sub returnSwitchIP {
     my ($self, $mac) = @_;
-    if (my $ip = $self->getMACIP($mac)) {
+    if (my $ip = $self->getAccessPointMACIP($mac)) {
         return $ip;
     }
     if (ref($self)) {
@@ -288,14 +288,14 @@ sub _deauthenticateMacWithHTTP {
     $logger->info("Switched status on the Unifi controller using command $command");
 }
 
-=item getMACIP
+=item getAccessPointMACIP
 
 get IP associated to a AP MAC
 
 =cut
 
 
-sub getMACIP {
+sub getAccessPointMACIP {
     my ($self, $mac) = @_;
     my $logger = $self->logger;
 
@@ -308,14 +308,14 @@ sub getMACIP {
     return $FALSE;
 }
 
-=item populateMACIP
+=item populateAccessPointMACIP
 
 Fetch all the AP on the controller and cache it
 
 =cut
 
 
-sub populateMACIP {
+sub populateAccessPointMACIP {
     my ($self) = @_;
     my $logger = $self->logger;
 

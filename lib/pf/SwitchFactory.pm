@@ -213,11 +213,6 @@ sub getTemplateArgs {
     return {};
 }
 
-sub isTemplate {
-    my ($type) = @_;
-    return defined $type && exists $TemplateSwitches{$type};
-}
-
 sub config {
     my %temp = %SwitchConfig;
     return \%temp;

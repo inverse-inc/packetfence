@@ -60,7 +60,7 @@ sub populate_switch_cache {
         unless ( ref($switch) ) {
             get_logger->error("Unable to instantiate switch object using switch_id '" . $switch_id . "'");
         }
-        $switch->populateMACIP();
+        $switch->populateAccessPointMACIP();
     }
 }
 
