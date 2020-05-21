@@ -21,6 +21,7 @@ import {
 
 export const typesList = [
   { value: 'none', text: i18n.t('None') },
+  { value: 'dhcp-listener', text: i18n.t('DHCP Listener') },
   { value: 'dns-enforcement', text: i18n.t('DNS Enforcement') },
   { value: 'inlinel2', text: i18n.t('Inline Layer 2') },
   { value: 'management', text: i18n.t('Management') },
@@ -40,7 +41,13 @@ export const daemonsList = [
 
 export const typeFormatter = (value) => {
   if (value === null || value === '') return null
-  return typesList.find(type => type.value === value).text
+  let unknown = i18n.t('Unknown')
+  const type = typesList.find(type => type.value === value)
+  if (type) {
+    const { text = unknown } = type
+    return text
+  }
+  return unknown
 }
 
 export const sortColumns = { // maintain hierarchical ordering (master => vlans)
