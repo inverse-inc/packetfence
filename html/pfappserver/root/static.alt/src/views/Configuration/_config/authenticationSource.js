@@ -1382,6 +1382,19 @@ export const viewFields = {
       ]
     }
   },
+  append_to_searchattributes: (form, meta = {}) => {
+    return {
+      label: i18n.t('Append search attributes ldap filter'),
+      text: i18n.t('Append this ldap filter to the generated generated ldap filter generated for the search attributes.'),
+      cols: [
+        {
+          namespace: 'append_to_searchattributes',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'append_to_searchattributes')
+        }
+      ]
+    }
+  },
   secret: (form, meta = {}) => {
     return {
       label: i18n.t('Secret'),
@@ -1807,6 +1820,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.scope(form, meta),
             viewFields.usernameattribute(form, meta),
             viewFields.searchattributes(form, meta),
+            viewFields.append_to_searchattributes(form, meta),
             viewFields.email_attribute(form, meta),
             viewFields.binddn(form, meta),
             viewFields.password(form, meta),
@@ -1905,6 +1919,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.scope(form, meta),
             viewFields.usernameattribute(form, meta),
             viewFields.searchattributes(form, meta),
+            viewFields.append_to_searchattributes(form, meta),
             viewFields.email_attribute(form, meta),
             viewFields.binddn(form, meta),
             viewFields.password(form, meta),
@@ -2563,6 +2578,9 @@ export const validatorFields = {
   api_password: (form, meta = {}) => {
     return { password: validatorsFromMeta(meta, 'password', i18n.t('Password')) }
   },
+  append_to_searchattributes: (form, meta = {}) => {
+    return { append_to_searchattributes: validatorsFromMeta(meta, 'append_to_searchattributes', i18n.t('ldap filter')) }
+  },
   auth_listening_port: (form, meta = {}) => {
     return { auth_listening_port: validatorsFromMeta(meta, 'auth_listening_port', i18n.t('Port')) }
   },
@@ -2907,6 +2925,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.scope(form, meta),
         ...validatorFields.usernameattribute(form, meta),
         ...validatorFields.searchattributes(form, meta),
+        ...validatorFields.append_to_searchattributes(form, meta),
         ...validatorFields.email_attribute(form, meta),
         ...validatorFields.binddn(form, meta),
         ...validatorFields.password(form, meta),
@@ -2972,6 +2991,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.scope(form, meta),
         ...validatorFields.usernameattribute(form, meta),
         ...validatorFields.searchattributes(form, meta),
+        ...validatorFields.append_to_searchattributes(form, meta),
         ...validatorFields.email_attribute(form, meta),
         ...validatorFields.binddn(form, meta),
         ...validatorFields.password(form, meta),

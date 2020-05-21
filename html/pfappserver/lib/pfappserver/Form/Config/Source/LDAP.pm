@@ -201,6 +201,17 @@ has_field 'searchattributes' => (
     default => '',
 );
 
+has_field 'append_to_searchattributes' => (
+    type => 'Text',
+    label => 'Append search attributes ldap filter',
+    required => 0,
+    default => '',
+    tags => {
+        after_element => \&help,
+        help => 'Append this ldap filter to the generated generated ldap filter generated for the search attributes.',
+    },
+);
+
 =head2 options_attributes
 
 retrive the realms

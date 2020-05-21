@@ -785,7 +785,7 @@ $server_list
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
+        filter = "(&(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))$ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes})"
     }
     options {
         chase_referrals = yes
