@@ -122,13 +122,6 @@ our %ACTION_FIELD_OPTIONS = (
         element_class => ['chzn-deselect'],
         options_method => \&options_attributes,
     },
-    $Actions::SET_ACCESS_DURATION_FROM_SOURCE => {
-        type           => 'Select',
-        do_label       => 0,
-        wrapper        => 0,
-        element_class => ['chzn-deselect'],
-        options_method => \&options_attributes,
-    },
 );
 
 =head2 field_list

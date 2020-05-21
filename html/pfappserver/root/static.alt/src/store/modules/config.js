@@ -123,9 +123,6 @@ const api = {
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
-  getNetworkBehaviorPolicies () {
-    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
-  },
   getPkiCas () {
     return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
   },

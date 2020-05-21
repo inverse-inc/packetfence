@@ -170,7 +170,6 @@ Readonly::Scalar our $SET_UNREG_DATE => "set_unreg_date";
 Readonly::Scalar our $SET_TIME_BALANCE => "set_time_balance";
 Readonly::Scalar our $SET_BANDWIDTH_BALANCE => "set_bandwidth_balance";
 Readonly::Scalar our $SET_ROLE_FROM_SOURCE => "set_role_from_source";
-Readonly::Scalar our $SET_ACCESS_DURATION_FROM_SOURCE => "set_access_duration_from_source";
 =item ACTIONS
 
 List of available actions

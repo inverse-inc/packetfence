@@ -76,15 +76,6 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
             }
             : {/* noop */}
           ),
-          ...((type === 'set_access_duration_from_source')
-            ? {
-              // 'set_access_duration_from_source' requires either 'set_role' or 'set_role_from_source'
-              [i18n.t('Action requires either "Set Role" or "Set Role From Source".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_from_source'].includes(action.type)).length > 0),
-              // 'set_access_duration' restricts 'set_unreg_date'
-              [i18n.t('Action conflicts with "Unregistration date".')]: conditional(() => formActions.filter(action => action && action.type === 'set_unreg_date').length === 0)
-            }
-            : {/* noop */}
-          ),
           ...((type === 'set_access_durations')
             ? {
               // `set_access_durations' requires 'mark_as_sponsor'
@@ -108,8 +99,8 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ),
           ...((type === 'set_role_from_source')
             ? {
-              // 'set_role_from_source' requires either 'set_access_duration' or 'set_unreg_date' or 'set_access_duration_from_source'
-              [i18n.t('Action requires either "Access duration" or "Unregistration date" or "Access duration from source".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date', 'set_access_duration_from_source'].includes(action.type)).length > 0)
+              // 'set_role_from_source' requires either 'set_access_duration' or 'set_unreg_date'
+              [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0)
             }
             : {/* noop */}
           ),
@@ -196,11 +187,6 @@ export const pfActions = {
     value: 'set_access_duration',
     text: i18n.t('Access duration'),
     types: [fieldType.DURATION_BY_ACL_USER]
-  },
-  set_access_duration_from_source: {
-    value: 'set_access_duration_from_source',
-    text: i18n.t('Access duration from source'),
-    types: [fieldType.SELECTONE]
   },
   set_access_durations: {
     value: 'set_access_durations',
