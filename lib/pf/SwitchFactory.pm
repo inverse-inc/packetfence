@@ -99,6 +99,14 @@ sub instantiate {
             $switch_ip = $switchRequest->{switch_ip};
             push @requestedSwitches,$switch_ip;
         }
+        if(exists $switchRequest->{switch_id} && defined $switchRequest->{switch_id}) {
+            push @requestedSwitches,$switchRequest->{switch_id};
+            if(valid_ip($switchRequest->{switch_id})) {
+                $switch_ip = $switchRequest->{switch_id};
+            } elsif (valid_mac($switchRequest->{switch_id})) {
+                $switch_mac = $switchRequest->{switch_id};
+            }
+        }
     } else {
         @requestedSwitches = ($switchRequest);
         if(valid_ip($switchRequest)) {

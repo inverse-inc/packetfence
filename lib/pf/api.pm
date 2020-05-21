@@ -395,7 +395,7 @@ sub desAssociate : Public : Fork {
         return;
     }
 
-    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
+    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'}, $postdata->{'connection_type'});
 
     my $filter = pf::access_filter::switch->new;
     $filter->filterSwitch('reevaluate',\$switch, $postdata);

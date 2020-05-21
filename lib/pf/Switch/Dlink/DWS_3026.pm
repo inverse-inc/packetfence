@@ -161,7 +161,7 @@ sub isVoIPEnabled {
 }
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::SNMP;
     my %tech = (

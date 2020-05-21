@@ -210,7 +210,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
