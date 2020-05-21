@@ -235,6 +235,11 @@ BEGIN {
             input => { mac => 'aa:bb:cc:dd:ee:ff' },
             out   => 'AA-BB-CC',
         },
+        {
+            tmpl  => '${replace($mac, ":", "-")}',
+            input => { mac => 'aa:bb:cc:dd:ee:ff' },
+            out   => 'aa-bb-cc-dd-ee-ff',
+        },
     );
 }
 

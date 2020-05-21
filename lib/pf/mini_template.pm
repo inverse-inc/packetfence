@@ -23,7 +23,14 @@ our %FUNCS = (
     substr => sub { return substr($_[0], $_[1], $_[2]) },
     macToEUI48 => sub { my $m = shift; $m =~ s/:/-/g; return uc($m) },
     log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
+    replace => \&replaceStr,
 );
+
+sub replaceStr {
+    my ($str, $old, $new) = @_;
+    $str =~ s/\Q$old\E/$new/g;
+    return $str;
+}
 
 sub supported_function { exists $FUNCS{$_[0] // ''} }
 

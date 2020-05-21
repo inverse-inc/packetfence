@@ -296,6 +296,7 @@ So here is mini templating language to format values.
 * `substr($str, $offset, $len)` - Extracts a substring from a string
 * `split($sep, $str)`           - Split a string by a seperator.
 * `join($sep, $a, $b, ..)`      - Join a list of string with a seperator.
+* `replace($str, $old, $new)`   - Replace the old string with a new string.
 
 ==== Full Working Example
 
