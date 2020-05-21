@@ -12,12 +12,16 @@
         </b-col>
         <b-col sm="10"
           class="collapse-handle d-flex align-items-center"
-          :class="(inputAnyState !== false) ? 'text-primary' : 'text-danger'"
+          :class="{
+            'text-primary': inputValue && inputValue.status === 'enabled' && inputState !== false,
+            'text-secondary': inputValue && inputValue.status === 'disabled' && inputState !== false,
+            'text-danger': inputState === false
+          }"
           @click.prevent="click($event)"
         >
           <icon v-if="visible" name="chevron-circle-down" class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"></icon>
           <icon v-else name="chevron-circle-right" class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"></icon>
-          <div>{{ ruleName }} <span v-if="ruleDescription">( {{ ruleDescription }} )</span></div>
+          <div>{{ ruleName }}<span v-if="ruleDescription">( {{ ruleDescription }} )</span></div>
         </b-col>
         <b-col v-if="$slots.append" sm="1" align-self="start" class="py-1 text-center col-form-label">
           <slot name="append"></slot>
@@ -30,6 +34,13 @@
           no-gutter
         >
           <b-col class="text-left py-0" align-self="start">
+            <pf-form-range-toggle :column-label="$t('Status')" label-cols="2"
+              :form-store-name="formStoreName"
+              :form-namespace="`${formNamespace}.status`"
+              :values="{ checked: 'enabled', unchecked: 'disabled' }"
+              :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
+              class="mb-1 mr-2 small"
+            />
             <pf-form-input :column-label="$t('Name')" label-cols="2"
               :form-store-name="formStoreName"
               :form-namespace="`${formNamespace}.id`"
@@ -92,6 +103,7 @@ import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
@@ -99,7 +111,8 @@ export default {
   components: {
     pfFormChosen,
     pfFormFields,
-    pfFormInput
+    pfFormInput,
+    pfFormRangeToggle
   },
   mixins: [
     pfMixinForm
@@ -108,12 +121,12 @@ export default {
     default: {
       type: Object,
       default: () => {
-        return { id: null, description: null, match: 'all', actions: [], conditions: [] }
+        return { id: null, status: 'enabled', description: null, match: 'all', actions: [], conditions: [] }
       }
     },
     value: {
       type: Object,
-      default: () => { return { id: null, description: null, match: 'all', actions: [], conditions: [] } }
+      default: () => { return { id: null, status: 'enabled', description: null, match: 'all', actions: [], conditions: [] } }
     },
     matchLabel: {
       type: String

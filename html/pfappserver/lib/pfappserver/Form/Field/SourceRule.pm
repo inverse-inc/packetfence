@@ -37,6 +37,20 @@ has_field 'description' => (
     required => 0,
 );
 
+=head2 status
+
+The status of the rule if it is enabled or disabled
+
+=cut
+
+has_field 'status' => (
+    type            => 'Toggle',
+    label           => 'Enable rule',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default         => 'enabled'
+);
+
 has_field 'match' => (
     type            => 'Select',
     localize_labels => 1,

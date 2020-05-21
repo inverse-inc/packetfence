@@ -21,6 +21,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($authentication_config_file);
+use pf::util qw(isdisabled);
 use pf::constants::authentication;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -80,6 +81,10 @@ sub build_child {
             my $class = $rule_config->{class};
             if (ref($class) || (defined $class && $class =~ /\n/s)) {
                 print STDERR "rule '$rule_id' seems to be defined multiple times skipping rule\n";
+                next;
+            }
+            my $status = $rule_config->{status} // 'enabled';
+            if (isdisabled($status)) {
                 next;
             }
 
