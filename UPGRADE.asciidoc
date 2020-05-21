@@ -1202,6 +1202,11 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.3.0-10.0.0.sql
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Support for CoA in Unifi controllers
+
+Support for CoA for Unifi AP is now supported but requires to have the latest controller and AP firmware available.
+Make sure you run the latest version of the controller and firmware if you use Ubiquiti equipment.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
