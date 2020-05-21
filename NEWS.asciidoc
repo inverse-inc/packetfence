@@ -27,6 +27,8 @@ Enhancements
 * Inline setup, reg device, return the portal ip if the qname match one of the portal fqdn
 * Individual source rules can be disabled
 * Support for Dell n1500 starting from 6.6.0.10
+* CoA support for Unifi AP
+* Added a way to define the Unifi AP by IP or IP range.
 
 Bug Fixes
 +++++++++
