@@ -1,0 +1,37 @@
+name: Check dot1x interface status on switch01
+version: 2
+testcases:
+- name: check_dot1x_int_status_on_switch01
+  steps:
+  - type: http
+    method: POST
+    basic_auth_user: "{{.switch01.api.user}}"
+    basic_auth_password: "{{.switch01.api.password}}"
+    url: '{{.switch01.api.url}}/nclu/v1/rpc'
+    ignore_verify_ssl: true
+    body: >-
+      {
+       "cmd": "show dot1x interface {{.switch01_dot1x_interface}} json"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      # workaround because it doesn't seems possible to check subkey below swp12
+      - result.body ShouldContainSubstring "{{.wired_mac_auth.roles.headless_device.vlan_id}}"
+      - result.body ShouldContainSubstring AUTHORIZED
+      - result.statuscode ShouldEqual 200
+
+# JSON Payload
+# {
+#     "swp12": {
+#         "00:03:00:11:11:01": {
+#             "auth_type": "unknown", 
+#             "flags": "[MAB][DYNAMIC_VLAN][AUTHORIZED]", 
+#             "ifname": "swp12", 
+#             "mac": "00:03:00:11:11:01", 
+#             "state": "AUTHORIZED", 
+#             "username": "000300111101", 
+#             "vlan": "100"
+#         }
+#     }
+# } 
