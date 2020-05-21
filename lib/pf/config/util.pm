@@ -672,7 +672,7 @@ sub strip_username_if_needed {
     my ($stripped, $realm) = strip_username($username);
     $realm = $realm ? lc($realm) : undef;
 
-    foreach my $realm_key ( keys %pf::config::ConfigRealm ) {
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
         if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
             $realm = $realm_key;
             last;
