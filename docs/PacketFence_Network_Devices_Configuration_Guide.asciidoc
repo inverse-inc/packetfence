@@ -2493,6 +2493,70 @@ On each interface (not uplink)
   voice vlan 100
   exit
 
+N1500 Series (FW >= 6.6.0.17)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This configuration has been tested with firmware 6.6.0.17
+
+Global config settings:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  authentication dynamic-vlan enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  aaa accounting dot1x default start-stop radius
+  authentication dynamic-vlan enable
+  radius server auth 192.168.1.5
+  key useStrongerSecret
+  usage authmgr
+  name "PacketFence"
+  exit
+  radius server acct 192.168.1.5
+  name "PacketFenceAccounting"
+  key useStrongerSecret
+  exit
+  snmp-server community "private" rw
+  snmp-server community "public" ro
+
+802.1X/MAB with VoIP interface configuration:
+
+  switchport voice detect auto
+  switchport mode general
+  switchport general pvid 2
+  switchport general allowed vlan add 1-4093
+  authentication host-mode multi-domain
+  authentication periodic
+  dot1x timeout quiet-period 10
+  mab auth-type pap
+  authentication order mab
+  no authentication allow-unauth dhcp
+  lldp tlv-select system-description system-capabilities management-address
+  lldp notification
+  lldp med confignotification
+  switchport voice vlan 100
+
+Uplink port:
+
+  switchport mode trunk
+  switchport trunk allowed vlan 1-4096
+  authentication port-control force-authorized
+
+On other switch ports not managed by PacketFence:
+
+  switchport mode general
+  switchport general pvid x
+  switchport general allowed vlan add x
+  authentication port-control force-authorized
+
+
+Web-Auth:
+
+  ip access-list registration
+  1000 deny ip any 192.168.1.5 0.0.0.0
+  1010 permit tcp any any eq http
+  1020 permit tcp any any eq 443
 
 N2000 Series (N2024P)
 ^^^^^^^^^^^^^^^^^^^^^

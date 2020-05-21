@@ -116,6 +116,7 @@ Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
 Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
 Readonly::Scalar our $EXT_URL_CAMBIUM               => '^/Cambium';
 Readonly::Scalar our $EXT_URL_MOJO                  => '^/Mojo';
+Readonly::Scalar our $EST_URL_DELL                  => '^/Dell:N1500';
 
 # Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
 Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/[a-zA-Z0-9]+/';
