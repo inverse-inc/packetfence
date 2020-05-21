@@ -50,6 +50,7 @@ ATTRIBUTE       PacketFence-NTCacheHash               34       string
 ATTRIBUTE       PacketFence-NTLMv2-Only               35       string
 ATTRIBUTE       PacketFence-Auth-Type                 36       string
 ATTRIBUTE       PacketFence-Outer-User                37       string
+ATTRIBUTE       PacketFence-UserDN                    38       string
 
 END-VENDOR      Inverse
 
