@@ -512,7 +512,7 @@ sub restartService {
     if ($cmdLine =~ /^(.+)$/) {
         $cmdLine = $1;
         my $logger = get_logger();
-        $logger->debug(sprintf("Restartarting Daemon %s with command %s",$self->name,$cmdLine));
+        $logger->debug(sprintf("Restarting Daemon %s with command %s",$self->name,$cmdLine));
         my $t0 = Time::HiRes::time();
         my $return_value = system($cmdLine);
         my $elapsed = Time::HiRes::time() - $t0;
