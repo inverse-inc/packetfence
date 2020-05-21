@@ -361,13 +361,14 @@ sub matchOS {
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
 
-    my $device_name = $node_attributes->{device_type};
-    get_logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
+    if (defined $node_attributes->{device_type}) {
+        my $device_name = $node_attributes->{device_type};
+        get_logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
 
-    for my $os (@oses) {
-        return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
+        for my $os (@oses) {
+            return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
+        }
     }
-
     return $FALSE;
 }
 
