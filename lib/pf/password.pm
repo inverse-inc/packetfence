@@ -79,14 +79,22 @@ view a temporary password record, returns an hashref
 =cut
 
 sub view {
-    my ($pid) = @_;
-    my ($status, $item) = pf::dal::password->find({
-        pid => $pid
-    });
+    my ($pid, %opts) = @_;
+    my ($status, $iter) = pf::dal::password->search(
+        -where => {
+            'password.pid' => $pid,
+        },
+        %opts,
+    );
+
     if (is_error($status)) {
         return (undef);
     }
-    return ($item->to_hash());
+
+    my $item = $iter->next(undef);
+    $iter->finish;
+
+    return ($item);
 }
 
 =item view_email
@@ -96,11 +104,12 @@ view the temporary password record associated to an email address, returns an ha
 =cut
 
 sub view_email {
-    my ($email) = @_;
+    my ($email, %opts) = @_;
     my ($status, $iter) = pf::dal::password->search(
         -where => {
             'email' => $email,
         },
+        %opts,
     );
     if (is_error($status)) {
         return (undef);
@@ -338,7 +347,7 @@ Return values:
 =cut
 
 sub validate_password {
-    my ( $pid, $password, $allow_potd) = @_;
+    my ( $pid, $password, $allow_potd, %opts) = @_;
     my $logger = get_logger();
     my ($status, $iter) = pf::dal::password->search(
         -where => {
@@ -348,6 +357,7 @@ sub validate_password {
         -columns => [qw(password.pid|pid password.password|password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
         -limit => 1,
+        -no_auto_tenant_id => 1,
     );
 
     my $temppass_record = $iter->next(undef);
