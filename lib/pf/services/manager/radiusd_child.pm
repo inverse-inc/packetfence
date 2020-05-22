@@ -909,7 +909,7 @@ EOT
         } else {
             $real_realm = $realm;
         }
-	$tags{'config'} .= <<"EOT";
+        $tags{'config'} .= <<"EOT";
 realm $real_realm {
 nostrip
 }
