@@ -72,6 +72,7 @@ our @BASE_FIELDS = qw(
   wasInline
   user_role
   time
+  action
 );
 
 our @FINGERBANK_FIELDS = qw(

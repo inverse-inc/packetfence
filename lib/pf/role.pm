@@ -664,7 +664,7 @@ sub getNodeInfoForAutoReg {
         }
     }
 
-    return (%node_info, $action);
+    return ($action, %node_info);
 }
 
 =head2 shouldAutoRegister
