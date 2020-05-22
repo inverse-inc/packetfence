@@ -8,11 +8,13 @@ import store from '@/store'
 import i18n from '@/utils/locale'
 
 // Default values
-const state = {
-  nodes: {}, // nodes details
-  nodeExists: {}, // node exists true|false
-  message: '',
-  nodeStatus: ''
+const state = () => {
+  return {
+    nodes: {}, // nodes details
+    nodeExists: {}, // node exists true|false
+    message: '',
+    nodeStatus: ''
+  }
 }
 
 const getters = {

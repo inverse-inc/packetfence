@@ -59,18 +59,20 @@ const deflateActions = (data) => {
 }
 
 // Default values
-const state = {
-  users: {}, // users details
-  usersStatus: '',
-  usersMessage: '',
-  usersNodes: {}, // user nodes
-  usersNodesStatus: '',
-  usersNodesMessage: '',
-  usersSecurityEvents: {}, // user security_events
-  usersSecurityEventsStatus: '',
-  usersSecurityEventsMessage: '',
-  userExists: {}, // node exists true|false
-  createdUsers: []
+const state = () => {
+  return {
+    users: {}, // users details
+    usersStatus: '',
+    usersMessage: '',
+    usersNodes: {}, // user nodes
+    usersNodesStatus: '',
+    usersNodesMessage: '',
+    usersSecurityEvents: {}, // user security_events
+    usersSecurityEventsStatus: '',
+    usersSecurityEventsMessage: '',
+    userExists: {}, // node exists true|false
+    createdUsers: []
+  }
 }
 
 const getters = {
