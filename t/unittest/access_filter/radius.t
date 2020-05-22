@@ -43,6 +43,18 @@ BEGIN {
             expected_value => 'bob',
         },
         {
+            name           => 'reply:Packetfence-Raw',
+            value          => 'Name = bob',
+            expected_name  => 'reply:Name',
+            expected_value => 'bob',
+        },
+        {
+            name           => 'reply:Packetfence-Raw',
+            value          => 'Name:bob=hope',
+            expected_name  => 'reply:Name',
+            expected_value => 'bob=hope',
+        },
+        {
             name           => 'reply:Id',
             value          => 'Name:bob',
             expected_name  => 'reply:Id',
