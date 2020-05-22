@@ -191,11 +191,11 @@ sub match {
             next;
         }
 
-        my ($matched, $ignore_action) = $self->match_rule($rule, $params, $extra);
+        my ($matched, $ignore_action, $entry) = $self->match_rule($rule, $params, $extra);
         if ($matched) {
             $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
             $self->postMatchProcessing;
-            return ($rule, $ignore_action, $matched);
+            return ($rule, $ignore_action, $entry);
         }
 
     } # foreach my $rule ( @{$self->{'rules'}} ) {
