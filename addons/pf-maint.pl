@@ -40,6 +40,7 @@ use Pod::Usage;
 use IO::Handle;
 use Term::ReadKey;
 use IO::Interactive qw(is_interactive);
+use LWP::Protocol::connect;
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';
@@ -52,6 +53,9 @@ our $GIT_BIN = '/usr/bin/git';
 our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
 our $test;
 our $TERMINAL_WIDTH;
+
+$ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = "Net::SSL";
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 
 # Files that should be excluded from patching
 # Will only work when using git to patch a server
@@ -277,7 +281,11 @@ sub get_url {
     my $request  = HTTP::Request->new( GET => $url ), my $response_body;
     my $ua       = LWP::UserAgent->new;
     $ua->show_progress(1);
-    $ua->env_proxy;
+    for my $proxy_var qw(http_proxy HTTP_PROXY) {
+        if($ENV{$proxy_var} && $ENV{$proxy_var} =~ /^http:\/\/(.+)/) {
+            $ua->proxy("https", "connect://$1");
+        }
+    }
     my $response = $ua->request($request);
     if ( $response->is_success ) {
         $response_body = $response->content;
