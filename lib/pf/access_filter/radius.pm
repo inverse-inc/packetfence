@@ -118,8 +118,25 @@ sub addAnswer {
     my ($self, $rule, $radius_reply, $a, $args) = @_;
     my $name = $a->{name};
     my $value = $a->{tmpl}->process($args, \%FUNCS);
+    ($name, $value) = $self->updateAnswerNameValue($name, $value);
     my @values = split(';', $value);
     $radius_reply->{$name} = (@values > 1) ? \@values : $values[0];
+}
+
+sub updateAnswerNameValue {
+    my ($self, $name, $value) = @_;
+    if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
+        my $prefix = $1 // '';
+        my ($new_name, $new_value) = split(/:/, $value, 2);
+        if (defined $new_value && length($new_value)) {
+            $name = "$prefix" . $new_name;
+            $value = $new_value;
+        } else {
+            my $logger = $self->logger;
+            $logger->error("Packetfence-Raw: '$value' is not in a valid format");
+        }
+    }
+    return ($name, $value);
 }
 
 sub setSession {
