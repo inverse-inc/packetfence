@@ -141,29 +141,21 @@ const getters = {
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
   tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
   aclContext: state => {
-    if (state.tenant && state.tenant.id === 0) { // is tenant master
-      if (state.tenant_id_mask) { // tenant is masked
-        //  strip configuration_main and services roles
-        return state.roles.filter(role => {
-          switch (true) {
-            case new RegExp("^CONFIGURATION_MAIN").test(role):
-            case new RegExp("^SERVICES").test(role):
-              return false // prohibit ACL
-          }
-          return role
-        })
-      }
-      else {
-        //  temporary, push `TENANT_MASTER` to roles
-        return [
-          'TENANT_MASTER',
-          ...state.roles
-        ]
+    if (state.roles.includes('TENANT_MASTER')) { // is tenant master
+      if (!state.tenant_id_mask) { // tenant is not masked
+        return state.roles // return all roles
       }
     }
-    else { // is not tenant master
-      return state.roles
-    }
+    // mask TENANT_MASTER, CONFIGURATION_MAIN and SERVICES roles
+    return state.roles.filter(role => {
+      switch (true) {
+        case role === 'TENANT_MASTER':
+        case new RegExp("^CONFIGURATION_MAIN").test(role):
+        case new RegExp("^SERVICES").test(role):
+          return false // prohibit ACL
+      }
+      return role
+    })
   }
 }
 
