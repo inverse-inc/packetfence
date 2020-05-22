@@ -434,7 +434,7 @@ sub getRegisteredRole {
             $source = $matched->{source_id};
             my $values = $matched->{values};
             $role = $values->{$Actions::SET_ROLE};
-            if defined($values->{$Actions::SET_ROLE_FROM_SOURCE}) {
+            if (defined($values->{$Actions::SET_ROLE_FROM_SOURCE})) {
                 $role = $values->{$Actions::SET_ROLE_FROM_SOURCE};
                 $action = $Actions::SET_ROLE_FROM_SOURCE;
             }
@@ -609,7 +609,7 @@ sub getNodeInfoForAutoReg {
             # Don't override vlan filter role
             if (!defined($role)) {
                 $role = $values->{$Actions::SET_ROLE};
-                if defined($values->{$Actions::SET_ROLE_FROM_SOURCE}) {
+                if (defined($values->{$Actions::SET_ROLE_FROM_SOURCE})) {
                     $role = $values->{$Actions::SET_ROLE_FROM_SOURCE};
                     $action = $Actions::SET_ROLE_FROM_SOURCE;
                 }

@@ -262,7 +262,7 @@ sub authorize {
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
         $info{autoreg} = 1;
-        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info);
+        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
             $do_auto_reg = 0;
@@ -291,7 +291,7 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
-    if (!exist($args->{'action'})) {
+    if (!exists($args->{'action'})) {
         $args->{'action'} = $role->{action};
     }
     my $vlan;
