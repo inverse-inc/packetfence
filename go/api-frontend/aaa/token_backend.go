@@ -1,7 +1,6 @@
 package aaa
 
 import (
-	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -48,26 +47,7 @@ func (ti *TokenInfo) IsTenantMaster() bool {
 
 func (ti *TokenInfo) handleMultiTenant() {
 	if ti.IsTenantMaster() {
-		for _, suffix := range []string{
-			`create`,
-			`create_overwrite`,
-			`create_multiple`,
-			`delete`,
-			`mark_as_sponsor`,
-			`read`,
-			`read_sponsored`,
-			`set_access_level`,
-			`set_access_duration`,
-			`set_bandwidth_balance`,
-			`set_role`,
-			`set_tenant_id`,
-			`set_time_balance`,
-			`set_unreg_date`,
-			`update`,
-			`write`,
-		} {
-			ti.AddAdminAction(`TENANT_MASTER` + `_` + strings.ToUpper(suffix))
-		}
+		ti.AddAdminAction(`TENANT_MASTER`)
 	}
 }
 
