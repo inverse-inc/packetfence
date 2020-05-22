@@ -355,7 +355,7 @@ sub _match_in_subclass {
     }
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
-    if (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$self->{actions} // []}) {
+    if (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$rule->{actions} // []}) {
         push @attributes, $action->value;
     }
 

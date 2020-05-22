@@ -109,7 +109,7 @@ sub authorize {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my ($do_auto_reg, %autoreg_node_defaults);
+    my ($do_auto_reg, %autoreg_node_defaults, $action);
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
@@ -256,7 +256,8 @@ sub authorize {
     $do_auto_reg = $role_obj->shouldAutoRegister($args);
     if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
+        (%autoreg_node_defaults, $action) = $role_obj->getNodeInfoForAutoReg($args);
+        $args->{'action'} = $action;
         $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
@@ -290,6 +291,9 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
+    if (!exist($args->{'action'})) {
+        $args->{'action'} = $role->{action};
+    }
     my $vlan;
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
