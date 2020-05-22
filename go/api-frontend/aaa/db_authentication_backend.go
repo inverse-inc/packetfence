@@ -108,5 +108,5 @@ func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser 
 	err = rows.Scan(&tenant.Id, &tenant.Name, &tenant.PortalDomainName, &tenant.DomainName)
 	sharedutils.CheckError(err)
 
-	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: tenant}
+	return &TokenInfo{AdminRoles: adminRolesMap, Tenant: tenant}
 }

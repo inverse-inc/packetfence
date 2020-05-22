@@ -23,8 +23,7 @@ const (
 
 type TokenInfo struct {
 	AdminRoles      map[string]bool
-	TenantId        Tenant
-	Tenants         []Tenant
+	Tenant          Tenant
 	Username        string
 	CreatedAt       time.Time
 	addAdminActions map[string]bool
@@ -40,7 +39,7 @@ type Tenant struct {
 func (ti *TokenInfo) IsTenantMaster() bool {
 	// If we're not in multi-tenant mode
 	// Or we're in multi-tenant mode and the current token is for the master tenant (tenant 0)
-	if !multipleTenants || (multipleTenants && ti.TenantId.Id == AccessAllTenants) {
+	if !multipleTenants || (multipleTenants && ti.Tenant.Id == AccessAllTenants) {
 		return true
 	} else {
 		return false
