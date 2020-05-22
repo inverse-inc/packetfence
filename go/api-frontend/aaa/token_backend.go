@@ -1,6 +1,7 @@
 package aaa
 
 import (
+	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -21,11 +22,12 @@ const (
 )
 
 type TokenInfo struct {
-	AdminRoles map[string]bool
-	TenantId   Tenant
-	Tenants    []Tenant
-	Username   string
-	CreatedAt  time.Time
+	AdminRoles      map[string]bool
+	TenantId        Tenant
+	Tenants         []Tenant
+	Username        string
+	CreatedAt       time.Time
+	addAdminActions map[string]bool
 }
 
 type Tenant struct {
@@ -35,8 +37,45 @@ type Tenant struct {
 	Id               int    `json:"id"`
 }
 
+func (ti *TokenInfo) IsTenantMaster() bool {
+	// If we're not in multi-tenant mode
+	// Or we're in multi-tenant mode and the current token is for the master tenant (tenant 0)
+	if !multipleTenants || (multipleTenants && ti.TenantId.Id == AccessAllTenants) {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (ti *TokenInfo) handleMultiTenant() {
+	if ti.IsTenantMaster() {
+		for _, suffix := range []string{
+			`create`,
+			`create_overwrite`,
+			`create_multiple`,
+			`delete`,
+			`mark_as_sponsor`,
+			`read`,
+			`read_sponsored`,
+			`set_access_level`,
+			`set_access_duration`,
+			`set_bandwidth_balance`,
+			`set_role`,
+			`set_tenant_id`,
+			`set_time_balance`,
+			`set_unreg_date`,
+			`update`,
+			`write`,
+		} {
+			ti.AddAdminAction(`TENANT_MASTER` + `_` + strings.ToUpper(suffix))
+		}
+	}
+}
+
 func (ti *TokenInfo) AdminActions() map[string]bool {
 	adminRolesMap := make(map[string]bool)
+
+	ti.handleMultiTenant()
 
 	for role, _ := range ti.AdminRoles {
 		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
@@ -44,5 +83,16 @@ func (ti *TokenInfo) AdminActions() map[string]bool {
 		}
 	}
 
+	for action, _ := range ti.addAdminActions {
+		adminRolesMap[action] = true
+	}
+
 	return adminRolesMap
+}
+
+func (ti *TokenInfo) AddAdminAction(a string) {
+	if ti.addAdminActions == nil {
+		ti.addAdminActions = make(map[string]bool)
+	}
+	ti.addAdminActions[a] = true
 }

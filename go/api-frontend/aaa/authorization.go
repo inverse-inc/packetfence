@@ -250,7 +250,7 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return authTenant, err
 	}
 
-	authConfig, err := tam.isAuthorizedMultiTenant(ctx, method, path, tokenInfo.TenantId.Id)
+	authConfig, err := tam.isAuthorizedMultiTenant(ctx, method, path, tokenInfo)
 	if !authConfig || err != nil {
 		return authConfig, err
 	}
@@ -325,13 +325,13 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) isAuthorizedMultiTenant(ctx context.Context, method string, path string, tokenTenantId int) (bool, error) {
-	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, method, path, tokenTenantId)
+func (tam *TokenAuthorizationMiddleware) isAuthorizedMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
+	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, method, path, tokenInfo)
 	if !authConfig || err != nil {
 		return authConfig, err
 	}
 
-	authMultiTenant, err := tam.isAuthorizedPathMultiTenant(ctx, method, path, tokenTenantId)
+	authMultiTenant, err := tam.isAuthorizedPathMultiTenant(ctx, method, path, tokenInfo)
 	if !authMultiTenant || err != nil {
 		return authMultiTenant, err
 	}
@@ -339,8 +339,8 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedMultiTenant(ctx context.Con
 	return true, nil
 }
 
-func (tam *TokenAuthorizationMiddleware) isAuthorizedPathMultiTenant(ctx context.Context, method string, path string, tokenTenantId int) (bool, error) {
-	if multipleTenants && tokenTenantId != AccessAllTenants {
+func (tam *TokenAuthorizationMiddleware) isAuthorizedPathMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
+	if !tokenInfo.IsTenantMaster() {
 		for _, base := range multiTenantDenyPaths {
 			if strings.HasPrefix(path, base) {
 				return false, errors.New(fmt.Sprintf("Token is not allowed to access this namespace because it is scoped to a single tenant."))
@@ -352,13 +352,13 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedPathMultiTenant(ctx context
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, method string, path string, tokenTenantId int) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
 	// If we're not hitting the config namespace, then there is no need to enforce anything below
 	if !configNamespaceRe.MatchString(path) {
 		return true, nil
 	}
 
-	if multipleTenants && tokenTenantId != AccessAllTenants {
+	if !tokenInfo.IsTenantMaster() {
 		if method == "GET" || method == "OPTIONS" {
 			for _, base := range allTenantsPaths {
 				if strings.HasPrefix(path, base) {
