@@ -127,7 +127,7 @@ sub updateAnswerNameValue {
     my ($self, $name, $value) = @_;
     if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
         my $prefix = $1 // '';
-        my ($new_name, $new_value) = split(/:/, $value, 2);
+        my ($new_name, $new_value) = split(/[:=]/, $value, 2);
         if (defined $new_value && length($new_value)) {
             $name = "$prefix" . $new_name;
             $value = $new_value;
