@@ -388,7 +388,7 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 
 	var ca CA
 	if CaDB := pfpki.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
-		Information.Error = err.Error()
+		Information.Error = CaDB.Error.Error()
 		return Information, CaDB.Error
 	}
 
