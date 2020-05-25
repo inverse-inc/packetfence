@@ -10,6 +10,9 @@ pf::Authentication::Source::OpenIDSource
 
 use pf::log;
 use Moose;
+use pf::config qw(%Config);
+use pf::constants qw($TRUE $FALSE);
+use pf::Authentication::constants;
 extends 'pf::Authentication::Source::OAuthSource';
 with 'pf::Authentication::CreateLocalAccountRole';
 
@@ -78,6 +81,19 @@ sub map_to_person {
     }
 
     return \%person;
+}
+
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions, $extra) = @_;
+    my $username = $params->{$self->username_attribute};
+    foreach my $condition (@{ $own_conditions }) {
+        my $r = $self->match_condition($condition, $params);
+        if ($r) {
+            push(@{ $matching_conditions }, $condition);
+        }
+    }
+
+    return ($username, undef);
 }
 
 sub map_from_person {

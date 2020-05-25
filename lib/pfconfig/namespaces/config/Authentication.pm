@@ -181,9 +181,10 @@ sub newAuthenticationSource {
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
     my $type = $data->{type};
-    if ($type eq 'OpenID') {
+    if (defined $type && $type eq 'OpenID') {
         pf::Authentication::utils::inflatePersonMappings($data);
     }
+
     $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources) );
 }
 
