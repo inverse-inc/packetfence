@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use Date::Parse;
 
-use Test::More tests => 57;                      # last test to print
+use Test::More tests => 58;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -421,6 +421,18 @@ is_deeply(
     },
    "potd match rule"
 );
+
+{
+    my $source = pf::authentication::getAuthenticationSource("openid");
+    is_deeply(
+        $source->{person_mappings},
+        [
+            { person_field => 'nickname',  openid_field => 'alt_name' },
+            { person_field => 'telephone', openid_field => 'phone' },
+        ],
+        "person_mappings"
+    );
+}
 
 =head1 AUTHOR
 
