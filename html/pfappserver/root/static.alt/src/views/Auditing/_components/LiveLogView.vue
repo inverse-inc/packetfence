@@ -117,7 +117,7 @@
         </b-col>
         <b-col sm="9" class="pl-0" :class="`direction-${options.order}`">
 
-          <b-row class="mb-3" align-v="center">
+          <b-row class="mb-3" align-v="center" :class="(options.order === 'forward') ? 'mt-3' : 'mb-3'">
             <b-col cols="auto" class="mr-auto d-inline">
               <b-button-group class="mx-1 ml-3" :disabled="!events || !events.length">
                 <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy') }}</b-button>
@@ -157,7 +157,7 @@
               </small>
             </b-col>
             <b-col cols="auto text-right">
-              <b-button-group class="mx-1 ml-3" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
+              <b-button-group class="mx-1 mr-3" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.order = 'reverse'" :active="options.order === 'reverse'" :variant="(options.order === 'reverse') ? 'secondary' : 'outline-secondary'">
                   <icon name="sort-numeric-up-alt" />
                 </b-button>
@@ -420,7 +420,7 @@ export default {
 
 <style lang="scss">
 .log, .scopes {
-  height: 70vh;
+  height: 65vh;
   overflow-y: scroll;
   overflow-x: auto;
 }
