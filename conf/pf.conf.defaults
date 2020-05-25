@@ -973,6 +973,11 @@ netflow_on_all_network = disabled
 # Accounting timebucket size
 accounting_timebucket_size = 5m
 
+# advanced.openid_attributes
+#
+# List of known OpenID Attributes
+openid_attributes=
+
 [provisioning]
 #
 # provisioning.autoconfig
