@@ -48,20 +48,20 @@
                 <b-button-group class="mt-3 btn-block">
 
                   <b-button v-if="isRunning && !isPaused"
-                    variant="primary" class="mb-1" @click="pauseSession()"
+                    variant="primary" class="mb-1" size="sm" @click="pauseSession()"
                   >
                     <icon name="pause" class="mr-2"></icon>
                     {{ $i18n.t('Pause') }}
                   </b-button>
                   <b-button v-if="isRunning && isPaused"
-                    variant="primary" class="mb-1" @click="unpauseSession()"
+                    variant="primary" class="mb-1" size="sm" @click="unpauseSession()"
                   >
                     <icon name="play" class="mr-2"></icon>
                     {{ $i18n.t('Unpause') }}
                   </b-button>
                   <b-button v-if="isRunning"
                     :disabled="isStopping"
-                    variant="danger" class="float-right mb-1" @click="stopSession()"
+                    variant="danger" class="float-right mb-1" size="sm" @click="stopSession()"
                   >
                     <icon v-if="isStopping" name="circle-notch" class="mr-2" spin></icon>
                     <icon v-else name="stop" class="mr-2"></icon>
@@ -69,7 +69,7 @@
                   </b-button>
                   <b-button v-if="!isRunning"
                     :disabled="isStarting || invalidForm"
-                    variant="success" class="float-right mb-1" @click="startSession()"
+                    variant="success" class="float-right mb-1" size="sm" @click="startSession()"
                   >
                     <icon v-if="isStarting" name="circle-notch" class="mr-2" spin></icon>
                     <icon v-else name="play" class="mr-2"></icon>
@@ -121,25 +121,25 @@
             <b-col cols="auto" class="mr-auto d-inline">
 
               <b-button v-if="isRunning && !isPaused"
-                variant="primary" class="ml-3" @click="pauseSession()"
+                variant="primary" class="ml-3" size="sm" @click="pauseSession()"
               >
                 <icon name="pause" class="mr-2"></icon>
                 {{ $i18n.t('Pause') }}
               </b-button>
               <b-button v-if="isRunning && isPaused"
-                variant="primary" class="ml-3" @click="unpauseSession()"
+                variant="primary" class="ml-3" size="sm" @click="unpauseSession()"
               >
                 <icon name="play" class="mr-2"></icon>
                 {{ $i18n.t('Unpause') }}
               </b-button>
 
-              <b-button-group class="mx-1 ml-3" :disabled="!events || !events.length">
+              <b-button-group class="mx-1 ml-3" size="sm" :disabled="!events || !events.length">
                 <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy') }}</b-button>
                 <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save') }}</b-button>
                 <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear') }}</b-button>
               </b-button-group>
 
-              <b-button-group class="mx-1 ml-3" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
+              <b-button-group class="mx-1 ml-3" size="sm" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.background = 'white'" :active="options.background === 'white'" variant="outline-dark">
                   <icon name="font" class="text-dark" />
                 </b-button>
@@ -148,7 +148,7 @@
                 </b-button>
               </b-button-group>
 
-              <b-button-group class="mx-1 ml-3" :title="$i18n.t('Choose size')" v-b-tooltip.hover.top.d300>
+              <b-button-group class="mx-1 ml-3" size="sm" :title="$i18n.t('Choose size')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.size = 'small'" :active="options.size === 'small'" :variant="(options.size === 'small') ? 'secondary' : 'outline-secondary'">
                   <icon name="font" scale="0.75" />
                 </b-button>
@@ -171,7 +171,7 @@
               </small>
             </b-col>
             <b-col cols="auto text-right">
-              <b-button-group class="mx-1 mr-3" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
+              <b-button-group class="mx-1 mr-3" size="sm" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.order = 'reverse'" :active="options.order === 'reverse'" :variant="(options.order === 'reverse') ? 'secondary' : 'outline-secondary'">
                   <icon name="sort-numeric-up-alt" />
                 </b-button>
