@@ -11,7 +11,7 @@ export default Vue.directive('scroll-100', {
     // Force all parent nodes to take 100% of the window height
     let parentNode = el.parentNode
     while (parentNode && 'classList' in parentNode) {
-      parentNode.classList.add('h-100')
+      parentNode.classList.add('h-100', 'overflow-hidden')
       parentNode = parentNode.parentNode
     }
   },
@@ -20,7 +20,7 @@ export default Vue.directive('scroll-100', {
     // Remove height constraint on all parent nodes
     let parentNode = el.parentNode
     while (parentNode && 'classList' in parentNode) {
-      parentNode.classList.remove('h-100')
+      parentNode.classList.remove('h-100', 'overflow-hidden')
       parentNode = parentNode.parentNode
     }
   }

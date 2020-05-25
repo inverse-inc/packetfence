@@ -5,10 +5,18 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Admin API Audit Logs'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by user name, action or object id')" save-search-namespace="admin_api_audit_logs"
-      :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
-    <div class="card-body">
+    <pf-search class="flex-shrink-0"
+      :quick-with-fields="false"
+      :quick-placeholder="$t('Search by user name, action or object id')"
+      save-search-namespace="admin_api_audit_logs"
+      :fields="fields"
+      :advanced-mode="advancedMode"
+      :condition="condition"
+      :storeName="storeName"
+      @submit-search="onSearch"
+      @reset-search="onReset"
+      @import-search="onImport"></pf-search>
+    <div class="card-body flex-shrink-0 pt-0">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
@@ -31,18 +39,20 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
+                <b-form-select class="mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3 my-0" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" filename="admin_api_audit_logs.csv" :disabled="isLoading"
+              <pf-button-export-to-csv filename="admin_api_audit_logs.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
           </b-container>
         </b-col>
       </b-row>
+    </div>
+    <div class="card-body pt-0" v-scroll-100>
       <b-table
         class="table-clickable"
         :items="items"
@@ -51,7 +61,7 @@
         :sort-desc="sortDesc"
         @sort-changed="onSortingChanged"
         @row-clicked="onRowClick"
-        show-empty responsive hover no-local-sorting sort-icon-left striped
+        show-empty hover no-local-sorting sort-icon-left striped
       >
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading" :text="$t('Admin API Audit Audit Logs not found or setting is disabled in configuration. You can enable this setting in Configuration → System Configuration → Admin API Audit Configuration.')">{{ $t('No logs found') }}</pf-empty-table>
@@ -70,6 +80,7 @@ import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
+import scroll100 from '@/directives/scroll-100'
 
 export default {
   name: 'admin-api-audit-logs-search',
@@ -82,6 +93,9 @@ export default {
     pfEmptyTable,
     pfSearch,
     pfFormToggle
+  },
+  directives: {
+    scroll100
   },
   props: {
     searchableOptions: {

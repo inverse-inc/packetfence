@@ -7,14 +7,15 @@
     </b-card-header>
     <pf-search class="flex-shrink-0"
       :quick-with-fields="false"
-      quick-placeholder="Search by MAC or username"
+      :quick-placeholder="$t('Search by MAC or username')"
       save-search-namespace="radiuslogs"
       :fields="fields"
       :advanced-mode="advancedMode"
       :condition="condition"
       :storeName="storeName"
       @submit-search="onSearch"
-      @reset-search="onReset"></pf-search>
+      @reset-search="onReset"
+      @import-search="onImport"></pf-search>
     <div class="card-body flex-shrink-0 pt-0">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -575,7 +576,7 @@ export default {
           }) >= 0
         }).length !== condition.values[0].values.length
     },
-    onRowClick (item, index) {
+    onRowClick (item) {
       this.$router.push({ name: 'radiuslog', params: { id: item.id } })
     }
   }
