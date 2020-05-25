@@ -94,6 +94,16 @@ has_field 'domains' =>
              help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
+has_field 'person_mappings' =>
+  (
+   type => 'Repeatable',
+  );
+
+has_field 'person_mappings.contains' =>
+  (
+   type => 'PersonMapping',
+  );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2020 Inverse inc.
