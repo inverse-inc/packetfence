@@ -35,6 +35,15 @@ has_field 'id' =>
    },
   );
 
+has_field 'regex' =>
+  (
+   type => 'Text',
+   label => 'Regex Realm',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'PacketFence will use this Realm configuration if the regex match with the UserName (optional)' },
+  );
+
 has_field 'options' =>
   (
    type => 'TextArea',

@@ -162,9 +162,13 @@ EOT
 
     $tags{'local_realm'} = '';
     my @realms;
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
         if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'})) {
-            push (@realms, "Realm == \"$realm\"");
+            if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+                push (@realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
+            } else {
+                push (@realms, "Realm == \"$realm\"");
+            }
         }
     }
     if (@realms) {
@@ -218,7 +222,7 @@ EOT
 
     $tags{'userPrincipalName'} = '';
     my $flag = $TRUE;
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
         if (isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'}) && (scalar @{$ConfigAuthenticationLdap{$pf::config::ConfigRealm{$realm}->{ldap_source}}->{searchattributes}})) {
             if ($flag) {
                 $tags{'userPrincipalName'} .= <<"EOT";
@@ -230,10 +234,15 @@ EOT
 EOT
             }
             $flag = $FALSE;
-        $tags{'userPrincipalName'} .= <<"EOT";
-        if (Realm == \"$realm\" ) {
-            $pf::config::ConfigRealm{$realm}->{ldap_source}
-        }
+            if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+                $tags{'userPrincipalName'} .= "            if (Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/) {";
+            } else {
+                $tags{'userPrincipalName'} .= "            if (Realm == \"$realm\") {";
+            }
+            $tags{'userPrincipalName'} .= <<"EOT";
+
+                $pf::config::ConfigRealm{$realm}->{ldap_source}
+            }
 EOT
         }
     }
@@ -387,7 +396,11 @@ EOT
                 if (isenabled($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth_compute_in_pf'})) {
                     push (@realms, "Realm == \"eduroam.$realm\"");
                 }
-                $tags{'local_realm'} .= '            if ( Realm == "'.$realm.'" ) {'."\n";
+                if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+                    $tags{'local_realm'} .= '            if ( "Realm =~ /"'.$pf::config::ConfigRealm{$realm}->{'regex'}.'"/" ) {'."\n";
+                } else {
+                    $tags{'local_realm'} .= '            if ( Realm == "'.$realm.'" ) {'."\n";
+                }
                 $tags{'local_realm'} .= <<"EOT";
                 update control {
                     Proxy-To-Realm := "eduroam.$realm"
@@ -397,7 +410,11 @@ EOT
             }
             if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'} ) {
                 $found_acct = $TRUE;
-                $tags{'local_realm_acct'} .= '            if ( Realm == "'.$realm.'" ) {'."\n";
+                if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+                    $tags{'local_realm_acct'} .= '            if ( "Realm =~ /"'.$pf::config::ConfigRealm{$realm}->{'regex'}.'"/" ) {'."\n";
+                } else {
+                    $tags{'local_realm_acct'} .= '            if ( Realm == "'.$realm.'" ) {'."\n";
+                }
                 $tags{'local_realm_acct'} .= <<"EOT";
                 update control {
                     Proxy-To-Realm := "eduroam.$realm"
@@ -409,7 +426,11 @@ EOT
         my @local_realms;
         foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
             if (!$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
-                push (@local_realms, "Realm == \"$realm\"");
+                 if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+                     push (@local_realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
+                 } else {
+                     push (@local_realms, "Realm == \"$realm\"");
+                 }
             }
         }
         if (@local_realms) {
@@ -444,7 +465,11 @@ EOT
         $tags{'reject_realm'} = '';
         my @reject_realms;
         foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
-             push (@reject_realms, "Realm == \"$reject_realm\"");
+                 if (defined $pf::config::ConfigRealm{$reject_realm}->{'regex'} && $pf::config::ConfigRealm{$reject_realm}->{'regex'} ne '') {
+                     push (@reject_realms, "Realm =~ /$pf::config::ConfigRealm{$reject_realm}->{'regex'}/");
+                 } else {
+                     push (@reject_realms, "Realm == \"$reject_realm\"");
+                 }
         }
         if (@reject_realms) {
             $tags{'reject_realm'} .= '            if ( ';
@@ -691,10 +716,16 @@ sub generate_radiusd_proxy {
     $tags{'radius_sources'} = '';
     my @radius_sources;
 
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
         my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
+        my $real_realm;
+        if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+            $real_realm = "\"~".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
+        } else {
+            $real_realm = $realm;
+        }
         $tags{'config'} .= <<"EOT";
-realm $realm {
+realm $real_realm {
 $options
 EOT
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
@@ -870,10 +901,16 @@ EOT
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
 
     undef %tags;
+    my $real_realm;
 
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
+        if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+            $real_realm = "\"".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
+        } else {
+            $real_realm = $realm;
+        }
         $tags{'config'} .= <<"EOT";
-realm $realm {
+realm $real_realm {
 nostrip
 }
 EOT
@@ -987,7 +1024,11 @@ EOT
             $tags{'local_realm'} = '';
             my @realms;
             foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
-                 push (@realms, "Realm == \"$realm\"");
+                 if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+                     push (@realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
+                 } else {
+                     push (@realms, "Realm == \"$realm\"");
+                 }
             }
             if (@realms) {
                 $tags{'local_realm'} .= 'if ( ';

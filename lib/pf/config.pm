@@ -135,6 +135,7 @@ our (
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm,
+    @ConfigOrderedRealm,
 #provisioning.conf
     %ConfigProvisioning,
 #domain.conf
@@ -216,6 +217,7 @@ BEGIN {
         $DISTRIB $DIST_VERSION
         %Doc_Config
         %ConfigRealm
+        @ConfigOrderedRealm
         %ConfigProvisioning
         %ConfigDomain
         $default_pid
@@ -277,6 +279,8 @@ tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+
+tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 

@@ -1177,6 +1177,11 @@ export default {
   deleteRealm: id => {
     return apiCall.delete(['config', 'realm', id])
   },
+  sortRealms: data => {
+    return apiCall.patch('config/realms/sort_items', data).then(response => {
+      return response
+    })
+  },
 
   /**
    * Roles

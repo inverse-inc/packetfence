@@ -29,6 +29,11 @@ export const columns = [
     visible: true
   },
   {
+    key: 'regex',
+    label: 'Regex Realm', // i18n defer
+    visible: true
+  },
+  {
     key: 'domain',
     label: 'Domain', // i18n defer
     sortable: true,
@@ -87,7 +92,7 @@ export const config = (context = {}) => {
     searchPlaceholder: i18n.t('Search by name'),
     searchableOptions: {
       searchApiEndpoint: 'config/realms',
-      defaultSortKeys: ['id'],
+      defaultSortKeys: [], // use natural ordering
       defaultSearchCondition: {
         op: 'and',
         values: [{
@@ -136,6 +141,17 @@ export const view = (form = {}, meta = {}) => {
                   disabled: (!isNew && !isClone)
                 }
               }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Regex Realm'),
+          text: i18n.t('PacketFence will use this Realm configuration if the regex match with the UserName (optional).'),
+          cols: [
+            {
+              namespace: 'regex',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'regex')
             }
           ]
         },

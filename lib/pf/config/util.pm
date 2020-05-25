@@ -31,6 +31,7 @@ use pf::config qw(
     $UNKNOWN
     $management_network
     %ConfigRealm
+    @ConfigOrderedRealm
     $HTTPS
     $HTTP
 );
@@ -419,6 +420,12 @@ Find sources for a specific realm
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
     my $matched_realm = $realm;
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+            $realm = $realm_key;
+            last;
+        }
+    }
     $matched_realm //= 'null';
     my @found = grep { $_->realmIsAllowed($realm) } @{$sources};
     if (@found == 0 && $realm ne 'default' && !(exists $pf::config::ConfigRealm{$realm})) {
@@ -659,12 +666,19 @@ Valid context are "portal" and "admin", basically any prefix to "_strip_username
 sub strip_username_if_needed {
     my ($username, $context) = @_;
     return $username unless(defined($username));
-    
+
     my $logger = get_logger;
 
     my ($stripped, $realm) = strip_username($username);
     $realm = $realm ? lc($realm) : undef;
-    
+
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+            $realm = $realm_key;
+            last;
+        }
+    }
+
     my $realm_config = defined($realm) && exists($ConfigRealm{$realm}) ? $ConfigRealm{$realm} : $ConfigRealm{lc($pf::constants::realm::DEFAULT)};
 
     my $param = $context . "_strip_username";
