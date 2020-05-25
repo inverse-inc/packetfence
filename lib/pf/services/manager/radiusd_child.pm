@@ -1208,34 +1208,35 @@ Generate the configuration for eap choice
 
 sub generate_eap_choice {
     my ($authorize_eap_choice, $authentication_auth_type) = @_;
-    $$authorize_eap_choice .= <<"EOT";
-
-        switch "%{%{Realm}:-DEFAULT}" {
-EOT
-        foreach my $key ( sort keys %pf::config::ConfigRealm ) {
+        my $if = 'if';
+        foreach my $key ( @pf::config::ConfigOrderedRealm ) {
             next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
-
+            my $choice = $key;
+            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
             $$authorize_eap_choice .= <<"EOT";
-            case "$key" {
+            $if (Realm =~ /$choice/) {
                 $pf::config::ConfigRealm{$key}->{'eap'} {
                     ok = return
                 }
             }
 EOT
-            $$authentication_auth_type .= <<"EOT";
-        Auth-Type $pf::config::ConfigRealm{$key}->{'eap'} {
-            $pf::config::ConfigRealm{$key}->{'eap'}
-        }
-EOT
+            $if = 'elsif';
         }
         $$authorize_eap_choice .= <<"EOT";
-            case {
+            else {
                 eap {
                     ok = return
                 }
             }
+EOT
+        foreach my $key (keys %ConfigEAP) {
+            next if $key eq 'default';
+            $$authentication_auth_type .= <<"EOT";
+        Auth-Type $key {
+            $key
         }
 EOT
+        }
 
 }
 
