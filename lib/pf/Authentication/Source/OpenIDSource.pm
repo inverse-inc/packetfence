@@ -24,7 +24,7 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'openid');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1);
-has 'username_attribute' => ( is => 'rw', default => 'email');
+has 'username_attribute' => ( is => 'rw', default => 'email', isa => 'Str');
 has 'person_mappings' => ( is => 'rw', default => sub { [] });
 
 =head2 available_attributes
@@ -78,6 +78,20 @@ sub _map_to_person {
     }
 
     return \%person;
+}
+
+sub map_from_person {
+    my ($self, $person) = @_;
+    my $mappings = $self->person_mappings;
+    my %info = (
+        $self->username_attribute => $person->{pid},
+    );
+
+    for my $mapping (@$mappings) {
+        $info{$mapping->{openid_field}} = $person->{$mapping->{person_field}};
+    }
+
+    return \%info;
 }
 
 =head1 AUTHOR
