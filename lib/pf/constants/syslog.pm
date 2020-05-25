@@ -15,6 +15,7 @@ pf::constants::syslog
 use strict;
 use warnings;
 
+use pf::util;
 use pf::file_paths qw($log_dir);
 
 our @SyslogInfo = (
@@ -248,12 +249,8 @@ our @SyslogInfo = (
 our @LOGS = (
     (map { $_->{name} = "$log_dir/".$_->{name} ; $_ } @SyslogInfo),
     {
-        'description' => 'Global syslog (CentOS)',
-        'name'       => '/var/log/messages',
-    },
-    {
-        'description' => 'Global syslog (Debian)',
-        'name'       => '/var/log/syslog',
+        'description' => 'Global syslog',
+        'name'       => os_detection() eq "debian" ? '/var/log/syslog' : '/var/log/messages',
     },
 );
 

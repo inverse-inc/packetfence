@@ -106,6 +106,7 @@ BEGIN {
         mac2dec
         expand_ordered_array
         make_node_id split_node_id
+        os_detection
     );
 }
 
@@ -1650,6 +1651,18 @@ sub split_node_id {
     return ($tenant_id, $mac);
 }
 
+=item os_detection -  check the os system
+
+=cut
+
+sub os_detection {
+    my $logger = get_logger();
+    if (-e '/etc/debian_version') {
+        return "debian";
+    }elsif (-e '/etc/redhat-release') {
+        return "rhel";
+    }
+}
 =back
 
 =head1 AUTHOR
