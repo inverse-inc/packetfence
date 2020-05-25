@@ -129,34 +129,7 @@ sub generate_radiusd_sitesconf {
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
 
-    $tags{'authorize_eap_choice'} .= <<"EOT";
-
-        switch "%{%{control:PacketFence-Auth-Type}:-False}" {
-EOT
-        foreach my $key (keys %ConfigEAP) {
-            next if $key eq 'default';
-
-            $tags{'authorize_eap_choice'} .= <<"EOT";
-            case "$key" {
-                $key {
-                    ok = return
-                }
-            }
-EOT
-            $tags{'authentication_auth_type'} .= <<"EOT";
-        Auth-Type $key {
-            $key
-        }
-EOT
-        }
-        $tags{'authorize_eap_choice'} .= <<"EOT";
-            case {
-                eap {
-                    ok = return
-                }
-            }
-        }
-EOT
+    generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
     if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
@@ -168,7 +141,6 @@ EOT
         $tags{'authorize_filter'} .= <<"EOT";
         rest
 
-        # PacketFence-Auth-Type test to-do
 EOT
     }
     else {
@@ -289,34 +261,7 @@ EOT
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
 
-    $tags{'authorize_eap_choice'} .= <<"EOT";
-
-        switch "%{%{control:PacketFence-Auth-Type}:-False}" {
-EOT
-        foreach my $key (keys %ConfigEAP) {
-            next if $key eq 'default';
-
-            $tags{'authorize_eap_choice'} .= <<"EOT";
-            case "$key" {
-                $key {
-                    ok = return
-                }
-            }
-EOT
-            $tags{'authentication_auth_type'} .= <<"EOT";
-        Auth-Type $key {
-            $key
-        }
-EOT
-        }
-        $tags{'authorize_eap_choice'} .= <<"EOT";
-            case {
-                eap {
-                    ok = return
-                }
-            }
-        }
-EOT
+    generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
@@ -557,35 +502,9 @@ EOT
 EOT
         }
         $tags{'authentication_auth_type'} = "";
+        $tags{'authorize_eap_choice'} = "";
 
-        $tags{'authorize_eap_choice'} .= <<"EOT";
-
-        switch "%{%{control:PacketFence-Auth-Type}:-False}" {
-EOT
-            foreach my $key (keys %ConfigEAP) {
-                next if $key eq 'default';
-
-                $tags{'authorize_eap_choice'} .= <<"EOT";
-            case "$key" {
-                $key {
-                    ok = return
-                }
-            }
-EOT
-                $tags{'authentication_auth_type'} .= <<"EOT";
-        Auth-Type $key {
-            $key
-        }
-EOT
-        }
-            $tags{'authorize_eap_choice'} .= <<"EOT";
-            case {
-                eap {
-                    ok = return
-                }
-            }
-        }
-EOT
+        generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
         if(isenabled($Config{radius_configuration}{filter_in_eduroam_authorize})){
         $tags{'authorize_filter'} .= <<"EOT";
@@ -1278,6 +1197,45 @@ sub generate_radiusd_mschap {
     $tags{'statsd_port' } = "$Config{'advanced'}{'statsd_listen_port'}";
 
     parse_template( \%tags, "$conf_dir/radiusd/mschap.conf", "$install_dir/raddb/mods-enabled/mschap" );
+
+}
+
+=head2 generate_eap_choice
+
+Generate the configuration for eap choice
+
+=cut
+
+sub generate_eap_choice {
+    my ($authorize_eap_choice, $authentication_auth_type) = @_;
+    $$authorize_eap_choice .= <<"EOT";
+
+        switch "%{%{Realm}:-DEFAULT}" {
+EOT
+        foreach my $key ( sort keys %pf::config::ConfigRealm ) {
+            next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
+
+            $$authorize_eap_choice .= <<"EOT";
+            case "$key" {
+                $pf::config::ConfigRealm{$key}->{'eap'} {
+                    ok = return
+                }
+            }
+EOT
+            $$authentication_auth_type .= <<"EOT";
+        Auth-Type $pf::config::ConfigRealm{$key}->{'eap'} {
+            $pf::config::ConfigRealm{$key}->{'eap'}
+        }
+EOT
+        }
+        $$authorize_eap_choice .= <<"EOT";
+            case {
+                eap {
+                    ok = return
+                }
+            }
+        }
+EOT
 
 }
 

@@ -29,6 +29,16 @@ export const columns = [
     visible: true
   },
   {
+    key: 'regex',
+    label: 'Regex Realm', // i18n defer
+    visible: true
+  },
+  {
+    key: 'eap',
+    label: 'eap configuration',
+    visible: true
+  },
+  {
     key: 'domain',
     label: 'Domain', // i18n defer
     sortable: true,
@@ -161,6 +171,20 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'domain',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'domain')
+            }
+          ]
+        },
+        {
+          label: i18n.t('EAP Configuration'), labelSize: 'lg'
+        },
+        {
+          label: i18n.t('EAP'),
+          text: i18n.t('The EAP configuration to use.'),
+          cols: [
+            {
+              namespace: 'eap',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'eap')
             }
           ]
         },
@@ -392,6 +416,7 @@ export const validators = (form = {}, meta = {}) => {
         [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
       }
     },
+    eap: validatorsFromMeta(meta, 'eap', i18n.t('EAP')),
     domain: validatorsFromMeta(meta, 'domain', i18n.t('Domain')),
     options: validatorsFromMeta(meta, 'options', i18n.t('Options')),
     radius_auth: validatorsFromMeta(meta, 'radius_auth', i18n.t('Servers')),
