@@ -119,6 +119,20 @@
 
           <b-row class="mb-3" align-v="center" :class="(options.order === 'forward') ? 'mt-3' : 'mb-3'">
             <b-col cols="auto" class="mr-auto d-inline">
+
+              <b-button v-if="isRunning && !isPaused"
+                variant="primary" class="ml-3" @click="pauseSession()"
+              >
+                <icon name="pause" class="mr-2"></icon>
+                {{ $i18n.t('Pause') }}
+              </b-button>
+              <b-button v-if="isRunning && isPaused"
+                variant="primary" class="ml-3" @click="unpauseSession()"
+              >
+                <icon name="play" class="mr-2"></icon>
+                {{ $i18n.t('Unpause') }}
+              </b-button>
+
               <b-button-group class="mx-1 ml-3" :disabled="!events || !events.length">
                 <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy') }}</b-button>
                 <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save') }}</b-button>
