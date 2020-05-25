@@ -79,7 +79,10 @@ export default {
         const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
         if (allowed) {
           this.files = allowed.map(item => {
-            return { name: item.text, value: item.value }
+            const { text, value } = item
+            return { name: `${value} - ${text}`, value }
+          }).sort((a, b) => {
+            return a.value.localeCompare(b.value)
           })
         }
       })

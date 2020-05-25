@@ -79,62 +79,6 @@
               </b-list-group-item>
             </b-list-group>
 
-            <b-button-group class="mb-3 btn-block" :disabled="!events || !events.length">
-              <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy') }}</b-button>
-              <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save') }}</b-button>
-              <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear') }}</b-button>
-            </b-button-group>
-
-            <b-row class="mb-3">
-              <b-col cols="6">
-                <b-button-group class="btn-block" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
-                  <b-button @click="options.background = 'white'" :active="options.background === 'white'" variant="outline-dark">
-                    <icon name="font" class="text-dark" />
-                  </b-button>
-                  <b-button @click="options.background = 'black'" :active="options.background === 'black'" variant="dark">
-                    <icon name="font" class="text-white" />
-                  </b-button>
-                </b-button-group>
-              </b-col>
-              <b-col cols="6">
-                <small>
-                  <pf-form-range-toggle
-                    v-model="options.output"
-                    :values="{checked: 'color', unchecked: 'raw'}"
-                    :colors="{checked: 'var(--primary)', unchecked: 'var(--secondary)'}"
-                    :rightLabels="{checked: $t('Color'), unchecked: $t('Raw')}"
-                    class="text-nowrap"
-                  />
-                </small>
-              </b-col>
-            </b-row>
-            <b-row class="mb-3">
-              <b-col cols="6">
-                <b-button-group class="btn-block" :title="$i18n.t('Choose size')" v-b-tooltip.hover.top.d300>
-                  <b-button @click="options.size = 'small'" :active="options.size === 'small'" variant="outline-secondary">
-                    <icon name="font" scale="0.75" />
-                  </b-button>
-                  <b-button @click="options.size = 'normal'" :active="options.size === 'normal'" variant="outline-secondary">
-                    <icon name="font" scale="1" />
-                  </b-button>
-                  <b-button @click="options.size = 'large'" :active="options.size === 'large'" variant="outline-secondary">
-                    <icon name="font" scale="1.25" />
-                  </b-button>
-                </b-button-group>
-              </b-col>
-              <b-col cols="6">
-                <small>
-                  <pf-form-range-toggle
-                    v-model="options.order"
-                    :values="{checked: 'reverse', unchecked: 'forward'}"
-                    :colors="{checked: 'var(--primary)', unchecked: 'var(--secondary)'}"
-                    :rightLabels="{checked: $t('Bottom to top'), unchecked: $t('Top to bottom')}"
-                    class="text-nowrap"
-                  />
-                </small>
-              </b-col>
-            </b-row>
-
             <small :key="scope" class="ml-1">{{ $i18n.t('Buffer Size') }}</small>
             <pf-form-chosen
               v-model="size"
@@ -171,7 +115,58 @@
             </template>
           </div>
         </b-col>
-        <b-col sm="9" class="pl-0">
+        <b-col sm="9" class="pl-0" :class="`direction-${options.order}`">
+
+          <b-row class="mb-3" align-v="center">
+            <b-col cols="auto" class="mr-auto d-inline">
+              <b-button-group class="mx-1 ml-3" :disabled="!events || !events.length">
+                <b-button @click="copyEvents()" variant="outline-primary">{{ $t('Copy') }}</b-button>
+                <b-button @click="saveEvents()" variant="outline-primary">{{ $t('Save') }}</b-button>
+                <b-button @click="clearEvents()" variant="outline-danger">{{ $t('Clear') }}</b-button>
+              </b-button-group>
+
+              <b-button-group class="mx-1 ml-3" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
+                <b-button @click="options.background = 'white'" :active="options.background === 'white'" variant="outline-dark">
+                  <icon name="font" class="text-dark" />
+                </b-button>
+                <b-button @click="options.background = 'black'" :active="options.background === 'black'" variant="dark">
+                  <icon name="font" class="text-white" />
+                </b-button>
+              </b-button-group>
+
+              <b-button-group class="mx-1 ml-3" :title="$i18n.t('Choose size')" v-b-tooltip.hover.top.d300>
+                <b-button @click="options.size = 'small'" :active="options.size === 'small'" :variant="(options.size === 'small') ? 'secondary' : 'outline-secondary'">
+                  <icon name="font" scale="0.75" />
+                </b-button>
+                <b-button @click="options.size = 'normal'" :active="options.size === 'normal'" :variant="(options.size === 'normal') ? 'secondary' : 'outline-secondary'">
+                  <icon name="font" scale="1" />
+                </b-button>
+                <b-button @click="options.size = 'large'" :active="options.size === 'large'" :variant="(options.size === 'large') ? 'secondary' : 'outline-secondary'">
+                  <icon name="font" scale="1.25" />
+                </b-button>
+              </b-button-group>
+
+              <small class="btn-group mx-1 ml-3">
+                <pf-form-range-toggle
+                  v-model="options.output"
+                  :values="{checked: 'color', unchecked: 'raw'}"
+                  :colors="{checked: 'var(--primary)', unchecked: 'var(--secondary)'}"
+                  :rightLabels="{checked: $t('Color'), unchecked: $t('Raw')}"
+                  class="text-nowrap"
+                />
+              </small>
+            </b-col>
+            <b-col cols="auto text-right">
+              <b-button-group class="mx-1 ml-3" :title="$i18n.t('Choose order')" v-b-tooltip.hover.top.d300>
+                <b-button @click="options.order = 'reverse'" :active="options.order === 'reverse'" :variant="(options.order === 'reverse') ? 'secondary' : 'outline-secondary'">
+                  <icon name="sort-numeric-up-alt" />
+                </b-button>
+                <b-button @click="options.order = 'forward'" :active="options.order === 'forward'" :variant="(options.order === 'forward') ? 'secondary' : 'outline-secondary'">
+                  <icon name="sort-numeric-down" />
+                </b-button>
+              </b-button-group>
+            </b-col>
+          </b-row>
 
           <div editable="true" readonly="true" class="log" :class="{
             'scroll-forward': options.order === 'forward',
@@ -331,7 +326,10 @@ export default {
         const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
         if (allowed) {
           this.files = allowed.map(item => {
-            return { name: item.text, value: item.value }
+            const { text, value } = item
+            return { name: `${value} - ${text}`, value }
+          }).sort((a, b) => {
+            return a.value.localeCompare(b.value)
           })
         }
       })
@@ -374,7 +372,7 @@ export default {
       })
     },
     clearEvents () {
-      this.$store.dispatch(`$_live_logs/${this.id}/clearEvents`).then(response => {
+      this.$store.dispatch(`$_live_logs/${this.id}/clearEvents`).then(() => {
         this.$store.dispatch('notification/info', { message: i18n.t('Cleared logs.') })
       })
     },
@@ -506,6 +504,10 @@ export default {
 }
 .scroll-reverse {
   flex-direction: column;
+}
+.direction-forward {
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 /*
