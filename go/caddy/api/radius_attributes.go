@@ -9,10 +9,22 @@ import (
 )
 
 var radiusAttributesJson string
+var radiusAttributes []RadiusAttribute
 
 type RadiusAttributeValue struct {
 	Name  string `json:"name"`
 	Value uint   `json:"value"`
+}
+
+func radisAttributesFilter(items []RadiusAttribute, filter func(ra *RadiusAttribute) bool) []RadiusAttribute {
+	output := []RadiusAttribute{}
+	for _, i := range items {
+		if filter(&i) {
+			output = append(output, i)
+		}
+	}
+
+	return output
 }
 
 type RadiusAttribute struct {
@@ -27,6 +39,12 @@ type RadiusAttributesResults struct {
 }
 
 func (h APIHandler) radiusAttributes(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, radiusAttributesJson)
+}
+
+func (h APIHandler) searchRadiusAttributes(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, radiusAttributesJson)
@@ -57,6 +75,7 @@ func setupRadiusDictionary() {
 
 	res, _ := json.Marshal(&results)
 	radiusAttributesJson = string(res)
+	radiusAttributes = results.Items
 }
 
 func appendRadiusAttributes(items *[]RadiusAttribute, attributes []*dictionary.Attribute, values []*dictionary.Value, vendor string) {
