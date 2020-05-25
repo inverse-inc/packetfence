@@ -27,6 +27,20 @@ has 'domains' => (isa => 'Str', is => 'rw', required => 1);
 has 'username_attribute' => ( is => 'rw', default => 'email');
 has 'person_mappings' => ( is => 'rw', default => sub { [] });
 
+=head2 available_attributes
+
+Add additional available attributes
+
+=cut
+
+sub available_attributes {
+  my $self = shift;
+
+  my $super_attributes = $self->SUPER::available_attributes;
+  my @attributes = @{$Config{advanced}{openid_attributes} // []};
+  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+  return [@$super_attributes, @radius_attributes];
+}
 =head2 dynamic_routing_module
 
 Which module to use for DynamicRouting
