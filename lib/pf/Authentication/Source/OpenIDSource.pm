@@ -57,7 +57,7 @@ lookup_from_provider_info
 
 sub lookup_from_provider_info {
     my ($self, $pid, $info) = @_;
-    my $person_info = $self->_map_to_person($info);
+    my $person_info = $self->map_to_person($info);
     if ($person_info) {
         person_modify($pid, %$person_info);
     }
@@ -65,7 +65,7 @@ sub lookup_from_provider_info {
     return;
 }
 
-sub _map_to_person {
+sub map_to_person {
     my ($self, $info) = @_;
     my $mappings = $self->person_mappings;
     if (@$mappings == 0) {

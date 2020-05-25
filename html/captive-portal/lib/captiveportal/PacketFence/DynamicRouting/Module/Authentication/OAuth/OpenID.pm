@@ -34,6 +34,12 @@ sub _extract_username_from_response {
     return $info->{$source->username_attribute} // $self->SUPER::_extract_username_from_response($info);
 }
 
+sub auth_source_params_child {
+    my ($self) = @_;
+    my $info = person_view($self->username());
+    return $self->source->map_from_person($info);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
