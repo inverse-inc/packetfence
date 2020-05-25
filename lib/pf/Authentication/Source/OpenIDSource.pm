@@ -25,6 +25,7 @@ has 'protected_resource_url' => (isa => 'Str', is => 'rw');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1);
 has 'username_attribute' => ( is => 'rw', default => 'email');
+has 'person_mappings' => ( is => 'rw', default => sub { [] });
 
 =head2 dynamic_routing_module
 
@@ -33,6 +34,37 @@ Which module to use for DynamicRouting
 =cut
 
 sub dynamic_routing_module { 'Authentication::OAuth::OpenID' }
+
+=head2 lookup_from_provider_info
+
+lookup_from_provider_info
+
+=cut
+
+sub lookup_from_provider_info {
+    my ($self, $pid, $info) = @_;
+    my $person_info = $self->_map_to_person($info);
+    if ($person_info) {
+        person_modify($pid, %$person_info);
+    }
+
+    return;
+}
+
+sub _map_to_person {
+    my ($self, $info) = @_;
+    my $mappings = $self->person_mappings;
+    if (@$mappings == 0) {
+        return undef;
+    }
+
+    my %person;
+    for my $mapping (@$mappings) {
+        $person{$mapping->{person_field}} = $info->{$mapping->{openid_field}};
+    }
+
+    return \%person;
+}
 
 =head1 AUTHOR
 
