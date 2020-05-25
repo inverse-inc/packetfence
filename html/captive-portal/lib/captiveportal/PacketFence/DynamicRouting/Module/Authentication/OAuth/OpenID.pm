@@ -17,6 +17,23 @@ has '+source' => (isa => 'pf::Authentication::Source::OpenIDSource');
 
 has 'token_scheme' => (is => 'rw', default => sub {"auth-header:Bearer"});
 
+=head2 _extract_username_from_response
+
+Extract the username from the response of the provider
+
+=cut
+
+sub _extract_username_from_response {
+    my ($self, $info) = @_;
+    my $source = $self->source;
+    my $username = $source->username_attribute;
+    if (!exists $info->{$username}) {
+        return $self->SUPER::_extract_username_from_response($info);
+    }
+
+    return $info->{$source->username_attribute} // $self->SUPER::_extract_username_from_response($info);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

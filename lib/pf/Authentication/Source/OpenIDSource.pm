@@ -24,6 +24,7 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'openid');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1);
+has 'username_attribute' => ( is => 'rw', default => 'email');
 
 =head2 dynamic_routing_module
 
