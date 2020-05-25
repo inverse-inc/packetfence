@@ -344,8 +344,8 @@ sub matchCategory {
     my $category = [split(/\s*,\s*/, $self->{_categories})];
     my $node_cat = $node_attributes->{'category'};
 
-    get_logger->debug( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
-    # validating that the node is under the proper category for provisioner
+    get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$category) });
+    # validating that the node is under the proper category for scanner
     return @$category == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$category;
 }
 
