@@ -14,11 +14,17 @@ use strict;
 use warnings;
 use Sort::Naturally qw(nsort);
 
-
 sub inflatePersonMappings {
     my ($item) = @_;
     my @person_mappings = nsort grep { /^person_mapping\.\d+/ } keys %$item;
-    $item->{person_mappings} = [ map { my %i;@i{qw(person_field openid_field)} = split(/:/, $_, 2); \%i } delete @{$item}{@person_mappings}];
+    $item->{person_mappings} = [ map { inflatePersonMapping($_) } delete @{$item}{@person_mappings}];
+}
+
+sub inflatePersonMapping {
+    my ($mapping_str) = @_;
+    my %mapping;
+    @mapping{qw(person_field openid_field)} = split(/:/, $mapping_str, 2);
+    return \%mapping;
 }
 
 
