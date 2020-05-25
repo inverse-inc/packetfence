@@ -203,7 +203,10 @@ sub match_in_subclass {
 }
 
 sub lookupRole {
-    my ($self, $rule, $role_info, $params, $extra) = @_;
+    my ($self, $rule, $role_info, $params, $extra, $attributes) = @_;
+    for my $attribute (@{ $extra->{attributes}} ) {
+        $$extra->{"radius_attribute"}->{$attribute->{'Name'}} = $attribute->{'RawValue'};
+    }
     if (defined $extra) {
         my $attribute = first { $_->{Name} eq $role_info } @{ $extra->{attributes}};
         if ($attribute) {

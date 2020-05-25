@@ -365,6 +365,7 @@ sub getRegisteredRole {
     #$args->{'ssid'} is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($self, $args) = @_;
     my $logger = $self->logger;
+    my $attributes;
 
     my ($vlan, $role, $result, $person, $source, $portal);
     my $profile = $args->{'profile'};
@@ -430,7 +431,7 @@ sub getRegisteredRole {
                 context => $pf::constants::realm::RADIUS_CONTEXT,
             };
             my %info;
-            my $matched = pf::authentication::match2([@sources], $params);
+            my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
             $source = $matched->{source_id};
             my $values = $matched->{values};
             $role = $values->{$Actions::SET_ROLE};
@@ -487,7 +488,7 @@ sub getRegisteredRole {
         $role = $args->{'node_info'}->{'category'};
         $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
-    return ({role => $role, source => $source, portal => $portal, action => $action});
+    return ({role => $role, source => $source, portal => $portal, action => $action, attributes => $attributes});
 }
 
 =head2 getInlineRole
@@ -544,6 +545,7 @@ sub getNodeInfoForAutoReg {
     #$args->{'ssid'} is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($self, $args) = @_;
     my $logger = $self->logger;
+    my $attributes;
 
     my $profile = $args->{'profile'};
     my $role = $self->filterVlan('NodeInfoForAutoReg', $args);
@@ -601,8 +603,7 @@ sub getNodeInfoForAutoReg {
                 realm => $args->{realm},
                 context => $pf::constants::realm::RADIUS_CONTEXT,
             };
-
-            my $matched = pf::authentication::match2([@sources], $params);
+            my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
             my $source = $matched->{source_id};
 
             my $values = $matched->{values};
@@ -664,7 +665,7 @@ sub getNodeInfoForAutoReg {
         }
     }
 
-    return ($action, %node_info);
+    return ($attributes, $action, %node_info);
 }
 
 =head2 shouldAutoRegister

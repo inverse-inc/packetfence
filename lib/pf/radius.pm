@@ -256,8 +256,9 @@ sub authorize {
     $do_auto_reg = $role_obj->shouldAutoRegister($args);
     if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        ($action, %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
+        ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
         $args->{'action'} = $action;
+        $args = { %$args, %$attributes };
         $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
@@ -291,6 +292,11 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
+
+    if (defined($role->{attributes}) && exists($role->{attributes})) {
+        $args = { %$args, %{$role->{'attributes'}} };
+    }
+
     if (!exists($args->{'action'})) {
         $args->{'action'} = $role->{action};
     }
@@ -916,7 +922,8 @@ sub switch_access {
         my $merged = { %$options, %$args };
         $merged->{'rule_class'} = $Rules::ADMIN;
         $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
-        my $matched = pf::authentication::match2($source_id, $merged, $extra);
+        my $attributes;
+        my $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
         my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
         if ($value) {
             my @values = split(',', $value);

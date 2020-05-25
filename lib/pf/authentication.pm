@@ -372,8 +372,8 @@ sub match {
 }
 
 sub role_from_source {
-    my ($role_info, $source, $rule, $params, $extra, $matched) = @_;
-    return $source->lookupRole($rule, $role_info, $params, $extra, $matched);
+    my ($role_info, $source, $rule, $params, $extra, $matched, $attributes) = @_;
+    return $source->lookupRole($rule, $role_info, $params, $extra, $matched, $attributes);
 }
 
 =item match2
@@ -397,7 +397,7 @@ If there is a match hash will be returned with the following information
 
 sub match2 {
     my $timer = pf::StatsD::Timer->new();
-    my ($source_id, $params, $extra) = @_;
+    my ($source_id, $params, $extra, $attributes) = @_;
     my ($actions, @sources);
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
 
@@ -433,7 +433,7 @@ sub match2 {
             next if defined $ignored_action && $ignored_action eq $type;
             my $value = $action->value;
             if (exists $ACTION_VALUE_FILTERS{$type}) {
-                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched);
+                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched, $attributes);
                 if (!defined $value) {
                     #Setting action to undef to avoid the wrong actions to be returned
                     $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });

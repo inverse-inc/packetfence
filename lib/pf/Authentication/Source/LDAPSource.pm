@@ -657,7 +657,10 @@ sub _makefilter {
 }
 
 sub lookupRole {
-    my ($self, $rule, $role_info, $params, $extra, $entry) = @_;
+    my ($self, $rule, $role_info, $params, $extra, $entry, $attributes) = @_;
+    foreach my $attr ( $entry->attributes ) {
+        $$attributes->{"ldap_attribute"}->{$attr} = $entry->get_value( $attr, asref => 1) ;
+    }
     if (ref($entry) && (my $action = firstval { $_->type eq $Actions::SET_ROLE_FROM_SOURCE } @{$rule->{actions} // []})) {
         return scalar $entry->get_value($action->value);
     }
