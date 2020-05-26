@@ -261,7 +261,7 @@ func (r *CertStore) Init(ctx context.Context) {
 	r.certificates = certificate
 }
 
-// Reload the content the content of the files
+// Reload the content of the files
 func (r *CertStore) Reload(ctx context.Context) {
 	certType := "radius"
 	for eapkey := range r.eap.Element {
@@ -270,7 +270,7 @@ func (r *CertStore) Reload(ctx context.Context) {
 			if !(r.eap.Element[eapkey].TLS[tlskey].CertificateProfile.Default == "yes") {
 				r.RegularFile[eapkey][tlskey][certType]["cert"].SetData(r.certificates[eapkey][tlskey]["cert"])
 				r.RegularFile[eapkey][tlskey][certType]["key"].SetData(r.certificates[eapkey][tlskey]["key"])
-				r.RegularFile[eapkey][tlskey][certType]["key"].SetData(r.certificates[eapkey][tlskey]["ca"])
+				r.RegularFile[eapkey][tlskey][certType]["pem"].SetData(r.certificates[eapkey][tlskey]["ca"])
 			}
 		}
 	}
