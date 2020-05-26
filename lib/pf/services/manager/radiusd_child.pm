@@ -1171,18 +1171,17 @@ sub generate_ldap_choice {
         if (defined($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap})) {
             $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
             $$authorize_ldap_choice .= <<"EOT";
-            $if (Realm =~ /$choice/) {
-                $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'} {
-                    update control {
-                        Auth-Type := $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'}
-                    }
-                }
+        $if (Realm =~ /$choice/) {
+            $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'}
+            update control {
+                Auth-Type := $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'}
             }
+        }
 EOT
             $if = 'elsif';
             $$authentication_ldap_auth_type .= <<"EOT";
-        Auth-Type $key {
-            $key
+        Auth-Type $pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap} {
+            $pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}
         }
 EOT
 
