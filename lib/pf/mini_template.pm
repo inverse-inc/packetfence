@@ -44,8 +44,13 @@ sub new {
 
 sub process {
     my ($self, $vars, $funcs) = @_;
+    return join('', $self->pre_process($vars, $funcs));
+}
+
+sub pre_process {
+    my ($self, $vars, $funcs) = @_;
     $funcs //= \%FUNCS;
-    return join('', $self->process_tmpl($self->{tmpl}, $vars, $funcs));
+    return $self->process_tmpl($self->{tmpl}, $vars, $funcs);
 }
 
 sub process_tmpl {
