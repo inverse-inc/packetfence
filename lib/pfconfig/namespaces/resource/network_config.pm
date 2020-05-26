@@ -18,6 +18,7 @@ use NetAddr::IP;
 use pf::util;
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pf::constants::dhcp;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Network;
@@ -49,7 +50,7 @@ sub build {
         if ($ConfigNetwork{$network}{'pool_backend'} && $ConfigNetwork{$network}{'pool_backend'} eq "") {
             $ConfigNetwork{$network}{'pool_backend'} = $pf::constants::dhcp::MEMORY_POOL;
         }
-        foreach my $interface (@{$self->{interfaces}{'internal_nets'} // [] }) {
+        foreach my $interface (uniq(@{$self->{interfaces}{'internal_nets'} // [] }, @{$self->{interfaces}{'dhcp_ints'} // [] }, @{$self->{interfaces}{'dns_ints'} // [] })) {
             my $ipe = $interface->tag("vip") || $interface->tag("ip");
             my $net_addr = NetAddr::IP->new($ipe,$interface->mask());
             my %interface;
