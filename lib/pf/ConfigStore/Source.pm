@@ -60,7 +60,7 @@ sub canDelete {
         return "Used in a profile", $FALSE;
     }
 
-    return $self->SUPER::canDelete($id);
+   return $self->SUPER::canDelete($id);
 }
 
 =head2 _Sections
@@ -150,7 +150,7 @@ sub cleanupAfterRead {
             $item->{options} = $self->join_options($item->{options});
         }
     } elsif ($type eq 'OpenID') {
-        pf::Authentication::utils::inflatePersonMappings($item);
+        $self->expand_ordered_array($item, 'person_mappings', 'person_mapping');
     }
 
     $self->expand_list($item, $self->_fields_expanded($item));
@@ -159,7 +159,8 @@ sub cleanupAfterRead {
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    if ($item->{type} eq 'Email') {
+    my $type = $item->{type};
+    if ($type eq 'Email') {
         for my $f (qw(allowed_domains banned_domains)) {
             next unless exists $item->{$f};
             my $val =  $item->{$f};
@@ -170,6 +171,8 @@ sub cleanupBeforeCommit {
                 $val =~ s/\r//sg;
             }
         }
+    } elsif ($type eq 'OpenID') {
+        $self->flatten_to_ordered_array($item, 'person_mappings', 'person_mapping');
     }
 
     $self->flatten_list($item, $self->_fields_expanded($item));

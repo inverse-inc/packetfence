@@ -27,6 +27,7 @@ sub inflatePersonMapping {
     return \%mapping;
 }
 
+sub deflate
 
 =head1 AUTHOR
 
