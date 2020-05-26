@@ -128,11 +128,8 @@ sub updateAnswerNameValue {
     if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
         my $prefix = $1 // '';
         if (ref($value) eq 'ARRAY') {
-            my $key;
-            my @attributes;
             foreach my $response (@{$value}) {
                 if ($response =~ /(.*)[:=](.*)/) {
-                    $key = $1;
                     $radius_reply->{"$prefix".$1} = $2;
                 }
             }
