@@ -24,7 +24,7 @@
                   :close-on-select="false"
                   :state="state('files')"
                   :invalid-feedback="invalidFeedback('files')"
-                  class="mb-3"
+                  class="mb-3" size="sm"
                   label="name" track-by="value"
                 />
 
@@ -32,7 +32,7 @@
                 <pf-form-input v-if="session && 'filter' in session"
                   v-model="session.filter"
                   :disabled="isRunning"
-                  class="mt-1 mb-3"
+                  class="mt-1 mb-3" size="sm"
                   placeholder="none"
                 />
 
@@ -42,7 +42,7 @@
                   :disabled="isRunning"
                   :values="{checked: true, unchecked: false}"
                   :rightLabels="{checked: $t('Yes'), unchecked: $t('No')}"
-                  class="mt-1 mb-3"
+                  class="mt-1 mb-3" size="sm"
                 />
 
                 <b-button-group class="mt-3 btn-block">
@@ -86,7 +86,7 @@
               :placeholder="$t('Choose max buffer size')"
               :allow-empty="false"
               label="name" track-by="value"
-              class="mb-3"
+              class="mb-3" size="sm"
             />
             <template v-if="lines > 0">
               <template v-for="(children, scope) in scopes">
