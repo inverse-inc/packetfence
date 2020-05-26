@@ -29,11 +29,6 @@ export const columns = [
     visible: true
   },
   {
-    key: 'regex',
-    label: 'Regex Realm', // i18n defer
-    visible: true
-  },
-  {
     key: 'domain',
     label: 'Domain', // i18n defer
     sortable: true,
