@@ -53,7 +53,7 @@ cumulus_switch_group.radiusSecret: testing123
 
 # Switch
 cumulus_switch.id1: '{{.switch01_mgmt_ip}}'
-cumulus_switch.id2: '{{.switch01.dot1x_interface_mac}}'
+cumulus_switch.id2: '{{.switch01.dot1x_interface.mac}}'
 cumulus_switch.description: switch01
 
 ################################################################################
