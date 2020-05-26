@@ -35,6 +35,7 @@ Bug Fixes
 * Fixes FortiGate returnAuthorizeVPN function (#5409)
 * Barracuda NG firewall SSO SSH fail (#4828)
 * Impossible to set multiple access level in administration rule (#5440)
+* Fixed pf-maint.pl when its running behind a proxy (#3425 )
 
 Version 10.0.0 released on 2020-04-16
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
