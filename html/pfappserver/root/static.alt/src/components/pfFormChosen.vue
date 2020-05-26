@@ -1,6 +1,6 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled }">
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled, [`pf-form-chosen-${size}`]: size }">
     <template v-slot:invalid-feedback>
       {{ inputInvalidFeedback }}
     </template>
@@ -28,6 +28,7 @@
         :show-labels="false"
         :state="inputState"
         :track-by="trackBy"
+        :size="size"
         @search-change="onSearchChange($event)"
         @open="onFocus"
         @close="onBlur"
@@ -67,8 +68,8 @@
           </template>
         </template>
       </multiselect>
-      <b-input-group-append v-show="readonly || disabled">
-        <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+      <b-input-group-append v-show="readonly || disabled" :size="size">
+        <b-button :size="size" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-show="text" v-html="text"></b-form-text>
@@ -181,6 +182,10 @@ export default {
     trackBy: {
       type: String,
       default: 'value'
+    },
+    size: {
+      type: String,
+      default: 'md'
     }
   },
   errorCaptured (err) { // capture exceptions from vue-multiselect component
