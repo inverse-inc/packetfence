@@ -172,12 +172,12 @@ EOT
         }
     }
     if (@realms) {
-        $tags{'local_realm'} .= 'if ( ';
+        $tags{'local_realm'} .= '        if ( ';
         $tags{'local_realm'} .=  join(' || ', @realms);
         $tags{'local_realm'} .= ' ) {'."\n";
         $tags{'local_realm'} .= <<"EOT";
-    rest
-}
+            rest
+        }
 EOT
     }
 
