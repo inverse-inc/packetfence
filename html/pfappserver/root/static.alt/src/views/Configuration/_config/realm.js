@@ -376,6 +376,20 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'ldap_source')
             }
           ]
+        },
+        {
+          label: i18n.t('EAP TTLS'), labelSize: 'lg'
+        },
+        {
+          label: i18n.t('LDAP Source for TTLS PAP'),
+          text: i18n.t('The LDAP Server to use for EAP TTLS PAP authorization and authentication.'),
+          cols: [
+            {
+              namespace: 'ldap_source_ttls_pap',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'ldap_source_ttls_pap')
+            }
+          ]
         }
       ]
     }
@@ -405,6 +419,7 @@ export const validators = (form = {}, meta = {}) => {
     eduroam_radius_auth_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_auth_proxy_type', 'Type'),
     eduroam_radius_acct_chosen: validatorsFromMeta(meta, 'eduroam_radius_acct_chosen', 'RADIUS ACCT'),
     eduroam_radius_acct_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_acct_proxy_type', 'Type'),
-    ldap_source: validatorsFromMeta(meta, 'ldap_source', i18n.t('Source'))
+    ldap_source: validatorsFromMeta(meta, 'ldap_source', i18n.t('Source')),
+    ldap_source_ttls_pap: validatorsFromMeta(meta, 'ldap_source_ttls_pap', i18n.t('Source'))
   }
 }

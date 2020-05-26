@@ -105,6 +105,8 @@ authorize {
 		ok = return
 	}
 
+%%authorize_ldap_choice%%
+
 	#
 	#  Read the 'users' file
 	#files
@@ -216,6 +218,8 @@ authenticate {
 			packetfence-mschap-authenticate
 		}
 	}
+
+%%authentication_ldap_auth_type%%
 
 	# Uncomment it if you want to use ldap for authentication
 	#

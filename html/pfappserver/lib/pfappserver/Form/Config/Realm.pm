@@ -272,6 +272,18 @@ has_field 'ldap_source' =>
              help => 'The LDAP Server to query the custom attributes' },
   );
 
+has_field 'ldap_source_ttls_pap' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'LDAP Source for TTLS PAP',
+   options_method => \&options_ldap,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a LDAP Server'},
+   tags => { after_element => \&help,
+             help => 'The LDAP Server to use for EAP TTLS PAP authorization and authentication' },
+  );
+
 =head2 options_roles
 
 =cut
