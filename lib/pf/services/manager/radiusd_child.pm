@@ -685,6 +685,10 @@ sub generate_radiusd_ldap {
         foreach my $ldap_server (@ldap_server) {
             $server_list .= "    server          = $ldap_server\n";
         }
+        my $append = '';
+        if (defined($ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes})) {
+            $append = $ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes};
+        }
         $tags{'servers'} .= <<"EOT";
 
 ldap $ldap {
@@ -694,7 +698,7 @@ $server_list
     password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
     base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
     filter          = "(userPrincipalName=%{User-Name})"
-    scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
+    scope           = "$ConfigAuthenticationLdap{$ldap}->{scope}"
     base_filter     = "(objectclass=user)"
     rebind          = "yes"
     chase_referrals = "yes"
@@ -704,7 +708,7 @@ $server_list
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(&(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))$ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes})"
+        filter = "(&(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))$append)"
     }
     options {
         chase_referrals = yes
