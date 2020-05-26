@@ -11,7 +11,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-       "cmd": "del interface {{.switch01_dot1x_interface}} dot1x mab"
+       "cmd": "del interface {{.switch01.dot1x_interface.id}} dot1x mab"
       }
     headers:
       "Content-Type": "application/json"

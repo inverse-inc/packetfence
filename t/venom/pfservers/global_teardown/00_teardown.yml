@@ -12,11 +12,21 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
   
-- name: delete_switch
+- name: delete_switchs
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id1}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id2}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"

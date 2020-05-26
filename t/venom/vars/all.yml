@@ -29,7 +29,8 @@ switch01_mgmt_ip: 172.17.17.201
 switch01.api.url: "https://{{.switch01_mgmt_ip}}:8080"
 switch01.api.user: cumulus
 switch01.api.password: CumulusLinux!
-switch01_dot1x_interface: swp12
+switch01.dot1x_interface.id: swp12
+switch01.dot1x_interface.mac: 44:38:39:00:00:12
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
@@ -51,7 +52,8 @@ cumulus_switch_group.description: Cumulus switch group
 cumulus_switch_group.radiusSecret: testing123
 
 # Switch
-cumulus_switch.id: '{{.switch01_mgmt_ip}}'
+cumulus_switch.id1: '{{.switch01_mgmt_ip}}'
+cumulus_switch.id2: '{{.switch01.dot1x_interface_mac}}'
 cumulus_switch.description: switch01
 
 ################################################################################

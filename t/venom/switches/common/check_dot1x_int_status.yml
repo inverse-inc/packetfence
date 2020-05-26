@@ -11,7 +11,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-       "cmd": "show dot1x interface {{.switch01_dot1x_interface}} json"
+       "cmd": "show dot1x interface {{.switch01.dot1x_interface.id}} json"
       }
     headers:
       "Content-Type": "application/json"
