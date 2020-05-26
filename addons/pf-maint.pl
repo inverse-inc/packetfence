@@ -282,7 +282,7 @@ sub get_url {
     my $ua       = LWP::UserAgent->new;
     $ua->show_progress(1);
     for my $proxy_var qw(http_proxy HTTP_PROXY) {
-        if($ENV{$proxy_var} && $ENV{$proxy_var} =~ /^http:\/\/(.+)/) {
+        if($ENV{$proxy_var} && $ENV{$proxy_var} =~ /^https?:\/\/(.+)/) {
             $ua->proxy("https", "connect://$1");
         }
     }
