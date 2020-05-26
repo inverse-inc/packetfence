@@ -32,9 +32,7 @@ has_field person_field => (
     do_label => 0,
     required => 1,
     widget_wrapper => 'None',
-    options_method => sub {
-        [map { { label => $_, value => $_ } } grep { $_ ne 'pid' && $_  ne 'tenant_id' } @{pf::dal::person->table_field_names}],
-    },
+    options_method => \&options_person_field,
     element_class => ['input-medium'],
     localize_labels => 1,
 );
@@ -46,6 +44,20 @@ has_field openid_field => (
     widget_wrapper => 'None',
     element_class => ['input-xxlarge'],
 );
+
+=head2 options_person_field
+
+options_person_field
+
+=cut
+
+sub options_person_field {
+    return [
+        map { { label => $_, value => $_ } }
+          grep { $_ ne 'pid' && $_ ne 'tenant_id' }
+          @{ pf::dal::person->table_field_names }
+    ];
+}
 
 =head2 inflate
 
@@ -73,109 +85,6 @@ sub deflate {
     return join(":", $value->{person_field}, $value->{openid_field});
 }
 
-=head2 options_type
-
-Provide a list DHCP option types
-
-=cut
-
-my %options = (
-    OptionSubnetMask                                 => 1,
-    OptionTimeOffset                                 => 2,
-    OptionRouter                                     => 3,
-    OptionTimeServer                                 => 4,
-    OptionNameServer                                 => 5,
-    OptionDomainNameServer                           => 6,
-    OptionLogServer                                  => 7,
-    OptionCookieServer                               => 8,
-    OptionLPRServer                                  => 9,
-    OptionImpressServer                              => 10,
-    OptionResourceLocationServer                     => 11,
-    OptionHostName                                   => 12,
-    OptionBootFileSize                               => 13,
-    OptionMeritDumpFile                              => 14,
-    OptionDomainName                                 => 15,
-    OptionSwapServer                                 => 16,
-    OptionRootPath                                   => 17,
-    OptionExtensionsPath                             => 18,
-    OptionIPForwardingEnableDisable                  => 19,
-    OptionNonLocalSourceRoutingEnableDisable         => 20,
-    OptionPolicyFilter                               => 21,
-    OptionMaximumDatagramReassemblySize              => 22,
-    OptionDefaultIPTimeToLive                        => 23,
-    OptionPathMTUAgingTimeout                        => 24,
-    OptionPathMTUPlateauTable                        => 25,
-    OptionInterfaceMTU                               => 26,
-    OptionAllSubnetsAreLocal                         => 27,
-    OptionBroadcastAddress                           => 28,
-    OptionPerformMaskDiscovery                       => 29,
-    OptionMaskSupplier                               => 30,
-    OptionPerformRouterDiscovery                     => 31,
-    OptionRouterSolicitationAddress                  => 32,
-    OptionStaticRoute                                => 33,
-    OptionTrailerEncapsulation                       => 34,
-    OptionARPCacheTimeout                            => 35,
-    OptionEthernetEncapsulation                      => 36,
-    OptionTCPDefaultTTL                              => 37,
-    OptionTCPKeepaliveInterval                       => 38,
-    OptionTCPKeepaliveGarbage                        => 39,
-    OptionNetworkInformationServiceDomain            => 40,
-    OptionNetworkInformationServers                  => 41,
-    OptionNetworkTimeProtocolServers                 => 42,
-    OptionVendorSpecificInformation                  => 43,
-    OptionNetBIOSOverTCPIPNameServer                 => 44,
-    OptionNetBIOSOverTCPIPDatagramDistributionServer => 45,
-    OptionNetBIOSOverTCPIPNodeType                   => 46,
-    OptionNetBIOSOverTCPIPScope                      => 47,
-    OptionXWindowSystemFontServer                    => 48,
-    OptionXWindowSystemDisplayManager                => 49,
-    OptionRequestedIPAddress                         => 50,
-    OptionIPAddressLeaseTime                         => 51,
-    OptionOverload                                   => 52,
-    OptionDHCPMessageType                            => 53,
-    OptionServerIdentifier                           => 54,
-    OptionParameterRequestList                       => 55,
-    OptionMessage                                    => 56,
-    OptionMaximumDHCPMessageSize                     => 57,
-    OptionRenewalTimeValue                           => 58,
-    OptionRebindingTimeValue                         => 59,
-    OptionVendorClassIdentifier                      => 60,
-    OptionClientIdentifier                           => 61,
-    OptionNetwareIPDomain                            => 62,
-    OptionNetwareIPInformation                       => 63,
-    OptionNetworkInformationServicePlusDomain        => 64,
-    OptionNetworkInformationServicePlusServers       => 65,
-    OptionTFTPServerName                             => 66,
-    OptionBootFileName                               => 67,
-    OptionMobileIPHomeAgent                          => 68,
-    OptionSimpleMailTransportProtocol                => 69,
-    OptionPostOfficeProtocolServer                   => 70,
-    OptionNetworkNewsTransportProtocol               => 71,
-    OptionDefaultWorldWideWebServer                  => 72,
-    OptionDefaultFingerServer                        => 73,
-    OptionDefaultInternetRelayChatServer             => 74,
-    OptionStreetTalkServer                           => 75,
-    OptionStreetTalkDirectoryAssistance              => 76,
-    OptionUserClass                                  => 77,
-    OptionRelayAgentInformation                      => 82,
-    OptionClientArchitecture                         => 93,
-    OptionTZPOSIXString                              => 100,
-    OptionTZDatabaseString                           => 101,
-    OptionClasslessRouteFormat                       => 121,
-);
-
-sub options_type {
-    my ($self) = @_;
-    return map {
-        {
-            value   => $options{$_},
-            label   => "$_($options{$_})",
-        }
-    } sort keys %options
-}
-
-pf::api::attributes::updateAllowedAsActions();
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -204,4 +113,3 @@ USA.
 =cut
 
 1;
-
