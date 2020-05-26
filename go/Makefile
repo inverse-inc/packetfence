@@ -64,7 +64,19 @@ pfacct:
         cd - && \
         mv acct/acct pfacct
 
+.PHONY: radius-tester
+radius-tester:
+	cd acct-tester/radius-tester && \
+	go build && \
+	cd - && \
+	mv acct-tester/radius-tester/radius-tester radius-tester
 
+.PHONY: db-tester
+db-tester:
+	cd acct-tester/db-tester && \
+	go build && \
+	cd - && \
+	mv acct-tester/db-tester/db-tester db-tester
 
 .PHONY: clean-caddy-src
 clean-caddy-src:
