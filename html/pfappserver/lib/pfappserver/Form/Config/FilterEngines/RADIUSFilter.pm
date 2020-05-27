@@ -31,7 +31,7 @@ sub scopes {
       returnRadiusAccessAccept returnAuthorizeRead returnAuthorizeWrite returnAuthorizeVoip
       packetfence.authorize packetfence.authenticate packetfence.pre-proxy packetfence.post-proxy
       packetfence-tunnel.authorize packetfence.preacct packetfence.accounting
-      fixup
+      preProcess
     );
 }
 

@@ -227,7 +227,7 @@ sub authorize {
     $args->{'node_info'} = $node_obj;
     $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
     my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('fixup', $args);
+    my $rule = $filter->test('preProcess', $args);
     if ($rule) {
         my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
         %$radius_request = %$reply;

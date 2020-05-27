@@ -405,7 +405,7 @@ CONF
 [true_always]
 status=enabled
 condition=true
-scopes = fixup
+scopes = preProcess
 answer.0=James = bob
 CONF
 
@@ -414,7 +414,7 @@ CONF
     is_deeply(
         $engine,
         {
-            fixup => pf::filter_engine->new(
+            preProcess => pf::filter_engine->new(
                 {
                     filters => [
                         pf::filter->new({
@@ -422,7 +422,7 @@ CONF
                             answer => {
                                 status => 'enabled',
                                 condition => 'true',
-                                scopes    => ['fixup'],
+                                scopes    => ['preProcess'],
                                 _rule     => 'true_always',
                                 params  => [],
                                 answers => ['James = bob'],
