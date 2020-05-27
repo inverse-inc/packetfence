@@ -258,7 +258,7 @@ sub authorize {
         $args->{'autoreg'} = 1;
         ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
         $args->{'action'} = $action;
-        $args = { %$args, %$attributes };
+        $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
         $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
