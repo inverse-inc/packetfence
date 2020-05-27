@@ -85,7 +85,7 @@ sub options_filter_match_style {
 
 has_field 'advanced_filter' => 
 (
-    type => 'TextArea',
+    type => 'FilterCondition',
 );
 
 =head1 METHODS
@@ -126,6 +126,45 @@ after validate => sub {
         }
     }
 };
+
+sub make_field_options {
+    my ($self, $name) = @_;
+    my %options = (
+        label => $name,
+        value => $name,
+        $self->additional_field_options($name),
+    );
+    return \%options;
+}
+
+sub options_field {
+    my ($self) = @_;
+    return map { $self->make_field_options($_) } $self->options_field_names();
+}
+
+sub options_field_names {}
+
+sub _additional_field_options {
+    {}
+}
+
+sub additional_field_options {
+    my ($self, $name) = @_;
+    my $options = $self->_additional_field_options;
+    if (!exists $options->{$name}) {
+        return;
+    }
+
+    my $more = $options->{$name};
+    my $ref = ref $more;
+    if ($ref eq 'HASH') {
+        return %$more;
+    } elsif ($ref eq 'CODE') {
+        return $more->($self, $name);
+    }
+
+    return;
+}
 
 =head2 definition
 
