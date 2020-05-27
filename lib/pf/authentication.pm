@@ -284,8 +284,9 @@ If source_id_ref is defined then it will be set to the matching source_id
 =cut
 
 our %ACTION_VALUE_FILTERS = (
-    $Actions::SET_ACCESS_DURATION => \&pf::config::access_duration,
-    $Actions::SET_UNREG_DATE => \&pf::config::dynamic_unreg_date,
+    $Actions::SET_ACCESS_DURATION => sub { pf::config::access_duration($_[0]) },
+    $Actions::SET_UNREG_DATE => sub { pf::config::dynamic_unreg_date($_[0]) },
+    $Actions::SET_ROLE_FROM_SOURCE => \&role_from_source,
 );
 
 sub match {
@@ -324,7 +325,7 @@ sub match {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        my ($rule, $ignored_action) = $source->match($params, $action, $extra);
+        my ($rule, $ignored_action, $matched) = $source->match($params, $action, $extra);
         unless (defined $rule) {
             $logger->trace(sub {"Skipped " . $source->id });
             next;
@@ -335,18 +336,25 @@ sub match {
             # Return the value only if the action matches
             my $found_action = first {my $t = $_->type;(!(defined $ignored_action) || $ignored_action ne $t) && exists $allowed_actions->{$t} && $allowed_actions->{$t}} @{$actions};
             if (defined $found_action) {
+                my $value = $found_action->value;
+                my $type  = $found_action->type;
                 $logger->debug(
                     sub {
                         "[" . $source->id . "] Returning '"
-                          . ( $found_action->value // "undef" )
+                          . ( $value // "undef" )
                           . "' for action '" . ( $action // "undef" )
                           . "' for username " . ( $params->{'username'} // "undef" )
                     }
                 );
+                if (exists $ACTION_VALUE_FILTERS{$type}) {
+                    $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched);
+                    if (!defined $value) {
+                        $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
+                        next;
+                    }
+                }
+
                 $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
-                my $value = $found_action->value;
-                my $type  = $found_action->type;
-                $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
                 return $value;
             }
 
@@ -361,6 +369,11 @@ sub match {
     }
 
     return undef;
+}
+
+sub role_from_source {
+    my ($role_info, $source, $rule, $params, $extra, $matched, $attributes) = @_;
+    return $source->lookupRole($rule, $role_info, $params, $extra, $matched, $attributes);
 }
 
 =item match2
@@ -384,7 +397,7 @@ If there is a match hash will be returned with the following information
 
 sub match2 {
     my $timer = pf::StatsD::Timer->new();
-    my ($source_id, $params, $extra) = @_;
+    my ($source_id, $params, $extra, $attributes) = @_;
     my ($actions, @sources);
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
 
@@ -410,7 +423,7 @@ sub match2 {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        my ($rule, $ignored_action) = $source->match($params, undef, $extra);
+        my ($rule, $ignored_action, $matched) = $source->match($params, undef, $extra);
         next unless defined $rule;
         my %values;
         $actions = $rule->{actions};
@@ -419,7 +432,14 @@ sub match2 {
             my $type  = $action->type;
             next if defined $ignored_action && $ignored_action eq $type;
             my $value = $action->value;
-            $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
+            if (exists $ACTION_VALUE_FILTERS{$type}) {
+                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched, $attributes);
+                if (!defined $value) {
+                    #Setting action to undef to avoid the wrong actions to be returned
+                    $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
+                    next;
+                }
+            }
             $type = $Actions::MAPPED_ACTIONS{$type} if exists $Actions::MAPPED_ACTIONS{$type};
             $values{$type} = $value;
             push @new_actions, $action;

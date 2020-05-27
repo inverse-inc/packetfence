@@ -109,7 +109,7 @@ sub authorize {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my ($do_auto_reg, %autoreg_node_defaults);
+    my ($do_auto_reg, %autoreg_node_defaults, $action);
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
@@ -256,12 +256,14 @@ sub authorize {
     $do_auto_reg = $role_obj->shouldAutoRegister($args);
     if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
+        ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
+        $args->{'action'} = $action;
+        $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
         $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
         $info{autoreg} = 1;
-        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info);
+        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
             $do_auto_reg = 0;
@@ -290,6 +292,14 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
+
+    if (defined($role->{attributes}) && exists($role->{attributes})) {
+        $args = { %$args, %{$role->{'attributes'}} };
+    }
+
+    if (!exists($args->{'action'})) {
+        $args->{'action'} = $role->{action};
+    }
     my $vlan;
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
@@ -916,7 +926,8 @@ sub switch_access {
         my $merged = { %$options, %$args };
         $merged->{'rule_class'} = $Rules::ADMIN;
         $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
-        my $matched = pf::authentication::match2($source_id, $merged, $extra);
+        my $attributes;
+        my $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
         my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
         if ($value) {
             my @values = split(',', $value);

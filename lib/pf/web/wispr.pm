@@ -113,7 +113,8 @@ sub handler {
         $params->{realm} = $locationlog_entry->{'realm'};
     }
     $params->{context} = $pf::constants::realm::PORTAL_CONTEXT;
-    my $matched = pf::authentication::match2($source_id, $params, $extra);
+    my $attributes;
+    my $matched = pf::authentication::match2($source_id, $params, $extra, \$attributes);
     if ($matched) {
         my $values = $matched->{values};
         my $role = $values->{$Actions::SET_ROLE};

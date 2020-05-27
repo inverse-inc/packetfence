@@ -365,10 +365,11 @@ sub getRegisteredRole {
     #$args->{'ssid'} is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($self, $args) = @_;
     my $logger = $self->logger;
+    my $attributes;
 
     my ($vlan, $role, $result, $person, $source, $portal);
     my $profile = $args->{'profile'};
-
+    my $action = $Actions::SET_ROLE;
     if (defined($args->{'node_info'}->{'pid'})) {
         $person = pf::person::person_view_simple($args->{'node_info'}->{'pid'});
         if (defined($person->{'source'}) && $person->{'source'} ne '') {
@@ -430,10 +431,14 @@ sub getRegisteredRole {
                 context => $pf::constants::realm::RADIUS_CONTEXT,
             };
             my %info;
-            my $matched = pf::authentication::match2([@sources], $params);
+            my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
             $source = $matched->{source_id};
             my $values = $matched->{values};
             $role = $values->{$Actions::SET_ROLE};
+            if (defined($values->{$Actions::SET_ROLE_FROM_SOURCE})) {
+                $role = $values->{$Actions::SET_ROLE_FROM_SOURCE};
+                $action = $Actions::SET_ROLE_FROM_SOURCE;
+            }
             my $unregdate = $values->{$Actions::SET_UNREG_DATE};
             my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
             my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
@@ -483,7 +488,7 @@ sub getRegisteredRole {
         $role = $args->{'node_info'}->{'category'};
         $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
-    return ({role => $role, source => $source, portal => $portal});
+    return ({role => $role, source => $source, portal => $portal, action => $action, attributes => $attributes});
 }
 
 =head2 getInlineRole
@@ -540,9 +545,11 @@ sub getNodeInfoForAutoReg {
     #$args->{'ssid'} is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($self, $args) = @_;
     my $logger = $self->logger;
+    my $attributes;
 
     my $profile = $args->{'profile'};
     my $role = $self->filterVlan('NodeInfoForAutoReg', $args);
+    my $action = $Actions::SET_ROLE;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -596,14 +603,17 @@ sub getNodeInfoForAutoReg {
                 realm => $args->{realm},
                 context => $pf::constants::realm::RADIUS_CONTEXT,
             };
-
-            my $matched = pf::authentication::match2([@sources], $params);
+            my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
             my $source = $matched->{source_id};
 
             my $values = $matched->{values};
             # Don't override vlan filter role
             if (!defined($role)) {
                 $role = $values->{$Actions::SET_ROLE};
+                if (defined($values->{$Actions::SET_ROLE_FROM_SOURCE})) {
+                    $role = $values->{$Actions::SET_ROLE_FROM_SOURCE};
+                    $action = $Actions::SET_ROLE_FROM_SOURCE;
+                }
             }
             my $unregdate = $values->{$Actions::SET_UNREG_DATE};
             my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
@@ -655,7 +665,7 @@ sub getNodeInfoForAutoReg {
         }
     }
 
-    return %node_info;
+    return ($attributes, $action, %node_info);
 }
 
 =head2 shouldAutoRegister

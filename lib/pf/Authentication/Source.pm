@@ -191,17 +191,17 @@ sub match {
             next;
         }
 
-        my ($matched, $ignore_action) = $self->match_rule($rule, $params, $extra);
+        my ($matched, $ignore_action, $entry) = $self->match_rule($rule, $params, $extra);
         if ($matched) {
             $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
             $self->postMatchProcessing;
-            return ($rule, $ignore_action);
+            return ($rule, $ignore_action, $entry);
         }
 
     } # foreach my $rule ( @{$self->{'rules'}} ) {
     $self->postMatchProcessing;
 
-    return (undef, undef);
+    return (undef, undef, undef);
 }
 
 sub match_rule {
@@ -248,10 +248,10 @@ sub match_rule {
     # so let's keep the @matching_rules array for now.
     if (scalar @matching_rules == 1) {
         $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
-        return ($TRUE, $ignored_action);
+        return ($TRUE, $ignored_action, $matched);
     }
 
-    return ($FALSE, undef);
+    return ($FALSE, undef, undef);
 }
 
 =head2 match_in_subclass
@@ -334,6 +334,8 @@ sub realmIsAllowed {
     my ($self, $realm) = @_;
     return $FALSE;
 }
+
+sub lookupRole { undef }
 
 =head1 AUTHOR
 
