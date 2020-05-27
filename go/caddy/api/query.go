@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -25,20 +26,61 @@ func makeRadiusAttributeFilter(q *Query) (func(ra *RadiusAttribute) bool, error)
 	}
 
 	value := q.Value
+	field := q.Field
 	switch q.Op {
+	default:
+		return nil, NewApiError(422, fmt.Sprintf("op %s is invalid", q.Op), nil)
 	case "contains":
-		return func(ra *RadiusAttribute) bool { return strings.Contains(ra.Name, value) }, nil
+		switch field {
+		default:
+			return nil, NewFieldError(422, field, fmt.Sprintf("unknown field %s", field), nil)
+		case "name":
+			return func(ra *RadiusAttribute) bool { return strings.Contains(ra.Name, value) }, nil
+		case "vendor":
+			return func(ra *RadiusAttribute) bool { return strings.Contains(ra.Vendor, value) }, nil
+		}
 	case "equals":
-		return func(ra *RadiusAttribute) bool { return ra.Name == value }, nil
+		switch field {
+		default:
+			return nil, NewFieldError(422, field, fmt.Sprintf("unknown field %s", field), nil)
+		case "name":
+			return func(ra *RadiusAttribute) bool { return ra.Name == value }, nil
+		case "vendor":
+			return func(ra *RadiusAttribute) bool { return ra.Vendor == value }, nil
+		}
 	case "not_equals":
-		return func(ra *RadiusAttribute) bool { return ra.Name != value }, nil
+		switch field {
+		default:
+			return nil, NewFieldError(422, field, fmt.Sprintf("unknown field %s", field), nil)
+		case "name":
+			return func(ra *RadiusAttribute) bool { return ra.Name != value }, nil
+		case "vendor":
+			return func(ra *RadiusAttribute) bool { return ra.Vendor != value }, nil
+		}
 	case "starts_with":
-		return func(ra *RadiusAttribute) bool { return strings.HasPrefix(ra.Name, value) }, nil
+		switch field {
+		default:
+			return nil, NewFieldError(422, field, fmt.Sprintf("unknown field %s", field), nil)
+		case "name":
+			return func(ra *RadiusAttribute) bool { return strings.HasPrefix(ra.Name, value) }, nil
+		case "vendor":
+			return func(ra *RadiusAttribute) bool { return strings.HasPrefix(ra.Vendor, value) }, nil
+		}
 	case "ends_with":
-		return func(ra *RadiusAttribute) bool { return strings.HasSuffix(ra.Name, value) }, nil
+		switch field {
+		default:
+			return nil, NewFieldError(422, field, fmt.Sprintf("unknown field %s", field), nil)
+		case "name":
+			return func(ra *RadiusAttribute) bool { return strings.HasSuffix(ra.Name, value) }, nil
+		case "vendor":
+			return func(ra *RadiusAttribute) bool { return strings.HasSuffix(ra.Vendor, value) }, nil
+		}
 	case "not":
-		f, _ := makeRadiusAttributeFilter(&q.Values[0])
-		return func(ra *RadiusAttribute) bool { return !f(ra) }, nil
+		if f, err := makeRadiusAttributeFilter(&q.Values[0]); err != nil {
+			return nil, err
+		} else {
+			return func(ra *RadiusAttribute) bool { return !f(ra) }, nil
+		}
 	case "or":
 		funcs := []func(ra *RadiusAttribute) bool{}
 		for _, sq := range q.Values {
@@ -80,6 +122,4 @@ func makeRadiusAttributeFilter(q *Query) (func(ra *RadiusAttribute) bool, error)
 	case "true":
 		return radisAttributesFilterTrue, nil
 	}
-
-	return radisAttributesFilterFalse, nil
 }

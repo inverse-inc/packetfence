@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/inverse-inc/go-radius/dictionary"
@@ -35,7 +36,8 @@ type RadiusAttribute struct {
 }
 
 type RadiusAttributesResults struct {
-	Items []RadiusAttribute `json:"items"`
+    ApiError
+	Items   []RadiusAttribute `json:"items,omitempty"`
 }
 
 func (h APIHandler) radiusAttributes(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -44,10 +46,29 @@ func (h APIHandler) radiusAttributes(w http.ResponseWriter, r *http.Request, p h
 	fmt.Fprintf(w, radiusAttributesJson)
 }
 
+type searchRequest struct {
+	Query *Query `json:"query,omitempty"`
+}
+
 func (h APIHandler) searchRadiusAttributes(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, radiusAttributesJson)
+	b := bytes.NewBuffer(nil)
+	b.ReadFrom(r.Body)
+	search := &searchRequest{}
+	json.Unmarshal(b.Bytes(), &search)
+	var out []byte
+	f, err := makeRadiusAttributeFilter(search.Query)
+    searchResults := RadiusAttributesResults{ApiError:ApiError{Status: 200}}
+	if err != nil {
+		out, _ = json.Marshal(err)
+        searchResults.ApiError = *err.(*ApiError)
+	} else {
+		searchResults.Items = radisAttributesFilter(radiusAttributes, f)
+	}
+
+    out, _ = json.Marshal(&searchResults)
+	fmt.Fprintf(w, string(out))
 }
 
 func setupRadiusDictionary() {

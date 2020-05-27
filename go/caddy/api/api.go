@@ -46,13 +46,10 @@ func setup(c *caddy.Controller) error {
 
 // Build the Handler which will initialize the routes
 func buildHandler(ctx context.Context) (APIHandler, error) {
-
 	apiHandler := APIHandler{}
 	router := httprouter.New()
-	router.POST("/api/v1/radius_attributes", apiHandler.radiusAttributes)
-
+	router.POST("/api/v1/radius_attributes", apiHandler.searchRadiusAttributes)
 	apiHandler.router = router
-
 	return apiHandler, nil
 }
 
