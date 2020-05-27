@@ -828,13 +828,8 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
-            viewFields.pid_field(form, meta),
             viewFields.source_id(form, meta),
-            viewFields.custom_fields(form, meta),
-            viewFields.fields_to_save(form, meta),
             viewFields.with_aup(form, meta),
-            viewFields.aup_template(form, meta),
-            viewFields.signup_template(form, meta),
             viewFields.actions(form, meta)
           ]
         }

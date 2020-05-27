@@ -16,6 +16,11 @@ extends 'pfappserver::Form::Config::PortalModule::Authentication';
 use captiveportal::DynamicRouting::Module::Authentication::SAML;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::SAML'}
 
+sub child_definition {
+    my ($self) = @_;
+    return ($self->source_fields, qw(with_aup));
+}
+
 ## Definition
 
 =over
