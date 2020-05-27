@@ -14,8 +14,11 @@ use strict;
 use warnings;
 use Scalar::Util qw(reftype);
 use List::MoreUtils qw(uniq);
+use pf::util qw(random_from_range extract);
 use pf::log;
 use Data::Dumper;
+
+
 our %FUNCS = (
     uc => sub { return uc($_[0]) },
     lc => sub { return lc($_[0]) },
@@ -23,14 +26,25 @@ our %FUNCS = (
     split => sub { return split($_[0], $_[1]) },
     substr => sub { return substr($_[0], $_[1], $_[2]) },
     macToEUI48 => sub { my $m = shift; $m =~ s/:/-/g; return uc($m) },
+    random_from_range => \&random_from_range,
     log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
     replace => \&replaceStr,
+    BuildFromMatch => \&extract,
 );
 
 sub replaceStr {
     my ($str, $old, $new) = @_;
     $str =~ s/\Q$old\E/$new/g;
     return $str;
+);
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA = qw(Exporter);
+    @EXPORT = qw(
+        %FUNCS
+    );
 }
 
 sub supported_function { exists $FUNCS{$_[0] // ''} }

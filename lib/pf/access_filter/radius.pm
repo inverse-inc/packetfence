@@ -18,6 +18,7 @@ use warnings;
 use pf::security_event qw (security_event_view_top);
 use pf::locationlog qw(locationlog_set_session);
 use pf::util qw(isenabled generate_session_id random_from_range extract);
+use pf::mini_template qw(%FUNCS);
 use List::MoreUtils qw(uniq);
 use pf::CHI;
 use pf::radius::constants;
@@ -30,18 +31,6 @@ tie our %RadiusFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::Radiu
 
 our %LOOKUP = (
     session_id => \&setSession,
-);
-
-our %FUNCS = (
-    uc => sub { return uc($_[0]) },
-    lc => sub { return lc($_[0]) },
-    join => sub { my $r = shift; return join($r, @_); },
-    split => sub { return split($_[0], $_[1]) },
-    substr => sub { return substr($_[0], $_[1], $_[2]) },
-    macToEUI48 => sub { my $m = shift; $m =~ s/:/-/g; return uc($m) },
-    random_from_range => \&random_from_range,
-    log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
-    BuildFromMatch => \&extract,
 );
 
 =head1 SUBROUTINES
