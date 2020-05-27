@@ -113,13 +113,13 @@ sub options_field {
     return map { $self->make_field_options($_) } $self->options_field_names();
 }
 
-sub scopes { }
-
 sub options_field_names {}
 
 sub _additional_field_options {
     {}
 }
+
+sub scopes { }
 
 sub additional_field_options {
     my ($self, $name) = @_;
