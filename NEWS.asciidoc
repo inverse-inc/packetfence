@@ -29,6 +29,8 @@ Enhancements
 * Support for Dell n1500 starting from 6.6.0.10
 * CoA support for Unifi AP
 * Added a way to define the Unifi AP by IP or IP range.
+* Use the value of an LDAP attribute as a role
+* Added the return of the LDAP/RADIUS attributes to use them in radius filter.
 
 Bug Fixes
 +++++++++
