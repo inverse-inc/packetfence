@@ -807,7 +807,7 @@ sub node_update_PF {
     #should we auto-register?
     if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, security_event_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Connection::ProfileFactory->instantiate($mac)})) {
         # auto-register
-        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
+        my ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
             mac => $mac, vlan => $vlan, security_event_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Connection::ProfileFactory->instantiate($mac)});
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
