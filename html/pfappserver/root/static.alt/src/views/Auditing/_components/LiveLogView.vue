@@ -50,13 +50,13 @@
                   <b-button v-if="isRunning && !isPaused"
                     variant="primary" class="mb-1" size="sm" @click="pauseSession()"
                   >
-                    <icon name="pause" class="mr-2"></icon>
+                    <icon name="pause" class="mx-1"></icon>
                     {{ $i18n.t('Pause') }}
                   </b-button>
                   <b-button v-if="isRunning && isPaused"
                     variant="primary" class="mb-1" size="sm" @click="unpauseSession()"
                   >
-                    <icon name="play" class="mr-2"></icon>
+                    <icon name="play" class="mx-1"></icon>
                     {{ $i18n.t('Unpause') }}
                   </b-button>
                   <b-button v-if="isRunning"
@@ -64,7 +64,7 @@
                     variant="danger" class="float-right mb-1" size="sm" @click="stopSession()"
                   >
                     <icon v-if="isStopping" name="circle-notch" class="mr-2" spin></icon>
-                    <icon v-else name="stop" class="mr-2"></icon>
+                    <icon v-else name="stop" class="mx-1"></icon>
                     {{ $i18n.t('Stop') }}
                   </b-button>
                   <b-button v-if="!isRunning"
@@ -72,7 +72,7 @@
                     variant="success" class="float-right mb-1" size="sm" @click="startSession()"
                   >
                     <icon v-if="isStarting" name="circle-notch" class="mr-2" spin></icon>
-                    <icon v-else name="play" class="mr-2"></icon>
+                    <icon v-else name="play" class="mx-1"></icon>
                     {{ $i18n.t('Reset') }}
                   </b-button>
                 </b-button-group>
@@ -117,19 +117,19 @@
         </b-col>
         <b-col sm="9" class="pl-0" :class="`direction-${options.order}`">
 
-          <b-row class="mb-3" align-v="center" :class="(options.order === 'forward') ? 'mt-3' : 'mb-3'">
+          <b-row align-v="center" :class="(options.order === 'forward') ? 'pt-3 border-top' : 'pb-3 border-bottom'">
             <b-col cols="auto" class="mr-auto d-inline">
 
               <b-button v-if="isRunning && !isPaused"
                 variant="primary" class="ml-3" size="sm" @click="pauseSession()"
               >
-                <icon name="pause" class="mr-2"></icon>
+                <icon name="pause" class="mx-1"></icon>
                 {{ $i18n.t('Pause') }}
               </b-button>
               <b-button v-if="isRunning && isPaused"
                 variant="primary" class="ml-3" size="sm" @click="unpauseSession()"
               >
-                <icon name="play" class="mr-2"></icon>
+                <icon name="play" class="mx-1"></icon>
                 {{ $i18n.t('Unpause') }}
               </b-button>
 
@@ -141,10 +141,10 @@
 
               <b-button-group class="mx-1 ml-3" size="sm" :title="$i18n.t('Choose background')" v-b-tooltip.hover.top.d300>
                 <b-button @click="options.background = 'white'" :active="options.background === 'white'" variant="outline-dark">
-                  <icon name="font" class="text-dark" />
+                  <icon name="sun" class="text-dark" />
                 </b-button>
                 <b-button @click="options.background = 'black'" :active="options.background === 'black'" variant="dark">
-                  <icon name="font" class="text-white" />
+                  <icon name="moon" class="text-white" />
                 </b-button>
               </b-button-group>
 
@@ -349,14 +349,10 @@ export default {
       })
     },
     toggleFilter (scope, key) {
-      this.$store.dispatch(`$_live_logs/${this.id}/toggleFilter`, { scope, key }).then(() => {
-        // noop
-      })
+      this.$store.dispatch(`$_live_logs/${this.id}/toggleFilter`, { scope, key })
     },
     stopSession () {
-      this.$store.dispatch(`$_live_logs/${this.id}/stopSession`).then(() => {
-        // noop
-      })
+      this.$store.dispatch(`$_live_logs/${this.id}/stopSession`)
     },
     startSession () {
       this.isStarting = true
@@ -376,14 +372,10 @@ export default {
       })
     },
     pauseSession () {
-      this.$store.dispatch(`$_live_logs/${this.id}/pauseSession`).then(() => {
-        // noop
-      })
+      this.$store.dispatch(`$_live_logs/${this.id}/pauseSession`)
     },
     unpauseSession () {
-      this.$store.dispatch(`$_live_logs/${this.id}/unpauseSession`).then(() => {
-        // noop
-      })
+      this.$store.dispatch(`$_live_logs/${this.id}/unpauseSession`)
     },
     clearEvents () {
       this.$store.dispatch(`$_live_logs/${this.id}/clearEvents`).then(() => {
@@ -498,15 +490,13 @@ export default {
     &.log-level,
     &.log-process,
     &.log-syslog {
-      margin: 0 .5rem 0 0;
+      white-space: nowrap;
+      margin: 0 .25rem 0 0;
       padding: .25rem .5rem;
       border: 1px solid;
       border-radius: .25rem;
     }
-
-
   }
-
 }
 
 /*
