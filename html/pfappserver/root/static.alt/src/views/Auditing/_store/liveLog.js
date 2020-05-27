@@ -6,10 +6,6 @@ import api from '../_api'
 import { createDebouncer } from 'promised-debounce'
 import i18n from '@/utils/locale'
 
-const scopes = {
-
-}
-
 // Default values
 const state = () => {
   return {
@@ -74,7 +70,7 @@ const getters = {
     const { scopes: { [scope]: { values: { [key]: { filter = false } = {} } = {} } = {} } = {} } = state
     return filter
   },
-  eventsFiltered: (state, getters) => {
+  eventsFiltered: state => {
     const fk = Object.keys(state.filters)
     if (fk.length === 0) {
       return state.events
@@ -154,7 +150,7 @@ const actions = {
       })
     }
   },
-  toggleFilter: ({ state, getters, commit }, { scope, key }) => {
+  toggleFilter: ({ getters, commit }, { scope, key }) => {
     if (getters.isFiltered(scope, key)) { // disable
       commit('LOG_FILTER_DISABLE', { scope, key })
       commit('UPDATE_FILTERS')
@@ -164,7 +160,7 @@ const actions = {
       commit('UPDATE_FILTERS')
     }
   },
-  setSize: ({ state, commit }, size) => {
+  setSize: ({ commit }, size) => {
     commit('UPDATE_SIZE', +size)
   },
   clearEvents: ({ commit }) => {
@@ -311,7 +307,7 @@ const mutations = {
   },
   CLEAR_COUNTS: (state) => {
     for(let [scope, { values = {} }] of Object.entries(state.scopes)) {
-      for(let [key, { count = 0 } ] of Object.entries(values)) {
+      for(let [key] of Object.entries(values)) {
         Vue.set(state.scopes[scope].values[key], 'count', 0)
       }
     }
