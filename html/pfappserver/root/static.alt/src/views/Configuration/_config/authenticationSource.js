@@ -1,8 +1,9 @@
 /* eslint-disable camelcase */
 import store from '@/store'
 import i18n from '@/utils/locale'
-import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFieldPersonOpenid from '@/components/pfFieldPersonOpenid'
 import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
@@ -1140,6 +1141,30 @@ export const viewFields = {
       ]
     }
   },
+  person_mappings: (form, meta = {}) => {
+    return {
+      label: 'User Mappings',
+      cols: [
+        {
+          namespace: 'person_mappings',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: i18n.t('Add Mapping'),
+            sortable: true,
+            field: {
+              component: pfFieldPersonOpenid,
+              attrs: {
+                personLabel: i18n.t('Select User field'),
+                openidLabel: i18n.t('Select OpenID field'),
+                ...attributesFromMeta(meta, 'person_mappings.person_field')
+              },
+              invalidFeedback: i18n.t('Administration rule contains one or more errors.')
+            }
+          }
+        }
+      ]
+    }
+  },
   pin_code_length: (form, meta = {}) => {
     return {
       label: i18n.t('PIN length'),
@@ -2148,7 +2173,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
-            viewFields.authentication_rules(form, meta)
+            viewFields.authentication_rules(form, meta),
+            viewFields.person_mappings(form, meta)
           ]
         }
       ]
@@ -2727,6 +2753,29 @@ export const validatorFields = {
   paypal_cert_file: (form, meta = {}) => {
     return { paypal_cert_file: validatorsFromMeta(meta, 'paypal_cert_file', i18n.t('File')) }
   },
+  person_mappings: (form, meta = {}) => {
+    const {
+      person_mappings = []
+    } = form
+    return {
+      person_mappings: {
+        ...validatorsFromMeta(meta, 'person_mappings', i18n.t('Mappings')),
+        ...{
+          $each: {
+            person_field: {
+              [i18n.t('Person field required.')]: required,
+              [i18n.t('Duplicate person field.')]: conditional(value => !value || person_mappings.filter(({ person_field = '' }) => person_field === value).length <= 1)
+            },
+            openid_field: {
+              [i18n.t('OpenID field required.')]: required,
+            }
+/*
+*/
+          }
+        }
+      }
+    }
+  },
   pin_code_length: (form, meta = {}) => {
     return { pin_code_length: validatorsFromMeta(meta, 'pin_code_length', i18n.t('Length')) }
   },
@@ -3133,7 +3182,8 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
-        ...validatorFields.authentication_rules(form, meta)
+        ...validatorFields.authentication_rules(form, meta),
+        ...validatorFields.person_mappings(form, meta)
       }
     case 'Pinterest':
       return {
