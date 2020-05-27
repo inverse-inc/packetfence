@@ -114,12 +114,15 @@ sub addAnswer {
 
 sub updateAnswerNameValue {
     my ($self, $name, $value, $radius_reply) = @_;
+    my $logger = $self->logger;
     if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
         my $prefix = $1 // '';
         if (ref($value) eq 'ARRAY') {
             foreach my $response (@{$value}) {
                 if ($response =~ /(.*)[:=](.*)/) {
                     $radius_reply->{"$prefix".$1} = $2;
+                } else {
+                    $logger->error("Packetfence-Raw: '$value' is not in a valid format");
                 }
             }
         } elsif ($value =~ /(.*)[:=](.*)/) {
@@ -127,10 +130,10 @@ sub updateAnswerNameValue {
             if (defined $new_value && length($new_value)) {
                 $radius_reply->{"$prefix".$new_name} = $new_value;
             }
+        } else {
+            my $logger = $self->logger;
+            $logger->error("Packetfence-Raw: '$value' is not in a valid format");
         }
-    } else {
-        my $logger = $self->logger;
-        $logger->error("Packetfence-Raw: '$value' is not in a valid format");
     }
 }
 
