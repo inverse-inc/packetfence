@@ -3,6 +3,8 @@ import RadiusLogsStore from '../_store/radiusLogs'
 import DhcpOption82LogsStore from '../_store/dhcpOption82Logs'
 import DnsLogsStore from '../_store/dnsLogs'
 import AdminApiAuditLogs from '../_store/adminApiAuditLogs'
+import LiveLogs from '../_store/liveLogs'
+
 import RadiusLogsSearch from '../_components/RadiusLogsSearch'
 import DhcpOption82LogsSearch from '../_components/DhcpOption82LogsSearch'
 import DnsLogsSearch from '../_components/DnsLogsSearch'
@@ -13,6 +15,8 @@ const RadiusLogView = () => import(/* webpackChunkName: "Auditing" */ '../_compo
 const DhcpOption82LogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/DhcpOption82LogView')
 const DnsLogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/DnsLogView')
 const AdminApiAuditLogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/AdminApiAuditLogView')
+const LiveLogCreate = () => import(/* webpackChunkName: "Auditing" */ '../_components/LiveLogCreate')
+const LiveLogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/LiveLogView')
 
 const route = {
   path: '/auditing',
@@ -34,6 +38,9 @@ const route = {
     }
     if (!store.state.$_admin_api_audit_logs) {
       store.registerModule('$_admin_api_audit_logs', AdminApiAuditLogs)
+    }
+    if (!store.state.$_live_logs) {
+      store.registerModule('$_live_logs', LiveLogs)
     }
     next()
   },
@@ -132,6 +139,33 @@ const route = {
       },
       meta: {
         can: 'read admin_api_audit_log'
+      }
+    },
+    {
+      path: 'live/',
+      name: 'live_logs',
+      component: LiveLogCreate,
+      props: (route) => ({ query: route.query.query }),
+      meta: {
+        can: 'read system',
+        fail: '/auditing'
+      }
+    },
+    {
+      path: 'live/:id',
+      name: 'live_log',
+      component: LiveLogView,
+      props: (route) => ({ id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!(to.params.id in store.state.$_live_logs)) {
+          next('/auditing/live')
+        }
+        else {
+          next()
+        }
+      },
+      meta: {
+        can: 'read system'
       }
     }
   ]

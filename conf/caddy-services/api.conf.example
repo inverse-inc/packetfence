@@ -27,6 +27,8 @@
   
   api
 
+  log-tailer
+
   # Job status access
   job-status
 

@@ -408,19 +408,6 @@ our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
 =over
 
-=item os_detection -  check the os system
-
-=cut
-
-sub os_detection {
-    my $logger = get_logger();
-    if (-e '/etc/debian_version') {
-        return "debian";
-    }elsif (-e '/etc/redhat-release') {
-        return "rhel";
-    }
-}
-
 =item access_duration
 
 Calculate the unregdate from from specific trigger.

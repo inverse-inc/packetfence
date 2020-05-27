@@ -190,8 +190,8 @@ const mutations = {
 
 // Intercept requests
 apiCall.interceptors.request.use((config) => {
-  const { baseURL, method, url, params = {}, headers } = config
-  if (!('X-Replay' in headers)) { // don't track duplicate requests (see utils/api.js)
+  const { baseURL, method, url, params = {}, headers, performance = true } = config
+  if (performance && !('X-Replay' in headers)) { // don't track duplicate requests (see utils/api.js)
     store.dispatch('performance/startRequest', { method, url: `${baseURL}${url}`, params }) // start performance benchmark
   }
   return config
@@ -199,12 +199,16 @@ apiCall.interceptors.request.use((config) => {
 
 // Intercept responses
 apiCall.interceptors.response.use((response) => {
-  const { config: { baseURL, method, url, params = {} } } = response
-  store.dispatch('performance/stopRequest', { method, url: `${baseURL}${url}`, params }) // stop performance benchmark
+  const { config: { baseURL, method, url, params = {}, performance = true } } = response
+  if (performance) {
+    store.dispatch('performance/stopRequest', { method, url: `${baseURL}${url}`, params }) // stop performance benchmark
+  }
   return response
 }, (error) => {
-  const { config: { baseURL, method, url, params = {} } } = error
-  store.dispatch('performance/dropRequest', { method, url: `${baseURL}${url}`, params }) // discard performance benchmark
+  const { config: { baseURL, method, url, params = {}, performance = true } } = error
+  if (performance) {
+    store.dispatch('performance/dropRequest', { method, url: `${baseURL}${url}`, params }) // discard performance benchmark
+  }
   return Promise.reject(error)
 })
 
