@@ -32,6 +32,7 @@ use pfappserver::Form::Config::Source::Authorization;
 use pfappserver::Form::Config::Source::Clickatell;
 use pfappserver::Form::Config::Source::EAPTLS;
 use pfappserver::Form::Config::Source::Eduroam;
+use pfappserver::Form::Config::Source::EDIR;
 use pfappserver::Form::Config::Source::Email;
 use pfappserver::Form::Config::Source::Facebook;
 use pfappserver::Form::Config::Source::Github;
@@ -69,6 +70,7 @@ our %TYPES_TO_FORMS = (
       Clickatell
       EAPTLS
       Eduroam
+      EDIR
       Email
       Facebook
       Github
