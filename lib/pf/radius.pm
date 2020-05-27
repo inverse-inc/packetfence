@@ -256,7 +256,7 @@ sub authorize {
     $do_auto_reg = $role_obj->shouldAutoRegister($args);
     if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
+        (my $attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
         $args->{'action'} = $action;
         $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
         $node_obj->merge(\%autoreg_node_defaults);
