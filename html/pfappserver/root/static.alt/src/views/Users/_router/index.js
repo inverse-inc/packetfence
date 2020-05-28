@@ -25,7 +25,6 @@ const route = {
   props: { storeName: '$_users' },
   beforeEnter: (to, from, next) => {
     if (!store.state.$_users) {
-console.log('register module', '$_users')
       // Register store module only once
       store.registerModule('$_users', UsersStore)
     }
@@ -71,7 +70,7 @@ console.log('register module', '$_users')
       },
       meta: {
         can: 'create users',
-        fail: { name: 'usersPreview', replace: true } // redirect to next sibling
+        fail: { name: 'userSearch', replace: true } // redirect to next sibling
       }
     },
     {

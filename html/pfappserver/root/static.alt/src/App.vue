@@ -43,6 +43,7 @@
             <template v-slot:button-content>
               <icon name="layer-group"></icon> {{ tenant_mask_name }}
             </template>
+            <b-dropdown-header>{{ $t('Tenants') }}</b-dropdown-header>
             <b-dropdown-item-button v-for="tenant in tenants" :key="tenant.id"
               :active="+tenant_id_mask === +tenant.id"
               :disabled="+tenant_id_mask === 0 && +tenant.id === 0"
