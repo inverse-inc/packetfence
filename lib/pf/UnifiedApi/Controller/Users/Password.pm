@@ -53,12 +53,19 @@ sub update_data {
 
 sub _handle_password_data {
     my ($self, $data) = @_;
-    if(exists($data->{password})) {
+    if (exists($data->{password})) {
         if(my $algo = $self->req->query_params->to_hash->{password_algorithm}) {
             $data->{password} = pf::password::_hash_password($data->{password}, algorithm => $algo);
         }
         else {
             $data->{password} = pf::password::default_hash_password($data->{password});
+        }
+    }
+
+    if (exists($data->{access_level})) {
+        my $access_level = $data->{access_level};
+        if (defined $access_level && ref($access_level) eq 'ARRAY') {
+            $data->{access_level} = join(",", $access_level);
         }
     }
     return $data;
