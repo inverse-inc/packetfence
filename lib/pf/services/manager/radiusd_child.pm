@@ -641,6 +641,21 @@ sub generate_radiusd_ldap {
     my $ldap_config = $FALSE;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
         my $searchattributes = '';
+        my $edir_options;
+        if ($ConfigAuthenticationLdap{$ldap}->{type} eq 'EDIR') {
+            $edir_options .= << "EOT";
+
+    # Enable Novell eDirectory support
+    edir = yes
+    edir_account_policy_check = yes
+    #
+    # eDirectory attribute for Universal Password
+    password_attribute = nspmPassword
+
+EOT
+        } else {
+            $edir_options = '';
+        }
 
         if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
             foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
@@ -661,6 +676,7 @@ ldap $ldap {
     base_filter     = "(objectclass=user)"
     rebind          = yes
     chase_referrals = yes
+$edir_options
     update {
         control:AD-Samaccountname := 'sAMAccountName'
         request:PacketFence-UserNameAttribute := "$ConfigAuthenticationLdap{$ldap}->{usernameattribute}"
