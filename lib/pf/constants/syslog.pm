@@ -247,7 +247,7 @@ our @SyslogInfo = (
 );
 
 our @LOGS = (
-    (map { $_->{name} = "$log_dir/".$_->{name} ; $_ } @SyslogInfo),
+    (map { my $h = { %{$_} } ; $h->{name} = "$log_dir/".$h->{name} ; $h } @SyslogInfo),
     {
         'description' => 'Global syslog',
         'name'       => os_detection() eq "debian" ? '/var/log/syslog' : '/var/log/messages',
