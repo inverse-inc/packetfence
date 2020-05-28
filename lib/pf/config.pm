@@ -174,6 +174,8 @@ our (
     %ConfigAuthenticationLdap,
 # Radius sources
     %ConfigAuthenticationRadius,
+# EDIR sources
+    %ConfigAuthenticationEdir,
 );
 
 BEGIN {
@@ -238,6 +240,7 @@ BEGIN {
         %ConfigSelfService
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
+        %ConfigAuthenticationEdir
     );
 }
 
@@ -317,6 +320,8 @@ tie %ConfigSelfService, 'pfconfig::cached_hash', 'config::SelfService';
 tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
+
+tie %ConfigAuthenticationEdir, 'pfconfig::cached_hash', 'resource::authentication_sources_edir';
 
 $thread = 0;
 

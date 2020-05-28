@@ -284,6 +284,18 @@ has_field 'ldap_source_ttls_pap' =>
              help => 'The LDAP Server to use for EAP TTLS PAP authorization and authentication' },
   );
 
+has_field 'edir_source' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'EDIR Source for PEAP',
+   options_method => \&options_edir,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a EDIR Server'},
+   tags => { after_element => \&help,
+             help => 'The EDIR Server to use for EAP PEAP authorization and authentication' },
+  );
+
 =head2 options_roles
 
 =cut
@@ -320,6 +332,16 @@ sub options_radius {
     my $self = shift;
     my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
     return @radius;
+}
+
+=head2 options_edir
+
+=cut
+
+sub options_edir {
+    my $self = shift;
+    my @edir = map { $_ => $_ } keys %pf::config::ConfigAuthenticationEdir;
+    return @edir;
 }
 
 =over
