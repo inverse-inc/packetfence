@@ -65,7 +65,7 @@ sub _handle_password_data {
     if (exists($data->{access_level})) {
         my $access_level = $data->{access_level};
         if (defined $access_level && ref($access_level) eq 'ARRAY') {
-            $data->{access_level} = join(",", $access_level);
+            $data->{access_level} = join(",", @$access_level);
         }
     }
     return $data;
