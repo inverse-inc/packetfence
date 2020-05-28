@@ -12,7 +12,10 @@
         :disabled="disabled"
         :readonly="readonly"
       />
-      <b-input-group-append v-show="readonly || disabled || test">
+      <b-input-group-append v-show="$slots.append || readonly || disabled || test">
+        <b-button-group v-show="$slots.append" rel="testResultGroup">
+          <slot name="append"></slot>
+        </b-button-group>
         <b-button-group v-show="test" rel="testResultGroup">
           <b-button v-show="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>

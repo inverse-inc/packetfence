@@ -140,6 +140,12 @@ const getters = {
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
   tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
+  tenantMask: (state, getters) => {
+    if (state.tenant_id_mask) {
+      return state.tenants.find(t => t.id === state.tenant_id_mask)
+    }
+    return state.tenant
+  },
   aclContext: state => {
     if (state.roles.includes('TENANT_MASTER')) { // is tenant master
       if (!state.tenant_id_mask) { // tenant is not masked
