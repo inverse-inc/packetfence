@@ -368,6 +368,9 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   const {
+    permit_custom_attributes
+  } = form
+  const {
     isNew = false,
     isClone = false
   } = meta
@@ -389,6 +392,14 @@ export const validators = (form = {}, meta = {}) => {
     eduroam_radius_auth_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_auth_proxy_type', 'Type'),
     eduroam_radius_acct_chosen: validatorsFromMeta(meta, 'eduroam_radius_acct_chosen', 'RADIUS ACCT'),
     eduroam_radius_acct_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_acct_proxy_type', 'Type'),
-    ldap_source: validatorsFromMeta(meta, 'ldap_source', i18n.t('Source'))
+    ldap_source: {
+      ...validatorsFromMeta(meta, 'ldap_source', i18n.t('Source')),
+      ...((permit_custom_attributes === 'enabled')
+        ? {
+          [i18n.t('LDAP Source required.')]: required
+        }
+        : {}
+      )
+    }
   }
 }
