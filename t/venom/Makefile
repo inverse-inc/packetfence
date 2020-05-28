@@ -32,8 +32,9 @@ dot1x_eap_peap: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap/teardown
 
 .PHONY: backup_db_and_restore
-backup_db_and_restore: setup global_teardown
-        ./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore
+backup_db_and_restore: setup
+	./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore
+	./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore/teardown
 
 .PHONY: global_teardown
 global_teardown: setup
@@ -43,3 +44,7 @@ global_teardown: setup
 .PHONY: dot1x_eap_peap_no_teardown
 dot1x_eap_peap_no_teardown: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap
+
+.PHONY: backup_db_and_restore_no_teardown
+backup_db_and_restore_no_teardown: setup
+	./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore
