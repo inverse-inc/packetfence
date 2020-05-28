@@ -196,7 +196,7 @@ sub generateRoutes {
                         my $role = pop @categories;
                         next unless $role->{'name'};
                         my $pf_ip = $net + 1;
-                        $ips .= "$pf_ip->addr/$cidr dev $dev\n";
+                        $ips .= "$pf_ip dev $dev\n";
                         my $first = $net + 2;
                     }
                 }
