@@ -26,51 +26,53 @@ BEGIN {
     @tests = (
         {
             name           => 'reply:Packetfence-Raw',
-            value          => 'Name:bob',
-            expected_name  => 'reply:Name',
-            expected_value => 'bob',
+            value          => 'Name=bob',
+            expected_reply => {
+                'reply:Name' => 'bob',
+            },
         },
         {
             name           => 'Packetfence-Raw',
             value          => 'Name:bob',
-            expected_name  => 'Name',
-            expected_value => 'bob',
+            expected_reply => {
+            },
         },
         {
             name           => 'reply:Packetfence-Raw',
             value          => 'Name=bob',
-            expected_name  => 'reply:Name',
-            expected_value => 'bob',
+            expected_reply => {
+                'reply:Name' => 'bob',
+            },
         },
         {
             name           => 'reply:Packetfence-Raw',
             value          => 'Name = bob',
-            expected_name  => 'reply:Name',
-            expected_value => 'bob',
+            expected_reply => {
+                'reply:Name' => 'bob',
+            },
         },
         {
             name           => 'reply:Packetfence-Raw',
             value          => 'Name:bob=hope',
-            expected_name  => 'reply:Name',
-            expected_value => 'bob=hope',
+            expected_reply => {
+                'reply:Name:bob' => 'hope',
+            },
         },
         {
             name           => 'reply:Id',
             value          => 'Name:bob',
-            expected_name  => 'reply:Id',
-            expected_value => 'Name:bob',
+            expected_reply => { },
         },
         {
             name           => 'Id',
             value          => 'Name:bob',
-            expected_name  => 'Id',
-            expected_value => 'Name:bob',
+            expected_reply => { },
         },
     );
 }
 
 use pf::access_filter::radius;
-use Test::More tests => 1 + (scalar @tests * 2);
+use Test::More tests => 1 + (scalar @tests * 1);
 
 #This test will running last
 use Test::NoWarnings;
@@ -78,10 +80,9 @@ my $filter = pf::access_filter::radius->new;
 
 
 for my $test (@tests) {
-    my ($name, $value) = $filter->updateAnswerNameValue($test->{name}, $test->{value});
-
-    is ($name, $test->{expected_name}, "expected name '$test->{expected_name}'");
-    is ($value, $test->{expected_value}, "expected value '$test->{expected_value}'");
+    my %reply;
+    $filter->updateAnswerNameValue($test->{name}, $test->{value}, \%reply);
+    is_deeply(\%reply, $test->{expected_reply});
 }
 
 =head1 AUTHOR
