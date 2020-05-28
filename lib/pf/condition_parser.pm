@@ -43,6 +43,7 @@ STRING = '"' /([^"\\]|\\"|\\\\)+/  '"'
 
 use strict;
 use warnings;
+use pf::constants::filters qw($TRUE_CONDITION);
 
 use base qw(Exporter);
 
@@ -443,7 +444,7 @@ sub _ast_to_object {
 
         if ($op eq 'FUNC') {
             my ($f, $args) = @{$ast}[1,2];
-            if ($f eq 'true') {
+            if ($f eq $TRUE_CONDITION) {
                 return { op => $f };
             }
             return { op => $f, field => $args->[0], value => $args->[1] };
@@ -476,7 +477,7 @@ sub object_to_str {
 sub _object_to_str {
     my ($obj) = @_;
     my $op = $obj->{op};
-    if ($op eq 'true') {
+    if ($op eq $TRUE_CONDITION) {
         return 'true()';
     }
     if (exists $OBJ_OPS{$op}) {
