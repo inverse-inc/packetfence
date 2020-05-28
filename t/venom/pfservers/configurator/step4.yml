@@ -1,0 +1,18 @@
+name: Step 4
+version: 2
+testcases:
+- name: start_packetfence
+  steps:
+  - script: '/usr/local/pf/bin/pfcmd service pf start'
+
+- name: start_fingerbank
+  steps:
+  - script: 'systemctl start packetfence-fingerbank-collector'
+
+- name: disable_configurator
+  steps:
+  - script: "printf '\n[advanced]\nconfigurator=disabled\n' >> /usr/local/pf/conf/pf.conf"
+
+- name: restart_server
+  steps:
+  - script: 'shutdown -r now'

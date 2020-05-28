@@ -1,0 +1,16 @@
+name: Step 0 preconfiguration
+version: 2
+testcases:
+- name: set_hostname
+  steps:
+  - script: 'hostnamectl set-hostname {{.configurator_hostmame_machine}}'
+
+- name: set_gateway
+  steps: 
+  - script: 'route add default gw {{.configurator_gateway}}'
+
+- name: restart_network
+  steps:
+  - script: 'systemctl restart network'
+
+

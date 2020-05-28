@@ -5,7 +5,7 @@
 # Variables assigned based on environment variables
 venom_result_dir: '{{.VENOM_RESULT_DIR}}'
 pfserver_token: '{{.TOKEN}}'
-pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
+pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}' 
 
 # ssh executor variables
 ssh_user: vagrant
@@ -114,3 +114,64 @@ wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
 wired_mac_auth.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
 wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
 wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
+
+################################################################################
+# Configurator variables
+################################################################################
+#Hostmame machine
+configurator_hostmame_machine: 
+
+# Interface dhcp-listener
+configurator.dhcp_listener_interface:
+configurator.dhcp_listener_mac:
+configurator.dchp_listener_ip:
+configurator.dhcp_listener_mask:
+
+# Interface management
+configurator_management_interface:  
+configurator_management_interface_ip_and_mask: 
+configurator_management_mac: 
+configurator_management_ip: 
+configurator_management_mask: 
+configurator_management_network_ip: 
+
+# Interface registration
+configurator_registration_interface: 
+configurator_registration_mac: 
+configurator_registration_ip: 
+configurator_registration_mask: 
+
+# Interface isolation
+configurator_isolation_interface: 
+configurator_isolation_mac: 
+configurator_isolation_ip: 
+configurator_isolation_mask: 
+
+# Gateway
+configurator_gateway: 
+
+# Configurator dns
+configurator_dns_ip: 8.8.8.8
+configurator_dns_aux_ip: 172.17.17.100
+
+# Create root account
+configurator.root_password: 
+
+# Create pf account
+configurator.pf_password: 
+
+# Alerting
+configurator.email: 
+configurator.from_email: 
+configurator.smtp_server:
+configurator.smtp_port:
+
+# General
+configurator.domain: example.lan
+
+# Admin password
+configurator.admin_password: 
+
+# Fingerbank
+configurator.fingerbank.key: 
+

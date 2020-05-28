@@ -1,0 +1,159 @@
+name: step2 database-general-and-alerting 
+version: 2
+testcases:
+- name: step2_start_mariadb
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-mariadb/start'
+    ignore_verify_ssl: true
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: step2_create_root_account
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/secure_installation'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "password": "{{.configurator.root_password}}",
+        "username": "root"
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: step2_create_db_pf
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/create'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "database": "pf",
+        "password": "{{.configurator.pf_password}}",
+        "username": "root"
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: step2_create_db_user_pf
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/assign'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "database": "pf",
+        "pf_password": "{{.configurator.pf_password}}",
+        "pf_username": "pf",
+        "root_password": "{{.configurator.root_password}}",
+        "root_username": "root"
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: Check_entry
+  steps:
+    - type: sql
+      driver: mysql
+      dsn: root:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
+      commands:
+        - "SELECT * FROM password;"
+      assertions:
+        - result.queries.queries0.rows.rows0.pid ShouldEqual admin
+
+
+- name: step2_alerting
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/alerting'
+    ignore_verify_ssl: true
+    body: >-
+      { 
+        "emailaddr": "{{.configurator.email}}",
+        "fromaddr": "{{.configurator.from_email}}",
+        "id": "alerting",
+        "not_deletable": true,
+        "not_sortable": false,
+        "quiet": true,
+        "smtp_encryption": "none",
+        "smtp_port": "{{.configurator.smtp_port}}",
+        "smtp_verifyssl": "enabled",
+        "smtpserver": "{{.configurator.smtp_server}}",
+        "test_emailaddr": "{{.configurator.email}}"
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: step2_testmail
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/bases/test_smtp'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "emailaddr": "{{.configurator.email}}",
+        "fromaddr": "{{.configurator.from_email}}",
+        "id": "alerting",
+        "not_deletable": true,
+        "not_sortable": false,
+        "quiet": true,
+        "smtp_encryption": "none",
+        "smtp_port": "{{.configurator.smtp_port}}",
+        "smtp_verifyssl": "enabled",
+        "smtpserver": "{{.configurator.smtp_server}}",
+        "test_emailaddr": "{{.configurator.email}}"
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: step2_general
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/general'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "dhcpservers": "127.0.0.1",
+        "domain": "{{.configurator.domain}}",
+        "hostname": "{{.configurator_hostmame_machine}}",
+        "id": "general",
+        "not_deletable": true,
+        "not_sortable": false,
+        "quiet": true,
+        "timezone": "UTC"
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200
+      
+- name: step2_restart_mariadb_service
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-mariadb/restart'
+    ignore_verify_ssl: true
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: step2_admin_account
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/user/admin/password'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "password": "{{.configurator.admin_password}}",
+        "pid": "admin",
+        "quiet": true,
+        "valid_from": "2020-05-22 09:51:52"
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200

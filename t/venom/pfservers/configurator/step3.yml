@@ -1,0 +1,25 @@
+name: Step 3 Fingerbank
+version: 2
+testcases:
+- name: add_fingerbank_key
+  steps:
+    - type: http
+      method: PATCH
+      url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/fingerbank_setting/upstream'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "api_key": "{{.configurator.fingerbank.key}}",
+          "db_path": "/api/v2/download/db",
+          "host": "api.fingerbank.org",
+          "id": "upstream",
+          "not_deletable": true,
+          "not_sortable": false,
+          "port": "443",
+          "quiet": true,
+          "sqlite_db_retention": "2",
+          "use_https": "enabled"
+        }
+      assertions:
+        - result.statuscode ShouldEqual 200
+
