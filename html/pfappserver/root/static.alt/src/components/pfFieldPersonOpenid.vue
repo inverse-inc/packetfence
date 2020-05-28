@@ -1,40 +1,47 @@
 <template>
-  <b-row class="pf-field-person-openid mx-0 mb-1 px-0" align-v="center" no-gutters
-    v-on="forwardListeners"
-  >
-    <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
-      <slot name="prepend"></slot>
-    </b-col>
-    <b-col :sm="($slots.prepend && $slots.append) ? 4 : (($slots.prepend || $slots.append) ? 5 : 6)" align-self="start">
-
-      <pf-form-chosen ref="person_field"
-        :form-store-name="formStoreName"
-        :form-namespace="`${formNamespace}.person_field`"
+  <b-form-group class="pf-field-person-openid" :state="inputStateIfInvalidFeedback">
+    <template v-slot:invalid-feedback>
+      {{ invalidFeedback }}
+    </template>
+    <b-container fluid class="pf-field-person-openid-input-group px-0">
+      <b-form-row class="pf-field-person-openid mx-0 mb-1 px-0" align-v="center" no-gutters
         v-on="forwardListeners"
-        label="text"
-        track-by="value"
-        :placeholder="$t('Choose User field')"
-        :options="options"
-        :disabled="disabled"
-        class="mr-1"
-        collapse-object
-      />
+      >
+        <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
+          <slot name="prepend"></slot>
+        </b-col>
+        <b-col :sm="($slots.prepend && $slots.append) ? 4 : (($slots.prepend || $slots.append) ? 5 : 6)" align-self="start">
 
-    </b-col>
-    <b-col sm="6" align-self="start" class="pl-1">
+          <pf-form-chosen ref="person_field"
+            :form-store-name="formStoreName"
+            :form-namespace="`${formNamespace}.person_field`"
+            v-on="forwardListeners"
+            label="text"
+            track-by="value"
+            :placeholder="$t('Choose User field')"
+            :options="options"
+            :disabled="disabled"
+            class="mr-1"
+            collapse-object
+          />
 
-      <pf-form-input ref="openid_field"
-        :form-store-name="formStoreName"
-        :form-namespace="`${formNamespace}.openid_field`"
-        :placeholder="$t('Enter OpenID field')"
-        :disabled="disabled"
-      />
+        </b-col>
+        <b-col sm="6" align-self="start" class="pl-1">
 
-    </b-col>
-    <b-col v-if="$slots.append" sm="1" align-self="start" class="text-center col-form-label">
-      <slot name="append"></slot>
-    </b-col>
-  </b-row>
+          <pf-form-input ref="openid_field"
+            :form-store-name="formStoreName"
+            :form-namespace="`${formNamespace}.openid_field`"
+            :placeholder="$t('Enter OpenID field')"
+            :disabled="disabled"
+          />
+
+        </b-col>
+        <b-col v-if="$slots.append" sm="1" align-self="start" class="text-center col-form-label">
+          <slot name="append"></slot>
+        </b-col>
+      </b-form-row>
+    </b-container>
+  </b-form-group>
 </template>
 
 <script>
@@ -126,3 +133,32 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.pf-field-person-openid {
+  .pf-field-person-openid-input-group {
+    border: 1px solid transparent;
+    @include border-radius($border-radius);
+    @include transition($custom-forms-transition);
+    outline: 0;
+  }
+  &.is-invalid {
+    > [role="group"] > .pf-field-person-openid-input-group {
+      border-color: $form-feedback-invalid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+    }
+    > [role="group"] > .invalid-feedback {
+      display: block!important;
+    }
+  }
+  .collapse-handle {
+    cursor: pointer;
+  }
+  .pf-form-chosen {
+    .col-sm-12[role="group"] {
+      padding-right: 0px;
+      padding-left: 0px;
+    }
+  }
+}
+</style>

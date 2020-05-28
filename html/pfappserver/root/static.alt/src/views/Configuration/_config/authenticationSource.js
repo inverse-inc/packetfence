@@ -1154,11 +1154,11 @@ export const viewFields = {
             field: {
               component: pfFieldPersonOpenid,
               attrs: {
+                ...attributesFromMeta(meta, 'person_mappings.person_field'),
                 personLabel: i18n.t('Select User field'),
                 openidLabel: i18n.t('Select OpenID field'),
-                ...attributesFromMeta(meta, 'person_mappings.person_field')
-              },
-              invalidFeedback: i18n.t('Administration rule contains one or more errors.')
+                invalidFeedback: i18n.t('Mappings contain one or more errors.')
+              }
             }
           }
         }
