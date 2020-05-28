@@ -68,6 +68,14 @@ BEGIN {
             value          => 'Name:bob',
             expected_reply => { },
         },
+        {
+            name           => 'reply:Packetfence-Raw',
+            value          => ['Name1=bob', 'Name2=bob'],
+            expected_reply => {
+                'reply:Name1' => 'bob',
+                'reply:Name2' => 'bob',
+            },
+        },
     );
 }
 
