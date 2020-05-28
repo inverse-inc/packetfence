@@ -1,16 +1,19 @@
 # backup_db_and_restore
 
 ## Requirements
-MariaDB running and available usign UNIX socket
+MariaDB running and available using UNIX socket
 
 ## Scenario steps
-1. Inject data in DB
-2. Backup files and DB with backup script
+1. Create user in DB using API
+2. Backup files and DB with backup-and-maintenance script
 3. Check DB file has been created by backup script
-4. Destroy DB
-5. Recreate DB based on current schema
-6. Restore data from backup DB file
-7. Check that data created at first step is still here
+4. Unzip DB file
+5. Drop DB
+6. Recreate DB based on current schema
+7. Restore data from backup DB file
+8. Check that user created at first step is still here using API: validate
+   that application is running after DB restore
 
 ## Teardown steps
-1. Remove data injected if they can impact other test suites
+1. Remove all backup files
+2. Remove user created
