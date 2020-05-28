@@ -255,8 +255,9 @@ EOT
 
     $tags{'authorize_ldap_choice'} = "";
     $tags{'authentication_ldap_auth_type'} = "";
+    $tags{'edir_configuration'} = "";
 
-    generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'});
+    generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
@@ -1180,8 +1181,10 @@ sub generate_radiusd_mschap {
 }
 
 sub generate_ldap_choice {
-    my ($authorize_ldap_choice, $authentication_ldap_auth_type) = @_;
+    my ($authorize_ldap_choice, $authentication_ldap_auth_type, $edir_configuration) = @_;
     my $if = 'if';
+    my $of = 'if';
+    my $edir_config;
     foreach my $key ( @pf::config::ConfigOrderedRealm ) {
         my $choice = $key;
         if (defined($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap})) {
@@ -1202,6 +1205,27 @@ EOT
 EOT
 
         }
+        if (defined($pf::config::ConfigRealm{$key}->{edir_source}) && exists($pf::config::ConfigRealm{$key}->{ledir_source})) {
+            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+            $edir_config .= <<"EOT";
+            $of (Realm =~ /$choice/) {
+                -$pf::config::ConfigRealm{$key}->{edir_source}
+            }
+EOT
+            my $of = 'elsif';
+        }
+    }
+    if ($edir_config ne "") {
+        $$edir_configuration .= << "EOT"
+        update control {
+            Cache-Status-Only = 'yes'
+        }
+        cache_password
+        if (notfound) {
+        $edir_config
+        }
+        cache_password
+EOT
     }
 }
 
