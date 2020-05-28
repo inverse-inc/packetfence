@@ -36,7 +36,7 @@ sub replaceStr {
     my ($str, $old, $new) = @_;
     $str =~ s/\Q$old\E/$new/g;
     return $str;
-);
+};
 
 BEGIN {
     use Exporter ();
