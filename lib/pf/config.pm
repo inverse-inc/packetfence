@@ -176,6 +176,8 @@ our (
     %ConfigAuthenticationRadius,
 # TLS configuration
     %ConfigEAP,
+# EDIR sources
+    %ConfigAuthenticationEdir,
 );
 
 BEGIN {
@@ -241,6 +243,7 @@ BEGIN {
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
         %ConfigEAP
+        %ConfigAuthenticationEdir
     );
 }
 
@@ -323,6 +326,7 @@ tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authenticat
 
 tie %ConfigEAP, 'pfconfig::cached_hash', 'resource::eap_config';
 
+tie %ConfigAuthenticationEdir, 'pfconfig::cached_hash', 'resource::authentication_sources_edir';
 
 $thread = 0;
 

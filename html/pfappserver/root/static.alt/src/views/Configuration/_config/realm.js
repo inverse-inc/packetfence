@@ -174,6 +174,17 @@ export const view = (form = {}, meta = {}) => {
             }
           ]
         },
+        {                                                                                                                                                                                                        
+          label: i18n.t('Edirectory'),                                                                                                                                                                           
+          text: i18n.t('The Edirectory server to use for the authentication in that realm.'),                                                                                                                    
+          cols: [                                                                                                                                                                                                
+            {                                                                                                                                                                                                    
+              namespace: 'edir_source',                                                                                                                                                                          
+              component: pfFormChosen,                                                                                                                                                                           
+              attrs: attributesFromMeta(meta, 'edir_source')                                                                                                                                                     
+            }                                                                                                                                                                                                    
+          ]                                                                                                                                                                                                      
+        },
         {
           label: i18n.t('EAP Configuration'), labelSize: 'lg'
         },
@@ -188,7 +199,7 @@ export const view = (form = {}, meta = {}) => {
             }
           ]
         },
-        {
+	{
           label: i18n.t('Freeradius Proxy Configuration'), labelSize: 'lg'
         },
         {
