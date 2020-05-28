@@ -1156,10 +1156,10 @@ export const viewFields = {
               attrs: {
                 ...attributesFromMeta(meta, 'person_mappings.person_field'),
                 personLabel: i18n.t('Select User field'),
-                openidLabel: i18n.t('Select OpenID field'),
-                invalidFeedback: i18n.t('Mappings contain one or more errors.')
+                openidLabel: i18n.t('Select OpenID field')
               }
-            }
+            },
+            invalidFeedback: i18n.t('Mappings contain one or more errors.')
           }
         }
       ]
@@ -2764,7 +2764,10 @@ export const validatorFields = {
           $each: {
             person_field: {
               [i18n.t('Person field required.')]: required,
-              [i18n.t('Duplicate person field.')]: conditional(value => !value || person_mappings.filter(({ person_field = '' }) => person_field === value).length <= 1)
+              [i18n.t('Duplicate person field.')]: conditional(value => !value || person_mappings.filter(v => {
+                  const { person_field } = v || {}
+                  return person_field === value
+              }).length <= 1)
             },
             openid_field: {
               [i18n.t('OpenID field required.')]: required,
