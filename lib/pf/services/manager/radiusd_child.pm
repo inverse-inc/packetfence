@@ -265,8 +265,9 @@ EOT
 
     $tags{'authorize_ldap_choice'} = "";
     $tags{'authentication_ldap_auth_type'} = "";
+    $tags{'edir_configuration'} = "";
 
-    generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'});
+    generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
