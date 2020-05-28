@@ -25,7 +25,7 @@ testcases:
 - name: get_backup_name
   steps:
   - type: exec
-    script: 'find /root/backup -name "packetfence-db-dump-*.sql.gz" -mmin -1'
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-db-dump-*.sql.gz" -newermt "-15 seconds"'
     vars: 
       backup_name:
         from: result.systemout
@@ -35,10 +35,11 @@ testcases:
   - type: exec
     script: 'gunzip {{.get_backup_name.backup_name}}'
 
+# we only get filename without path
 - name: get_backup_name_uncompressed
   steps:
   - type: exec
-    script: 'find /root/backup -name "packetfence-db-dump-*.sql" -mmin -1'
+    script: 'basename {{.get_backup_name.backup_name}} .gz'
     vars:
       backup_name_uncompressed:
         from: result.systemout
@@ -61,7 +62,7 @@ testcases:
 - name: restore_db
   steps:
   - type: exec
-    script: 'mysql pf < {{.get_backup_name_uncompressed.backup_name_uncompressed}}'
+    script: 'mysql pf < {{.backup_db_and_restore.backup_dir}}/{{.get_backup_name_uncompressed.backup_name_uncompressed}}'
 
 - name: search_user_in_db
   steps:

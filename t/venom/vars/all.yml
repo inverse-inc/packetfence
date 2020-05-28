@@ -78,4 +78,4 @@ dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
 #################################################################################
 # Create user for db
 backup_db_and_restore.user: adminvenom
-
+backup_db_and_restore.backup_dir: /root/backup
