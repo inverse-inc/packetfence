@@ -77,5 +77,5 @@ dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
 ## backup db and restore test suite specific variables
 #################################################################################
 # Create user for db
-backup_db_and_restore.create_user: adminvenom
+backup_db_and_restore.user: adminvenom
 
