@@ -635,12 +635,20 @@ sub field_meta {
     if ($type ne 'array' && $type ne 'object') {
         if (defined (my $allowed = $self->field_allowed($field))) {
             $meta->{allowed} = $allowed;
+            $meta->{allow_custom} = $self->field_allow_custom($field);
         } elsif (defined (my $allowed_lookup = $self->field_allowed_lookup($field))) {
             $meta->{allowed_lookup} = $allowed_lookup;
+            $meta->{allow_custom} = $self->field_allow_custom($field);
         }
+
     }
 
     return $meta;
+}
+
+sub field_allow_custom {
+    my ($self, $field) = @_;
+    return $field->get_tag("allow_custom") ? $self->json_true : $self->json_false;
 }
 
 =head2 field_extra_meta

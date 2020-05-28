@@ -18,7 +18,8 @@
         <slot name="op" v-bind="{ op, formStoreName, formNamespace, disabled }"></slot>
       </span>
       <span class="menu">
-        <b-dropdown no-caret lazy right variant="transparent" ref="menu" :disabled="disabled">
+        <b-dropdown v-if="!isRoot || !isBoolean"
+          no-caret lazy right variant="transparent" ref="menu" :disabled="disabled">
           <template v-slot:button-content>
             <icon name="cog"></icon>
           </template>
@@ -30,7 +31,7 @@
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
             </b-dropdown-item>
           </b-dropdown-group>
-          <b-dropdown-group>
+          <b-dropdown-group v-if="!isBoolean">
             <b-dropdown-item @click="addOperator(values.length + 1); highlight = false;">
               <icon name="grip-horizontal" class="mr-1"></icon> {{ $t('Add Operator') }}
             </b-dropdown-item>
@@ -45,7 +46,7 @@
       </span>
     </div>
 
-    <div v-if="hasValues" class="pf-form-boolean-values"
+    <div v-if="hasValues && !isBoolean" class="pf-form-boolean-values"
       @mousemove="highlight = false"
       @dragover.stop="dragOver(0, $event)"
     >
@@ -91,7 +92,7 @@
       </template>
     </div>
 
-    <div v-else class="pf-form-boolean-value">
+    <div v-else-if="!isBoolean" class="pf-form-boolean-value">
       <span class="drag-handle" :class="{ 'text-secondary': disabled }">
         <icon name="grip-vertical"></icon>
       </span>
@@ -109,7 +110,7 @@
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
             </b-dropdown-item>
           </b-dropdown-group>
-        </b-dropdown >
+        </b-dropdown>
       </span>
     </div>
 
@@ -194,6 +195,10 @@ export default {
     op () {
       const { inputValue: { op } = {} } = this
       return op || null
+    },
+    isBoolean () {
+      const { inputValue: { op } = {} } = this
+      return ['true'].includes(op)
     },
     values () {
       const { inputValue: { values = [] } = {} } = this
@@ -328,6 +333,15 @@ export default {
       let value = JSON.parse(JSON.stringify(source.inputValue.values[sourceIndex]))
       target.addValue(targetIndex, value) // add new value
       resolve(target)
+    }
+  },
+  watch: {
+    isBoolean: {
+      handler: function (a, b) {
+        if (a) { // is a pure boolean (true) with no values
+          this.truncate() // empty values
+        }
+      }
     }
   }
 }

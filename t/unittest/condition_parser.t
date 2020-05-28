@@ -370,6 +370,13 @@ BEGIN {
                 field => 'node_info.category',
                 value => '',
             }
+        ],
+        [
+            'true()',
+            ['FUNC', 'true', []],
+            {
+                op => 'true',
+            },
         ]
     );
 
@@ -439,7 +446,13 @@ BEGIN {
                 field => 'a',
             },
             'a !~ "^bob"'
-        ]
+        ],
+        [
+            {
+                op => 'true',
+            },
+            'true()',
+        ],
     );
 
     $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS) + (scalar @OBJECT_TO_STR_TESTS);

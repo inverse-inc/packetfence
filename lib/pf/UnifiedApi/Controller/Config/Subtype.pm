@@ -89,6 +89,7 @@ sub options_with_no_type {
                     map { $self->type_allowed_info($_) } keys %{$self->type_lookup}
                 ],
                 type => "string",
+                allow_custom => $self->json_false,
             },
         }
     );

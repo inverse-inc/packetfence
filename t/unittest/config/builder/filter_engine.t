@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 13;
+use Test::More tests => 15;
 
 #This test will running last
 use Test::NoWarnings;
@@ -390,6 +390,43 @@ CONF
                                         api_parameters => 'mac, $mac, status = unreg, autoreg = no'
                                     },
                                 ],
+                            },
+                        })
+                    ],
+                }
+            )
+        },
+        "Build simple condition filter with nested key"
+    );
+}
+{
+
+    my $conf = <<'CONF';
+[true_always]
+status=enabled
+condition=true
+scopes = preProcess
+answer.0=James = bob
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            preProcess => pf::filter_engine->new(
+                {
+                    filters => [
+                        pf::filter->new({
+                            'condition' => pf::condition::true->new({ }),
+                            answer => {
+                                status => 'enabled',
+                                condition => 'true',
+                                scopes    => ['preProcess'],
+                                _rule     => 'true_always',
+                                params  => [],
+                                answers => ['James = bob'],
+                                actions => [ ],
                             },
                         })
                     ],

@@ -17,12 +17,17 @@ use warnings;
 use pf::log;
 use pfconfig::namespaces::config;
 use pfconfig::namespaces::config::RadiusFilters;
+use pf::config::builder::filter_engine::radius;
 
 use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
 sub parentConfig {
     my ($self) = @_;
     return pfconfig::namespaces::config::RadiusFilters->new($self->{cache});
+}
+
+sub builder {
+    return pf::config::builder::filter_engine::radius->new();
 }
 
 =head1 AUTHOR

@@ -117,7 +117,7 @@ const valuesOperatorsFromMeta = (meta = {}) => {
   const { condition: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
   return allowed.filter(allowed => {
     const { requires = [] } = allowed
-    return requires.includes('values')
+    return requires.includes('values') || requires.length === 0
   }).map(allowed => {
     const { value } = allowed
     return value
@@ -194,6 +194,7 @@ export const viewFields = {
               attrs: {
                 prefixLabel: i18n.t('Select a prefix'),
                 typeLabel: i18n.t('Select a type'),
+                typeAttrs: attributesFromMeta(meta, 'answers.type'),
                 valueLabel: i18n.t('Select a value'),
                 prefixes,
                 fields: answerFieldsFromMeta(meta)
@@ -410,6 +411,17 @@ export const validatorFields = {
             }
           }
         })
+      }
+    }
+  },
+  answers: (form, meta = {}) => {
+    return {
+      answers: {
+        $each: {
+          prefix: validatorsFromMeta(meta, 'answers.prefix', i18n.t('Prefix')),
+          type: validatorsFromMeta(meta, 'answers.type', i18n.t('Type')),
+          value: validatorsFromMeta(meta, 'answers.value', i18n.t('calue'))
+        }
       }
     }
   },

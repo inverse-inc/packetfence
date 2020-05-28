@@ -23,6 +23,7 @@ use pf::action_spec;
 use pf::factory::condition;
 use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
+use pf::constants::filters qw($TRUE_CONDITION);
 use base qw(pf::config::builder);
 
 my $logger = get_logger();
@@ -69,14 +70,31 @@ sub buildEntry {
     expand_ordered_array($entry, 'actions', 'action');
     expand_ordered_array($entry, 'answers', 'answer');
     expand_ordered_array($entry, 'params', 'param');
-    $entry->{actions} = [
+    $entry->{actions} = $self->updateActions($buildData, $id, $entry, $entry->{actions});
+    $entry->{answers} = $self->updateAnswers($buildData, $id, $entry, $entry->{answers});
+    $entry->{params} = $self->updateParams($buildData, $id, $entry, $entry->{params});
+    $self->buildFilter($buildData, $conditions, $entry);
+    return undef;
+}
+
+sub updateParams {
+    my ($self, $buildData, $id, $entry, $params) = @_;
+    return $params;
+}
+
+sub updateAnswers {
+    my ($self, $buildData, $id, $entry, $answers) = @_;
+    return $answers;
+}
+
+sub updateActions {
+    my ($self, $buildData, $id, $entry, $actions) = @_;
+    return [
         map {
             my ( $err, $spec ) = pf::action_spec::parse_action_spec($_);
             $err ? () : ($spec)
-        } @{ $entry->{actions} }
+        } @{$actions}
     ];
-    $self->buildFilter($buildData, $conditions, $entry);
-    return undef;
 }
 
 =head2 _error
@@ -140,7 +158,8 @@ our %FUNC_OPS = (
     'date_is_before'         => 'pf::condition::date_before',
     'date_is_after'          => 'pf::condition::date_after',
     'fingerbank_device_is_a' => 'pf::condition::fingerbank::device_is_a',
-    'time_period' =>            'pf::condition::time_period',
+    'time_period'            => 'pf::condition::time_period',
+    'true'                   => 'pf::condition::true',
 );
 
 =head2 buildCondition
@@ -185,6 +204,10 @@ sub buildCondition {
                 $wrap_in_not = 1;
             }
 
+            if ($func eq $TRUE_CONDITION) {
+                return pf::condition::true->new();
+            }
+
             my ($key, $val) = @$params;
             my $sub_condition = $FUNC_OPS{$func}->new(value => $val);
             my $condition = build_parent_condition($sub_condition, $key);
@@ -192,6 +215,10 @@ sub buildCondition {
         }
 
         die "op '$op' not handled";
+    }
+
+    if ($ast eq $TRUE_CONDITION) {
+        return pf::condition::true->new;
     }
 
     die "condition '$ast' not defined\n";

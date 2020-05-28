@@ -110,6 +110,7 @@ sub authorize {
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
     my ($do_auto_reg, %autoreg_node_defaults, $action);
+
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
@@ -225,6 +226,12 @@ sub authorize {
     $args->{'ssid'} = $ssid;
     $args->{'node_info'} = $node_obj;
     $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('preProcess', $args);
+    if ($rule) {
+        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
+        %$radius_request = %$reply;
+    }
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
@@ -308,8 +315,8 @@ sub authorize {
     $args->{'wasInline'} = $role->{wasInline};
     $args->{'user_role'} = $role->{role};
 
-    my $filter = pf::access_filter::switch->new;
-    $filter->filterSwitch('radius_authorize',\$switch, $args);
+    my $switch_filter = pf::access_filter::switch->new;
+    $switch_filter->filterSwitch('radius_authorize',\$switch, $args);
 
     if (isenabled($switch->{_VlanMap})) {
         $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));

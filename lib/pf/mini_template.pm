@@ -13,8 +13,12 @@ pf::mini_template
 use strict;
 use warnings;
 use Scalar::Util qw(reftype);
+use List::MoreUtils qw(uniq);
+use pf::util qw(random_from_range extract);
 use pf::log;
 use Data::Dumper;
+
+
 our %FUNCS = (
     uc => sub { return uc($_[0]) },
     lc => sub { return lc($_[0]) },
@@ -22,14 +26,25 @@ our %FUNCS = (
     split => sub { return split($_[0], $_[1]) },
     substr => sub { return substr($_[0], $_[1], $_[2]) },
     macToEUI48 => sub { my $m = shift; $m =~ s/:/-/g; return uc($m) },
+    random_from_range => \&random_from_range,
     log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
     replace => \&replaceStr,
+    BuildFromMatch => \&extract,
 );
 
 sub replaceStr {
     my ($str, $old, $new) = @_;
     $str =~ s/\Q$old\E/$new/g;
     return $str;
+};
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA = qw(Exporter);
+    @EXPORT = qw(
+        %FUNCS
+    );
 }
 
 sub supported_function { exists $FUNCS{$_[0] // ''} }
@@ -42,22 +57,28 @@ sub new {
 }
 
 sub process {
-    my ($self, $vars) = @_;
-    return join('', $self->process_tmpl($self->{tmpl}, $vars));
+    my ($self, $vars, $funcs) = @_;
+    return join('', $self->pre_process($vars, $funcs));
+}
+
+sub pre_process {
+    my ($self, $vars, $funcs) = @_;
+    $funcs //= \%FUNCS;
+    return $self->process_tmpl($self->{tmpl}, $vars, $funcs);
 }
 
 sub process_tmpl {
-    my ($self, $tmpl, $vars) = @_;
+    my ($self, $tmpl, $vars, $funcs) = @_;
     my $type = $tmpl->[0];
     if (!ref ($type)) {
-        return $self->process_simple_tmpl($tmpl, $vars);
+        return $self->process_simple_tmpl($tmpl, $vars, $funcs);
     }
 
-    return map {my $t = $_; $self->process_tmpl($t, $vars)} @$tmpl;
+    return map {my $t = $_; $self->process_tmpl($t, $vars, $funcs)} @$tmpl;
 }
 
 sub process_simple_tmpl {
-    my ($self, $tmpl, $vars) = @_;
+    my ($self, $tmpl, $vars, $funcs) = @_;
     my $type = $tmpl->[0];
     if ($type eq 'S') {
         return $tmpl->[1];
@@ -83,11 +104,11 @@ sub process_simple_tmpl {
         return $v->{$last};
     } elsif ($type eq 'F') {
         my $n = $tmpl->[1];
-        if (!exists $FUNCS{$n}) {
+        if (!exists $funcs->{$n}) {
             die "func $n is not defined\n";
         }
 
-        return $FUNCS{$n}->(map {my $t = $_;$self->process_simple_tmpl($t, $vars)} @{$tmpl->[2]});
+        return $funcs->{$n}->(map {my $t = $_;$self->process_simple_tmpl($t, $vars, $funcs)} @{$tmpl->[2]});
     }
 
     return '';
@@ -159,7 +180,7 @@ sub _parse_var {
         return _optimize([['S', '$'], _optimize( _parse_text($_[0]) )]);
     }
     
-    if (/\G\{/gc) {
+    if (/\G\{\s*/gc) {
         my @names = _parse_var_names();
         if (@names == 0) {
             die format_parse_error("Invalid variable name", $_, pos);
@@ -293,6 +314,21 @@ sub _parse_func_arg {
     }
 
     die format_parse_error("Invalid function arg", $_, pos);
+}
+
+sub update_variables_for_set {
+    my ($set, $lookup, $vars, @args) = @_;
+    return if !defined $set;
+    my @vars;
+    for my $s (@$set) {
+        push @vars, keys %{$s->{tmpl}{info}{vars}//{}};
+    }
+    @vars = uniq @vars;
+    for my $v (@vars) {
+        if (!exists $vars->{$v} && exists $lookup->{$v}) {
+            $vars->{$v} = $lookup->{$v}->(@args);
+        }
+    }
 }
 
 =head1 AUTHOR

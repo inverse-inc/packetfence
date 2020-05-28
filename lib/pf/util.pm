@@ -19,6 +19,7 @@ use warnings;
 no warnings 'portable';
 
 use Cwd;
+use Number::Range;
 use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
@@ -107,6 +108,8 @@ BEGIN {
         expand_ordered_array
         make_node_id split_node_id
         os_detection
+        random_from_range
+        extract
     );
 }
 
@@ -1663,6 +1666,40 @@ sub os_detection {
         return "rhel";
     }
 }
+
+=head2 random_from_range
+
+return random int in a range
+
+=cut
+
+sub random_from_range {
+    my ($value) = @_;
+    my $range = Number::Range->new($value);
+    my $count = $range->size;
+    my @array = $range->range;
+    return $array[rand($count)];
+}
+
+=head2 extract
+
+extract
+
+=cut
+
+sub extract {
+    my ($str, $match, $template, $default) = @_;
+    if ($str =~ /$match/) {
+        my @start = @-;
+        my @end = @+;
+        my $out = $template;
+        $out =~ s/(\$(\d+))/substr($str, $start[$2], $end[$2] - $start[$2])/ge;
+        return $out;
+    }
+
+    return $default;
+}
+
 =back
 
 =head1 AUTHOR
