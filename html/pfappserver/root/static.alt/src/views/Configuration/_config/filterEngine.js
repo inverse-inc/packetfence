@@ -194,7 +194,11 @@ export const viewFields = {
               attrs: {
                 prefixLabel: i18n.t('Select a prefix'),
                 typeLabel: i18n.t('Select a type'),
+                /*
+                 * fallback to default behavior
+                 * TODO - reimplement when allow_custom is removed, and allowed_lookup is updated.
                 typeAttrs: attributesFromMeta(meta, 'answers.type'),
+                */
                 valueLabel: i18n.t('Select a value'),
                 prefixes,
                 fields: answerFieldsFromMeta(meta)
