@@ -17,6 +17,8 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 * Support for MS-CHAP authentication for CLI/VPN access
+* New service pfcertmanager that generate certificate files based on the configuration.
+* EAP configuration template, add a way to define multiples eap profiles in freeradius.
 
 Enhancements
 ++++++++++++
@@ -33,6 +35,18 @@ Enhancements
 * Added the return of the LDAP/RADIUS attributes to use them in RADIUS filter
 * The /api/v1/radius_attributes endpoint is now searchable
 * Proxy the captive portal detection URL when the device is registered
+* Choose which eap profile to use based on a radius filter.
+* Basedn can be define in the authentication sources rules
+* New hooks for the radius filter engine in eduroam virtual server.
+* Redefined "restart" in the service manager to allow "PartOf" in systemcd scripts
+* Set role from source authentication rule option (needs #5459)
+* Flatten the radius request for the authentication sources (attributes like radius_request.User-Name)
+* Radius request attributes / Username are part of the common attributes.
+* Support of multiples ldap servers in frreeradius ldap_packetfence configuration file
+* copy outter user-Name attribute in PacketFence-Outer-User attribute to be able to use it in the authentication rules.
+* copy the LDAP-UserDN attribute in PacketFence-UserDN attribute to be able to use it in the authentication rules.
+* Added a way to extend the ldap filter for searchattributes configuration
+
 
 Bug Fixes
 +++++++++
