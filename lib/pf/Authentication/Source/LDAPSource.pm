@@ -658,6 +658,9 @@ sub _makefilter {
 
 sub lookupRole {
     my ($self, $rule, $role_info, $params, $extra, $entry, $attributes) = @_;
+    if (ref($entry) eq '') {
+        return undef;
+    }
     foreach my $attr ( $entry->attributes ) {
         $$attributes->{"ldap_attribute"}->{$attr} = $entry->get_value( $attr, asref => 1) ;
     }
