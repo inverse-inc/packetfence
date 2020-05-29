@@ -1184,7 +1184,7 @@ sub generate_ldap_choice {
     my ($authorize_ldap_choice, $authentication_ldap_auth_type, $edir_configuration) = @_;
     my $if = 'if';
     my $of = 'if';
-    my $edir_config;
+    my $edir_config = "";
     foreach my $key ( @pf::config::ConfigOrderedRealm ) {
         my $choice = $key;
         if (defined($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap})) {
