@@ -215,7 +215,7 @@ export default {
           }
           this.$debouncer({
             handler: () => {
-              this.$store.dispatch('$_filter_engines/parseCondition', string).then(condition => {
+              this.$store.dispatch('config/parseCondition', string).then(condition => {
                 this.basicCondition = condition
                 this.advancedError = false
               }).catch(err => {
@@ -241,7 +241,7 @@ export default {
           }
           this.$debouncer({
             handler: () => {
-              this.$store.dispatch('$_filter_engines/stringifyCondition', json).then(condition => {
+              this.$store.dispatch('config/stringifyCondition', json).then(condition => {
                 this.advancedCondition = condition
                 this.advancedError = false
               })

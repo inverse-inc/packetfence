@@ -212,6 +212,20 @@ const api = {
   },
   postFixPermissions () {
     return apiCall({ url: 'config/fix_permissions', method: 'post' })
+  },
+  flattenCondition: (data) => {
+    return apiCall.postQuiet('config/flatten_condition', data).then(response => {
+      return response.data
+    }).catch(err => {
+      throw err
+    })
+  },
+  parseCondition: (data) => {
+    return apiCall.postQuiet('config/parse_condition', data).then(response => {
+      return response.data
+    }).catch(err => {
+      throw err
+    })
   }
 }
 
@@ -1642,6 +1656,22 @@ const actions = {
     } else {
       return Promise.resolve(state.wrixLocations)
     }
+  },
+  stringifyCondition: ({ commit }, json) => {
+    return api.flattenCondition({ condition: json }).then(response => {
+      const { item: { condition_string } = {} } = response
+      return condition_string
+    }).catch(err => {
+      throw err
+    })
+  },
+  parseCondition: ({ commit }, string) => {
+    return api.parseCondition({ condition: string }).then(response => {
+      const { item: { condition } = {} } = response
+      return condition
+    }).catch(err => {
+      throw err
+    })
   }
 }
 
