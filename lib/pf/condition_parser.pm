@@ -43,7 +43,7 @@ STRING = '"' /([^"\\]|\\"|\\\\)+/  '"'
 
 use strict;
 use warnings;
-use pf::constants::filters qw($TRUE_CONDITION);
+use pf::constants::condition_parser qw($TRUE_CONDITION);
 
 use base qw(Exporter);
 

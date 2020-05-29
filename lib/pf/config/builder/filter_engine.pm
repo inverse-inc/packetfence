@@ -23,7 +23,7 @@ use pf::action_spec;
 use pf::factory::condition;
 use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
-use pf::constants::filters qw($TRUE_CONDITION);
+use pf::constants::condition_parser qw($TRUE_CONDITION);
 use base qw(pf::config::builder);
 
 my $logger = get_logger();
