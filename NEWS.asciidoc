@@ -31,6 +31,7 @@ Enhancements
 * Added a way to define the Unifi AP by IP or IP range.
 * Use the value of an LDAP attribute as a role
 * Added the return of the LDAP/RADIUS attributes to use them in radius filter.
+* The /api/v1/radius_attributes endpoint is now searchable.
 
 Bug Fixes
 +++++++++
