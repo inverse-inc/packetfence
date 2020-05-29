@@ -161,7 +161,7 @@ const authenticationRuleActions = (form, meta = {}) => {
         pfActions.set_access_duration,
         pfActions.set_unreg_date,
         pfActions.set_time_balance,
-        pfActions.set_bandwidth_balance
+        pfActions.set_bandwidth_balance,
         pfActions.set_role_from_source
       ],
     ...((['AD', 'LDAP'].includes(sourceType))
