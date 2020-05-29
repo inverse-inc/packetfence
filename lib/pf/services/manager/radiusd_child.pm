@@ -1205,7 +1205,7 @@ EOT
 EOT
 
         }
-        if (defined($pf::config::ConfigRealm{$key}->{edir_source}) && exists($pf::config::ConfigRealm{$key}->{ledir_source})) {
+        if (defined($pf::config::ConfigRealm{$key}->{edir_source}) && exists($pf::config::ConfigRealm{$key}->{edir_source})) {
             $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
             $edir_config .= <<"EOT";
             $of (Realm =~ /$choice/) {
@@ -1222,7 +1222,7 @@ EOT
         }
         cache_password
         if (notfound) {
-        $edir_config
+$edir_config
         }
         cache_password
 EOT
