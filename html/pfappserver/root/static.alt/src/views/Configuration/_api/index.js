@@ -408,20 +408,6 @@ export default {
   deleteFilterEngine: ({ resource, id }) => {
     return apiCall.delete(['config', 'filter_engines', resource, id])
   },
-  flattenCondition: (data) => {
-    return apiCall.postQuiet('config/filter_engines/flatten_condition', data).then(response => {
-      return response.data
-    }).catch(err => {
-      throw err
-    })
-  },
-  parseCondition: (data) => {
-    return apiCall.postQuiet('config/filter_engines/parse_condition', data).then(response => {
-      return response.data
-    }).catch(err => {
-      throw err
-    })
-  },
 
   /**
    * Fingerbank Profiling

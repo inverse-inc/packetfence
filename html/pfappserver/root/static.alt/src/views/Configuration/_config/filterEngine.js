@@ -5,9 +5,9 @@ import i18n from '@/utils/locale'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
 import pfFieldPrefixTypeValue from '@/components/pfFieldPrefixTypeValue'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFormBooleanBuilder from '@/components/pfFormBooleanBuilder'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
-import pfFormFilterEngineCondition from '@/components/pfFormFilterEngineCondition'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
@@ -217,7 +217,7 @@ export const viewFields = {
       cols: [
         {
           namespace: 'condition',
-          component: pfFormFilterEngineCondition,
+          component: pfFormBooleanBuilder,
           attrs: {
             fieldOperators: fieldOperatorsFromMeta(meta),
             valueOperators: valueOperatorsFromMeta(meta).map(({ requires, value }) => {

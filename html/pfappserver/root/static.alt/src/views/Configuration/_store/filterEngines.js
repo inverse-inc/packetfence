@@ -188,22 +188,6 @@ const actions = {
         throw err
       })
     })
-  },
-  stringifyCondition: ({ commit }, json) => {
-    return api.flattenCondition({ condition: json }).then(response => {
-      const { item: { condition_string } = {} } = response
-      return condition_string
-    }).catch(err => {
-      throw err
-    })
-  },
-  parseCondition: ({ commit }, string) => {
-    return api.parseCondition({ condition: string }).then(response => {
-      const { item: { condition } = {} } = response
-      return condition
-    }).catch(err => {
-      throw err
-    })
   }
 }
 
