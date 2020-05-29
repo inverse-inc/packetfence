@@ -1554,6 +1554,11 @@ export default {
       })
     }
   },
+  switchesBulkImport: body => {
+    return apiCall.post('config/switches/bulk_import', body).then(response => {
+      return response.data.items
+    })
+  },
   switche: id => {
     return apiCall.get(['config', 'switch', id]).then(response => {
       return response.data.item
