@@ -16,7 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Enable mschap authentication for CLI/VPN access
+* Support for MS-CHAP authentication for CLI/VPN access
 
 Enhancements
 ++++++++++++
@@ -24,20 +24,20 @@ Enhancements
 * Provide an advanced LDAP condition to allow custom LDAP queries
 * The captive-portal can now feed HTTP client hints to the Fingerbank collector
 * Added ability to enable/disable a network anomaly detection policy (#5403)
-* Inline setup, reg device, return the portal ip if the qname match one of the portal fqdn
+* Return the portal IP if the QNAME matches one of the portal FQDN for registered devices using inline enforcement
 * Individual source rules can be disabled
 * Support for Dell n1500 starting from 6.6.0.10
 * CoA support for Unifi AP
-* Added a way to define the Unifi AP by IP or IP range.
+* Added a way to define the Unifi AP by IP or IP range
 * Use the value of an LDAP attribute as a role
-* Added the return of the LDAP/RADIUS attributes to use them in radius filter.
-* The /api/v1/radius_attributes endpoint is now searchable.
-* Proxy the captive portal detection url when the device is reg
+* Added the return of the LDAP/RADIUS attributes to use them in RADIUS filter
+* The /api/v1/radius_attributes endpoint is now searchable
+* Proxy the captive portal detection URL when the device is registered
 
 Bug Fixes
 +++++++++
-* Fixes FortiGate returnAuthorizeVPN function (#5409)
-* Barracuda NG firewall SSO SSH fail (#4828)
+* Fixes Fortinet Fortigate returnAuthorizeVPN function (#5409)
+* Barracuda NG firewall SSO SSH fails (#4828)
 * Impossible to set multiple access level in administration rule (#5440)
 * Fixed pf-maint.pl when its running behind a proxy (#3425 )
 
