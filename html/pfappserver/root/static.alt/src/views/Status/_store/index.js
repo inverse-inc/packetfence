@@ -340,6 +340,7 @@ const actions = {
     if (state.clusterServicesStatus !== types.LOADING) {
       commit('CLUSTER_SERVICES_REQUEST')
       Promise.all(state.cluster.map(server => {
+        commit('CLUSTER_SERVICES_UPDATED', { host: server.host, services: [] }) // placeholder to maintain natural order
         return api.clusterServices(server.host).then(server => {
           commit('CLUSTER_SERVICES_UPDATED', server)
         }).catch(() => {
@@ -479,7 +480,18 @@ const mutations = {
   },
   CLUSTER_SERVICES_UPDATED: (state, server) => {
     if (server) {
-      state.clusterServices.push(server)
+      let found = state.clusterServices.find(s => s.host === server.host)
+      if (found) { // replace
+        state.clusterServices = state.clusterServices.map(s => {
+          const { host } = s
+          return (host === server.host)
+            ? server
+            : s
+        })
+      }
+      else { // append
+        state.clusterServices.push(server)
+      }
     } else {
       // No more data -- done fetching services
       state.clusterServicesStatus = types.SUCCESS
