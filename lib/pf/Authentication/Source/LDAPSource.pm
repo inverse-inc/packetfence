@@ -562,6 +562,7 @@ sub ldap_filter_for_conditions {
   if (my $filter = firstval { $_->operator eq $Conditions::MATCH_FILTER } @{$conditions // []}) {
        return $self->update_template($filter->value, $params);
   }
+  my $basedn;
 
   my (@ldap_conditions, $expression);
 
