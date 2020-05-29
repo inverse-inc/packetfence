@@ -1289,11 +1289,20 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 2960, 2970, 3560, 3750
 ^^^^^^^^^^^^^^^^^^^^^^
 
-NOTE: You shouldn't use any port-security features when doing 802.1X and/or Mac Authentication. This can cause unexpected behavior.
+NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.
 
 [WARNING]
 ====
 Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
+[WARNING]
+====
+When doing 802.1X and network interface teaming on the same switch or stack, you might consider using the mac-move feature of the Cisco switches. When you authenticate the primary link of the team, the virtual MAC address will be published and authorized on the switchport. When something breaks on that link (ie. cable disconnected), the teaming driver will publish the MAC address on the secondary link, and the switch will try to authorize it. However, since the switch already has the MAC address in a session on another switchport, the switch will put the secondary link into err-disabled mode.
+
+To prevent this behavior, you need to tell the switch to allow MAC address movements between ports. The global command is the following:
+
+  authentication mac-move permit
 ====
 
 Global settings:
@@ -3139,6 +3148,7 @@ INFO: Even limited, there is a command line access.
 
 
 Enable the MAC Authentication in SSH, as well:
+
 * back on the SSH terminal
 * type the following command:
 

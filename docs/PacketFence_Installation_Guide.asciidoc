@@ -4117,6 +4117,27 @@ Log Rotations
 
 PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use `logrotate` to periodically rotate your logs. A working logrotate script is provided with the PacketFence package. This script is located under the `/usr/local/pf/packetfence.logrotate` file, and it's configured to do a daily log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
 
+Large Registration Network
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When using the inline or VLAN enforcement mode in large environments, you may have ARP table overflows. This happens when a lot of devices are on the same layer 2 segment. The symptoms are dhcpd not handing out IP addresses as it should or failing pings in the registration or quarantine VLANs. To identify if you have this problem look into your `dmesg` log and if you see `Neighbour table overflow` messages.
+
+In order to mitigate the problem, you need to tweak kernel settings.  In order to enlarge the ARP cache table on a live system, change the following in sysctl.conf :
+
+---
+net.ipv4.neigh.default.gc_thresh1 = 2048
+net.ipv4.neigh.default.gc_thresh2 = 4096
+net.ipv4.neigh.default.gc_thresh3 = 8192
+---
+
+Then run the following as root to enable the changes:
+
+---
+# sysctl -p
+---
+
+This means that the layer 2 garbage collection will kick in at 2048 MAC addresses exposed to the server with the most aggressive collection kicking in at 8192. This should be large enough for most but feel free to increase if necessary (at the cost of more kernel memory consumed). Another approach to solve this problem is to do more segmentation of your layer 2 networks.
+
 Performance Optimizations
 -------------------------
 
@@ -4687,6 +4708,8 @@ and a switch section for each switch (managed by PacketFence) including:
 
 NOTE: `switches.conf` is loaded at startup. A reload is required when changes
 are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
+
+NOTE: All the ports declared as uplinks will be ignored and not managed by PacketFence. This parameter is defined in the [default] section of `switches.conf`. You can define a different uplink list for each switch.
 
 Switch import from CSV
 ^^^^^^^^^^^^^^^^^^^^^^
