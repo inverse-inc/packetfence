@@ -32,6 +32,7 @@ Enhancements
 * Use the value of an LDAP attribute as a role
 * Added the return of the LDAP/RADIUS attributes to use them in radius filter.
 * The /api/v1/radius_attributes endpoint is now searchable.
+* Proxy the captive portal detection url when the device is reg
 
 Bug Fixes
 +++++++++
