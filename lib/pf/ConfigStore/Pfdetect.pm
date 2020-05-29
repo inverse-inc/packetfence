@@ -83,7 +83,7 @@ Expand the rules for a regex parser
 
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
-    if ($item->{type} eq 'regex' ) {
+    if (exists $item->{type} && $item->{type} eq 'regex' ) {
         my @rules;
         for my $sub_section ( $self->cachedConfig->Sections ) {
             next unless  $sub_section =~ /^$id rule (.*)$/;

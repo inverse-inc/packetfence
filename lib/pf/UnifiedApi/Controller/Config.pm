@@ -22,6 +22,7 @@ use pf::UnifiedApi::GenerateSpec;
 use Mojo::JSON qw(encode_json);
 use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
 
@@ -311,8 +312,8 @@ sub get {
 }
 
 sub item {
-    my ($self) = @_;
-    return $self->cleanup_item($self->item_from_store);
+    my ($self, $id) = @_;
+    return $self->cleanup_item($self->item_from_store($id));
 }
 
 sub id {
@@ -327,8 +328,8 @@ sub id {
 }
 
 sub item_from_store {
-    my ($self) = @_;
-    return $self->config_store->read($self->id, 'id')
+    my ($self, $id) = @_;
+    return $self->config_store->read($id // $self->id, 'id')
 }
 
 sub cleanup_item {
@@ -374,9 +375,9 @@ sub create {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
 
-    $item = $self->validate_item($item);
-    if (!defined $item) {
-        return 0;
+    (my $status, $item) = $self->validate_item($item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $item);
     }
 
     delete $item->{id};
@@ -406,17 +407,15 @@ sub validate_item {
     my ($self, $item) = @_;
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
-        $self->render_error(422, $form // "Unable to validate invalid formater");
-        return undef;
+        return $status, { message => $form };
     }
 
     $form->process($self->form_process_parameters_for_validation($item));
     if (!$form->has_errors) {
-        return $form->value;
+        return 200, $form->value;
     }
 
-    $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
-    return undef;
+    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) };
 }
 
 
@@ -477,10 +476,11 @@ sub update {
     my $id = $self->id;
     $new_item->{id} = $id;
     delete $new_item->{not_deletable};
-    $new_data = $self->validate_item($new_item);
-    if (!defined $new_data) {
-        return;
+    (my $status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $new_data);
     }
+
     delete $new_data->{id};
     my $cs = $self->config_store;
     $cs->update($id, $new_data);
@@ -496,10 +496,11 @@ sub replace {
     }
     my $id = $self->id;
     $item->{id} = $id;
-    $item = $self->validate_item($item);
-    if (!defined $item) {
-        return 0;
+    (my $status, $item) = $self->validate_item($item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $item);
     }
+
     my $cs = $self->config_store;
     delete $item->{id};
     $cs->update($id, $item);
@@ -1067,6 +1068,128 @@ sub map_option {
     return \%hash;
 }
 
+=head2 bulk_update
+
+bulk_update
+
+=cut
+
+sub bulk_update {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error( 400, "Bad Request : $error" );
+    }
+
+    my $items = $data->{items} // [];
+    return $self->bulk_action($items, "bulk_update_callback");
+}
+
+=head2 bulk_update_callback
+
+bulk_update_callback
+
+=cut
+
+sub bulk_update_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    my $old_item = $self->item($id);
+    my $new_item = {%$old_item, %$item};
+    $new_item->{id} = $id;
+    my ($status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        %$results = (%$results, %$new_data);
+        return $status;
+    }
+
+    delete $new_data->{id};
+    if ($cs->update($id, $new_data)) {
+        return 200;
+    }
+
+    $results->{message} = "unable to update";
+    return 422;
+}
+
+=head2 bulk_delete
+
+bulk_delete
+
+=cut
+
+sub bulk_delete {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error( 400, "Bad Request : $error" );
+    }
+
+    my $items = $data->{items} // [];
+    $items = [map { { id => $_ }  } @$items];
+    return $self->bulk_action($items, "bulk_delete_callback");
+}
+
+=head2 bulk_delete_callback
+
+bulk_delete_callback
+
+=cut
+
+sub bulk_delete_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    if ($cs->remove($id)) {
+        return 200;
+    }
+
+    $results->{message} = "unable to delete";
+    return 422;
+}
+
+sub bulk_action {
+    my ($self, $items, $action) = @_;
+    my $cs = $self->config_store;
+    my @results;
+    my $i = 0;
+    my $success = 0;
+    for my $item (@$items) {
+        my $id = delete $item->{id};
+        my %results = (
+            index  => $i,
+            id     => $id,
+            status => 200,
+        );
+
+        push @results, \%results;
+
+        if (!defined $id) {
+            $results{status} = 422;
+            $results{message} = "no id given";
+            next;
+        }
+
+        if (!$cs->hasId($id)) {
+            $results{status} = 422;
+            $results{message} = "'$id' is not found";
+            next;
+        }
+
+        my $status = $self->$action($cs, $id, $item, \%results);
+        if (is_success($status)) {
+            $success++;
+        }
+
+        $results{status} = $status;
+    } continue {
+        $i++;
+    }
+
+    if ($success) {
+        $cs->commit();
+    }
+
+    return $self->render(status => 200, json => { items => \@results });
+}
+
 =head2 form_parameters
 
 The form parameters should be overridded
@@ -1093,6 +1216,98 @@ sub fix_permissions {
     my $result = pf::util::fix_files_permissions();
     chomp($result);
     return $self->render(json => { message => $result });
+}
+
+sub bulk_import {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $count = @$items;
+    if ($count == 0) {
+        return $self->render(json => { items => [] });
+    }
+    my $cs = $self->config_store;
+
+    my $stopOnError = $data->{stopOnFirstError};
+    my @results;
+    $#results = $count - 1;
+    my $i;
+    my $changed = 0;
+    for ($i=0;$i<$count;$i++) {
+        my $result = $self->import_item($data, $items->[$i], $cs);
+        $results[$i] = $result;
+        $status = $result->{status} // 200;
+        if ($stopOnError && $status == 422) {
+            $i++;
+            last;
+        }
+
+        $changed |= 1;
+    }
+
+    for (;$i<$count;$i++) {
+        my $item = $items->[$i];
+        my $result = { item => $item, status => 424, message => "Skipped" };
+        $results[$i] =  $result;
+        my $error = $self->import_item_check_for_errors($data, $item);
+        if ($error) {
+            %$result = (%$result, %$error);
+        }
+    }
+    if ($changed) {
+        $cs->commit;
+    }
+
+    return $self->render(json => { items => \@results });
+}
+
+sub import_item {
+    my ($self, $request, $item, $cs) = @_;
+    my $id = $item->{id};
+    if (!defined $id) {
+        return { field => 'id', message => 'Field id missing', status => 422 };
+    }
+    my $old_item = $self->item_from_store($item->{id});
+    my $error = $self->import_item_check_for_errors($request, $item, $old_item);
+    if ($error) {
+        return { %$error,  item => $item,  status => 422, };
+    }
+    
+    if ($old_item) {
+        if ($request->{ignoreUpdateIfExists}) {
+            return { item => $item, status => 409, message => "Skip already exists", isNew => $self->json_false} ;
+        }
+
+    } else {
+        if ($request->{ignoreInsertIfNotExists}) {
+            return { item => $item, status => 404, message => "Skip does not exists", isNew => $self->json_true} ;
+        }
+    }
+
+    delete $item->{id};
+    if ($old_item) {
+        $cs->update($id, $item);
+    } else {
+        $cs->create($id, $item);
+    }
+
+    $item->{id} = $id;
+    return { item => $item, status => 200, isNew => ( defined $old_item ? $self->json_false : $self->json_true ) };
+}
+
+sub import_item_check_for_errors {
+    my ($self, $request, $item, $old_item) = @_;
+    my $new_item = {%{$old_item // {}}, %$item};
+    my ($status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $new_data;
+    }
+
+    return;
 }
 
 =head1 AUTHOR
