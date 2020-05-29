@@ -30,6 +30,10 @@ has_field 'prefix' => (
             value => 'control'
         },
         {
+            label => 'Config',
+            value => 'config'
+        },
+        {
             label => 'Reply',
             value => 'reply'
         },

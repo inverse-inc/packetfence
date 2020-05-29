@@ -61,6 +61,7 @@ has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'searchattributes' => (isa => 'ArrayRef[Str]', is => 'rw', required => 0);
+has 'append_to_searchattributes' => (isa => 'Maybe[Str]', is => 'rw', required => 0);
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => '0' );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
@@ -85,18 +86,21 @@ sub dynamic_routing_module { 'Authentication::Login' }
 =cut
 
 sub available_attributes {
-  my $self = shift;
+    my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes;
-  my @ldap_attributes = $self->ldap_attributes;
+    my $super_attributes = $self->SUPER::available_attributes;
+    my @ldap_attributes = $self->ldap_attributes;
 
-  # We check if our username attribute is present, if not we add it.
-  my $usernameattribute = $self->{'usernameattribute'};
-  if ( length ($usernameattribute) && !grep {$_->{value} eq $usernameattribute } @ldap_attributes ) {
-    push (@ldap_attributes, { value => $usernameattribute, type => $Conditions::LDAP_ATTRIBUTE });
-  }
+    # We check if our username attribute is present, if not we add it.
+    my $usernameattribute = $self->{'usernameattribute'};
+    if ( length ($usernameattribute) && !grep {$_->{value} eq $usernameattribute } @ldap_attributes ) {
+        push (@ldap_attributes, { value => $usernameattribute, type => $Conditions::LDAP_ATTRIBUTE });
+    }
+    push(@$super_attributes, @ldap_attributes);
+    my %seen;
+    @$super_attributes = grep { ! $seen{$_->{value}}++ } @$super_attributes;
 
-  return [@$super_attributes, { value => $Conditions::LDAP_FILTER, type => $Conditions::LDAP_FILTER  }, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
+    return [{ value => $Conditions::LDAP_FILTER, type => $Conditions::LDAP_FILTER  }, sort { lc($a->{value}) cmp lc($b->{value}) } @$super_attributes]
 }
 
 =head2 ldap_attributes
@@ -108,6 +112,38 @@ get the ldap attributes
 sub ldap_attributes {
     my ($self) = @_;
     return map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @{$Config{advanced}->{ldap_attributes}};
+}
+
+=head2 common_attributes
+
+Add the radius attributes to the common attributes
+
+=cut
+
+sub common_attributes {
+    my $self = shift;
+    my $super_common_attributes = $self->SUPER::common_attributes;
+    my @radius_attributes = map { {value => "radius_request.".$_, type => $Conditions::SUBSTRING}} qw(
+        TLS-Client-Cert-Serial
+        TLS-Client-Cert-Expiration
+        TLS-Client-Cert-Issuer
+        TLS-Client-Cert-Subject
+        TLS-Client-Cert-Common-Name
+        TLS-Client-Cert-Filename
+        TLS-Client-Cert-Subject-Alt-Name-Email
+        TLS-Client-Cert-X509v3-Extended-Key-Usage
+        TLS-Cert-Serial
+        TLS-Cert-Expiration
+        TLS-Cert-Issuer
+        TLS-Cert-Subject
+        TLS-Cert-Common-Name
+        TLS-Client-Cert-Subject-Alt-Name-Dns
+    );
+
+    push(@radius_attributes, map { {value => "radius_request.".$_, type => $Conditions::SUBSTRING}} @{$Config{radius_configuration}->{radius_attributes}});
+    push(@$super_common_attributes, @radius_attributes);
+
+    return $super_common_attributes;
 }
 
 =head2 authenticate
@@ -314,16 +350,20 @@ match_in_subclass
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    my $basedn = $self->{'basedn'};
+    my ($filter, $forcedbasedn) = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     my $id = $self->id;
     if (! defined($filter)) {
         $logger->error("[$id] Missing parameters to construct LDAP filter");
         $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
         return (undef, undef);
     }
+    if (defined($forcedbasedn) && $forcedbasedn ne '') {
+        $basedn = $forcedbasedn;
+    }
     my $rule_id = $rule->id;
-    $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
-    return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
+    $logger->warn("[$id $rule_id] Searching for $filter, from $basedn, with scope $self->{'scope'}");
+    return $self->_match_in_subclass($basedn, $filter, $params, $rule, $own_conditions, $matching_conditions);
 }
 
 =head2 _match_in_subclass
@@ -334,12 +374,14 @@ C<$rule> is the rule instance that defines the conditions.
 
 C<$own_conditions> are the conditions specific to an LDAP source.
 
+C<$basedn> is the basedn of the search
+
 Conditions that match are added to C<$matching_conditions>.
 
 =cut
 
 sub _match_in_subclass {
-    my ($self, $filter, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my ($self, $basedn, $filter, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
 
@@ -362,7 +404,7 @@ sub _match_in_subclass {
     my $result = do {
         my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
         $connection->search(
-          base => $self->{'basedn'},
+          base => $basedn,
           filter => $filter,
           scope => $self->{'scope'},
           attrs => \@attributes
@@ -370,7 +412,7 @@ sub _match_in_subclass {
     };
 
     if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
+        $logger->error("[$self->{'id'}] Unable to execute search $filter from $basedn on $LDAPServer:$LDAPServerPort, we skip the rule.");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
         return (undef, undef);
     }
@@ -536,6 +578,10 @@ sub ldap_filter_for_conditions {
           my $operator = $condition->{'operator'};
           my $value = escape_filter_value($condition->{'value'});
           my $attribute = $condition->{'attribute'};
+          if ($attribute eq "basedn") {
+              $basedn = $attribute;
+              next;
+          }
           if ($operator eq $Conditions::EQUALS) {
               $str = "${attribute}=${value}";
           } elsif ($operator eq $Conditions::NOT_EQUALS) {
@@ -561,7 +607,7 @@ sub ldap_filter_for_conditions {
       }
   }
 
-  return $expression;
+  return ($expression, $basedn);
 }
 
 sub replaceVar {
@@ -650,7 +696,7 @@ sub _makefilter {
     my ($self,$username) = @_;
     if (@{$self->{'searchattributes'} // []}) {
         my $search = join ("", map { "($_=$username)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
-        return "(|$search)";
+        return "(&(|$search)".$self->{'append_to_searchattributes'}.")";
     } else {
         return '(' . "$self->{'usernameattribute'}=$username" . ')';
     }

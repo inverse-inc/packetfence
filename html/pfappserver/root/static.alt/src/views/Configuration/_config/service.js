@@ -246,6 +246,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: 'pfcertmanager',
+          text: i18n.t(`Should pfcertmanager be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'pfcertmanager',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: 'pfdhcp',
           text: i18n.t('Should pfdhcp be managed by PacketFence?'),
           cols: [

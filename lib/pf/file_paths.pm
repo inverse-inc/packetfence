@@ -114,7 +114,12 @@ our (
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
     $api_i18n_dir,
-    $iptable_config_file
+    $iptable_config_file,
+    $ssl_config_file, $ssl_default_config_file,
+    $tls_config_file, $tls_default_config_file,
+    $ocsp_config_file, $ocsp_default_config_file,
+    $eap_config_file, $eap_default_config_file,
+    $fast_config_file, $fast_default_config_file
 );
 
 BEGIN {
@@ -206,6 +211,11 @@ BEGIN {
         $fingerbank_doc_file
         $api_i18n_dir
         $iptable_config_file
+        $ssl_config_file $ssl_default_config_file
+        $tls_config_file $tls_default_config_file
+        $ocsp_config_file $ocsp_default_config_file
+        $eap_config_file $eap_default_config_file
+        $fast_config_file $fast_default_config_file
     );
 }
 
@@ -322,6 +332,16 @@ $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf");
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
 $iptable_config_file = catfile($conf_dir, "iptables.conf");
+$ssl_config_file = catfile($conf_dir,"ssl.conf");
+$ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
+$tls_config_file = catfile($conf_dir,"radiusd/tls.conf");
+$tls_default_config_file = catfile($conf_dir,"radiusd/tls.conf.defaults");
+$ocsp_config_file = catfile($conf_dir,"radiusd/ocsp.conf");
+$ocsp_default_config_file = catfile($conf_dir,"radiusd/ocsp.conf.defaults");
+$eap_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf");
+$eap_default_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf.defaults");
+$fast_config_file = catfile($conf_dir,"radiusd/fast.conf");
+$fast_default_config_file = catfile($conf_dir,"radiusd/fast.conf.defaults");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -370,6 +390,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $fingerbank_collector_env_defaults_file,
     $portal_modules_config_file,
     $template_switches_config_file,
+    $ssl_config_file
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");

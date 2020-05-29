@@ -115,7 +115,7 @@ sub match_in_subclass {
     my $group_header =  $params->{'group_header'};
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "group_header") {
-            if ( $condition->matches("group_header", $group_header) ) {
+            if ( $condition->matches("group_header", $group_header, $params) ) {
                 push(@{ $matching_conditions }, $group_header);
             }
         }

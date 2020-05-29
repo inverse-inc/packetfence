@@ -46,7 +46,7 @@
                     :class="getClass(row, col)"
                     :disabled="(col.attrs && col.attrs.disabled) || disabled"
                     v-once
-                  >{{ col.html }}</component>
+                  ><span v-if="col.html">{{ col.html }}</span></component>
                 </template>
               </b-input-group>
               <b-form-text v-if="row.text" v-html="row.text"></b-form-text>

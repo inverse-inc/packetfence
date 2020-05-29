@@ -1,0 +1,11 @@
+[default]
+default_eap_type = peap
+timer_expire = 60
+ignore_unknown_eap_types = no
+cisco_accounting_username_bug = no
+max_sessions = ${max_requests}
+eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP,TLS,TTLS
+tls_tlsprofile = tls-common
+ttls_tlsprofile = tls-common
+peap_tlsprofile = tls-common
+fast_config = default

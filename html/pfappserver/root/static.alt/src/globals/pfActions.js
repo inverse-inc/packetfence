@@ -97,6 +97,13 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
             }
             : {/* noop */}
           ),
+          ...((type === 'set_role_from_source')
+            ? {
+              // 'set_role_from_source' requires either 'set_access_duration' or 'set_unreg_date'
+              [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0)
+            }
+            : {/* noop */}
+          ),
           ...((type === 'set_unreg_date')
             ? {
               // 'set_unreg_date' requires 'set_role'
@@ -225,6 +232,11 @@ export const pfActions = {
     text: i18n.t('Role On Not Found'),
     types: [fieldType.ROLE_BY_NAME]
   },
+  set_role_from_source: {
+    value: 'set_role_from_source',
+    text: i18n.t('Role from source'),
+    types: [fieldType.SELECTONE]
+  },
   set_tenant_id: {
     value: 'set_tenant_id',
     text: i18n.t('Tenant ID'),
@@ -281,4 +293,5 @@ export const pfActions = {
     text: i18n.t('Set unregistration date from the sponsor source'),
     types: [fieldType.NONE]
   }
+  /* keys are alphabetical, please insert new actions in order above */
 }

@@ -135,8 +135,10 @@ cleanup_items
 
 sub cleanup_items {
     my ($self, $items) = @_;
-    return [map {$self->cleanup_item($_, $self->cached_form($_)) } @$items];
+    return [grep { $self->item_shown($_) } map {$self->cleanup_item($_, $self->cached_form($_)) } @$items];
 }
+
+sub item_shown { 1 }
 
 =head2 do_search
 
@@ -965,16 +967,20 @@ sub field_allowed {
         if ($field->isa('HTML::FormHandler::Field::Select')) {
             $field->_load_options;
             $allowed = $field->options;
-        }
-
-
-        if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        } elsif ($field->isa('HTML::FormHandler::Field::Repeatable')) {
             $field->init_state;
             my $element = $field->clone_element($field->name . "_temp");
             if ($element->isa('HTML::FormHandler::Field::Select') ) {
                 $element->_load_options();
                 $allowed = $element->options;
             }
+        } elsif ($field->isa('pfappserver::Form::Field::Toggle')) {
+            my $check = $field->checkbox_value;
+            my $uncheck = $field->unchecked_value;
+            $allowed = [
+                { label => $check, value => $check },
+                { label => $uncheck, value => $uncheck },
+            ];
         }
     }
 
@@ -1046,7 +1052,9 @@ sub map_option {
 
     if (exists $hash{label}) {
         $hash{text} = (delete $hash{label} // '') . "";
-        $hash{text} = $field->_localize($hash{text}) if $field->localize_labels;
+        if ($field->can('localize_labels') && $field->localize_labels) {
+            $hash{text} = $field->_localize($hash{text});
+        }
     }
 
     if (exists $hash{options}) {

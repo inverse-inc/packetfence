@@ -38,6 +38,10 @@ authorize {
 	#
 	filter_username
 
+        update {
+                &request:PacketFence-Outer-User := "%{outer.request:User-Name}"
+        }
+
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge
@@ -70,13 +74,14 @@ authorize {
 	suffix
 	ntdomain
 
+        %%authorize_filter%%
+
 %%userPrincipalName%%
 
 	%%multi_domain%%
 
 	%%redis_ntlm_cache_fetch%%
 
-	%%authorize_filter%%
 	#
 	#  The "suffix" module takes care of stripping the domain
 	#  (e.g. "@example.com") from the User-Name attribute, and the
@@ -101,9 +106,8 @@ authorize {
 	#  for the many packets that go back and forth to set up TTLS
 	#  or PEAP.  The load on those servers will therefore be reduced.
 	#
-	eap {
-		ok = return
-	}
+
+%%authorize_eap_choice%%
 
 	#
 	#  Read the 'users' file
@@ -216,6 +220,8 @@ authenticate {
 			packetfence-mschap-authenticate
 		}
 	}
+
+%%authentication_auth_type%%
 
 	# Uncomment it if you want to use ldap for authentication
 	#

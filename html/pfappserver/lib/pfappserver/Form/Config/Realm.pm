@@ -14,13 +14,12 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config;
+use pf::config qw(%ConfigAuthenticationLdap %ConfigEAP);
 use pf::authentication;
 use pf::util;
 use pf::ConfigStore::Domain;
 
 has domains => ( is => 'rw', builder => '_build_domains');
-tie our %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 ## Definition
 has_field 'id' =>
@@ -272,7 +271,19 @@ has_field 'ldap_source' =>
              help => 'The LDAP Server to query the custom attributes' },
   );
 
-=head2 options_roles
+has_field 'eap' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'EAP',
+   options_method => \&options_eap,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a eap configuration'},
+   tags => { after_element => \&help,
+             help => 'The EAP configuration to use for this realm' },
+  );
+
+=head2 options_domains
 
 =cut
 
@@ -308,6 +319,17 @@ sub options_radius {
     my $self = shift;
     my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
     return @radius;
+}
+
+=head2 options_eap
+
+=cut
+
+sub options_eap {
+    my $self = shift;
+    my @eap = map { $_ => $_ } keys %ConfigEAP;
+    unshift @eap, ("" => "");
+    return @eap;
 }
 
 =over

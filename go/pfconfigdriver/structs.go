@@ -78,6 +78,7 @@ type configStruct struct {
 		Configuration PfConfDns
 	}
 	UnifiedApiSystemUser UnifiedApiSystemUser
+	EAPConfiguration     EAPConfiguration
 }
 
 var Config configStruct
@@ -588,4 +589,66 @@ type PfConfRadiusConfiguration struct {
 	RadiusAttributes                   []string `json:"radius_attributes"`
 	UsernameAttributes                 []string `json:"username_attributes"`
 	ForwardKeyBalanced                 string   `json:"forward_key_balanced"`
+}
+
+type Certificate struct {
+	StructConfig
+	Cert               string `json:"cert"`
+	Default            string `json:"default"`
+	Key                string `json:"key"`
+	Ca                 string `json:"ca"`
+	Intermediate       string `json:"intermediate"`
+	PrivateKeyPassword string `json:"private_key_password"`
+}
+
+type Fast struct {
+	StructConfig
+	PacOpaqueKey      string `json:"pac_opaque_key"`
+	AuthorityIdentity string `json:"authority_identity"`
+	TLS               string `json:"tls"`
+}
+
+type OCSP struct {
+	StructConfig
+	OCSPSoftfail        string `json:"ocsp_softfail"`
+	OCSPTimeout         string `json:"ocsp_timeout"`
+	OCSPUseNonce        string `json:"ocsp_use_nonce"`
+	OCSPEnable          string `json:"ocsp_enable"`
+	OCSPOverrideCertURL string `json:"ocsp_override_cert_url"`
+	OCSPURL             string `json:"ocsp_url"`
+}
+
+type TLS struct {
+	StructConfig
+	CertificateProfile Certificate `json:"certificate_profile"`
+	DhFile             string      `json:"dh_file"`
+	CAPath             string      `json:"ca_path"`
+	EcdhCurve          string      `json:"ecdh_curve"`
+	CipherList         string      `json:"cipher_list"`
+	OCSP               OCSP        `json:"ocsp"`
+}
+
+type EAP struct {
+	StructConfig
+	DefaultEAPType             string         `json:"default_eap_type"`
+	TLS                        map[string]TLS `json:"tls"`
+	TTLSProfile                string         `json:"ttls_tlsprofile"`
+	TLSProfile                 string         `json:"tls_tlsprofile"`
+	TimerExpire                string         `json:"timer_expire"`
+	CiscoAccountingUsernameBug string         `json:"cisco_accounting_username_bug"`
+	PEAPProfile                string         `json:"peap_tlsprofile"`
+	EAPAuthenticationTypes     []string       `json:"eap_authentication_types"`
+	MaxSessions                string         `json:"max_sessions"`
+	FastConfig                 Fast           `json:"fast_config"`
+	IgnoreUnknownEAPTypes      string         `json:"ignore_unknown_eap_types"`
+}
+
+type EAPConfiguration struct {
+	StructConfig
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"resource::eap_config"`
+	PfconfigDecodeInElement string `val:"yes"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 map[string]EAP
 }

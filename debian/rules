@@ -77,6 +77,7 @@ install: build
 	done
 	# Install empty directories not in our tarball since the git move
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/certmanager
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl/acme-challenge
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/raddb/sites-enabled
@@ -229,6 +230,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-netdata
 	dh_installinit --name=packetfence-pfbandwidthd
 	dh_installinit --name=packetfence-pfacct
+	dh_installinit --name=packetfence-pfcertmanager
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
 	dh_installinit --name=packetfence-pfdns

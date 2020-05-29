@@ -6,46 +6,13 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   attributesFromMeta,
   validatorsFromMeta
-} from './'
+} from '../'
 
 export const view = (form = {}, meta = {}) => {
   return [
     {
-      tab: i18n.t('General'),
+      tab: null,
       rows: [
-        {
-          label: i18n.t('EAP Auth Types'),
-          text: i18n.t('Supported EAP Authentication Methods.'),
-          cols: [
-            {
-              namespace: 'eap_authentication_types',
-              component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'eap_authentication_types')
-            }
-          ]
-        },
-        {
-          label: i18n.t('EAP FAST Key'),
-          text: i18n.t('EAP-FAST Opaque Key (32 randomized bytes).'),
-          cols: [
-            {
-              namespace: 'eap_fast_opaque_key',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'eap_fast_opaque_key')
-            }
-          ]
-        },
-        {
-          label: i18n.t('EAP FAST Authority Identity'),
-          text: i18n.t('EAP-FAST authority ID.'),
-          cols: [
-            {
-              namespace: 'eap_fast_authority_identity',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'eap_fast_authority_identity')
-            }
-          ]
-        },
         {
           label: i18n.t('Record accounting in SQL tables'),
           text: i18n.t('Record the accounting data in the SQL tables. Requires a restart of radiusd to be effective.'),
@@ -138,6 +105,58 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Use RADIUS filters in eduroam authorize'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.authorize section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_authorize',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Use RADIUS filters in eduroam pre_proxy'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.pre_proxy section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_pre_proxy',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Use RADIUS filters in eduroam post_proxy'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.post_proxy section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_post_proxy',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Use RADIUS filters in eduroam preacct'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS eduroam.preacct section. Requires a restart of radiusd to be effective.'),
+          cols: [
+            {
+              namespace: 'filter_in_eduroam_preacct',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+	{
           label: i18n.t('NTLM Redis cache'),
           text: i18n.t('Enables a Redis driven cache for NTLM authentication.In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD. Refer to the Administration guide for more details. Applying this requires a restart of radiusd.'),
           cols: [
@@ -193,105 +212,6 @@ export const view = (form = {}, meta = {}) => {
                 ...{
                   rows: 5
                 }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Forward key balanced'),
-          text: i18n.t(`Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server.`),
-          cols: [
-            {
-              namespace: 'forward_key_balanced',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'enabled', unchecked: 'disabled' }
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      tab: 'OCSP',
-      rows: [
-        {
-          label: i18n.t('Enable'),
-          text: i18n.t('Enable OCSP checking.'),
-          cols: [
-            {
-              namespace: 'ocsp_enable',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Override Responder URL'),
-          text: i18n.t('Override the OCSP Responder URL from the certificate.'),
-          cols: [
-            {
-              namespace: 'ocsp_override_cert_url',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
-              }
-            }
-          ]
-        },
-        {
-          if: form.ocsp_override_cert_url === 'yes',
-          label: i18n.t('Responder URL'),
-          text: i18n.t('The overridden OCSP Responder URL.'),
-          cols: [
-            {
-              namespace: 'ocsp_url',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'ocsp_url')
-            }
-          ]
-        },
-        {
-          label: i18n.t('Use nonce'),
-          text: i18n.t('If the OCSP Responder can not cope with nonce in the request, then it can be disabled here.'),
-          cols: [
-            {
-              namespace: 'ocsp_use_nonce',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Response timeout'),
-          text: i18n.t('Number of seconds to wait for the OCSP response. 0 uses system default.'),
-          cols: [
-            {
-              namespace: 'ocsp_timeout',
-              component: pfFormInput,
-              attrs: {
-                ...attributesFromMeta(meta, 'ocsp_timeout'),
-                ...{
-                  type: 'number',
-                  step: 1
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Response softfail'),
-          text: i18n.t(`Treat OCSP response errors as 'soft' failures and still accept the certificate.`),
-          cols: [
-            {
-              namespace: 'ocsp_softfail',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'yes', unchecked: 'no' }
               }
             }
           ]

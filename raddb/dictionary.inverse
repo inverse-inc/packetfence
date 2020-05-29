@@ -48,6 +48,8 @@ ATTRIBUTE       PacketFence-KeyBalanced               32       string
 ATTRIBUTE       PacketFence-Radius-Ip                 33       string
 ATTRIBUTE       PacketFence-NTCacheHash               34       string
 ATTRIBUTE       PacketFence-NTLMv2-Only               35       string
+ATTRIBUTE       PacketFence-Outer-User                36       string
+ATTRIBUTE       PacketFence-UserDN                    37       string
 
 END-VENDOR      Inverse
 

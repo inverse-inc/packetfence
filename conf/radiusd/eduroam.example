@@ -66,6 +66,8 @@ authorize {
 	suffix
 	ntdomain
 
+%%authorize_filter%%
+
 	# Eduroam needs a "full" username with a domain part (username@domain)
 	# If request does not contain username with @domain part, reject it
 	# rather than sending it to Eduroam
@@ -92,9 +94,8 @@ authorize {
 	#  initial set of packets that go back and forth to set up
 	#  TTLS or PEAP.
 	#
-	eap {
-		ok = return
-	}
+
+%%authorize_eap_choice%%
 
 	#
 	#  Read the 'users' file.  In v3, this is located in
@@ -181,7 +182,7 @@ authenticate {
 		mschap
 	}
 
-
+%%authentication_auth_type%%
 
 	#  Uncomment it if you want to use ldap for authentication
 	#
@@ -251,6 +252,7 @@ preacct {
 	#  home server as authentication requests.
 	#	IPASS
 	suffix
+%%preacct_filter%%
 	ntdomain
 
 	#
@@ -392,6 +394,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
+%%pre_proxy_filter%%
 }
 
 #
@@ -434,5 +437,6 @@ post-proxy {
 #	Post-Proxy-Type Fail-Accounting {
 #			detail
 #	}
+%%post_proxy_filter%%
 }
 }

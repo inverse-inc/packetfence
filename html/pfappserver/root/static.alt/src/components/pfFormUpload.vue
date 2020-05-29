@@ -66,7 +66,7 @@
  *
 -->
 <template>
-  <div class="pf-form-upload-container btn btn-outline-primary" :title="title">
+  <div :class="getClass" :title="title">
     <label class="pf-form-upload mb-0">
       <b-form ref="uploadform" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
@@ -76,7 +76,7 @@
       </b-form>
     </label>
     <slot>
-      <b-button class="ml-3"><icon name="upload"></icon> {{ $t('Upload') }}</b-button>
+      {{ $t('Upload') }}
     </slot>
     <b-modal v-if="showErrorModal" v-model="showErrorModal" centered
       :title="$t('Upload Error')"
@@ -124,6 +124,10 @@ export default {
     readAsText: {
       type: Boolean,
       default: false
+    },
+    class: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -181,6 +185,12 @@ export default {
     }
   },
   computed: {
+    getClass () {
+      return 'pf-form-upload-container ' + ((this.class)
+        ? this.class
+        : 'btn btn-outline-primary'
+      )
+    },
     errors () {
       return this.files.filter(file => file.error)
     },

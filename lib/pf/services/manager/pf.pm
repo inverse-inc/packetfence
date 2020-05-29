@@ -208,6 +208,19 @@ sub systemdTarget {
     my ($self) = @_;
     return "packetfence.target";
 }
+
+=head2 restartService
+
+restartService
+
+=cut
+
+sub restartService {
+    my ($self) = @_;
+    $self->stop();
+    return $self->start();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -308,6 +308,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_pki_providers_routes($root);
     $self->setup_api_v1_config_portal_modules_routes($root);
     $self->setup_api_v1_config_provisionings_routes($root);
+    $self->setup_api_v1_config_radiusd_routes($root);
     $self->setup_api_v1_config_realms_routes($root);
     $self->setup_api_v1_config_roles_routes($root);
     $self->setup_api_v1_config_scans_routes($root);
@@ -317,6 +318,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_switch_groups_routes($root);
     $self->setup_api_v1_config_syslog_forwarders_routes($root);
     $self->setup_api_v1_config_syslog_parsers_routes($root);
+    $self->setup_api_v1_config_ssl_certificates_routes($root);
     $self->setup_api_v1_config_template_switches_routes($root);
     $self->setup_api_v1_config_system_routes($root);
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
@@ -1109,6 +1111,52 @@ sub setup_api_v1_config_provisionings_routes {
         "/provisionings",
         "/provisioning/#provisioning_id",
         "api.v1.Config.Provisionings"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_radiusd_routes
+
+ setup_api_v1_config_radiusd_routes
+
+=cut
+
+sub setup_api_v1_config_radiusd_routes {
+    my ($self, $root) = @_;
+    my $radiusd_route = $root->any("/radiusd")->name("api.v1.Config.Radiusd");
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $radiusd_route,
+        "Config::Radiusd::FastProfiles",
+        "/fast_profiles",
+        "/fast_profile/#fast_profile_id",
+        "api.v1.Config.Radiusd.FastProfiles"
+    );
+
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $radiusd_route,
+        "Config::Radiusd::TLSProfiles",
+        "/tls_profiles",
+        "/tls_profile/#tls_profile_id",
+        "api.v1.Config.Radiusd.TLSProfiles"
+    );
+
+      $self->setup_api_v1_std_config_routes(
+        $radiusd_route,
+        "Config::Radiusd::OCSPProfiles",
+        "/ocsp_profiles",
+        "/ocsp_profile/#ocsp_profile_id",
+        "api.v1.Config.Radiusd.OCSPProfiles"
+    );
+
+      $self->setup_api_v1_std_config_routes(
+        $radiusd_route,
+        "Config::Radiusd::EAPProfiles",
+        "/eap_profiles",
+        "/eap_profile/#eap_profile_id",
+        "api.v1.Config.Radiusd.EAPProfiles"
     );
 
     return ($collection_route, $resource_route);
@@ -1958,6 +2006,26 @@ sub setup_api_v1_config_wmi_rules_routes {
         "/wmi_rules",
         "/wmi_rule/#wmi_rule_id",
         "api.v1.Config.WMIRules"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_ssl_certificates_routes
+
+setup_api_v1_config_ssl_certificates_routes
+
+=cut
+
+sub setup_api_v1_config_ssl_certificates_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::SSLCertificates",
+        "/ssl_certificates",
+        "/ssl_certificate/#ssl_certificate_id",
+        "api.v1.Config.SSLCertificates"
     );
 
     return ($collection_route, $resource_route);

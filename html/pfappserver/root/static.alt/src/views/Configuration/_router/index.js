@@ -21,6 +21,11 @@ import PkisStore from '../_store/pkis'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
 import ProvisioningsStore from '../_store/provisionings'
+import RadiusEapStore from '../_store/radiusEap'
+import RadiusFastStore from '../_store/radiusFast'
+import RadiusOcspStore from '../_store/radiusOcsp'
+import RadiusSslStore from '../_store/radiusSsl'
+import RadiusTlsStore from '../_store/radiusTls'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import RoutedNetworksStore from '../_store/routedNetworks'
@@ -125,7 +130,18 @@ const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_compo
 const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */ '../_components/MaintenanceTaskView')
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
-const RadiusView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusView')
+const RadiusTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTabs')
+const RadiusGeneralView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusGeneralView')
+const RadiusEapList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusEapList')
+const RadiusEapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusEapView')
+const RadiusTlsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTlsList')
+const RadiusTlsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTlsView')
+const RadiusFastList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusFastList')
+const RadiusFastView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusFastView')
+const RadiusSslList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusSslList')
+const RadiusSslView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusSslView')
+const RadiusOcspList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusOcspList')
+const RadiusOcspView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusOcspView')
 const DnsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DnsView')
 const AdminRolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRolesList')
 const AdminRoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRoleView')
@@ -198,6 +214,21 @@ const route = {
     }
     if (!store.state.$_provisionings) {
       store.registerModule('$_provisionings', ProvisioningsStore)
+    }
+    if (!store.state.$_radius_eap) {
+      store.registerModule('$_radius_eap', RadiusEapStore)
+    }
+    if (!store.state.$_radius_fast) {
+      store.registerModule('$_radius_fast', RadiusFastStore)
+    }
+    if (!store.state.$_radius_ocsp) {
+      store.registerModule('$_radius_ocsp', RadiusOcspStore)
+    }
+    if (!store.state.$_radius_ssl) {
+      store.registerModule('$_radius_ssl', RadiusSslStore)
+    }
+    if (!store.state.$_radius_tls) {
+      store.registerModule('$_radius_tls', RadiusTlsStore)
     }
     if (!store.state.$_realms) {
       store.registerModule('$_realms', RealmsStore)
@@ -2245,14 +2276,238 @@ const route = {
     },
     {
       path: 'radius',
-      name: 'radius',
-      component: RadiusView,
-      props: (route) => ({ formStoreName: 'formRadius', query: route.query.query }),
+      name: 'radiusGeneral',
+      component: RadiusTabs,
+      props: (route) => ({ tab: 'radiusGeneral', query: route.query.query })
+    },
+    {
+      path: 'radius/eap',
+      name: 'radiusEaps',
+      component: RadiusTabs,
+      props: (route) => ({ tab: 'radiusEaps', query: route.query.query })
+    },
+    {
+      path: 'radius/eap_new',
+      name: 'newRadiusEap',
+      component: RadiusEapView,
+      props: () => ({ formStoreName: 'formRadiusEap', isNew: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formRadius) { // Register store module only once
-          store.registerModule('formRadius', FormStore)
+        if (!store.state.formRadiusEap) { // Register store module only once
+          store.registerModule('formRadiusEap', FormStore)
         }
         next()
+      }
+    },
+    {
+      path: 'radius/eap/:id',
+      name: 'radiusEap',
+      component: RadiusEapView,
+      props: (route) => ({ formStoreName: 'formRadiusEap', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusEap) { // Register store module only once
+          store.registerModule('formRadiusEap', FormStore)
+        }
+        store.dispatch('$_radius_eap/getRadiusEap', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/eap/:id/clone',
+      name: 'cloneRadiusEap',
+      component: RadiusEapView,
+      props: (route) => ({ formStoreName: 'formRadiusEap', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusEap) { // Register store module only once
+          store.registerModule('formRadiusEap', FormStore)
+        }
+        store.dispatch('$_radius_eap/getRadiusEap', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/tls',
+      name: 'radiusTlss',
+      component: RadiusTabs,
+      props: (route) => ({ tab: 'radiusTlss', query: route.query.query })
+    },
+    {
+      path: 'radius/tls_new',
+      name: 'newRadiusTls',
+      component: RadiusTlsView,
+      props: () => ({ formStoreName: 'formRadiusTls', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusTls) { // Register store module only once
+          store.registerModule('formRadiusTls', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'radius/tls/:id',
+      name: 'radiusTls',
+      component: RadiusTlsView,
+      props: (route) => ({ formStoreName: 'formRadiusTls', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusTls) { // Register store module only once
+          store.registerModule('formRadiusTls', FormStore)
+        }
+        store.dispatch('$_radius_tls/getRadiusTls', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/tls/:id/clone',
+      name: 'cloneRadiusTls',
+      component: RadiusTlsView,
+      props: (route) => ({ formStoreName: 'formRadiusTls', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusTls) { // Register store module only once
+          store.registerModule('formRadiusTls', FormStore)
+        }
+        store.dispatch('$_radius_tls/getRadiusTls', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/fast',
+      name: 'radiusFasts',
+      component: RadiusTabs,
+      props: (route) => ({ tab: 'radiusFasts', query: route.query.query })
+    },
+    {
+      path: 'radius/fast_new',
+      name: 'newRadiusFast',
+      component: RadiusFastView,
+      props: () => ({ formStoreName: 'formRadiusFast', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusFast) { // Register store module only once
+          store.registerModule('formRadiusFast', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'radius/fast/:id',
+      name: 'radiusFast',
+      component: RadiusFastView,
+      props: (route) => ({ formStoreName: 'formRadiusFast', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusFast) { // Register store module only once
+          store.registerModule('formRadiusFast', FormStore)
+        }
+        store.dispatch('$_radius_fast/getRadiusFast', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/fast/:id/clone',
+      name: 'cloneRadiusFast',
+      component: RadiusFastView,
+      props: (route) => ({ formStoreName: 'formRadiusFast', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusFast) { // Register store module only once
+          store.registerModule('formRadiusFast', FormStore)
+        }
+        store.dispatch('$_radius_fast/getRadiusFast', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/ssl',
+      name: 'radiusSsls',
+      component: RadiusTabs,
+      props: (route) => ({ tab: 'radiusSsls', query: route.query.query })
+    },
+    {
+      path: 'radius/ssl_new',
+      name: 'newRadiusSsl',
+      component: RadiusSslView,
+      props: () => ({ formStoreName: 'formRadiusSsl', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusSsl) { // Register store module only once
+          store.registerModule('formRadiusSsl', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'radius/ssl/:id',
+      name: 'radiusSsl',
+      component: RadiusSslView,
+      props: (route) => ({ formStoreName: 'formRadiusSsl', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusSsl) { // Register store module only once
+          store.registerModule('formRadiusSsl', FormStore)
+        }
+        store.dispatch('$_radius_ssl/getRadiusSsl', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/ssl/:id/clone',
+      name: 'cloneRadiusSsl',
+      component: RadiusSslView,
+      props: (route) => ({ formStoreName: 'formRadiusSsl', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusSsl) { // Register store module only once
+          store.registerModule('formRadiusSsl', FormStore)
+        }
+        store.dispatch('$_radius_ssl/getRadiusSsl', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/ocsp',
+      name: 'radiusOcsps',
+      component: RadiusTabs,
+      props: (route) => ({ tab: 'radiusOcsps', query: route.query.query })
+    },
+    {
+      path: 'radius/ocsp_new',
+      name: 'newRadiusOcsp',
+      component: RadiusOcspView,
+      props: () => ({ formStoreName: 'formRadiusOcsp', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusOcsp) { // Register store module only once
+          store.registerModule('formRadiusOcsp', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'radius/ocsp/:id',
+      name: 'radiusOcsp',
+      component: RadiusOcspView,
+      props: (route) => ({ formStoreName: 'formRadiusOcsp', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusOcsp) { // Register store module only once
+          store.registerModule('formRadiusOcsp', FormStore)
+        }
+        store.dispatch('$_radius_ocsp/getRadiusOcsp', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'radius/ocsp/:id/clone',
+      name: 'cloneRadiusOcsp',
+      component: RadiusOcspView,
+      props: (route) => ({ formStoreName: 'formRadiusOcsp', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRadiusOcsp) { // Register store module only once
+          store.registerModule('formRadiusOcsp', FormStore)
+        }
+        store.dispatch('$_radius_ocsp/getRadiusOcsp', to.params.id).then(() => {
+          next()
+        })
       }
     },
     {

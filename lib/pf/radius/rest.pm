@@ -50,7 +50,7 @@ sub format_response {
         $radius_return = $RADIUS::RLM_MODULE_OK
     }
 
-    unless ($radius_return == $RADIUS::RLM_MODULE_OK) {
+    unless ($radius_return == $RADIUS::RLM_MODULE_OK || $radius_return == $RADIUS::RLM_MODULE_NOOP || $radius_return == $RADIUS::RLM_MODULE_UPDATED) {
         die pf::api::error->new(status => Apache2::Const::HTTP_UNAUTHORIZED, response => $response);
     }
 

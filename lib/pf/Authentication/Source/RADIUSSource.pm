@@ -189,7 +189,7 @@ sub match_in_subclass {
     foreach my $condition (@{ $own_conditions }) {
         my $name = $condition->{'attribute'};
         if ($name eq "username") {
-            if ( $condition->matches("username", $username) ) {
+            if ( $condition->matches("username", $username, $params) ) {
                 push(@{ $matching_conditions }, $condition);
             }
         } elsif (defined($extra)) {

@@ -54,7 +54,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.18-18, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
+Requires: freeradius >= 3.0.21, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
 Requires: freeradius-radsniff
 Requires: make
 Requires: net-tools
@@ -408,6 +408,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service %{buildroot}%{_unitdir}/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfacct.service %{buildroot}%{_unitdir}/packetfence-pfacct.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfcertmanager.service %{buildroot}%{_unitdir}/packetfence-pfcertmanager.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
@@ -443,6 +444,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
+%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/certmanager
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
@@ -829,6 +831,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcertmanager
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
@@ -999,6 +1002,21 @@ fi
                         /usr/local/pf/conf/radiusd/eduroam.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
                         /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/eap_profiles.conf
+%config                 /usr/local/pf/conf/radiusd/eap_profiles.conf.defaults
+                        /usr/local/pf/conf/radiusd/eap_profiles.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/fast.conf
+%config                 /usr/local/pf/conf/radiusd/fast.conf.defaults
+                        /usr/local/pf/conf/radiusd/fast.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/ocsp.conf
+%config                 /usr/local/pf/conf/radiusd/ocsp.conf.defaults
+                        /usr/local/pf/conf/radiusd/ocsp.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/tls.conf
+%config                 /usr/local/pf/conf/radiusd/tls.conf.defaults
+                        /usr/local/pf/conf/radiusd/tls.conf.example
+%config(noreplace)      /usr/local/pf/conf/ssl.conf
+%config                 /usr/local/pf/conf/ssl.conf.defaults
+                        /usr/local/pf/conf/ssl.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config                 /usr/local/pf/conf/realm.conf.defaults

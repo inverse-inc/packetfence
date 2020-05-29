@@ -84,6 +84,7 @@ our @patchable_binaries = (
     "pfdetect",
     "galera-autofix",
     "pfacct",
+    "pfcertmanager",
 );
 
 GetOptions(

@@ -8,7 +8,7 @@
   >
     <template v-slot:header>
       <h4 class="mb-0">
-        <span>{{ $t('RADIUS Configuration') }}</span>
+        <span>{{ $t('General Configuration') }}</span>
       </h4>
     </template>
     <template v-slot:footer>
@@ -31,7 +31,7 @@ import pfButtonService from '@/components/pfButtonService'
 import {
   view,
   validators
-} from '../_config/radius'
+} from '../_config/radius/'
 
 export default {
   name: 'radius-view',

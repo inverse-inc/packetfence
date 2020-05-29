@@ -115,6 +115,13 @@ our %ACTION_FIELD_OPTIONS = (
         do_label       => 0,
         wrapper        => 0,
     },
+    $Actions::SET_ROLE_FROM_SOURCE => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        element_class => ['chzn-deselect'],
+        options_method => \&options_attributes,
+    },
 );
 
 =head2 field_list
@@ -257,6 +264,18 @@ sub options_durations_absolute {
     my @choices = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} uniq admin_allowed_options_all([$form->user_roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
     return make_durations_options($form, \@choices);
 }
+
+=head2 options_attributes
+
+retrive the realms
+
+=cut
+
+sub options_attributes {
+    my ($self) = @_;
+    return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
+}
+
 
 =head2 validate
 

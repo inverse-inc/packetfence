@@ -76,6 +76,8 @@ Method that launches the service.
 
 has launcher => ( is => 'rw', lazy => 1, builder => '_build_launcher' );
 
+has restart_launcher => ( is => 'rw', lazy => 1, builder => '_build_restart_launcher' );
+
 has pidFile => ( is => 'ro', lazy => 1, builder => '_buildpidFile' );
 
 sub _buildpidFile { my $self = shift; return $var_dir . "/run/" . $self->name . ".pid"; }
@@ -199,18 +201,6 @@ sub _build_executable {
     my $name = $self->name;
     my $service = ( $pf::config::Config{'services'}{"${name}_binary"} || "$install_dir/sbin/$name" );
     return $service;
-}
-
-=head2 restart
-
-restart the service
-
-=cut
-
-sub restart {
-    my ($self,$quick) = @_;
-    $self->stop($quick);
-    return $self->start($quick);
 }
 
 =head2 status
@@ -498,6 +488,50 @@ sub sysdDisable {
     return system( "sudo systemctl disable " . $self->systemdTarget) == 0;
 }
 
+=head2 _build_restart_launcher
+
+Build the command to restart the service.
+
+=cut
+sub _build_restart_launcher {
+    my ($self) = @_;
+    my $name = $self->{name};
+    return "sudo systemctl restart packetfence-" . $name;
+}
+
+
+=head2 restartService
+
+restart the service using the restart_launcher and arguments passed
+
+=cut
+
+sub restartService {
+    my ($self) = @_;
+    my $cmdLine = $self->restart_launcher;
+    if ($cmdLine =~ /^(.+)$/) {
+        $cmdLine = $1;
+        my $logger = get_logger();
+        $logger->debug(sprintf("Restarting Daemon %s with command %s",$self->name,$cmdLine));
+        my $t0 = Time::HiRes::time();
+        my $return_value = system($cmdLine);
+        my $elapsed = Time::HiRes::time() - $t0;
+        $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $self->name, $elapsed));
+        return $return_value == 0;
+    }
+    return;
+}
+
+=head2 restart
+
+restart the service
+
+=cut
+
+sub restart {
+    my ($self) = @_;
+    return $self->restartService();
+}
 
 =head1 AUTHOR
 

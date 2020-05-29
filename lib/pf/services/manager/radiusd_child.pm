@@ -46,6 +46,7 @@ use pf::config qw(
     $local_secret
     @radius_ints
     %ConfigAuthenticationLdap
+    %ConfigEAP
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
@@ -125,6 +126,11 @@ Generates the packetfence and packetfence-tunnel configuration file
 sub generate_radiusd_sitesconf {
     my %tags;
 
+    $tags{'authorize_eap_choice'} = "";
+    $tags{'authentication_auth_type'} = "";
+
+    generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
+
     if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
     }
@@ -133,9 +139,8 @@ sub generate_radiusd_sitesconf {
     }
     if(isenabled($Config{radius_configuration}{filter_in_packetfence_authorize})){
         $tags{'authorize_filter'} .= <<"EOT";
-        if ( !EAP-Message ) {
-             rest
-        }
+        rest
+
 EOT
     }
     else {
@@ -252,6 +257,11 @@ EOT
         userprincipalname
 EOT
     }
+
+    $tags{'authorize_eap_choice'} = "";
+    $tags{'authentication_auth_type'} = "";
+
+    generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
@@ -455,7 +465,7 @@ EOT
             }
 EOT
         } else {
-            $tags{'local_realm_exception'} .= 'reject';
+            $tags{'local_realm_exception'} .= '            reject';
         }
         if ($found_acct) {
             $tags{'local_realm_acct'} .= '        }';
@@ -490,6 +500,38 @@ EOT
                 }
         }
 EOT
+        }
+        $tags{'authentication_auth_type'} = "";
+        $tags{'authorize_eap_choice'} = "";
+
+        generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
+
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_authorize})){
+        $tags{'authorize_filter'} .= <<"EOT";
+        rest
+
+EOT
+        }
+        else {
+            $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        }
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_pre_proxy})){
+            $tags{'pre_proxy_filter'} = "rest";
+        }
+        else {
+            $tags{'pre_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        }
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_post_proxy})){
+            $tags{'post_proxy_filter'} = "rest";
+        }
+        else {
+            $tags{'post_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        }
+        if(isenabled($Config{radius_configuration}{filter_in_eduroam_preacct})){
+            $tags{'preacct_filter'} = "rest";
+        }
+        else {
+            $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
         }
         parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
         symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
@@ -576,14 +618,8 @@ Generates the eap.conf configuration file
 sub generate_radiusd_eapconf {
     my ($self, $tt) = @_;
     my $radius_configuration = $Config{radius_configuration};
-    my %vars = (
-        install_dir => $install_dir,
-        radius_configuration => $radius_configuration,
-        eap_fast_opaque_key => $radius_configuration->{eap_fast_opaque_key},
-        eap_fast_authority_identity => $radius_configuration->{eap_fast_authority_identity},
-        (map { $_ => 1 } (split ( /\s*,\s*/, $radius_configuration->{eap_authentication_types} // ''))),
-    );
-
+    my %vars;
+    $vars{'eap'} = \%ConfigEAP;
     $tt->process("$conf_dir/radiusd/eap.conf", \%vars, "$install_dir/raddb/mods-enabled/eap") or die $tt->error();
 }
 
@@ -644,26 +680,35 @@ sub generate_radiusd_ldap {
             $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
         }
         $ldap_config = $TRUE;
+        my $server_list;
+        my @ldap_server = split(',',$ConfigAuthenticationLdap{$ldap}->{host});
+        foreach my $ldap_server (@ldap_server) {
+            $server_list .= "    server          = $ldap_server\n";
+        }
+        my $append = '';
+        if (defined($ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes})) {
+            $append = $ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes};
+        }
         $tags{'servers'} .= <<"EOT";
 
 ldap $ldap {
-    server          = "$ConfigAuthenticationLdap{$ldap}->{host}"
+$server_list
     port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
-    password        = $ConfigAuthenticationLdap{$ldap}->{password}
+    password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
     base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
     filter          = "(userPrincipalName=%{User-Name})"
-    scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
+    scope           = "$ConfigAuthenticationLdap{$ldap}->{scope}"
     base_filter     = "(objectclass=user)"
-    rebind          = yes
-    chase_referrals = yes
+    rebind          = "yes"
+    chase_referrals = "yes"
     update {
         control:AD-Samaccountname := 'sAMAccountName'
         request:PacketFence-UserNameAttribute := "$ConfigAuthenticationLdap{$ldap}->{usernameattribute}"
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
+        filter = "(&(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))$append)"
     }
     options {
         chase_referrals = yes
@@ -1156,6 +1201,46 @@ sub generate_radiusd_mschap {
     $tags{'statsd_port' } = "$Config{'advanced'}{'statsd_listen_port'}";
 
     parse_template( \%tags, "$conf_dir/radiusd/mschap.conf", "$install_dir/raddb/mods-enabled/mschap" );
+
+}
+
+=head2 generate_eap_choice
+
+Generate the configuration for eap choice
+
+=cut
+
+sub generate_eap_choice {
+    my ($authorize_eap_choice, $authentication_auth_type) = @_;
+        my $if = 'if';
+        foreach my $key ( @pf::config::ConfigOrderedRealm ) {
+            next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
+            my $choice = $key;
+            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+            $$authorize_eap_choice .= <<"EOT";
+            $if (Realm =~ /$choice/) {
+                $pf::config::ConfigRealm{$key}->{'eap'} {
+                    ok = return
+                }
+            }
+EOT
+            $if = 'elsif';
+        }
+        $$authorize_eap_choice .= <<"EOT";
+            else {
+                eap {
+                    ok = return
+                }
+            }
+EOT
+        foreach my $key (keys %ConfigEAP) {
+            next if $key eq 'default';
+            $$authentication_auth_type .= <<"EOT";
+        Auth-Type $key {
+            $key
+        }
+EOT
+        }
 
 }
 
