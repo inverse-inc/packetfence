@@ -15,51 +15,6 @@ use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::condition_parser qw(parse_condition_string ast_to_object);
 
-sub parse_condition {
-    my ($self) = @_;
-    my ($error, $item) = $self->get_json;
-    if (defined $error) {
-        return $self->render_error(400, "Bad Request : $error");
-    }
-
-    my $condition = $item->{condition};
-    if (!defined $condition) {
-        return $self->render_error(422, "No condition found");
-    }
-
-    if (ref $condition) {
-        return $self->render_error(422, "Condition must be a string");
-    }
-
-    my ($ast, $err) = parse_condition_string($condition);
-    if ($err) {
-        return $self->render_error(422, "Cannot parse condition", [$err]);
-    }
-
-    $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
-}
-
-sub flatten_condition {
-    my ($self) = @_;
-    my ($error, $item) = $self->get_json;
-    if (defined $error) {
-        return $self->render_error(400, "Bad Request : $error");
-    }
-
-    my $condition = $item->{condition};
-    if (!defined $condition) {
-        return $self->render_error(422, "No condition found");
-    }
-
-    if (!ref $condition) {
-        return $self->render_error(422, "Condition must be a object");
-    }
-
-    my $string = pf::condition_parser::object_to_str($condition);
-
-    $self->render(json => { item => {condition_string => $string, condition => $condition } });
-}
-
 =head2 engines
 
 engines
