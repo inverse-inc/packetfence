@@ -250,7 +250,7 @@ use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
-    plan tests => 43 +
+    plan tests => 44 +
       ((scalar @NODE_ID_TESTS) * 3) +
       scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
       scalar @INVALID_DATES +
