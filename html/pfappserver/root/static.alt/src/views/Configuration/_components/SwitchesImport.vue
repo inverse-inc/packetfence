@@ -59,7 +59,7 @@ import { importFields } from '../_config/switch'
 export default {
   name: 'switches-import',
   components: {
-    pfCSVImport,
+    'pf-csv-import': pfCSVImport,
     pfFormUpload
   },
   data () {
