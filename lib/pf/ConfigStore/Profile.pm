@@ -57,7 +57,9 @@ sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
     $profile->{filter} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/, $profile->{filter} || '' ) ];
-    $self->expandCondition($profile, 'advanced_filter');
+    if (defined $profile->{advanced_filter}) {
+        $self->expandCondition($profile, 'advanced_filter');
+    }
 }
 
 =head2 cleanupBeforeCommit
@@ -73,7 +75,9 @@ sub cleanupBeforeCommit {
         $profile->{filter} = join(",", map { s/,/,,/g;$_ } @{$profile->{filter} // []});
     }
 
-    $self->flattenCondition($profile, 'advanced_filter');
+    if (defined $profile->{advanced_filter}) {
+        $self->flattenCondition($profile, 'advanced_filter');
+    }
 }
 
 =head2 _fields_expanded
