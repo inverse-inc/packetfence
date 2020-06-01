@@ -12,9 +12,30 @@
       @reset-search="onReset"
     ></pf-search>
     <div class="card-body pt-0">
-      <b-row align-h="end" align-v="start">
-        <b-col>
+      <b-row>
+        <b-col cols="auto" class="mr-auto mb-3">
           <slot name="buttonAdd"></slot>
+        </b-col>
+      </b-row>
+      <b-row align-h="end" align-v="center">
+        <b-col>
+          <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
+            <template v-slot:button-content>
+              <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
+            </template>
+            <template v-for="column in columns">
+              <template v-if="column.label">
+                <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
+                  <icon class="position-absolute mt-1" name="thumbtack"></icon>
+                  <span class="ml-4">{{ $t(column.label) }}</span>
+                </b-dropdown-item>
+                <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+                  <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+                  <span class="ml-4">{{ $t(column.label) }}</span>
+                </a>
+              </template>
+            </template>
+          </b-dropdown>
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
@@ -23,8 +44,11 @@
                 <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
+              <pf-button-export-to-csv class="mb-3" :filename="`${$route.path.slice(1).replace('/', '-')}.csv`" :disabled="isLoading"
+                :columns="columns" :data="items"
+              />
             </b-row>
           </b-container>
         </b-col>
@@ -86,6 +110,7 @@
 </template>
 
 <script>
+import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
@@ -97,6 +122,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    pfButtonExportToCsv,
     pfEmptyTable,
     pfSearch,
     pfTableSortable
@@ -107,7 +133,7 @@ export default {
       default: () => ({
         columns: [],
         fields: [],
-        rowClickRoute (item, index) { return {} },
+        rowClickRoute () { return {} },
         searchPlaceholder: 'Search',
         searchableOptions: {
           searchApiEndpoint: null,

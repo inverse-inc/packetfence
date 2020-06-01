@@ -50,6 +50,7 @@ const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_comp
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
 const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
+const SwitchesImport = () => import(/* webpackChunkName: "Editor" */ '../_components/SwitchesImport')
 const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchView')
 const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
 const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
@@ -488,6 +489,11 @@ const route = {
         }
         next()
       }
+    },
+    {
+      path: 'switches/import',
+      name: 'importSwitch',
+      component: SwitchesImport
     },
     {
       path: 'switch/:id',

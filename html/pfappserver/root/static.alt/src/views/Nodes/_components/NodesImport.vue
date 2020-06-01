@@ -78,16 +78,8 @@ export default {
       const file = this.files[index]
       file.close()
     },
-    importPromise (payload, dryRun, done) {
-      return new Promise((resolve, reject) => {
-        this.$store.dispatch('$_nodes/bulkImport', payload).then(result => {
-          // do something with the result, then Promise.resolve to continue processing
-          resolve(result)
-        }).catch(err => {
-          // do something with the error, then Promise.reject to stop processing
-          reject(err)
-        })
-      })
+    importPromise (payload) {
+      return this.$store.dispatch('$_nodes/bulkImport', payload)
     }
   },
   created () {
@@ -95,10 +87,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.nav-tabs > li > a,
-.nav-pills > li > a {
-  margin-right: 0.5rem!important;
-}
-</style>

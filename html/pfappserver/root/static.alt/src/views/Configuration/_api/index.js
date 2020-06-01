@@ -1554,8 +1554,18 @@ export default {
       })
     }
   },
+  switchesBulkImport: body => {
+    return apiCall.post('config/switches/bulk_import', body).then(response => {
+      return response.data.items
+    })
+  },
   switche: id => {
     return apiCall.get(['config', 'switch', id]).then(response => {
+      return response.data.item
+    })
+  },
+  switcheQuiet: id => {
+    return apiCall.getQuiet(['config', 'switch', id]).then(response => {
       return response.data.item
     })
   },
@@ -1565,7 +1575,8 @@ export default {
     })
   },
   createSwitch: data => {
-    return apiCall.post('config/switches', data).then(response => {
+    const post = data.quiet ? 'postQuiet' : 'post'
+    return apiCall[post]('config/switches', data).then(response => {
       return response.data
     })
   },
