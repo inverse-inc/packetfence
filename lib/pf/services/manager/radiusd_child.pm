@@ -1226,13 +1226,21 @@ sub generate_eap_choice {
 EOT
             $if = 'elsif';
         }
-        $$authorize_eap_choice .= <<"EOT";
+        if ($if eq 'elsif') {
+            $$authorize_eap_choice .= <<"EOT";
             else {
                 eap {
                     ok = return
                 }
             }
 EOT
+        } else {
+            $$authorize_eap_choice .= <<"EOT";
+            eap {
+                ok = return
+            }
+EOT
+        }
         foreach my $key (keys %ConfigEAP) {
             next if $key eq 'default';
             $$authentication_auth_type .= <<"EOT";
