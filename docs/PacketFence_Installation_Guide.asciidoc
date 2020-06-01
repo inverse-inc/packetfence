@@ -2735,14 +2735,14 @@ Here is an example on filtering by switch IP addresses and using MAC authenticat
 Fingerbank can also be used to target specific devices as seen below. We can then apply Cisco ACLs to them.
 
   [ipad_by_name]
-  filter = fingerbank_info.device_hierarchy_names
-  operator = includes
-  value = Apple iPad
-
-  [1:ipad_by_name]
-  scope = returnRadiusAccessAccept
-  merge_answer = yes
-  answer1 = Cisco-AVPair => ip:inacl#101=permit ip any any
+  status=enabled
+  answer.0=reply:Cisco-AVPair = ip:inacl#101=permit ip any any
+  top_op=and
+  description=Detect ipad
+  scopes=returnRadiusAccessAccept
+  radius_status=RLM_MODULE_OK
+  merge_answer=yes
+  condition=contains(fingerbank_info.device_hierarchy_names, "Apple iPad")
 
 preProcess scope can be usefull when you want to create internal radius attributes that will be used internally, like in the authentication rules.
 
@@ -3012,6 +3012,28 @@ Click on save and restart radius (pfcmd service radiusd restart).
 
 Now when a device connect with the username bob@acme.com then the authentication and accounting requests will be forwarded to one of the ACME RADIUS servers.
 
+RADIUS EAP Profiles
+~~~~~~~~~~~~~~~~~~~
+
+RADIUS EAP Profiles allow you to select a specific eap profile in FreeRADIUS based on the Realm of the user.
+
+In this eap profile you can define:
+ Certificates configuration.
+ OCSP configuration
+ EAP-Fast configuration
+ TLS Configuration
+
+And link all these configuration together.
+
+Per example the Realm ACME.COM needs to use the CA certificate from ACME CA and the other Realm needs to use the default one.
+
+To do that go in 'Configuration -> System Configuration -> RADIUS -> SSL Certificates' and create a new profile.
+Next go in 'Configuration -> System Configuration -> RADIUS -> TLS Profiles' and create a new TLS profile and select the Certificate profile created just before.
+Then create the EAP profile in 'Configuration -> System Configuration -> RADIUS -> EAP Profiles' and create a new EAP profile and select the TLS profile created before (PEAP Profile per exemple)
+
+The last thing to do is to link the EAP profile with your Realm configuration, to achieve that go in 'Configuration -> Policies and Access Control -> Domains -> Realms' and edit the ACME.COM realm (create it if it's not already the case) then choose the EAP profile you created before in the EAP configuration parameter.
+
+Restart radiusd to generate the new RADIUS configuration.
 
 Fingerbank Integration
 ----------------------
