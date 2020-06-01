@@ -17,6 +17,8 @@ use lib '/usr/local/pf/lib';
 
 use File::Temp;
 my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+$fh->truncate(0);
+$fh->flush();
 {
     package ConfigStore::BulkImport;
     use Moo;
