@@ -1273,6 +1273,7 @@ fi
 %config(noreplace)      /usr/local/pf/raddb/mods-enabled/*
 %config(noreplace)      /usr/local/pf/raddb/mods-config/*
 %config(noreplace)      /usr/local/pf/raddb/mods-available/*
+                        /usr/local/pf/raddb/mods-config/perl/packetfence-multi-domain.pm
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/buffered-sql
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/coa
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/control-socket
