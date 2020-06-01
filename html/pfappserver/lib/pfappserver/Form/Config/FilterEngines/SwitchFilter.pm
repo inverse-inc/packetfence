@@ -17,7 +17,7 @@ use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::config qw(%Config);
-use pf::constants::filters qw(@BASE_FIELDS @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS @OWNER_FIELDS);
+use pf::constants::filters qw(@BASE_FIELDS @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS @OWNER_FIELDS @SECURITY_EVENT_FIELDS);
 extends 'pfappserver::Form::Config::FilterEngines';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -79,6 +79,7 @@ sub options_field_names {
         @FINGERBANK_FIELDS,
         @SWITCH_FIELDS,
         @OWNER_FIELDS,
+        @SECURITY_EVENT_FIELDS,
         (
            map { "radius_request.$_" } (
                @{$Config{radius_configuration}{radius_attributes} // []}

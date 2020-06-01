@@ -24,7 +24,7 @@ use pf::ConfigStore::ApacheFilters;
 use pf::ConfigStore::DNS_Filters;
 use pf::ConfigStore::SwitchFilters;
 
-our @EXPORT_OK = qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP %FILTER_NAMES @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS @BASE_FIELDS @OWNER_FIELDS);
+our @EXPORT_OK = qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP %FILTER_NAMES @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS @BASE_FIELDS @OWNER_FIELDS @SECURITY_EVENT_FIELDS);
 
 
 our %FILTERS_IDENTIFIERS = (
@@ -211,6 +211,15 @@ our @OWNER_FIELDS = qw(
   owner.can_sponsor
   owner.unregdate
   owner.category
+);
+
+our @SECURITY_EVENT_FIELDS = qw(
+  security_event.id
+  security_event.start_date
+  security_event.release_date
+  security_event.status
+  security_event.ticket_ref
+  security_event.notes
 );
 
 =head1 AUTHOR
