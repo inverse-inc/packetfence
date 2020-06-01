@@ -893,6 +893,55 @@ export const validators = (form = {}, meta = {}) => {
   // fields differ w/ & wo/ 'default'
   const isDefault = (id === 'default')
 
+  const requiresFieldsAssociated = valueOperatorsFromMeta(meta).reduce((associated, item) => {
+      const { value, requires } = item
+      associated[value] = requires
+      return associated
+    }, {})
+
+  const advancedFilterValidator = (meta = {}, advanced_filter = {}, level = 0) => {
+    const { field, op, value, values } = advanced_filter
+    if (values && values.constructor === Array) { // op
+      return {
+        op: {
+          ...{
+            [i18n.t('Operator required.')]: required
+          },
+          ...((level > 0) // require 2 values when not @ root condition
+            ? {
+              [i18n.t('Minimum 2 values required.')]: conditional(values.length >= 2)
+            }
+            : {}
+          )
+        },
+        values: {
+          ...(values || []).map(value => advancedFilterValidator(meta, value, ++level))
+        }
+      }
+    } else { // value
+      const { [op]: requires = [] } = requiresFieldsAssociated
+      const showField = (!op || requires.includes('field'))
+      const showValue = (!op || requires.includes('value'))
+      return {
+        field: {
+          ...((showField)
+            ? { [i18n.t('Field required.')]: required }
+            : {}
+          )
+        },
+        op: {
+          [i18n.t('Operator required.')]: required
+        },
+        value: {
+          ...((showValue)
+            ? { [i18n.t('Value required.')]: required }
+            : {}
+          )
+        }
+      }
+    }
+  }
+
   return {
     ...((isDefault)
       ? {} // isDefault
@@ -926,12 +975,7 @@ export const validators = (form = {}, meta = {}) => {
             }
           })
         },
-        advanced_filter: {
-          ...validatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
-          ...{
-            [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter)))
-          }
-        }
+        advanced_filter: advancedFilterValidator(meta, advanced_filter)
       }
     ),
     ...{
