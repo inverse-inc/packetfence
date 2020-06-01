@@ -2662,6 +2662,7 @@ These rules are available in thoses scopes:
   returnAuthorizeRead is when you return the answer for the switch read login access
   returnAuthorizeWrite is when you return the answer for the switch write login access
   returnAuthorizeVoip is when you return the answer for a VoIP
+  preProcess is when you want to manipulate the radius context (like adding custom attributes to the request)
 
   packetfence.authorize call the radius filter in the packetfence authorize section
   packetfence.authenticate call the radius filter in the packetfence authenticate section
@@ -2670,8 +2671,12 @@ These rules are available in thoses scopes:
   packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
   packetfence.preacct call the radius filter in the packetfence preacct section
   packetfence.accounting call the radius filter in the packetfence accounting section
+  eduroam.authorize call the radius filter in the eduroam accounting section
+  eduroam.pre-proxy  call the radius filter in the pre-proxy accounting section
+  eduroam.post-proxy call the radius filter in the post-proxy accounting section
+  eduroam.preacct call the radius filter in the eduroam preacct section
 
-All the packetfence.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
+All the packetfence.* eduroam.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
 
 And can be defined using different criteria like:
 
@@ -2748,6 +2753,21 @@ Fingerbank can also be used to target specific devices as seen below. We can the
   scope = returnRadiusAccessAccept
   merge_answer = yes
   answer1 = Cisco-AVPair => ip:inacl#101=permit ip any any
+
+preProcess scope can be usefull when you want to create internal radius attributes that will be used internally, like in the authentication rules.
+
+per example we want to add the attribute TLS-Stripped-UserName by extracting the first portion of the TLS-Client-Cert-Common-Name attribute value:
+
+  [eap-tls-preProcess]
+  status=enabled
+  top_op=and
+  condition=radius_request.User-Name =~ "acme.com$"
+  answer.0=TLS-Stripped-UserName = ${BuildFromMatch($radius_request.TLS-Client-Cert-Common-Name,"^[^@]+","$0")}
+  description=preProcess attribute for eap tls
+  scopes=preProcess
+
+This rule will add the TLS-Stripped-UserName radius attribute in the request and you will be able to use it in the authentication/administrations rules.
+
 
 You can have a look in the file radius_filters.conf, there are some examples on how to use and define filters.
 
