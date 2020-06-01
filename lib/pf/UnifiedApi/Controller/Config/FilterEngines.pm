@@ -13,7 +13,6 @@ pf::UnifiedApi::Controller::Config::FilterEngines
 use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
-use pf::condition_parser qw(parse_condition_string ast_to_object);
 
 =head2 engines
 

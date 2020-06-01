@@ -25,6 +25,7 @@ use pf::error qw(is_error);
 use pf::error qw(is_error is_success);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
+use pf::condition_parser qw(parse_condition_string ast_to_object);
 
 has 'config_store_class';
 has 'form_class';
