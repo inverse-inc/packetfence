@@ -212,6 +212,9 @@
   .multiselect__option:after {
     line-height: $input-line-height-sm;
   }
+  .multiselect__single {
+    margin-right: $input-padding-x-sm;
+  }
 }
 
 .pf-form-chosen-md {
@@ -235,6 +238,9 @@
   .multiselect__option:after {
     line-height: $input-line-height;
   }
+  .multiselect__single {
+    margin-right: $input-padding-x;
+  }
 }
 
 .pf-form-chosen-lg {
@@ -257,5 +263,8 @@
   .multiselect__option,
   .multiselect__option:after {
     line-height: $input-line-height-lg;
+  }
+  .multiselect__single {
+    margin-right: $input-padding-x-lg;
   }
 }
