@@ -63,11 +63,10 @@
       // override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
       opacity: 1;
     }
-    line-height: 1;
   }
   .multiselect__select {
     top: 0px;
-    right: 10px;
+    /*right: 10px;*/
     bottom: 0px;
     width: auto;
     height: auto;
@@ -212,8 +211,12 @@
   .multiselect__option:after {
     line-height: $input-line-height-sm;
   }
+  .multiselect__select {
+    right: $input-padding-x-sm
+  }
   .multiselect__single {
     margin-right: $input-padding-x-sm;
+    padding-right: $input-padding-x-sm;
   }
 }
 
@@ -238,8 +241,12 @@
   .multiselect__option:after {
     line-height: $input-line-height;
   }
+  .multiselect__select {
+    right: $input-padding-x
+  }
   .multiselect__single {
     margin-right: $input-padding-x;
+    padding-right: $input-padding-x;
   }
 }
 
@@ -264,7 +271,11 @@
   .multiselect__option:after {
     line-height: $input-line-height-lg;
   }
+  .multiselect__select {
+    right: $input-padding-x-lg
+  }
   .multiselect__single {
     margin-right: $input-padding-x-lg;
+    padding-right: $input-padding-x-lg;
   }
 }
