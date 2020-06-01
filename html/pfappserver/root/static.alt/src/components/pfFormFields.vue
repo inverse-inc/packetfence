@@ -170,7 +170,9 @@ export default {
       this.inputValue = [...inputValue.slice(0, index), newRow, ...inputValue.slice(index)]
       // focus the type element in new row
       if (!clone) { // Bugfix: focusing pfFormChosen steals actionKey's onkeyup event
-        this.focus('component-' + index)
+        setTimeout(() => { // wait until DOM updates with new row (nextTick is not enough)
+          this.focus('component-' + index)
+        }, 300)
       }
     },
     rowDel (index, deleteAll = this.actionKey) {
@@ -216,10 +218,8 @@ export default {
       })
     },
     focus (ref) {
-      this.$nextTick(() => { // wait until DOM updates with new row
-        const { $refs: { [ref]: { 0: { focus = () => {} } = {} } = {} } = {} } = this
-        focus()
-      })
+      const { $refs: { [ref]: { 0: { focus = () => {} } = {} } = {} } = {} } = this
+      focus()
     }
   }
 }
