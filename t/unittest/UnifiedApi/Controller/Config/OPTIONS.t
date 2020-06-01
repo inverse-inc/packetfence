@@ -366,6 +366,7 @@ meta => {
                     placeholder => undef,
                     required => $false,
                     type => "string",
+                    allow_custom => $false,
                     allowed => [
                         {text => 'enabled', value => 'enabled'},
                         {text => 'disabled', value => 'disabled'},
@@ -380,6 +381,7 @@ meta => {
                         {text => 'enabled', value => 'enabled'},
                         {text => 'disabled', value => 'disabled'},
                     ],
+                    allow_custom => $false,
                 },
                 name => {
                     default     => undef,
@@ -461,6 +463,7 @@ meta => {
     },
     status => {
         default     => "enabled",
+        allow_custom => $false,
         placeholder => undef,
         required => $false,
         type => "string",
