@@ -13,6 +13,7 @@ Connection profile.
 use pf::authentication;
 
 use HTML::FormHandler::Moose;
+use pfappserver::Form::Config::FilterEngines;
 use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Config::ProfileCommon';
@@ -20,6 +21,7 @@ with 'pfappserver::Form::Config::ProfileCommon';
 use pf::config;
 use pf::condition_parser;
 use List::MoreUtils qw(uniq);
+use pf::constants::filters qw(@BASE_FIELDS @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS);
 
 =head1 FIELDS
 
@@ -142,12 +144,6 @@ sub options_field {
     return map { $self->make_field_options($_) } $self->options_field_names();
 }
 
-sub options_field_names {}
-
-sub _additional_field_options {
-    {}
-}
-
 sub additional_field_options {
     my ($self, $name) = @_;
     my $options = $self->_additional_field_options;
@@ -177,6 +173,22 @@ has_block 'definition' =>
     render_list => [qw(id description status root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop)],
   );
 
+my %ADDITIONAL_FIELD_OPTIONS = (
+    %pfappserver::Form::Config::FilterEngines::ADDITIONAL_FIELD_OPTIONS
+);
+
+sub _additional_field_options {
+    return \%ADDITIONAL_FIELD_OPTIONS;
+}
+
+sub options_field_names {
+    (
+        @BASE_FIELDS,
+        @NODE_INFO_FIELDS,
+        @FINGERBANK_FIELDS,
+        @SWITCH_FIELDS,
+    );
+}
 
 =head1 COPYRIGHT
 
