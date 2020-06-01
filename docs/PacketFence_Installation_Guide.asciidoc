@@ -2650,6 +2650,55 @@ You can also add notes to the device using filters. Here you can see how to add 
 
 You can have a look in the file `vlan_filters.conf`, there are some examples on how to use and define filters.
 
+Advanced LDAP Authentication
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ldapfilter action
+^^^^^^^^^^^^^^^^^
+
+ldapfilter action override the internal ldap filter packetfence create internally (uid=$username) so you can create a custom filter that match your needs.
+
+Per example something like this (search foe the user and check to see if it's permitted based on some criteria):
+
+  (&(|(cn=${radius_request.Stripped-User-Name})(cn=${radius_request.User-Name}))(|(permitWifi=*)(grade=staff)(memberOf=CN=WifiGroup,OU=Security Groups,DC=ad,DC=acme,DC=com)))
+
+Set_role_on_not_found action
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+set_role_on_not_found is a way to define a role is the rule doesn't match, let's take the ldapfilter example above.
+
+If we add the action set_role_on_not_found = REJECT so it mean that the device will be rejected if the ldap filter doesn't return anything. (if it match then set_role action will be applied)
+
+role_from_source
+^^^^^^^^^^^^^^^^
+
+role_from_source will check to see if the ldap attribute exist and will add it in the ldap_attribute context (available in the radius filters)
+
+So per example if you want to take the value of the ldap attribute customRadius and add it in the radius answer you needs to do the following.
+
+In the authentication rule, set an action "Role from source" to customRadius.
+Next create a radius filter that will add the custom radius attributes:
+
+  [IF_SET_ROLE_FROM_SOURCE]
+  status=enabled
+  answer.0=reply:Packetfence-Raw = $ldap_attribute.customRadius
+  top_op=and
+  description=If the role has been computed from the action set_role_from_source then return the value of the role as a radius attribute
+  scopes=returnRadiusAccessAccept
+  radius_status=RLM_MODULE_OK
+  merge_answer=no
+  condition=action == "set_role_from_source"
+
+Note, this support multiples ldap attributes, like customRadius:Airespace-Interface-Name=internet , customRadius:Aruba-User-Vlan=666
+
+
+
+
+
+Advanced Realm Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
