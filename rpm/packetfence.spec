@@ -56,6 +56,7 @@ requires: libapreq2
 Requires: redis
 Requires: freeradius >= 3.0.21, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
 Requires: freeradius-radsniff
+Requires: fuse
 Requires: make
 Requires: net-tools
 Requires: sscep

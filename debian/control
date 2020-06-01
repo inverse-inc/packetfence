@@ -148,6 +148,8 @@ Depends: ${misc:Depends}, vlan,
  lsb-release,
 # wmi and nthash cache
  libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,
+# fuse
+ fuse,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
