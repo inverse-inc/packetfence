@@ -10,6 +10,11 @@
     }
 }
 
+.nav-tabs > li > a,
+.nav-pills > li > a {
+  margin-right: 0.5rem!important;
+}
+
 .tab-pane:focus {
     outline: 0;
 }

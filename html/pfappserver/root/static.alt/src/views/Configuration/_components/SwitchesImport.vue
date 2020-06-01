@@ -59,7 +59,7 @@ import { importFields } from '../_config/switch'
 export default {
   name: 'switches-import',
   components: {
-    'pf-csv-import': pfCSVImport,
+    pfCSVImport,
     pfFormUpload
   },
   data () {
@@ -79,16 +79,8 @@ export default {
       const file = this.files[index]
       file.close()
     },
-    importPromise (payload, dryRun) {
-      return new Promise((resolve, reject) => {
-        this.$store.dispatch('$_switches/bulkImport', payload).then(result => {
-          // do something with the result, then Promise.resolve to continue processing
-          resolve(result)
-        }).catch(err => {
-          // do something with the error, then Promise.reject to stop processing
-          reject(err)
-        })
-      })
+    importPromise (payload) {
+      return this.$store.dispatch('$_switches/bulkImport', payload)
     },
     close () {
       this.$router.push({ name: 'switches' })
@@ -96,10 +88,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.nav-tabs > li > a,
-.nav-pills > li > a {
-  margin-right: 0.5rem!important;
-}
-</style>

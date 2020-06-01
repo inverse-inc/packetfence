@@ -254,10 +254,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.nav-tabs > li > a,
-.nav-pills > li > a {
-  margin-right: 0.5rem!important;
-}
-</style>
