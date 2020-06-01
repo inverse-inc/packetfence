@@ -73,7 +73,7 @@ export default {
     download () {
       let csvContentArray = []
       this.contents().forEach(rowArray => {
-        let row = rowArray.map(col => `"${col.replace('"', '\\"')}"`).join(',')
+        let row = rowArray.map(col => `"${col.toString().replace('"', '\\"')}"`).join(',')
         csvContentArray.push(row)
       })
       // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`)) // doesn't allow naming
