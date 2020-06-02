@@ -98,6 +98,7 @@ has_field 'username_attribute' =>
   (
    type => 'Text',
    label => 'Attribute of the username in the response',
+   required => 1,
     element_attr => {
         'placeholder' =>
             pf::Authentication::Source::OpenIDSource->meta->get_attribute('username_attribute')->default
