@@ -46,7 +46,10 @@ Enhancements
 * copy outter user-Name attribute in PacketFence-Outer-User attribute to be able to use it in the authentication rules.
 * copy the LDAP-UserDN attribute in PacketFence-UserDN attribute to be able to use it in the authentication rules.
 * Added a way to extend the ldap filter for searchattributes configuration
-
+* Documentation for EAP profile selection
+* Documentation for regex realm
+* Documentation for new action/condition in LDAP authentication
+* Moved the VLAN filters example as default disabled VLAN filter
 
 Bug Fixes
 +++++++++
