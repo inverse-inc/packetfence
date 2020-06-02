@@ -44,6 +44,7 @@
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.field'"
                 :options="fieldOperators"
+                :options-limit="fieldOperators.length"
                 :allow-empty="false"
                 :disabled="disabled"
                 class="m-1"
