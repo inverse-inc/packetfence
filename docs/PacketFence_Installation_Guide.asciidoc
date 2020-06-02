@@ -2523,14 +2523,22 @@ By doing that, event you wont don't need the "Search Attributes" feature, you wi
 basedn condition
 ^^^^^^^^^^^^^^^^
 
-This condition allow to override the default basedn in the ldap source.
-This condition will allow you to test if a object is in a specific ou.
-
-
+This condition allow to override the default basedn in the ldap source and it will permit to test if a object is in a specific ou.
 
 
 Advanced Realm Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In PacketFence you can define multiple Realms to select on which domain you want to authenticate the users.
+
+You can define a Realm with a regex in order to match multiples format.
+
+Per example in the ACME realm we define the regex like this:
+
+  .*\.acme\.com$
+
+It mean that if you have a user coming with this username mickey@la.acme.com , FreeRADIUS will define the realm as la.acme.com (it will be included in the radius request) and PacketFence will map the user to the ACME Realm.
+
 
 
 RADIUS Filter Definition
