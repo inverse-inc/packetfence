@@ -316,7 +316,7 @@ export default {
     },
     domainName () {
       const { domain_name } = this.$store.getters['session/tenantMask'] || {}
-      return (domain_name) ? `.${domain_name}` : null
+      return (domain_name) ? `@${domain_name}` : null
     },
     invalidSingleForm () {
       const { $invalid = false } = this.$store.getters[`${this.formStoreName}/$stateNS`]('single')
