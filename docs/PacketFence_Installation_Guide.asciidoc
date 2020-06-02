@@ -2588,7 +2588,7 @@ And can be defined using different criteria like:
 
 There are some default RADIUS filters defined in the configuration you can use to achieve the following goal:
 
-.EXAMPLE_Ethernet-EAP-Accept will return Access Accept (with Cisco-AVPair attribute) when the connection is Ethernet-EAP and when there is no security event.
+.EXAMPLE_Ethernet-EAP-Accept will return Access-Accept (with Cisco-AVPair attribute) when the connection is Ethernet-EAP and when there is no security event.
 
 .EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action will filter on the switch IP addresses and add the Session-Timeout (with a value between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS attributes.
 

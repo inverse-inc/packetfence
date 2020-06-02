@@ -1,6 +1,6 @@
 [EXAMPLE_Ethernet-EAP-Accept]
 status=disabled
-description=Return Access Accept with VSA when the connection is Ethernet-EAP and when there is no security event
+description=Return Access-Accept with VSA when the connection is Ethernet-EAP and when there is no security event
 scopes=returnRadiusAccessAccept
 radius_status=RLM_MODULE_OK
 merge_answer=yes
@@ -12,7 +12,7 @@ answer.1=reply:Idle-Timeout = 240
 status=disabled
 answer.0=reply:Session-Timeout = 10620..12600
 top_op=and
-description=Change the session timeout , idle timeout and terminate action
+description=Change the session timeout, idle timeout and terminate action
 scopes=returnRadiusAccessAccept
 merge_answer=no
 answer.2=reply:Termination-Action = RADIUS-Request
@@ -22,7 +22,7 @@ condition=switch._ip =~ "^(172\\.24\\.237\\.112|172\\.24\\.237\\.114|172\\.24\\.
 status=disabled
 answer.0=reply:Cisco-AVPair = ip:inacl#101=permit ip any any
 top_op=and
-description=Detect ipad
+description=Detect Apple iPad
 scopes=returnRadiusAccessAccept
 radius_status=RLM_MODULE_OK
 merge_answer=yes
@@ -33,5 +33,5 @@ status=disabled
 top_op=and
 condition=radius_request.User-Name =~ "acme.com$"
 answer.0=TLS-Stripped-UserName = ${BuildFromMatch($radius_request.TLS-Client-Cert-Common-Name,"^[^@]+","$0")}
-description=preProcess attribute for eap tls
+description=Preprocess attribute for EAP-TLS
 scopes=preProcess
