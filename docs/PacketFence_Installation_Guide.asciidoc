@@ -2621,7 +2621,7 @@ Here is an example on filtering by switch IP addresses and using MAC authenticat
   scopes=returnRadiusAccessAccept
   merge_answer=no
   answer.2=reply:Termination-Action = RADIUS-Request
-  condition=switch._ip =~ "^(172\.24\.237\.112|172\.24\.237\.114|172\.24\.237\.128)$"
+  condition=switch._ip =~ "^(172\\.24\\.237\\.112|172\\.24\\.237\\.114|172\\.24\\.237\\.128)$"
 
 Fingerbank can also be used to target specific devices as seen below. We can then apply Cisco ACLs to them.
 
