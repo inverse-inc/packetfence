@@ -9,6 +9,7 @@
 # That will make sure, the user will be presented the captive portal if he switches from secure to open
 # We do *NOT* apply this logic to wired as supplicant failures would unregister the device
 # To apply this flow to wired, see the example pf_deauth_from_wireless_secure in vlan_filters.conf.example
+
 [pf_deauth_from_wireless_secure]
 run_actions=enabled
 status=enabled
@@ -18,3 +19,69 @@ scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
 role = registration
 
+[EXAMPLE_No_Internet_for_lunch]
+run_actions=enabled
+status=disabled
+description=revent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and as a registered device
+scopes=RegisteredRole
+role=REJECT
+condition=node_info.category == "default" && ssid == "SECURE" && time_period(time, "wd {Mon Tue Wed Thu Fri} hr {11am-2pm}")
+
+[EXAMPLE_Trigger_event_if_user]
+run_actions=enabled
+status=disabled
+description=Trigger a security event if the SSID is OPEN and the owner is igmout
+scopes=RegisteredRole
+action.0=trigger_security_event: mac, $mac, tid, 12345, type, CUSTOM
+condition=owner.pid == "igmout" && ssid == "OPEN"
+
+[EXAMPLE_Autoregister_if_user]
+run_actions=enabled
+status=disabled
+description=autoregister the device and assign the role default to each device where the username is igmout.
+scopes=AutoRegister,NodeInfoForAutoReg
+role=default
+condition=username == "igmout" && ssid == "SECURE"
+
+[EXAMPLE_Autoregister_windows_devices]
+run_actions=enabled
+status=disabled
+top_op=and
+description=autoregister all Windows devices and assign them the role default
+scopes=AutoRegister,NodeInfoForAutoReg
+role=default
+condition=contains(fingerbank_info.device_hierarchy_names, "Windows")
+
+[EXAMPLE_Reject_specific_MAC]
+run_actions=enabled
+status=disabled
+description=filter a MAC address and reject it by assigning the role REJECT
+scopes=RegistrationRole,RegisteredRole
+role=REJECT
+condition=mac == "aa:bb:cc:dd:ee:ff" && ssid == "OPEN"
+
+[EXAMPLE_Detect_VOIP]
+run_actions=enabled
+status=disabled
+description=auto set Avaya and Polycom as phones by matching vendor MAC, and set to voice role
+scopes=IsPhone
+role=voice
+condition=mac =~ "^(00:04.f2).*" && mac =~ "^(00:04:0d|00:1b:4f|00:e0:07|04:8a:15|24:d9:21|2c:f4:c5|34:75:c7|3c:3a:73|3c:b1:5b|44:32:2a|58:16:26|6c:fa:58|70:30:18|70:38:ee|70:52:c5|80:1d:aa|84:83:71|90:fb:5b|a0:51:c6|b4:b0:17|c8:f4:06|cc:f9:54|d4:ea:0e|fc:83:99|fc:a8:41|b0:ad:aa|10:cd:ae|50:cd:22|b4:47:5e|d4:78:56|c0:57:bc|38:bb:3c|e4:5d:52|a4:25:1b|6c:a8:49|a0:12:90|f8:15:47|50:61:84|bc:ad:ab|b4:a9:5a|f8:73:a2|64:c3:54|64:a7:dd|64:6a:52|00:09:6e|00:07:3b|00:0d:18|00:0d:28|00:04:2e).*"
+
+[EXAMPLE_Reject_User_Unless_Machine]
+run_actions=enabled
+status=disabled
+description=Refuse user authentication without prior machine authentication
+scopes=RegistrationRole,RegisteredRole
+role=REJECT
+condition=connection_type == "Ethernet-EAP" && not_defined(node_info.machine_account, "")
+
+[EXAMPLE_Autoregister_Printer_Scanner]
+run_actions=enabled
+status=disabled
+top_op=and
+description=Autoregister printers and scanners
+scopes=NodeInfoForAutoReg,AutoRegister
+action.0=modify_node: mac, $mac, notes,  HP PRINTER
+role=default
+condition=node_info.device_class == "Printers/Scanners"

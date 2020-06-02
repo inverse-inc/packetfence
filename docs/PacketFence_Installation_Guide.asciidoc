@@ -2440,213 +2440,23 @@ And can be defined using different criteria like:
   owner.attribute (like owner.pid)
   radius_request.attribute (like radius_request.Calling-Station-Id)
 
-Below are several common examples of VLAN filters usage.
+There is some default vlan filters defined in the configuration you can use to achieve the following goal:
 
-.EXAMPLE: revent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and as a registered device
-[source,ini,numbered]
-----
-  [category]
-  filter = node_info.category
-  operator = is
-  value = default
+.EXAMPLE_Reject_between_11am_2pm will revent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and as a registered device
 
-  [ssid]
-  filter = ssid
-  operator = is
-  value = SECURE
+.EXAMPLE_Trigger_event_if_user will create a security event if the SSID is OPEN and the owner is igmout (the security event needs to have a custom trigger with the value 12345)
 
-  [time]
-  filter = time
-  operator = is
-  value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+.EXAMPLE_Autoregister_if_user will autoregister the device and assign the role staff to each device where the username is igmout.
 
-  [1:category&ssid&time]
-  scope = RegisteredRole
-  role = nointernet
-----
+.EXAMPLE_Autoregister_windows_devices will autoregister all Windows devices and assign them the role default.
 
-.EXAMPLE: create a security violaton if the SSID is OPEN and the owner is igmout
-[source,ini,numbered]
-----
-  [igmout]
-  filter = owner.pid
-  operator = is
-  value = igmout
+.EXAMPLE_Reject_specific_MAC will filter a MAC address and reject it by assigning the role REJECT.
 
-  [open]
-  filter = ssid
-  operator = is
-  value = OPEN
+.EXAMPLE_Detect_VOIP will auto set Avaya and Polycom as phones by matching vendor MAC, and set to default role
 
-  [2:igmout&ssid]
-  scope = RegisteredRole
-  action = trigger_security_event
-  action_param = mac = $mac, tid = SOMETHING_HAPPENED, type = CUSTOM
-----
+.EXAMPLE_Reject_User_Unless_Machine will refuse user authentication without prior machine authentication
 
-.EXAMPLE: autoregister the device and assign the role staff to each device where the username is igmout.
-[source,ini,numbered]
-----
-  [igmout]
-  filter = username
-  operator = is
-  value = igmout
-
-  [secure]
-  filter = ssid
-  operator = is
-  value = SECURE
-
-  [3:igmout&secure]
-  scope = AutoRegister
-  role = staff
-
-  [4:igmout&secure]
-  scope = NodeInfoForAutoReg
-  role = staff
-----
-
-.EXAMPLE: autoregister all Windows devices and assign them the role default.
-[source,ini,numbered]
-----
-  [Windows_AutoReg]
-  filter = fingerbank_info.device_hierarchy_names
-  operator = includes
-  value = Windows
-
-  [AUTOREG_WINDOWS:Windows_AutoReg]
-  scope = AutoRegister
-  role = default
-
-  [WINDOWS_ROLE:Windows_devices]
-  scope = NodeInfoForAutoReg
-  role = default
-----
-
-.EXAMPLE: filter a MAC address and reject it by assigning the role REJECT.
-[source,ini,numbered]
-----
-  [MAC]
-  filter = node_info.mac
-  operator = match
-  value = aa:bb:cc:dd:ee:ff
-
-  [SSID_Open]
-  filter = ssid
-  operator = is
-  value = Open
-
-  [REJECT:MAC&SSID_Open]
-  scope = RegistrationRole
-  role = REJECT
-----
-
-.EXAMPLE: autoregister devices using dot1x/EAP over wired or wireless and that are not pending
-[source,ini,numbered]
-----
-  [not_pending]
-  filter = node_info.status
-  operator = is_not
-  value = pending
-
-  [wireless_dot1x]
-  filter = connection_type
-  operator = is
-  value = Wireless-802.11-EAP
-
-  [wired_dot1x]
-  filter = connection_type
-  operator = is
-  value = Ethernet-EAP
-
-  [autoreg_wireless_dot1x:wireless_dot1x&not_pending]
-  scope = AutoRegister
-  role = default
-
-  [autoreg_wired_dot1x:wired_dot1x&not_pending]
-  scope = AutoRegister
-  role = default
-----
-
-.EXAMPLE: auto set Avaya and Polycom as phones by matching vendor MAC, and set to default role
-[source,ini,numbered]
-----
-  [Polycom]
-  filter = node_info.mac
-  operator = regex
-  value = ^(00:04.f2).*
-
-  [avaya]
-  filter = node_info.mac
-  operator = regex
-  value = ^(00:04:0d|00:1b:4f|00:e0:07|04:8a:15|24:d9:21|2c:f4:c5|34:75:c7|3c:3a:73|3c:b1:5b|44:32:2a|58:16:26|6c:fa:58|70:30:18|70:38:ee|70:52:c5|80:1d:aa|84:83:71|90:fb:5b|a0:51:c6|b4:b0:17|c8:f4:06|cc:f9:54|d4:ea:0e|fc:83:99|fc:a8:41|b0:ad:aa|10:cd:ae|50:cd:22|b4:47:5e|d4:78:56|c0:57:bc|38:bb:3c|e4:5d:52|a4:25:1b|6c:a8:49|a0:12:90|f8:15:47|50:61:84|bc:ad:ab|b4:a9:5a|f8:73:a2|64:c3:54|64:a7:dd|64:6a:52|00:09:6e|00:07:3b|00:0d:18|00:0d:28|00:04:2e).*
-
-  [set_voip:(avaya|Polycom)]
-  scope = IsPhone
-  role = default
-----
-
-.EXAMPLE: Refuse user authentication without prior machine authentication
-[source,ini,numbered]
-----
-  [EthernetEAP]
-  filter = connection_type
-  operator = is
-  value = Ethernet-EAP
-
-  [EAPTLS]
-  filter = radius_request
-  attribute = EAP-Type
-  operator = is
-  value = TLS
-
-  [machine]
-  filter = node_info
-  attribute = machine_account
-  operator = defined
-  value = robert
-
-  [REJECT_NO_MACHINE_AUTH_NO_EAPTLS:EthernetEAP&!machine&!EAPTLS]
-  scope = RegisteredRole
-  role = REJECT
-
-  [REJECT_NO_MACHINE_AUTH:EthernetEAP&!machine]
-  scope = RegistrationRole
-  role = REJECT
-----
-
-.EXAMPLE: autoregister printers and scanners
-[source,ini,numbered]
-----
-  [printers]
-  filter = node_info.device_class
-  operator = is
-  value = Printers/Scanners
-
-  [HP_Printer]
-  filter = node_info.mac
-  operator = regex
-  value = ^(00:1e:0b:0e:22:4c|00:23:7d:91:0e:86|00:1f:29:19:1d:4f|00:18:fe:a0:26:e2|00:1e:0b:1b:d2:e7|2c:76:8a:3f:21:cd|00:14:38:d8:a1:14|00:14:38:de:b6:0a)$
-
-  [autoreg_printers:(printers)]
-  scope = AutoRegister
-  role = printers
-
-  [printers_role:(printers)]
-  scope = NodeInfoForAutoReg
-  role = printers
-----
-
-You can also add notes to the device using filters. Here you can see how to add a note to all HP Printers.
-
-[source,ini,numbered]
-----
-  [Add_Note_HP_Printer:HP_Printer]
-  scope = RegisteredRole
-  role = printers
-  action = modify_node
-  action_param = mac = $mac, notes = HP PRINTER
-----
+.EXAMPLE_Autoregister_Printer_Scanner will autoregister printers and scanners and add a note.
 
 You can have a look in the file `vlan_filters.conf`, there are some examples on how to use and define filters.
 
