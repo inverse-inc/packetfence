@@ -1730,7 +1730,7 @@ export const viewFields = {
   },
   username_attribute: (form, meta = {}) => {
     return {
-      label: i18n.t('Attribute of the username in the SAML response.'),
+      label: i18n.t('Attribute of the username in the response.'),
       cols: [
         {
           namespace: 'username_attribute',
