@@ -9,11 +9,11 @@
     />
 
     <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputStateIfInvalidFeedback"
-      class="pf-form-filter-engine-condition" :class="{ 'mb-0': !columnLabel }">
+      class="pf-form-boolean-builder" :class="{ 'mb-0': !columnLabel }">
       <template v-slot:invalid-feedback>
         {{ invalidFeedback }}
       </template>
-      <b-input-group class="pf-form-filter-engine-condition-input-group p-1">
+      <b-input-group class="pf-form-boolean-builder-input-group p-1">
 
         <!-- Advanced Mode -->
         <pf-form-textarea v-if="advancedMode" ref="advancedCondition"
@@ -39,7 +39,7 @@
             />
           </template>
           <template v-slot:value="{ formStoreName, formNamespace, disabled }">
-            <div class="pf-form-filter-engine-condition-value">
+            <div class="pf-form-boolean-builder-value">
               <pf-form-chosen v-show="showField(formNamespace)"
                 :form-store-name="formStoreName"
                 :form-namespace="formNamespace + '.field'"
@@ -110,7 +110,7 @@ const highlightError = (error, offset, length = 15) => {
 }
 
 export default {
-  name: 'pf-form-filter-engine-condition',
+  name: 'pf-form-boolean-builder',
   components: {
     pfFormBoolean,
     pfFormChosen,
@@ -215,7 +215,7 @@ export default {
           }
           this.$debouncer({
             handler: () => {
-              this.$store.dispatch('$_filter_engines/parseCondition', string).then(condition => {
+              this.$store.dispatch('config/parseCondition', string).then(condition => {
                 this.basicCondition = condition
                 this.advancedError = false
               }).catch(err => {
@@ -241,7 +241,7 @@ export default {
           }
           this.$debouncer({
             handler: () => {
-              this.$store.dispatch('$_filter_engines/stringifyCondition', json).then(condition => {
+              this.$store.dispatch('config/stringifyCondition', json).then(condition => {
                 this.advancedCondition = condition
                 this.advancedError = false
               })
@@ -257,28 +257,28 @@ export default {
 </script>
 
 <style lang="scss">
-.pf-form-filter-engine-condition {
-  .pf-form-filter-engine-condition-input-group {
+.pf-form-boolean-builder {
+  .pf-form-boolean-builder-input-group {
     border: 1px solid transparent;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
   }
   &.is-focus {
-    > [role="group"] > .pf-form-filter-engine-condition-input-group,
-    > .form-row > [role="group"] > .pf-form-filter-engine-condition-input-group {
+    > [role="group"] > .pf-form-boolean-builder-input-group,
+    > .form-row > [role="group"] > .pf-form-boolean-builder-input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
-    > [role="group"] > .pf-form-filter-engine-condition-input-group,
-    > .form-row > [role="group"] > .pf-form-filter-engine-condition-input-group {
+    > [role="group"] > .pf-form-boolean-builder-input-group,
+    > .form-row > [role="group"] > .pf-form-boolean-builder-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
   }
-  .pf-form-filter-engine-condition-value {
+  .pf-form-boolean-builder-value {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;

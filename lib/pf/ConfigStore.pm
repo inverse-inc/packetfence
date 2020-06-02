@@ -27,6 +27,13 @@ use pf::config::cluster;
 use pf::constants;
 use pf::CHI;
 use pf::generate_filter qw(filter_with_offset_limit);
+use pf::condition_parser qw(parse_condition_string ast_to_object);
+our %TOP_OPS = (
+    not_and => undef,
+    not_or => undef,
+    and => undef,
+    or => undef,
+);
 
 =head1 FIELDS
 
@@ -812,6 +819,57 @@ sub readInheritedRaw {
     }
 
     return $inherited;
+}
+
+sub flattenCondition {
+    my ($self, $item, $key) = @_;
+    my $condition = exists $item->{$key} ? $item->{$key} : undef;
+    if (!defined $condition) {
+        return;
+    }
+
+    my $top_op = $condition->{op};
+    if ($top_op eq 'and' || $top_op eq 'or' || $top_op eq 'not_and' || $top_op eq 'not_or') {
+        if (@{$condition->{values}} == 1) {
+            $item->{top_op} = $top_op;
+        }
+    } else {
+        $item->{top_op} = undef;
+    }
+
+    $item->{$key} = pf::condition_parser::object_to_str($condition);
+}
+
+
+sub expandCondition {
+    my ($self, $item, $key) = @_;
+    my $condition = exists $item->{$key} ? $item->{$key} : undef;
+    if (!defined $condition) {
+        return;
+    }
+
+    my ($ast, $err) = parse_condition_string($condition);
+    $condition = ast_to_object($ast);
+    my $top_op = delete $item->{top_op};
+    my $op = $condition->{op};
+    if ($top_op) {
+        if ($top_op eq 'not_and' || $top_op eq 'not_or') {
+            if ($op eq 'not' ) {
+                $condition->{op} = $top_op;
+            }
+        } else {
+            $condition = { op => $top_op, values => [$condition]};
+        }
+    } elsif (!exists $TOP_OPS{$op}) {
+        if ($op eq 'not') {
+            $condition = { op => 'not_and', values => $condition->{values}};
+        } else {
+            $condition = { op => 'and', values => [$condition]};
+        }
+    }
+
+    $item->{$key} = $condition;
+    return;
 }
 
 sub readWithoutInheritedRaw {

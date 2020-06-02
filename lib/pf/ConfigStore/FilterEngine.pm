@@ -17,7 +17,6 @@ use warnings;
 use Moo;
 use namespace::autoclean;
 extends 'pf::ConfigStore';
-use pf::condition_parser qw(parse_condition_string ast_to_object);
 
 sub ordered_arrays { }
 
@@ -33,16 +32,7 @@ sub cleanupBeforeCommit {
         $self->flatten_to_ordered_array($item, @$i);
     }
 
-    my $top_op = $item->{condition}{op};
-    if ($top_op eq 'and' || $top_op eq 'or' || $top_op eq 'not_and' || $top_op eq 'not_or') {
-        if (@{$item->{condition}{values}} == 1) {
-            $item->{top_op} = $top_op;
-        }
-    } else {
-        $item->{top_op} = undef;
-    }
-
-    $item->{condition} = pf::condition_parser::object_to_str($item->{condition});
+    $self->flattenCondition($item, 'condition');
     $self->flatten_list($item, $self->_fields_expanded);
     return ;
 }
@@ -53,27 +43,7 @@ sub cleanupAfterRead {
         $self->expand_ordered_array($item, @$i);
     }
     $self->expand_list($item, $self->_fields_expanded);
-    $self->expandCondition($id, $item, $idKey);
-    return;
-}
-
-sub expandCondition {
-    my ($self, $id, $item, $idKey) = @_;
-    my ($ast, $err) = parse_condition_string($item->{condition});
-    my $condition = ast_to_object($ast);
-    my $top_op = delete $item->{top_op};
-    if ($top_op) {
-        if ($top_op eq 'not_and' || $top_op eq 'not_or') {
-            my $op = $condition->{op};
-            if ($op eq 'not' ) {
-                $condition->{op} = $top_op;
-            }
-        } else {
-            $condition = { op => $top_op, values => [$condition]};
-        }
-    }
-
-    $item->{condition} = $condition;
+    $self->expandCondition($item, 'condition');
     return;
 }
 

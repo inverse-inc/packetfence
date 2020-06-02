@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 2;
+use Test::More tests => 5;
 
 #This test will running last
 use Test::NoWarnings;
@@ -34,7 +34,7 @@ my $item = {
     top_op    => 'not_and',
 };
 
-$cs->expandCondition('id', $item, 'id');
+$cs->expandCondition($item, 'condition');
 is_deeply(
     $item->{condition},
     {
@@ -48,6 +48,69 @@ is_deeply(
         'op' => 'not_and'
     }
 );
+
+{
+    my $item = {
+        condition => 'a == "b"',
+    };
+
+    $cs->expandCondition($item, 'condition');
+    is_deeply(
+        $item->{condition},
+        {
+            'values' => [
+                {
+                    'value' => 'b',
+                    'field' => 'a',
+                    'op'    => 'equals'
+                }
+            ],
+            'op' => 'and'
+        }
+    );
+}
+
+{
+    my $item = {
+        condition => '!(a == "b")',
+    };
+
+    $cs->expandCondition($item, 'condition');
+    is_deeply(
+        $item->{condition},
+        {
+            'values' => [
+                {
+                    'value' => 'b',
+                    'field' => 'a',
+                    'op'    => 'equals'
+                }
+            ],
+            'op' => 'not_and'
+        }
+    );
+}
+
+{
+    my $item = {
+        condition => '!(a == b)',
+    };
+
+    $cs->expandCondition($item, 'condition');
+    is_deeply(
+        $item->{condition},
+        {
+            'values' => [
+                {
+                    'value' => 'b',
+                    'field' => 'a',
+                    'op'    => 'equals'
+                }
+            ],
+            'op' => 'not_and'
+        }
+    );
+}
 
 =head1 AUTHOR
 

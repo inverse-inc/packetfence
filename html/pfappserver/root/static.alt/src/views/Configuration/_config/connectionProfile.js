@@ -5,10 +5,10 @@ import i18n from '@/utils/locale'
 import pfField from '@/components/pfField'
 import pfFieldTypeMatch from '@/components/pfFieldTypeMatch'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormBooleanBuilder from '@/components/pfFormBooleanBuilder'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfFormTextarea from '@/components/pfFormTextarea'
 import pfTree from '@/components/pfTree'
 import {
   attributesFromMeta,
@@ -17,6 +17,7 @@ import {
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import { pfLocalesList as localesList } from '@/globals/pfLocales'
+import { pfOperators } from '@/globals/pfOperators'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -217,6 +218,47 @@ export const config = () => {
       }
     }
   }
+}
+
+const fieldOperatorsFromMeta = (meta = {}) => {
+  const { advanced_filter: { properties: { field: { allowed = [] } = {} } = {} } = {} } = meta
+  return allowed.map(allowed => {
+    const { text, value, siblings: { value: { allowed_values } = {} } = {} } = allowed
+    if (allowed_values) {
+      return {
+        text,
+        value,
+        options: allowed_values.sort((a, b) => {
+          return a.text.localeCompare(b.text)
+        })
+      }
+    }
+    return { text, value }
+  }).sort((a, b) => {
+    return a.text.localeCompare(b.text)
+  })
+}
+
+const valueOperatorsFromMeta = (meta = {}) => {
+  const { advanced_filter: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
+  return allowed.filter(allowed => {
+    const { requires = [] } = allowed
+    return !requires.includes('values')
+  }).map(allowed => {
+    const { requires = [], value } = allowed
+    return { requires, value }
+  })
+}
+
+const valuesOperatorsFromMeta = (meta = {}) => {
+  const { advanced_filter: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
+  return allowed.filter(allowed => {
+    const { requires = [] } = allowed
+    return requires.includes('values') || requires.length === 0
+  }).map(allowed => {
+    const { value } = allowed
+    return value
+  })
 }
 
 export const view = (form = {}, meta = {}) => {
@@ -473,12 +515,18 @@ export const view = (form = {}, meta = {}) => {
           cols: [
             {
               namespace: 'advanced_filter',
-              component: pfFormTextarea,
+              component: pfFormBooleanBuilder,
               attrs: {
-                ...attributesFromMeta(meta, 'advanced_filter'),
-                ...{
-                  rows: 3
-                }
+                fieldOperators: fieldOperatorsFromMeta(meta),
+                valueOperators: valueOperatorsFromMeta(meta).map(({ requires, value }) => {
+                  const { [value]: text = value } = pfOperators
+                  return { text, value, requires }
+                }),
+                valuesOperators: valuesOperatorsFromMeta(meta).map(value => {
+                  const { [value]: text = value } = pfOperators
+                  return { text, value }
+                }),
+                invalidFeedback: i18n.t('Advanced filter contains one or more errors.')
               }
             }
           ]
@@ -845,6 +893,55 @@ export const validators = (form = {}, meta = {}) => {
   // fields differ w/ & wo/ 'default'
   const isDefault = (id === 'default')
 
+  const requiresFieldsAssociated = valueOperatorsFromMeta(meta).reduce((associated, item) => {
+      const { value, requires } = item
+      associated[value] = requires
+      return associated
+    }, {})
+
+  const advancedFilterValidator = (meta = {}, advanced_filter = {}, level = 0) => {
+    const { field, op, value, values } = advanced_filter
+    if (values && values.constructor === Array) { // op
+      return {
+        op: {
+          ...{
+            [i18n.t('Operator required.')]: required
+          },
+          ...((level > 0) // require 2 values when not @ root condition
+            ? {
+              [i18n.t('Minimum 2 values required.')]: conditional(values.length >= 2)
+            }
+            : {}
+          )
+        },
+        values: {
+          ...(values || []).map(value => advancedFilterValidator(meta, value, ++level))
+        }
+      }
+    } else { // value
+      const { [op]: requires = [] } = requiresFieldsAssociated
+      const showField = (!op || requires.includes('field'))
+      const showValue = (!op || requires.includes('value'))
+      return {
+        field: {
+          ...((showField)
+            ? { [i18n.t('Field required.')]: required }
+            : {}
+          )
+        },
+        op: {
+          [i18n.t('Operator required.')]: required
+        },
+        value: {
+          ...((showValue)
+            ? { [i18n.t('Value required.')]: required }
+            : {}
+          )
+        }
+      }
+    }
+  }
+
   return {
     ...((isDefault)
       ? {} // isDefault
@@ -878,12 +975,7 @@ export const validators = (form = {}, meta = {}) => {
             }
           })
         },
-        advanced_filter: {
-          ...validatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
-          ...{
-            [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!filter || filter.length === 0), conditional(!advanced_filter)))
-          }
-        }
+        advanced_filter: advancedFilterValidator(meta, advanced_filter)
       }
     ),
     ...{

@@ -336,6 +336,13 @@ sub setup_api_v1_config_misc_routes {
     my ($self, $root) = @_;
     $root->register_sub_action({ controller => 'Config', action => 'fix_permissions', method => 'POST' });
     $root->register_sub_action({ controller => 'Config', action => 'checkup', method => 'GET' });
+    $root->register_sub_actions(
+        {
+            method     => 'POST',
+            actions    => [qw(parse_condition flatten_condition)],
+            controller => 'Config'
+        }
+    );
     return ;
 }
 
@@ -2047,13 +2054,6 @@ sub setup_api_v1_config_filter_engines_routes {
             method     => 'GET',
             action     => 'engines',
             path       => '',
-            controller => 'Config::FilterEngines'
-        }
-    );
-    $filter_engines_root->register_sub_actions(
-        {
-            method     => 'POST',
-            actions    => [qw(parse_condition flatten_condition)],
             controller => 'Config::FilterEngines'
         }
     );

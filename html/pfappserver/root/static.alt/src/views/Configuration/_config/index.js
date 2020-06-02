@@ -176,8 +176,9 @@ export const authenticationSourceRulesConditionFieldsFromMeta = (meta = {}, key 
   return fields
 }
 
-export const validatorsFromMeta = (meta = {}, key = null, fieldName = 'Value') => {
+export const validatorsFromMeta = (meta = {}, path = null, fieldName = 'Value') => {
   let validators = {}
+  let key = path
   if (Object.keys(meta).length > 0) {
     while (key.includes('.')) { // handle dot-notation keys ('.')
       let [ first, ...remainder ] = key.split('.')
@@ -232,13 +233,13 @@ export const validatorsFromMeta = (meta = {}, key = null, fieldName = 'Value') =
                 break
               default:
                 // eslint-disable-next-line
-                console.error(`Unhandled meta type: ${meta[key].type}`)
+                console.error(`Unhandled meta type @${path}: ${meta[key].type}`)
                 // break
             }
             break
           default:
             // eslint-disable-next-line
-            console.error(`Unhandled meta: ${property}`)
+            console.error(`Unhandled meta @${path}: ${property}`)
             // break
         }
       })

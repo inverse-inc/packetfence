@@ -174,8 +174,30 @@ cmp_deeply(
                     description => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.',
                 },
                 'advanced_filter' => {
-                    type => 'string',
+                    type => 'object',
                     description => 'Advanced filter',
+                    properties => {
+                        'field' => {
+                            type => 'string',
+                            description => 'Field',
+                        },
+                        'op' => {
+                            type => 'string',
+                            description => 'Value',
+                        },
+                        'value' => {
+                            type => 'string',
+                            description => 'Value',
+                        },
+                        'values' => {
+                            type => 'array',
+                            description => 'Values',
+                            items => {
+                                type => 'string',
+                                description => 'Value',
+                            },
+                        },
+                    },
                 },
                 'always_use_redirecturl' => {
                     type => 'string',
