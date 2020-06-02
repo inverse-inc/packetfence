@@ -76,6 +76,8 @@ $app->setup_api_v1_std_config_routes(
     "/bulk_import/#bulk_import_id",
     "api.v1.Config.BulkImport"
 );
+my $true = bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' );
+my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 
 my $collection_base_url = '/api/v1/config/bulk_imports';
 my $resource_base_url = '/api/v1/config/bulk_import';
@@ -87,7 +89,7 @@ $t->post_ok( "$collection_base_url/bulk_import" => json =>
       { items => [ { id => "id_1", description => "Description 1", value_1 => "1" } ] } )
   ->status_is(200)
   ->json_is('/items/0/status', 200)
-  ->json_is('/items/0/isNew', 1)
+  ->json_is('/items/0/isNew', $true)
   ->json_is('/items/0/item/id', 'id_1')
   ->json_is('/items/0/item/description', 'Description 1')
   ->json_is('/items/0/item/value_1', '1')
@@ -98,7 +100,7 @@ $t->post_ok( "$collection_base_url/bulk_import" => json =>
       { items => [ { id => "id_1", value_1 => "a", value_2 => '2' } ] } )
   ->status_is(200)
   ->json_is('/items/0/status', 200)
-  ->json_is('/items/0/isNew', 0)
+  ->json_is('/items/0/isNew', $false)
   ->json_is('/items/0/item/id', 'id_1');
 
 $t->get_ok("${resource_base_url}/id_1")
