@@ -23,7 +23,6 @@ use pf::action_spec;
 use pf::factory::condition;
 use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
-use pf::constants::condition_parser qw($TRUE_CONDITION);
 use base qw(pf::config::builder);
 
 my $logger = get_logger();
@@ -119,7 +118,7 @@ build a filter
 
 sub buildFilter {
     my ($self, $build_data, $parsed_conditions, $data) = @_;
-    my $condition = eval { $self->buildCondition($build_data, $parsed_conditions) };
+    my $condition = eval { pf::factory::condition::buildCondition($parsed_conditions) };
     if ($condition) {
         for my $scope (@{$data->{scopes}}) {
             push @{$build_data->{scopes}{$scope}}, pf::filter->new({
@@ -133,124 +132,6 @@ sub buildFilter {
 
 }
 
-our %LOGICAL_OPS = (
-    AND => 'pf::condition::all',
-    OR  => 'pf::condition::any'
-);
-
-our %BINARY_OP = (
-    "==" => 'pf::condition::equals',
-    "!=" => 'pf::condition::not_equals',
-    "=~" => 'pf::condition::regex',
-    "!~" => 'pf::condition::regex_not',
-    ">"  => 'pf::condition::greater',
-    ">=" => 'pf::condition::greater_equals',
-    "<"  => 'pf::condition::lower',
-    "<=" => 'pf::condition::lower_equals',
-);
-
-our %FUNC_OPS = (
-    'includes'               => 'pf::condition::includes',
-    'contains'               => 'pf::condition::matches',
-    'not_contains'           => 'pf::condition::not_matches',
-    'defined'                => 'pf::condition::is_defined',
-    'not_defined'            => 'pf::condition::not_defined',
-    'date_is_before'         => 'pf::condition::date_before',
-    'date_is_after'          => 'pf::condition::date_after',
-    'fingerbank_device_is_a' => 'pf::condition::fingerbank::device_is_a',
-    'time_period'            => 'pf::condition::time_period',
-    'true'                   => 'pf::condition::true',
-);
-
-=head2 buildCondition
-
-build a condition
-
-=cut
-
-sub buildCondition {
-    my ($self, $build_data, $ast) = @_;
-    if (ref $ast) {
-        local $_;
-        my ($op, @rest) = @$ast;
-        if ($op eq 'NOT' ) {
-            return pf::condition::not->new(
-                {
-                    condition => $self->buildCondition( $build_data, @rest)
-                }
-            );
-        }
-
-        if (exists $LOGICAL_OPS{$op}) {
-            if (@rest == 1) {
-                return $self->buildCondition( $build_data, @rest);
-            }
-
-            return $LOGICAL_OPS{$op}->new({conditions => [map { $self->buildCondition($build_data, $_) } @rest]});
-        }
-
-        if (exists $BINARY_OP{$op}) {
-            my ($key, $val) = @rest;
-            my $sub_condition = $BINARY_OP{$op}->new(value => $val);
-            return build_parent_condition($sub_condition, $key);
-        }
-
-        if ($op eq 'FUNC') {
-            my ($func, $params) = @rest;
-            my $wrap_in_not;
-            if (!exists $FUNC_OPS{$func}) {
-                die "op '$func' not handled" unless ($func =~ s/^not_//);
-                die "op 'not_$func' not handled" unless exists $FUNC_OPS{$func};
-                $wrap_in_not = 1;
-            }
-
-            if ($func eq $TRUE_CONDITION) {
-                return pf::condition::true->new();
-            }
-
-            my ($key, $val) = @$params;
-            my $sub_condition = $FUNC_OPS{$func}->new(value => $val);
-            my $condition = build_parent_condition($sub_condition, $key);
-            return $wrap_in_not ? pf::condition::not->new({condition => $condition}) : $condition;
-        }
-
-        die "op '$op' not handled";
-    }
-
-    if ($ast eq $TRUE_CONDITION) {
-        return pf::condition::true->new;
-    }
-
-    die "condition '$ast' not defined\n";
-}
-
-sub build_parent_condition {
-    my ($child, $key) = @_;
-    my @parents = split /\./, $key;
-    if (@parents == 1) {
-        return pf::condition::key->new({
-            key       => $key,
-            condition => $child,
-        });
-    }
-
-    return _build_parent_condition($child, @parents);
-}
-
-sub _build_parent_condition {
-    my ($child, $key, @parents) = @_;
-    if (@parents == 0) {
-        return pf::condition::key->new({
-            key       => $key,
-            condition => $child,
-        });
-    }
-
-    return pf::condition::key->new({
-        key       => $key,
-        condition => _build_parent_condition($child, @parents),
-    });
-}
 
 =head1 AUTHOR
 
