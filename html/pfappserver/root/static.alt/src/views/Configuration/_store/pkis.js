@@ -13,26 +13,28 @@ const types = {
 }
 
 // Default values
-const state = {
-  caListCache: false, // ca list details
-  caItemCache: {}, // ca item details
-  caMessage: '',
-  caStatus: '',
+const state = () => {
+  return {
+    caListCache: false, // ca list details
+    caItemCache: {}, // ca item details
+    caMessage: '',
+    caStatus: '',
 
-  profileListCache: false, // profile list details
-  profileItemCache: {}, // profile item details
-  profileMessage: '',
-  profileStatus: '',
+    profileListCache: false, // profile list details
+    profileItemCache: {}, // profile item details
+    profileMessage: '',
+    profileStatus: '',
 
-  certListCache: false, // cert list details
-  certItemCache: {}, // cert item details
-  certMessage: '',
-  certStatus: '',
+    certListCache: false, // cert list details
+    certItemCache: {}, // cert item details
+    certMessage: '',
+    certStatus: '',
 
-  revokedCertListCache: false, // revoked cert list details
-  revokedCertItemCache: {}, // revoked cert item details
-  revokedCertMessage: '',
-  revokedCertStatus: ''
+    revokedCertListCache: false, // revoked cert list details
+    revokedCertItemCache: {}, // revoked cert item details
+    revokedCertMessage: '',
+    revokedCertStatus: ''
+  }
 }
 
 const getters = {

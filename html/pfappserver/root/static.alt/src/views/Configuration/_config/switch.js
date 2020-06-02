@@ -886,6 +886,19 @@ export const viewFields = {
       ]
     }
   },
+  TenantId: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Tenant'),
+      text: i18n.t('The tenant associated to this switch entry. Single tenant deployments should never have to modify this value.'),
+      cols: [
+        {
+          namespace: 'TenantId',
+          component: pfFormChosen,
+          attrs: attributesFromMeta(meta, 'TenantId')
+        }
+      ]
+    }
+  },
   type: (form = {}, meta = {}) => {
     const {
       type
@@ -1162,6 +1175,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         viewFields.id(form, meta),
         viewFields.description(form, meta),
+        viewFields.TenantId(form, meta),
         viewFields.type(form, meta),
         viewFields.mode(form, meta),
         viewFields.group(form, meta),
@@ -1446,6 +1460,7 @@ export const validators = (form = {}, meta = {}) => {
       SNMPAuthPasswordTrap: validatorsFromMeta(meta, 'SNMPAuthPasswordTrap'),
       SNMPPrivProtocolTrap: validatorsFromMeta(meta, 'SNMPPrivProtocolTrap'),
       SNMPPrivPasswordTrap: validatorsFromMeta(meta, 'SNMPPrivPasswordTrap'),
+      TenantId: validatorsFromMeta(meta, 'TenantId', i18n.t('Tenant ID')),
       macSearchesMaxNb: validatorsFromMeta(meta, 'macSearchesMaxNb', i18n.t('Max')),
       macSearchesSleepInterval: validatorsFromMeta(meta, 'macSearchesSleepInterval', i18n.t('Interval')),
       cliTransport: validatorsFromMeta(meta, 'cliTransport', i18n.t('Transport')),

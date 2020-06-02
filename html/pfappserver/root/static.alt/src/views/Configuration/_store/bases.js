@@ -13,10 +13,12 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // items details
-  message: '',
-  itemStatus: ''
+const state = () => {
+  return {
+    cache: {}, // items details
+    message: '',
+    itemStatus: ''
+  }
 }
 
 const getters = {

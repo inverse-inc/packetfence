@@ -3,6 +3,7 @@
         <b-col md="8" lg="6" xl="4">
           <transition name="fade" mode="out-in">
             <pf-form-login @login="login()" v-show="!loginSuccessful"></pf-form-login>
+          </transition>
         </b-col>
     </b-row>
 </template>

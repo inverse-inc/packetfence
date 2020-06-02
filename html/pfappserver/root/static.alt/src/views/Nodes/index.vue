@@ -69,6 +69,7 @@ export default {
         },
         {
           name: this.$i18n.t('Switch Groups'),
+          can: 'master tenant',
           collapsable: true,
           items: this.switchGroupsMembers.map(switchGroup => {
             return {
@@ -85,8 +86,7 @@ export default {
                 }
               })
             }
-          }),
-          can: 'read switches'
+          })
         }
       ]
     },
@@ -96,7 +96,7 @@ export default {
   },
   created () {
     this.$store.dispatch('config/getRoles')
-    if (this.$can('read', 'switches')) {
+    if (this.$can('master', 'tenant')) {
       this.$store.dispatch('config/getSwitchGroups').then(switchGroups => {
         switchGroups.map((switchGroup, index) => {
           let { id, description, members = [] } = switchGroup

@@ -243,6 +243,11 @@ sub match {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
     }
 
+    my $tenant_id = $result->{'tenant_id'};
+    if (defined $tenant_id) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $tenant_id});
+    }
+
     return pf::Authentication::Rule->new(
         id => "default",
         class => $params->{rule_class},

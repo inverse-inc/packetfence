@@ -27,6 +27,8 @@ CREATE TABLE `tenant` (
   UNIQUE KEY tenant_domain_name (`domain_name`)
 );
 
+SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
+    INSERT INTO `tenant` VALUES (0, 'global', NULL, NULL);
 INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL);
 
 --
@@ -474,7 +476,8 @@ CREATE TABLE `password` (
   `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
-  PRIMARY KEY (tenant_id, pid)
+  PRIMARY KEY (tenant_id, pid),
+  UNIQUE KEY pid_password_unique (pid)
 ) ENGINE=InnoDB;
 
 --

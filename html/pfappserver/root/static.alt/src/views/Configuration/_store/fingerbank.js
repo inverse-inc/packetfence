@@ -12,70 +12,72 @@ const types = {
 }
 
 // Default values
-const state = {
-  accountInfo: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  canUseNbaEndpoints: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  generalSettings: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  deviceChangeDetection: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  combinations: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  devices: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpFingerprints: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpVendors: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpv6Fingerprints: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpv6Enterprises: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  macVendors: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  userAgents: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  updateDatabase: {
-    message: '',
-    status: ''
+const state = () => {
+  return {
+    accountInfo: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    canUseNbaEndpoints: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    generalSettings: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    deviceChangeDetection: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    combinations: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    devices: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpFingerprints: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpVendors: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpv6Fingerprints: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpv6Enterprises: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    macVendors: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    userAgents: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    updateDatabase: {
+      message: '',
+      status: ''
+    }
   }
 }
 

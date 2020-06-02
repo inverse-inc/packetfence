@@ -33,6 +33,7 @@ use pf::util;
 use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
+use pf::dal::tenant;
 
 ## Definition
 has_field 'id' =>
@@ -48,6 +49,15 @@ has_field 'description' =>
    type => 'Text',
    required_when => { 'id' => sub { $_[0] ne 'default' } },
   );
+
+has_field 'TenantId' =>
+  (
+   type => 'Select',
+   label => 'Type',
+   options_method => \&options_tenant,
+   element_class => ['chzn-deselect'],
+  );
+
 has_field 'type' =>
   (
    type => 'Select',
@@ -741,6 +751,14 @@ sub options_wsTransport {
     my @transports = map { {label => uc($_), value =>  $_ } } qw/http https/;
 
     return ({label => '' ,value => '' }, @transports);
+}
+
+sub options_tenant {
+    my $self = shift;
+
+    my @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{pf::dal::tenant->search->all};
+
+    return @tenants;
 }
 
 =head2 validate

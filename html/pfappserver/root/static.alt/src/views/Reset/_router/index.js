@@ -1,11 +1,10 @@
 import { reset as resetStore } from '@/store'
-import LoginView from '../'
+import ResetView from '../'
 
 const route = {
-  path: '/login',
-  alias: ['/logout', '/expire'],
-  name: 'login',
-  component: LoginView,
+  path: '/reset',
+  name: 'reset',
+  component: ResetView,
   beforeEnter: (to, from, next) => {
     resetStore()
     next()
@@ -13,3 +12,4 @@ const route = {
 }
 
 export default route
+

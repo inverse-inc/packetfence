@@ -13,11 +13,13 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // items details
-  joins: {}, // domain join details
-  message: '',
-  itemStatus: ''
+const state = () => {
+  return {
+    cache: {}, // items details
+    joins: {}, // domain join details
+    message: '',
+    itemStatus: ''
+  }
 }
 
 const getters = {

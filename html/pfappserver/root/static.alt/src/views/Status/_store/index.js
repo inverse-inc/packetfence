@@ -19,19 +19,21 @@ const types = {
   ERROR: 'error'
 }
 
-const state = {
-  allCharts: {},
-  allChartsStatus: '',
-  charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
-  alarmsStatus: '',
-  alarms: {},
-  services: [],
-  servicesStatus: '',
-  clusterPromise: null,
-  cluster: null,
-  clusterStatus: '',
-  clusterServices: [],
-  clusterServicesStatus: ''
+const state = () => {
+  return {
+    allCharts: {},
+    allChartsStatus: '',
+    charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
+    alarmsStatus: '',
+    alarms: {},
+    services: [],
+    servicesStatus: '',
+    clusterPromise: null,
+    cluster: null,
+    clusterStatus: '',
+    clusterServices: [],
+    clusterServicesStatus: ''
+  }
 }
 
 const getters = {

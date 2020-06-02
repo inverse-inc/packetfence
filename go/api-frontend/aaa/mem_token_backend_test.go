@@ -31,7 +31,7 @@ func TestMemTokenBackend(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"Node Manager": true,
 		},
-		TenantId: 1,
+		TenantId: Tenant{Id: 1},
 	})
 
 	if !b.TokenIsValid(token) {

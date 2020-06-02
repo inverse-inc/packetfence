@@ -37,7 +37,6 @@ export const userActions = [
   pfActions.mark_as_sponsor,
   pfActions.set_role_by_acl_user,
   pfActions.set_access_durations,
-  pfActions.set_tenant_id,
   pfActions.set_unreg_date_by_acl_user
 ]
 

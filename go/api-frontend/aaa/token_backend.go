@@ -21,14 +21,40 @@ const (
 )
 
 type TokenInfo struct {
-	AdminRoles map[string]bool
-	TenantId   int
-	Username   string
-	CreatedAt  time.Time
+	AdminRoles      map[string]bool
+	Tenant          Tenant
+	Username        string
+	CreatedAt       time.Time
+	addAdminActions map[string]bool
+}
+
+type Tenant struct {
+	Name             string `json:"name"`
+	PortalDomainName string `json:"portal_domain_name"`
+	DomainName       string `json:"domain_name"`
+	Id               int    `json:"id"`
+}
+
+func (ti *TokenInfo) IsTenantMaster() bool {
+	// If we're not in multi-tenant mode
+	// Or we're in multi-tenant mode and the current token is for the master tenant (tenant 0)
+	if !multipleTenants || (multipleTenants && ti.Tenant.Id == AccessAllTenants) {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (ti *TokenInfo) handleMultiTenant() {
+	if ti.IsTenantMaster() {
+		ti.AddAdminAction(`TENANT_MASTER`)
+	}
 }
 
 func (ti *TokenInfo) AdminActions() map[string]bool {
 	adminRolesMap := make(map[string]bool)
+
+	ti.handleMultiTenant()
 
 	for role, _ := range ti.AdminRoles {
 		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
@@ -36,5 +62,16 @@ func (ti *TokenInfo) AdminActions() map[string]bool {
 		}
 	}
 
+	for action, _ := range ti.addAdminActions {
+		adminRolesMap[action] = true
+	}
+
 	return adminRolesMap
+}
+
+func (ti *TokenInfo) AddAdminAction(a string) {
+	if ti.addAdminActions == nil {
+		ti.addAdminActions = make(map[string]bool)
+	}
+	ti.addAdminActions[a] = true
 }

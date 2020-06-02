@@ -12,11 +12,13 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // items details
-  message: '',
-  itemStatus: '',
-  policiesPromise: null
+const state = () => {
+  return {
+    cache: {}, // items details
+    message: '',
+    itemStatus: '',
+    policiesPromise: null
+  }
 }
 
 const getters = {

@@ -174,7 +174,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: 0,
+		TenantId: Tenant{Id:0},
 	})
 
 	if !res {
@@ -186,7 +186,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: 1,
+		TenantId: Tenant{Id:1},
 	})
 
 	if !res {
@@ -198,7 +198,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: 2,
+		TenantId: Tenant{Id:2},
 	})
 
 	if res {
@@ -210,7 +210,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: -1,
+		TenantId: Tenant{Id:-1},
 	})
 
 	if res {
@@ -255,7 +255,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		TenantId: 1,
+		TenantId: Tenant{Id:1},
 	})
 
 	addBearerTokenToTestRequest(req, token, 1)
@@ -279,7 +279,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		TenantId: 0,
+		TenantId: Tenant{Id:0},
 	})
 
 	addBearerTokenToTestRequest(req, token, 1)
@@ -295,7 +295,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		TenantId: 1,
+		TenantId: Tenant{Id:1},
 	})
 
 	addBearerTokenToTestRequest(req, token, 2)
@@ -320,7 +320,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"FirewallSSODelete": true,
 		},
-		TenantId: AccessAllTenants,
+		TenantId: Tenant{Id:0},
 	})
 
 	if !res {
@@ -332,7 +332,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"FirewallSSODelete": true,
 		},
-		TenantId: 2,
+		TenantId: Tenant{Id:2},
 	})
 
 	if res {

@@ -8,19 +8,21 @@ const STORAGE_SEARCH_LIMIT_KEY = 'dhcpoption82logs-search-limit'
 const STORAGE_VISIBLE_COLUMNS_KEY = 'dhcpoption82logs-visible-columns'
 
 // Default values
-const state = {
-  results: [], // search results
-  cache: {}, // dhcp option82 log details
-  message: '',
-  itemStatus: '',
-  searchStatus: '',
-  searchFields: [],
-  searchQuery: null,
-  searchSortBy: 'mac',
-  searchSortDesc: false,
-  searchMaxPageNumber: 1,
-  searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
-  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false
+const state = () => {
+  return {
+    results: [], // search results
+    cache: {}, // dhcp option82 log details
+    message: '',
+    itemStatus: '',
+    searchStatus: '',
+    searchFields: [],
+    searchQuery: null,
+    searchSortBy: 'mac',
+    searchSortDesc: false,
+    searchMaxPageNumber: 1,
+    searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
+    visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false
+  }
 }
 
 const getters = {
