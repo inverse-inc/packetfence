@@ -22,13 +22,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Mojo;
 
 #This test will running last
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
-my $url = "/api/v1/config/filter_engines";
+my $url = "/api/v1/config";
 
 $t->post_ok("$url/parse_condition" => json => {})
   ->status_is(422);
@@ -105,10 +105,6 @@ $t->post_ok(
   );
 
 
-
-$t->get_ok("$url")
-  ->status_is(200);
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -137,4 +133,3 @@ USA.
 =cut
 
 1;
-
