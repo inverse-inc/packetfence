@@ -94,6 +94,17 @@ has_field 'domains' =>
              help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
+has_field 'username_attribute' =>
+  (
+   type => 'Text',
+   label => 'Attribute of the username in the response',
+    element_attr => {
+        'placeholder' =>
+            pf::Authentication::Source::OpenIDSource->meta->get_attribute('username_attribute')->default
+    },
+    default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('username_attribute')->default,
+  );
+
 has_field 'person_mappings' =>
   (
    type => 'Repeatable',
