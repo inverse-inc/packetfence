@@ -2591,7 +2591,6 @@ There are some default RADIUS filters defined in the configuration you can use t
 .EXAMPLE_Ethernet-EAP-Accept will return Access Accept (with Cisco-AVPair attribute) when the connection is Ethernet-EAP and when there is no security event.
 
 .EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action will filter on the switch IP addresses and add the Session-Timeout (with a value between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS attributes.
-114|172\\.24\\.237\\.128)$"
 
 .EXAMPLE_ipad_by_name will use Fingerbank to target a specific devices (Apple iPad) and will add a Cisco ACLs to them.
 
