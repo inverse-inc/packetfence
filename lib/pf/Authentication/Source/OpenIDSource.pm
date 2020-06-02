@@ -13,6 +13,7 @@ use Moose;
 use pf::config qw(%Config);
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
+use pf::person qw(person_modify);
 extends 'pf::Authentication::Source::OAuthSource';
 with 'pf::Authentication::CreateLocalAccountRole';
 
