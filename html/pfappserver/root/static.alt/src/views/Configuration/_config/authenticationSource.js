@@ -2174,7 +2174,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
             viewFields.authentication_rules(form, meta),
-            viewFields.person_mappings(form, meta)
+            viewFields.person_mappings(form, meta),
+            viewFields.username_attribute(form, meta)
           ]
         }
       ]
@@ -3186,7 +3187,8 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
         ...validatorFields.authentication_rules(form, meta),
-        ...validatorFields.person_mappings(form, meta)
+        ...validatorFields.person_mappings(form, meta),
+        ...validatorFields.username_attribute(form, meta)
       }
     case 'Pinterest':
       return {
