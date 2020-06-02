@@ -2440,19 +2440,19 @@ And can be defined using different criteria like:
   owner.attribute (like owner.pid)
   radius_request.attribute (like radius_request.Calling-Station-Id)
 
-There is some default vlan filters defined in the configuration you can use to achieve the following goal:
+There are some default VLAN filters defined in the configuration you can use to achieve the following goal:
 
-.EXAMPLE_Reject_between_11am_2pm will revent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and as a registered device
+.EXAMPLE_Reject_between_11am_2pm will revent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and is a registered device
 
 .EXAMPLE_Trigger_event_if_user will create a security event if the SSID is OPEN and the owner is igmout (the security event needs to have a custom trigger with the value 12345)
 
 .EXAMPLE_Autoregister_if_user will autoregister the device and assign the role staff to each device where the username is igmout.
 
-.EXAMPLE_Autoregister_windows_devices will autoregister all Windows devices and assign them the role default.
+.EXAMPLE_Autoregister_windows_devices will autoregister all Windows devices and assign them the default role.
 
-.EXAMPLE_Reject_specific_MAC will filter a MAC address and reject it by assigning the role REJECT.
+.EXAMPLE_Reject_specific_MAC will filter a MAC address and reject it by assigning the REJECT role.
 
-.EXAMPLE_Detect_VOIP will auto set Avaya and Polycom as phones by matching vendor MAC, and set to default role
+.EXAMPLE_Detect_VOIP will automatically set Avaya and Polycom as phones by matching vendor MAC and set to default role
 
 .EXAMPLE_Reject_User_Unless_Machine will refuse user authentication without prior machine authentication
 
@@ -2466,50 +2466,50 @@ Advanced LDAP Authentication
 ldapfilter action
 ^^^^^^^^^^^^^^^^^
 
-ldapfilter action override the internal ldap filter packetfence create internally (uid=$username) so you can create a custom filter that match your needs.
+ldapfilter action overrides the internal LDAP filter that PacketFence creates internally (uid=$username) so you can create a custom filter that matches your needs.
 
-Per example something like this (search for the user and check to see if it's permitted based on some criteria):
+For example something like this (search for the user and check to see if it's permitted based on some criteria):
 
   (&(|(cn=${radius_request.Stripped-User-Name})(cn=${radius_request.User-Name}))(|(permitWifi=*)(grade=staff)(memberOf=CN=WifiGroup,OU=Security Groups,DC=ad,DC=acme,DC=com)))
 
 Set_role_on_not_found action
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-set_role_on_not_found is a way to define a role is the rule doesn't match, let's take the ldapfilter example above.
+set_role_on_not_found is a way to define a role if the rule doesn't match, let's take the ldapfilter example above.
 
-If we add the action set_role_on_not_found = REJECT so it mean that the device will be rejected if the ldap filter doesn't return anything. (if it match then set_role action will be applied)
+If we add the action set_role_on_not_found = REJECT so it mean that the device will be rejected if the LDAP filter doesn't return anything. (if it matches then set_role action will be applied)
 
 role_from_source action
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-role_from_source will check to see if the ldap attribute exist and will add it in the ldap_attribute context (available in the radius filters)
+role_from_source will check to see if the LDAP attribute exists and will add it in the ldap_attribute context (available in the radius filters)
 
-So per example if you want to take the value of the ldap attribute customRadius and add it in the radius answer you needs to do the following.
+So for example if you want to take the value of the LDAP attribute customRadius and add it in the RADIUS answer you need to do the following.
 
 In the authentication rule, set an action "Role from source" to customRadius.
-Next create a radius filter that will add the custom radius attributes:
+Next create a RADIUS filter that will add the custom RADIUS attributes:
 
   [IF_SET_ROLE_FROM_SOURCE]
   status=enabled
   answer.0=reply:Packetfence-Raw = $ldap_attribute.customRadius
   top_op=and
-  description=If the role has been computed from the action set_role_from_source then return the value of the role as a radius attribute
+  description=If the role has been computed from the action set_role_from_source then return the value of the role as a RADIUS attribute
   scopes=returnRadiusAccessAccept
   radius_status=RLM_MODULE_OK
   merge_answer=no
   condition=action == "set_role_from_source"
 
-Note, this support multiples ldap attributes, like customRadius:Airespace-Interface-Name=internet , customRadius:Aruba-User-Vlan=666
+Note, this supports multiples LDAP attributes, like customRadius:Airespace-Interface-Name=internet , customRadius:Aruba-User-Vlan=666
 
 Append search attributes ldap filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This option will add as a & condition to the ldap filter generated by PacketFence,
-So per example the ldapfilter generated by PacketFence will be the following:
+This option will add as a & condition to the LDAP filter generated by PacketFence,
+So for example the ldapfilter generated by PacketFence will be the following:
 
   (&(|(sAMAccountName=%{User-Name})(sAMAccountName=%{Stripped-User-Name})(cn=%{User-Name})(cn=%{Stripped-User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}})))
 
-and if you define a appended ldap filter like:
+and if you define a appended LDAP filter like:
 
   (|(memberOf=CN=Staff,OU=Security Groups,DC=ad,DC=acme,DC=com)(wifi=enabled))
 
@@ -2517,34 +2517,34 @@ Then the filter will be generated like that:
 
   (&(|(sAMAccountName=%{User-Name})(sAMAccountName=%{Stripped-User-Name})(cn=%{User-Name})(cn=%{Stripped-User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))(|(memberOf=CN=Staff,OU=Security Groups,DC=ad,DC=acme,DC=com)(wifi=enabled)))
 
-By doing that, event you wont don't need the "Search Attributes" feature, you will be able to store the user dn in the PacketFence-UserDN attribute.
+By doing that, event if you wont don't need the "Search Attributes" feature, you will be able to store the user's DN in the PacketFence-UserDN attribute.
 
 
 basedn condition
 ^^^^^^^^^^^^^^^^
 
-This condition allow to override the default basedn in the ldap source and it will permit to test if a object is in a specific ou.
+This condition allow to override the default basedn in the LDAP source and it will permit to test if a object is in a specific ou.
 
 
 Advanced Realm Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In PacketFence you can define multiple Realms to select on which domain you want to authenticate the users.
+In PacketFence you can define multiple realms to select on which domain you want to authenticate the users.
 
-You can define a Realm with a regex in order to match multiples format.
+You can define a Realm with a regex in order to match multiple formats.
 
-Per example in the ACME realm we define the regex like this:
+For example in the ACME realm we define the regex like this:
 
   .*\.acme\.com$
 
-It mean that if you have a user coming with this username mickey@la.acme.com , FreeRADIUS will define the realm as la.acme.com (it will be included in the radius request) and PacketFence will map the user to the ACME Realm.
+It means that if you have a user coming with this username mickey@la.acme.com , PacketFence will define the realm as la.acme.com (it will be included in the RADIUS request) and PacketFence will map the user to the ACME realm.
 
 
 
 RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-We added the ability to specify filters directly in the portion of code that return radius attributes or do a call to the API.
+We added the ability to specify filters directly in the portion of code that return RADIUS attributes or do a call to the API.
 These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
 
 These rules are available in thoses scopes:
@@ -2553,19 +2553,19 @@ These rules are available in thoses scopes:
   returnAuthorizeRead is when you return the answer for the switch read login access
   returnAuthorizeWrite is when you return the answer for the switch write login access
   returnAuthorizeVoip is when you return the answer for a VoIP
-  preProcess is when you want to manipulate the radius context (like adding custom attributes to the request)
+  preProcess is when you want to manipulate the RADIUS context (like adding custom attributes to the request)
 
-  packetfence.authorize call the radius filter in the packetfence authorize section
-  packetfence.authenticate call the radius filter in the packetfence authenticate section
-  packetfence.pre-proxy call the radius filter in the packetfence pre-proxy section
-  packetfence.post-proxy call the radius filter in the packetfence post-proxy section
-  packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
-  packetfence.preacct call the radius filter in the packetfence preacct section
-  packetfence.accounting call the radius filter in the packetfence accounting section
-  eduroam.authorize call the radius filter in the eduroam accounting section
-  eduroam.pre-proxy  call the radius filter in the pre-proxy accounting section
-  eduroam.post-proxy call the radius filter in the post-proxy accounting section
-  eduroam.preacct call the radius filter in the eduroam preacct section
+  packetfence.authorize call the RADIUS filter in the packetfence authorize section
+  packetfence.authenticate call the RADIUS filter in the packetfence authenticate section
+  packetfence.pre-proxy call the RADIUS filter in the packetfence pre-proxy section
+  packetfence.post-proxy call the RADIUS filter in the packetfence post-proxy section
+  packetfence-tunnel.authorize call the RADIUS filter in the packetfence-tunnel authorize section
+  packetfence.preacct call the RADIUS filter in the packetfence preacct section
+  packetfence.accounting call the RADIUS filter in the packetfence accounting section
+  eduroam.authorize call the RADIUS filter in the eduroam accounting section
+  eduroam.pre-proxy  call the RADIUS filter in the pre-proxy accounting section
+  eduroam.post-proxy call the RADIUS filter in the post-proxy accounting section
+  eduroam.preacct call the RADIUS filter in the eduroam preacct section
 
 All the packetfence.* eduroam.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
 
@@ -2591,7 +2591,7 @@ For example, lets define a rule that return Access Accept when the connection is
 
   [Ethernet-EAP-Accept]
   status=enabled
-  description=Access Accept when the connection is Ethernet-EAP and when there is no security event
+  description=Return Access-Accept when the connection is Ethernet-EAP and when there is no security event
   scopes=returnRadiusAccessAccept
   radius_status=RLM_MODULE_OK
   merge_answer=no
@@ -2603,7 +2603,7 @@ by the value of _portalURL defined in the switch config):
 
   [Ethernet-EAP-Accept]
   status=enabled
-  description=Access Accept with VSA when the connection is Ethernet-EAP and when there is no security event
+  description=Return Access Accept with VSA when the connection is Ethernet-EAP and when there is no security event
   scopes=returnRadiusAccessAccept
   radius_status=RLM_MODULE_OK
   merge_answer=yes
@@ -2617,7 +2617,7 @@ Here is an example on filtering by switch IP addresses and using MAC authenticat
   status=enabled
   answer.0=reply:Session-Timeout = 10620..12600
   top_op=and
-  description=Change the session timeout and
+  description=Change the session timeout , idle timeout and terminate action
   scopes=returnRadiusAccessAccept
   merge_answer=no
   answer.2=reply:Termination-Action = RADIUS-Request
@@ -2635,9 +2635,9 @@ Fingerbank can also be used to target specific devices as seen below. We can the
   merge_answer=yes
   condition=contains(fingerbank_info.device_hierarchy_names, "Apple iPad")
 
-preProcess scope can be usefull when you want to create internal radius attributes that will be used internally, like in the authentication rules.
+preProcess scope can be useful when you want to create internal RADIUS attributes that will be used internally, like in the authentication rules.
 
-per example we want to add the attribute TLS-Stripped-UserName by extracting the first portion of the TLS-Client-Cert-Common-Name attribute value:
+For example if we want to add the attribute TLS-Stripped-UserName by extracting the first portion of the TLS-Client-Cert-Common-Name attribute value:
 
   [eap-tls-preProcess]
   status=enabled
@@ -2647,7 +2647,7 @@ per example we want to add the attribute TLS-Stripped-UserName by extracting the
   description=preProcess attribute for eap tls
   scopes=preProcess
 
-This rule will add the TLS-Stripped-UserName radius attribute in the request and you will be able to use it in the authentication/administrations rules.
+This rule will add the TLS-Stripped-UserName RADIUS attribute in the request and you will be able to use it in the authentication/administrations rules.
 
 
 You can have a look in the file radius_filters.conf, there are some examples on how to use and define filters.
@@ -2906,9 +2906,9 @@ Now when a device connect with the username bob@acme.com then the authentication
 RADIUS EAP Profiles
 ~~~~~~~~~~~~~~~~~~~
 
-RADIUS EAP Profiles allow you to select a specific eap profile in FreeRADIUS based on the Realm of the user.
+RADIUS EAP Profiles allow you to select a specific EAP profile in PacketFence based on the realm of the user.
 
-In this eap profile you can define:
+In this EAP profile you can define:
  Certificates configuration.
  OCSP configuration
  EAP-Fast configuration
@@ -2916,15 +2916,15 @@ In this eap profile you can define:
 
 And link all these configuration together.
 
-Per example the Realm ACME.COM needs to use the CA certificate from ACME CA and the other Realm needs to use the default one.
+For example the realm ACME.COM needs to use the CA certificate from ACME CA and the other realms need to use the default one.
 
 To do that go in 'Configuration -> System Configuration -> RADIUS -> SSL Certificates' and create a new profile.
 Next go in 'Configuration -> System Configuration -> RADIUS -> TLS Profiles' and create a new TLS profile and select the Certificate profile created just before.
-Then create the EAP profile in 'Configuration -> System Configuration -> RADIUS -> EAP Profiles' and create a new EAP profile and select the TLS profile created before (PEAP Profile per exemple)
+Then create the EAP profile in 'Configuration -> System Configuration -> RADIUS -> EAP Profiles' and create a new EAP profile and select the TLS profile created before (PEAP Profile for exemple)
 
-The last thing to do is to link the EAP profile with your Realm configuration, to achieve that go in 'Configuration -> Policies and Access Control -> Domains -> Realms' and edit the ACME.COM realm (create it if it's not already the case) then choose the EAP profile you created before in the EAP configuration parameter.
+The last thing to do is to link the EAP profile with your realm configuration, to achieve that go in 'Configuration -> Policies and Access Control -> Domains -> Realms' and edit the ACME.COM realm (create it if it's not already the case) then choose the EAP profile you created before in the EAP configuration parameter.
 
-Restart radiusd to generate the new RADIUS configuration.
+Restart packetfence-radiusd-auth.service to generate the new RADIUS configuration. (systemctl restart packetfence-radiusd-auth.service)
 
 Fingerbank Integration
 ----------------------
