@@ -15,10 +15,12 @@ pf::ConfigStore::RadiusFilters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($radius_filters_config_file);
+use pf::file_paths qw($radius_filters_config_file $radius_filters_config_default_file);
 extends 'pf::ConfigStore::FilterEngine';
 
 sub configFile { $radius_filters_config_file };
+
+sub importConfigFile { $radius_filters_config_default_file };
 
 sub pfconfigNamespace {'config::RadiusFilters'}
 

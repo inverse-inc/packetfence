@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($radius_filters_config_file);
+use pf::file_paths qw($radius_filters_config_file $radius_filters_config_default_file);
 
 use base 'pfconfig::namespaces::config';
 
@@ -26,6 +26,9 @@ sub init {
     my ($self) = @_;
     $self->{file} = $radius_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::RadiusScopes'];
+
+    my $defaults = pf::IniFiles->new( -file => $radius_filters_config_default_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {
