@@ -84,6 +84,7 @@ our (
     $suricata_categories_file,
     $nexpose_categories_file,
     $radius_filters_config_file,
+    $radius_filters_config_default_file,
     $billing_tiers_config_file,
     $dhcp_filters_config_file,
     $roles_config_file,
@@ -179,7 +180,7 @@ BEGIN {
         $pki_provider_config_file
         $suricata_categories_file
         $nexpose_categories_file
-        $radius_filters_config_file
+        $radius_filters_config_file $radius_filters_config_default_file
         $billing_tiers_config_file
         $dhcp_filters_config_file
         $roles_config_file
@@ -316,6 +317,7 @@ $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $wmi_config_file = catfile($conf_dir,"wmi.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
+$radius_filters_config_default_file = catfile($conf_dir,"radius_filters.conf.defaults");
 $billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
 $dhcp_filters_config_file = catfile($conf_dir,"dhcp_filters.conf");
 $roles_config_file = catfile($conf_dir,"roles.conf");
@@ -377,7 +379,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $vlan_filters_config_file,$vlan_filters_config_default_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,$pfdetect_config_file,$pfqueue_config_file,
     $pki_provider_config_file,
-    $radius_filters_config_file,
+    $radius_filters_config_file, $radius_filters_config_default_file,
     $dhcp_filters_config_file,
     $roles_config_file,
     $dns_filters_config_file,

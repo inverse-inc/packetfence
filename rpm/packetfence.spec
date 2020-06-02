@@ -956,7 +956,8 @@ fi
                         /usr/local/pf/conf/provisioning.conf.example
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
-%dir			/usr/local/pf/conf/radiusd
+%config                 /usr/local/pf/conf/radius_filters.conf.defaults
+%dir                    /usr/local/pf/conf/radiusd
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc
@@ -971,15 +972,15 @@ fi
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer
                         /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
+%config(noreplace)      /usr/local/pf/conf/radiusd/eap.conf
                         /usr/local/pf/conf/radiusd/eap.conf.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
+%config(noreplace)      /usr/local/pf/conf/radiusd/radiusd.conf
                         /usr/local/pf/conf/radiusd/radiusd.conf.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
+%config(noreplace)      /usr/local/pf/conf/radiusd/sql.conf
                         /usr/local/pf/conf/radiusd/sql.conf.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/packetfence
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence
                         /usr/local/pf/conf/radiusd/packetfence.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/packetfence-tunnel
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-tunnel
                         /usr/local/pf/conf/radiusd/packetfence-tunnel.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/acct.conf
                         /usr/local/pf/conf/radiusd/acct.conf.example
@@ -1072,7 +1073,7 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
-%config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
+%config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
