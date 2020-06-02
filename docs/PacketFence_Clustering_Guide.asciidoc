@@ -69,7 +69,7 @@ First, you will need to install, *on each servers*, Percona Xtrabackup for the s
 
 On RHEL / CentOS 7:
 
-  # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+  # yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
 
 Disable Percona repositories, so that installing software from that repository requires explicit action.
 
