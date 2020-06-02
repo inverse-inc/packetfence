@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 17;
 use Test::Mojo;
 
 #This test will running last
@@ -41,6 +41,70 @@ $t->post_ok("$url/parse_condition" => json => { condition => 'b == "bob" && a = 
 
 $t->post_ok("$url/parse_condition" => json => { condition => "b && a"})
   ->status_is(200);
+
+$t->post_ok(
+    "$url/flatten_condition" => json => {
+        condition => {
+            value => '^a.s$',
+            op    => 'regex',
+            field => 'b',
+        }
+    }
+  )
+  ->status_is(200)
+  ->json_is(
+    {
+        status => 200,
+        item   => {
+            condition => {
+                value => '^a.s$',
+                op    => 'regex',
+                field => 'b',
+            },
+            condition_string => 'b =~ "^a.s$"'
+        },
+    }
+  );
+
+$t->post_ok("$url/parse_condition" => json => { condition => 'b =~ "^a\\\\.s$"'})
+  ->status_is(200)
+  ->json_is({
+    status => 200,
+    item => {
+        condition => {
+            value => '^a\\.s$',
+            op => 'regex',
+            field => 'b',
+        },
+        condition_string => 'b =~ "^a\\\\.s$"'
+    },
+  });
+
+$t->post_ok(
+    "$url/flatten_condition" => json => {
+        condition => {
+            value => '^a\\.s$',
+            op    => 'regex',
+            field => 'b',
+        }
+    }
+  )
+  ->status_is(200)
+  ->json_is(
+    {
+        status => 200,
+        item   => {
+            condition => {
+                value => '^a\\.s$',
+                op    => 'regex',
+                field => 'b',
+            },
+            condition_string => 'b =~ "^a\\\\.s$"'
+        },
+    }
+  );
+
+
 
 $t->get_ok("$url")
   ->status_is(200);
