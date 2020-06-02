@@ -11,6 +11,7 @@ OpenID OAuth module
 =cut
 
 use Moose;
+use pf::person qw(person_view);
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::OpenIDSource');
