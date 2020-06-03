@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var apiPrefix = "/api/v1"
@@ -28,17 +28,26 @@ var multipleTenants = false
 
 func init() {
 	pfdb, err := db.DbFromConfig(context.Background())
-	sharedutils.CheckError(err)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s", err)
+		return
+	}
 	defer pfdb.Close()
 
 	res, err := pfdb.Query(`select count(1) from tenant`)
-	sharedutils.CheckError(err)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s", err)
+		return
+	}
 	defer res.Close()
 
 	for res.Next() {
 		var count int
 		err := res.Scan(&count)
-		sharedutils.CheckError(err)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s", err)
+			return
+		}
 		if count > 2 {
 			log.Logger().Info("Running in multi-tenant mode")
 			multipleTenants = true
