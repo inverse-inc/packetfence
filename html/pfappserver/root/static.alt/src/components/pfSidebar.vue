@@ -32,7 +32,10 @@
                   v-b-toggle="$sanitizedClass(section.name)">
                   <icon class="position-absolute mx-3" :name="section.icon" scale="1.25" v-if="section.icon"></icon>
                   <text-highlight class="ml-5" :queries="[filter]">{{ $t(section.name) }}</text-highlight>
-                  <icon class="mx-1 mt-1" name="chevron-down"></icon>
+                  <icon v-if="section.loading"
+                    class="mx-1 mt-1" name="circle-notch" spin></icon>
+                  <icon v-else
+                    class="mx-1 mt-1" name="chevron-down"></icon>
                 </component>
                 <b-collapse :id="$sanitizedClass(section.name)" :key="section.name" :accordion="accordion(section.name)" :visible="isActive(section.name)">
                   <template v-for="item in section.items">

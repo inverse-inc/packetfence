@@ -54,14 +54,14 @@ export default {
             {
               name: this.$i18n.t('Offline Nodes'),
               path: {
-                name: 'search',
+                name: 'nodeSearch',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }) }
               }
             },
             {
               name: this.$i18n.t('Online Nodes'),
               path: {
-                name: 'search',
+                name: 'nodeSearch',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }) }
               }
             }
@@ -71,6 +71,7 @@ export default {
           name: this.$i18n.t('Switch Groups'),
           can: 'master tenant',
           collapsable: true,
+          loading: this.isLoadingSwitchGroups,
           items: this.switchGroupsMembers.map(switchGroup => {
             return {
               name: switchGroup.id || this.$i18n.t('Default'),
@@ -80,7 +81,7 @@ export default {
                   name: switchGroupMember.id,
                   caption: switchGroupMember.description,
                   path: {
-                    name: 'search',
+                    name: 'nodeSearch',
                     query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: network.cidrToIpv4(switchGroupMember.id) }] }] }) }
                   }
                 }
@@ -92,6 +93,9 @@ export default {
     },
     roles () {
       return this.$store.state.config.roles
+    },
+    isLoadingSwitchGroups () {
+      return this.$store.getters['config/isLoadingSwitchGroups']
     }
   },
   created () {
