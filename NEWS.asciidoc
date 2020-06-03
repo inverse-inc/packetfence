@@ -50,6 +50,7 @@ Enhancements
 * Documentation for regex realm
 * Documentation for new action/condition in LDAP authentication
 * Moved the VLAN filters example as default disabled VLAN filter
+* Use PUT for node reevaluate_access to fix issue with admin_role actions mapping.
 
 Bug Fixes
 +++++++++
