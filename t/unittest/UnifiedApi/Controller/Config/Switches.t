@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 27;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Switch;
@@ -40,6 +40,18 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/switches';
 
 my $base_url = '/api/v1/config/switch';
+
+{
+    my $id = '111.1.1.1';
+    my $switch_url = "$base_url/$id";
+    my $group_url = "/api/v1/config/switch_group/bug-5482";
+    $t->patch_ok( $switch_url => json => { voiceVlan => 501 })
+        ->status_is(200);
+    $t->patch_ok( $group_url => json => { voiceRole => "zammit"});
+    $t->get_ok( $switch_url  )
+      ->status_is(200)
+      ->json_is("/item/voiceRole", "zammit");
+}
 
 $t->get_ok($collection_base_url)
   ->status_is(200);
