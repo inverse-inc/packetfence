@@ -28,6 +28,10 @@ conf/pfdns.conf
 conf/pfdhcp.conf
 conf/etcd.conf.yml
 conf/template_switches.conf
+conf/radiusd/eap_profiles.conf
+conf/radiusd/fast.conf
+conf/radiusd/ocsp.conf
+conf/radiusd/tls.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
 sbin/pfhttpd
