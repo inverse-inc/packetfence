@@ -120,6 +120,8 @@ before rebooting:
 systemctl set-default multi-user.target
 ----
 
+This will make sure your services don't start up after the reboot.
+
 Set it back to previous target after it boots up:
 
 .Cluster
@@ -133,8 +135,6 @@ systemctl set-default packetfence-cluster.target
 ----
 systemctl set-default packetfence.target
 ----
-
-This will make sure your services don't start up after the reboot.
 
 === Packages upgrades
 
