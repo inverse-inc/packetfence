@@ -16,6 +16,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use pf::constants;
 use namespace::autoclean;
+use pf::Authentication::utils;
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
@@ -59,7 +60,7 @@ sub canDelete {
         return "Used in a profile", $FALSE;
     }
 
-    return $self->SUPER::canDelete($id);
+   return $self->SUPER::canDelete($id);
 }
 
 =head2 _Sections
@@ -136,9 +137,7 @@ sub cleanupAfterRead {
         if(ref($item->{message}) eq 'ARRAY'){
             $item->{message} = $self->join_options($item->{message});
         }
-    }
-
-    if ($type eq 'Email') {
+    } elsif ($type eq 'Email') {
         for my $f (qw(allowed_domains banned_domains)) {
             next unless exists $item->{$f};
             my $val =  $item->{$f};
@@ -146,12 +145,12 @@ sub cleanupAfterRead {
                 $item->{$f} = $self->join_options($val);
             }
         }
-    }
-
-    if ($item->{type} eq 'RADIUS') {
+    } elsif ($type eq 'RADIUS') {
         if(ref($item->{options}) eq 'ARRAY'){
             $item->{options} = $self->join_options($item->{options});
         }
+    } elsif ($type eq 'OpenID') {
+        $self->expand_ordered_array($item, 'person_mappings', 'person_mapping');
     }
 
     $self->expand_list($item, $self->_fields_expanded($item));
@@ -160,7 +159,8 @@ sub cleanupAfterRead {
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    if ($item->{type} eq 'Email') {
+    my $type = $item->{type};
+    if ($type eq 'Email') {
         for my $f (qw(allowed_domains banned_domains)) {
             next unless exists $item->{$f};
             my $val =  $item->{$f};
@@ -171,6 +171,8 @@ sub cleanupBeforeCommit {
                 $val =~ s/\r//sg;
             }
         }
+    } elsif ($type eq 'OpenID') {
+        $self->flatten_to_ordered_array($item, 'person_mappings', 'person_mapping');
     }
 
     $self->flatten_list($item, $self->_fields_expanded($item));

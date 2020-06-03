@@ -344,6 +344,16 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'accounting_timebucket_size.unit')
             }
           ]
+        },
+        {
+          label: i18n.t('OpenID Attributes'),
+          cols: [
+            {
+              namespace: 'openid_attributes',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'openid_attributes')
+            }
+          ]
         }
       ]
     }
@@ -408,6 +418,7 @@ export const validators = (form = {}, meta = {}) => {
           [i18n.t('Unit required.')]: requiredIf(() => accounting_timebucket_size.interval !== null)
         }
       }
-    }
+    },
+    openid_attributes: validatorsFromMeta(meta, 'openid_attributes', i18n.t('Attributes'))
   }
 }
