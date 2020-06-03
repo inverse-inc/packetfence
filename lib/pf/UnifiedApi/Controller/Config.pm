@@ -468,25 +468,37 @@ sub remove {
 
 sub update {
     my ($self) = @_;
-    my ($error, $new_data) = $self->get_json;
+    my ($error, $data) = $self->get_json;
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
     }
     my $old_item = $self->item;
-    my $new_item = {%$old_item, %$new_data};
+    my $new_item = {%$old_item, %$data};
     my $id = $self->id;
     $new_item->{id} = $id;
     delete $new_item->{not_deletable};
-    (my $status, $new_data) = $self->validate_item($new_item);
+    my ($status, $new_data) = $self->validate_item($new_item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $new_data);
     }
 
     delete $new_data->{id};
     my $cs = $self->config_store;
+    $self->cleanupItemForUpdate($old_item, $new_data, $data);
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings updated"});
+}
+
+=head2 cleanupItemForUpdate
+
+cleanupItemForUpdate
+
+=cut
+
+sub cleanupItemForUpdate {
+    my ($self, $old_item, $new_data, $data) = @_;
+    return;
 }
 
 sub replace {
