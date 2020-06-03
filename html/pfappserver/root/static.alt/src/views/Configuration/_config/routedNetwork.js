@@ -44,12 +44,14 @@ export const columns = [
   {
     key: 'id',
     label: 'Network', // i18n defer
-    required: true,
-    visible: true
+    sortable: true,
+    visible: true,
+    required: true
   },
   {
     key: 'type',
     label: 'Type', // i18n defer
+    sortable: true,
     visible: true,
     formatter: routedNetworkListFormatter
   },
@@ -78,11 +80,6 @@ export const columns = [
     visible: true
   },
   {
-    key: 'buttons',
-    label: '',
-    locked: true
-  },
-  {
     key: 'pool_backend',
     label: 'Backend', // i18n defer
     sortable: false,
@@ -93,6 +90,11 @@ export const columns = [
     label: 'Netflow Accounting Enabled', // i18n defer
     sortable: true,
     visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    locked: true
   }
 ]
 
