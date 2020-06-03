@@ -644,7 +644,15 @@ sub getNodeInfoForAutoReg {
             }
             $node_info{'pid'} = $args->{'user_name'};
         }
-        $logger->warn("No category computed for autoreg") if (!(exists($node_info{'category'})) || $node_info{'category'} eq '');
+        if (($args->{'connection_type'} & $EAP) == $EAP ) {
+            if ( isenabled($profile->dot1xRecomputeRoleFromPortal) ) {
+                if (!(exists($node_info{'category'})) || $node_info{'category'} eq '') {
+                    $logger->info("No rules matches or no category defined for the node, set it as unreg." );
+                    $node_info{'status'} = 'unreg';
+                }
+            }
+        }
+	$logger->warn("No category computed for autoreg") if (!(exists($node_info{'category'})) || $node_info{'category'} eq '');
     }
 
     # set the eap_type if it exist

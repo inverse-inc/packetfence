@@ -50,7 +50,8 @@ sub setup_node_for_registration {
     my $pid = $node->pid;
     if ( $node->{__old_data}->{status} ne "reg" &&  pf::node::is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
         if (!($action eq $Actions::SET_ROLE_FROM_SOURCE)) {
-            $status_msg = "max nodes per pid met or exceeded or no category computed";
+            $status_msg = "max nodes per pid met or exceeded";
+            $status_msg = "no role computed by any sources" if (!defined($node->category));
             $logger->error( "$status_msg - registration of $mac to $pid failed" );
             return ($STATUS::PRECONDITION_FAILED, $status_msg);
         }
