@@ -852,6 +852,7 @@ fi
                         /usr/local/pf/conf/apache_filters.conf.example
 %config                 /usr/local/pf/conf/apache_filters.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
+%dir %attr(0770, pf pf) /usr/local/pf/conf/certmanager
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
