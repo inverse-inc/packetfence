@@ -652,7 +652,7 @@ sub getNodeInfoForAutoReg {
                 }
             }
         }
-	$logger->warn("No category computed for autoreg") if (!(exists($node_info{'category'})) || $node_info{'category'} eq '');
+        $logger->warn("No category computed for autoreg") if (!(exists($node_info{'category'})) || $node_info{'category'} eq '');
     }
 
     # set the eap_type if it exist
