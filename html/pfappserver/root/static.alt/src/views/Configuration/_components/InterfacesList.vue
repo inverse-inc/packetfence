@@ -112,6 +112,9 @@
           <template v-slot:cell(dhcpd)="item">
             <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
           </template>
+          <template v-slot:cell(netflow_accounting_enabled)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.netflow_accounting_enabled === 'enabled', 'text-danger': item.item.netflow_accounting_enabled === 'disabled' }"></icon>
+          </template>
         </b-table>
       </div>
     </b-card>
@@ -157,6 +160,9 @@
           </template>
           <template v-slot:cell(dhcpd)="item">
             <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
+          </template>
+          <template v-slot:cell(netflow_accounting_enabled)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.netflow_accounting_enabled === 'enabled', 'text-danger': item.item.netflow_accounting_enabled === 'disabled' }"></icon>
           </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">

@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import { columns as columnsInterface } from '../_config/interface'
 
 const types = {
   LOADING: 'loading',
@@ -28,8 +29,13 @@ const getters = {
 
 const actions = {
   all: ({ state, commit }) => {
+    const params = {
+      sort: 'id',
+      fields: columnsInterface.map(r => r.key).join(','),
+      limit: 1000
+    }
     commit('INTERFACE_REQUEST')
-    return api.interfaces().then(response => {
+    return api.interfaces(params).then(response => {
       commit('INTERFACE_SUCCESS')
       commit('INTERFACES_REPLACED', response.items)
       return response.items
