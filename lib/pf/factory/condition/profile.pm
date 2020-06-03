@@ -194,7 +194,7 @@ sub build_conditions {
         }
 
     } else {
-        my $key = $operands[0];
+        $key = $operands[0];
         $sub_condition = $class->new({ value => $operands[1] });
     }
 
