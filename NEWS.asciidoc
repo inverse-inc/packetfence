@@ -51,6 +51,9 @@ Enhancements
 * Documentation for new action/condition in LDAP authentication
 * Moved the VLAN filters example as default disabled VLAN filter
 * Use PUT for node reevaluate_access to fix issue with admin_role actions mapping.
+* OpenID pid mapping is now configurable
+* Can map OpenID attributes to a person attributes
+* Allow to create authentication rules based on OpenID attributes
 
 Bug Fixes
 +++++++++
