@@ -22,13 +22,78 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::factory::condition;
 use pf::config::builder::filter_engine;
 my $builder = pf::config::builder::filter_engine->new;
+
+{
+
+    my $conf = <<'CONF';
+[pf_deauth_from_wireless_secure]
+status=enabled
+condition=connection_type == "Wireless-802.11-EAP" && not_starts_with(username, "host/")
+scopes = RegisteredRole
+role = registration
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            RegisteredRole => pf::filter_engine->new({
+                filters => [
+                    pf::filter->new({
+                        'condition' => 
+                            pf::condition::all->new({
+                                conditions => [
+                                    pf::condition::key->new(
+                                        {
+                                            'condition' => bless(
+                                                {
+                                                    'value' => 'Wireless-802.11-EAP'
+                                                },
+                                                'pf::condition::equals'
+                                            ),
+                                            'key' => 'connection_type'
+                                        },
+                                    ),
+                                    pf::condition::not->new({
+                                        condition => pf::condition::key->new({
+                                            'condition' =>
+                                              pf::condition::starts_with
+                                              ->new(
+                                                {
+                                                    'value' =>
+                                                      'host/'
+                                                },
+                                              ),
+                                            'key' => 'username'
+                                        }),
+                                    })
+                                  ]
+                        }),
+                        answer => {
+                            status => 'enabled',
+                            condition => 'connection_type == "Wireless-802.11-EAP" && not_starts_with(username, "host/")',
+                            scopes  => ['RegisteredRole'],
+                            _rule   => 'pf_deauth_from_wireless_secure',
+                            role    => 'registration',
+                            params  => [],
+                            answers => [],
+                            actions => [ ],
+                        },
+                    })
+                ],
+            })
+        },
+        "Build simple condition filter"
+    );
+}
 
 {
 
