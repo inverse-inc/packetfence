@@ -10,7 +10,6 @@
           {{ prependText }}
         </div>
       </b-input-group-prepend>
-
       <b-form-input ref="inputElement"
         :id="`input-${formNamespace}`"
         v-model="inputValue"
@@ -22,28 +21,55 @@
         @focus="onFocusInput($event)"
         @blur="onBlurInput($event)"
       ></b-form-input>
-
-
       <b-popover :show.sync="focus"
         custom-class="popover-w-100"
         placement="top"
         triggers="manual"
         :target="`input-${formNamespace}`"
       >
-        <b-input-group class="p-3">
-          <b-calendar
-            v-model="inputValue"
-            :locale="$i18n.locale"
-            @context="onDateContext"
-          ></b-calendar>
-        </b-input-group>
+        <template v-slot:title>
+          <b-row class="small">
+            <b-col cols="auto">
+              {{ (formatHasDate) ? $t('Choose Date') : $t('Choose Time') }}
+            </b-col>
+            <b-col cols="auto" class="ml-auto text-secondary">
+              {{ format }}
+            </b-col>
+          </b-row>
+        </template>
+        <b-row class="text-center" no-gutters v-if="formatHasDate">
+          <b-col cols="12" class="text-center p-2" :class="{ 'pb-3': formatHasTime }"
+            v-on:click="onEventVacuum($event)"
+            v-on:mousedown="onEventVacuum($event)"
+          >
+            <b-calendar
+              v-model="dateValue"
+              class="align-self-center"
+              :locale="$i18n.locale"
+              @selected="onDateSelected"
+              label-help=""
+              hide-header
+              block
+            ></b-calendar>
+          </b-col>
+        </b-row>
+        <b-row class="text-center" no-gutters v-if="formatHasTime">
+          <b-col cols="12" class="text-center p-2" :class="{ 'pt-3 border-top': formatHasDate }"
+            v-on:click="onEventVacuum($event)"
+            v-on:mousedown="onEventVacuum($event)"
+          >
+            <b-time
+              v-model="timeValue"
+              class="align-self-center"
+              :locale="$i18n.locale"
+              @context="onTimeContext"
+              show-seconds hide-header
+            ></b-time>
+          </b-col>
+        </b-row>
       </b-popover>
-
-<pre>{{ JSON.stringify({formatHasDate,dateFormat,dateValue,formatHasTime,timeFormat,timeValue,focus}, null, 2) }}</pre>
-
-
       <b-input-group-append>
-        <b-button class="input-group-text" @click.stop.prevent="inputElement.focus()" tabindex="-1">
+        <b-button class="input-group-text" @click.stop.prevent="onToggleFocus($event)" tabindex="-1">
           <icon :name="formatHasDate ? 'calendar-alt' : 'clock'" variant="light"></icon>
         </b-button>
       </b-input-group-append>
@@ -54,6 +80,27 @@
 
 <script>
 import pfMixinForm from '@/components/pfMixinForm'
+import {
+  parse,
+  format,
+  getHours,
+  getMinutes,
+  getSeconds,
+  setHours,
+  setMinutes,
+  setSeconds,
+
+  isValid,
+  addYears,
+  addQuarters,
+  addMonths,
+  addWeeks,
+  addDays,
+  addHours,
+  addMinutes,
+  addSeconds,
+  addMilliseconds
+} from 'date-fns'
 
 export default {
   name: 'pf-form-boolean',
@@ -183,8 +230,6 @@ src/views/Users/_components/UsersImport.vue
       type: Boolean,
       default: false
     }
-
-
   },
   computed: {
     inputValue: {
@@ -207,42 +252,47 @@ src/views/Users/_components/UsersImport.vue
       const { $refs: { inputElement } = {} } = this
       return inputElement
     },
-    dateFormat () {
-      let dateFormat = this.format.replace(/[HmsXA]+/g, '')
-      let min = dateFormat.length - 1
-      let max = 0
-      for (let i=0; i < dateFormat.length; i++) {
-        if ('YMDd'.includes(dateFormat[i])) {
-          min = Math.min(min, i)
-          max = Math.max(max, i)
+    dateValue: {
+      get () {
+        // b-calendar expects Date()
+        if (this.inputValue) {
+          let dateValue = parse(this.inputValue, this.format)
+          dateValue = setHours(dateValue, 0)
+          dateValue = setMinutes(dateValue, 0)
+          dateValue = setSeconds(dateValue, 0)
+          return dateValue
+        }
+        else {
+          return (new Date(new Date().setHours(0, 0, 0, 0)))
         }
       }
-      return dateFormat.slice(min, max + 1)
     },
-    dateValue () {
-      return this.inputValue
-    },
-    timeFormat () {
-      let timeFormat = this.format.replace(/[YMDd]+/g, '')
-      let min = timeFormat.length - 1
-      let max = 0
-      for (let i=0; i < timeFormat.length; i++) {
-        if ('HmsXA'.includes(timeFormat[i])) {
-          min = Math.min(min, i)
-          max = Math.max(max, i)
+    timeValue: {
+      get () {
+        // b-time expects String w/ format 'HH:mm:ss'
+        if (this.inputValue) {
+          let inputValue
+          if (this.formatHasDate) {
+            inputValue = parse(this.inputValue, this.format)
+          }
+          else {
+            // date-fns does not parse only a time format (eg: 'HH:mm:ss'),
+            //  workaround by adding a known prefix
+            inputValue = parse(`1973-01-01 ${this.inputValue}`, `YYYY-MM-DD ${this.format}`)
+          }
+
+          let formattedValue = format(inputValue, 'HH:mm:ss')
+          if (this.inputValue.includes(formattedValue)) {
+            return formattedValue
+          }
         }
+        return null
       }
-      return timeFormat.slice(min, max + 1)
-    },
-    timeValue () {
-      return this.inputValue
     },
     formatHasDate () {
-      //return /[YyFMmndJjlD]+/.test(this.format)
       return /[YMDd]+/.test(this.format)
     },
     formatHasTime () {
-      //return /[HhGiSsK]+/.test(this.format)
       return /[HmsXA]+/.test(this.format)
     }
   },
@@ -259,20 +309,61 @@ src/views/Users/_components/UsersImport.vue
       }
       this.onBlurInputTimeout = setTimeout(() => { // wait for b-calendar context
         this.focus = false
-      }, 100)
+      }, 300)
     },
-    onDateContext (context) {
-      if (this.onBlurInputTimeout) { // don't blur
+    onEventVacuum (event) {
+      // popover component event, focus was stolen, defer onBlur
+      if (this.onBlurInputTimeout) {
+        clearTimeout(this.onBlurInputTimeout)
+        setTimeout(() => {
+          clearTimeout(this.onBlurInputTimeout)
+        }, 300)
+      }
+      if (this.focus) {
+        this.inputElement.focus() // refocus
+      }
+    },
+    onToggleFocus (event) {
+      if (this.focus) {
+        this.inputElement.blur()
+      }
+      else {
+        this.inputElement.focus()
+      }
+    },
+    onDateSelected (date) {
+      let selectedDate = parse(date, 'YYYY-MM-DD') // b-calendar uses 'YYYY-MM-DD' format
+      if (selectedDate) {
+        if (this.inputValue && this.formatHasTime) {
+          let parsedInputValue = parse(this.inputValue, this.format)
+          selectedDate = addHours(selectedDate, getHours(parsedInputValue))
+          selectedDate = addMinutes(selectedDate, getMinutes(parsedInputValue))
+          selectedDate = addSeconds(selectedDate, getSeconds(parsedInputValue))
+        }
+        this.inputValue = format(selectedDate, this.format)
+      }
+    },
+    onTimeContext (context) {
+      if (this.onBlurInputTimeout) { // don't blur input
         clearTimeout(this.onBlurInputTimeout)
       }
       if (this.focus) {
         this.inputElement.focus() // refocus
       }
-      const { selectedDate } = context
-      console.log('date', {selectedDate, context})
-    },
-    onTimeContext (context) {
-      console.log('time', {context})
+      let selectedDate
+      const { hours, minutes, seconds } = context
+      if (hours !== null || minutes !== null || seconds !== null) {
+        if (this.inputValue && this.formatHasDate) {
+          selectedDate = parse(this.inputValue, this.format)
+          selectedDate = setHours(selectedDate, hours || 0)
+          selectedDate = setMinutes(selectedDate, minutes || 0)
+          selectedDate = setSeconds(selectedDate, seconds || 0)
+        }
+        else {
+          selectedDate = (new Date(new Date().setHours(hours || 0, minutes || 0, seconds || 0, 0)))
+        }
+        this.inputValue = format(selectedDate, this.format)
+      }
     }
   }
 }
