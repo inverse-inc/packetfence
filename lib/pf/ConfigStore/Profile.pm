@@ -59,6 +59,8 @@ sub cleanupAfterRead {
     $profile->{filter} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/, $profile->{filter} || '' ) ];
     if ($profile->{advanced_filter}) {
         $self->expandCondition($profile, 'advanced_filter');
+    } else {
+        $profile->{advanced_filter} = undef;
     }
 }
 
