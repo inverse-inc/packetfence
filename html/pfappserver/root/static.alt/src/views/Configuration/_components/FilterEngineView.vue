@@ -138,7 +138,8 @@ export default {
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
     close () {
-      this.$router.push({ name: 'filter_engines' })
+      const { collection } = this
+      this.$router.push({ name: 'filterEnginesCollection', params: { collection } })
     },
     clone () {
       const { collection } = this
@@ -148,7 +149,7 @@ export default {
       const { collection, actionKey, form: data, form: { id } = {} } = this
       this.$store.dispatch('$_filter_engines/createFilterEngine', { collection, data }).then(() => {
         if (!actionKey) {
-          this.$router.push({ name: 'filter_engines' })
+          this.$router.push({ name: 'filterEnginesCollection', params: { collection } })
         } else {
           this.$router.push({ name: 'filter_engine', params: { collection, id } })
         }

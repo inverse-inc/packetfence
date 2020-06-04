@@ -1690,6 +1690,12 @@ const route = {
       props: (route) => ({ query: route.query.query })
     },
     {
+      path: 'filter_engines/:collection',
+      name: 'filterEnginesCollection',
+      component: FilterEnginesList,
+      props: (route) => ({ collection: route.params.collection, query: route.query.query })
+    },
+    {
       path: 'filter_engines/:collection/new',
       name: 'newFilterEngine',
       component: FilterEngineView,
