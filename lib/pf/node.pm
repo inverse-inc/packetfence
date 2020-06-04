@@ -246,16 +246,19 @@ sub node_add {
         return (2);
     }
 
+    if ( ( $data{status} eq $STATUS_REGISTERED )) {
+        my $regdate = $data{regdate};
+        if ( !defined $regdate || $regdate eq '' || $regdate eq $ZERO_DATE ) {
+            $data{regdate} = \'NOW()';
+        }
+    }
+
     foreach my $field (keys %DEFAULT_NODE_VALUES)
     {
         $data{$field} = $DEFAULT_NODE_VALUES{$field} if ( !defined $data{$field} );
     }
 
     _cleanup_attributes(\%data);
-
-    if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
-        $data{regdate} = mysql_date();
-    }
 
     # category handling
     $data{'category_id'} = _node_category_handling(%data);
