@@ -134,10 +134,8 @@ Object.assign(apiCall, {
   if (apiServer) {
     request.headers['X-PacketFence-Server'] = apiServer
   }
-  const apiTenant = localStorage.getItem('X-PacketFence-Tenant-Id') || null
-  if (apiTenant) {
-    request.headers['X-PacketFence-Tenant-Id'] = apiTenant
-  }
+  request.headers['X-PacketFence-Tenant-Id'] = localStorage.getItem('X-PacketFence-Tenant-Id') || 0
+
   return request
 })
 
