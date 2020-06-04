@@ -244,11 +244,7 @@ export const viewFields = {
               component: pfFieldRule,
               attrs: {
                 default: {
-                  id: null,
-                  description: null,
-                  match: 'all',
-                  actions: [ { type: 'set_access_level', value: null } ],
-                  conditions: []
+                  actions: [ { type: 'set_access_level', value: null } ]
                 },
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
@@ -409,11 +405,7 @@ export const viewFields = {
               component: pfFieldRule,
               attrs: {
                 default: {
-                  id: null,
-                  description: null,
-                  match: 'all',
-                  actions: [ { type: 'set_role', value: 'default' } ],
-                  conditions: []
+                  actions: [ { type: 'set_role', value: 'default' } ]
                 },
                 matchLabel: i18n.t('Select rule match'),
                 actions: {

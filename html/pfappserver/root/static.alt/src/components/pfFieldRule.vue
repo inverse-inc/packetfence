@@ -142,7 +142,15 @@ export default {
       get () {
         if (this.formStoreValue === null) {
           // eslint-disable-next-line
-          this.formStoreValue = JSON.parse(JSON.stringify(this.default)) // set default
+          this.formStoreValue = JSON.parse(JSON.stringify({
+            id: null,
+            status: 'enabled',
+            description: null,
+            match: 'all',
+            actions: [],
+            conditions: [],
+            ...this.default
+          })) // set default
         }
         return this.formStoreValue // use FormStore
       },
