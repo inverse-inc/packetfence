@@ -133,6 +133,9 @@ export const createValidators = (form = {}) => {
         password: {
           [i18n.t('Password required.')]: required,
           [i18n.t('Password must be at least 6 characters.')]: minLength(6)
+        },
+        email: {
+          [i18n.t('Email required.')]: required
         }
       }
     ),
