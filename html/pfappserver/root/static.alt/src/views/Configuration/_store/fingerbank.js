@@ -200,7 +200,7 @@ const actions = {
       throw err
     })
   },
-  combinations: ({ state, commit }) => {
+  combinations: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -253,7 +253,7 @@ const actions = {
       throw err
     })
   },
-  devices: ({ state, commit }) => {
+  devices: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -306,7 +306,7 @@ const actions = {
       throw err
     })
   },
-  dhcpFingerprints: ({ state, commit }) => {
+  dhcpFingerprints: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -359,7 +359,7 @@ const actions = {
       throw err
     })
   },
-  dhcpVendors: ({ state, commit }) => {
+  dhcpVendors: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -412,7 +412,7 @@ const actions = {
       throw err
     })
   },
-  dhcpv6Fingerprints: ({ state, commit }) => {
+  dhcpv6Fingerprints: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -465,7 +465,7 @@ const actions = {
       throw err
     })
   },
-  dhcpv6Enterprises: ({ state, commit }) => {
+  dhcpv6Enterprises: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -518,7 +518,7 @@ const actions = {
       throw err
     })
   },
-  macVendors: ({ state, commit }) => {
+  macVendors: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -571,7 +571,7 @@ const actions = {
       throw err
     })
   },
-  userAgents: ({ state, commit }) => {
+  userAgents: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')

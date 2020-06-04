@@ -95,7 +95,7 @@ const actions = {
       throw err
     })
   },
-  deleteRoutedNetwork: ({ state, commit }, id) => {
+  deleteRoutedNetwork: ({ commit }, id) => {
     commit('ROUTED_NETWORK_REQUEST')
     return api.deleteRoutedNetwork(id).then(response => {
       commit('ROUTED_NETWORK_DESTROYED', id)

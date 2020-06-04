@@ -79,7 +79,7 @@ const actions = {
       throw err
     })
   },
-  downInterface: ({ state, commit }, id) => {
+  downInterface: ({ commit }, id) => {
     commit('INTERFACE_REQUEST')
     return api.downInterface(id).then(response => {
       commit('INTERFACE_DOWN', id)
@@ -89,7 +89,7 @@ const actions = {
       throw err
     })
   },
-  upInterface: ({ state, commit }, id) => {
+  upInterface: ({ commit }, id) => {
     commit('INTERFACE_REQUEST')
     return api.upInterface(id).then(response => {
       commit('INTERFACE_UP', id)
@@ -99,7 +99,7 @@ const actions = {
       throw err
     })
   },
-  deleteInterface: ({ state, commit }, id) => {
+  deleteInterface: ({ commit }, id) => {
     commit('INTERFACE_REQUEST')
     return api.deleteInterface(id).then(response => {
       commit('INTERFACE_DESTROYED', id)

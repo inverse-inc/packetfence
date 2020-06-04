@@ -128,7 +128,7 @@ const actions = {
       })
     })
   },
-  getUser: ({ commit, state }, arg) => {
+  getUser: ({ state, commit }, arg) => {
     const body = (typeof arg === 'object') ? arg : { pid: arg }
     const { pid } = body
     if (state.users[pid]) {
@@ -144,7 +144,7 @@ const actions = {
       throw err
     })
   },
-  getUserNodes: ({ commit, state }, pid) => {
+  getUserNodes: ({ state, commit }, pid) => {
     if (state.usersNodes[pid]) {
       return Promise.resolve(state.usersNodes[pid])
     }
@@ -157,7 +157,7 @@ const actions = {
       return err
     })
   },
-  getUserSecurityEvents: ({ commit, state }, pid) => {
+  getUserSecurityEvents: ({ state, commit }, pid) => {
     if (state.usersSecurityEvents[pid]) {
       return Promise.resolve(state.usersSecurityEvents[pid])
     }

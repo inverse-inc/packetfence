@@ -55,7 +55,7 @@ const actions = {
       throw err
     })
   },
-  getPkiProvidersByType: ({ state, commit }, type) => {
+  getPkiProvidersByType: (_, type) => {
     const params = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(','),

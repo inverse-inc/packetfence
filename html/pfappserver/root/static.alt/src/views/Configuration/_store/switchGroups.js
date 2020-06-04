@@ -71,7 +71,7 @@ const actions = {
       throw err
     })
   },
-  getSwitchGroupMembers: ({ commit }, id) => {
+  getSwitchGroupMembers: ({ state, commit }, id) => {
     commit('ITEM_REQUEST')
     return api.switchGroupMembers(id).then(members => {
       commit('ITEM_UPDATED', { id, prop: 'members', data: members })

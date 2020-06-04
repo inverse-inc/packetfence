@@ -27,7 +27,7 @@ const getters = {
 }
 
 const actions = {
-  all: ({ state, commit }) => {
+  all: ({ commit }) => {
     const params = {
       sort: 'id',
       fields: columnsLayer2Network.map(r => r.key).join(','),
