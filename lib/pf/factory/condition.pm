@@ -58,7 +58,7 @@ our %FUNC_OPS = (
     'fingerbank_device_is_a' => 'pf::condition::fingerbank::device_is_a',
     'time_period'            => 'pf::condition::time_period',
     'starts_with'            => 'pf::condition::starts_with',
-    'ends_with'              => 'pf::condition::end_with',
+    'ends_with'              => 'pf::condition::ends_with',
     'true'                   => 'pf::condition::true',
 );
 
