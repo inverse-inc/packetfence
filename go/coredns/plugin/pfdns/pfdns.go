@@ -22,6 +22,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/timedlock"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
 
@@ -131,6 +132,7 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
 	pf.RefreshPfconfig(ctx)
+	GlobalTransactionLock = timedlock.NewRWLock()
 
 	state := request.Request{W: w, Req: r}
 	a := new(dns.Msg)

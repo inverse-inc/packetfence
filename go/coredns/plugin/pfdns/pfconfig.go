@@ -7,9 +7,13 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/timedlock"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
+
+// GlobalTransactionLock global var
+var GlobalTransactionLock *timedlock.RWLock
 
 func (pf *pfdns) Refresh(ctx context.Context) {
 	// If some of the passthroughs were changed, we should reload
@@ -103,7 +107,7 @@ func (pf *pfdns) detectVIP() error {
 			}
 		}
 	}
-
+	id, _ := GlobalTransactionLock.Lock()
 	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
@@ -145,5 +149,6 @@ func (pf *pfdns) detectVIP() error {
 			}
 		}
 	}
+	GlobalTransactionLock.Unlock(id)
 	return nil
 }
