@@ -141,7 +141,7 @@ our %FUNC_OPS = (
     'date_is_after'          => 'pf::condition::date_after',
     'fingerbank_device_is_a' => 'pf::condition::fingerbank::device_is_a',
     'starts_with'            => 'pf::condition::starts_with',
-    'ends_with'              => 'pf::condition::end_with',
+    'ends_with'              => 'pf::condition::ends_with',
     'time_period' =>            'pf::condition::time_period',
 );
 
