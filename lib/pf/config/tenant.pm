@@ -46,7 +46,7 @@ set_tenant
 
 sub set_tenant {
     my ($tenant_id) = @_;
-    $CURRENT_TENANT = $tenant_id || $DEFAULT_TENANT_ID;
+    $CURRENT_TENANT = $tenant_id // $DEFAULT_TENANT_ID;
 }
 
 =head1 AUTHOR
