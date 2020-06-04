@@ -84,6 +84,7 @@ has_field 'op' => (
 
 has_field values => (
     type => 'Repeatable',
+    num_when_empty => 0,
 );
 
 has_field 'values.contains' => (
