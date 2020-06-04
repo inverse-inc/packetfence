@@ -57,7 +57,7 @@ sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
     $profile->{filter} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/, $profile->{filter} || '' ) ];
-    if (defined $profile->{advanced_filter}) {
+    if ($profile->{advanced_filter}) {
         $self->expandCondition($profile, 'advanced_filter');
     }
 }
