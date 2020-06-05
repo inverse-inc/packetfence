@@ -115,7 +115,7 @@ import {
 const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 'w', 'days', 'd', 'hours', 'h', 'minutes', 'm', 'seconds', 's', 'milliseconds', 'ms']
 
 export default {
-  name: 'pf-form-boolean',
+  name: 'pf-form-datetime',
   mixins: [
     pfMixinForm
   ],
