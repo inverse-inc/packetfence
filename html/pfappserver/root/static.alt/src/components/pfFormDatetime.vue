@@ -11,7 +11,7 @@
         </div>
       </b-input-group-prepend>
       <b-form-input ref="inputElement"
-        :id="`input-${formNamespace}`"
+        :id="`input-${uuid}`"
         v-model="inputValue"
         type="text"
         :disabled="disabled"
@@ -27,7 +27,7 @@
         custom-class="popover-full"
         placement="top"
         triggers="manual"
-        :target="`input-${formNamespace}`"
+        :target="`input-${uuid}`"
       >
         <template v-slot:title>
           <b-row class="small">
@@ -44,6 +44,9 @@
             v-on:click="onEventVacuum($event)"
             v-on:mousedown="onEventVacuum($event)"
           >
+
+{{ `input-${formNamespace}` }}
+
             <b-calendar
               v-model="dateValue"
               class="align-self-center"
@@ -110,6 +113,7 @@ import {
   addSeconds,
   addMilliseconds
 } from 'date-fns'
+import uuidv4 from 'uuid/v4'
 
 // even indexes (0, 2, ...) must be full names, odd (1, 3, ...) indexes must be abbreviations
 const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 'w', 'days', 'd', 'hours', 'h', 'minutes', 'm', 'seconds', 's', 'milliseconds', 'ms']
@@ -121,6 +125,7 @@ export default {
   ],
   data () {
     return {
+      uuid: uuidv4(), // unique id for multiple instances of this component
       isFocus: false
     }
   },
@@ -175,6 +180,7 @@ export default {
         }
       },
       set (newValue = null) {
+console.log(this.$refs);
         if (this.formStoreName) {
           this.formStoreValue = newValue // use FormStore
         } else {
