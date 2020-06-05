@@ -9,12 +9,14 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/timedlock"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/mholt/caddy"
 	cache "github.com/patrickmn/go-cache"
 )
 
 func init() {
+	GlobalTransactionLock = timedlock.NewRWLock()
 	caddy.RegisterPlugin("pfdns", caddy.Plugin{
 		ServerType: "dns",
 		Action:     setuppfdns,
