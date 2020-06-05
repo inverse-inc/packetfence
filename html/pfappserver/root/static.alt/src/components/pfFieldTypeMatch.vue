@@ -43,7 +43,7 @@
       <pf-form-datetime ref="match" v-else-if="isComponentType([componentType.DATETIME])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.match`"
-        :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
+        format="YYYY-MM-DD HH:mm:ss"
         :disabled="disabled"
         :moments="matchMoments"
         :placeholder="matchPlaceholder"

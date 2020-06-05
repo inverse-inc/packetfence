@@ -39,10 +39,10 @@
       <pf-form-datetime ref="value" v-else-if="isComponentType([componentType.DATETIME])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.value`"
-        :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
         :moments="valueMoments"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
+        format="YYYY-MM-DD HH:mm:ss"
       />
 
       <pf-form-prefix-multiplier ref="value" v-else-if="isComponentType([componentType.PREFIXMULTIPLIER])"

@@ -45,8 +45,8 @@
       <pf-form-datetime ref="value" v-else-if="isComponentType([componentType.TIME])"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.value`"
-        :config="{useCurrent: false, datetimeFormat: 'HH:mm'}"
         :disabled="disabled"
+        format="HH:mm"
         placeholder="HH:mm"
       ></pf-form-datetime>
 

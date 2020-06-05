@@ -10,7 +10,7 @@
       </b-input-group>
       <b-form-select class="mr-1" v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
       <b-form-input class="mr-1" type="text" v-model="model.values[0].values[0].value" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
-      <pf-form-datetime class="mr-1" v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
+      <pf-form-datetime class="mr-1" v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])"></pf-form-datetime>
       <pf-form-prefix-multiplier class="mr-1" v-model="model.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, model.values[0].values[0])"></pf-form-prefix-multiplier>
       <b-form-select class="mr-1" v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])" v-else-if="isFieldType(selectValueType, model.values[0].values[0])"></b-form-select>
     </b-row>
@@ -34,7 +34,7 @@
               </b-input-group>
               <b-form-select class="mr-1" v-model="rule.op" :options="operators(rule)"></b-form-select>
               <b-form-input type="text" class="mr-1" v-model="rule.value" v-if="isFieldType(substringValueType, rule)"></b-form-input>
-              <pf-form-datetime class="mr-1" v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
+              <pf-form-datetime class="mr-1" v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
               <pf-form-prefix-multiplier class="mr-1" v-model="rule.value" v-else-if="isFieldType(prefixmultipleValueType, rule)"></pf-form-prefix-multiplier>
               <b-form-select class="mr-1" v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
               <b-button class="ml-auto mr-1 nodrag" v-if="model.values.length > 1 || model.values[outerindex].values.length > 1 && drag === false" variant="link" v-b-tooltip.hover.left.d1000 :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>

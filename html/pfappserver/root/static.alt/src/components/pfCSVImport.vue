@@ -169,17 +169,17 @@
                 <pf-form-datetime v-else-if="isComponentType([componentType.DATE], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
-                  :config="{format: 'YYYY-MM-DD'}"
                   :disabled="isDisabled"
                   :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
+                  format="YYYY-MM-DD"
                 ></pf-form-datetime>
 
                 <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME], staticMap)"
                   v-model="staticMap.value"
                   :ref="staticMap.key"
-                  :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
                   :disabled="isDisabled"
                   :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
+                  format="YYYY-MM-DD HH:mm:ss"
                 ></pf-form-datetime>
 
                 <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLIER], staticMap)"

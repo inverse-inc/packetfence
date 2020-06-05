@@ -72,11 +72,11 @@
           />
           <pf-form-datetime :column-label="$t('Anniversary')"
             :form-store-name="formStoreName" form-namespace="anniversary"
-            :config="{datetimeFormat: schema.person.anniversary.format}"
+            :format="schema.person.anniversary.format"
           />
           <pf-form-datetime :column-label="$t('Birthday')"
             :form-store-name="formStoreName" form-namespace="birthday"
-            :config="{datetimeFormat: schema.person.birthday.format}"
+            :format="schema.person.birthday.format"
           />
           <pf-form-input :column-label="$t('Psk')"
             :form-store-name="formStoreName" form-namespace="psk"
@@ -109,14 +109,14 @@
               <b-col>
                 <pf-form-datetime
                   :form-store-name="formStoreName" form-namespace="valid_from"
-                  :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
+                  :format="schema.password.valid_from.datetimeFormat"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
                 <pf-form-datetime
                   :form-store-name="formStoreName" form-namespace="expiration"
-                  :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
+                  :format="schema.password.expiration.datetimeFormat"
                 />
               </b-col>
             </b-row>

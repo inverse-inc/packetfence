@@ -559,11 +559,7 @@ export const view = (form = {}, meta = {}) => {
               component: pfFormDatetime,
               attrs: {
                 ...attributesFromMeta(meta, 'allowed_unreg_date'),
-                ...{
-                  config: {
-                    datetimeFormat: 'YYYY-MM-DD'
-                  }
-                }
+                format: 'YYYY-MM-DD'
               }
             }
           ]
