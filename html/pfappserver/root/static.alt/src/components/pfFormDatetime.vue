@@ -1,25 +1,8 @@
-<!--
- * Component to pick datetime.
- *
- * Optional Properties:
- *    v-model: reactive property getter/setter
- *    value: default value
- *    label: form-group label
- *    placeholder: input placeholder
- *    prependText: input-group prepend slot
- *    config: extend/overload flatpickr options
- *      See: https://flatpickr.js.org/options/
- *    disabled: (Boolean) true/false to disable/enable input
- *    min: (Date) minimum datetime string
- *    max: (Date) maximum datetime String
- *    moments: button array of +/- seconds from now (see: https://date-fns.org/v1.29.0/docs/addSeconds)
- *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
- -->
- <template>
+<template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus}">
+    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+      {{ inputInvalidFeedback }}
     </template>
     <b-input-group class="pf-form-datetime-input-group">
       <b-input-group-prepend v-if="prependText">
@@ -27,47 +10,96 @@
           {{ prependText }}
         </div>
       </b-input-group-prepend>
-      <b-form-input ref="userInput"
+      <b-form-input ref="inputElement"
+        :id="`input-${formNamespace}`"
         v-model="inputValue"
-        v-bind="$attrs"
-        :state="inputState"
+        type="text"
         :disabled="disabled"
         :readonly="readonly"
-        @click="onClick($event)"
-        @focus="onFocus($event)"
-        @blur="onBlur($event)"
-      />
+        :placeholder="placeholder || format"
+        autocomplete="off"
+        @keydown="onFocusInput($event)"
+        @click="onFocusInput($event)"
+        @focus="onFocusInput($event)"
+        @blur="onBlurInput($event)"
+      ></b-form-input>
+      <b-popover :show.sync="focus"
+        custom-class="popover-w-100"
+        placement="top"
+        triggers="manual"
+        :target="`input-${formNamespace}`"
+      >
+        <template v-slot:title>
+          <b-row class="small">
+            <b-col cols="auto">
+              {{ (formatHasDate) ? $t('Choose Date') : $t('Choose Time') }}
+            </b-col>
+            <b-col cols="auto" class="ml-auto text-secondary">
+              {{ format }}
+            </b-col>
+          </b-row>
+        </template>
+        <b-row class="text-center" no-gutters v-if="formatHasDate">
+          <b-col cols="12" class="text-center p-2" :class="{ 'pb-3': formatHasTime }"
+            v-on:click="onEventVacuum($event)"
+            v-on:mousedown="onEventVacuum($event)"
+          >
+            <b-calendar
+              v-model="dateValue"
+              class="align-self-center"
+              :locale="$i18n.locale"
+              :min="dateValueMin"
+              :max="dateValueMax"
+              @selected="onDateSelected"
+              label-help=""
+              hide-header
+              block
+            ></b-calendar>
+          </b-col>
+        </b-row>
+        <b-row class="text-center" no-gutters v-if="formatHasTime">
+          <b-col cols="12" class="text-center p-2" :class="{ 'pt-3 border-top': formatHasDate }"
+            v-on:click="onEventVacuum($event)"
+            v-on:mousedown="onEventVacuum($event)"
+          >
+            <b-time
+              v-model="timeValue"
+              class="align-self-center"
+              :locale="$i18n.locale"
+              :seconds-step="(actionKey) ? 10 : 1"
+              :minutes-step="(actionKey) ? 10 : 1"
+              @context="onTimeContext"
+              hide-header
+              show-seconds
+            ></b-time>
+          </b-col>
+        </b-row>
+      </b-popover>
       <b-input-group-append>
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL/CMD] + [CLICK]')">
-          <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
+          <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment(index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
         </b-button-group>
-        <b-button class="input-group-text" @click.stop.prevent="open($event)" tabindex="-1">
-          <icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon>
-          <!-- hidden -->
-          <flat-pickr ref="flatpickrInput"
-            :key="locale"
-            :value="flatpickrValue"
-            :config="flatpickrConfig"
-            @on-change="onChange($event)"
-          ></flat-pickr>
+        <b-button class="input-group-text" @click.stop.prevent="onToggleFocus($event)" tabindex="-1">
+          <icon :name="formatHasDate ? 'calendar-alt' : 'clock'" variant="light"></icon>
         </b-button>
       </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-html="text"></b-form-text>
+    <b-form-text v-show="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
 <script>
 import pfMixinForm from '@/components/pfMixinForm'
-import flatPickr from 'vue-flatpickr-component'
-import 'flatpickr/dist/flatpickr.css'
-import 'flatpickr/dist/themes/material_blue.css'
-import { english } from 'flatpickr/dist/l10n/default.js'
-import { French } from 'flatpickr/dist/l10n/fr.js'
 import {
   parse,
   format,
   isValid,
+  getHours,
+  getMinutes,
+  getSeconds,
+  setHours,
+  setMinutes,
+  setSeconds,
   addYears,
   addQuarters,
   addMonths,
@@ -83,12 +115,14 @@ import {
 const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 'w', 'days', 'd', 'hours', 'h', 'minutes', 'm', 'seconds', 's', 'milliseconds', 'ms']
 
 export default {
-  name: 'pf-form-datetime',
+  name: 'pf-form-boolean',
   mixins: [
     pfMixinForm
   ],
-  components: {
-    flatPickr
+  data () {
+    return {
+      isFocus: false
+    }
   },
   props: {
     value: {
@@ -105,12 +139,16 @@ export default {
       type: String,
       default: null
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    readonly: {
+      type: Boolean,
+      default: false
+    },
     prependText: {
       type: String
-    },
-    config: {
-      type: Object,
-      default: () => ({})
     },
     min: {
       type: String
@@ -121,17 +159,10 @@ export default {
     moments: {
       type: Array,
       default: () => []
-    }
-  },
-  data () {
-    return {
-      defaults: {
-        allowInput: true,
-        datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
-        time_24hr: true,
-        wrap: true
-      },
-      isFocus: false
+    },
+    format: {
+      type: String,
+      default: 'YYYY-MM-DD HH:mm:ss'
     }
   },
   computed: {
@@ -143,7 +174,7 @@ export default {
           return this.value // use native (v-model)
         }
       },
-      set (newValue) {
+      set (newValue = null) {
         if (this.formStoreName) {
           this.formStoreValue = newValue // use FormStore
         } else {
@@ -152,150 +183,153 @@ export default {
       }
     },
     inputElement () {
-      const { $refs: { userInput } = {} } = this
-      return userInput
+      const { $refs: { inputElement } = {} } = this
+      return inputElement
     },
-    flatpickrValue: {
+    dateValue: {
       get () {
-        let { inputValue, options: { datetimeFormat } = {} } = this
-        if (inputValue) {
-          inputValue = inputValue.trim()
-          let length = this.inputValue.trim().length
-          let inspect = [...datetimeFormat.match(/[a-z]+/gi).map(set => datetimeFormat.indexOf(set) + set.length)]
-          if (inspect.includes(inputValue.length)) {
-            if (this.inputValue.trim().replace(/[0-9]/g, '0') === datetimeFormat.slice(0, length).replace(/[a-z]/gi, '0')) {
-              return format(this.inputValue.trim(), datetimeFormat)
-            }
+        // b-calendar expects Date()
+        if (this.inputValue) {
+          let dateValue = parse(this.inputValue, this.format)
+          dateValue = setHours(dateValue, 0)
+          dateValue = setMinutes(dateValue, 0)
+          dateValue = setSeconds(dateValue, 0)
+          return dateValue
+        }
+        else {
+          return (new Date(new Date().setHours(0, 0, 0, 0)))
+        }
+      }
+    },
+    dateValueMin () {
+      if (this.min) {
+        if (this.min.constructor === Date) {
+          return this.min
+        }
+        let dateValue = parse(this.min, this.format)
+        dateValue = setHours(dateValue, 0)
+        dateValue = setMinutes(dateValue, 0)
+        dateValue = setSeconds(dateValue, 0)
+        return dateValue
+      }
+      return false
+    },
+    dateValueMax () {
+      if (this.max) {
+        if (this.max.constructor === Date) {
+          return this.max
+        }
+        let dateValue = parse(this.max, this.format)
+        dateValue = setHours(dateValue, 0)
+        dateValue = setMinutes(dateValue, 0)
+        dateValue = setSeconds(dateValue, 0)
+        return dateValue
+      }
+      return false
+    },
+    timeValue: {
+      get () {
+        // b-time expects String w/ format 'HH:mm:ss'
+        if (this.inputValue) {
+          let inputValue
+          if (this.formatHasDate) {
+            inputValue = parse(this.inputValue, this.format)
+          }
+          else {
+            // date-fns does not parse only a time format (eg: 'HH:mm:ss'),
+            //  workaround by adding a known prefix
+            inputValue = parse(`1973-01-01 ${this.inputValue}`, `YYYY-MM-DD ${this.format}`)
+          }
+
+          let formattedValue = format(inputValue, 'HH:mm:ss')
+          if (this.inputValue.includes(formattedValue)) {
+            return formattedValue
           }
         }
-        return undefined
-      },
-      set (newValue) {
-        //  don't do anything here, instead use the `on-change` event => `onChange` method
+        return null
       }
     },
-    flatpickrElement () {
-      const { $refs: { flatpickrInput: { fp } = {} } = {} } = this
-      return fp
+    formatHasDate () {
+      return /[YMDd]+/.test(this.format)
     },
-    flatpickrConfig () {
-      let extraConfig = {
-        minDate: (this.min === '0000-00-00 00:00:00') ? new Date(-8640000000000000) : this.min,
-        maxDate: (this.max === '0000-00-00 00:00:00') ? new Date(8640000000000000) : this.max
-      }
-      let config = { ...this.options, ...extraConfig }
-      if ('datetimeFormat' in config) {
-        config.datetimeFormat = this.convertFormat(config.datetimeFormat)
-        if (/[HhGiSsK]+/.test(config.datetimeFormat)) {
-          config.enableTime = true
-          config.enableSeconds = true
-        } else {
-          config.enableTime = false
-          config.enableSeconds = false
-        }
-        if (/[YyFMmndJjlD]+/.test(config.datetimeFormat)) {
-          config.noCalendar = false
-        } else {
-          config.noCalendar = true
-        }
-      }
-      switch (this.locale) {
-        case 'fr':
-          config.locale = French
-          break
-        case 'en':
-        default:
-          config.locale = english
-          break
-      }
-      config.dateFormat = config.datetimeFormat // rename datetimeFormat to dateFormat (flatpickr)
-      delete config.datetimeFormat
-      return config
+    formatHasTime () {
+      return /[HmsXA]+/.test(this.format)
     },
-    locale () {
-      return this.$i18n.locale
-    },
-    options () {
-      return { ...this.defaults, ...this.config }
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     }
   },
   methods: {
-    onChange (event) {
-      if (this.closeTimeout) {
-        clearTimeout(this.closeTimeout)
+    focus () {
+      this.inputElement.focus()
+    },
+    onFocusInput (event) {
+      if (this.onBlurInputTimeout) {
+        clearTimeout(this.onBlurInputTimeout)
       }
-      const { 0: newDatetime } = event
-      if (newDatetime && this.isFocus === false) { // only accept mutations when inputElement is not focused
-        const now = (new Date()).getTime()
-        if (now > newDatetime.getTime() && now - newDatetime.getTime() < 1E3) {
-          // ignore, flatpickr is attempting to set current date/time
+      this.isFocus = true
+    },
+    onBlurInput (event) {
+      if (this.onBlurInputTimeout) {
+        clearTimeout(this.onBlurInputTimeout)
+      }
+      this.onBlurInputTimeout = setTimeout(() => { // wait for b-calendar context
+        this.isFocus = false
+      }, 300)
+    },
+    onEventVacuum (event) {
+      // popover component event, focus was stolen, defer onBlur
+      if (this.onBlurInputTimeout) {
+        clearTimeout(this.onBlurInputTimeout)
+        setTimeout(() => {
+          clearTimeout(this.onBlurInputTimeout)
+        }, 300)
+      }
+      if (this.isFocus) {
+        this.inputElement.focus() // refocus
+      }
+    },
+    onToggleFocus (event) {
+      if (this.isFocus) {
+        this.inputElement.blur()
+      }
+      else {
+        this.inputElement.focus()
+      }
+    },
+    onDateSelected (date) {
+      let selectedDate = parse(date, 'YYYY-MM-DD') // b-calendar uses 'YYYY-MM-DD' format
+      if (selectedDate) {
+        if (this.inputValue && this.formatHasTime) {
+          let parsedInputValue = parse(this.inputValue, this.format)
+          selectedDate = addHours(selectedDate, getHours(parsedInputValue))
+          selectedDate = addMinutes(selectedDate, getMinutes(parsedInputValue))
+          selectedDate = addSeconds(selectedDate, getSeconds(parsedInputValue))
+        }
+        this.inputValue = format(selectedDate, this.format)
+      }
+    },
+    onTimeContext (context) {
+      if (this.onBlurInputTimeout) { // don't blur input
+        clearTimeout(this.onBlurInputTimeout)
+      }
+      if (this.isFocus) {
+        this.inputElement.focus() // refocus
+      }
+      let selectedDate
+      const { hours, minutes, seconds } = context
+      if (hours !== null || minutes !== null || seconds !== null) {
+        if (this.inputValue && this.formatHasDate) {
+          selectedDate = parse(this.inputValue, this.format)
+          selectedDate = setHours(selectedDate, hours || 0)
+          selectedDate = setMinutes(selectedDate, minutes || 0)
+          selectedDate = setSeconds(selectedDate, seconds || 0)
         }
         else {
-          const { options: { datetimeFormat } = {} } = this
-          this.inputValue = format(newDatetime, datetimeFormat)
+          selectedDate = (new Date(new Date().setHours(hours || 0, minutes || 0, seconds || 0, 0)))
         }
+        this.inputValue = format(selectedDate, this.format)
       }
-    },
-    onClick () {
-      this.isFocus = true
-      if (this.closeTimeout) {
-        clearTimeout(this.closeTimeout)
-      }
-      this.open()
-    },
-    onFocus () {
-      this.isFocus = true
-      if (this.closeTimeout) {
-        clearTimeout(this.closeTimeout)
-      }
-      this.open()
-      this.inputElement.select()
-    },
-    onBlur () {
-      this.isFocus = false
-      if (this.closeTimeout) {
-        clearTimeout(this.closeTimeout)
-      }
-      this.closeTimeout = setTimeout(() => {
-        this.close()
-      }, 500)
-    },
-    open () {
-      this.flatpickrElement.open()
-    },
-    close () {
-      this.flatpickrElement.close()
-    },
-    clear () {
-      this.flatpickrElement.clear()
-    },
-    convertFormat (format = 'YYYY-MM-DD HH:ii:ss') {
-      // converts 'datefns' format to 'flatpickr' format
-      //  https://flatpickr.js.org/formatting/
-      [
-        ['YYYY', 'Y'], // 4 digit year (1973)
-        ['YY', 'y'], // 2 digit year (73)
-        ['MMMM', 'F'], // January, February, ..., December
-        ['MMM', 'M'], // Jan, Feb, ..., Dec
-        ['MM', 'm'], // 2 digit month (01-31)
-        ['M', 'n'], // 1-2 digit month (1-31)
-        ['DD', 'd'], // 2 digit day (01-31)
-        ['Do', 'J'], // 1st, 2nd, ..., 31st
-        ['D', 'j'], // 1-2 digit day (1-31)
-        ['dddd', 'l'], // Sunday, Monday, ..., Saturday
-        ['ddd', 'D'], // Sun, Mon, ..., Sat
-        ['HH', 'H'], // 2 digit hour (01-23)
-        // ['h', 'h'], // 1 digit hour (1-23)
-        ['mm', 'i'], // 2 digit minute (00-59)
-        ['ss', 'S'], // 2 digit seconds (00-59)
-        // ['s', 's'], // 1 digit seconds (0-59)
-        ['X', 'U'], // seconds since epoch
-        ['A', 'K'] // AM or PM
-      ].forEach((replace) => {
-        const [ from, to ] = replace
-        format = format.replace(from, to)
-      })
-      return format
     },
     momentTooltip (index) {
       let [amount, key] = this.moments[index].split(' ', 2)
@@ -332,66 +366,56 @@ export default {
       }
       return null
     },
-    onClickMoment (event, index) {
+    onClickMoment (index) {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL/CMD]+[CLICK] for cumulative change
-      const datetimeFormat = this.config.datetimeFormat || this.defaults.datetimeFormat
-      const base = (event.ctrlKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
+      let base
+      if (this.formatHasDate) {
+        base = (this.actionKey)
+          ? parse(this.inputValue, this.format) || new Date()
+          : new Date()
+      }
+      else {
+        // date-fns does not parse only a time format (eg: 'HH:mm:ss'),
+        //  workaround by adding a known prefix
+        base = (this.actionKey)
+          ? parse(`1973-01-01 ${this.inputValue}`, `YYYY-MM-DD ${this.format}`) || new Date()
+          : new Date()
+      }
       if (validMomentKeys.includes(key)) {
         switch (key) {
           case 'years':
-            this.inputValue = format(addYears(base, amount), datetimeFormat)
+            this.inputValue = format(addYears(base, amount), this.format)
             break
           case 'quarters':
-            this.inputValue = format(addQuarters(base, amount), datetimeFormat)
+            this.inputValue = format(addQuarters(base, amount), this.format)
             break
           case 'months':
-            this.inputValue = format(addMonths(base, amount), datetimeFormat)
+            this.inputValue = format(addMonths(base, amount), this.format)
             break
           case 'weeks':
-            this.inputValue = format(addWeeks(base, amount), datetimeFormat)
+            this.inputValue = format(addWeeks(base, amount), this.format)
             break
           case 'days':
-            this.inputValue = format(addDays(base, amount), datetimeFormat)
+            this.inputValue = format(addDays(base, amount), this.format)
             break
           case 'hours':
-            this.inputValue = format(addHours(base, amount), datetimeFormat)
+            this.inputValue = format(addHours(base, amount), this.format)
             break
           case 'minutes':
-            this.inputValue = format(addMinutes(base, amount), datetimeFormat)
+            this.inputValue = format(addMinutes(base, amount), this.format)
             break
           case 'seconds':
-            this.inputValue = format(addSeconds(base, amount), datetimeFormat)
+            this.inputValue = format(addSeconds(base, amount), this.format)
             break
           case 'milliseconds':
-            this.inputValue = format(addMilliseconds(base, amount), datetimeFormat)
+            this.inputValue = format(addMilliseconds(base, amount), this.format)
             break
           default:
-            this.inputValue = format(base, datetimeFormat)
+            this.inputValue = format(base, this.format)
         }
       }
-    },
-    formatIsTimeOnly () {
-      let datetimeFormat = this.flatpickrConfig.datetimeFormat
-      if ('input' in this.$refs && 'dp' in this.$refs.input) {
-        return !(/[MQDdEeWwYgX]+/.test(datetimeFormat))
-      }
-      return false
-    }
-  },
-  created () {
-    const datetimeFormat = this.options.datetimeFormat
-    if (this.inputValue instanceof Date) {
-      // instanceof Date, convert to String
-      this.inputValue = format(this.inputValue, datetimeFormat)
-    }
-    // normalize (floor) min/max
-    if (this.min) {
-      this.min = parse(format((this.min instanceof Date && isValid(this.min) ? this.min : parse(this.min)), datetimeFormat))
-    }
-    if (this.max) {
-      this.max = parse(format((this.max instanceof Date && isValid(this.max) ? this.max : parse(this.max)), datetimeFormat))
     }
   }
 }
@@ -423,30 +447,12 @@ export default {
       border-top-right-radius: $border-radius;
       border-bottom-right-radius: $border-radius;
     }
-    .flatpickr-input {
-      display: flex;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 100%;
-      height: 100%;
-      visibility: hidden;
-      border: 0;
-      margin: 0;
-      outline: 0;
-    }
   }
   &.is-focus .pf-form-datetime-input-group {
     border: 1px solid $input-focus-border-color;
-    .flatpickr-input {
-      border-right: 2px solid $input-focus-border-color;
-    }
   }
   &.is-invalid .pf-form-datetime-input-group {
     border: 1px solid $form-feedback-invalid-color;
-    .flatpickr-input {
-      border-right: 2px solid $form-feedback-invalid-color;
-    }
   }
 }
 
@@ -461,58 +467,9 @@ export default {
 }
 
 /**
- * Override default flatpickr styles
+ * Max Width of the popover (depending on the container!)
  */
-.flatpickr-calendar.arrowTop:after {
-  border-bottom-color: $primary;
-}
-.flatpickr-calendar.arrowBottom:after {
-  border-top-color: $primary;
-}
-.flatpickr-months .flatpickr-month {
-  background: $primary;
-}
-.flatpickr-current-month .flatpickr-monthDropdown-months {
-  background: $primary;
-}
-.flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
-  background-color: $primary;
-}
-.flatpickr-weekdays {
-  background: $primary;
-}
-span.flatpickr-weekday {
-  background: $primary;
-  color: $white;
-}
-.flatpickr-day.selected,
-.flatpickr-day.startRange,
-.flatpickr-day.endRange,
-.flatpickr-day.selected.inRange,
-.flatpickr-day.startRange.inRange,
-.flatpickr-day.endRange.inRange,
-.flatpickr-day.selected:focus,
-.flatpickr-day.startRange:focus,
-.flatpickr-day.endRange:focus,
-.flatpickr-day.selected:hover,
-.flatpickr-day.startRange:hover,
-.flatpickr-day.endRange:hover,
-.flatpickr-day.selected.prevMonthDay,
-.flatpickr-day.startRange.prevMonthDay,
-.flatpickr-day.endRange.prevMonthDay,
-.flatpickr-day.selected.nextMonthDay,
-.flatpickr-day.startRange.nextMonthDay,
-.flatpickr-day.endRange.nextMonthDay {
-  background: $primary;
-  border: $primary;
-}
-.flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n+1)),
-.flatpickr-day.startRange.startRange + .endRange:not(:nth-child(7n+1)),
-.flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n+1)) {
-  box-shadow: -10px 0 0 $primary;
-}
-.flatpickr-day.week.selected {
-  border-radius: 0;
-  box-shadow: -5px 0 0 $primary, 5px 0 0 $primary;
+.popover-w-100 {
+    max-width: 100%;
 }
 </style>
