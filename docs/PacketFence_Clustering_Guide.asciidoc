@@ -73,7 +73,7 @@ On RHEL / CentOS 7:
 
 Disable Percona repositories, so that installing software from that repository requires explicit action.
 
-  # sed -i 's/enabled = 1/enabled = 0/g' /etc/yum.repos.d/percona-release.repo
+  # sed -i 's/enabled = 1/enabled = 0/g' /etc/yum.repos.d/percona-original-release.repo
   # yum install percona-xtrabackup socat --enablerepo=percona-release-x86_64
 
 .On Debian:
