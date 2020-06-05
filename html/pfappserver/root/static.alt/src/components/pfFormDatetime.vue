@@ -44,9 +44,6 @@
             v-on:click="onEventVacuum($event)"
             v-on:mousedown="onEventVacuum($event)"
           >
-
-{{ `input-${formNamespace}` }}
-
             <b-calendar
               v-model="dateValue"
               class="align-self-center"
