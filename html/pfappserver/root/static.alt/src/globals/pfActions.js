@@ -70,7 +70,7 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ...((type === 'set_access_duration')
             ? {
               // 'set_access_duration' requires 'set_role'
-              [i18n.t('Action requires either "Set Role" or "set_role_on_not_found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
+              [i18n.t('Action requires either "Set Role" or "Role On Not Found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
               // 'set_access_duration' restricts 'set_unreg_date'
               [i18n.t('Action conflicts with "Unregistration date".')]: conditional(() => formActions.filter(action => action && action.type === 'set_unreg_date').length === 0)
             }
@@ -107,7 +107,7 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ...((type === 'set_unreg_date')
             ? {
               // 'set_unreg_date' requires 'set_role'
-              [i18n.t('Action requires either "Set Role" or "set_role_on_not_found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
+              [i18n.t('Action requires either "Set Role" or "Role On Not Found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
               // 'set_unreg_date' restricts 'set_access_duration'
               [i18n.t('Action conflicts with "Access duration".')]: conditional(() => formActions.filter(action => action && action.type === 'set_access_duration').length === 0)
             }
