@@ -114,6 +114,7 @@ sub addAnswer {
 
 sub updateAnswerNameValue {
     my ($self, $name, $value, $radius_reply) = @_;
+    my $logger = $self->logger;
     if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
         my $prefix = $1 // '';
         if (ref($value) eq 'ARRAY') {
