@@ -613,17 +613,7 @@ sub ldap_filter_for_conditions {
 
 sub replaceVar {
     my ($name, $params) = @_;
-    my @parts = split(/\./, $name);
-    my $last_part = pop @parts;
-    for my $part (@parts) {
-        if (ref $params eq 'HASH' && exists $params->{$part}) {
-            $params = $params->{$part}
-        } else {
-            return ''
-        }
-    }
-
-    return escape_filter_value(exists $params->{$last_part} ? $params->{$last_part} : '');
+    return escape_filter_value(exists $params->{$name} ? $params->{$name} : '');
 }
 
 sub update_template {
