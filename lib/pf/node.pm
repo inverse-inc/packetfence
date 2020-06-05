@@ -245,8 +245,8 @@ sub node_add {
         $logger->warn("attempt to add existing node $mac");
         return (2);
     }
-
-    if ( ( $data{status} eq $STATUS_REGISTERED )) {
+    my $node_status = $data{status};
+    if ( defined $node_status && ( $node_status eq $STATUS_REGISTERED )) {
         my $regdate = $data{regdate};
         if ( !defined $regdate || $regdate eq '' || $regdate eq $ZERO_DATE ) {
             $data{regdate} = \'NOW()';
