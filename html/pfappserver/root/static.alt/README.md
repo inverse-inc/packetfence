@@ -47,7 +47,6 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [Plotly](https://plot.ly/javascript/reference/) -- svg charts
 * [vue-plotly](https://github.com/David-Desmaisons/vue-plotly)
 * [date-fns](https://date-fns.org/docs/Getting-Started) -- datetime utils
-* [vue-flatpickr-component](https://github.com/ankurk91/vue-flatpickr-component) -- datetime picker
 * [papaparse](https://www.papaparse.com/) -- parse CSV
 * [uuid](https://www.npmjs.com/package/uuid) -- RFC4122 UUIDs
 * [vue-multiselect](https://vue-multiselect.js.org/) -- multi-select/chosen component
