@@ -23,8 +23,8 @@
         @focus="onFocusInput($event)"
         @blur="onBlurInput($event)"
       ></b-form-input>
-      <b-popover :show.sync="focus"
-        custom-class="popover-w-100"
+      <b-popover :show.sync="isFocus"
+        custom-class="popover-full"
         placement="top"
         triggers="manual"
         :target="`input-${formNamespace}`"
@@ -464,12 +464,5 @@ export default {
   border-radius: 0;
   background-color: $input-btn-hover-bg-color;
   color: $input-btn-hover-text-color;
-}
-
-/**
- * Max Width of the popover (depending on the container!)
- */
-.popover-w-100 {
-    max-width: 100%;
 }
 </style>
