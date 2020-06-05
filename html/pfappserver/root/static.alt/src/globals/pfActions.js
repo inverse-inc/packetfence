@@ -246,7 +246,7 @@ export const pfActions = {
      * types: [fieldType.DATETIME],
      * moments: ['1 days', '1 weeks', '1 months', '1 years'],
      */
-    types: [fieldType.SUBSTRING],
+    types: [fieldType.DATE],
     validators: {
       [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD')
     }
@@ -259,7 +259,7 @@ export const pfActions = {
      * types: [fieldType.DATETIME],
      * moments: ['1 days', '1 weeks', '1 months', '1 years'],
      */
-    types: [fieldType.SUBSTRING],
+    types: [fieldType.DATE],
     validators: {
       [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD'),
       /* Limit maximum date w/ current user ACL */
