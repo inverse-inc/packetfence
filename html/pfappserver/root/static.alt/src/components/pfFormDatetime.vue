@@ -24,7 +24,7 @@
         @blur="onBlurInput($event)"
       ></b-form-input>
       <b-popover :show.sync="isFocus"
-        custom-class="popover-full"
+        custom-class="popover-full popover-no-padding"
         placement="top"
         triggers="manual"
         :target="`input-${uuid}`"
@@ -40,7 +40,7 @@
           </b-row>
         </template>
         <b-row class="text-center" no-gutters v-if="formatHasDate">
-          <b-col cols="12" class="text-center p-2" :class="{ 'pb-3': formatHasTime }"
+          <b-col cols="12" class="text-center pt-1"
             v-on:click="onEventVacuum($event)"
             v-on:mousedown="onEventVacuum($event)"
           >
@@ -58,7 +58,7 @@
           </b-col>
         </b-row>
         <b-row class="text-center" no-gutters v-if="formatHasTime">
-          <b-col cols="12" class="text-center p-2" :class="{ 'pt-3 border-top': formatHasDate }"
+          <b-col cols="12" class="text-center"
             v-on:click="onEventVacuum($event)"
             v-on:mousedown="onEventVacuum($event)"
           >
@@ -177,7 +177,6 @@ export default {
         }
       },
       set (newValue = null) {
-console.log(this.$refs);
         if (this.formStoreName) {
           this.formStoreValue = newValue // use FormStore
         } else {

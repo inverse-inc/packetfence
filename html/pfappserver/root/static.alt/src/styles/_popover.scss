@@ -8,6 +8,12 @@
   max-width: none;
 }
 
+.popover-no-padding {
+  .popover-body {
+    padding: 0;
+  }
+}
+
 // Fix pf-form-chosen display when inside a b-popover
 .popover-body .multiselect__select:before {
   z-index: $zindex-popover + 1;
