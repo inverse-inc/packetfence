@@ -1,10 +1,10 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-input" :class="{ 'mb-0': !columnLabel }">
+    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus }">
     <template v-slot:invalid-feedback>
       {{ inputInvalidFeedback }}
     </template>
-    <b-input-group>
+    <b-input-group class="pf-form-datetime-input-group">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
           {{ prependText }}
@@ -14,6 +14,8 @@
         :id="`input-${formNamespace}`"
         v-model="inputValue"
         type="text"
+        :disabled="disabled"
+        :readonly="readonly"
         :placeholder="placeholder || format"
         autocomplete="off"
         @keydown="onFocusInput($event)"
@@ -46,6 +48,8 @@
               v-model="dateValue"
               class="align-self-center"
               :locale="$i18n.locale"
+              :min="dateValueMin"
+              :max="dateValueMax"
               @selected="onDateSelected"
               label-help=""
               hide-header
@@ -62,13 +66,19 @@
               v-model="timeValue"
               class="align-self-center"
               :locale="$i18n.locale"
+              :seconds-step="(actionKey) ? 10 : 1"
+              :minutes-step="(actionKey) ? 10 : 1"
               @context="onTimeContext"
-              show-seconds hide-header
+              hide-header
+              show-seconds
             ></b-time>
           </b-col>
         </b-row>
       </b-popover>
       <b-input-group-append>
+        <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL/CMD] + [CLICK]')">
+          <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment(index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
+        </b-button-group>
         <b-button class="input-group-text" @click.stop.prevent="onToggleFocus($event)" tabindex="-1">
           <icon :name="formatHasDate ? 'calendar-alt' : 'clock'" variant="light"></icon>
         </b-button>
@@ -83,14 +93,13 @@ import pfMixinForm from '@/components/pfMixinForm'
 import {
   parse,
   format,
+  isValid,
   getHours,
   getMinutes,
   getSeconds,
   setHours,
   setMinutes,
   setSeconds,
-
-  isValid,
   addYears,
   addQuarters,
   addMonths,
@@ -102,6 +111,9 @@ import {
   addMilliseconds
 } from 'date-fns'
 
+// even indexes (0, 2, ...) must be full names, odd (1, 3, ...) indexes must be abbreviations
+const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 'w', 'days', 'd', 'hours', 'h', 'minutes', 'm', 'seconds', 's', 'milliseconds', 'ms']
+
 export default {
   name: 'pf-form-boolean',
   mixins: [
@@ -109,7 +121,7 @@ export default {
   ],
   data () {
     return {
-      focus: false
+      isFocus: false
     }
   },
   props: {
@@ -138,97 +150,19 @@ export default {
     prependText: {
       type: String
     },
-    //:config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
-/*
-src/components/pfFieldTypeMatch.vue
-43:      <pf-form-datetime ref="match" v-else-if="isComponentType([componentType.DATETIME])"
-44-        :form-store-name="formStoreName"
-45-        :form-namespace="`${formNamespace}.match`"
-46-        :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
-47-        :disabled="disabled"
-48-        :moments="matchMoments"
-
-
-
-src/components/pfFieldAttributeOperatorValue.vue
-45:      <pf-form-datetime ref="value" v-else-if="isComponentType([componentType.TIME])"
-46-        :form-store-name="formStoreName"
-47-        :form-namespace="`${formNamespace}.value`"
-48-        :config="{useCurrent: false, datetimeFormat: 'HH:mm'}"
-49-        :disabled="disabled"
-50-        placeholder="HH:mm"
-51:      ></pf-form-datetime>
-
-
-src/components/pfCSVImport.vue
-169:                <pf-form-datetime v-else-if="isComponentType([componentType.DATE], staticMap)"
-170-                  v-model="staticMap.value"
-171-                  :ref="staticMap.key"
-172-                  :config="{format: 'YYYY-MM-DD'}"
-173-                  :disabled="isDisabled"
-174-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-175:                ></pf-form-datetime>
-176-
-177:                <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME], staticMap)"
-178-                  v-model="staticMap.value"
-179-                  :ref="staticMap.key"
-180-                  :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
-181-                  :disabled="isDisabled"
-182-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-183:                ></pf-form-datetime>
-
-*/
-    config: {
-      type: Object,
-      default: () => ({})
-    },
-/*
-src/views/Reports/_components/DynamicReportChart.vue
-46:            <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
-47:            <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
-*/
     min: {
       type: String
     },
     max: {
       type: String
     },
-    //  :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"
-/*
-src/views/Nodes/_components/NodeView.vue
-31:              <pf-form-datetime :column-label="$t('Unregistration')"
-32-                :form-store-name="formStoreName" form-namespace="unregdate"
-33-                :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
-34-              />
-
-src/views/Users/_components/UsersImport.vue
-38:                      <pf-form-datetime
-39-                        :form-store-name="formStoreName" form-namespace="valid_from"
-40-                        :min="(new Date().setHours(0,0,0,0))"
-41-                        :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
-42-                      />
-43-                    </b-col>
---
-46:                      <pf-form-datetime
-47-                        :form-store-name="formStoreName" form-namespace="expiration"
-48-                        :min="(new Date().setHours(0,0,0,0))"
-49-                        :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
-50-                      />
-51-                    </b-col>
-*/
     moments: {
       type: Array,
       default: () => []
     },
-
-// NEW!
     format: {
       type: String,
       default: 'YYYY-MM-DD HH:mm:ss'
-    },
-    useCurrent: {
-      type: Boolean,
-      default: false
     }
   },
   computed: {
@@ -267,6 +201,32 @@ src/views/Users/_components/UsersImport.vue
         }
       }
     },
+    dateValueMin () {
+      if (this.min) {
+        if (this.min.constructor === Date) {
+          return this.min
+        }
+        let dateValue = parse(this.min, this.format)
+        dateValue = setHours(dateValue, 0)
+        dateValue = setMinutes(dateValue, 0)
+        dateValue = setSeconds(dateValue, 0)
+        return dateValue
+      }
+      return false
+    },
+    dateValueMax () {
+      if (this.max) {
+        if (this.max.constructor === Date) {
+          return this.max
+        }
+        let dateValue = parse(this.max, this.format)
+        dateValue = setHours(dateValue, 0)
+        dateValue = setMinutes(dateValue, 0)
+        dateValue = setSeconds(dateValue, 0)
+        return dateValue
+      }
+      return false
+    },
     timeValue: {
       get () {
         // b-time expects String w/ format 'HH:mm:ss'
@@ -294,21 +254,27 @@ src/views/Users/_components/UsersImport.vue
     },
     formatHasTime () {
       return /[HmsXA]+/.test(this.format)
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     }
   },
   methods: {
+    focus () {
+      this.inputElement.focus()
+    },
     onFocusInput (event) {
       if (this.onBlurInputTimeout) {
         clearTimeout(this.onBlurInputTimeout)
       }
-      this.focus = true
+      this.isFocus = true
     },
     onBlurInput (event) {
       if (this.onBlurInputTimeout) {
         clearTimeout(this.onBlurInputTimeout)
       }
       this.onBlurInputTimeout = setTimeout(() => { // wait for b-calendar context
-        this.focus = false
+        this.isFocus = false
       }, 300)
     },
     onEventVacuum (event) {
@@ -319,12 +285,12 @@ src/views/Users/_components/UsersImport.vue
           clearTimeout(this.onBlurInputTimeout)
         }, 300)
       }
-      if (this.focus) {
+      if (this.isFocus) {
         this.inputElement.focus() // refocus
       }
     },
     onToggleFocus (event) {
-      if (this.focus) {
+      if (this.isFocus) {
         this.inputElement.blur()
       }
       else {
@@ -347,7 +313,7 @@ src/views/Users/_components/UsersImport.vue
       if (this.onBlurInputTimeout) { // don't blur input
         clearTimeout(this.onBlurInputTimeout)
       }
-      if (this.focus) {
+      if (this.isFocus) {
         this.inputElement.focus() // refocus
       }
       let selectedDate
@@ -364,16 +330,146 @@ src/views/Users/_components/UsersImport.vue
         }
         this.inputValue = format(selectedDate, this.format)
       }
+    },
+    momentTooltip (index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      amount = parseInt(amount)
+      if (validMomentKeys.includes(key)) {
+        let i = validMomentKeys.indexOf(key)
+        if (i % 2) {
+          // is odd, shift index left, use full key name
+          i -= 1
+        }
+        let text = validMomentKeys[i]
+        if ([-1, 1].includes(amount)) {
+          // singular, drop trailing 's'
+          text = text.slice(0, -1)
+        }
+        if (amount < 0) {
+          return this.$i18n.t('{num} {unit} ago', { num: -amount.toString(), unit: this.$i18n.t(text) })
+        } else {
+          return this.$i18n.t('{num} {unit} from now', { num: amount.toString(), unit: this.$i18n.t(text) })
+        }
+      }
+      return null
+    },
+    momentLabel (index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      if (validMomentKeys.includes(key)) {
+        let i = validMomentKeys.indexOf(key)
+        if (i % 2 === 0) {
+          // is even, shift index right, use abbreviated key name
+          i += 1
+        }
+        let abbr = validMomentKeys[i]
+        return ((amount > 0) ? '+' : '') + amount.toString() + abbr.toUpperCase()
+      }
+      return null
+    },
+    onClickMoment (index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      amount = parseInt(amount)
+      // allow [CTRL/CMD]+[CLICK] for cumulative change
+      let base
+      if (this.formatHasDate) {
+        base = (this.actionKey)
+          ? parse(this.inputValue, this.format) || new Date()
+          : new Date()
+      }
+      else {
+        // date-fns does not parse only a time format (eg: 'HH:mm:ss'),
+        //  workaround by adding a known prefix
+        base = (this.actionKey)
+          ? parse(`1973-01-01 ${this.inputValue}`, `YYYY-MM-DD ${this.format}`) || new Date()
+          : new Date()
+      }
+      if (validMomentKeys.includes(key)) {
+        switch (key) {
+          case 'years':
+            this.inputValue = format(addYears(base, amount), this.format)
+            break
+          case 'quarters':
+            this.inputValue = format(addQuarters(base, amount), this.format)
+            break
+          case 'months':
+            this.inputValue = format(addMonths(base, amount), this.format)
+            break
+          case 'weeks':
+            this.inputValue = format(addWeeks(base, amount), this.format)
+            break
+          case 'days':
+            this.inputValue = format(addDays(base, amount), this.format)
+            break
+          case 'hours':
+            this.inputValue = format(addHours(base, amount), this.format)
+            break
+          case 'minutes':
+            this.inputValue = format(addMinutes(base, amount), this.format)
+            break
+          case 'seconds':
+            this.inputValue = format(addSeconds(base, amount), this.format)
+            break
+          case 'milliseconds':
+            this.inputValue = format(addMilliseconds(base, amount), this.format)
+            break
+          default:
+            this.inputValue = format(base, this.format)
+        }
+      }
     }
   }
 }
 </script>
 
 <style lang="scss">
-  .pf-form-new {
+/**
+ * Adjust is-invalid and is-focus borders
+ */
+.pf-form-datetime {
+  .pf-form-datetime-input-group {
+    border: 1px solid $input-focus-bg;
+    background-color: $input-focus-bg;
+    @include border-radius($border-radius);
+    @include transition($custom-forms-transition);
+    outline: 0;
 
+    * {
+      border: 0px;
+    }
+    &:not(:first-child):not(:last-child):not(:only-child) {
+      border-radius: 0;
+    }
+    &:first-child {
+      border-top-left-radius: $border-radius;
+      border-bottom-left-radius: $border-radius;
+    }
+    &:last-child {
+      border-top-right-radius: $border-radius;
+      border-bottom-right-radius: $border-radius;
+    }
   }
-  .popover-w-100 {
-      max-width: 100%; /* Max Width of the popover (depending on the container!) */
+  &.is-focus .pf-form-datetime-input-group {
+    border: 1px solid $input-focus-border-color;
   }
+  &.is-invalid .pf-form-datetime-input-group {
+    border: 1px solid $form-feedback-invalid-color;
+  }
+}
+
+/**
+ * Add btn-primary color(s) on hover
+ */
+.btn-group[rel=moments] button:hover {
+  border-color: $input-btn-hover-bg-color;
+  border-radius: 0;
+  background-color: $input-btn-hover-bg-color;
+  color: $input-btn-hover-text-color;
+}
+
+/**
+ * Max Width of the popover (depending on the container!)
+ */
+.popover-w-100 {
+    max-width: 100%;
+}
 </style>
