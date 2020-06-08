@@ -174,7 +174,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: Tenant{Id:0},
+		Tenant: Tenant{Id:0},
 	})
 
 	if !res {
@@ -186,20 +186,22 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: Tenant{Id:1},
+		Tenant: Tenant{Id:1},
 	})
 
 	if !res {
 		t.Error("Request was unauthorized although it should have gone through, error:", err)
 	}
 
+    multipleTenants = true
 	// Test invalid scoped tenant ID
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: Tenant{Id:2},
+		Tenant: Tenant{Id:2},
 	})
+    multipleTenants = false
 
 	if res {
 		t.Error("Request was authorized although it should haven't gone through, error:", err)
@@ -210,7 +212,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		TenantId: Tenant{Id:-1},
+		Tenant: Tenant{Id:-1},
 	})
 
 	if res {
@@ -255,7 +257,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		TenantId: Tenant{Id:1},
+		Tenant: Tenant{Id:1},
 	})
 
 	addBearerTokenToTestRequest(req, token, 1)
@@ -279,7 +281,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		TenantId: Tenant{Id:0},
+		Tenant: Tenant{Id:0},
 	})
 
 	addBearerTokenToTestRequest(req, token, 1)
@@ -295,7 +297,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		TenantId: Tenant{Id:1},
+		Tenant: Tenant{Id:1},
 	})
 
 	addBearerTokenToTestRequest(req, token, 2)
@@ -320,20 +322,22 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"FirewallSSODelete": true,
 		},
-		TenantId: Tenant{Id:0},
+		Tenant: Tenant{Id:0},
 	})
 
 	if !res {
 		t.Error("Request was unauthorized although it should have gone through, error:", err)
 	}
 
+    multipleTenants=true
 	// Test invalid scoped tenant ID
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/firewall/1", 1, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"FirewallSSODelete": true,
 		},
-		TenantId: Tenant{Id:2},
+		Tenant: Tenant{Id:2},
 	})
+    multipleTenants=false
 
 	if res {
 		t.Error("Request was authorized although it should haven't gone through, error:", err)

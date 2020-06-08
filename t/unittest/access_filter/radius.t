@@ -87,10 +87,13 @@ use Test::NoWarnings;
 my $filter = pf::access_filter::radius->new;
 
 
+my $i  = 1;
 for my $test (@tests) {
     my %reply;
     $filter->updateAnswerNameValue($test->{name}, $test->{value}, \%reply);
-    is_deeply(\%reply, $test->{expected_reply});
+    use Data::Dumper;print Dumper(\%reply);
+    is_deeply(\%reply, $test->{expected_reply}, "Test $i");
+    $i++;
 }
 
 =head1 AUTHOR

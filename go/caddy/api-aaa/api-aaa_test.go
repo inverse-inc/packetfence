@@ -68,7 +68,7 @@ func TestApiAAATokenInfo(t *testing.T) {
 	err := json.Unmarshal(b, &respMap)
 	sharedutils.CheckError(err)
 
-	if respMap.Item.TenantId != tokenInfo.TenantId {
+	if respMap.Item.Tenant.Id != tokenInfo.Tenant.Id {
 		t.Error("Tenant ID is not the same in the token info response as it is in the backend")
 	}
 

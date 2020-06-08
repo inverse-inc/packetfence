@@ -272,7 +272,7 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedTenantId(ctx context.Contex
 	// Token doesn't have access to any tenant
 	if tokenTenantId == AccessNoTenants {
 		return false, errors.New("Token is prohibited from accessing data from any tenant")
-    } else if !multipleTenants {
+    } else if !multipleTenants && requestTenantId < 2 {
         return true, nil
 	} else if tokenTenantId == AccessAllTenants {
 		return true, nil
