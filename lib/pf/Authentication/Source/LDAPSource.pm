@@ -21,7 +21,7 @@ use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config qw(%Config);
-use List::MoreUtils qw(uniq any firstval);
+use List::MoreUtils qw(uniq any firstval none);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
@@ -486,11 +486,11 @@ sub _match_in_subclass {
             # If we found a result, we push all conditions as matched ones.
             # That is normal, as we used them all to build our LDAP filter.
             $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
-            if (any {$_->type eq $Actions::SET_ROLE } @{$rule->{actions} // []} ) {
+            if ( (any {$_->type eq $Actions::SET_ROLE_ON_NOT_FOUND } @{$rule->{actions} // []}) && (none {$_->type eq $Actions::SET_ROLE } @{$rule->{actions} // []}) ) {
+                $logger->trace("[$self->{'id'} $rule->{'id'}] match ($dn) but no set role action, continue");
+            } else {
                 push @{ $matching_conditions }, @{ $own_conditions };
                 return ((($params->{'username'} || $params->{'email'}) ? $entry : undef), $Actions::SET_ROLE_ON_NOT_FOUND);
-            } else {
-                $logger->trace("[$self->{'id'} $rule->{'id'}] match ($dn) but no set role action, continue");
             }
         }
     }
