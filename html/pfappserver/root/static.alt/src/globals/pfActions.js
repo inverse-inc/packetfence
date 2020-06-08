@@ -99,8 +99,8 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ),
           ...((type === 'set_role_from_source')
             ? {
-              // 'set_role_from_source' requires either 'set_access_duration' or 'set_unreg_date'
-              [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0)
+              // 'set_role_from_source' requires either ('set_access_duration' or 'set_unreg_date') and 'set_role'
+              [i18n.t('Action requires either ("Access duration" or "Unregistration date") and "Set Role".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0 && formActions.filter(action => action && ['set_role'].includes(action.type)).length > 0)
             }
             : {/* noop */}
           ),
