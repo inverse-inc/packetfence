@@ -2,9 +2,9 @@
 
 .nav-tabs {
     .nav-link {
+        border-width: 0;
+        border-bottom-width: 3px;
         &.active {
-            border-width: 0;
-            border-bottom-width: 3px;
             font-weight: 500;
         }
     }
@@ -12,9 +12,5 @@
 
 .nav-tabs > li > a,
 .nav-pills > li > a {
-  margin-right: 0.5rem!important;
-}
-
-.tab-pane:focus {
-    outline: 0;
+    margin-right: 0.5rem !important;
 }
