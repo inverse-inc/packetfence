@@ -116,19 +116,19 @@ sub updateAnswerNameValue {
     my ($self, $name, $value, $radius_reply) = @_;
     my $logger = $self->logger;
     if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
-        my $prefix = $1 // '';
+        my $prefix = $1 // 'reply:';
         if (ref($value) eq 'ARRAY') {
             my $key;
             my @attributes;
             foreach my $response (@{$value}) {
-                if ($response =~ /(.*)[:=](.*)/) {
+                if ($response =~ /([\w\-:]*)\s?[:=]\s?([\w\-:]*)/) {
                     $key = $1;
                     $radius_reply->{"$prefix".$1} = $2;
                 } else {
                     $logger->error("Packetfence-Raw: '$value' is not in a valid format");
                 }
             }
-        } elsif ($value =~ /(.*)[:=](.*)/) {
+        } elsif ($value =~ /([\w\-:]*)\s?[:=]\s?([\w\-:]*)/) {
             my ($new_name, $new_value) = ($1, $2);
             if (defined $new_value && length($new_value)) {
                 $radius_reply->{"$prefix".$new_name} = $new_value;

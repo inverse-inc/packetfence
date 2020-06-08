@@ -35,6 +35,7 @@ BEGIN {
             name           => 'Packetfence-Raw',
             value          => 'Name:bob',
             expected_reply => {
+                'reply:Name' => 'bob',
             },
         },
         {
