@@ -549,18 +549,20 @@ sub rotate {
     };
 
     my ( $subsql, @insert_bind ) = pf::dal::ip4log_history->select(
-        -columns => [qw(mac ip start_time end_time)],
+        -columns => [qw(tenant_id mac ip start_time end_time)],
         -where => $where,
         -limit => $batch,
         -from => pf::dal::ip4log_history->table,
+        -no_auto_tenant_id => 1,
     );
 
     my %rotate_search = (
         -where => $where,    
         -limit => $batch,
+        -no_auto_tenant_id => 1,
     );
 
-    my $insert_sql = "INSERT INTO ip4log_archive (`mac`, `ip`, `start_time`, `end_time`) $subsql;";
+    my $insert_sql = "INSERT INTO ip4log_archive (`tenant_id`, `mac`, `ip`, `start_time`, `end_time`) $subsql;";
 
     while (1) {
         my $query;
@@ -638,6 +640,7 @@ sub _cleanup {
                 },
             },
             -limit => $batch,
+            -no_auto_tenant_id => 1,
         },
         $time_limit
     );
