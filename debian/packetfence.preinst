@@ -137,11 +137,13 @@ case "$1" in
             echo "ForwardToWall=no" >> /etc/systemd/journald.conf
         fi
         set +e 
-        rm /etc/init.d/packetfence
+        if [ -e "/etc/init.d/packetfence" ]; then
+            rm /etc/init.d/packetfence
+        fi
         rm /etc/rc*.d/*packetfence
         set -e 
         stop_service_if_exists pfappserver
-        stop_service_if_exists packetfence
+        /bin/systemctl isolate packetfence-base.target
 
 
         # prevent conflicting mariadb service from starting 
