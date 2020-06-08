@@ -4,6 +4,7 @@
     .nav-link {
         border-width: 0;
         border-bottom-width: 3px;
+        outline: none;
         &.active {
             font-weight: 500;
         }
