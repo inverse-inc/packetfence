@@ -618,7 +618,7 @@ sub replaceVar {
 
 sub update_template {
     my ($self, $template, $params) = @_;
-    $template =~ s/\${([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)}/replaceVar($1, $params)/ge;
+    $template =~ s/\$\{([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)\}/replaceVar($1, $params)/ge;
     return $template;
 }
 
