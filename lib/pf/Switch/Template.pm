@@ -19,7 +19,7 @@ use pf::Switch::constants;
 use pf::constants;
 use pf::util qw(isenabled);
 use List::MoreUtils qw(uniq);
-use pf::constants::role qw($REJECT_ROLE);
+use pf::constants::role qw($REJECT_ROLE $VOICE_ROLE);
 use pf::access_filter::radius;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::roles::custom;
@@ -399,7 +399,7 @@ sub getVoipVsa {
         return;
     }
 
-    my ($attrs, undef) = $self->makeRadiusAttributes($template, { switch => $self });
+    my ($attrs, undef) = $self->makeRadiusAttributes($template, { switch => $self, vlan => $self->getVlanByName($VOICE_ROLE) });
     return (@{$attrs // []});
 }
 
