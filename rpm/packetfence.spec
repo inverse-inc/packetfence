@@ -628,6 +628,10 @@ else
     echo "packetfence-config service will be started by packetfence-httpd.admin service later"
 fi
 
+echo "Disabling emergency error logging to the console"
+/usr/bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
+/bin/systemctl restart rsyslog
+
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
