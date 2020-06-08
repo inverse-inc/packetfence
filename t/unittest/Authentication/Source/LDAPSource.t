@@ -166,7 +166,7 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
     my $rule = $source->rules->[0];
 
     ok($rule, "Got rule for $source_id");
-    my $filter = $source->ldap_filter_for_conditions($rule->conditions, $rule->match, $source->{usernameattribute}, { username => 'bob', radius => { username => "bobette" } });
+    my $filter = $source->ldap_filter_for_conditions($rule->conditions, $rule->match, $source->{usernameattribute}, { username => 'bob', 'radius.username' => "bobette" });
     is(
         $filter,
         '(&(|(cn=bob)(samaccountname=bobette))(|(memberof=student)(memberof=staff)))',
