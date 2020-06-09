@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/db"
@@ -25,19 +26,33 @@ type adminRoleMapping struct {
 }
 
 var multipleTenants = false
+var successMultipleTenants = false
+var successMultipleTenantsLock = &sync.Mutex{}
 
 func init() {
+	successMultipleTenants = computeMultipleTenants()
+}
+
+func computeMultipleTenants() bool {
+	successMultipleTenantsLock.Lock()
+	defer func() {
+		successMultipleTenantsLock.Unlock()
+		if err := recover(); err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		}
+	}()
+
 	pfdb, err := db.DbFromConfig(context.Background())
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s", err)
-		return
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		return false
 	}
 	defer pfdb.Close()
 
 	res, err := pfdb.Query(`select count(1) from tenant`)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s", err)
-		return
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		return false
 	}
 	defer res.Close()
 
@@ -45,14 +60,16 @@ func init() {
 		var count int
 		err := res.Scan(&count)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s", err)
-			return
+			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+			return false
 		}
 		if count > 2 {
 			log.Logger().Info("Running in multi-tenant mode")
 			multipleTenants = true
 		}
 	}
+
+	return true
 }
 
 const ALLOW_ANY = "*"
@@ -203,6 +220,13 @@ func (tam *TokenAuthorizationMiddleware) TokenFromBearerRequest(ctx context.Cont
 // Checks whether or not that request is authorized based on the path and method
 // It will extract the token out of the Authorization header and call the appropriate method
 func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
+
+	// If we were unable to get the multi-tenant status on init (because DB wasn't ready), then we try to find it here
+	if !successMultipleTenants {
+		log.LoggerWContext(ctx).Info("Multi-tenant status hasn't been initialized. Attempting to initialize it during this request.")
+		successMultipleTenants = computeMultipleTenants()
+	}
+
 	token := tam.TokenFromBearerRequest(ctx, r)
 	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
 
