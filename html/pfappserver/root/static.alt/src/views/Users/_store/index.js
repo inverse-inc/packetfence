@@ -135,7 +135,7 @@ const actions = {
       return Promise.resolve(state.users[pid])
     }
     commit('USER_REQUEST')
-    return api.user(body).then(data => {
+    return api.user({ quiet: true, ...body }).then(data => {
       inflateActions(data)
       commit('USER_REPLACED', data)
       return state.users[pid]

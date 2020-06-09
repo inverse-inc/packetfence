@@ -63,7 +63,7 @@ const actions = {
     let node = {}
 
     commit('NODE_REQUEST')
-    return api.node(mac).then(data => {
+    return api.node({ quiet: true, mac }).then(data => {
       Object.assign(node, data)
       if (node.status === null) {
         node.status = 'unreg'

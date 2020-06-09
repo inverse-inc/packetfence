@@ -1,4 +1,5 @@
 import acl from '@/utils/acl'
+import i18n from '@/utils/locale'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import UsersView from '../'
@@ -94,6 +95,9 @@ const route = {
         }
         store.dispatch('$_users/getUser', to.params.pid).then(() => {
           next()
+        }).catch(() => { // `pid` does not exist
+          store.dispatch('notification/danger', { message: i18n.t('User <code>{pid}</code> does not exist or is not available to this tenant.', to.params) })
+          next({ name: 'userSearch' })
         })
       },
       meta: {

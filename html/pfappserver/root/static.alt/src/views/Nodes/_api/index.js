@@ -19,8 +19,9 @@ export default {
       return response.data
     })
   },
-  node: mac => {
-    return apiCall.get(['node', mac]).then(response => {
+  node: body => {
+    const get = body.quiet ? 'getQuiet' : 'get'
+    return apiCall[get](['node', body.mac]).then(response => {
       return response.data.item
     })
   },

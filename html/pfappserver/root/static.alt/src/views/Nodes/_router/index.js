@@ -1,4 +1,5 @@
 import acl from '@/utils/acl'
+import i18n from '@/utils/locale'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import NodesView from '../'
@@ -81,6 +82,9 @@ const route = {
         }
         store.dispatch('$_nodes/getNode', to.params.mac).then(() => {
           next()
+        }).catch(() => { // `mac` does not exist
+          store.dispatch('notification/danger', { message: i18n.t('Node <code>{mac}</code> does not exist or is not available to this tenant.', to.params) })
+          next({ name: 'nodeSearch' })
         })
       },
       meta: {
