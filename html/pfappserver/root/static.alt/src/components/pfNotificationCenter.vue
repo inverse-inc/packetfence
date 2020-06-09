@@ -10,7 +10,7 @@
         <div v-for="(notification) in notifications" :key="notification.id">
           <b-dropdown-item>
             <small>
-              <b-row no-gutters>
+              <b-row no-gutters @click.stop="clipboard(notification)">
                 <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
                     <b-badge pill v-if="notification.value" class="mr-2" :variant="notification.variant">{{notification.value}}</b-badge>
@@ -112,6 +112,19 @@ export default {
     },
     clear () {
       this.$store.commit('notification/$RESET')
+    },
+    clipboard (notification) {
+      const { url, message } = notification
+      try {
+        // remove HTML without executing inline script
+        const doc = new DOMParser().parseFromString(message, 'text/html')
+        const txt = doc.body.textContent || ''
+        if (txt) {
+          navigator.clipboard.writeText(`${url}: ${txt}`)
+        }
+      } catch (e) {
+        // noop
+      }
     }
   }
 }
