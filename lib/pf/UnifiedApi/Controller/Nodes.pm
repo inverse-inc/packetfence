@@ -372,7 +372,7 @@ sub post_update {
         return;
     }
 
-    if ($updated_data->{category_id} ne $old_node->{category_id} || $updated_data->{status} ne $old_node->{status}) {
+    if ( ((defined($updated_data->{category_id}) ? $updated_data->{category_id} : '') ne (defined($old_node->{category_id}) ? $old_node->{category_id} : '') ) || $updated_data->{status} ne $old_node->{status}) {
         pf::enforcement::reevaluate_access($self->id, "admin_modify");
     }
 
