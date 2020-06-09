@@ -21,11 +21,10 @@ const (
 )
 
 type TokenInfo struct {
-	AdminRoles      map[string]bool
-	Tenant          Tenant
-	Username        string
-	CreatedAt       time.Time
-	addAdminActions map[string]bool
+	AdminRoles map[string]bool
+	Tenant     Tenant
+	Username   string
+	CreatedAt  time.Time
 }
 
 type Tenant struct {
@@ -45,16 +44,8 @@ func (ti *TokenInfo) IsTenantMaster() bool {
 	}
 }
 
-func (ti *TokenInfo) handleMultiTenant() {
-	if ti.IsTenantMaster() {
-		ti.AddAdminAction(`TENANT_MASTER`)
-	}
-}
-
 func (ti *TokenInfo) AdminActions() map[string]bool {
 	adminRolesMap := make(map[string]bool)
-
-	ti.handleMultiTenant()
 
 	for role, _ := range ti.AdminRoles {
 		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
@@ -62,16 +53,9 @@ func (ti *TokenInfo) AdminActions() map[string]bool {
 		}
 	}
 
-	for action, _ := range ti.addAdminActions {
-		adminRolesMap[action] = true
+	if ti.IsTenantMaster() {
+		adminRolesMap["TENANT_MASTER"] = true
 	}
 
 	return adminRolesMap
-}
-
-func (ti *TokenInfo) AddAdminAction(a string) {
-	if ti.addAdminActions == nil {
-		ti.addAdminActions = make(map[string]bool)
-	}
-	ti.addAdminActions[a] = true
 }
