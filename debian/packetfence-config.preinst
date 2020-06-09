@@ -39,8 +39,7 @@ case "$1" in
     upgrade)
         stop_service_if_exists packetfence-config
         set +e 
-        rm /etc/init.d/packetfence-config
-        rm /etc/rc*.d/*packetfence-config
+        /usr/sbin/update-rc.d -f packetfence-config remove
         set -e 
         if [ -d "/usr/local/pf/var/cache/pfconfig" ] ; then
                 rm -fr /usr/local/pf/var/cache/pfconfig/

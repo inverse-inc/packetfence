@@ -136,17 +136,16 @@ case "$1" in
             echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
             echo "ForwardToWall=no" >> /etc/systemd/journald.conf
         fi
-        set +e 
-        if [ -e "/etc/init.d/packetfence" ]; then
-            rm /etc/init.d/packetfence
-        fi
-        rm /etc/rc*.d/*packetfence
-        set -e 
+        set +e
+        /usr/sbin/update-rc.d -f packetfence remove
         stop_service_if_exists pfappserver
+        /usr/sbin/update-rc.d -f pfappserver remove
+        set -e
         /bin/systemctl isolate packetfence-base.target
-
-
-        # prevent conflicting mariadb service from starting 
+        set +e
+        /bin/umount -l /usr/local/pf/conf/certmanager
+        set -e
+        # prevent conflicting mariadb service from starting
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
 
