@@ -328,7 +328,7 @@ Get all the persons who are not the owner of at least one node.
 
 sub persons_without_nodes {
     my ($status, $iter) = pf::dal::person->search(
-        -from => [-join => qw(person =>{node.pid=person.pid} node)],
+        -from => [-join => 'person', '=>{node.pid=person.pid,node.tenant_id=person.tenant_id}', 'node'],
         -columns => ['person.pid'],
         -group_by => 'pid',
         -having => 'count(node.mac)=0',
