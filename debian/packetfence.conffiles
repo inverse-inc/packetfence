@@ -20,7 +20,6 @@
 /usr/local/pf/conf/log.conf
 /usr/local/pf/conf/network_behavior_policies.conf
 /usr/local/pf/conf/networks.conf
-/usr/local/pf/conf/pf.conf
 /usr/local/pf/conf/pfconfig.conf
 /usr/local/pf/conf/pfdetect.conf
 /usr/local/pf/conf/pfdhcp.conf
