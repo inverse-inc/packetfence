@@ -101,7 +101,7 @@ export default {
     })
   },
   getAdminApiAuditLog: id => {
-    return apiCall.get(`admin_api_audit_log/${id}`).then(response => {
+    return apiCall.getQuiet(`admin_api_audit_log/${id}`).then(response => {
       return response.data.item
     })
   },

@@ -84,7 +84,7 @@ const actions = {
       return state.cache[id]
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
-      return err
+      throw err
     })
   }
 }

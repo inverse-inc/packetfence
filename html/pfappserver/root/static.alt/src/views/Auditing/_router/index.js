@@ -1,4 +1,5 @@
 import acl from '@/utils/acl'
+import i18n from '@/utils/locale'
 import store from '@/store'
 import RadiusLogsStore from '../_store/radiusLogs'
 import DhcpOption82LogsStore from '../_store/dhcpOption82Logs'
@@ -143,6 +144,9 @@ const route = {
       beforeEnter: (to, from, next) => {
         store.dispatch('$_admin_api_audit_logs/getItem', to.params.id).then(() => {
           next()
+        }).catch(() => { // `mac` does not exist
+          store.dispatch('notification/danger', { message: i18n.t('Admin Audit Log <code>{id}</code> does not exist or is not available for this tenant.', to.params) })
+          next({ name: 'admin_api_audit_logs' })
         })
       },
       meta: {
