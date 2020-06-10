@@ -130,7 +130,7 @@ our @SyslogInfo = (
         'conditions' => [
             '$syslogtag contains "packetfence"',
             '$programname == "pfqueue"',
-            '$programname == "pfhttpd"',
+            '($programname == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
             '$programname == "pfipset"',
             '$programname == "pfpki"',
         ]
