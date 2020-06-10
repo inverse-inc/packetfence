@@ -7,7 +7,7 @@
                 <h4 class="mb-0" v-else v-t="'Login to PacketFence Administration'"></h4>
             </template>
             <component :is="modal?'div':'b-card-body'">
-                <b-alert :variant="message.level" :show="message.text" fade>
+                <b-alert :variant="message.level" :show="!!message.text" fade>
                     {{ message.text }}
                 </b-alert>
                 <template v-if="sessionTime == false">
