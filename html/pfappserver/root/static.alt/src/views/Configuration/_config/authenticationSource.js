@@ -2598,7 +2598,7 @@ export const validatorFields = {
     return { password: validatorsFromMeta(meta, 'password', i18n.t('Password')) }
   },
   append_to_searchattributes: (form, meta = {}) => {
-    return { append_to_searchattributes: validatorsFromMeta(meta, 'append_to_searchattributes', i18n.t('ldap filter')) }
+    return { append_to_searchattributes: validatorsFromMeta(meta, 'append_to_searchattributes', i18n.t('LDAP filter')) }
   },
   auth_listening_port: (form, meta = {}) => {
     return { auth_listening_port: validatorsFromMeta(meta, 'auth_listening_port', i18n.t('Port')) }

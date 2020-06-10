@@ -86,7 +86,7 @@
               ></pf-form-fields>
               <pf-form-row row-class="mt-0 mb-3" v-if="!findIntermediateCAs">
                 <pf-form-upload class="btn-outline-secondary btn-sm" @files="loadIntermediateCAs(certs[id], $event)" :multiple="true" accept="text/*" read-as-text>
-                  {{ $t('Choose Intermediate CA certificate(s)') }}
+                  {{ $t('Choose Intermediate CA Certificate(s)') }}
                 </pf-form-upload>
               </pf-form-row>
             </template>

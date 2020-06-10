@@ -424,7 +424,7 @@ export const validatorFields = {
         $each: {
           prefix: validatorsFromMeta(meta, 'answers.prefix', i18n.t('Prefix')),
           type: validatorsFromMeta(meta, 'answers.type', i18n.t('Type')),
-          value: validatorsFromMeta(meta, 'answers.value', i18n.t('calue'))
+          value: validatorsFromMeta(meta, 'answers.value', i18n.t('Value'))
         }
       }
     }
