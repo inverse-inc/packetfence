@@ -420,13 +420,7 @@ sub _update_section {
                 $config->newval($section, $param, $value);
             }
         } else { #Handle deleting param from section
-            #if the param exists in the imported config then use that the value in the imported file
-            if ( defined $default_value ) {
-                $config->setval($section, $param, $default_value);
-            } elsif ( $imported && $imported->exists($section, $param) ) {
-                $config->setval($section, $param, $imported->val($section, $param));
-            } elsif ( $param_exists ) {
-                #
+            if ($param_exists) {
                 $config->delval($section, $param);
             }
         }
