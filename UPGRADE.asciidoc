@@ -226,7 +226,14 @@ PacketFence.
 
 ===== Debian based systems
 
-Debian installation system should have interactively asked for existing modified files.
+Debian installation system should have interactively asked for existing
+modified files. If you answer `No` to keep existing files in place, you can
+find out which configuration files have changed by running following command:
+
+[source,bash]
+----
+find /usr/local/pf -name "*.dpkg-dist"
+----
 
 === Restart all PacketFence services
 
