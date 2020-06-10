@@ -1613,13 +1613,6 @@ First, stop the galera-autofix service on all the nodes of your cluster
 systemctl stop packetfence-galera-autofix
 ----
 
-Then, stop `packetfence-mariadb` on nodes A and B
-
-[source,bash]
-----
-systemctl stop packetfence-mariadb
-----
-
 ===== Elect node C as database master
 
 
