@@ -64,7 +64,7 @@
         show-empty hover no-local-sorting sort-icon-left striped
       >
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading" :text="$t('Admin API Audit Audit Logs not found or setting is disabled in configuration. You can enable this setting in Configuration → System Configuration → Admin API Audit Configuration.')">{{ $t('No logs found') }}</pf-empty-table>
+          <pf-empty-table :isLoading="isLoading" :text="$t('Please refine your search.')">{{ $t('No logs found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>
