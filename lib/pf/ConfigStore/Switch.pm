@@ -125,7 +125,7 @@ parentSections
 
 sub parentSections {
     my ($self, $id, $item) = @_;
-    my $inherit_from = $item->{group};
+    my $inherit_from = $item->{group} // $self->cachedConfig->val($id, 'group');
     my $default_section = $self->default_section;
     return if defined $default_section && $id eq $default_section;
     my @parents;
