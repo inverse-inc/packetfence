@@ -968,6 +968,29 @@ The useragent and user_agent security event triggers have been deprecated. Perfo
 
    /usr/local/pf/addons/upgrade/to-9.1-security-events-remove-useragent.pl
 
+=== Self service portal
+
+The device registration configuration file has been removed in favor of using a configuration file for all the self service portal features (status page + device registration).
+
+In order to migrate your configuration, run the following script:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-9.1-selfservice-conf.pl
+----
+
+=== Password of the day rotation
+
+Password of the day sources now use access duration values to rotate password.
+
+In order to migrate your configuration, run the following script:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-9.1-update-potd.pl
+----
+
+
 === Database schema
 
 
