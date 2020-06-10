@@ -1388,7 +1388,7 @@ WiFi controllers, etc.)
 
 CAUTION: Performing a live upgrade on a PacketFence cluster is not a straightforward operation and should be done meticulously.
 
-In this procedure, the 3 nodes will be named A, B and C and they are in this order in `cluster.conf`.
+In this procedure, the 3 nodes will be named A, B and C and they are in this order in [filename]`cluster.conf`. When we referenced their hostnames, we speak about hostnames in [filename]`cluster.conf`.
 
 ==== Backups
 
