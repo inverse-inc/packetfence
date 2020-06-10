@@ -414,6 +414,11 @@ sub getVoipVsa {
     return (@{$attrs // []});
 }
 
+sub isVoIPEnabled {
+    my ($self) = @_;
+    return isenabled($self->{_VoIPEnabled}) ;
+}
+
 =head2 wiredeauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
