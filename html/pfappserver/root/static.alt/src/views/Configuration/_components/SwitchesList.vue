@@ -4,7 +4,7 @@
     :config="config"
   >
     <template v-slot:buttonAdd>
-      <b-dropdown :text="$t('New Switch')" variant="outline-primary" class="mr-1">
+      <b-dropdown :text="$t('New Switch')" class="mr-1" variant="outline-primary" no-flip>
         <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
           <b-dropdown-item v-for="(switchGroup, index) in switchGroups" :key="index"
             :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
@@ -67,7 +67,7 @@ export default {
         })
       })
       this.$store.dispatch('$_switch_groups/all').then(switchGroups => {
-        this.switchGroups = switchGroups
+        this.switchGroups = switchGroups.sort((a, b) => a.id.localeCompare(b.id))
       })
     },
     clone (item) {

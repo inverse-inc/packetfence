@@ -29,7 +29,8 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id', 'description'].join(',')
+      fields: ['id', 'description'].join(','),
+      limit: 1000
     }
     return api.switchGroups(params).then(response => {
       return response.items
