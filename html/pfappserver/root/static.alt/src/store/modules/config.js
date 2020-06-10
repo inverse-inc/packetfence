@@ -142,7 +142,7 @@ const api = {
     return apiCall({ url: 'config/switches', method: 'get' })
   },
   getSwitchGroups () {
-    return apiCall({ url: 'config/switch_groups', method: 'get' })
+    return apiCall({ url: 'config/switch_groups', method: 'get', params: { limit: 1000 } })
   },
   getSyslogForwarders () {
     return apiCall({ url: 'config/syslog_forwarders', method: 'get' })
