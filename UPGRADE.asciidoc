@@ -40,6 +40,10 @@ These files are included in the package and release tarballs.
 
 == General Upgrade Tips
 
+=== Prerequisites
+
+You need to have your MariaDB root password next to you because several scripts will need it.
+
 
 === Database backup
 
