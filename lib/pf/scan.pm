@@ -343,19 +343,10 @@ sub matchCategory {
     my ($self, $node_attributes) = @_;
     my $category = [split(/\s*,\s*/, $self->{_categories})];
     my $node_cat = $node_attributes->{'category'};
-    my $logger = get_logger();
 
-    # if no categories are defined then it will match all nodes
-    return $TRUE if @$category == 0;
-
-    if (defined $node_cat) {
-        $logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$category) });
-
-        foreach my $cat (@$category) {
-            return $TRUE if ($node_cat eq $cat);
-        }
-    }
-    return $FALSE;
+    get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$category) });
+    # validating that the node is under the proper category for scanner
+    return @$category == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$category;
 }
 
 =item matchOS
