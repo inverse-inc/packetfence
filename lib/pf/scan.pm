@@ -213,7 +213,7 @@ sub run_scan {
     
     # If no scan detected then we abort
     if (!$scanner) {
-        $logger->info("No scan engine found for $host_mac");
+        $logger->debug("No scan engine found for $host_mac");
         return $FALSE;
     }
     # Preparing the scan attributes
@@ -365,14 +365,14 @@ Check if the OS matches the configuration of the scanner
 =cut
 
 sub matchOS {
-    my ($self, $node_attributes) = @_;
+    my ($self, $node_os, $node_attributes) = @_;
     my @oses = @{$self->{_oses} || []};
     my $logger = get_logger();
 
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
 
-    if (defined $node_attributes->{device_type}) {
+    if (defined $node_os) {
         my $device_name = $node_attributes->{device_type};
         $logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
 
@@ -390,9 +390,8 @@ Check if the device matches the configuration of the scanner
 =cut
 
 sub match {
-    my ($self, $os, $node_attributes) = @_;
-    $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
-    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes) ;
+    my ($self, $node_os, $node_attributes) = @_;
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_os,$node_attributes);
 }
 
 =back
