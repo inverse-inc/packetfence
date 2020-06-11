@@ -159,15 +159,15 @@ all:
 
       - name: 'registration'
         subnet: '172.17.2.0/24'
-        forward_mode: 'nat'
+        forward_mode: 'route'
 
       - name: 'isolation'
         subnet: '172.17.3.0/24'
-        forward_mode: 'nat'
+        forward_mode: 'route'
 
       - name: 'inline'
         subnet: '172.17.6.0/24'
-        forward_mode: 'nat'
+        forward_mode: 'route'
 
 
       
