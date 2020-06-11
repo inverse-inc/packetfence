@@ -1546,12 +1546,12 @@ export default {
     })
   },
   switche: id => {
-    return apiCall.get(['config', 'switch', id]).then(response => {
+    return apiCall.get(['config', 'switch', id], { params: { skip_inheritance: true } }).then(response => {
       return response.data.item
     })
   },
   switcheQuiet: id => {
-    return apiCall.getQuiet(['config', 'switch', id]).then(response => {
+    return apiCall.getQuiet(['config', 'switch', id], { params: { skip_inheritance: true } }).then(response => {
       return response.data.item
     })
   },
@@ -1593,7 +1593,7 @@ export default {
     })
   },
   switchGroup: id => {
-    return apiCall.get(['config', 'switch_group', id]).then(response => {
+    return apiCall.get(['config', 'switch_group', id], { params: { skip_inheritance: true } }).then(response => {
       return response.data.item
     })
   },
