@@ -1789,7 +1789,7 @@ image::portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boa
 Next, add the `login_or_boarding` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you will have the choice between login to the LDAP source and gain access to the network or directly use provisioning in order to configure your device for a Secure SSID.
 
 Displaying a message to the user after the registration
-+++++++++++++++++++++++++++++++++++++++++++++++++=+++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Using the 'Message' module you can display a custom message to the user. You can also customize the template to display in order to display a fully custom page.
 
