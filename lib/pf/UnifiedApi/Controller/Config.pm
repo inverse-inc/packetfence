@@ -314,7 +314,8 @@ sub get {
 
 sub item {
     my ($self, $id) = @_;
-    return $self->cleanup_item($self->item_from_store($id));
+    my $skip_inheritance = isenabled($self->req->param('skip_inheritance'));
+    return $self->cleanup_item($self->item_from_store($id, $skip_inheritance));
 }
 
 sub id {
@@ -329,8 +330,12 @@ sub id {
 }
 
 sub item_from_store {
-    my ($self, $id) = @_;
-    return $self->config_store->read($id // $self->id, 'id')
+    my ($self, $id, $skip_inheritance) = @_;
+    if ($skip_inheritance) {
+        return $self->config_store->readWithoutInherited($id // $self->id, 'id')
+    } else {
+        return $self->config_store->read($id // $self->id, 'id')
+    }
 }
 
 sub cleanup_item {
