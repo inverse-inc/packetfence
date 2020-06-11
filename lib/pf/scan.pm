@@ -343,10 +343,19 @@ sub matchCategory {
     my ($self, $node_attributes) = @_;
     my $category = [split(/\s*,\s*/, $self->{_categories})];
     my $node_cat = $node_attributes->{'category'};
+    my $logger = get_logger();
 
-    get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$category) });
-    # validating that the node is under the proper category for scanner
-    return @$category == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$category;
+    # if no categories are defined then it will match all nodes
+    return $TRUE if @$category == 0;
+
+    if (defined $node_cat) {
+        $logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$category) });
+
+        foreach my $cat (@$category) {
+            return $TRUE if ($node_cat eq $cat);
+        }
+    }
+    return $FALSE;
 }
 
 =item matchOS
@@ -358,13 +367,14 @@ Check if the OS matches the configuration of the scanner
 sub matchOS {
     my ($self, $node_attributes) = @_;
     my @oses = @{$self->{_oses} || []};
+    my $logger = get_logger();
 
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
 
     if (defined $node_attributes->{device_type}) {
         my $device_name = $node_attributes->{device_type};
-        get_logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
+        $logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
 
         for my $os (@oses) {
             return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
