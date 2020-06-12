@@ -38,19 +38,19 @@ index d3a3cd9b63..fe284fcaa2 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 65be470a9b..bdb3013098 100644
+index 1bc6ef3177..39dbb58a8e 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -419,7 +419,7 @@ radiusd=enabled
+@@ -424,7 +424,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 -radiusd_binary=/usr/sbin/radiusd
 +radiusd_binary=/usr/sbin/freeradius
  #
- # services.iptables
+ # services.radiusd_acct
  #
-@@ -484,7 +484,7 @@ httpd_proxy=enabled
+@@ -494,7 +494,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -59,7 +59,7 @@ index 65be470a9b..bdb3013098 100644
  #
  # services.snmptrapd
  #
-@@ -582,7 +582,7 @@ openssl_binary=/usr/bin/openssl
+@@ -592,7 +592,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -68,7 +68,7 @@ index 65be470a9b..bdb3013098 100644
  #
  # services.netdata
  #
-@@ -600,8 +600,8 @@ tc=enabled
+@@ -610,8 +610,8 @@ tc=enabled
  #
  # services.tc_binary
  #
@@ -93,7 +93,7 @@ index 102b0cfb37..aa1c524696 100644
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
-index e153b95087..714ffe04bc 100644
+index 8030226485..9ae8c07bb3 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
 +++ b/conf/systemd/packetfence-haproxy-db.service
 @@ -8,7 +8,7 @@ Wants=packetfence-config.service
@@ -236,10 +236,10 @@ index 6ac3c0b929..76365e1dc7 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
-index 0e57e61e2c..c06578e84e 100644
+index 14c3e99208..6ff45f88b5 100644
 --- a/conf/systemd/packetfence-keepalived.service
 +++ b/conf/systemd/packetfence-keepalived.service
-@@ -10,7 +10,7 @@ StartLimitBurst=3
+@@ -9,7 +9,7 @@ StartLimitBurst=3
  StartLimitInterval=10
  Type=forking
  KillMode=process
@@ -261,8 +261,21 @@ index 8062477868..6ee8401943 100644
  PermissionsStartOnly=true
  
  TimeoutSec=60
+diff --git a/conf/systemd/packetfence-pfcertmanager.service b/conf/systemd/packetfence-pfcertmanager.service
+index 217f17e622..b38b62f12c 100644
+--- a/conf/systemd/packetfence-pfcertmanager.service
++++ b/conf/systemd/packetfence-pfcertmanager.service
+@@ -11,7 +11,7 @@ StartLimitInterval=60
+ Type=notify
+ WatchdogSec=30s
+ Environment=LOG_LEVEL=INFO
+-ExecStartPre=-/usr/bin/umount -l /usr/local/pf/conf/certmanager
++ExecStartPre=-/bin/umount -l /usr/local/pf/conf/certmanager
+ ExecStart=/usr/local/pf/sbin/pfcertmanager
+ Restart=on-failure
+ Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
-index cea263a037..c254fceb10 100644
+index 01cdb94532..9165db4c33 100644
 --- a/conf/systemd/packetfence-pfdns.service
 +++ b/conf/systemd/packetfence-pfdns.service
 @@ -9,7 +9,7 @@ Before=packetfence-httpd.portal.service
@@ -306,10 +319,10 @@ index cb525d5099..b21275519d 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
-index 58fea7bea1..edb79d9a98 100644
+index 6efb49dcf6..9a3cffdcce 100644
 --- a/conf/systemd/packetfence-radiusd-auth.service
 +++ b/conf/systemd/packetfence-radiusd-auth.service
-@@ -12,9 +12,9 @@ Type=notify
+@@ -14,9 +14,9 @@ Type=notify
  WatchdogSec=10
  StartLimitBurst=3
  StartLimitInterval=10
@@ -357,7 +370,7 @@ index e0604efefc..958549b179 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index b5f9d7e9aa..993853e190 100644
+index 0d0290f875..56142a3a72 100644
 --- a/conf/systemd/packetfence-radiusd-load_balancer.service
 +++ b/conf/systemd/packetfence-radiusd-load_balancer.service
 @@ -12,9 +12,9 @@ Type=notify
