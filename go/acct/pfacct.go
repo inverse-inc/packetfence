@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
+	"net"
+	"time"
+
 	cache "github.com/fdurand/go-cache"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
@@ -11,11 +14,11 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/tryableonce"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
-	"net"
-	"time"
 )
 
 const DefaultTimeDuration = 5 * time.Minute
+
+var successDBConnect = false
 
 type PfAcct struct {
 	RadiusStatements
@@ -38,12 +41,26 @@ type PfAcct struct {
 func NewPfAcct() *PfAcct {
 	var ctx = context.Background()
 	ctx = log.LoggerNewContext(ctx)
-	db, err := db.DbFromConfig(ctx)
-	if err != nil {
-		return nil
+
+	var Database *sql.DB
+	var err error
+
+	for !successDBConnect {
+		Database, err = db.DbFromConfig(ctx)
+
+		if err != nil {
+			time.Sleep(time.Duration(5) * time.Second)
+		} else {
+			err = Database.Ping()
+			if err != nil {
+				time.Sleep(time.Duration(5) * time.Second)
+			} else {
+				successDBConnect = true
+			}
+		}
 	}
 
-	pfAcct := &PfAcct{Db: db, TimeDuration: DefaultTimeDuration}
+	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
