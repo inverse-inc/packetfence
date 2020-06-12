@@ -227,6 +227,8 @@ sub _deauthenticateMacWithHTTP {
     };
     my $command;
     unless ($node_info->{status} eq $STATUS_UNREGISTERED || security_event_count_reevaluate_access($mac))  {
+        $command = "authorize-guest";
+
         if($node_info->{unregdate} ne $ZERO_DATE) {
             my $now = DateTime->now();
             $now->set_time_zone('local');
