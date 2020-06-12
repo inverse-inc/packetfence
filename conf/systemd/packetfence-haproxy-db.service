@@ -15,4 +15,4 @@ Restart=on-failure
 SuccessExitStatus=143
 
 [Install]
-WantedBy=packetfence-cluster.target
+WantedBy=packetfence-base.target

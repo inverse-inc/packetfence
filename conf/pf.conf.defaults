@@ -271,7 +271,7 @@ pfacct_netflow=2056
 # database.host
 #
 # Server the MySQL server is running on.
-host=localhost
+host=127.0.0.1
 #
 # database.port
 #
