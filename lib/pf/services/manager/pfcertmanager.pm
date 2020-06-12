@@ -19,6 +19,12 @@ extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfcertmanager' } );
 
+sub isManaged {
+    my ($self) = @_;
+    my $name = $self->name;
+    return 1;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
