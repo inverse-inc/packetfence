@@ -64,6 +64,7 @@ Bug Fixes
 * Impossible to set multiple access level in administration rule (#5440)
 * Fixed pf-maint.pl when its running behind a proxy (#3425 )
 * Fix vendor attributes not being sent from Switch Template (#5453)
+* Fixed issue authorizing a user in web-auth on Unifi when the node has its date set to '0000-00-00 00:00:00'
 
 Version 10.0.0 released on 2020-04-16
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
