@@ -73,12 +73,7 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 		if err != nil {
 			time.Sleep(time.Duration(5) * time.Second)
 		} else {
-			err = Database.Ping()
-			if err != nil {
-				time.Sleep(time.Duration(5) * time.Second)
-			} else {
-				successDBConnect = true
-			}
+			successDBConnect = true
 		}
 	}
 
