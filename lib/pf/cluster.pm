@@ -390,14 +390,14 @@ sub sync_storages {
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
             
-            next unless($pfconfig_namespace);
-
-            my $config_file = $cs->configFile;
-            my %data = (
-                namespace => $pfconfig_namespace,
-                conf_file => $config_file,
-            );
-            my ($result) = $apiclient->call( 'expire_cluster', %data );
+            if($pfconfig_namespace) {
+                my $config_file = $cs->configFile;
+                my %data = (
+                    namespace => $pfconfig_namespace,
+                    conf_file => $config_file,
+                );
+                my ($result) = $apiclient->call( 'expire_cluster', %data );
+            }
         };
         if($@){
             print STDERR "ERROR !!! Failed to sync store : $store ($@) \n";
