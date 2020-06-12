@@ -702,6 +702,7 @@ sub node_register {
     if ( any { isenabled($_->{'_registration'}) } @scanners) {
         # trigger Scan for On Registration scanners
         $logger->debug("Triggering On Registration Scan");
+        require pf::api;
         pf::api::trigger_scan('pf::api',ip => pf::ip4log::mac2ip($mac) , mac => $mac , net_type => 'registration');
     }
 
