@@ -228,13 +228,16 @@ sub _deauthenticateMacWithHTTP {
     my $command;
     unless ($node_info->{status} eq $STATUS_UNREGISTERED || security_event_count_reevaluate_access($mac))  {
         $command = "authorize-guest";
-        my $now = DateTime->now();
-        $now->set_time_zone('local');
-        
-        my $unregdate = DateTime::Format::MySQL->parse_datetime($node_info->{unregdate});
-        $unregdate->set_time_zone('local');
-        
-        $args->{minutes} = $now->delta_ms($unregdate)->in_units('minutes');
+
+        if($node_info->{unregdate} ne $ZERO_DATE) {
+            my $now = DateTime->now();
+            $now->set_time_zone('local');
+
+            my $unregdate = DateTime::Format::MySQL->parse_datetime($node_info->{unregdate});
+            $unregdate->set_time_zone('local');
+
+            $args->{minutes} = $now->delta_ms($unregdate)->in_units('minutes');
+        }
     } else {
         $command = "unauthorize-guest";
     }
