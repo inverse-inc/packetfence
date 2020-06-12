@@ -23,8 +23,7 @@ import {
   not,
   conditional,
   hasSecurityEvents,
-  securityEventExists,
-  isMacAddress
+  securityEventExists
 } from '@/globals/pfValidators'
 import {
   required,
@@ -486,10 +485,7 @@ export const triggerFields = {
   },
   mac: {
     text: i18n.t('MAC Address'),
-    category: triggerCategories.ENDPOINT,
-    validators: {
-      [i18n.t('Invalid MAC address.')]: isMacAddress
-    }
+    category: triggerCategories.ENDPOINT
   },
   mac_vendor: {
     text: i18n.t('MAC Vendor'),
