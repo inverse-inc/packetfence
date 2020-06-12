@@ -44,10 +44,11 @@ export const pfActionsFromMeta = (meta = {}, key = null) => {
   return fields
 }
 
-export const pfActionValidators = (pfActions = [], formActions = []) => {
+export const pfActionValidators = (availableActions = [], formActions = []) => {
   return {
     ...(formActions || []).map((action) => {
       const { type, value } = action || {}
+      const { [type]: { staticValue } = {} } = pfActions
       return {
         type: {
           ...((type)
@@ -103,15 +104,19 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
         value: {
           ...((value)
             ? (() => {
-              let pfAction = pfActions.filter((pfAction) => pfAction.value === type)[0]
+              let pfAction = availableActions.filter((pfAction) => pfAction.value === type)[0]
               return ('validators' in pfAction)
                 ? pfAction.validators // dynamic `value` validators
                 : {}
             })()
-            : {
+            : {/* noop */}
+          ),
+          ...((!value && !staticValue)
+            ? {
               // `value` required
               [i18n.t('Value required')]: required
             }
+            : {/* noop */}
           )
         }
       }
