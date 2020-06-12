@@ -685,9 +685,10 @@ Create the filter to search for the dn
 
 sub _makefilter {
     my ($self,$username) = @_;
+    my $append_search = defined($self->{'append_to_searchattributes'}) ? $self->{'append_to_searchattributes'} : '';
     if (@{$self->{'searchattributes'} // []}) {
         my $search = join ("", map { "($_=$username)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
-        return "(&(|$search)".$self->{'append_to_searchattributes'}.")";
+        return "(&(|$search)".$append_search.")";
     } else {
         return '(' . "$self->{'usernameattribute'}=$username" . ')';
     }
