@@ -87,7 +87,7 @@ sub index : Path : Args(0) {
     }
 
     my $device_reg_profile = $c->profile->{'_self_service'};
-    my @registration_roles = map { { value => $_, label => $_ } } split(',', $ConfigSelfService{$device_reg_profile}{'device_registration_list_roles'});
+    my @registration_roles = map { { value => $_, label => $_ } } split(',', $ConfigSelfService{$device_reg_profile}{'device_registration_role'});
     $c->stash->{device_registration_list_roles} = \@registration_roles;
     # User is authenticated so display registration page
     $c->stash(title => "Registration", template => 'device-registration/registration.html');

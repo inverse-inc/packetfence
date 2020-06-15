@@ -49,10 +49,11 @@ has_field 'roles_allowed_to_unregister' =>
 has_field 'device_registration_role' =>
   (
    type => 'Select',
+   multiple => 1,
    label => 'Role to assign',
    options_method => \&options_roles,
    tags => { after_element => \&help,
-             help => 'The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.' },
+             help => 'The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose' },
   );
 
 has_field 'device_registration_access_duration' =>
@@ -80,18 +81,6 @@ has_field 'device_registration_allowed_devices' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
-has_field 'device_registration_list_roles' =>
-  (
-   type => 'Select',
-   label => 'Allowed roles list',
-   multiple => 1,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a role'},
-   options_method => \&options_roles,
-   tags => { after_element => \&help,
-             help => 'The list of roles that are allowed to be used by the user to select in which role the device should be register.' },
-  );
-
 has_block definition =>
   (
    render_list => [ qw(id description) ],
@@ -104,7 +93,7 @@ has_block status_definition =>
 
 has_block device_registration_definition =>
   (
-   render_list => [ qw(device_registration_role device_registration_access_duration device_registration_allowed_devices device_registration_list_roles) ],
+   render_list => [ qw(device_registration_role device_registration_access_duration device_registration_allowed_devices) ],
   );
 
 =head2 options_roles

@@ -156,17 +156,6 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Roles list'),
-          text: i18n.t('The list of roles that are allowed to be used by the user to select in which role the device should be register. If defined the "Role to assign" parameter will be ignored.'),
-          cols: [
-            {
-              namespace: 'device_registration_list_roles',
-              component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'device_registration_list_roles')
-            }
-          ]
-        },
-        {
           label: i18n.t('Access duration to assign'),
           text: i18n.t(`The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.`),
           cols: [
