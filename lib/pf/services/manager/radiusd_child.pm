@@ -135,6 +135,8 @@ sub generate_radiusd_sitesconf {
 
     generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
+    generate_eap_choice(\$tags{'authorize_eap_choice_degraded'}, \$tags{'authentication_auth_type_degraded'}, "eap-degraded");
+
     if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
     }
@@ -219,7 +221,6 @@ EOT
             $tags{'home_server'} .= <<"EOT";
         home_server =  pf.remote
 EOT
-        generate_eap_choice(\$tags{'authorize_eap_choice_degraded'}, \$tags{'authentication_auth_type_degraded'}, "-eap-degraded");
     }
 
     $tt->process("$conf_dir/radiusd/packetfence", \%tags, "$install_dir/raddb/sites-enabled/packetfence") or die $tt->error();
@@ -295,9 +296,6 @@ EOT
 
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
-    $tags{'authorize_eap_choice_degraded'} = "";
-    $tags{'authentication_auth_type_degraded'} = "";
-    generate_eap_choice(\$tags{'authorize_eap_choice_degraded'}, \$tags{'authentication_auth_type_degraded'}, "-eap-degraded");
 
     generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
@@ -1270,16 +1268,17 @@ Generate the configuration for eap choice
 
 sub generate_eap_choice {
     my ($authorize_eap_choice, $authentication_auth_type, $suffix) = @_;
-        my $if = 'if';
-        foreach my $key ( @pf::config::ConfigOrderedRealm ) {
-            next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
-            my $choice = $key;
-            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-            my $eap = ( defined($pf::config::ConfigRealm{$key}->{'eap'}) && $pf::config::ConfigRealm{$key}->{'eap'} ne '') ? $pf::config::ConfigRealm{$key}->{'eap'} : 'eap';
-            if (defined($suffix) && $suffix ne "" ) {
-               $eap = $eap.$suffix;
-            }
-            $$authorize_eap_choice .= <<"EOT";
+    if (!(defined($suffix) && $suffix ne "" )) {
+        $suffix = "";
+    }
+    my $if = 'if';
+    foreach my $key ( @pf::config::ConfigOrderedRealm ) {
+        next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
+        my $choice = $key;
+        $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+        my $eap = ( defined($pf::config::ConfigRealm{$key}->{'eap'}) && $pf::config::ConfigRealm{$key}->{'eap'} ne '') ? $pf::config::ConfigRealm{$key}->{'eap'} : 'eap';
+        $eap = $eap."-".$suffix if ($suffix ne "");
+        $$authorize_eap_choice .= <<"EOT";
             $if (Realm =~ /$choice/) {
                 $eap {
                     ok = return
@@ -1287,31 +1286,37 @@ sub generate_eap_choice {
             }
 EOT
             $if = 'elsif';
-        }
-        if ($if eq 'elsif') {
-            $$authorize_eap_choice .= <<"EOT";
+    }
+    if ($if eq 'elsif') {
+        $$authorize_eap_choice .= <<"EOT";
             else {
-                eap {
+                eap $suffix {
                     ok = return
                 }
             }
 EOT
-        } else {
-            $$authorize_eap_choice .= <<"EOT";
-            eap {
+    } else {
+        $$authorize_eap_choice .= <<"EOT";
+            eap $suffix {
                 ok = return
             }
 EOT
-        }
-        foreach my $key (keys %ConfigEAP) {
-            next if $key eq 'default';
-            $$authentication_auth_type .= <<"EOT";
+    }
+    foreach my $key (keys %ConfigEAP) {
+        next if $key eq 'default';
+        $$authentication_auth_type .= <<"EOT";
         Auth-Type $key {
             $key
         }
 EOT
+    }
+    if ($suffix ne "") {
+    $$authentication_auth_type .= <<"EOT";
+        Auth-Type $suffix {
+            $suffix
         }
-
+EOT
+    }
 }
 
 sub generate_ldap_choice {

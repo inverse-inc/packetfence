@@ -619,7 +619,8 @@ accounting {
 
 		#
 		#  Allow EAP authentication.
-		[% authentication_auth_type_degraged %]
+
+		[% authentication_auth_type_degraded %]
 	}
 
 
@@ -657,7 +658,7 @@ accounting {
 			# Insert EAP-Failure message if the request was
 			# rejected by policy instead of because of an
 			# authentication failure
-			eap-remote
+			eap-degraded
 
 			#  Remove reply message if the response contains an EAP-Message
 			remove_reply_message_if_eap
@@ -670,7 +671,7 @@ accounting {
 
 	post-proxy {
 
-		eap-remote
+		eap-degraded
 	}
 }
 
@@ -742,7 +743,7 @@ server packetfence-degraded-tunnel {
 	}
 
 	post-proxy {
-		eap-remote
+		eap-degraded
 	}
 
 }
