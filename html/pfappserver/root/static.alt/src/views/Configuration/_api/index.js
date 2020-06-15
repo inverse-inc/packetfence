@@ -1365,7 +1365,7 @@ export default {
    * Switches
    */
   switches: params => {
-    return apiCall.get(['config', 'switches'], { params }).then(response => {
+    return apiCall.get(['config', 'switches'], { params: { ...params, raw: 1 } }).then(response => {
       return response.data
     })
   },
@@ -1417,7 +1417,7 @@ export default {
    * SwitchGroups
    */
   switchGroups: params => {
-    return apiCall.get(['config', 'switch_groups'], { params }).then(response => {
+    return apiCall.get(['config', 'switch_groups'], { params: { ...params, raw: 1 } }).then(response => {
       return response.data
     })
   },
