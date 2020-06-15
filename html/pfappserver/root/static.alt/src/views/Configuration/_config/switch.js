@@ -102,7 +102,7 @@ export const config = (context = {}) => {
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/switches',
+      searchApiEndpoint: 'config/switches?raw=1',
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
