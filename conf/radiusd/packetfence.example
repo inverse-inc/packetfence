@@ -76,7 +76,7 @@ server packetfence {
 		suffix
 		ntdomain
 
-	%%authorize_filter%%
+	[% authorize_filter %]
 
 		#
 		#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
@@ -95,7 +95,7 @@ server packetfence {
 		#  TTLS or PEAP.
 		#
 
-	%%authorize_eap_choice%%
+	[% authorize_eap_choice %]
 
 		#
 		#  Read the 'users' file.  In v3, this is located in
@@ -186,7 +186,7 @@ server packetfence {
 			packetfence-mschap-authenticate
 		}
 
-	%%authentication_auth_type%%
+	[% authentication_auth_type %]
 
 		#  Uncomment it if you want to use ldap for authentication
 		#
@@ -261,7 +261,7 @@ server packetfence {
 		#  home server as authentication requests.
 		#	IPASS
 		suffix
-		%%preacct_filter%%
+		[% preacct_filter %]
 		ntdomain
 
 		#
@@ -287,7 +287,7 @@ server packetfence {
 		#  Log traffic to an SQL database.
 		#
 		#  See "Accounting queries" in mods-available/sql
-		%%accounting_sql%%
+		[% accounting_sql %]
 
 		#
 		#  If you receive stop packets with zero session length,
@@ -352,7 +352,7 @@ server packetfence {
 		#	&reply: += &session-state:
 		#}
 		if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
-	%%local_realm%%
+	[% local_realm %]
 			if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 				packetfence-audit-log-reject
 				reject
@@ -422,7 +422,7 @@ server packetfence {
 	#
 	pre-proxy {
 		attr_filter.packetfence_pre_proxy
-		%%pre_proxy_filter%%
+		[% pre_proxy_filter %]
 	}
 
 	#
@@ -469,12 +469,13 @@ server packetfence {
 			PacketFence-Proxied-From := "True"
 		}
 
-		%%post_proxy_filter%%
+		[% post_proxy_filter %]
 	}
 }
 
+[% IF remote == "YES" %]
 
-%%members%%
+[% members %]
 
 home_server degraded {
 	virtual_server = pf.degraded
@@ -484,7 +485,7 @@ home_server degraded {
 home_server_pool pf_auth_pool {
 	type = fail-over
 
-%%home_server%%
+[% home_server %]
 
 	home_server = degraded
 }
@@ -492,7 +493,7 @@ home_server_pool pf_auth_pool {
 home_server_pool pf_acct_pool {
 	type = fail-over
 
-%%home_server%%
+[% home_server %]
 
 }
 
@@ -500,6 +501,8 @@ realm remote {
 auth_pool = pf_auth_pool
 	acct_pool = pf_acct_pool
 }
+
+[% END %]
 
 server pf-remote {
 	pre-proxy {

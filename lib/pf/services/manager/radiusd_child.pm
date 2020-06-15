@@ -109,7 +109,7 @@ sub _generateConfig {
     $self->generate_radiusd_eapconf($tt);
     $self->generate_radiusd_restconf();
     $self->generate_radiusd_sqlconf();
-    $self->generate_radiusd_sitesconf();
+    $self->generate_radiusd_sitesconf($tt);
     $self->generate_radiusd_proxy();
     $self->generate_radiusd_cluster($tt);
     $self->generate_radiusd_cliconf($tt);
@@ -124,8 +124,10 @@ Generates the packetfence and packetfence-tunnel configuration file
 =cut
 
 sub generate_radiusd_sitesconf {
+    my ($self, $tt) = @_;
     my %tags;
 
+    $tags{'remote'} = "";
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
 
@@ -186,8 +188,38 @@ EOT
 EOT
     }
 
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
+    # Remote config
+
+    if (pf::cluster::isSlaveMode()) {
+
+        $tags{'remote'} = "YES";
+        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+
+        $tags{'members'} = '';
+        $tags{'config'} ='';
+        my $i = 0;
+        my $radius_remote = pf::cluster::getDBMaster();
+
+        $tags{'members'} .= <<"EOT";
+home_server pf.remote {
+        type = auth+acct
+        ipaddr = $radius_remote
+        src_ipaddr = $tags{'management_ip'}
+        port = 1812
+        secret = $local_secret
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
+EOT
+            $tags{'home_server'} .= <<"EOT";
+        home_server =  pf.remote
+EOT
+    }
+
+    $tt->process("$conf_dir/radiusd/packetfence", \%tags, "$install_dir/raddb/sites-enabled/packetfence") or die $tt->error();
 
     %tags = ();
 
@@ -273,9 +305,7 @@ EOT
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
 
     %tags = ();
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
-
+    $tt->process("$conf_dir/radiusd/packetfence-cli", \%tags, "$install_dir/raddb/sites-enabled/packetfence-cli") or die $tt->error();
 }
 
 

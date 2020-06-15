@@ -15,10 +15,10 @@
 [% FOREACH section IN [ '' "eap-remote" ] %]
 [% FOREACH key IN eap.keys %]
 [% IF key == 'default' %]
-eap [% $section %] {
+eap [% section %] {
 [% ELSE %]
 [% IF section == 'eap-remote' %]
-eap [% key -%]-[% $section %] {
+eap [% key -%]-[% section %] {
 [% ELSE %]
 eap [% key -%] {
 [% END %]

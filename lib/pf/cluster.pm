@@ -790,6 +790,14 @@ sub getDBMaster {
     return $FALSE;
 }
 
+sub getDBMaster {
+    if (defined(${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip})) {
+        return ${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip};
+    } else {
+        return $FALSE;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -74,13 +74,13 @@ authorize {
 	suffix
 	ntdomain
 
-        %%authorize_filter%%
+        [% authorize_filter %]
 
-%%userPrincipalName%%
+[% userPrincipalName %]
 
-	%%multi_domain%%
+	[% multi_domain %]
 
-	%%redis_ntlm_cache_fetch%%
+	[% redis_ntlm_cache_fetch %]
 
 	#
 	#  The "suffix" module takes care of stripping the domain
@@ -107,7 +107,7 @@ authorize {
 	#  or PEAP.  The load on those servers will therefore be reduced.
 	#
 
-%%authorize_eap_choice%%
+[% authorize_eap_choice %]
 
 %%authorize_ldap_choice%%
 
@@ -212,7 +212,7 @@ authenticate {
 		}
 	}
 
-%%authentication_auth_type%%
+[% authentication_auth_type %]
 
 %%authentication_ldap_auth_type%%
 
@@ -448,9 +448,9 @@ authorize {
 	suffix
 	ntdomain
 
-	%%multi_domain%%
+	[% multi_domain %]
 
-	%%redis_ntlm_cache_fetch%%
+	[% redis_ntlm_cache_fetch %]
 
 	#
 	#  The "suffix" module takes care of stripping the domain
