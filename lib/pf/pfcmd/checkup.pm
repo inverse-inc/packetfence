@@ -947,7 +947,7 @@ sub billing {
         }
     }
     # validate billing tiers have the necessary configuration
-    my @required_tier_params = qw(name description price role access_duration use_time_balance);
+    my @required_tier_params = qw(name description price role access_duration);
     foreach my $tier_id (keys %ConfigBillingTiers){
         foreach my $param (@required_tier_params){
             add_problem($WARN, "Missing parameter $param for billing tier $tier_id") unless($ConfigBillingTiers{$tier_id}{$param});
