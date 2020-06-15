@@ -12,11 +12,16 @@
 #  common side effect of setting 'Auth-Type := EAP' is that the
 #  users then cannot use ANY other authentication method.
 #
+[% FOREACH section IN [ '' "eap-remote" ] %]
 [% FOREACH key IN eap.keys %]
 [% IF key == 'default' %]
-eap {
+eap [% $section %] {
+[% ELSE %]
+[% IF section == 'eap-remote' %]
+eap [% key -%]-[% $section %] {
 [% ELSE %]
 eap [% key -%] {
+[% END %]
 [% END %]
 	#  Invoke the default supported EAP type when
 	#  EAP-Identity response is received.
@@ -928,4 +933,4 @@ eap [% key -%] {
 		use_tunneled_reply = yes
 
 	}[% END %][% END %]
-}[% END -%]
+}[% END -%][% END %]
