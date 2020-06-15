@@ -1059,6 +1059,21 @@ sub can_remove {
     return (422, $msg);
 }
 
+=head2 create_data_update
+
+create_data_update
+
+=cut
+
+sub create_data_update {
+    my ($self, $data) = @_;
+    if (exists $data->{category_id} && length($data->{category_id})) {
+        return;
+    }
+
+    $data->{category_id} = 1;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
