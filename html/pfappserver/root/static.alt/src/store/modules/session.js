@@ -162,7 +162,8 @@ const getters = {
       }
       return role
     })
-  }
+  },
+  configuratorEnabled: state => state.configuratorEnabled
 }
 
 const actions = {
