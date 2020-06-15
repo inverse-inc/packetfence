@@ -12,12 +12,12 @@
 #  common side effect of setting 'Auth-Type := EAP' is that the
 #  users then cannot use ANY other authentication method.
 #
-[% FOREACH section IN [ '' "eap-remote" ] %]
+[% FOREACH section IN [ '' "eap-degraded" ] %]
 [% FOREACH key IN eap.keys %]
 [% IF key == 'default' %]
 eap [% section %] {
 [% ELSE %]
-[% IF section == 'eap-remote' %]
+[% IF section == 'eap-degraded' %]
 eap [% key -%]-[% section %] {
 [% ELSE %]
 eap [% key -%] {
@@ -667,7 +667,11 @@ eap [% key -%] {
 		#  the virtual server that processed the
 		#  outer requests.
 		#
+[% IF section == 'eap-degraded' %]
 		virtual_server = "packetfence-tunnel"
+[% ELSE %]
+		virtual-server = "packetfence-degraded-tunnel"
+[% END %]
 
 		#  This has the same meaning, and overwrites, the
 		#  same field in the "tls" configuration, above.
@@ -788,8 +792,11 @@ eap [% key -%] {
 		#  the virtual server that processed the
 		#  outer requests.
 		#
+[% IF section == 'eap-degraded' %]
 		virtual_server = "packetfence-tunnel"
-
+[% ELSE %]
+		virtual-server = "packetfence-degraded-tunnel"
+[% END %]
 		#
 		# Unlike EAP-TLS, PEAP does not require a client certificate.
 		# However, you can require one by setting the following

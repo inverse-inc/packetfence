@@ -572,7 +572,7 @@ server pf.degraded {
 
 		ntdomain
 
-		[% authorize_eap_choice %]
+		[% authorize_eap_choice_degraded %]
 
 		if ( !EAP-Message ) {
 			update {
@@ -619,7 +619,7 @@ accounting {
 
 		#
 		#  Allow EAP authentication.
-		[% authentication_auth_type %]
+		[% authentication_auth_type_degraged %]
 	}
 
 
@@ -685,7 +685,7 @@ server packetfence-degraded-tunnel {
 			&Proxy-To-Realm := LOCAL
 		}
 
-[% authorize_eap_choice %]
+[% authorize_eap_choice_degraded %]
 
 		rewrite_called_station_id
 
@@ -710,7 +710,7 @@ server packetfence-degraded-tunnel {
 			mschap
 		}
 
-[% authentication_auth_type %]
+[% authentication_auth_type_degraded %]
 
 	}
 
