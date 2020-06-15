@@ -80,6 +80,18 @@ has_field 'device_registration_allowed_devices' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
+has_field 'device_registration_list_roles' =>
+  (
+   type => 'Select',
+   label => 'Allowed roles list',
+   multiple => 1,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   options_method => \&options_roles,
+   tags => { after_element => \&help,
+             help => 'The list of roles that are allowed to be used by the user to select in which role the device should be register.' },
+  );
+
 has_block definition =>
   (
    render_list => [ qw(id description) ],
@@ -92,7 +104,7 @@ has_block status_definition =>
 
 has_block device_registration_definition =>
   (
-   render_list => [ qw(device_registration_role device_registration_access_duration device_registration_allowed_devices) ],
+   render_list => [ qw(device_registration_role device_registration_access_duration device_registration_allowed_devices device_registration_list_roles) ],
   );
 
 =head2 options_roles

@@ -26,6 +26,17 @@
         <input class="field" name="device_mac" id="device_mac" type="text" value="[% device_mac %]" />
       </div>
 
+      [% IF device_registration_list_roles.size > 1 %]
+      <div class="input-container">
+        <label>[% i18n("Select registration role") %]</label>
+        <select name="registration_role">
+          [% FOREACH registration_role IN device_registration_list_roles %]
+          <option value='[% registration_role.value %]'>[% registration_role.label %]</option>
+          [% END %]
+        </select>
+      </div>
+      [% END %]
+
       [% IF console_types.size > 1 %]
       <div class="input-container">
         <label>[% i18n("Device Type") %]</label>
