@@ -5,6 +5,7 @@
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <pf-button-refresh class="border-right pr-3" :isLoading="isLoading" @refresh="refresh"></pf-button-refresh>
         <h4 class="mb-0" v-html="$t('User {pid}', { pid: $strong(pid) })"></h4>
+<pre>{{ JSON.stringify(form, null, 2) }}</pre>
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
@@ -107,16 +108,14 @@
           <b-form-group label-cols="3" :label="$t('Registration Window')">
             <b-row>
               <b-col>
-                <pf-form-datetime
+                <pf-form-input
                   :form-store-name="formStoreName" form-namespace="valid_from"
-                  :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
-                <pf-form-datetime
+                <pf-form-input
                   :form-store-name="formStoreName" form-namespace="expiration"
-                  :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                 />
               </b-col>
             </b-row>

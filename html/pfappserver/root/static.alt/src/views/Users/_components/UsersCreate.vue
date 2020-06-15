@@ -15,17 +15,7 @@
                   :rightLabels="{checked: $t('Yes'), unchecked: $t('No')}"
                   :text="$t('Overwrite the username (PID) if it already exists.')"
                 />
-                <!--- pid w/ domain_name -->
-                <pf-form-input v-if="domainName" :column-label="$t('Username (PID)')"
-                  :form-store-name="formStoreName" form-namespace="single.pid"
-                  :text="$t('The username to use for login to the captive portal. The tenants domain_name will be appended to the username.')"
-                >
-                  <template v-slot:append>
-                    <b-button disabled variant="link" v-b-tooltip.hover.top.d300 :title="$t('Domain Name will be appended.')">{{ domainName }}</b-button>
-                  </template>
-                </pf-form-input>
-                <!-- pid wo/ domain_name -->
-                <pf-form-input v-else :column-label="$t('Username (PID)')"
+                <pf-form-input :column-label="$t('Username (PID)')"
                   :form-store-name="formStoreName" form-namespace="single.pid"
                   :text="$t('The username to use for login to the captive portal.')"
                 />
@@ -154,9 +144,6 @@
                 <pf-form-input :column-label="$t('Username Prefix')"
                   :form-store-name="formStoreName" form-namespace="multiple.prefix"
                 />
-                <pf-form-input :column-label="$t('Username Suffix')"
-                  v-model="domainName" disabled
-                />
                 <pf-form-input :column-label="$t('Quantity')"
                   :form-store-name="formStoreName" form-namespace="multiple.quantity"
                   type="number"
@@ -211,16 +198,14 @@
             <b-form-group label-cols="3" :label="$t('Registration Window')">
               <b-row>
                 <b-col>
-                  <pf-form-datetime
+                  <pf-form-input
                     :form-store-name="formStoreName" form-namespace="common.valid_from"
-                    :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                   />
                 </b-col>
                 <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
                 <b-col>
-                  <pf-form-datetime
+                  <pf-form-input
                     :form-store-name="formStoreName" form-namespace="common.expiration"
-                    :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                   />
                 </b-col>
               </b-row>
@@ -314,10 +299,6 @@ export default {
     form () {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
-    domainName () {
-      const { domain_name } = this.$store.getters['session/tenantMask'] || {}
-      return (domain_name) ? `@${domain_name}` : null
-    },
     invalidSingleForm () {
       const { $invalid = false } = this.$store.getters[`${this.formStoreName}/$stateNS`]('single')
       return $invalid
@@ -357,12 +338,9 @@ export default {
       this.showUsersPreviewModal = false
       switch (this.modeIndex) {
         case 0: { // single
-          let data = {
+          const data = {
             ...this.form.single,
             ...this.form.common
-          }
-          if (this.domainName) { // append domainName to pid when available (tenant)
-            data.pid = `${data.pid}${this.domainName}`
           }
           this.$store.dispatch('$_users/createUser', data).then(() => {
             this.$store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, data)).then(() => {
@@ -381,10 +359,7 @@ export default {
             ...{ quiet: true }
           }
           for (let i = 0; i < this.form.multiple.quantity; i++) {
-            let pid = this.form.multiple.prefix + (i + 1)
-            if (this.domainName) { // append domainName to pid when available (tenant)
-              pid = `${pid}${this.domainName}`
-            }
+            const pid = this.form.multiple.prefix + (i + 1)
             const pwd = password.generate(this.passwordOptions)
             const currentData = {
               ...{ pid, password: pwd },
