@@ -155,7 +155,6 @@ export const createValidators = (form = {}) => {
     ),
     common: {
       valid_from: {
-        [i18n.t('Start date required.')]: conditional(!!valid_from && valid_from !== '0000-00-00'),
         [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
         [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
       },
@@ -183,7 +182,6 @@ export const updateValidators = (form = {}) => {
     { sponsor: pfDatabaseSchema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
     {
       valid_from: {
-        [i18n.t('Start date required.')]: conditional(!hasPassword || (!!valid_from && valid_from !== '0000-00-00')),
         [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
       },
       expiration: {
@@ -197,7 +195,7 @@ export const updateValidators = (form = {}) => {
       psk: {
         [i18n.t('Minimum 8 characters.')]: minLength(8)
       },
-      actions: (hasPassword) ? pfActionValidators(userActions, actions) : {}
+      actions: pfActionValidators(userActions, actions)
     }
   )
 }
