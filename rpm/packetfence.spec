@@ -630,7 +630,6 @@ fi
 
 echo "Disabling emergency error logging to the console"
 /usr/bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
-/bin/systemctl restart rsyslog
 
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd

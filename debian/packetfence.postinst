@@ -69,7 +69,6 @@ case "$1" in
 
         echo "Disabling emergency error logging to the console"
         /bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
-        /bin/systemctl restart rsyslog
 
         # Create server local RADIUS secret
         if [ ! -f /usr/local/pf/conf/local_secret ]; then
