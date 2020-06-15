@@ -590,7 +590,7 @@ const getters = {
     return state.wrixLocationsStatus === types.LOADING
   },
   accessDurationsList: state => {
-    if (!state.baseGuestsAdminRegistration) return []
+    if (!state.baseGuestsAdminRegistration || !('access_duration_choices' in state.baseGuestsAdminRegistration)) return []
     return state.baseGuestsAdminRegistration.access_duration_choices.split(',').map((accessDuration) => {
       return duration.deserialize(accessDuration)
     }).sort((a, b) => {
@@ -872,19 +872,14 @@ const actions = {
     if (getters.isLoadingBaseGuestsAdminRegistration) {
       return Promise.resolve(state.baseGuestsAdminRegistration)
     }
-    if (acl.$can('read', 'configuration_main')) {
-      if (!state.baseGuestsAdminRegistration) {
-        commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
-        return api.getBaseGuestsAdminRegistration().then(response => {
-          commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
-          return state.baseGuestsAdminRegistration
-        })
-      } else {
-        return Promise.resolve(state.baseGuestsAdminRegistration)
-      }
+    if (!state.baseGuestsAdminRegistration) {
+      commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
+      return api.getBaseGuestsAdminRegistration().then(response => {
+        commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
+        return state.baseGuestsAdminRegistration
+      })
     } else {
-      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', {})
-      return state.baseGuestsAdminRegistration
+      return Promise.resolve(state.baseGuestsAdminRegistration)
     }
   },
   getBaseInline: ({ state, getters, commit }) => {
