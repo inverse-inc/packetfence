@@ -11,7 +11,7 @@ const inflateActions = (data) => {
     data.actions.push({ type: pfActions.set_access_duration.value, value: data.access_duration })
   }
   if (data.access_level) {
-    data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level })
+    data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level.split(',') })
   }
   if (data.can_sponsor && parseInt(data.can_sponsor)) {
     data.actions.push({ type: pfActions.mark_as_sponsor.value, value: data.can_sponsor })
@@ -40,7 +40,7 @@ const deflateActions = (data) => {
           data.access_duration = action.value
           break
         case pfActions.set_access_level.value:
-          data.access_level = action.value
+          data.access_level = action.value.join(',')
           break
         case pfActions.mark_as_sponsor.value:
           data.sponsor = 1
