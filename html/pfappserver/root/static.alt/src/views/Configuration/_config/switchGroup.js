@@ -35,7 +35,7 @@ export const config = () => {
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/switch_groups',
+      searchApiEndpoint: 'config/switch_groups?raw=1',
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
