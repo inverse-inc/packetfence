@@ -138,7 +138,7 @@ sub registerNode : Private {
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             if (!(defined($role))) {
-	        $role = $ConfigSelfService{$device_reg_profile}{'device_registration_role'};
+                $role = $ConfigSelfService{$device_reg_profile}{'device_registration_role'};
                 if ($role) {
                     $logger->debug("Device registration role is $role (from self_service.conf)");
                 } else {
