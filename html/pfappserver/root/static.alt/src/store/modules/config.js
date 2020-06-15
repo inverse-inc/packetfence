@@ -484,7 +484,7 @@ const getters = {
     return state.wrixLocationsStatus === types.LOADING
   },
   accessDurationsList: state => {
-    if (!state.baseGuestsAdminRegistration) return []
+    if (!state.baseGuestsAdminRegistration || !('access_duration_choices' in state.baseGuestsAdminRegistration)) return []
     return state.baseGuestsAdminRegistration.access_duration_choices.split(',').map((accessDuration) => {
       return duration.deserialize(accessDuration)
     }).sort((a, b) => {
