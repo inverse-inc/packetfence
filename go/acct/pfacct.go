@@ -42,21 +42,21 @@ func NewPfAcct() *PfAcct {
 	var ctx = context.Background()
 	ctx = log.LoggerNewContext(ctx)
 
-	var Database *sql.DB
-	var err error
+	Database, err := db.DbFromConfig(ctx)
+	for err != nil {
+		if err != nil {
+			time.Sleep(time.Duration(5) * time.Second)
+		}
+
+		Database, err = db.DbFromConfig(ctx)
+	}
 
 	for !successDBConnect {
-		Database, err = db.DbFromConfig(ctx)
-
+		err = Database.Ping()
 		if err != nil {
 			time.Sleep(time.Duration(5) * time.Second)
 		} else {
-			err = Database.Ping()
-			if err != nil {
-				time.Sleep(time.Duration(5) * time.Second)
-			} else {
-				successDBConnect = true
-			}
+			successDBConnect = true
 		}
 	}
 
