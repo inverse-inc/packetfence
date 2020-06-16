@@ -40,7 +40,7 @@ Enhancements
 * Choose which EAP profile to use based on the realm
 * LDAP's basedn can be defined in the authentication sources rules
 * New hooks for the RADIUS filter engine in eduroam virtual server
-* Redefined "restart" in the service manager to allow "PartOf" in systemcd scripts
+* Redefined "restart" in the service manager to allow "PartOf" in systemd scripts
 * Set role from source authentication rule option (needs #5459)
 * Flatten the RADIUS request for the authentication sources (attributes like radius_request.User-Name)
 * RADIUS request attributes / username are part of the common attributes
