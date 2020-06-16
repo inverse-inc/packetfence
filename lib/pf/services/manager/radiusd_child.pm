@@ -365,6 +365,11 @@ sub generate_radiusd_authconf {
         }
     }
 
+    $tags{'virtual_server'} = "packetfence";
+    if (pf::cluster::isSlaveMode()) {
+        $tags{'virtual_server'} = "pf-remote";
+    }
+
     $tags{'listen_ips'} = [uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
