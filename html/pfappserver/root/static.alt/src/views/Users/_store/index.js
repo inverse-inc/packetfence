@@ -19,7 +19,7 @@ const inflateActions = (data) => {
   if (data.category) {
     data.actions.push({ type: pfActions.set_role.value, value: data.category })
   }
-  if (data.unregdate !== '0000-00-00 00:00:00') {
+  if (data.unregdate && data.unregdate !== '0000-00-00 00:00:00') {
     data.actions.push({ type: pfActions.set_unreg_date.value, value: data.unregdate })
   }
 }
