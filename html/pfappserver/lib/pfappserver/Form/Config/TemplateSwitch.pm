@@ -24,7 +24,7 @@ use pf::constants::template_switch qw(
   @RADIUS_ATTRIBUTE_SETS
 );
 
-my $invalid_id_msg = "The id is invalid. Must begin with an uppercase letter and only have letters, numbers, underscores.";
+my $invalid_id_msg = "Id is invalid. Must begin with an uppercase letter and only have letters, numbers, underscores, and colons.";
 
 ## Definition
 has_field 'id' => (
@@ -43,7 +43,7 @@ has_field 'id' => (
     tags => {
         option_pattern => sub {
             return {
-                regex => '^[A-Z][a-zA-Z0-9_]*[a-zA-Z0-9]*(::[a-zA-Z0-9_]*[a-zA-Z0-9])*$',
+                regex => '^[A-Z][a-zA-Z0-9_]*[a-zA-Z0-9](::[a-zA-Z0-9_]*[a-zA-Z0-9])*$',
                 message => $invalid_id_msg,
             };
         },
@@ -57,7 +57,7 @@ sub check_id {
 
 sub valid_module_name {
    my ($value, $field) = @_;
-   return $value =~ /^[A-Z][a-zA-Z0-9_]*[a-zA-Z0-9]*(::[a-zA-Z0-9_]*[a-zA-Z0-9])*$/;
+   return $value =~ /^[A-Z][a-zA-Z0-9_]*[a-zA-Z0-9](::[a-zA-Z0-9_]*[a-zA-Z0-9])*$/;
 }
 
 has_field 'description' => (
