@@ -120,7 +120,7 @@ our (
     $tls_config_file, $tls_default_config_file,
     $ocsp_config_file, $ocsp_default_config_file,
     $eap_config_file, $eap_default_config_file,
-    $fast_config_file, $fast_default_config_file
+    $fast_config_file, $fast_default_config_file,
     $maintenance_config_file, $maintenance_default_config_file,
 );
 
