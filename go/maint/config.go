@@ -18,6 +18,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"admin_api_audit_log_cleanup": NewAdminApiAuditLogCleanup,
     "auth_log_cleanup": NewAuthLogCleanup,
     "dns_audit_log": NewDNSAuditLogCleanup,
+    "locationlog_cleanup": NewLocationLogCleanup,
 }
 
 func GetConfiguredJobs() []JobSetupConfig {
