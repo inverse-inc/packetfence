@@ -784,7 +784,7 @@ sub validate {
 
     if ($self->value->{type}) {
         my $type = 'pf::Switch::'. $self->value->{type};
-        if ($type->require() || $TemplateSwitches{$self->value->{type}}) {
+        if ($TemplateSwitches{$self->value->{type}} || $type->require()) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
