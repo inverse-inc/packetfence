@@ -67,8 +67,7 @@ export default {
     },
     save () {
       let savePromise = new Promise((resolve, reject) => {
-        const now = format(new Date(), 'YYYY-MM-DD HH:mm:ss')
-        this.form.administrator.valid_from = now
+        this.form.administrator.valid_from = "1970-01-01 00:00:00"
         if (this.userExists) {
           this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form.administrator)).then(resolve, reject)
         } else {
