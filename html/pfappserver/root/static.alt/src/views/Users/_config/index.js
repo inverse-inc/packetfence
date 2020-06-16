@@ -155,14 +155,20 @@ export const createValidators = (form = {}) => {
     ),
     common: {
       valid_from: {
-        [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+        [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD')
+        /* TODO
+         * https://github.com/inverse-inc/packetfence/issues/5592
         [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
+        */
       },
       expiration: {
-        [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00'),
+        [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00')
+        /* TODO
+         * https://github.com/inverse-inc/packetfence/issues/5592
         [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
         [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
         [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
+        */
       },
       actions: pfActionValidators(userActions, actions)
     }
@@ -185,9 +191,12 @@ export const updateValidators = (form = {}) => {
         [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
       },
       expiration: {
-        [i18n.t('End date required.')]: conditional(!hasPassword || (!!expiration && expiration !== '0000-00-00')),
+        [i18n.t('End date required.')]: conditional(!hasPassword || (!!expiration && expiration !== '0000-00-00'))
+        /* TODO
+         * https://github.com/inverse-inc/packetfence/issues/5592
         [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
         [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
+        */
       },
       email: {
         [i18n.t('Email address required.')]: required
@@ -214,15 +223,21 @@ export const importValidators = (form = {}) => {
   } = form
   return {
     valid_from: {
-      [i18n.t('Start date required.')]: conditional(!!valid_from && valid_from !== '0000-00-00'),
+      [i18n.t('Start date required.')]: conditional(!!valid_from && valid_from !== '0000-00-00')
+      /* TODO
+       * https://github.com/inverse-inc/packetfence/issues/5592
       [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
       [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
+      */
     },
     expiration: {
-      [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00'),
+      [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00')
+      /* TODO
+       * https://github.com/inverse-inc/packetfence/issues/5592
       [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
       [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
       [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
+      */
     },
     actions: {
       ...pfActionValidators(userActions, actions),
