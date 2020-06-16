@@ -192,7 +192,7 @@ sub build_child {
 sub set_timezone {
     my ($tz) = @_;
     my $lt = readlink("/etc/localtime"); 
-    $lt =~ s/..\/usr\/share\/zoneinfo\///g;
+    $lt =~ s/(..)?\/usr\/share\/zoneinfo\///g;
     if($lt ne $tz) {
         my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";
         print STDERR $msg;
