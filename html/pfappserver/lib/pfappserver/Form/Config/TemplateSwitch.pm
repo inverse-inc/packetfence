@@ -24,6 +24,8 @@ use pf::constants::template_switch qw(
   @RADIUS_ATTRIBUTE_SETS
 );
 
+my $invalid_id_msg = "The id is invalid. Must begin with an uppercase letter and only have letters, numbers, underscores.";
+
 ## Definition
 has_field 'id' => (
     type     => 'Text',
@@ -32,13 +34,30 @@ has_field 'id' => (
         {
             check   => \&check_id,
             message => 'Cannot be an existing Switch Module',
+        },
+        {
+            check   => \&valid_module_name,
+            message => $invalid_id_msg,
         }
-    ]
+    ],
+    tags => {
+        option_pattern => sub {
+            return {
+                regex => '^[A-Z][a-zA-Z0-9_]*[a-zA-Z0-9]*(::[a-zA-Z0-9_]*[a-zA-Z0-9])*$',
+                message => $invalid_id_msg,
+            };
+        },
+    },
 );
 
 sub check_id {
    my ($value, $field) = @_;
    return !exists $pf::SwitchFactory::TYPE_TO_MODULE{$value} && !exists $pf::SwitchFactory::VENDORS{$value};;
+}
+
+sub valid_module_name {
+   my ($value, $field) = @_;
+   return $value =~ /^[A-Z][a-zA-Z0-9_]*[a-zA-Z0-9]*(::[a-zA-Z0-9_]*[a-zA-Z0-9])*$/;
 }
 
 has_field 'description' => (
