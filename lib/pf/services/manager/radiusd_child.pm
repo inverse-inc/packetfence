@@ -1228,8 +1228,10 @@ EOT
 
         
         push @radius_backend, $cluster_ip;
-        foreach my $radius_back (@radius_backend) {
-            $tags{'config'} .= <<"EOT";
+        push @radius_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+
+        foreach my $radius_back (uniq(@radius_backend)) {
+	    $tags{'config'} .= <<"EOT";
 client $radius_back {
         ipaddr = $radius_back
         secret = $local_secret
