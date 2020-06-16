@@ -14,7 +14,7 @@ type ChiCleanup struct {
 func (c *ChiCleanup) Run() {
 	stmt := c.Stmt(`DELETE FROM chi_cache WHERE expires_at > ? LIMIT ?`)
 	if stmt != nil {
-		BatchRemove(stmt, c.Timeout, time.Now(), c.Batch)
+		BatchStmt(stmt, c.Timeout, time.Now(), c.Batch)
 	}
 }
 

@@ -29,6 +29,6 @@ func NewDNSAuditLogCleanup(config map[string]interface{}) JobSetupConfig {
 func (c *DNSAuditLogCleanup) Run() {
 	stmt := c.Stmt(`DELETE FROM dns_audit_log_cleanup WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`)
 	if stmt != nil {
-		BatchRemove(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
+		BatchStmt(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
 	}
 }

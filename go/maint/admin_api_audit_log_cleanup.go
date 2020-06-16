@@ -29,6 +29,6 @@ func NewAdminApiAuditLogCleanup(config map[string]interface{}) JobSetupConfig {
 func (c *AdminApiAuditLogCleanup) Run() {
 	stmt := c.Stmt(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`)
 	if stmt != nil {
-		BatchRemove(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
+		BatchStmt(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
 	}
 }

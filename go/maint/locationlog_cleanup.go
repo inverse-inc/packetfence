@@ -29,6 +29,6 @@ func NewLocationLogCleanup(config map[string]interface{}) JobSetupConfig {
 func (c *LocationLogCleanup) Run() {
 	stmt := c.Stmt(`DELETE FROM locationlog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) AND != '0000-00-00 00:00:00' LIMIT ?`)
 	if stmt != nil {
-		BatchRemove(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
+		BatchStmt(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
 	}
 }

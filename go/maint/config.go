@@ -2,7 +2,6 @@ package maint
 
 import (
 	"context"
-	"fmt"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
 )
@@ -16,9 +15,9 @@ type JobSetupConfig interface {
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"cleanup_chi_database_cache":  NewChiCleanup,
 	"admin_api_audit_log_cleanup": NewAdminApiAuditLogCleanup,
-    "auth_log_cleanup": NewAuthLogCleanup,
-    "dns_audit_log": NewDNSAuditLogCleanup,
-    "locationlog_cleanup": NewLocationLogCleanup,
+	"auth_log_cleanup":            NewAuthLogCleanup,
+	"dns_audit_log":               NewDNSAuditLogCleanup,
+	"locationlog_cleanup":         NewLocationLogCleanup,
 }
 
 func GetConfiguredJobs() []JobSetupConfig {

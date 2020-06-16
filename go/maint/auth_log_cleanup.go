@@ -29,6 +29,6 @@ func NewAuthLogCleanup(config map[string]interface{}) JobSetupConfig {
 func (c *AuthLogCleanup) Run() {
 	stmt := c.Stmt(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`)
 	if stmt != nil {
-		BatchRemove(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
+		BatchStmt(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
 	}
 }
