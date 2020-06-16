@@ -66,19 +66,6 @@ sub cleanup_item {
         $item->{category} = delete $item->{category_id};
     }
 
-    if (exists $item->{unregdate} ) {
-        my $unreg = $item->{unregdate};
-        if (defined $unreg) {
-            if ($unreg eq '0000-00-00 00:00:00') {
-                $unreg = undef;
-            } else {
-                $unreg =~ s/ \d\d:\d\d:\d\d//;
-            }
-
-            $item->{unregdate} = $unreg;
-        }
-
-    }
     return $item;
 }
 
