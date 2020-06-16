@@ -658,9 +658,6 @@ if [ ! -e /usr/local/pf/logs/$fic_log ]; then
 fi
 done
 
-echo "Restarting rsyslogd"
-/bin/systemctl restart rsyslog
-
 #Make ssl certificate
 cd /usr/local/pf
 make conf/ssl/server.pem
@@ -715,6 +712,9 @@ sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
 # reloading systemd unit files
 /bin/systemctl daemon-reload
+
+echo "Restarting rsyslogd"
+/bin/systemctl restart rsyslog
 
 #Starting PacketFence.
 #removing old cache
