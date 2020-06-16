@@ -124,7 +124,7 @@ export default {
         if (this.id) {
           // existing
           this.$store.dispatch('$_switch_templates/getSwitchTemplate', this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+            if (this.isClone) form.id = `${form.id}_${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         } else {
