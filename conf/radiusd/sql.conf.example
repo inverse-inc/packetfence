@@ -258,7 +258,7 @@ sql {
 	# This entry should be used for the default instance (sql {})
 	# of the SQL module.
 	group_attribute = "SQL-Group"
-
+	safe_characters = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_: /(),'"
 	# Read database-specific queries
 	$INCLUDE ${modconfdir}/${.:name}/main/${dialect}/queries.conf
 }
