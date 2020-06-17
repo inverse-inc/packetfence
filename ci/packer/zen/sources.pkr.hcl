@@ -14,7 +14,8 @@ source "virtualbox-iso" "centos-7" {
   vboxmanage_post = [
     ["modifyvm", "{{.Name}}", "--cpus", "4"],
     ["modifyvm", "{{.Name}}", "--memory", "12288"],
-    ["modifyvm", "{{.Name}}", "--uartmode1", "disconnected"]
+    ["modifyvm", "{{.Name}}", "--uartmode1", "disconnected"],
+    ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--remove"]
   ]
   iso_url = "http://centos.mirror.iweb.ca/7/isos/x86_64/CentOS-7-x86_64-Minimal-2003.iso"
   iso_checksum = "659691c28a0e672558b003d223f83938f254b39875ee7559d1a4a14c79173193"
