@@ -590,60 +590,21 @@ Shutdown the servers:
 * Proceed the same way with the last server.
 
 Bringing up a PacketFence Active/Active cluster of three nodes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We want to bring up the cluster, as the same status it was before the shutdown.
+We want to bring up the cluster, in the same state it was before the shutdown.
 
 Therefore, we will do the _Shutting down_ procedure, but in reverse.
 
 Bring up the "Last" server stopped
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Start the server, logon to the SSH terminal and make a first checkup of the services:
-
-`packetfence-mariadb`, type the command:
-----
- systemctl status packetfence-mariadb
-----
-Expected output:
-----
-[..]
- Loaded: loaded (/usr/lib/systemd/system/packetfence-mariadb.service; enabled; vendor preset: disabled)
- Active: active (running) since ...
- [..]
-----
-
-`packetFence-config`, type the command:
-----
- systemctl status packetfence-config
-----
-Expected output:
-----
-[..]
- Loaded: loaded (/usr/lib/systemd/system/packetfence-config.service; enabled; vendor preset: disabled)
- Active: active (running) since ...
-[..]
-----
-
-`HAProxy`, type the command:
-----
- systemctl status packetfence-haproxy-db
-----
-Expected output:
-----
-[..]
- Loaded: loaded (/usr/lib/systemd/system/packetfence-haproxy-db.service; enabled; vendor preset: disabled)
-  Active: active (running) since ...
-[..]
-----
-
-The server must now be ready.
-
+Start the server (pf3 in our example) and wait a couple of minutes and ensure you are able to connect to it using SSH before continuing.
 
 Bring up the next server
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Start the next server, logon to the SSH terminal.
+Start the next server (pf2 in our example), logon to the SSH terminal.
 
 Once prompted, check the `packetFence-mariadb` sync with the Master, type the command:
 ----
@@ -667,7 +628,10 @@ MariaDB [(none)]> show status like "wsrep%";
 +------------------------------+-------------------------------------------------------+
 ----
 
-Start the second slave, logon on terminal and go with a *show status like 'wsrep%';* once again.
+Bring up the next server
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Once the 2 other servers have synced together, you can start the next server that remains. Logon on terminal and go with a *show status like 'wsrep%';* once again.
 
 * The values must have changed to:
 ----
