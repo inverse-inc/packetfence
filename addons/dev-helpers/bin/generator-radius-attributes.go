@@ -61,7 +61,7 @@ func main() {
 		IgnoreUnknownAttributeType: true,
 	}
 
-	d, err := parser.ParseFile("/usr/local/pf/lib/pf/util/combined_dictionary")
+	d, err := parser.ParseFile(os.Getenv("PF_DIR") + "/lib/pf/util/combined_dictionary")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

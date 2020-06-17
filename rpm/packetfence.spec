@@ -36,6 +36,9 @@ BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
 
+# to expose FreeRADIUS dictionnary in Perl
+BuildRequires: perl(JSON::XS), perl(Template::Toolkit), perltidy
+
 # To handle migration from several packetfence packages
 # to only one
 Obsoletes: %{name}-remote-arp-sensor <= 9.1.0
