@@ -67,6 +67,8 @@ sub cleanupAfterRead {
     if ( ($switch->{uplink} && $switch->{uplink} eq 'dynamic') ) {
         $switch->{uplink_dynamic} = 'dynamic';
         $switch->{uplink}         = undef;
+    } elsif (defined $switch->{uplink_dynamic} && $switch->{uplink_dynamic} eq '0') {
+        $switch->{uplink_dynamic} = undef;
     }
     $self->expand_list( $switch, 'inlineTrigger' );
     if ( exists $switch->{inlineTrigger} ) {
@@ -111,9 +113,13 @@ _normalizeUplink
 sub _normalizeUplink {
     my ($self, $switch) = @_;
     my $uplink_dynamic = $switch->{uplink_dynamic};
-    if ( $uplink_dynamic && $uplink_dynamic eq 'dynamic' ) {
-        $switch->{uplink}         = 'dynamic';
-        $switch->{uplink_dynamic} = undef;
+    if ( defined $uplink_dynamic ) {
+        if ($uplink_dynamic eq 'dynamic' ) {
+            $switch->{uplink}         = 'dynamic';
+            $switch->{uplink_dynamic} = undef;
+        } elsif ($uplink_dynamic eq '0') {
+            $switch->{uplink_dynamic} = undef;
+        }
     }
 }
 
