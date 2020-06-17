@@ -15,7 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::GithubSource');
 
-has '+token_scheme' => (default => sub{"uri-query:access_token"});
+has '+token_scheme' => (default => "auth-header:token");
 
 =head2 _extract_username_from_response
 
