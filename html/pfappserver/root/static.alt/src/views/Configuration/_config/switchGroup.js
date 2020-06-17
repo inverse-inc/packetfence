@@ -35,7 +35,7 @@ export const config = () => {
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/switch_groups?raw=1',
+      searchApiEndpoint: 'config/switch_groups',
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -49,7 +49,10 @@ export const config = () => {
           ]
         }]
       },
-      defaultRoute: { name: 'switch_groups' }
+      defaultRoute: { name: 'switch_groups' },
+      extraFields: {
+        raw: 1
+      }
     },
     searchableQuickCondition: (quickCondition) => {
       return {

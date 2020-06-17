@@ -101,7 +101,10 @@ export default class SearchableStore {
         commit('VISIBLE_COLUMNS_UPDATED', columns)
       },
       search: ({ state, commit }, page) => {
-        let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
+        let searchSortBy = (state.searchSortBy)
+           ? state.searchSortBy
+           : state.searchFields[0] // not defined, use first searchField
+        let sort = [state.searchSortDesc ? `${searchSortBy} DESC` : searchSortBy]
         let body = {
           ...{
             cursor: state.searchPageSize * (page - 1),

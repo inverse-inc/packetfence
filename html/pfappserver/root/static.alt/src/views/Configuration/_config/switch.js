@@ -107,7 +107,7 @@ export const config = (context = {}) => {
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/switches?raw=1',
+      searchApiEndpoint: 'config/switches',
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -121,7 +121,10 @@ export const config = (context = {}) => {
           ]
         }]
       },
-      defaultRoute: { name: 'switches' }
+      defaultRoute: { name: 'switches' },
+      extraFields: {
+        raw: 1
+      }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
