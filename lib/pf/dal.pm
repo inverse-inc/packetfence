@@ -897,21 +897,28 @@ sub set_tenant {
         return $TRUE
     }
 
-    my ($status, $count) = pf::dal->count(
-        -where => {
-            id => $tenant_id,
-        },
-        -from => 'tenant',
-    );
-
-    if (is_error($status)) {
-        get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
+    if ($tenant_id < 0) {
+        get_logger->error("Cannot set a tenant id below 0");
         return $FALSE;
     }
 
-    if ($count == 0) {
-        get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
-        return $FALSE;
+    if ($tenant_id > 1) {
+        my ($status, $count) = pf::dal->count(
+            -where => {
+                id => $tenant_id,
+            },
+            -from => 'tenant',
+        );
+
+        if (is_error($status)) {
+            get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
+            return $FALSE;
+        }
+
+        if ($count == 0) {
+            get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
+            return $FALSE;
+        }
     }
 
     get_logger->debug("Setting current tenant ID to $tenant_id");
