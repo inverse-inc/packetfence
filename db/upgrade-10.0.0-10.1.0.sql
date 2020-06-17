@@ -56,7 +56,7 @@ SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
     INSERT IGNORE INTO `tenant` VALUES (0, 'global', NULL, NULL);
 
 \! echo "PIDs should be unique in the password table"
-CREATE UNIQUE INDEX `pid_password_unique` ON password(pid);
+CREATE UNIQUE INDEX IF NOT EXISTS `pid_password_unique` ON password(pid);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
