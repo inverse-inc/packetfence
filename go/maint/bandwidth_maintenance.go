@@ -1,5 +1,9 @@
 package maint
 
+import (
+	"time"
+)
+
 type BandwidthMaintenance struct {
 	Task
 	Window         int
@@ -11,7 +15,7 @@ type BandwidthMaintenance struct {
 }
 
 func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
-	return &WindowSqlCleanup{
+	return &BandwidthMaintenance{
 		Task: Task{
 			Type:         config["type"].(string),
 			Status:       config["status"].(string),
