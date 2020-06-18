@@ -1297,14 +1297,15 @@ EOT
     if ($if eq 'elsif') {
         $$authorize_eap_choice .= <<"EOT";
             else {
-                eap $suffix {
+                eap {
                     ok = return
                 }
             }
 EOT
     } else {
+        my $eap = (defined($suffix) && $suffix ne "" ) ? $suffix : "eap";
         $$authorize_eap_choice .= <<"EOT";
-            eap $suffix {
+            $eap {
                 ok = return
             }
 EOT

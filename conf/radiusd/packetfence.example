@@ -572,7 +572,7 @@ server pf.degraded {
 
 		ntdomain
 
-		[% authorize_eap_choice_degraded %]
+[% authorize_eap_choice_degraded %]
 
 		if ( !EAP-Message ) {
 			update {
@@ -620,7 +620,8 @@ accounting {
 		#
 		#  Allow EAP authentication.
 
-		[% authentication_auth_type_degraded %]
+[% authentication_auth_type_degraded %]
+
 	}
 
 
