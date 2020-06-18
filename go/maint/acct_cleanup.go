@@ -6,12 +6,12 @@ import (
 
 type AcctCleanup struct {
 	Task
-	Window            int
-	Batch             int
-	Timeout           time.Duration
-	RadAcctDeleteStmt StmtSetup
+	Window               int
+	Batch                int
+	Timeout              time.Duration
+	RadAcctDeleteStmt    StmtSetup
 	RadAcctLogDeleteStmt StmtSetup
-	RadAcctUpdateStmt StmtSetup
+	RadAcctUpdateStmt    StmtSetup
 }
 
 func NewAcctCleanup(config map[string]interface{}) JobSetupConfig {
@@ -42,7 +42,7 @@ DELETE FROM radacct
     LIMIT ?
 `
 
-const radAcctLogDeleteSQL =`
+const radAcctLogDeleteSQL = `
 DELETE FROM radacct_log
     WHERE timestamp DATE_SUB(?, INTERVAL ? SECOND)
     LIMIT ?

@@ -4,16 +4,17 @@ import (
 	"time"
 )
 
-type LocationLogCleanup struct {
+type WindowSqlCleanup struct {
 	Task
 	Window  int
 	Batch   int
 	Timeout time.Duration
+	Sql     string
 	StmtSetup
 }
 
-func NewLocationLogCleanup(config map[string]interface{}) JobSetupConfig {
-	return &LocationLogCleanup{
+func NewWindowSqlCleanup(config map[string]interface{}, sql string) JobSetupConfig {
+	return &WindowSqlCleanup{
 		Task: Task{
 			Type:         config["type"].(string),
 			Status:       config["status"].(string),
@@ -23,11 +24,18 @@ func NewLocationLogCleanup(config map[string]interface{}) JobSetupConfig {
 		Batch:   int(config["batch"].(float64)),
 		Timeout: time.Duration((config["timeout"].(float64))) * time.Second,
 		Window:  int(config["window"].(float64)),
+		Sql:     sql,
 	}
 }
 
-func (c *LocationLogCleanup) Run() {
-	stmt := c.Stmt(`DELETE FROM locationlog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) AND != '0000-00-00 00:00:00' LIMIT ?`)
+func MakeWindowSqlJobSetupConfig(sql string) func(config map[string]interface{}) JobSetupConfig {
+	return func(config map[string]interface{}) JobSetupConfig {
+		return NewWindowSqlCleanup(config, sql)
+	}
+}
+
+func (c *WindowSqlCleanup) Run() {
+	stmt := c.Stmt(c.Sql)
 	if stmt != nil {
 		BatchStmt(stmt, c.Timeout, time.Now(), c.Window, c.Batch)
 	}
