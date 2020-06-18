@@ -27,6 +27,9 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 		`DELETE FROM radacct WHERE acctstarttime < DATE_SUB(?, INTERVAL ? SECOND) AND acctstoptime IS NOT NULL LIMIT ?`,
 		`DELETE FROM radacct_log WHERE timestamp < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
 	),
+	"bandwidth_maintenance_session": MakeWindowSqlJobSetupConfig(
+		`UPDATE bandwidth_accounting, (SELECT node_id, unique_session_id, MAX(last_updated) FROM bandwidth_accounting GROUP BY node_id, unique_session_id HAVING MAX(last_updated) < DATE_SUB(?, INTERVAL ? SECOND) AND MAX(last_updated) > '0000-00-00 00:00:00' LIMIT ?) as old_sessions SET last_updated = '0000-00-00 00:00:00' WHERE (bandwidth_accounting.node_id, bandwidth_accounting.unique_session_id) = (old_sessions.node_id, old_sessions.unique_session_id)`,
+	),
 }
 
 func GetConfiguredJobs() []JobSetupConfig {
