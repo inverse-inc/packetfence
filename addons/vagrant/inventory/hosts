@@ -151,7 +151,7 @@ all:
               memory: 8192
 
   vars:
-    tz: Etc/UTC
+    tz: UTC
     networks:
       - name: 'mgmt'
         subnet: '172.17.17.0/24'
