@@ -17,7 +17,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"bandwidth_maintenance":       NewBandwidthMaintenance,
 	"admin_api_audit_log_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"auth_log_cleanup":            MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
-	"dns_audit_log":               MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log_cleanup WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	"dns_audit_log_cleanup":       MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log_cleanup WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"radius_audit_log_cleanup":    MakeWindowSqlJobSetupConfig(`DELETE FROM radius_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"locationlog_cleanup": MakeMultiWindowSqlJobSetupConfig(
 		`DELETE FROM locationlog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) AND end_time != '0000-00-00 00:00:00' LIMIT ?`,
