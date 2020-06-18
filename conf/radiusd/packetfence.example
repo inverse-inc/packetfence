@@ -683,6 +683,19 @@ server packetfence-degraded-tunnel {
 		mschap
 		suffix
 		ntdomain
+		packetfence-multi-domain
+
+		if(User-Name =~ /^host\//) {
+			update {
+				&control:NT-Password := "%{redis_ntlm:GET NTHASH:%{%{PacketFence-Domain}:-''}:%{tolower:%{%{mschap:User-Name}:-None}}}"
+			}
+		}
+		else {
+			update {
+				&control:NT-Password := "%{redis_ntlm:GET NTHASH:%{%{PacketFence-Domain}:-''}:%{tolower:%{%{Stripped-User-Name}:-%{%{User-Name}:-None}}}}"
+			}
+		}
+
 		update control {
 			&Proxy-To-Realm := LOCAL
 		}
@@ -692,7 +705,7 @@ server packetfence-degraded-tunnel {
 		rewrite_called_station_id
 
 		# Uncomment the following line to enable local PEAP authentication
-		packetfence-degraded-auth
+		#packetfence-degraded-auth
 		-sql_degraded
 
 
@@ -709,7 +722,33 @@ server packetfence-degraded-tunnel {
 		}
 
 		Auth-Type MS-CHAP {
-			mschap
+			packetfence     # increment the StatsD counter
+			# If there is already an NT-Password populated in the control, we'll try it
+			# In the event it fails, it will fallback to an ntlm_auth call below
+			if(&control:NT-Password && &control:NT-Password != "") {
+				update {
+					&control:PacketFence-NTCacheHash := 1
+				}
+				mschap_local {
+					reject = 2
+				}
+				if (reject || fail) {
+					packetfence-mschap-authenticate
+					update {
+						&control:PacketFence-NTCacheHash := 0
+					}
+				}
+				update control {
+					Cache-Status-Only = 'yes'
+				}
+				PacketFence-NTCacheHash
+				if (notfound) {
+					PacketFence-NTCacheHash
+				}
+			}
+			else {
+				packetfence-mschap-authenticate
+			}
 		}
 
 [% authentication_auth_type_degraded %]
