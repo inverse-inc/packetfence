@@ -793,9 +793,9 @@ eap [% key -%] {
 		#  outer requests.
 		#
 [% IF section == 'eap-degraded' %]
-		virtual_server = "packetfence-tunnel"
-[% ELSE %]
 		virtual_server = "packetfence-degraded-tunnel"
+[% ELSE %]
+		virtual_server = "packetfence-tunnel"
 [% END %]
 		#
 		# Unlike EAP-TLS, PEAP does not require a client certificate.
