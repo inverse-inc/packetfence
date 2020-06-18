@@ -76,6 +76,8 @@ use Hash::Merge qw (merge);
 use pf::constants::api;
 use pf::constants::realm;
 use DateTime::Format::MySQL;
+use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
+use pf::Redis;
 
 my $logger = pf::log::get_logger();
 
@@ -1836,6 +1838,25 @@ sub queue_submit_delayed :Public {
     my $id = $producer->submit_delayed($queue, $queue, $task_type, $delay, $task_data, $expire_in);
     return $id;
 }
+
+sub insert_user_in_redis_cache Public {
+    my ($class, %postdata) = @_;
+    my ($domain, $user, $nthash) = @_;
+    my @require = qw(domain user nthash);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,\@found);
+
+    my $logger = get_logger;
+    my $config = $ConfigDomain{$postdata{'domain'}};
+
+    # pf::Redis has a cache for the connection
+    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
+
+    my $key = "NTHASH:$postdata{'domain'}:$postdata{'user'}";
+    $logger->info("Inserting '$key' => '$postdata{'nthash'}'");
+    $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+}
+
 
 =head1 AUTHOR
 
