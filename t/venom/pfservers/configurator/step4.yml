@@ -9,9 +9,25 @@ testcases:
   steps:
   - script: 'systemctl start packetfence-fingerbank-collector'
 
+- name: start_fingerbank
+  steps:
+  - script: 'systemctl status packetfence-fingerbank-collector'
+    assertions:
+      - result.code ShouldEqual 0
+
 - name: disable_configurator
   steps:
   - script: "printf '\n[advanced]\nconfigurator=disabled\n' >> /usr/local/pf/conf/pf.conf"
+
+- name: configreload_hard
+  steps:
+  - script: "/usr/local/pf/bin/pfcmd configreload hard"
+
+- name: check_redirection
+  steps:
+  - script: "curl {{.pfserver_webadmin_url}}/api/v1/configurator/config/interfaces -k"
+    assertions:
+      - result.systemout ShouldContainSubstring 'The configurator is turned off'
 
 - name: restart_server
   steps:
