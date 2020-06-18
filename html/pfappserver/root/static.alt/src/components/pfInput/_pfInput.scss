@@ -1,0 +1,23 @@
+/**
+ * Global SASS
+ */
+.pf-input-group {
+
+}
+
+.pf-input {
+  /**
+  * Add btn-primary color(s) on hover
+  */
+  .btn-group[rel=testResultGroup] button {
+    opacity: 1;
+    text-transform: none;
+  }
+  .btn-group[rel=prefixButtonGroup] button:not(.disabled):hover {
+    background-color: $input-btn-hover-bg-color;
+    color: $input-btn-hover-text-color;
+    border-color: $input-btn-hover-bg-color;
+    cursor: pointer;
+  }
+
+}
