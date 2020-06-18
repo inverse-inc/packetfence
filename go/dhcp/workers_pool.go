@@ -25,7 +25,13 @@ func doWork(id int, element job) {
 		ipStr, portStr, _ := net.SplitHostPort(element.clientAddr.String())
 		if !(element.DHCPpacket.GIAddr().Equal(net.IPv4zero) && net.ParseIP(ipStr).Equal(net.IPv4zero)) {
 			dstPort, _ := strconv.Atoi(portStr)
-			sendUnicastDHCP(ans.D, ans.SrcIP, net.ParseIP(ipStr), element.DHCPpacket.GIAddr(), bootpServer, dstPort)
+
+			if !(net.ParseIP(ipStr).Equal(element.DHCPpacket.GIAddr())) {
+				if !(element.DHCPpacket.GIAddr().Equal(net.IPv4zero)) {
+					sendUnicastDHCP(ans.D, ans.SrcIP, element.DHCPpacket.GIAddr(), bootpServer, dstPort)
+				}
+			}
+			sendUnicastDHCP(ans.D, ans.SrcIP, net.ParseIP(ipStr), bootpServer, dstPort)
 		} else {
 			client, _ := NewRawClient(element.Int.intNet)
 			client.sendDHCP(ans.MAC, ans.D, ans.IP, element.Int.Ipv4)
