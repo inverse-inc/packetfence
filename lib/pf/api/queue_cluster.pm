@@ -138,13 +138,13 @@ Send to the all available members of the cluster
 
 sub cluster_notify_all {
     my ($self, $method, @args) = @_;
-    foreach my $server ($self->servers) {
+    foreach my $server ($self->all_servers) {
         if ($server->{host} eq $pf::cluster::host_id) {
             $self->local_notify($method, @args);
-        }
-
-        if ($self->server_notify($server, $method, @args)) {
-            get_logger->debug("sent $method to $server->{host}");
+        } else {
+            if ($self->server_notify($server, $method, @args)) {
+                get_logger->debug("sent $method to $server->{host}");
+            }
         }
     }
     return;
@@ -286,6 +286,17 @@ Return a the list of available servers in random order
 sub servers {
     shuffle grep {!is_server_down($_)} pf::cluster::enabled_servers();
 }
+
+=head2 all_servers
+
+Return a the list of all available servers in random order
+
+=cut
+
+sub all_servers {
+    shuffle grep {!is_server_down($_)}  pf::cluster::config_enabled_servers();
+}
+
 
 =head1 AUTHOR
 
