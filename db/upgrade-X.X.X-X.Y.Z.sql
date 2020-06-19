@@ -205,6 +205,8 @@ CREATE TABLE radreply (
   KEY username (username(32))
 );
 
+INSERT INTO radreply (username, attribute, value, op) values ('00:00:00:00:00:00','User-Name','*', '=*');
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 

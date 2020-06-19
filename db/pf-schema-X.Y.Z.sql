@@ -702,6 +702,8 @@ CREATE TABLE radreply (
   KEY username (username(32))
 );
 
+INSERT INTO radreply (username, attribute, value, op) values ('00:00:00:00:00:00','User-Name','*', '=*');
+
 -- Adding RADIUS Updates Stored Procedure
 
 DROP PROCEDURE IF EXISTS `acct_start`;

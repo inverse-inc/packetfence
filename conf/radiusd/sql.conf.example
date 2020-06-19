@@ -481,11 +481,12 @@ sql sql_degraded {
         password = "%%db_password%%"
 
 
+        read_groups = no
         radius_db = "%%db_database%%"
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
-        authcheck_table = "password"
+        authcheck_table = "radreply"
         authreply_table = "radreply"
         groupcheck_table = "radgroupcheck"
         groupreply_table = "radgroupreply"
@@ -503,5 +504,4 @@ sql sql_degraded {
         client_table = "radius_nas"
         # Read database-specific queries
         $INCLUDE ${modconfdir}/${.:name}/main/mysql/reject.conf
-        safe_characters = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_: /(),'"
 }
