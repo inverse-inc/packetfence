@@ -3,6 +3,99 @@
     <b-card no-body>
       <b-card-header>
         <h4 class="mb-0" v-t="'Create Users'"></h4>
+
+      <pf-form-input
+        v-model="form.single.pid"
+        :state="false"
+        :test="this.test"
+      >
+          <template v-slot:prepend>
+            Prepend
+          </template>
+          <template v-slot:append>
+            Append
+          </template>
+      </pf-form-input>
+
+
+
+
+        <pf-input v-model="form.single.pid"></pf-input>
+
+        <pf-form-input-new
+v-model="form.single.pid"
+class="pf-extra"
+:state="false"
+invalid-feedback="You suck"
+valid-feedback="You rock"
+ :zzzform-store-name="formStoreName" zzzform-namespace="single.pid"
+:column-label="$t('Username (PID)')"
+:text="$t('The <strong>username</strong> to use for login to the captive portal.')"
+        >
+          <template v-slot:prepend>
+            <b-button disabled variant="link" v-b-tooltip.hover.top.d300 :title="$t('Domain Name will be appended.')">{{ domainName }}</b-button>
+          </template>
+        </pf-form-input-new>
+
+        <pf-form-store-input
+class="pf-extra"
+invalid-feedback="You suck"
+ :form-store-name="formStoreName" form-namespace="single.email"
+:column-label="$t('Email')"
+:text="$t('...text')"
+        >
+          <template v-slot:prepend>
+            Prepend
+          </template>
+          <template v-slot:append>
+            Append
+          </template>
+        </pf-form-store-input>
+
+        <pf-form-input-test
+v-model="form.single.email"
+:state="false"
+invalid-feedback="You suck"
+:column-label="$t('pf-form-input-test')"
+:disabled="true"
+        >
+          <template v-slot:prepend>
+            Test Prepend Slot
+          </template>
+          <template v-slot:append>
+            Test Append Slot
+          </template>
+        </pf-form-input-test>
+
+        <pf-form-store-input-test
+invalid-feedback="You suck"
+ :form-store-name="formStoreName" form-namespace="single.email"
+:column-label="$t('pf-form-input-test')"
+        >
+          <template v-slot:prepend>
+            Test Prepend Slot
+          </template>
+          <template v-slot:append>
+            Test Append Slot
+            <b-button disabled variant="link" v-b-tooltip.hover.top.d300 :title="$t('Domain Name will be appended.')">{{ domainName }}</b-button>
+          </template>
+        </pf-form-store-input-test>
+
+
+        <pf-form-store-input-test
+invalid-feedback="You suck"
+ :form-store-name="formStoreName" form-namespace="single.email"
+:column-label="$t('pf-form-input-test #2')"
+:test="this.test"
+        >
+        </pf-form-store-input-test>
+
+
+
+
+        <pre>{{ JSON.stringify(form, null, 2) }}</pre>
+
+
       </b-card-header>
       <b-tabs v-model="modeIndex" card>
         <b-tab title="Single">
@@ -252,6 +345,16 @@
 </template>
 
 <script>
+
+import {
+  pfInput,
+  pfFormInput as pfFormInputNew,
+  pfFormInputTest,
+  pfFormStoreInput,
+  pfFormStoreInputTest,
+} from '@/components/pfInput/'
+
+
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
@@ -277,6 +380,12 @@ import {
 export default {
   name: 'users-create',
   components: {
+    pfInput,
+    pfFormInputNew,
+    pfFormStoreInput,
+    pfFormInputTest,
+    pfFormStoreInputTest,
+
     pfFormChosen,
     pfFormDatetime,
     pfFormFields,
@@ -346,6 +455,15 @@ export default {
     }
   },
   methods: {
+    test () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(new Error('GTFO'))
+        }, 3000)
+      })
+    },
+
+
     init () {
       // setup form store module
       this.$store.dispatch(`${this.formStoreName}/setForm`, createForm)

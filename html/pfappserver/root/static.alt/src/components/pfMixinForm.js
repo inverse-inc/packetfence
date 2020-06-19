@@ -43,7 +43,9 @@ export default {
     },
     formStoreValue: {
       get () {
-        return this.vModel[this.formNamespace]
+        return (this.formNamespace)
+          ? this.vModel[this.formNamespace]
+          : null
       },
       set (newValue) {
         if (!this.$inputDebouncer) {

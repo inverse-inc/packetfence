@@ -5,8 +5,7 @@ import {
   BFormText,
   BInputGroup,
   BInputGroupAppend,
-  BInputGroupPrepend,
-  normalizeSlot
+  BInputGroupPrepend
 } from 'bootstrap-vue'
 import Icon from 'vue-awesome/components/Icon'
 
@@ -22,7 +21,7 @@ export default {
   ],
   props: {
     // value defined in formModel mixin
-    //value: {},
+    //value: {/* noop */},
     columnLabel: {
       type: String
     },
@@ -41,23 +40,10 @@ export default {
     }
   },
   computed: {
-    localValue: {
-      get () {
-        if (this.formStoreName) {
-          return this.formStoreValue // use FormStore
-        } else {
-          return this.value // use native (v-model)
-        }
-      },
-      set (newValue = null) {
-        if (this.formStoreName) {
-          this.formStoreValue = newValue // use FormStore
-        } else {
-          this.value = newValue
-        }
-      }
+    mergeDisabled () { // overloaded through inheritance
+      return this.disabled
     },
-    mergedSlots () { // overloaded through inheritance
+    mergeSlots () { // overloaded through inheritance
       return (h) => {
         return this.$scopedSlots // defaults
       }
@@ -95,10 +81,11 @@ export default {
       attrs: this.$attrs, // forward $attrs
       props: {
         ...this.$props, // forward $props
+        disabled: this.mergeDisabled,
         state: this.localState,
         value: this.localValue
       },
-      domProps: {},
+      domProps: {/* noop */},
       on: {
         ...this.$listeners, // forward $listeners
         input: this.onInput,
@@ -107,14 +94,18 @@ export default {
     })
 
     const $BInputGroup = h(BInputGroup, {
+      class: { // append state class to input-group
+        'is-valid': this.localState === true,
+        'is-invalid': this.localState === false
+      },
       scopedSlots: { // forward `prepend` and `append` scopedSlots to BInputGroup
         // prepend
-        prepend: this.mergedSlots(h).prepend,
+        prepend: this.mergeSlots(h).prepend,
         // append
         append: props => [
-        ...((this.mergedSlots(h).append) // slot(s) first
-            ? [this.mergedSlots(h).append(props)]
-            : []
+        ...((this.mergeSlots(h).append) // slot(s) first
+            ? [this.mergeSlots(h).append(props)]
+            : [/* noop */]
           ),
           ...((this.disabled || this.readonly) // icon last
             ? [
@@ -132,7 +123,7 @@ export default {
                 })
               ])
             ]
-            : []
+            : [/* noop */]
           )
         ]
       }
@@ -151,7 +142,7 @@ export default {
               labelCols: this.labelCols,
               label: this.columnLabel
           }
-          : {}
+          : {/* noop */}
         )
       }
     }, [
@@ -162,7 +153,7 @@ export default {
             innerHTML: this.text
           }
         })]
-        : []
+        : [/* noop */]
       )
     ])
   }

@@ -1,3 +1,3 @@
 <style lang="scss">
-@import 'pfFormTest';
+@import 'pfInput';
 </style>

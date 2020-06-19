@@ -8,7 +8,6 @@ import pfFormInput from './pfFormInput'
 import mixinSass from './mixin.scss' // mixin scoped sass
 import mixinFormModel from '@/components/_mixins/formModel'
 
-
 // @vue/component
 export default {
   name: 'pf-form-input-test',
@@ -31,9 +30,12 @@ export default {
   },
   computed: {
     canRunTest () {
-      return !this.disabled && this.localValue && !this.isTesting && this.state !== false
+      return !this.disabled && this.localValue && !this.isTesting && this.localState !== false
     },
-    mergedSlots () {
+    mergeDisabled () {
+      return this.disabled || this.isTesting
+    },
+    mergeSlots () {
       return (h) => {
 
         const $BButton = h(BButton, {
@@ -116,18 +118,14 @@ export default {
   },
   methods: {
     onRunTest (event) {
-console.log('onRunTest', {event})
-
       this.isTesting = true
       this.testResult = null
       Promise.resolve(this.test()).then(response => {
-console.log('success', response)
         this.testResult = true
         this.testMessage = null
         this.$emit('pass', response)
         this.isTesting = false
       }).catch(error => {
-console.log('error', error)
         this.testResult = false
         this.testMessage = this.$i18n.t('Test failed with unknown error.')
         const { response: { data } = {} } = error
@@ -138,6 +136,12 @@ console.log('error', error)
         }
         this.isTesting = false
       })
+    }
+  },
+  watch: {
+    localValue () { // clear the test result on change
+      this.testMessage = null
+      this.testResult = null
     }
   }
 }
