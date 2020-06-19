@@ -1839,15 +1839,21 @@ sub queue_submit_delayed :Public {
     return $id;
 }
 
-sub insert_user_in_redis_cache Public {
+=head2 insert_user_in_redis_cache
+
+insert_user_in_redis_cache
+
+=cut
+
+sub insert_user_in_redis_cache :Public {
     my ($class, %postdata) = @_;
     my ($domain, $user, $nthash) = @_;
     my @require = qw(domain user nthash);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
 
-    my $logger = get_logger;
-    my $config = $ConfigDomain{$postdata{'domain'}};
+    my $logger = pf::log::get_logger();
+    my $config = $pf::config::ConfigDomain{$postdata{'domain'}};
 
     # pf::Redis has a cache for the connection
     my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
@@ -1856,7 +1862,6 @@ sub insert_user_in_redis_cache Public {
     $logger->info("Inserting '$key' => '$postdata{'nthash'}'");
     $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
 }
-
 
 =head1 AUTHOR
 
