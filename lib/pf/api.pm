@@ -1846,21 +1846,40 @@ insert_user_in_redis_cache
 =cut
 
 sub insert_user_in_redis_cache :Public {
-    my ($class, %postdata) = @_;
-    my ($domain, $user, $nthash) = @_;
-    my @require = qw(domain user nthash);
-    my @found = grep {exists $postdata{$_}} @require;
-    return unless pf::util::validate_argv(\@require,\@found);
+    my ($class ,$domain, $user, $nthash) = @_;
 
     my $logger = pf::log::get_logger();
-    my $config = $pf::config::ConfigDomain{$postdata{'domain'}};
+    my $config = $pf::config::ConfigDomain{$domain};
 
     # pf::Redis has a cache for the connection
     my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
 
-    my $key = "NTHASH:$postdata{'domain'}:$postdata{'user'}";
-    $logger->info("Inserting '$key' => '$postdata{'nthash'}'");
+    my $key = "NTHASH:$domain:$user";
+    $logger->info("Inserting '$key' => '$nthash'");
     $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+}
+
+=head2 update_user_in_redis_cache
+
+Update a user/NT hash combination inside redis for a given domain
+
+=cut
+
+sub update_user_in_redis_cache {
+    my ($class, $domain, $username) = @_;
+    my $logger = pf::log::get_logger();
+    my $config = $pf::config::ConfigDomain{$domain};
+
+    # pf::Redis has a cache for the connection
+    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
+
+
+    my $key = "NTHASH:$domain:$username";
+    my $nthash = $redis->get($key);
+    if (defined($nthash)) {
+        $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+        $logger->info("Updating '$key' => '$nthash'");
+    }
 }
 
 =head1 AUTHOR

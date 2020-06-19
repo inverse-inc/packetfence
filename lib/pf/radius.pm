@@ -1028,7 +1028,8 @@ sub handleNtlmCaching {
         my $cache_key = "$domain.$radius_username";
         my $username = pf::domain::ntlm_cache::get_from_cache($cache_key);
         if (defined($usedNtHash) && $usedNtHash && defined($username)) {
-            $self->update_user_in_redis_cache($domain,$username);
+            my $client = pf::api::queue_cluster->new(queue => "general");
+            $client->cluster_notify_all("update_user_in_redis_cache", $domain, $username);
         }
         else {
             my $client = pf::api::queue->new(queue => "general");
@@ -1137,29 +1138,6 @@ sub check_lost_stolen {
 
     if($is_lost_stolen) {
         pf::action::action_execute( $mac, $LOST_OR_STOLEN, "Endpoint has just connected on the network" );
-    }
-}
-
-=head2 update_user_in_redis_cache
-
-Update a user/NT hash combination inside redis for a given domain
-
-=cut
-
-sub update_user_in_redis_cache {
-    my ($self, $domain, $user) = @_;
-    my $logger = get_logger;
-    my $config = $ConfigDomain{$domain};
-
-    # pf::Redis has a cache for the connection
-    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
-
-
-    my $key = "NTHASH:$domain:$user";
-    my $nthash = $redis->get($key);
-    if (defined($nthash)) {
-        $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
-        $logger->info("Updating '$key' => '$nthash'");
     }
 }
 

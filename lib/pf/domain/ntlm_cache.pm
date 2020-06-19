@@ -30,8 +30,6 @@ use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use Socket;
 use pf::CHI;
 
-my $send_queue = 'general';
-
 my $CHI_CACHE = pf::CHI->new( namespace => 'ntlm_cache_username_lookup' );
 
 =head2 fetch_valid_users
@@ -372,12 +370,8 @@ Insert a user/NT hash combination inside redis for a given domain
 sub insert_user_in_redis_cache {
     my ($domain, $user, $nthash) = @_;
     my $logger = get_logger;
-    my $apiclient = api_client();
-    my %args;
-    $args{'domain'} = $domain;
-    $args{'user'} = $user;
-    $args{'nthash'} = $nthash;
-    $apiclient->notify('insert_user_in_redis_cache', %args);
+    my $client = pf::api::queue_cluster->new(queue => "general");
+    $client->cluster_notify_all("insert_user_in_redis_cache", $domain, $user, $nthash);
 }
 
 =head2 get_from_cache
@@ -402,22 +396,6 @@ sub set_to_cache {
     my ($key, $value) = @_;
 
     $CHI_CACHE->set($key,$value);
-}
-
-=head2 api_client
-
-get the api client
-
-=cut
-
-sub api_client {
-    return pf::api::queue_cluster->new(
-        queue => $send_queue,
-        jsonrpc_args => {
-            connect_timeout_ms => 500,
-            timeout_ms => 500,
-        }
-    );
 }
 
 =head1 AUTHOR

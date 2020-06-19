@@ -130,6 +130,26 @@ sub cluster_notify {
     return; 
 }
 
+=head2 cluster_notify_all
+
+Send to the all available members of the cluster
+
+=cut
+
+sub cluster_notify_all {
+    my ($self, $method, @args) = @_;
+    foreach my $server ($self->servers) {
+        if ($server->{host} eq $pf::cluster::host_id) {
+            $self->local_notify($method, @args);
+        }
+
+        if ($self->server_notify($server, $method, @args)) {
+            get_logger->debug("sent $method to $server->{host}");
+        }
+    }
+    return;
+}
+
 =head2 server_notify
 
 Sends a queue notify request to a server
