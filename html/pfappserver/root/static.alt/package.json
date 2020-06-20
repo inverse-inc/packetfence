@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
-    "@vue/test-utils": "^1.0.3",
     "axios": "0.19.2",
     "bootstrap": "4.4.1",
     "bootstrap-vue": "2.13.1",
@@ -50,6 +49,7 @@
     "@vue/cli-plugin-unit-jest": "^4.4.4",
     "@vue/cli-service": "^4.3.1",
     "@vue/eslint-config-standard": "^5.0.0",
+    "@vue/test-utils": "^1.0.3",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.1",
