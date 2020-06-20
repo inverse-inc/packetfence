@@ -45,6 +45,7 @@ export default {
       return (h) => {
 
         const $BButton = h(BButton, {
+          ref: 'button-test',
           staticClass: 'input-group-text',
           props: {
             disabled: !this.canRunTest,

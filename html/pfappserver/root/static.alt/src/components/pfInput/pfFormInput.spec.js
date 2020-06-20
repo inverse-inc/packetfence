@@ -1,20 +1,42 @@
-import { mount, shallowMount } from '@vue/test-utils'
+import { factory, shallowFactory } from '@/utils/test'
 import Component from './pfFormInput'
 import {
   BFormInput
 } from 'bootstrap-vue'
 
-const factory = ({ propsData = {}, mocks = {}, stubs = {}, methods = {} } = {}) => {
-  return mount(Component, { propsData, mocks, stubs, methods })
-}
-
-const shallowFactory = ({ propsData = {}, mocks = {}, stubs = {}, methods = {} } = {}) => {
-  return shallowMount(Component, { propsData, mocks, stubs, methods })
-}
-
 describe('Component', () => {
   it('has no scoped data', () => {
     expect(Component.data).toBe(undefined)
+  })
+})
+
+describe('Handlers', () => {
+
+  let wrapper, vm
+
+  beforeEach(() => {
+      wrapper = shallowFactory(Component)
+      vm = wrapper.vm
+  })
+
+  afterEach(() => {
+      wrapper.destroy()
+  })
+
+  it('provides @focus handler', async () => {
+    // assert method exists
+    expect('focus' in vm).toBe(true)
+
+    // assert method
+    expect(vm.focus.constructor).toBe(Function)
+  })
+
+  it('provides @blur handler', async () => {
+    // assert method exists
+    expect('blur' in vm).toBe(true)
+
+    // assert method
+    expect(vm.blur.constructor).toBe(Function)
   })
 })
 
@@ -23,7 +45,7 @@ describe('Props', () => {
   let wrapper, vm
 
   beforeEach(() => {
-      wrapper = factory()
+      wrapper = factory(Component)
       vm = wrapper.vm
   })
 
@@ -149,7 +171,37 @@ describe('Props', () => {
     // assert property was mutated
     expect(wrapper.findComponent({ ref: 'input' }).props('type')).toBe('password')
   })
+})
 
+describe('Slots', () => {
+
+  let wrapper, vm
+
+  beforeEach(() => {
+      wrapper = factory(Component, {
+        slots: {
+          append: '<div data-test="append">foo</div>',
+          prepend: '<div data-test="prepend">foo</div>'
+        }
+      })
+      vm = wrapper.vm
+  })
+
+  afterEach(() => {
+      wrapper.destroy()
+  })
+
+  it('propagates <slot name="prepend"></slot>', async () => {
+    // assert method exists
+    expect(wrapper.findAll('[data-test="prepend"]').length).toBe(1)
+
+  })
+
+  it('propagates <slot name="append"></slot>', async () => {
+    // assert method exists
+    expect(wrapper.findAll('[data-test="append"]').length).toBe(1)
+
+  })
 })
 
 describe('Value', () => {
@@ -157,7 +209,7 @@ describe('Value', () => {
   let wrapper, vm
 
   beforeEach(() => {
-      wrapper = factory()
+      wrapper = factory(Component)
       vm = wrapper.vm
   })
 
@@ -209,37 +261,5 @@ describe('Value', () => {
 
     // assert event payload
     expect(wrapper.emitted().change[0]).toEqual(['test'])
-  })
-
-})
-
-
-describe('Handlers', () => {
-
-  let wrapper, vm
-
-  beforeEach(() => {
-      wrapper = shallowFactory()
-      vm = wrapper.vm
-  })
-
-  afterEach(() => {
-      wrapper.destroy()
-  })
-
-  it('provides @focus handler', async () => {
-    // assert method exists
-    expect('focus' in vm).toBe(true)
-
-    // assert method
-    expect(vm.focus.constructor).toBe(Function)
-  })
-
-  it('provides @blur handler', async () => {
-    // assert method exists
-    expect('blur' in vm).toBe(true)
-
-    // assert method
-    expect(vm.blur.constructor).toBe(Function)
   })
 })
