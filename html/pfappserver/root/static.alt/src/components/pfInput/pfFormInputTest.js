@@ -141,6 +141,9 @@ export default {
           if (message) this.testMessage = message
           this.$emit('fail', data)
         }
+        else {
+          this.$emit('fail', error)
+        }
         this.isTesting = false
       })
     }

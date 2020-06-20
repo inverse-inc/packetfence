@@ -58,31 +58,6 @@ describe('Props', () => {
     expect(wrapper.findAllComponents({ ref: 'input' }).exists()).toBe(true)
   })
 
-  it('propagates :columnLabel => <form-group label=":columnLabel">', async () => {
-    // assert default property
-    expect(wrapper.findComponent({ ref: 'form-group' }).props('label')).toBe(undefined)
-
-    wrapper.setProps({ columnLabel: 'test' })
-    await vm.$nextTick()
-    // assert property was mutated
-    expect(wrapper.findComponent({ ref: 'form-group' }).props('label')).toBe('test')
-  })
-
-  it('propagates :labelCols => <form-group label-cols=":labelCols">', async () => {
-    // assert default property
-    expect(wrapper.findComponent({ ref: 'form-group' }).props('labelCols')).toBe(null)
-
-    wrapper.setProps({ columnLabel: 'test' })
-    await vm.$nextTick()
-    // assert property was mutated, default labelCols = 3
-    expect(wrapper.findComponent({ ref: 'form-group' }).props('labelCols')).toBe(3)
-
-    wrapper.setProps({ labelCols: 12 })
-    await vm.$nextTick()
-    // assert property was mutated
-    expect(wrapper.findComponent({ ref: 'form-group' }).props('labelCols')).toBe(12)
-  })
-
   it('propagates :disabled => <input disabled=":disabled">', async () => {
     // assert default property
     expect(wrapper.findComponent({ ref: 'input' }).props('disabled')).toBe(false)
@@ -170,6 +145,99 @@ describe('Props', () => {
 
     // assert property was mutated
     expect(wrapper.findComponent({ ref: 'input' }).props('type')).toBe('password')
+  })
+
+  it('propagates :columnLabel => <form-group label=":columnLabel">', async () => {
+    // assert default property
+    expect(wrapper.findComponent({ ref: 'form-group' }).props('label')).toBe(undefined)
+
+    wrapper.setProps({ columnLabel: 'test' })
+    await vm.$nextTick()
+
+    // assert property was mutated
+    expect(wrapper.findComponent({ ref: 'form-group' }).props('label')).toBe('test')
+  })
+
+  it('propagates :labelCols => <form-group label-cols=":labelCols">', async () => {
+    // assert default property
+    expect(wrapper.findComponent({ ref: 'form-group' }).props('labelCols')).toBe(null)
+
+    wrapper.setProps({ columnLabel: 'test' })
+    await vm.$nextTick()
+    // assert property was mutated, default labelCols = 3
+    expect(wrapper.findComponent({ ref: 'form-group' }).props('labelCols')).toBe(3)
+
+    wrapper.setProps({ labelCols: 12 })
+    await vm.$nextTick()
+
+    // assert property was mutated
+    expect(wrapper.findComponent({ ref: 'form-group' }).props('labelCols')).toBe(12)
+  })
+})
+
+describe('State', () => {
+
+  let wrapper, vm
+
+  beforeEach(() => {
+      wrapper = factory(Component)
+      vm = wrapper.vm
+  })
+
+  afterEach(() => {
+      wrapper.destroy()
+  })
+
+  it('propagates :invalid-feedback => <form-group invalid-feedback=":invalid-feedback">', async () => {
+    wrapper.setProps({
+      invalidFeedback: 'test',
+      state: false
+    })
+    await vm.$nextTick()
+
+    // assert property was mutated
+    expect(wrapper.find('.is-invalid').exists()).toBe(true)
+    expect(wrapper.find('.invalid-feedback').exists()).toBe(true)
+    expect(wrapper.find('.invalid-feedback').html()).toContain('test')
+  })
+
+  it('propagates :state="true" => <form-group class="is-valid">', async () => {
+    // assert default
+    expect(wrapper.find('.is-valid').exists()).toBe(false)
+
+    wrapper.setProps({
+      invalidFeedback: 'test',
+      state: true,
+      stateMap: { true: null, false: null }
+    })
+    await vm.$nextTick()
+
+    // assert property was not mutated
+    expect(wrapper.find('.is-valid').exists()).toBe(false)
+
+    wrapper.setProps({
+      invalidFeedback: 'test',
+      state: true,
+      stateMap: { true: true, false: false }
+    })
+    await vm.$nextTick()
+
+    // assert property was mutated
+    expect(wrapper.find('.is-valid').exists()).toBe(true)
+  })
+
+  it('propagates :state="false" => <form-group class="is-invalid">', async () => {
+    // assert default
+    expect(wrapper.find('.is-invalid').exists()).toBe(false)
+
+    wrapper.setProps({
+      invalidFeedback: 'test',
+      state: false
+    })
+    await vm.$nextTick()
+
+    // assert property was mutated
+    expect(wrapper.find('.is-invalid').exists()).toBe(true)
   })
 })
 
