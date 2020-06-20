@@ -1,9 +1,8 @@
-import { shallowMount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import Component from './pfInput'
 
 const factory = ({ propsData = {}, mocks = {}, stubs = {}, methods = {} } = {}) => {
-  // shallowMount
-  return shallowMount(Component, { propsData, mocks, stubs, methods })
+  return mount(Component, { propsData, mocks, stubs, methods })
 }
 
 describe('Object', () => {
@@ -30,12 +29,12 @@ describe('Component', () => {
     expect(wrapper).toBeTruthy()
   })
 
-  it('ref="input"', () => {
+  it('has <input ref="input">', () => {
     // assert input ref exists
     expect(wrapper.findAllComponents({ ref: 'input' }).exists()).toBe(true)
   })
 
-  it('prop :disabled', async () => {
+  it('props :disabled', async () => {
     // assert default property
     expect(wrapper.findComponent({ ref: 'input' }).props('disabled')).toBe(false)
 
@@ -50,7 +49,7 @@ describe('Component', () => {
     expect(wrapper.findComponent({ ref: 'input' }).props('disabled')).toBe(false)
   })
 
-  it('prop :readonly', async () => {
+  it('props :readonly', async () => {
     // assert default property
     expect(wrapper.findComponent({ ref: 'input' }).props('readonly')).toBe(false)
 
@@ -65,7 +64,7 @@ describe('Component', () => {
     expect(wrapper.findComponent({ ref: 'input' }).props('readonly')).toBe(false)
   })
 
-  it('prop :placeholder', async () => {
+  it('props :placeholder', async () => {
     // assert default property
     expect(wrapper.findComponent({ ref: 'input' }).props('placeholder')).toBe(null)
 
@@ -80,7 +79,7 @@ describe('Component', () => {
     expect(wrapper.findComponent({ ref: 'input' }).props('placeholder')).toBe(null)
   })
 
-  it('prop :value', async () => {
+  it('props :value', async () => {
     // assert default property
     expect(wrapper.findComponent({ ref: 'input' }).props('value')).toBe('')
 
@@ -99,7 +98,7 @@ describe('Component', () => {
     // assert no event emitted after mount
     expect(wrapper.emitted().input).toBeFalsy()
 
-    vm.$emit('input', 'test')
+    wrapper.find('input[type="text"]').setValue('test')
     await vm.$nextTick()
 
     // assert event has been emitted
@@ -116,7 +115,8 @@ describe('Component', () => {
     // assert no event emitted after mount
     expect(wrapper.emitted().change).toBeFalsy()
 
-    vm.$emit('change', 'test')
+    wrapper.find('input[type="text"]').setValue('test')
+    wrapper.find('input[type="text"]').trigger('change')
     await vm.$nextTick()
 
     // assert event has been emitted

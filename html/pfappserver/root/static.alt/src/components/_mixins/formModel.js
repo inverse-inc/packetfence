@@ -1,43 +1,31 @@
 export default {
-  name: 'form-model',
+  name: 'mixin-form-model',
+  model: {
+    prop: 'value',
+    event: 'input'
+  },
   props: {
     value: {
       type: [String, Number],
       default: ''
     },
-    state: {
-      type: Boolean,
-      default: null
-    },
-    stateMap: {
-      type: Object,
-      default: () => { return { false: false, true: null } }
-    },
-    invalidFeedback: {
-      type: String
-    },
-    validFeedback: {
-      type: String
+  },
+  data() {
+    return {
+      localValue: this.value
     }
   },
-  computed: {
-    localValue () {
-      return this.value
-    },
-    localState () {
-      return this.stateMap[this.state]
-    },
-    localStateIfInvalidFeedback () {
-      if (this.invalidFeedback) {
-        return this.localState
+  mounted() {
+    const value = this.value
+    if (value !== this.localValue) {
+      this.localValue = value
+    }
+  },
+  watch: {
+    value (newValue) {
+      if (newValue !== this.localValue) {
+        this.localValue = newValue
       }
-      return null
-    },
-    localAnyState () {
-      return this.stateMap[this.state]
-    },
-    localInvalidFeedback () {
-      return this.invalidFeedback
     }
   }
 }

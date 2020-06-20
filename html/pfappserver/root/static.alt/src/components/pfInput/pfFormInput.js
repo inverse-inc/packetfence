@@ -7,37 +7,57 @@ import {
   BInputGroupAppend,
   BInputGroupPrepend
 } from 'bootstrap-vue'
-import Icon from 'vue-awesome/components/Icon'
+import * as Icon from 'vue-awesome'
 
-import mixinSass from './mixin.scss' // mixin scoped sass
-import mixinFormModel from '@/components/_mixins/formModel'
+import mixinScss from './mixin.scss' // mixin scoped scss
+import {
+  mixinFormHandlers,
+  mixinFormModel,
+  mixinFormState
+} from '@/components/_mixins/'
+
+export const defaultProps = {
+  columnLabel: {
+    type: String
+  },
+  labelCols: {
+    type: [String, Number],
+    default: 3
+  },
+  text: {
+    type: String
+  },
+  disabled: {
+    type: Boolean,
+    disabled: false
+  },
+  placeholder: {
+    type: String,
+    default: null
+  },
+  readonly: {
+    type: Boolean,
+    default: false
+  },
+  type: {
+    type: String,
+    default: 'text'
+  }
+}
 
 // @vue/component
 export default {
   name: 'pf-form-input',
   mixins: [
+    mixinFormHandlers,
     mixinFormModel, // uses v-model
-    mixinSass
+    mixinFormState,
+    mixinScss
   ],
   props: {
     // value defined in formModel mixin
     //value: {/* noop */},
-    columnLabel: {
-      type: String
-    },
-    labelCols: {
-      type: [String, Number],
-      default: 3
-    },
-    text: {
-      type: String
-    },
-    disabled: {
-      type: Boolean
-    },
-    readonly: {
-      type: Boolean
-    }
+    ...defaultProps
   },
   computed: {
     mergeDisabled () { // overloaded through inheritance
@@ -71,12 +91,14 @@ export default {
         'pf-input': true
       },
       directives: [ // https://vuejs.org/v2/guide/custom-directive.html
+        /*
         {
           name: 'model',
           rawName: 'v-model',
           value: this.localValue,
           expression: 'localValue'
         }
+        */
       ],
       attrs: this.$attrs, // forward $attrs
       props: {
@@ -117,6 +139,7 @@ export default {
                 }
               }, [
                 h(Icon, {
+                  ref: 'icon-lock',
                   props: {
                     name: 'lock'
                   }
@@ -130,6 +153,7 @@ export default {
     }, [$BFormInput])
 
     return h(BFormGroup, {
+      ref: 'form-group',
       staticClass: 'pf-form-input',
       class: {
         'mb-0': !this.columnLabel
@@ -149,6 +173,7 @@ export default {
       $BInputGroup,
       ...((this.text)
         ? [h(BFormText, {
+          ref: 'form-text',
           domProps: {
             innerHTML: this.text
           }

@@ -2,19 +2,25 @@ import {
   BButton,
   BButtonGroup
 } from 'bootstrap-vue'
-import Icon from 'vue-awesome/components/Icon'
+import * as Icon from 'vue-awesome'
 
 import pfFormInput from './pfFormInput'
-import mixinSass from './mixin.scss' // mixin scoped sass
-import mixinFormModel from '@/components/_mixins/formModel'
+import mixinScss from './mixin.scss' // mixin scoped scss
+import {
+  mixinFormHandlers,
+  mixinFormModel,
+  mixinFormState
+} from '@/components/_mixins/'
 
 // @vue/component
 export default {
   name: 'pf-form-input-test',
   extends: pfFormInput,
   mixins: [
+    mixinFormHandlers,
     mixinFormModel, // uses v-model
-    mixinSass
+    mixinFormState,
+    mixinScss
   ],
   props: {
     test: {

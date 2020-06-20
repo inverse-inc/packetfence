@@ -1,53 +1,48 @@
 import { BFormInput } from 'bootstrap-vue'
-import mixinForm from '@/components/pfMixinForm'
-import mixinSass from './mixin.scss' // mixin scoped sass
+import mixinScss from './mixin.scss' // mixin scoped scss
+import {
+  mixinFormHandlers,
+  mixinFormModel
+} from '@/components/_mixins/'
+
+export const defaultProps = {
+  disabled: {
+    type: Boolean,
+    disabled: false
+  },
+  placeholder: {
+    type: String,
+    default: null
+  },
+  readonly: {
+    type: Boolean,
+    default: false
+  },
+  type: {
+    type: String,
+    default: 'text'
+  }
+}
 
 // @vue/component
 export default {
   name: 'pf-input',
   mixins: [
-    mixinForm,
-    mixinSass
+    mixinFormHandlers,
+    mixinFormModel, // uses v-model
+    mixinScss
   ],
   props: {
     value: {
       type: [String, Number],
       default: ''
     },
-    disabled: {
-      type: Boolean,
-      disabled: false
-    },
-    placeholder: {
-      type: String,
-      default: null
-    },
-    readonly: {
-      type: Boolean,
-      default: false
-    }
+    ...defaultProps
   },
   data () {
     return {}
   },
-  computed: {
-    localValue: {
-      get () {
-        if (this.formStoreName) {
-          return this.formStoreValue // use FormStore
-        } else {
-          return this.value // use native (v-model)
-        }
-      },
-      set (newValue = null) {
-        if (this.formStoreName) {
-          this.formStoreValue = newValue // use FormStore
-        } else {
-          this.value = newValue
-        }
-      }
-    }
-  },
+  computed: {},
   watch: {},
   mounted () {},
   deactivated () {},
@@ -74,12 +69,14 @@ export default {
         'pf-input': true
       },
       directives: [ // https://vuejs.org/v2/guide/custom-directive.html
+        /*
         {
           name: 'model',
           rawName: 'v-model',
           value: this.localValue,
           expression: 'localValue'
         }
+        */
       ],
       attrs: this.$attrs, // forward $attrs
       props: {
