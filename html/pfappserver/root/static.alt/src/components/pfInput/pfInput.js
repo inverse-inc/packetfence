@@ -13,6 +13,18 @@ export default {
     value: {
       type: [String, Number],
       default: ''
+    },
+    disabled: {
+      type: Boolean,
+      disabled: false
+    },
+    placeholder: {
+      type: String,
+      default: null
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -56,7 +68,7 @@ export default {
   },
   render (h) { // https://vuejs.org/v2/guide/render-function.html
     return h(BFormInput, {
-      ref: 'pf-input',
+      ref: 'input',
       staticClass: null,
       class: {
         'pf-input': true
@@ -74,7 +86,6 @@ export default {
         ...this.$props, // forward $props
         value: this.localValue
       },
-      domProps: {},
       on: {
         ...this.$listeners, // forward $listeners
         input: this.onInput,
