@@ -12,7 +12,7 @@ import {
   mixinFormState
 } from '@/components/_mixins/'
 
-export const renderButtonGroup = (ctx, h) => {
+export const renderSlots = (ctx, h) => {
   const $BButton = h(BButton, {
     ref: 'button-test',
     staticClass: 'input-group-text',
@@ -57,29 +57,31 @@ export const renderButtonGroup = (ctx, h) => {
     )
   ])
 
-  return h(BButtonGroup, {
-    staticClass: 'pf-input-button-group'
-  }, [
-    // show test message when available
-    ...((ctx.testResult !== null && ctx.testMessage)
-      ? [
-        h(BButton, {
-          staticClass: 'mr-1',
-          class: {
-            'text-success': ctx.testResult,
-            'text-danger': !ctx.testResult
-          },
-          props: {
-            variant: 'light',
-            disabled: true,
-            tabindex: -1 // ignore
-          }
-        }, [ctx.testMessage])
-      ]
-      : []
-    ),
-    $BButton
-  ])
+  return [
+    h(BButtonGroup, {
+      staticClass: 'pf-input-button-group'
+    }, [
+      // show test message when available
+      ...((ctx.testResult !== null && ctx.testMessage)
+        ? [
+          h(BButton, {
+            staticClass: 'mr-1',
+            class: {
+              'text-success': ctx.testResult,
+              'text-danger': !ctx.testResult
+            },
+            props: {
+              variant: 'light',
+              disabled: true,
+              tabindex: -1 // ignore
+            }
+          }, [ctx.testMessage])
+        ]
+        : []
+      ),
+      $BButton
+    ])
+  ]
 }
 
 // @vue/component
@@ -126,10 +128,10 @@ export default {
           ...this.$scopedSlots,
           append: ((this.$scopedSlots.append)
             ? props => [
-                renderButtonGroup(this, h),
-                this.$scopedSlots.append(props)
+                ...renderSlots(this, h),
+                ...this.$scopedSlots.append(props)
               ]
-            : () => renderButtonGroup(this, h)
+            : () => renderSlots(this, h)
           )
         }
       }

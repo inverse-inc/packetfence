@@ -86,23 +86,12 @@ export default {
     }
   },
   render (h) { // https://vuejs.org/v2/guide/render-function.html
-
     const $BFormInput = h(BFormInput, {
       ref: 'input',
       staticClass: null,
       class: {
         'pf-input': true
       },
-      directives: [ // https://vuejs.org/v2/guide/custom-directive.html
-        /*
-        {
-          name: 'model',
-          rawName: 'v-model',
-          value: this.localValue,
-          expression: 'localValue'
-        }
-        */
-      ],
       attrs: this.$attrs, // forward $attrs
       props: {
         ...this.$props, // forward $props

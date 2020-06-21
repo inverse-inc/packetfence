@@ -14,7 +14,7 @@ import {
   mixinFormState
 } from '@/components/_mixins/'
 
-export const renderButtonGroup = (ctx, h) => {
+export const renderSlots = (ctx, h) => {
   const $GenBButton = h(BButton, {
     ref: 'button-generate',
     staticClass: 'input-group-text',
@@ -53,10 +53,10 @@ export const renderButtonGroup = (ctx, h) => {
 
   const $EyeBButton = h(BButton, {
     ref: 'button-reveal',
-    staticClass: (ctx.pinVisibility) ? '' : 'input-group-text',
+    staticClass: 'input-group-text',
     props: {
       disabled: ctx.disabled,
-      variant: (ctx.pinVisibility) ? 'primary' : 'light'
+      variant: (ctx.pinVisibility) ? 'primary' : 'secondary'
     },
     attrs: {
       id: ctx._uid,
@@ -78,13 +78,15 @@ export const renderButtonGroup = (ctx, h) => {
     h(Icon, { props: { name: 'eye' } })
   ])
 
-  return h(BButtonGroup, {
-    staticClass: 'pf-input-button-group'
-  }, [
-    $GenBButton,
-    $EyeBButton,
-    $GenBPopover
-  ])
+  return [
+    h(BButtonGroup, {
+      staticClass: 'pf-input-button-group'
+    }, [
+      $GenBButton,
+      $EyeBButton,
+      $GenBPopover
+    ])
+  ]
 }
 
 // @vue/component
@@ -122,10 +124,10 @@ export default {
           ...this.$scopedSlots,
           append: ((this.$scopedSlots.append)
             ? props => [
-                renderButtonGroup(this, h),
-                this.$scopedSlots.append(props)
+                ...renderSlots(this, h),
+                ...this.$scopedSlots.append(props)
               ]
-            : () => renderButtonGroup(this, h)
+            : () => renderSlots(this, h)
           )
         }
       }

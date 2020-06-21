@@ -12,20 +12,25 @@ export default {
   },
   data() {
     return {
-      localValue: this.value
+      inputValue: this.value
     }
   },
   mounted() {
     const value = this.value
-    if (value !== this.localValue) {
-      this.localValue = value
+    if (value !== this.inputValue) {
+      this.inputValue = value
     }
   },
   watch: {
     value (newValue) {
-      if (newValue !== this.localValue) {
-        this.localValue = newValue
+      if (newValue !== this.inputValue) {
+        this.inputValue = newValue
       }
+    }
+  },
+  computed: {
+    localValue () { // overloaded through inheritance
+      return this.inputValue
     }
   }
 }

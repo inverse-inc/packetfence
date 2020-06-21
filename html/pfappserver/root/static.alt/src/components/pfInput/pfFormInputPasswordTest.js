@@ -6,8 +6,8 @@ import {
 import * as Icon from 'vue-awesome'
 
 import pfFormInputTest from './pfFormInputTest'
-import { renderButtonGroup as renderButtonGroupPassword } from './pfFormInputPassword'
-import { renderButtonGroup as renderButtonGroupTest } from './pfFormInputTest'
+import { renderSlots as renderSlotsPassword } from './pfFormInputPassword'
+import { renderSlots as renderSlotsTest } from './pfFormInputTest'
 import pfStaticGeneratePassword from './pfStaticGeneratePassword'
 import mixinScss from './mixin.scss' // mixin scoped scss
 import {
@@ -51,13 +51,13 @@ export default {
           ...this.$scopedSlots,
           append: ((this.$scopedSlots.append)
             ? props => [
-                renderButtonGroupPassword(this, h),
-                renderButtonGroupTest(this, h),
-                this.$scopedSlots.append(props)
+                ...renderSlotsPassword(this, h),
+                ...renderSlotsTest(this, h),
+                ...this.$scopedSlots.append(props)
               ]
             : () => [
-              renderButtonGroupPassword(this, h),
-              renderButtonGroupTest(this, h)
+              ...renderSlotsPassword(this, h),
+              ...renderSlotsTest(this, h)
             ]
           )
         }
