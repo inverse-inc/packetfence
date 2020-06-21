@@ -12,6 +12,76 @@ import {
   mixinFormState
 } from '@/components/_mixins/'
 
+export const renderButtonGroup = (ctx, h) => {
+  const $BButton = h(BButton, {
+    ref: 'button-test',
+    staticClass: 'input-group-text',
+    props: {
+      disabled: !ctx.canRunTest
+    },
+    attrs: {
+      tabIndex: '-1' // ignore
+    },
+    on: {
+      click: ctx.doRunTest
+    }
+  }, [
+    // button label
+    ctx.testLabel || ctx.$i18n.t('Test'),
+    // show loading icon while testing
+    ...((ctx.isTesting)
+      ? [h(Icon, {
+        staticClass: 'ml-3 mr-1',
+        props: {
+          name: 'circle-notch',
+          spin: true
+        }
+      })]
+      : []
+    ),
+    // show test result icon
+    ...((ctx.testResult !== null)
+      ? [
+        h(Icon, {
+          staticClass: 'ml-3 mr-1',
+          class: {
+            'text-success': ctx.testResult,
+            'text-danger': !ctx.testResult
+          },
+          props: {
+            name: (ctx.testResult) ? 'check' : 'times'
+          }
+        })
+      ]
+      : []
+    )
+  ])
+
+  return h(BButtonGroup, {
+    staticClass: 'pf-input-button-group'
+  }, [
+    // show test message when available
+    ...((ctx.testResult !== null && ctx.testMessage)
+      ? [
+        h(BButton, {
+          staticClass: 'mr-1',
+          class: {
+            'text-success': ctx.testResult,
+            'text-danger': !ctx.testResult
+          },
+          props: {
+            variant: 'light',
+            disabled: true,
+            tabindex: -1 // ignore
+          }
+        }, [ctx.testMessage])
+      ]
+      : []
+    ),
+    $BButton
+  ])
+}
+
 // @vue/component
 export default {
   name: 'pf-form-input-test',
@@ -24,7 +94,12 @@ export default {
   ],
   props: {
     test: {
-      type: Function
+      type: [Boolean, Function],
+      default: false // don't show button unless test function is explicitly defined
+    },
+    testLabel: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -38,93 +113,30 @@ export default {
     canRunTest () {
       return !this.disabled && this.localValue && !this.isTesting && this.localState !== false
     },
-    mergeDisabled () {
+    localDisabled () {
       return this.disabled || this.isTesting
     },
-    mergeSlots () {
+    localScopedSlots () {
       return (h) => {
-
-        const $BButton = h(BButton, {
-          ref: 'button-test',
-          staticClass: 'input-group-text',
-          props: {
-            disabled: !this.canRunTest,
-            tabIndex: -1 // ignore
-          },
-          on: {
-            click: this.onRunTest
-          }
-        }, [
-          // button label
-          this.$i18n.t('Test'),
-          // show loading icon while testing
-          ...((this.isTesting)
-            ? [h(Icon, {
-              staticClass: 'ml-3 mr-1',
-              props: {
-                name: 'circle-notch',
-                spin: true
-              }
-            })]
-            : []
-          ),
-          // show test result icon
-          ...((this.testResult !== null)
-            ? [
-              h(Icon, {
-                staticClass: 'ml-3 mr-1',
-                class: {
-                  'text-success': this.testResult,
-                  'text-danger': !this.testResult
-                },
-                props: {
-                  name: (this.testResult) ? 'check' : 'times'
-                }
-              })
-            ]
-            : []
-          )
-        ])
-
-        const $BButtonGroup = h(BButtonGroup, {
-          staticClass: 'pf-input-button-group'
-        }, [
-          // show test message when available
-          ...((this.testResult !== null && this.testMessage)
-            ? [
-              h(BButton, {
-                staticClass: 'mr-1',
-                class: {
-                  'text-success': this.testResult,
-                  'text-danger': !this.testResult
-                },
-                props: {
-                  variant: 'light',
-                  disabled: true,
-                  tabindex: -1 // ignore
-                }
-              }, [this.testMessage])
-            ]
-            : []
-          ),
-          $BButton
-        ])
-
+        if (!this.test) {
+          return this.$scopedSlots // defaults
+        }
+        // else
         return {
           ...this.$scopedSlots,
           append: ((this.$scopedSlots.append)
             ? props => [
-                this.$scopedSlots.append(props),
-                $BButtonGroup
+                renderButtonGroup(this, h),
+                this.$scopedSlots.append(props)
               ]
-            : () => $BButtonGroup
+            : () => renderButtonGroup(this, h)
           )
         }
       }
     }
   },
   methods: {
-    onRunTest (event) {
+    doRunTest (event) {
       this.isTesting = true
       this.testResult = null
       Promise.resolve(this.test()).then(response => {

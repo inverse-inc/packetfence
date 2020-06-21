@@ -20,12 +20,24 @@ describe('Methods', () => {
       wrapper.destroy()
   })
 
-  it('has <button ref="button-test">', () => {
+  it('when :test="falsy" not has <button ref="button-test">', async () => {
+    wrapper.setProps({ test: false })
+    await vm.$nextTick()
+
+    // assert button-test ref exists
+    expect(wrapper.findComponent({ ref: 'button-test' }).exists()).toBe(false)
+  })
+
+  it('when :test="fn" has <button ref="button-test">', async () => {
+    wrapper.setProps({ test: () => {} })
+    await vm.$nextTick()
+
     // assert button-test ref exists
     expect(wrapper.findComponent({ ref: 'button-test' }).exists()).toBe(true)
   })
 
   it('when :value="" => disable button', async () => {
+    wrapper.setProps({ test: () => {} })
     wrapper.find('input[type="text"]').setValue('')
     await vm.$nextTick()
 
@@ -34,6 +46,7 @@ describe('Methods', () => {
   })
 
   it('when :value="defined" => enable button', async () => {
+    wrapper.setProps({ test: () => {} })
     wrapper.find('input[type="text"]').setValue('test')
     await vm.$nextTick()
 
@@ -42,7 +55,7 @@ describe('Methods', () => {
   })
 
   it('when :disabled="true" (and :value="defined") => disable button', async () => {
-    wrapper.setProps({ disabled: true })
+    wrapper.setProps({ test: () => {}, disabled: true })
     await vm.$nextTick()
 
     // assert button is disabled when :disabled="true"
@@ -50,8 +63,8 @@ describe('Methods', () => {
   })
 
   it('when :disabled="false" (and :value="defined") => enable button', async () => {
+    wrapper.setProps({ test: () => {}, disabled: false })
     wrapper.find('input[type="text"]').setValue('test')
-    wrapper.setProps({ disabled: false })
     await vm.$nextTick()
 
     // assert button is enabled when :value="defined" && :disabled="false"
@@ -60,7 +73,7 @@ describe('Methods', () => {
 
   it('when :readonly="true" (and :value="defined") => enable button', async () => {
     wrapper.find('input[type="text"]').setValue('test')
-    wrapper.setProps({ readonly: false })
+    wrapper.setProps({ test: () => {}, readonly: false })
     await vm.$nextTick()
 
     // assert button is enabled when :value="defined" && :readonly="true"
@@ -68,8 +81,8 @@ describe('Methods', () => {
   })
 
   it('when :state="false" (and :value="defined") => disable button', async () => {
+    wrapper.setProps({ test: () => {}, state: false })
     wrapper.find('input[type="text"]').setValue('test')
-    wrapper.setProps({ state: false })
     await vm.$nextTick()
 
     // assert button is disabled when :state="false"
@@ -89,11 +102,13 @@ describe('Methods', () => {
   it('when :value="defined" and button is clicked => :test="fn" is called', async () => {
     wrapper.setProps({ test: jest.fn() })
     wrapper.find('input[type="text"]').setValue('test')
+    await vm.$nextTick()
+
     wrapper.findComponent({ ref: 'button-test' }).trigger('click')
     await vm.$nextTick()
 
     // assert test function is called
-    expect(vm.test).not.toHaveBeenCalled()
+    expect(vm.test).toHaveBeenCalled()
   })
 
   it('when :test="fn" is called => button is disabled', async () => {
@@ -109,7 +124,7 @@ describe('Methods', () => {
     // assert button is enabled
     expect(wrapper.findComponent({ ref: 'button-test' }).attributes('disabled')).toBe(undefined)
 
-    vm.onRunTest()
+    vm.doRunTest()
     await vm.$nextTick()
 
     // assert button is disabled
@@ -128,7 +143,7 @@ describe('Methods', () => {
     // assert button is enabled
     expect(wrapper.findComponent({ ref: 'button-test' }).attributes('disabled')).toBe(undefined)
 
-    vm.onRunTest()
+    vm.doRunTest()
     await vm.$nextTick()
 
     // assert button is enabled
@@ -146,7 +161,7 @@ describe('Methods', () => {
         })
       }
     })
-    vm.onRunTest()
+    vm.doRunTest()
     await vm.$nextTick()
 
     // assert event has been emitted
@@ -170,7 +185,7 @@ describe('Methods', () => {
         })
       }
     })
-    vm.onRunTest()
+    vm.doRunTest()
     await vm.$nextTick()
 
     // assert event has been emitted
@@ -181,6 +196,32 @@ describe('Methods', () => {
 
     // assert event payload
     expect(wrapper.emitted().fail[0]).toEqual(['test'])
+  })
+})
+
+describe('Props', () => {
+
+  let wrapper, vm
+
+  beforeEach(() => {
+      wrapper = factory(Component)
+      vm = wrapper.vm
+  })
+
+  afterEach(() => {
+      wrapper.destroy()
+  })
+
+  it('propagates :testLabel => <button>{{ testLabel }}</button>', async () => {
+    wrapper.find('input[type="text"]').setValue('test')
+    wrapper.setProps({
+      test:  () => true,
+      testLabel: 'foo'
+    })
+    await vm.$nextTick()
+
+    // assert property was mutated
+    expect(wrapper.findComponent({ ref: 'button-test' }).html()).toContain('foo')
   })
 
 })

@@ -60,10 +60,13 @@ export default {
     ...defaultProps
   },
   computed: {
-    mergeDisabled () { // overloaded through inheritance
+    localType () {
+      return this.type // overloaded through inheritance
+    },
+    localDisabled () { // overloaded through inheritance
       return this.disabled
     },
-    mergeSlots () { // overloaded through inheritance
+    localScopedSlots () { // overloaded through inheritance
       return (h) => {
         return this.$scopedSlots // defaults
       }
@@ -103,8 +106,9 @@ export default {
       attrs: this.$attrs, // forward $attrs
       props: {
         ...this.$props, // forward $props
-        disabled: this.mergeDisabled,
+        disabled: this.localDisabled,
         state: this.localState,
+        type: this.localType,
         value: this.localValue
       },
       domProps: {/* noop */},
@@ -122,11 +126,11 @@ export default {
       },
       scopedSlots: { // forward `prepend` and `append` scopedSlots to BInputGroup
         // prepend
-        prepend: this.mergeSlots(h).prepend,
+        prepend: this.localScopedSlots(h).prepend,
         // append
         append: props => [
-        ...((this.mergeSlots(h).append) // slot(s) first
-            ? [this.mergeSlots(h).append(props)]
+          ...((this.localScopedSlots(h).append) // slot(s) first
+            ? [this.localScopedSlots(h).append(props)]
             : [/* noop */]
           ),
           ...((this.disabled || this.readonly) // icon last
@@ -134,8 +138,10 @@ export default {
               h(BButton, {
                 staticClass: 'input-group-text',
                 props: {
-                  disabled: true,
-                  tabIndex: -1 // ignore
+                  disabled: true
+                },
+                attrs: {
+                  tabIndex: '-1' // ignore
                 }
               }, [
                 h(Icon, {
