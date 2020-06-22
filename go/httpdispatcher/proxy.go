@@ -57,6 +57,8 @@ var passThrough *passthrough
 // TenantID constant
 const TenantID = 1
 
+var successDBConnect = false
+
 // NewProxy creates a new instance of proxy.
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
@@ -238,9 +240,25 @@ func (p *Proxy) Configure(ctx context.Context) {
 	p.addToEndpointList(ctx, "localhost")
 	p.addToEndpointList(ctx, "127.0.0.1")
 
-	db, err := db.DbFromConfig(ctx)
-	sharedutils.CheckError(err)
-	p.Db = db
+	Database, err := db.DbFromConfig(ctx)
+	for err != nil {
+		if err != nil {
+			time.Sleep(time.Duration(5) * time.Second)
+		}
+
+		Database, err = db.DbFromConfig(ctx)
+	}
+
+	for !successDBConnect {
+		err = Database.Ping()
+		if err != nil {
+			time.Sleep(time.Duration(5) * time.Second)
+		} else {
+			successDBConnect = true
+		}
+	}
+
+	p.Db = Database
 
 	p.IP4log, err = p.Db.Prepare("select mac from ip4log where ip = ? AND tenant_id = ?")
 	if err != nil {
