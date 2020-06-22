@@ -1236,6 +1236,56 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.3.0-10.0.0.sql
 
 == Upgrading from a version prior to 10.1.0
 
+=== RADIUS attributes in authentication sources
+
+RADIUS attributes used in rules of authentication sources are now prefixed by `radius_request`.
+This script will add the prefix:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.1-authentication-prefix.pl
+----
+
+=== Changes in RADIUS configuration for better LDAP support
+
+In order to improve LDAP support when using RADIUS, new files and configuration parameters have been added. 
+This script will update your current configuration:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.1-move-radius-configuration-parmeters.pl
+----
+
+=== RADIUS filter templates
+
+RADIUS filters now support templated values like switch templates.
+This script will update your RADIUS filters to new format:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.1-radius-filter-template.pl
+----
+
+=== New EAP configuration parameter in realm.conf file
+
+A new EAP parameter has been added to [filename]`realm.conf` file.
+This script will add this parameter to your current configuration file:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.1-realm-conf.pl
+----
+
+=== Status of rules
+
+It's now possible to enable/disable rules in authentication sources.
+This script will add the new `status` parameter:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.1-rule-status.pl
+----
+
 === Support for CoA in Unifi controllers
 
 Support for CoA for Unifi AP is now supported but requires to have the latest controller and AP firmware available.
