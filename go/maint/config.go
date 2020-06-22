@@ -13,6 +13,7 @@ type JobSetupConfig interface {
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
+	"certificates_check":          NewCertificatesCheck,
 	"cleanup_chi_database_cache":  NewChiCleanup,
 	"bandwidth_maintenance":       NewBandwidthMaintenance,
 	"admin_api_audit_log_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
