@@ -1851,12 +1851,13 @@ sub insert_user_in_redis_cache :Public {
     my $logger = pf::log::get_logger();
     my $config = $pf::config::ConfigDomain{$domain};
 
+    my $expire = (pf::cluster::isSlaveMode()) ? 86400 : $config->{ntlm_cache_expiry};
     # pf::Redis has a cache for the connection
     my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
 
     my $key = "NTHASH:$domain:$user";
     $logger->info("Inserting '$key' => '$nthash'");
-    $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+    $redis->set($key, $nthash, 'EX', $expire);
 }
 
 =head2 update_user_in_redis_cache
@@ -1870,6 +1871,7 @@ sub update_user_in_redis_cache {
     my $logger = pf::log::get_logger();
     my $config = $pf::config::ConfigDomain{$domain};
 
+    my $expire = (pf::cluster::isSlaveMode()) ? 86400 : $config->{ntlm_cache_expiry};
     # pf::Redis has a cache for the connection
     my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
 
@@ -1877,7 +1879,7 @@ sub update_user_in_redis_cache {
     my $key = "NTHASH:$domain:$username";
     my $nthash = $redis->get($key);
     if (defined($nthash)) {
-        $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+        $redis->set($key, $nthash, 'EX', $expire);
         $logger->info("Updating '$key' => '$nthash'");
     }
 }
