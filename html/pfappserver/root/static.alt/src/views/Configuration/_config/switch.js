@@ -184,7 +184,13 @@ export const placeholder = (meta = {}, key = null) => {
 }
 
 export const supports = (form = {}, meta = {}, options = []) => {
-  const { type } = form
+  let {
+    type
+  } = form
+  if (!type) {
+    // use placeholder, fixes #5648
+    type = placeholder(meta, 'type')
+  }
   const { type: { allowed = [] } = { } } = meta
   return allowed.find(group => {
     return group.options.find(switche => {
@@ -1166,9 +1172,13 @@ export const viewFields = {
 }
 
 export const view = (form = {}, meta = {}) => {
-  const {
+  let {
     type
   } = form
+  if (!type) {
+    // use placeholder, fixes #5648
+    type = placeholder(meta, 'type')
+  }
   const {
     advancedMode = false
   } = meta
