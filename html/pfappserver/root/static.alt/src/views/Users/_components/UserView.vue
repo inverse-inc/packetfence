@@ -180,6 +180,21 @@
             <template v-slot:empty>
               <pf-empty-table :isLoading="isLoadingNodes" text="">{{ $t('No devices found') }}</pf-empty-table>
             </template>
+            <template v-slot:table-caption v-if="nodes.length >= 1000" class="text-center">
+              <b-button variant="outline-primary mb-0" :to="{ name: 'nodeSearch', query: {
+                query: JSON.stringify({
+                  'op':'and',
+                  'values':[
+                    {
+                      op:'or',
+                      values:[
+                        { field: 'pid', op: 'equals', value: pid }
+                      ]
+                    }
+                  ]
+                })
+              } }">{{ $t('View All') }}</b-button>
+            </template>
           </b-table>
         </b-tab>
 
