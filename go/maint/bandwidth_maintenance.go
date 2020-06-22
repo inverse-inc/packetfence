@@ -32,4 +32,27 @@ func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
 }
 
 func (j *BandwidthMaintenance) Run() {
+	j.ProcessBandwidthAccountingNetflow()
+	j.TriggerBandwidth()
+	j.BandwidthAggregation("hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
+	j.BandwidthAggregation("daily", "DATE_SUB(NOW(), INTERVAL ? DAY)", 2)
+	j.BandwidthAggregation("monthly", "DATE_SUB(NOW(), INTERVAL ? MONTHLY)", 1)
+	j.BandwidthAccountingRadiusToHistory()
+	j.BandwidthAggregationHistoryDaily()
+	j.BandwidthAggregationHistoryMonthly()
+	j.BandwidthAccountingHistoryCleanup()
 }
+
+func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow() {
+}
+
+func (j *BandwidthMaintenance) TriggerBandwidth() {
+}
+
+func (j *BandwidthMaintenance) BandwidthAggregation(rounding string, date_sql string, interval int) {
+}
+
+func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistory() {}
+func (j *BandwidthMaintenance) BandwidthAggregationHistoryDaily()   {}
+func (j *BandwidthMaintenance) BandwidthAggregationHistoryMonthly() {}
+func (j *BandwidthMaintenance) BandwidthAccountingHistoryCleanup()  {}
