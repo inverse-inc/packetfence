@@ -10,8 +10,8 @@
         </slot>
       </b-card-header>
       <b-tabs v-if="view && (view[0].tab || view.length > 1)" v-model="tabIndex" :key="tabKey" card>
-        <template v-for="(tab, t) in view">
-          <b-tab v-if="!('if' in tab) || tab.if" :key="t"
+        <template v-for="(tab, t) in conditionalView">
+          <b-tab :key="t"
             :disabled="tab.disabled"
             :title-link-class="{ 'is-invalid': tabErrorCount[t] > 0 }"
             :title="tab.tab"
@@ -22,10 +22,10 @@
           <slot name="tabs-end" />
         </template>
       </b-tabs>
-      <template v-for="(tab, t) in view">
-        <div class="card-body" v-if="!('if' in tab) || tab.if" v-show="t === tabIndex" :key="t">
+      <template v-for="(tab, t) in conditionalView">
+        <div class="card-body" v-show="t === tabIndex" :key="t">
           <template v-for="row in tab.rows">
-            <b-form-group v-if="!('if' in row) || row.if" :key="row.key"
+            <b-form-group :key="row.key"
               :label-cols="('label' in row && row.cols) ? labelCols : 0"
               :label="row.label"
               :label-size="row.labelSize"
@@ -137,13 +137,13 @@ export default {
           // eslint-disable-next-line vue/no-side-effects-in-computed-properties
           this.tabErrorCountDebouncer = createDebouncer()
           // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-          this.tabErrorCountCache = this.view.map(() => 0)
+          this.tabErrorCountCache = this.conditionalView.map(() => 0)
         }
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.tabErrorCountDebouncer({
           handler: () => {
           // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            this.tabErrorCountCache = this.view.map(view => {
+            this.tabErrorCountCache = this.conditionalView.map(view => {
               return view.rows.reduce((rowCount, row) => {
                 if (!('cols' in row)) return rowCount
                 return row.cols.reduce((colCount, col) => {
@@ -159,6 +159,19 @@ export default {
         })
         return this.tabErrorCountCache
       }
+    },
+    conditionalView () {
+      return this.view.map(tab => {
+        return {
+          ...tab,
+          rows: tab.rows.map(row => {
+            return {
+              ...row,
+              cols: (row.cols || []).filter(col => (!('if' in col) || col.if))
+            }
+          }).filter(row => (!('if' in row) || row.if) && row.cols && row.cols.length > 0)
+        }
+      }).filter(tab => (!('if' in tab) || tab.if) && tab.rows && tab.rows.length > 0)
     }
   },
   methods: {
