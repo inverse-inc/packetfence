@@ -42,7 +42,7 @@ These files are included in the package and release tarballs.
 
 === Prerequisites
 
-You need to have your MariaDB root password next to you because several scripts will need it.
+You need to have your MariaDB root password ready because several scripts will need it.
 
 
 === Database backup
@@ -992,7 +992,7 @@ In order to migrate your configuration, run the following script:
 
 === Password of the day rotation
 
-Password of the day sources now use access duration values to rotate password.
+Password of the day source now uses access duration values to rotate password.
 
 In order to migrate your configuration, run the following script:
 
