@@ -1388,7 +1388,7 @@ WiFi controllers, etc.)
 
 CAUTION: Performing a live upgrade on a PacketFence cluster is not a straightforward operation and should be done meticulously.
 
-In this procedure, the 3 nodes will be named A, B and C and they are in this order in `cluster.conf`.
+In this procedure, the 3 nodes will be named A, B and C and they are in this order in [filename]`cluster.conf`. When we referenced their hostnames, we speak about hostnames in [filename]`cluster.conf`.
 
 ==== Backups
 
@@ -1613,13 +1613,6 @@ First, stop the galera-autofix service on all the nodes of your cluster
 systemctl stop packetfence-galera-autofix
 ----
 
-Then, stop packetfence-mariadb on nodes A and B
-
-[source,bash]
-----
-systemctl stop packetfence-mariadb
-----
-
 ===== Elect node C as database master
 
 
@@ -1654,7 +1647,7 @@ make sure you check the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error
 ===== Sync nodes A and B
 
 
-On each of the servers you want to discard the data from, stop `packetfence-mariadb`, you must destroy all the data in `/var/lib/mysql` and start packetfence-mariadb so it resyncs its data from scratch.
+On each of the servers you want to discard the data from, stop `packetfence-mariadb`, you must destroy all the data in `/var/lib/mysql` and start `packetfence-mariadb` so it resyncs its data from scratch.
 
 [source,bash]
 ----
