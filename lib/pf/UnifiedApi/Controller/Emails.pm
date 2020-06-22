@@ -15,6 +15,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Data::Dumper;
 use MIME::Base64;
+use pf::config::util qw();
 
 sub handle_email_payload {
     my ($self) = @_;
@@ -56,6 +57,29 @@ sub send_email {
     my $success = pf::config::util::send_using_smtp_callback($msg);
     my $user_message = $success ? "Successfully sent email to $data->{to}" : "Failed to send email to $data->{to}. Check server side logs for details";
     return $self->render(json => {message => $user_message}, status => ($success ? 200 : 500));
+}
+
+sub pfmailer {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my @errors;
+    unless ($data->{subject}) {
+        push @errors, {message => "Required field missing", field => 'subject' };
+    }
+    unless ($data->{message}) {
+        push @errors, {message => "Required field missing", field => 'message' };
+    }
+
+    if (@errors) {
+        return $self->render_error(422, "Missing required fields", \@errors);
+    }
+
+    pf::config::util::pfmailer(%$data);
+    return $self->render(status => 200, json => {});
 }
 
 =head1 AUTHOR
