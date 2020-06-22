@@ -2465,6 +2465,68 @@ EXAMPLE_Autoregister_Printer_Scanner::
 
 You can have a look in the file [filename]`vlan_filters.conf`, there are some examples on how to use and define filters.
 
+=== RADIUS Filter Definition
+
+We added the ability to specify filters directly in the portion of code that return RADIUS attributes or do a call to the API.
+These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
+
+These rules are available in thoses scopes:
+
+  returnRadiusAccessAccept is when you return the answer for a device access
+  returnAuthorizeRead is when you return the answer for the switch read login access
+  returnAuthorizeWrite is when you return the answer for the switch write login access
+  returnAuthorizeVoip is when you return the answer for a VoIP device
+  preProcess is when you want to manipulate the RADIUS context (like adding custom attributes to the request)
+
+  packetfence.authorize call the RADIUS filter in the packetfence authorize section
+  packetfence.authenticate call the RADIUS filter in the packetfence authenticate section
+  packetfence.pre-proxy call the RADIUS filter in the packetfence pre-proxy section
+  packetfence.post-proxy call the RADIUS filter in the packetfence post-proxy section
+  packetfence-tunnel.authorize call the RADIUS filter in the packetfence-tunnel authorize section
+  packetfence.preacct call the RADIUS filter in the packetfence preacct section
+  packetfence.accounting call the RADIUS filter in the packetfence accounting section
+  eduroam.authorize call the RADIUS filter in the eduroam accounting section
+  eduroam.pre-proxy  call the RADIUS filter in the pre-proxy accounting section
+  eduroam.post-proxy call the RADIUS filter in the post-proxy accounting section
+  eduroam.preacct call the RADIUS filter in the eduroam preacct section
+
+All the packetfence.* eduroam.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
+
+And can be defined using different criteria like:
+
+  node_info.attribute (like node_info.$attribute)
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+  owner.attribute (like owner.$attribute)
+  radius_request.attribute (like radius_request.$attribute)
+  security_event
+  user_role
+  vlan
+
+
+There are some default RADIUS filters defined in the configuration you can use to achieve the following goal:
+
+EXAMPLE_Ethernet-EAP-Accept::
+  will return Access-Accept (with Cisco-AVPair attribute) when the connection is Ethernet-EAP and when there is no security event.
+
+EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action::
+  will filter on the switch IP addresses and add the Session-Timeout (with a value between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS attributes.
+
+EXAMPLE_ipad_by_name::
+  will use Fingerbank to target a specific devices (Apple iPad) and will add a Cisco ACLs to them.
+
+EXAMPLE_eap-tls-preProcess::
+  will create internal RADIUS attributes that will be used internally (like in the authentication rules).
+  This rule will add the TLS-Stripped-UserName RADIUS attribute in the request
+  and you will be able to use it in the authentication/administrations rules.
+
+You can have a look in the file [filename]`radius_filters.conf`, there are some examples on how to use and define filters.
+
 === Advanced LDAP Authentication
 
 
@@ -2537,71 +2599,6 @@ For example in the ACME realm we define the regex like this:
   .*\.acme\.com$
 
 It means that if you have a user coming with this username mickey@la.acme.com , PacketFence will define the realm as la.acme.com (it will be included in the RADIUS request) and PacketFence will map the user to the ACME realm.
-
-
-
-=== RADIUS Filter Definition
-
-We added the ability to specify filters directly in the portion of code that return RADIUS attributes or do a call to the API.
-These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
-
-These rules are available in thoses scopes:
-
-  returnRadiusAccessAccept is when you return the answer for a device access
-  returnAuthorizeRead is when you return the answer for the switch read login access
-  returnAuthorizeWrite is when you return the answer for the switch write login access
-  returnAuthorizeVoip is when you return the answer for a VoIP device
-  preProcess is when you want to manipulate the RADIUS context (like adding custom attributes to the request)
-
-  packetfence.authorize call the RADIUS filter in the packetfence authorize section
-  packetfence.authenticate call the RADIUS filter in the packetfence authenticate section
-  packetfence.pre-proxy call the RADIUS filter in the packetfence pre-proxy section
-  packetfence.post-proxy call the RADIUS filter in the packetfence post-proxy section
-  packetfence-tunnel.authorize call the RADIUS filter in the packetfence-tunnel authorize section
-  packetfence.preacct call the RADIUS filter in the packetfence preacct section
-  packetfence.accounting call the RADIUS filter in the packetfence accounting section
-  eduroam.authorize call the RADIUS filter in the eduroam accounting section
-  eduroam.pre-proxy  call the RADIUS filter in the pre-proxy accounting section
-  eduroam.post-proxy call the RADIUS filter in the post-proxy accounting section
-  eduroam.preacct call the RADIUS filter in the eduroam preacct section
-
-All the packetfence.* eduroam.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
-
-And can be defined using different criteria like:
-
-  node_info.attribute (like node_info.$attribute)
-  switch
-  ifIndex
-  mac
-  connection_type
-  username
-  ssid
-  time
-  owner.attribute (like owner.$attribute)
-  radius_request.attribute (like radius_request.$attribute)
-  security_event
-  user_role
-  vlan
-
-
-There are some default RADIUS filters defined in the configuration you can use to achieve the following goal:
-
-EXAMPLE_Ethernet-EAP-Accept::
-  will return Access-Accept (with Cisco-AVPair attribute) when the connection is Ethernet-EAP and when there is no security event.
-
-EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action::
-  will filter on the switch IP addresses and add the Session-Timeout (with a value between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS attributes.
-
-EXAMPLE_ipad_by_name::
-  will use Fingerbank to target a specific devices (Apple iPad) and will add a Cisco ACLs to them.
-
-EXAMPLE_eap-tls-preProcess::
-  will create internal RADIUS attributes that will be used internally (like in the authentication rules).
-  This rule will add the TLS-Stripped-UserName RADIUS attribute in the request
-  and you will be able to use it in the authentication/administrations rules.
-
-You can have a look in the file [filename]`radius_filters.conf`, there are some examples on how to use and define filters.
-
 
 Advanced RADIUS Configuration
 -----------------------------
