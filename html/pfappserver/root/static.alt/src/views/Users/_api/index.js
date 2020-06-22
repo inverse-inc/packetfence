@@ -26,7 +26,7 @@ export default {
     })
   },
   nodes: pid => {
-    return apiCall.get(['user', pid, 'nodes']).then(response => {
+    return apiCall.get(['user', pid, 'nodes'], { params: { limit: 1000 } }).then(response => {
       return response.data.items
     })
   },
