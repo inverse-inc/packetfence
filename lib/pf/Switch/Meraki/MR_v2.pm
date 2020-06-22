@@ -118,6 +118,11 @@ sub radiusDisconnect {
             attribute => "Cisco-AVPair",
             value => "subscriber:command=reauthenticate",
             },
+            {
+            vendor => "Cisco",
+            attribute => "Cisco-AVPair",
+            value => "subscriber:reauthenticate-type=last",
+            }
         ];
         # This attribute is unsupported on the Meraki so we make sure we don't send it
         delete $attributes_ref->{'Service-Type'};
