@@ -4024,16 +4024,6 @@ To overcome this limitation, it is possible to use a Redis driven cache inside P
 
 NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
 
-Additional Packages
-^^^^^^^^^^^^^^^^^^^
-
-In order to use this cache, you will need to install additional packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
-
-CentOS: [command]`yum install python2-impacket --enablerepo=packetfence-extra`
-
-Debian: [command]`apt-get install python-impacket`
-
-
 PacketFence Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
