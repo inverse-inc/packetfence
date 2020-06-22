@@ -3132,7 +3132,7 @@ Check if switch should use CoA
 sub shouldUseCoA {
     my ($self, $args) = @_;
     # Roles are configured and the user should have one
-    return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
+    return (defined($args->{role}) && (isenabled($self->{_RoleMap}) || isenabled($self->{_UrlMap})) && isenabled($self->{_useCoA}));
 }
 
 =item getRelayAgentInfoOptRemoteIdSub
