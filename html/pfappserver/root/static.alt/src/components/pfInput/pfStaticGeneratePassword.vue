@@ -22,7 +22,7 @@
     <b-form-row>
       <b-col class="text-right">
         <b-button variant="primary" size="sm"
-          @click="generate"
+          @click="doGenerate"
           @mouseover="$emit('mouseover', $event)"
           @mousemove="$emit('mousemove', $event)"
           @mouseout="$emit('mouseout', $event)"
@@ -52,7 +52,7 @@ export default {
     }
   },
   methods: {
-    generate () {
+    doGenerate () {
       let p = password.generate(this.options)
       this.$emit('input', p)
     }

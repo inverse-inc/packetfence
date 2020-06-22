@@ -129,7 +129,7 @@ export default {
           append: ((this.$scopedSlots.append)
             ? props => [
                 ...renderSlots(this, h),
-                ...this.$scopedSlots.append(props)
+                this.$scopedSlots.append(props)
               ]
             : () => renderSlots(this, h)
           )

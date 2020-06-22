@@ -53,7 +53,7 @@ export default {
             ? props => [
                 ...renderSlotsPassword(this, h),
                 ...renderSlotsTest(this, h),
-                ...this.$scopedSlots.append(props)
+                this.$scopedSlots.append(props)
               ]
             : () => [
               ...renderSlotsPassword(this, h),

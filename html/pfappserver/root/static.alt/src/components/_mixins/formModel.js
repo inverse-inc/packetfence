@@ -29,8 +29,13 @@ export default {
     }
   },
   computed: {
-    localValue () { // overloaded through inheritance
-      return this.inputValue
+    localValue: { // overloaded through inheritance
+      get () {
+        return this.inputValue
+      },
+      set (newValue) {
+        this.inputValue = newValue
+      }
     }
   }
 }
