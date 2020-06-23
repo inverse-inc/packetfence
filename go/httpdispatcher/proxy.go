@@ -277,8 +277,11 @@ func (p *Proxy) Configure(ctx context.Context) {
 
 	go func() {
 		for {
-			p.Db.Ping()
-			time.Sleep(5 * time.Second)
+			err = p.Db.Ping()
+			if err != nil {
+				p.Db, err = db.DbFromConfig(ctx)
+			}
+			time.Sleep(time.Duration(5) * time.Second)
 		}
 	}()
 }
