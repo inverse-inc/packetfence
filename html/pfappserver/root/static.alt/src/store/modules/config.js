@@ -166,7 +166,7 @@ const api = {
     return apiCall({ url: 'reports/ssid', method: 'get' })
   },
   getSwitches () {
-    return apiCall({ url: 'config/switches', method: 'get', params: { limit: 1000 } })
+    return apiCall({ url: 'config/switches', method: 'get', params: { limit: 1000, raw: 1 } })
   },
   getSwitchGroups () {
     return apiCall({ url: 'config/switch_groups', method: 'get', params: { limit: 1000, raw: 1 } })
