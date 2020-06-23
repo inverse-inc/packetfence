@@ -109,7 +109,19 @@ sub addAnswer {
     my $value = $a->{tmpl}->pre_process($args, \%FUNCS);
     $self->updateAnswerNameValue($name, $value, $radius_reply);
     my @values = split(';', $value);
-    $radius_reply->{$name} = (@values > 1) ? \@values : $values[0];
+    if (exists($radius_reply->{$name})) {
+        my @attribute;
+        if (reftype($radius_reply->{$name}) eq 'ARRAY') {
+            push(@attribute,@{$radius_reply->{$name}});
+        } else {
+            push(@attribute,$radius_reply->{$name});
+        }
+        my $values = (@values > 1) ? \@values : $values[0];
+        push(@attribute,$values);
+        $radius_reply->{$name} = \@attribute;
+    } else {
+        $radius_reply->{$name} = (@values > 1) ? \@values : $values[0];
+    }
 }
 
 sub updateAnswerNameValue {
