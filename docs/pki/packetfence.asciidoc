@@ -22,7 +22,9 @@ Once you have created the CA, you should see the Root CA certificate displayed a
 
 image::packetfence-pki-ca_created.png[scaledwidth="100%",alt="Certification authority config"]
 
-NOTE: Don't forget to add that Root CA certifiate to the radius configuration to authorize the EAP TLS authentications using the PKI issued certificates.
+Once done copy the certificate in the clipboard from the Certificate Authorities list (Configuration -> Integration -> PKI -> Certificate Authorities and click on *Copy Certificate*) then edit the RADIUS certificate section in Configuration -> Systen Configuration -> SSL Certificates -> RADIUS -> Edit and paste the public key in "Certificate Authority" and Save. (Don't forget to restart radiusd-auth)
+
+This will authorize the EAP TLS authentications using the PKI issued certificates.
 
 Template creation
 ^^^^^^^^^^^^^^^^^
