@@ -296,7 +296,7 @@ export const viewFields = {
   },
   landing_template: (form = {}, meta = {}) => {
     return {
-      label: i18n.t('Landgin template'),
+      label: i18n.t('Landing template'),
       text: i18n.t('The template to use for the signup'),
       cols: [
         {
@@ -789,13 +789,9 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
-            viewFields.pid_field(form, meta),
             viewFields.source_id(form, meta),
-            viewFields.custom_fields(form, meta),
-            viewFields.fields_to_save(form, meta),
             viewFields.with_aup(form, meta),
             viewFields.aup_template(form, meta),
-            viewFields.signup_template(form, meta),
             viewFields.landing_template(form, meta),
             viewFields.actions(form, meta)
           ]
@@ -828,13 +824,10 @@ export const view = (form = {}, meta = {}) => {
           rows: [
             viewFields.id(form, meta),
             viewFields.description(form, meta),
-            viewFields.pid_field(form, meta),
             viewFields.source_id(form, meta),
-            viewFields.custom_fields(form, meta),
-            viewFields.fields_to_save(form, meta),
             viewFields.with_aup(form, meta),
             viewFields.aup_template(form, meta),
-            viewFields.signup_template(form, meta),
+            viewFields.landing_template(form, meta),
             viewFields.actions(form, meta)
           ]
         }
@@ -1231,13 +1224,9 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
-        ...validatorFields.pid_field(form, meta),
         ...validatorFields.source_id(form, meta),
-        ...validatorFields.custom_fields(form, meta),
-        ...validatorFields.fields_to_save(form, meta),
         ...validatorFields.with_aup(form, meta),
         ...validatorFields.aup_template(form, meta),
-        ...validatorFields.signup_template(form, meta),
         ...validatorFields.landing_template(form, meta),
         ...validatorFields.actions(form, meta)
       }
@@ -1260,13 +1249,10 @@ export const validators = (form = {}, meta = {}) => {
       return {
         ...validatorFields.id(form, meta),
         ...validatorFields.description(form, meta),
-        ...validatorFields.pid_field(form, meta),
         ...validatorFields.source_id(form, meta),
-        ...validatorFields.custom_fields(form, meta),
-        ...validatorFields.fields_to_save(form, meta),
         ...validatorFields.with_aup(form, meta),
         ...validatorFields.aup_template(form, meta),
-        ...validatorFields.signup_template(form, meta),
+        ...validatorFields.landing_template(form, meta),
         ...validatorFields.actions(form, meta)
       }
     case 'Authentication::SMS':
