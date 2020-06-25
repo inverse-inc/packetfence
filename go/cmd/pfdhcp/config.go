@@ -82,6 +82,7 @@ func (d *Interfaces) readConfig() {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+	general := pfconfigdriver.Config.PfConf.General
 
 	var intDhcp []string
 
@@ -274,9 +275,11 @@ func (d *Interfaces) readConfig() {
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 							if portal.SecureRedirect == "enabled" {
 								if ConfNet.PortalFQDN != "" {
-									options[dhcp.OptionCaptivePortal] = "https://" + ConfNet.PortalFQDN + "/api"
+									portalURL := "https://" + ConfNet.PortalFQDN + "/api"
+									options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 								} else {
-									options[dhcp.OptionCaptivePortal] = "https://" + general.Hostname + "." + general.Domain + "/api"
+									portalURL := "https://" + general.Hostname + "." + general.Domain + "/api"
+									options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 								}
 							}
 							DHCPScope.options = options
@@ -351,9 +354,11 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						if portal.SecureRedirect == "enabled" {
 							if ConfNet.PortalFQDN != "" {
-								options[dhcp.OptionCaptivePortal] = "https://" + ConfNet.PortalFQDN + "/api"
+								portalURL := "https://" + ConfNet.PortalFQDN + "/api"
+								options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 							} else {
-								options[dhcp.OptionCaptivePortal] = "https://" + general.Hostname + "." + general.Domain + "/api"
+								portalURL := "https://" + general.Hostname + "." + general.Domain + "/api"
+								options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 							}
 						}
 						DHCPScope.options = options
