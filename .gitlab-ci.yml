@@ -279,8 +279,7 @@ build_img_dev:
     - .build_img_job
     - .job_devel_only_triggers
   variables:
-    DOCKER_MAIN_TAG: latest
-    DOCKER_EXTRA_TAG: maintenance-99-9
+    DOCKER_TAGS: latest,maintenance-99-9
   # job need to be explicitly started
   # will not block other stages/jobs
   # will not run when we click "Run pipeline"
@@ -291,8 +290,7 @@ build_img_branches:
     - .build_img_job
     - .job_branches_only_triggers
   variables:
-    DOCKER_MAIN_TAG: ${CI_COMMIT_REF_SLUG}
-    DOCKER_EXTRA_TAG: extra_branches
+    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
   when: manual
 
 build_img_maintenance:
@@ -300,8 +298,7 @@ build_img_maintenance:
     - .build_img_job
     - .job_maintenance_triggers
   variables:
-    DOCKER_MAIN_TAG: ${CI_COMMIT_REF_SLUG}
-    DOCKER_EXTRA_TAG: extra_maintenance
+    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
   when: manual
 
 # build a docker image at release
@@ -311,6 +308,7 @@ build_img_release:
     - .build_img_job
     - .job_release_triggers
   variables:
+    DOCKER_TAGS: ${CI_COMMIT_TAG}
     ANSIBLE_CENTOS_GROUP: stable_centos
     ANSIBLE_CENTOS7_GROUP: stable_centos7
     ANSIBLE_CENTOS8_GROUP: stable_centos8

@@ -22,21 +22,20 @@ configure_and_check() {
     declare -p PACKER_TEMPLATE
     
     # Docker tags
-    DOCKER_MAIN_TAG=${DOCKER_MAIN_TAG:-}
-    DOCKER_EXTRA_TAG=${DOCKER_EXTRA_TAG:-}
+    DOCKER_TAGS=${DOCKER_TAGS:-}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
 
     # extra tag is added when we release to avoid creating two images
     if [ -n "$CI_COMMIT_TAG" ]; then
         echo "Release tag detected, adding maintenance tag"
-        DOCKER_MAIN_TAG="${CI_COMMIT_TAG}"
-        DOCKER_EXTRA_TAG=$(generate_maintenance_tag)
+        docker_extra_tag=$(generate_maintenance_tag)
+        DOCKER_TAGS="${CI_COMMIT_TAG},${docker_extra_tag}"
     else
-        echo "Not a release, no need to generate additionnal Docker tag"
+        echo "Not a release, no need to generate additionnal maintenance tag"
     fi
-    declare -p CI_COMMIT_TAG DOCKER_MAIN_TAG DOCKER_EXTRA_TAG
+    declare -p CI_COMMIT_TAG DOCKER_TAGS
     export GOVERSION
-    export CI_COMMIT_TAG DOCKER_MAIN_TAG DOCKER_EXTRA_TAG
+    export CI_COMMIT_TAG DOCKER_TAGS
     export REGISTRY REGISTRY_USER
     export ANSIBLE_FORCE_COLOR ANSIBLE_CENTOS_GROUP ANSIBLE_CENTOS7_GROUP
     export ANSIBLE_CENTOS8_GROUP ANSIBLE_DEBIAN_GROUP ANSIBLE_RUBYGEMS_GROUP

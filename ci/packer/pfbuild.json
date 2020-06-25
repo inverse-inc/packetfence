@@ -17,8 +17,7 @@
         "ansible_debian_group": "{{env `ANSIBLE_DEBIAN_GROUP`}}",
         "ansible_rubygems_group": "{{env `ANSIBLE_RUBYGEMS_GROUP`}}",
         "go_version": "{{env `GOVERSION`}}",
-        "docker_main_tag": "{{env `DOCKER_MAIN_TAG`}}",
-        "docker_extra_tag": "{{env `DOCKER_EXTRA_TAG`}}",
+        "docker_tags": "{{env `DOCKER_TAGS`}}",
         "docker_user": "{{env `REGISTRY_USER`}}",
         "docker_password": "{{env `REGISTRY_PASSWORD`}}",
         "docker_registry": "{{env `REGISTRY`}}"
@@ -172,7 +171,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-centos-7"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
-                "tags": ["{{user `docker_main_tag`}}", "{{user `docker_extra_tag`}}"]
+                "tags": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
@@ -190,7 +189,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-centos-8"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-8",
-                "tags": ["{{user `docker_main_tag`}}", "{{user `docker_extra_tag`}}"]
+                "tags": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
@@ -208,7 +207,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-stretch"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
-                "tags": ["{{user `docker_main_tag`}}", "{{user `docker_extra_tag`}}"]
+                "tags": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
@@ -226,7 +225,7 @@
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-buster"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
-                "tags": ["{{user `docker_main_tag`}}", "{{user `docker_extra_tag`}}"]
+                "tags": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
