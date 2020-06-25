@@ -305,6 +305,10 @@ func (p *Proxy) Configure(ctx context.Context) {
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Fencing)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
+
 	fencing := pfconfigdriver.Config.PfConf.Fencing
 	general := pfconfigdriver.Config.PfConf.General
 	portal := pfconfigdriver.Config.PfConf.CaptivePortal
