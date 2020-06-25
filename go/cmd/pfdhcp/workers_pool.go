@@ -6,7 +6,7 @@ import (
 	"net"
 	"strconv"
 
-	dhcp "github.com/krolaw/dhcp4"
+	dhcp "github.com/inverse-inc/dhcp4"
 )
 
 type job struct {

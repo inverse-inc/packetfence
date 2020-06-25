@@ -53,6 +53,7 @@ require (
 	github.com/hashicorp/go-syslog v1.0.0
 	github.com/hpcloud/tail v1.0.0
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
+	github.com/inverse-inc/dhcp4 v0.0.0-20190909130307-a50d88189771
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5
 	github.com/jcuga/golongpoll v1.1.0

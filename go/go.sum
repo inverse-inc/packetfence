@@ -510,6 +510,8 @@ github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9/go.mod h1:cO
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
+github.com/inverse-inc/dhcp4 v0.0.0-20190909130307-a50d88189771 h1:RRoJKlc31GtJ4nXS6H0SZc9NQ66UTYakDr9cuY/tJzQ=
+github.com/inverse-inc/dhcp4 v0.0.0-20190909130307-a50d88189771/go.mod h1:lvc5S3uPg6xat1wRFAA0ru/DfIV6YOmMK6E754FUEuo=
 github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6 h1:KMdDzhA+fJNDqTfoV0HShnKADp45Yk+cm9x0bgKTP2U=
 github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6 h1:KMdDzhA+fJNDqTfoV0HShnKADp45Yk+cm9x0bgKTP2U=
 github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6/go.mod h1:unv1cVDLrlwXyLhg2b+QkK6rZ0GQ6DGbZOkGCfl10/M=
