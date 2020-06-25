@@ -27,6 +27,7 @@ use pf::util qw(normalize_time);
 use pf::constants::realm;
 use captiveportal::Base::Actions;
 use pf::nodecategory;
+use pf::util;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
@@ -254,7 +255,7 @@ Push the user in a waiting room where he will wait for the access to be activate
 
 sub waiting_room {
     my ($self) = @_;
-    $self->render("waiting.html", $self->_release_args());
+    $self->render("waiting.html", {register_on_activation => isenabled($self->source->register_on_activation), %{$self->_release_args()}});
 }
 
 =head2 _validate_sponsor
