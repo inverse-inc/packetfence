@@ -82,13 +82,6 @@ func (d *Interfaces) readConfig() {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	portal := pfconfigdriver.Config.PfConf.CaptivePortal
-	var scheme string
-
-	if portal.SecureRedirect == "enabled" {
-		scheme = "https"
-	} else {
-		scheme = "http"
-	}
 
 	var intDhcp []string
 
@@ -279,12 +272,13 @@ func (d *Interfaces) readConfig() {
 							options[dhcp.OptionDomainNameServer] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-							if ConfNet.PortalFQDN != "" {
-								options[dhcp.OptionCaptivePortal] = scheme + "://" + ConfNet.PortalFQDN
-							} else {
-								options[dhcp.OptionCaptivePortal] = scheme + "://" + general.Hostname + "." + general.Domain
+							if portal.SecureRedirect == "enabled" {
+								if ConfNet.PortalFQDN != "" {
+									options[dhcp.OptionCaptivePortal] = "https://" + ConfNet.PortalFQDN + "/api"
+								} else {
+									options[dhcp.OptionCaptivePortal] = "https://" + general.Hostname + "." + general.Domain + "/api"
+								}
 							}
-
 							DHCPScope.options = options
 							if len(ConfNet.NextHop) > 0 {
 								DHCPScope.layer2 = false
@@ -355,10 +349,12 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-						if ConfNet.PortalFQDN != "" {
-							options[dhcp.OptionCaptivePortal] = scheme + "://" + ConfNet.PortalFQDN
-						} else {
-							options[dhcp.OptionCaptivePortal] = scheme + "://" + general.Hostname + "." + general.Domain
+						if portal.SecureRedirect == "enabled" {
+							if ConfNet.PortalFQDN != "" {
+								options[dhcp.OptionCaptivePortal] = "https://" + ConfNet.PortalFQDN + "/api"
+							} else {
+								options[dhcp.OptionCaptivePortal] = "https://" + general.Hostname + "." + general.Domain + "/api"
+							}
 						}
 						DHCPScope.options = options
 						if len(ConfNet.NextHop) > 0 {
