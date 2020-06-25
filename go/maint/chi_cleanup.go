@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"context"
 	"time"
 )
 
@@ -8,14 +9,10 @@ type ChiCleanup struct {
 	Task
 	Batch   int
 	Timeout time.Duration
-	StmtSetup
 }
 
 func (c *ChiCleanup) Run() {
-	stmt := c.Stmt(`DELETE FROM chi_cache WHERE expires_at > ? LIMIT ?`)
-	if stmt != nil {
-		BatchStmt(stmt, c.Timeout, time.Now(), c.Batch)
-	}
+	BatchSql(context.Background(), c.Timeout, `DELETE FROM chi_cache WHERE expires_at > ? LIMIT ?`, time.Now(), c.Batch)
 }
 
 func NewChiCleanup(config map[string]interface{}) JobSetupConfig {

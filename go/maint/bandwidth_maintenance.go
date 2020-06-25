@@ -69,24 +69,7 @@ func batchSqlCount(ctx context.Context, timeout time.Duration, sql string, args 
 	}
 
 	defer stmt.Close()
-	BatchStmtQueryWithCount(ctx, stmt, timeout, args...)
-}
-
-func batchSql(ctx context.Context, timeout time.Duration, sql string, args ...interface{}) {
-	db, err := getDb()
-	if err != nil {
-		logError(ctx, err.Error())
-		return
-	}
-
-	stmt, err := db.Prepare(sql)
-	if err != nil {
-		logError(ctx, err.Error())
-		return
-	}
-
-	defer stmt.Close()
-	BatchStmt(ctx, stmt, timeout, args...)
+	BatchStmtQueryWithCount(ctx, timeout, stmt, args...)
 }
 
 func (j *BandwidthMaintenance) TriggerBandwidth(ctx context.Context) {
@@ -108,7 +91,7 @@ func (j *BandwidthMaintenance) BandwidthHistoryAggregation(ctx context.Context, 
 }
 
 func (j *BandwidthMaintenance) BandwidthAccountingHistoryCleanup(ctx context.Context) {
-	batchSql(
+	BatchSql(
 		ctx,
 		j.HistoryTimeout,
 		"DELETE from bandwidth_accounting_history WHERE time_bucket < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?",

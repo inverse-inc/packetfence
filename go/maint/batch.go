@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func BatchStmt(ctx context.Context, stmt *sql.Stmt, time_limit time.Duration, args ...interface{}) int64 {
+func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) int64 {
 	start := time.Now()
 	rows_affected := int64(0)
 	for {
@@ -34,7 +34,7 @@ func BatchStmt(ctx context.Context, stmt *sql.Stmt, time_limit time.Duration, ar
 	return rows_affected
 }
 
-func BatchStmtQueryWithCount(ctx context.Context, stmt *sql.Stmt, time_limit time.Duration, args ...interface{}) int64 {
+func BatchStmtQueryWithCount(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) int64 {
 	start := time.Now()
 	rows_affected := int64(0)
 	for {
@@ -56,4 +56,21 @@ func BatchStmtQueryWithCount(ctx context.Context, stmt *sql.Stmt, time_limit tim
 	}
 
 	return rows_affected
+}
+
+func BatchSql(ctx context.Context, timeout time.Duration, sql string, args ...interface{}) {
+	db, err := getDb()
+	if err != nil {
+		logError(ctx, err.Error())
+		return
+	}
+
+	stmt, err := db.Prepare(sql)
+	if err != nil {
+		logError(ctx, err.Error())
+		return
+	}
+
+	defer stmt.Close()
+	BatchStmt(ctx, timeout, stmt, args...)
 }
