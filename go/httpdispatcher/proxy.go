@@ -53,6 +53,15 @@ type fqdn struct {
 	FQDN map[*net.IPNet]*url.URL
 }
 
+type RFC7710bis struct {
+	Captive          bool   `json:"captive"`
+	UserPortalURL    string `json:"user-portal-url"`
+	VenueInfoURL     string `json:"venue-info-url,omitempty"`
+	CanExtendSession bool   `json:"can-extend-session,omitempty"`
+	SecondsRemaining int    `json:"seconds-remaining,omitempty"`
+	BytesRemaining   int    `json:"bytes-remaining,omitempty"`
+}
+
 var passThrough *passthrough
 
 // TenantID constant
@@ -125,6 +134,21 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parking := p.handleParking(ctx, w, r)
+
+	if r.URL.Path == "/api" {
+		found, PortalURL := p.detectPortalURL(r)
+
+		answer := RFC7710bis{}
+
+		answer.Captive = true
+		answer.UserPortalURL = "https://" + PortalURL + "/captive-portal"
+		w.Header().Set("Cache-Control", "private")
+		w.Header().Set("Content-Type", "application/captive+json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(&answer); err != nil {
+			fmt.Println(err)
+		}
+	}
 
 	if r.URL.Path == "/kindle-wifi/wifistub.html" {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "KINDLE WIFI PROBE HANDLING"))
