@@ -11,7 +11,7 @@ configure_and_check() {
     ANSIBLE_CENTOS8_GROUP=${ANSIBLE_CENTOS8_GROUP:-devel_centos8}
     ANSIBLE_DEBIAN_GROUP=${ANSIBLE_DEBIAN_GROUP:-devel_debian}
     ANSIBLE_RUBYGEMS_GROUP=${ANSIBLE_RUBYGEMS_GROUP:-devel_rubygems}
-    ACTIVE_BUILDS=${ACTIVE_BUILDS:-'pfbuild-centos-7,pfbuild-centos-8,pfbuild-stretch,pfbuild-buster'}
+    ACTIVE_BUILDS=${ACTIVE_BUILDS:-'pfbuild-centos-7,pfbuild-stretch'}
     PARALLEL=${PARALLEL:-2}
     PACKER_TEMPLATE=${PACKER_TEMPLATE:-pfbuild.json}
 
