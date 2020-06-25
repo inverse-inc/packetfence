@@ -5,6 +5,11 @@
     <h2>[% i18n("Registration pending") %]</h2>
   </div>
 
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Do not close this page until your access has been approved") %]</p>
+  </div>
+
   <div class="o-media o-media--notice u-padding u-margin-bottom">
     <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
     <p class="o-media__body">[% i18n("Your registration is pending approval. Once approved you will be automatically redirected.") %]</p>
