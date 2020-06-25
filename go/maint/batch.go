@@ -74,3 +74,20 @@ func BatchSql(ctx context.Context, timeout time.Duration, sql string, args ...in
 	defer stmt.Close()
 	BatchStmt(ctx, timeout, stmt, args...)
 }
+
+func BatchSqlCount(ctx context.Context, timeout time.Duration, sql string, args ...interface{}) {
+	db, err := getDb()
+	if err != nil {
+		logError(ctx, err.Error())
+		return
+	}
+
+	stmt, err := db.Prepare(sql)
+	if err != nil {
+		logError(ctx, err.Error())
+		return
+	}
+
+	defer stmt.Close()
+	BatchStmtQueryWithCount(ctx, timeout, stmt, args...)
+}
