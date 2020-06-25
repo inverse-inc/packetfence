@@ -141,10 +141,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		answer := RFC7710bis{}
 
 		answer.Captive = false
-		if p.DetectRegistrationStatus() {
+		if p.DetectRegistrationStatus(ctx, w, r) {
 			answer.Captive = true
 		}
-		answer.UserPortalURL = "https://" + PortalURL + "/captive-portal"
+		answer.UserPortalURL = PortalURL.String()
 		w.Header().Set("Cache-Control", "private")
 		w.Header().Set("Content-Type", "application/captive+json")
 		w.WriteHeader(http.StatusOK)
