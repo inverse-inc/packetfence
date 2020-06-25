@@ -140,9 +140,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		answer := RFC7710bis{}
 
-		answer.Captive = false
+		answer.Captive = true
 		if p.DetectRegistrationStatus(ctx, w, r) {
-			answer.Captive = true
+			answer.Captive = false
 		}
 		answer.UserPortalURL = PortalURL.String()
 		w.Header().Set("Cache-Control", "private")
