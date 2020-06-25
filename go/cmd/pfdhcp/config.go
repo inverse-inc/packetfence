@@ -81,7 +81,10 @@ func (d *Interfaces) readConfig() {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
 	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
 	general := pfconfigdriver.Config.PfConf.General
 
 	var intDhcp []string
