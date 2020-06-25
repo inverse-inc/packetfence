@@ -11,6 +11,7 @@ pf::Authentication::Source::EduroamSource
 use pf::Authentication::constants;
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
+use pf::config qw(%Config);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -55,17 +56,17 @@ sub available_actions {
 
 =head2 available_attributes
 
-Allow to make a condition on the user's username.
+Add additional available attributes
 
 =cut
 
 sub available_attributes {
-  my $self = shift;
+    my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes;
-  my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
-
-  return [@$super_attributes, @$own_attributes];
+    my $super_attributes = $self->SUPER::available_attributes;
+    my @attributes = @{$Config{radius_configuration}->{radius_attributes} // []};
+    my @radius_attributes = map { { value => "radius_request.".$_, type => $Conditions::SUBSTRING } } @attributes;
+    return [@$super_attributes, @radius_attributes];
 }
 
 
