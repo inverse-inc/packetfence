@@ -52,8 +52,8 @@ require (
 	github.com/hanwen/go-fuse/v2 v2.0.3
 	github.com/hashicorp/go-syslog v1.0.0
 	github.com/hpcloud/tail v1.0.0
-	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
-	github.com/inverse-inc/dhcp4 v0.0.0-20190909130307-a50d88189771
+	oithub.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
+	github.com/inverse-inc/dhcp4 v0.0.0-20200625164601-b184fe5d1d4e
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5
 	github.com/jcuga/golongpoll v1.1.0
@@ -65,7 +65,6 @@ require (
 	github.com/klauspost/cpuid v1.2.0
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
 	github.com/kr/pretty v0.1.0
-	github.com/krolaw/dhcp4 v0.0.0-20171222085133-4abfceffa76a
 	github.com/lucas-clemente/quic-go v0.11.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
