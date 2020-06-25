@@ -370,6 +370,7 @@ var Tlv = TlvList{
 		93:  TlvType{"OptionClientArchitecture", tlvShort},
 		100: TlvType{"OptionTZPOSIXString", tlvNstring},
 		101: TlvType{"OptionTZDatabaseString", tlvNstring},
+		114: TlvType{"OptionCaptivePortal", tlvNstring},
 		121: TlvType{"OptionClasslessRouteFormat", tlvBlob},
 		255: TlvType{"end", tlvZeroSize},
 	},

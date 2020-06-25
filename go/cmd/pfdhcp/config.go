@@ -9,11 +9,11 @@ import (
 	"time"
 
 	cache "github.com/fdurand/go-cache"
+	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/packetfence/go/dhcp/pool"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	dhcp "github.com/inverse-inc/dhcp4"
 	netadv "github.com/simon/go-netadv"
 )
 
@@ -80,6 +80,15 @@ func (d *Interfaces) readConfig() {
 	keyConfNet.PfconfigHostnameOverlay = "yes"
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+
+	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+	var scheme string
+
+	if portal.SecureRedirect == "enabled" {
+		scheme = "https"
+	} else {
+		scheme = "http"
+	}
 
 	var intDhcp []string
 
@@ -270,6 +279,12 @@ func (d *Interfaces) readConfig() {
 							options[dhcp.OptionDomainNameServer] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
+							if ConfNet.PortalFQDN != "" {
+								options[dhcp.OptionCaptivePortal] = scheme + "://" + ConfNet.PortalFQDN
+							} else {
+								options[dhcp.OptionCaptivePortal] = scheme + "://" + general.Hostname + "." + general.Domain
+							}
+
 							DHCPScope.options = options
 							if len(ConfNet.NextHop) > 0 {
 								DHCPScope.layer2 = false
@@ -340,6 +355,11 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
+						if ConfNet.PortalFQDN != "" {
+							options[dhcp.OptionCaptivePortal] = scheme + "://" + ConfNet.PortalFQDN
+						} else {
+							options[dhcp.OptionCaptivePortal] = scheme + "://" + general.Hostname + "." + general.Domain
+						}
 						DHCPScope.options = options
 						if len(ConfNet.NextHop) > 0 {
 							DHCPScope.layer2 = false
