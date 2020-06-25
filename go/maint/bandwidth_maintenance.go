@@ -35,7 +35,7 @@ func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
 func (j *BandwidthMaintenance) Run() {
 	ctx := context.Background()
 	j.ProcessBandwidthAccountingNetflow(ctx)
-	j.TriggerBandwidth()
+	j.TriggerBandwidth(ctx)
 	j.BandwidthAggregation(ctx, "hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
 	j.BandwidthAggregation(ctx, "daily", "DATE_SUB(NOW(), INTERVAL ? DAY)", 2)
 	j.BandwidthAggregation(ctx, "monthly", "DATE_SUB(NOW(), INTERVAL ? MONTHLY)", 1)
@@ -89,7 +89,7 @@ func batchSql(ctx context.Context, timeout time.Duration, sql string, args ...in
 	BatchStmt(ctx, stmt, timeout, args...)
 }
 
-func (j *BandwidthMaintenance) TriggerBandwidth() {
+func (j *BandwidthMaintenance) TriggerBandwidth(ctx context.Context) {
 }
 
 func (j *BandwidthMaintenance) BandwidthAggregation(ctx context.Context, rounding string, date_sql string, interval int) {
