@@ -359,7 +359,7 @@ func main() {
 					go Source.SourceType.Test(source, ctx)
 				}
 			}
-			time.Sleep(time.Second * 10)
+			time.Sleep(time.Minute * 30)
 		}
 	}()
 
