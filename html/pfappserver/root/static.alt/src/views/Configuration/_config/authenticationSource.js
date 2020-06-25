@@ -1361,6 +1361,21 @@ export const viewFields = {
       ]
     }
   },
+  register_on_activation: () => {
+    return {
+      label: i18n.t('Register on activation'),
+      text: i18n.t('Whether or not to register the user when the sponsor enables the access. When this is disabled, it requires the user to stay on the portal while it waits for the sponsor to enable the access in order to be able to chain this authentication with other portal modules.'),
+      cols: [
+        {
+          namespace: 'register_on_activation',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
   reject_realm: (form, meta = {}) => {
     return {
       label: i18n.t('Reject Realms'),
@@ -2302,6 +2317,7 @@ export const view = (form = {}, meta = {}) => {
             { ...viewFields.email_activation_timeout(form, meta), ...{ text: i18n.t('Delay given to a sponsor to click the activation link.') } }, // re-text
             viewFields.activation_domain(form, meta),
             viewFields.sponsorship_bcc(form, meta),
+            viewFields.register_on_activation(form, meta),
             viewFields.validate_sponsor(form, meta),
             viewFields.lang(form, meta),
             viewFields.create_local_account(form, meta),
@@ -2885,6 +2901,9 @@ export const validatorFields = {
   redirect_url: (form, meta = {}) => {
     return { redirect_url: validatorsFromMeta(meta, 'redirect_url', 'URL') }
   },
+  register_on_activation: (form, meta = {}) => {
+    return { register_on_activation: validatorsFromMeta(meta, 'register_on_activation', i18n.t('Register on activation')) }
+  },
   reject_realm: (form, meta = {}) => {
     return { reject_realm: validatorsFromMeta(meta, 'reject_realm', i18n.t('Realms')) }
   },
@@ -3321,6 +3340,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.email_activation_timeout(form, meta),
         ...validatorFields.activation_domain(form, meta),
         ...validatorFields.sponsorship_bcc(form, meta),
+        ...validatorFields.register_on_activation(form, meta),
         ...validatorFields.lang(form, meta),
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),

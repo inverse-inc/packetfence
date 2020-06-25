@@ -80,6 +80,13 @@ has_field 'lang' =>
              help => 'Language for sponsor email.' },
   );
 
+has_field 'register_on_activation' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => $META->get_attribute('register_on_activation')->default,
+);
+
 sub lang_options {
     return (
         { value => '', label => 'Default' },
