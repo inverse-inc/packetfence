@@ -705,6 +705,27 @@ sub sms_activation_create_send {
     return ($success, $err, $activation_code);
 }
 
+=head2 set_category_id
+
+Set the unregdate that should be assigned to the node once the activation record has been validated
+
+=cut
+
+sub set_category_id {
+    my ($type, $activation_code, $category_id) = @_;
+    get_logger->debug("Setting category_id $category_id for activation code $activation_code");
+    my ($status, $rows) = pf::dal::activation->update_items(
+        -set => {
+            category_id => $category_id
+        },
+        -where => {
+            type => $type,
+            activation_code => $activation_code
+        }
+    );
+    return $rows;
+}
+
 =head2 set_unregdate
 
 Set the unregdate that should be assigned to the node once the activation record has been validated

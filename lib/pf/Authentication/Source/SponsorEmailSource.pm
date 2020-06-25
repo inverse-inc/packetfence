@@ -31,6 +31,7 @@ has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
 has 'validate_sponsor' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'lang' => (isa => 'Maybe[Str]', is => 'rw', default => '');
 has 'sources' => (isa => 'ArrayRef[Str]', is => 'rw', default => sub{[]});
+has 'register_on_activation' => (isa => 'Maybe[Str]', is => 'rw', default => 'disabled');
 
 =head2 dynamic_routing_module
 
