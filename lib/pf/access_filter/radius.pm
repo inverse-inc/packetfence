@@ -110,15 +110,11 @@ sub addAnswer {
     $self->updateAnswerNameValue($name, $value, $radius_reply);
     my @values = split(';', $value);
     if (exists($radius_reply->{$name})) {
-        my @attribute;
         if (reftype($radius_reply->{$name}) eq 'ARRAY') {
-            push(@attribute,@{$radius_reply->{$name}});
+            push @{$radius_reply->{$name}}, @values;
         } else {
-            push(@attribute,$radius_reply->{$name});
+            $radius_reply->{$name} = [$radius_reply->{$name}, @values];
         }
-        my $values = (@values > 1) ? \@values : $values[0];
-        push(@attribute,$values);
-        $radius_reply->{$name} = \@attribute;
     } else {
         $radius_reply->{$name} = (@values > 1) ? \@values : $values[0];
     }
