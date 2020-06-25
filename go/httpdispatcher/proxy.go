@@ -140,7 +140,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		answer := RFC7710bis{}
 
-		answer.Captive = true
+		answer.Captive = false
+		if p.DetectRegistrationStatus() {
+			answer.Captive = true
+		}
 		answer.UserPortalURL = "https://" + PortalURL + "/captive-portal"
 		w.Header().Set("Cache-Control", "private")
 		w.Header().Set("Content-Type", "application/captive+json")
@@ -671,4 +674,22 @@ func (p *Proxy) APIUnpark(ctx context.Context, mac string, ip string) error {
 		return errors.New("Empty response  from " + "POST" + " /api/v1/" + mac + "/unpark")
 	}
 	return nil
+}
+
+func (p *Proxy) DetectRegistrationStatus(ctx context.Context, w http.ResponseWriter, r *http.Request) bool {
+	var ipAddress string
+	ipAddress = p.getIP(ctx, r)
+
+	if ipAddress != "" {
+		MAC, err := p.IP2Mac(ctx, ipAddress)
+
+		if err == nil {
+			if p.nodeIsReg(ctx, MAC) {
+				return true
+			}
+			return false
+		}
+		return false
+	}
+	return false
 }
