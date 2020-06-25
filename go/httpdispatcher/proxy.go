@@ -151,6 +151,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(&answer); err != nil {
 			fmt.Println(err)
 		}
+		return
 	}
 
 	if r.URL.Path == "/kindle-wifi/wifistub.html" {
