@@ -36,50 +36,51 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        tenant_id
-        mac
+        node_id
         unique_session_id
         time_bucket
+        source_type
         in_bytes
         out_bytes
+        mac
+        tenant_id
+        last_updated
         total_bytes
     );
 
     %DEFAULTS = (
-        tenant_id => '',
-        mac => '',
+        node_id => '',
         unique_session_id => '',
         time_bucket => '',
+        source_type => '',
         in_bytes => '',
         out_bytes => '',
+        mac => '',
+        tenant_id => '',
         total_bytes => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        tenant_id
-        mac
+        node_id
         unique_session_id
         time_bucket
+        source_type
         in_bytes
         out_bytes
+        mac
+        tenant_id
         total_bytes
     );
 
     %FIELDS_META = (
-        tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        mac => {
-            type => 'CHAR',
+        node_id => {
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
         unique_session_id => {
-            type => 'CHAR',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
@@ -89,6 +90,16 @@ BEGIN {
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
+        },
+        source_type => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'net_flow' => 1,
+                'radius' => 1,
+            },
         },
         in_bytes => {
             type => 'BIGINT',
@@ -102,6 +113,24 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        mac => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'SMALLINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        last_updated => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
         total_bytes => {
             type => 'BIGINT',
             is_auto_increment => 0,
@@ -111,19 +140,21 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        tenant_id
-        mac
+        node_id
         time_bucket
         unique_session_id
     );
 
     @COLUMN_NAMES = qw(
-        bandwidth_accounting.tenant_id
-        bandwidth_accounting.mac
+        bandwidth_accounting.node_id
         bandwidth_accounting.unique_session_id
         bandwidth_accounting.time_bucket
+        bandwidth_accounting.source_type
         bandwidth_accounting.in_bytes
         bandwidth_accounting.out_bytes
+        bandwidth_accounting.mac
+        bandwidth_accounting.tenant_id
+        bandwidth_accounting.last_updated
         bandwidth_accounting.total_bytes
     );
 

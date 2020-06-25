@@ -1,16 +1,16 @@
-package pf::dal::_bandwidth_accounting_history;
+package pf::dal::_dhcppool;
 
 =head1 NAME
 
-pf::dal::_bandwidth_accounting_history - pf::dal implementation for the table bandwidth_accounting_history
+pf::dal::_dhcppool - pf::dal implementation for the table dhcppool
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_bandwidth_accounting_history
+pf::dal::_dhcppool
 
-pf::dal implementation for the table bandwidth_accounting_history
+pf::dal implementation for the table dhcppool
 
 =cut
 
@@ -18,14 +18,11 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_bandwidth_accounting_history is auto generated any change to this file will be lost
-### Instead change in the pf::dal::bandwidth_accounting_history module
+### pf::dal::_dhcppool is auto generated any change to this file will be lost
+### Instead change in the pf::dal::dhcppool module
 ###
 
 use base qw(pf::dal);
-
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -36,93 +33,80 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        node_id
-        time_bucket
-        in_bytes
-        out_bytes
-        total_bytes
+        id
+        pool_name
+        idx
         mac
-        tenant_id
+        free
+        released
     );
 
     %DEFAULTS = (
-        node_id => '',
-        time_bucket => '',
-        in_bytes => '',
-        out_bytes => '',
-        total_bytes => undef,
+        pool_name => '',
+        idx => '',
         mac => '',
-        tenant_id => '',
+        free => '1',
+        released => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        node_id
-        time_bucket
-        in_bytes
-        out_bytes
-        total_bytes
+        pool_name
+        idx
         mac
-        tenant_id
+        free
+        released
     );
 
     %FIELDS_META = (
-        node_id => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        time_bucket => {
+        pool_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        idx => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        free => {
+            type => 'TINYINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        released => {
             type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        in_bytes => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        out_bytes => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        total_bytes => {
-            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        mac => {
-            type => 'CHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        tenant_id => {
-            type => 'SMALLINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
     );
 
     @PRIMARY_KEYS = qw(
-        node_id
-        time_bucket
+        id
     );
 
     @COLUMN_NAMES = qw(
-        bandwidth_accounting_history.node_id
-        bandwidth_accounting_history.time_bucket
-        bandwidth_accounting_history.in_bytes
-        bandwidth_accounting_history.out_bytes
-        bandwidth_accounting_history.total_bytes
-        bandwidth_accounting_history.mac
-        bandwidth_accounting_history.tenant_id
+        dhcppool.id
+        dhcppool.pool_name
+        dhcppool.idx
+        dhcppool.mac
+        dhcppool.free
+        dhcppool.released
     );
 
 }
@@ -133,7 +117,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of bandwidth_accounting_history
+The default values of dhcppool
 
 =cut
 
@@ -143,7 +127,7 @@ sub _defaults {
 
 =head2 table_field_names
 
-Field names of bandwidth_accounting_history
+Field names of dhcppool
 
 =cut
 
@@ -153,7 +137,7 @@ sub table_field_names {
 
 =head2 primary_keys
 
-The primary keys of bandwidth_accounting_history
+The primary keys of dhcppool
 
 =cut
 
@@ -167,11 +151,11 @@ The table name
 
 =cut
 
-sub table { "bandwidth_accounting_history" }
+sub table { "dhcppool" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `bandwidth_accounting_history` WHERE $where;";
+    "SELECT * FROM `dhcppool` WHERE $where;";
 };
 
 =head2 find_columns
@@ -186,7 +170,7 @@ sub find_columns {
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row bandwidth_accounting_history
+The precalculated sql to find a single row dhcppool
 
 =cut
 
@@ -196,7 +180,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for bandwidth_accounting_history
+The updateable fields for dhcppool
 
 =cut
 
@@ -206,7 +190,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for bandwidth_accounting_history
+The insertable fields for dhcppool
 
 =cut
 
@@ -216,7 +200,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for bandwidth_accounting_history
+Get the meta data for dhcppool
 
 =cut
 
