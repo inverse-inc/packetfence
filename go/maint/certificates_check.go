@@ -34,12 +34,7 @@ func NewCertificatesCheck(config map[string]interface{}) JobSetupConfig {
 	delay := config["delay"].(string)
 	duration, _ := util.NormalizeTime(delay)
 	return &CertificatesCheck{
-		Task: Task{
-			Type:         config["type"].(string),
-			Status:       config["status"].(string),
-			Description:  config["description"].(string),
-			ScheduleSpec: config["schedule"].(string),
-		},
+		Task:          SetupTask(config),
 		Certificates:  splitByComma.Split(config["certificates"].(string), -1),
 		Delay:         delay,
 		DelayDuration: duration,

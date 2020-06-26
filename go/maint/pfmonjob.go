@@ -16,11 +16,6 @@ func (j *PfmonJob) Run() {
 
 func NewPfmonJob(config map[string]interface{}) JobSetupConfig {
 	return &PfmonJob{
-		Task: Task{
-			Type:         config["type"].(string),
-			Status:       config["status"].(string),
-			Description:  config["description"].(string),
-			ScheduleSpec: config["schedule"].(string),
-		},
+		Task: SetupTask(config),
 	}
 }

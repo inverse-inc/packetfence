@@ -13,6 +13,7 @@ type JobSetupConfig interface {
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
+	"fingerbank_data_update":      NewFingerbankDataUpdate,
 	"certificates_check":          NewCertificatesCheck,
 	"cleanup_chi_database_cache":  NewChiCleanup,
 	"bandwidth_maintenance":       NewBandwidthMaintenance,
@@ -62,6 +63,15 @@ type Task struct {
 	Status       string `json:"status"`
 	Description  string `json:"description"`
 	ScheduleSpec string `json:"schedule"`
+}
+
+func SetupTask(config map[string]interface{}) Task {
+	return Task{
+		Type:         config["type"].(string),
+		Status:       config["status"].(string),
+		Description:  config["description"].(string),
+		ScheduleSpec: config["schedule"].(string),
+	}
 }
 
 func (t *Task) Schedule() cron.Schedule {
