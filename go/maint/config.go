@@ -17,6 +17,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"certificates_check":          NewCertificatesCheck,
 	"cleanup_chi_database_cache":  NewChiCleanup,
 	"bandwidth_maintenance":       NewBandwidthMaintenance,
+	"populate_ntlm_redis_cache":   NewPopulateNtlmRedisCache,
 	"admin_api_audit_log_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"auth_log_cleanup":            MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"dns_audit_log_cleanup":       MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log_cleanup WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
