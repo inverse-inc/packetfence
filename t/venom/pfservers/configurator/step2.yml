@@ -1,16 +1,13 @@
 name: step2 database-general-and-alerting 
 version: 2
 testcases:
-- name: step2_start_mariadb
+- name: step2_check_mariadb_running
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-mariadb/start'
-    ignore_verify_ssl: true
+  - script: 'systemctl status packetfence-mariadb'
     assertions:
-      - result.statuscode ShouldEqual 200
+      - result.code ShouldEqual 0  
 
-- name: step2_create_root_account
+- name: step2_create_root_password_account
   steps:
   - type: http
     method: POST
@@ -32,7 +29,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "database": "pf",
+        "database": "{{.configurator.database.name}}",
         "password": "{{.configurator.pf_password}}",
         "username": "root"
       }
@@ -47,7 +44,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "database": "pf",
+        "database": "{{.configurator.database.name}}",
         "pf_password": "{{.configurator.pf_password}}",
         "pf_username": "pf",
         "root_password": "{{.configurator.root_password}}",
@@ -64,7 +61,7 @@ testcases:
       commands:
         - "SELECT * FROM password;"
       assertions:
-        - result.queries.queries0.rows.rows0.pid ShouldEqual admin
+        - result.queries.queries0.rows.rows0.pid ShouldEqual root
 
 
 - name: step2_alerting
@@ -78,9 +75,6 @@ testcases:
         "emailaddr": "{{.configurator.email}}",
         "fromaddr": "{{.configurator.from_email}}",
         "id": "alerting",
-        "not_deletable": true,
-        "not_sortable": false,
-        "quiet": true,
         "smtp_encryption": "none",
         "smtp_port": "{{.configurator.smtp_port}}",
         "smtp_verifyssl": "enabled",
@@ -101,9 +95,6 @@ testcases:
         "emailaddr": "{{.configurator.email}}",
         "fromaddr": "{{.configurator.from_email}}",
         "id": "alerting",
-        "not_deletable": true,
-        "not_sortable": false,
-        "quiet": true,
         "smtp_encryption": "none",
         "smtp_port": "{{.configurator.smtp_port}}",
         "smtp_verifyssl": "enabled",
@@ -123,11 +114,8 @@ testcases:
       {
         "dhcpservers": "127.0.0.1",
         "domain": "{{.configurator.domain}}",
-        "hostname": "{{.configurator_hostmame_machine}}",
+        "hostname": "{{.configurator.hostmame_machine}}",
         "id": "general",
-        "not_deletable": true,
-        "not_sortable": false,
-        "quiet": true,
         "timezone": "UTC"
       }
     assertions:
@@ -142,7 +130,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: step2_admin_account
+- name: step2_admin_account_password
   steps:
   - type: http
     method: PATCH
@@ -152,8 +140,17 @@ testcases:
       {
         "password": "{{.configurator.admin_password}}",
         "pid": "admin",
-        "quiet": true,
-        "valid_from": "2020-05-22 09:51:52"
+        "valid_from": "{{.configurator.admin.valid_from}}"
       }
     assertions:
       - result.statuscode ShouldEqual 200
+
+- name: Check_entry_admin
+  steps:
+    - type: sql
+      driver: mysql
+      dsn: root:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
+      commands:
+        - "SELECT * FROM password;"
+      assertions:
+        - result.queries.queries0.rows.rows0.pid ShouldEqual admin

@@ -9,14 +9,11 @@ testcases:
       ignore_verify_ssl: true
       body: >-
         {
-          "api_key": "{{.configurator.fingerbank.key}}",
+          "api_key": "{{.configurator.fingerbank_key}}",
           "db_path": "/api/v2/download/db",
           "host": "api.fingerbank.org",
           "id": "upstream",
-          "not_deletable": true,
-          "not_sortable": false,
           "port": "443",
-          "quiet": true,
           "sqlite_db_retention": "2",
           "use_https": "enabled"
         }

@@ -119,46 +119,49 @@ wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
 # Configurator variables
 ################################################################################
 #Hostmame machine
-configurator_hostmame_machine: 
+configurator.hostmame_machine: 
 
 # Interface dhcp-listener
-configurator.dhcp_listener_interface:
-configurator.dhcp_listener_mac:
-configurator.dchp_listener_ip:
-configurator.dhcp_listener_mask:
+configurator.dhcp_listener.interface:
+configurator.dhcp_listener.mac:
+configurator.dhcp_listener.ip:
+configurator.dhcp_listener.mask:
 
 # Interface management
-configurator_management_interface:  
-configurator_management_interface_ip_and_mask: 
-configurator_management_mac: 
-configurator_management_ip: 
-configurator_management_mask: 
-configurator_management_network_ip: 
+configurator.management.interface:  
+configurator.management.interface.ip.and.mask: 
+configurator.management.mac: 
+configurator.management.ip: 
+configurator.management.mask: 
+configurator.management.network.ip: 
 
 # Interface registration
-configurator_registration_interface: 
-configurator_registration_mac: 
-configurator_registration_ip: 
-configurator_registration_mask: 
+configurator.registration.interface: 
+configurator.registration.mac: 
+configurator.registration.ip: 
+configurator.registration.mask:
 
 # Interface isolation
-configurator_isolation_interface: 
-configurator_isolation_mac: 
-configurator_isolation_ip: 
-configurator_isolation_mask: 
+configurator.isolation.interface: 
+configurator.isolation.mac: 
+configurator.isolation.ip: 
+configurator.isolation.mask: 
 
 # Gateway
-configurator_gateway: 
+configurator.gateway: 
 
 # Configurator dns
-configurator_dns_ip: 8.8.8.8
-configurator_dns_aux_ip: 172.17.17.100
+configurator.dns.ip: 8.8.8.8
+configurator.dns_aux.ip: 172.17.17.100
 
-# Create root account
+# Create root password
 configurator.root_password: 
 
-# Create pf account
+# Create pf account password
 configurator.pf_password: 
+
+# Database
+configurator.database.name:
 
 # Alerting
 configurator.email: 
@@ -169,9 +172,9 @@ configurator.smtp_port:
 # General
 configurator.domain: example.lan
 
-# Admin password
+# Admin account
 configurator.admin_password: 
+configurator.admin.valid_from: 2020-05-22 09:51:52
 
 # Fingerbank
 configurator.fingerbank.key: 
-

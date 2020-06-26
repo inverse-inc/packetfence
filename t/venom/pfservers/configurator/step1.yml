@@ -1,23 +1,19 @@
-name: step1 interfaces 
+name: step1_interfaces 
 version: 2
 testcases:
 - name: step1_dhcp_listener
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator.dhcp_listener_interface}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator.dhcp_listener.interface}}'
     ignore_verify_ssl: true
     body: >-
       {
-        "high_availability": 0,
-        "hwaddr": "{{.configurator.dhcp_listener_mac}}",
-        "id": "{{.configurator.dhcp_listener_interface}}",
+        "id": "{{.configurator.dhcp_listener.interface}}",
         "ifindex": "2",
-        "ipaddress": "{{.configurator.dchp_listener_ip}}",
-        "is_running": true,
-        "name": "{{.configurator.dhcp_listener_interface}}",
-        "netmask": "{{.configurator.dhcp_listener_mask}}",
-        "network_iseditable": false,
+        "ipaddress": "{{.configurator.dhcp_listener.ip}}",
+        "name": "{{.configurator.dhcp_listener.mac}}",
+        "netmask": "{{.configurator.dhcp_listener.mask}}",
         "type": "dhcp-listener"
       }
     assertions:
@@ -27,22 +23,19 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator_management_interface}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator.management.interface}}'
     ignore_verify_ssl: true
     body: >-
       {
         "additional_listening_daemons": ["portal"],
         "0": "portal",
-        "address": "{{.configurator_management_interface_ip_and_mask}}",
-        "high_availability": 0,
-        "hwaddr": "{{.configurator_management_mac}}",
-        "id": "{{.configurator_management_interface}}",
+        "address": "{{.configurator.management.interface.ip.and.mask}}",
+        "id": "{{.configurator.management.interface}}",
         "ifindex": "2",
-        "ipaddress": "{{.configurator_management_ip}}",
-        "is_running": true,
-        "name": "{{.configurator_management_interface}}",
-        "netmask": "{{.configurator_management_mask}}",
-        "network": "{{.configurator_management_network_ip}}",
+        "ipaddress": "{{.configurator.management.ip}}",
+        "name": "{{.configurator.management.interface}}",
+        "netmask": "{{.configurator.management.mask}}",
+        "network": "{{.configurator.management.network.ip}}",
         "network_iseditable": false,
         "type": "management"
       }
@@ -53,19 +46,16 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator_registration_interface}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator.registration.interface}}'
     ignore_verify_ssl: true
     body: >-
       {
         "dhcpd_enabled": "enabled",
-        "high_availability": 0,
-        "hwaddr": "{{.configurator_registration_mac}}",
-        "id": "{{.configurator_registration_interface}}",
+        "id": "{{.configurator.registration.interface}}",
         "ifindex": "2",
-        "ipaddress": "{{.configurator_registration_ip}}",
-        "is_running": true,
-        "name": "{{{.configurator_registration_interface}}",
-        "netmask": "{{.configurator_registration_mask}}",
+        "ipaddress": "{{.configurator.registration.interface}}",
+        "name": "{{{.configurator.registration.interface}}",
+        "netmask": "{{.configurator.registration.mask}}",
         "network_iseditable": false,
         "type": "vlan-registration"
       }
@@ -76,19 +66,16 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator_isolation_interface}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.configurator.isolation.interface}}'
     ignore_verify_ssl: true
     body: >-
       {
         "dhcpd_enabled": "enabled",
-        "high_availability": 0,
-        "hwaddr": "{{.configurator_isolation_mac}}",
-        "id": "{{.configurator_isolation_interface}}",
+        "id": "{{.configurator.isolation.interface}}",
         "ifindex": "7",
         "ipaddress": "{{.configurator_isolation_ip}}",
-        "is_running": true,
-        "name": "{{.configurator_isolation_interface}}",
-        "netmask": "{{.configurator_isolation_mask}}",
+        "name": "{{.configurator.isolation.interface}}",
+        "netmask": "{{.configurator.isolation.ip}}",
         "network_iseditable": false,
         "type": "vlan-isolation"
       }
@@ -103,9 +90,9 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "dns_servers": ["{{.configurator_dns_ip}}", "{{.configurator_dns_aux_ip}}"],
-        "0": "{{.configurator_dns_ip}}",
-        "1": "{{.configurator_dns_aux_ip}}"
+        "dns_servers": ["{{.configurator.dns.ip}}", "{{.configurator.dns_aux.ip}}"],
+        "0": "{{.configurator.dns.ip}}",
+        "1": "{{.configurator.dns_aux.ip}}"
       }
     assertions:
       - result.statuscode ShouldEqual 200

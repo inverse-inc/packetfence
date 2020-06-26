@@ -9,7 +9,7 @@ testcases:
   steps:
   - script: 'systemctl start packetfence-fingerbank-collector'
 
-- name: start_fingerbank
+- name: status_fingerbank
   steps:
   - script: 'systemctl status packetfence-fingerbank-collector'
     assertions:

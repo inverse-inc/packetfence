@@ -11,6 +11,10 @@ PFSERVERS_DIR=pfservers
 install:
 	./install-venom.sh
 
+.PHONY: configurator
+configurator:
+	./venom-wrapper.sh $(PFSERVERS_DIR)/pfservers/configurator
+
 # test is the entrypoint: all test suites should be referenced as target dependency
 # if setup is a dependency to test target, putting setup as a dependency to other
 # targets doesn't cause a recall
