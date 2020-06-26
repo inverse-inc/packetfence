@@ -413,14 +413,16 @@ index aeed30f122..51bbe88866 100644
  ExecStop=/bin/kill $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-snmptrapd.service b/conf/systemd/packetfence-snmptrapd.service
-index 53f8c75423..a6dcd32092 100644
+index 53f8c75423..3e694ee271 100644
 --- a/conf/systemd/packetfence-snmptrapd.service
 +++ b/conf/systemd/packetfence-snmptrapd.service
-@@ -8,7 +8,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -7,8 +7,8 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ [Service]
  StartLimitBurst=3
  StartLimitInterval=10
- Type=notify
+-Type=notify
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::snmptrapd' -e 'pf::services::manager::snmptrapd->new()->generateConfig()'
++Type=simple
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::snmptrapd' -e 'pf::services::manager::snmptrapd->new()->generateConfig()'
  ExecStart=/usr/sbin/snmptrapd -f -n -c /usr/local/pf/var/conf/snmptrapd.conf -C -A -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/run/snmptrapd.pid -On 
  ExecReload=/bin/kill -HUP $MAINPID
