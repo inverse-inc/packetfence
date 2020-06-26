@@ -18,6 +18,7 @@ use pf::util qw(make_node_id);
 use pf::dal::bandwidth_accounting;
 use pf::dal::bandwidth_accounting_history;
 use pf::dal::node;
+use pf::dal::tenant;
 use pf::error qw(is_error is_success);
 use pf::log;
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH %Config);
@@ -45,6 +46,21 @@ sub bandwidth_maintenance {
 }
 
 sub trigger_bandwidth {
+    my ($batch, $time) = @_;
+    my ($status, $iter) = pf::dal::tenant->search(
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return;
+    }
+
+    while (my $t = $iter->next) {
+        local $pf::config::tenant::CURRENT_TENANT = $t->{id};
+        _trigger_bandwidth($batch, $time);
+    }
+}
+
+sub _trigger_bandwidth {
     my ($batch, $time) = @_;
     if (@BANDWIDTH_EXPIRED_SECURITY_EVENTS > 0) {
         my ($status, $iter) = pf::dal::node->search(
