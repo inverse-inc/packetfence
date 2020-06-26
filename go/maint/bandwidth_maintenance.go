@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"time"
 )
 
@@ -13,6 +14,7 @@ type BandwidthMaintenance struct {
 	HistoryWindow  int
 	HistoryBatch   int
 	HistoryTimeout time.Duration
+	ClientApi      *jsonrpc2.Client
 }
 
 func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
@@ -29,6 +31,7 @@ func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
 		HistoryBatch:   int(config["history_batch"].(float64)),
 		HistoryTimeout: time.Duration((config["history_timeout"].(float64))) * time.Second,
 		HistoryWindow:  int(config["history_window"].(float64)),
+		ClientApi:      jsonrpc2.NewClientFromConfig(context.Background()),
 	}
 }
 
@@ -56,6 +59,7 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow(ctx context.Con
 }
 
 func (j *BandwidthMaintenance) TriggerBandwidth(ctx context.Context) {
+	j.ClientApi.Call(ctx, "bandwidth_trigger", map[string]interface{}{}, 1)
 }
 
 func (j *BandwidthMaintenance) BandwidthAggregation(ctx context.Context, rounding string, date_sql string, interval int) {
