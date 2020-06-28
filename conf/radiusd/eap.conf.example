@@ -532,7 +532,7 @@ eap [% key -%] {
 	leap {
 	}
 
-[% ELSIF eaptype == "LEAP" %]
+[% ELSIF eaptype == "GTC" %]
 	#  Generic Token Card.
 	#
 	#  Currently, this is only permitted inside of EAP-TTLS,
