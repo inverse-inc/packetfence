@@ -12,7 +12,13 @@ type ChiCleanup struct {
 }
 
 func (c *ChiCleanup) Run() {
-	BatchSql(context.Background(), c.Timeout, `DELETE FROM chi_cache WHERE expires_at > ? LIMIT ?`, time.Now(), c.Batch)
+	BatchSql(
+		context.Background(),
+		c.Timeout,
+		`DELETE FROM chi_cache WHERE expires_at > ? LIMIT ?`,
+		float64(time.Now().UnixNano())/float64(time.Second),
+		c.Batch,
+	)
 }
 
 func NewChiCleanup(config map[string]interface{}) JobSetupConfig {
