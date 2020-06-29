@@ -45,12 +45,7 @@ func NewMultiWindowSqlCleanup(config map[string]interface{}, sqls ...string) Job
 	sqlStrings := make([]string, len(sqls))
 	copy(sqlStrings, sqls)
 	return &MultiWindowSqlCleanup{
-		Task: Task{
-			Type:         config["type"].(string),
-			Status:       config["status"].(string),
-			Description:  config["description"].(string),
-			ScheduleSpec: config["schedule"].(string),
-		},
+		Task:    SetupTask(config),
 		Batch:   int(config["batch"].(float64)),
 		Timeout: time.Duration((config["timeout"].(float64))) * time.Second,
 		Window:  int(config["window"].(float64)),
