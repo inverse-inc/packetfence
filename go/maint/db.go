@@ -31,3 +31,10 @@ func getDb() (*sql.DB, error) {
 
 	return dbh, nil
 }
+
+func rollBackOnErr(ctx context.Context, tx *sql.Tx, err error) {
+	if rollbackErr := tx.Rollback(); rollbackErr != nil {
+		logError(ctx, "Database error: "+rollbackErr.Error())
+	}
+	logError(ctx, "Database error: "+err.Error())
+}

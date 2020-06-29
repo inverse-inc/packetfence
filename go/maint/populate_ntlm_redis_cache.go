@@ -10,4 +10,4 @@ func NewPopulateNtlmRedisCache(config map[string]interface{}) JobSetupConfig {
 	}
 }
 
-func (j *PopulateNtlmRedisCache) Run() { }
+func (j *PopulateNtlmRedisCache) Run() {}

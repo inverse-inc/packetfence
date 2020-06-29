@@ -71,8 +71,8 @@ func (j *Ip4logCleanup) DoRotate(ctx context.Context) {
 		}
 
 		sql := `
-            INSERT INTO ip4log_archive (tenant_id, mac, ip, start_time, end_time) 
-              SELECT tenant_id, mac, ip, start_time, end_time FROM ip4log_history 
+            INSERT INTO ip4log_archive (tenant_id, mac, ip, start_time, end_time)
+              SELECT tenant_id, mac, ip, start_time, end_time FROM ip4log_history
               WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ORDER BY end_time
         `
 		results, err := tx.Exec(sql, start, j.RotateWindow, j.RotateBatch)
@@ -93,7 +93,7 @@ func (j *Ip4logCleanup) DoRotate(ctx context.Context) {
 		}
 
 		sql = `
-            DELETE FROM ip4log_history 
+            DELETE FROM ip4log_history
               WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ORDER BY end_time
         `
 		results, err = tx.Exec(sql, start, j.RotateWindow, j.RotateBatch)
@@ -123,11 +123,4 @@ func (j *Ip4logCleanup) DoRotate(ctx context.Context) {
 		}
 
 	}
-}
-
-func rollBackOnErr(ctx context.Context, tx *sql.Tx, err error) {
-	if rollbackErr := tx.Rollback(); rollbackErr != nil {
-		logError(ctx, "Database error: "+rollbackErr.Error())
-	}
-	logError(ctx, "Database error: "+err.Error())
 }
