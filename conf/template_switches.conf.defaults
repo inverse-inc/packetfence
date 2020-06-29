@@ -78,7 +78,7 @@ EOT
 voip= <<EOT
 Tunnel-Medium-Type  = 6
 Tunnel-Type = 13
-Tunnel-Private-Group-Id = $switch._voiceVlan
+Tunnel-Private-Group-Id = T:$switch._voiceVlan
 EOT
 
 [Cisco::Switch]
