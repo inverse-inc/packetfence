@@ -2,7 +2,6 @@ package maint
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 )
