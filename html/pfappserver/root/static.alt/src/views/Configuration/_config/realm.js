@@ -461,8 +461,7 @@ export const validators = (form = {}, meta = {}) => {
         }
         : {}
       )
-    }
-    ldap_source_ttls_pap: validatorsFromMeta(meta, 'ldap_source_ttls_pap', i18n.t('Source'))
+    },
     ldap_source_ttls_pap: validatorsFromMeta(meta, 'ldap_source_ttls_pap', i18n.t('Source')),
     edir_source: validatorsFromMeta(meta, 'edir_source', i18n.t('Source'))
   }
