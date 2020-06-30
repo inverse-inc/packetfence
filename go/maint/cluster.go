@@ -23,12 +23,23 @@ func (s *Server) IsDisabled() bool {
 	return !info.IsDir()
 }
 
-func CallCluster(ctx context.Context, async bool, method string, args interface{}) {
+func CallCluster(ctx context.Context, method string, args interface{}) {
 	clientApi := jsonrpc2.NewClientFromConfig(context.Background())
 	clientApi.Proto = "https"
 	for _, member := range enabledServers(ctx) {
 		clientApi.Host = member.ManagementIp
 		if _, err := clientApi.Call(ctx, method, args, 1); err != nil {
+			logError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
+		}
+	}
+}
+
+func NotifyCluster(ctx context.Context, method string, args interface{}) {
+	clientApi := jsonrpc2.NewClientFromConfig(context.Background())
+	clientApi.Proto = "https"
+	for _, member := range enabledServers(ctx) {
+		clientApi.Host = member.ManagementIp
+		if _, err := clientApi.Notify(ctx, method, args, 1); err != nil {
 			logError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 		}
 	}
