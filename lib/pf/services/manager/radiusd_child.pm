@@ -1304,7 +1304,12 @@ EOT
             $edir_config .= <<"EOT";
             $of (Realm =~ /$choice/) {
                 -$pf::config::ConfigRealm{$key}->{edir_source}
-            }
+                if (updated) {
+                    update control {
+                        &MS-CHAP-Use-NTLM-Auth := No
+                    }
+                }
+	    }
 EOT
             my $of = 'elsif';
         }
@@ -1315,6 +1320,11 @@ EOT
             Cache-Status-Only = 'yes'
         }
         cache_password
+        if (ok) {
+            update control {
+                &MS-CHAP-Use-NTLM-Auth := No
+            }
+        }
         if (notfound) {
 $edir_config
         }
