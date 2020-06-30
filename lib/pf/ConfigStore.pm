@@ -67,7 +67,7 @@ validates id
 
 =cut
 
-sub validId { 1; }
+sub validId { return defined($_[1]) && length($_[1]) > 0 }
 
 =head2 validParam
 
