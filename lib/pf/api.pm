@@ -1742,6 +1742,11 @@ sub update_role_configuration : Public :AllowedAsAction(role, $role) {
 
     my $role = delete $postdata{'role'};
 
+    if(!$role) {
+        pf::log::get_logger->error("Undefined role for update_role_configuration. Skipping reconfiguration.");
+        return $pf::config::FALSE;
+    }
+
     my $tc_cs = pf::ConfigStore::TrafficShaping->new;
     if ($postdata{'upload'} == 0 && $postdata{'download'} == 0) {
         $tc_cs->remove($role);
