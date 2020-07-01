@@ -29,6 +29,7 @@ type PfdetectConfig struct {
 	Path           string              `json:"path"`
 	Status         string              `json:"status"`
 	RateLimit      int                 `json:"rate_limit"`
+	TenantID       int                 `json:"tenant_id"`
 	Rules          []PfdetectRegexRule `json:"rules"`
 }
 
@@ -42,6 +43,22 @@ func (config *PfdetectConfig) NewRateLimitable() RateLimitable {
 
 type RateLimitable struct {
 	RateLimitCache *cache.Cache
+}
+
+type parser struct {
+	RateLimitable
+	TenantID int
+}
+
+func setupParser(config *PfdetectConfig) parser {
+	if config == nil {
+		return parser{RateLimitable: RateLimitable{}, TenantID: 1}
+	}
+
+	return parser{
+		RateLimitable: NewRateLimitable(config.RateLimit),
+		TenantID:      config.TenantID,
+	}
 }
 
 func NewRateLimitable(rateLimit int) RateLimitable {
@@ -85,8 +102,9 @@ func (*JsonRpcApiCall) Call() error {
 }
 
 type PfqueueApiCall struct {
-	Method string
-	Params interface{}
+	Method   string
+	Params   interface{}
+	TenantID int
 }
 
 func (c *PfqueueApiCall) Call() error {
@@ -103,7 +121,7 @@ func (c *PfqueueApiCall) Call() error {
 	}
 
 	pfqueueclient := pfqueueclient.NewPfQueueClient()
-	_, err := pfqueueclient.Submit(context.Background(), "pfdetect", "api", args)
+	_, err := pfqueueclient.Submit(context.Background(), c.TenantID, "pfdetect", "api", args)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 
 type NexposeParser struct {
 	Pattern1 *regexp.Regexp
-	RateLimitable
+	parser
 }
 
 func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
@@ -38,6 +38,7 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 						"nexpose_event": matches[5],
 					},
 				},
+				TenantID: s.TenantID,
 			},
 		}, nil
 	}
@@ -49,7 +50,7 @@ var nexposeRegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+
 
 func NewNexposeParser(config *PfdetectConfig) (Parser, error) {
 	return &NexposeParser{
-		Pattern1:      nexposeRegexPattern1.Copy(),
-		RateLimitable: config.NewRateLimitable(),
+		Pattern1: nexposeRegexPattern1.Copy(),
+		parser:   setupParser(config),
 	}, nil
 }
