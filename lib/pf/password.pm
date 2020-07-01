@@ -268,6 +268,9 @@ sub _update_from_actions {
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
+        if(!defined($role_id) && nodecategory_exist($values[0]->{value})) {
+            $role_id = $values[0]->{value};
+        }
         $data->{'category'} = $role_id;
     }
 }
