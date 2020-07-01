@@ -15,7 +15,7 @@ const route = {
   component: StatusView,
   meta: {
     can: () => {
-      return acl.can('master tenant') || acl.$some('read', ['nodes', 'services']) // has ACL for 1+ children
+      return acl.can('master tenant') || acl.$some('read', ['system', 'services']) // has ACL for 1+ children
     },
     fail: { path: '/reports', replace: true }, // no ACL in this view, redirect to next sibling
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
