@@ -212,9 +212,17 @@ if($BASE_BINARIES_URL) {
 
 $step++;
 print "=" x $TERMINAL_WIDTH . "\n";
-print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
-system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
-system("systemctl restart rsyslog");
+{
+    local $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = undef;
+    local $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = undef;
+    local $ENV{PATH} = $ENV{PATH};
+    if ($ENV{PATH} =~ /^(.*)$/) {
+        $ENV{PATH} = $1;
+    }
+    print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
+    system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
+    system("systemctl restart rsyslog");
+}
 
 print "=" x $TERMINAL_WIDTH . "\n";
 print "All done...\n";
