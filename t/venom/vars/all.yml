@@ -195,3 +195,54 @@ configurator.admin.valid_from: 1970-01-01 00:00:00
 ### Step 3
 # Fingerbank
 configurator.fingerbank_api_key.secret_id: '{{.fingerbank_api_key.secret_id}}'
+
+###############################################################################
+# Scan WMI variables
+################################################################################
+# Security Event
+scan_wmi.security_event.access_duration:
+scan_wmi.security_event.delay_by.interval:
+scan_wmi.security_event.delay_by.unit:
+scan_wmi.security_event.description:
+scan_wmi.security_event.grace.interval:
+scan_wmi.security_event.grace.unit:
+scan_wmi.security_event.trigger.custom:
+
+# WMI Rule
+scan_wmi.wmi_rule.action:
+scan_wmi.wmi_rule.id:
+scan_wmi.wmi_rule.namespace:
+scan_wmi.wmi_rule.request:
+
+# Scan Engine
+scan_wmi.scan_engine.domain:
+scan_wmi.scan_engine.duration.interval:
+scan_wmi.scan_engine.duration.unit:
+scan_wmi.scan_engine.id:
+scan_wmi.scan_engine.password:
+scan_wmi.wmi_rule.id:
+scan_wmi.scan_engine.username:
+
+# Connection Profil
+scan_wmi.connection_profil:
+scan_wmi.connection_profil.access_registration_when_registered:
+scan_wmi.connection_profil.advanced_filter:
+scan_wmi.connection_profil.always_use_redirecturl:
+scan_wmi.connection_profil.autoregister:
+scan_wmi.connection_profil.billing_tiers:
+scan_wmi.connection_profil.interval:
+scan_wmi.connection_profil.unit:
+scan_wmi.connection_profil.default_psk_key:
+scan_wmi.connection_profil.description:
+scan_wmi.connection_profil.dot1x_recompute_role_from_portal:
+scan_wmi.connection_profil.dot1x_unset_on_unmatch:
+scan_wmi.connection_profil.dpsk:
+scan_wmi.connection_profil.match:
+scan_wmi.connection_profil.type:
+scan_wmi.connection_profil.filter_match_style:
+scan_wmi.connection_profil.id:
+scan_wmi.connection_profil.locale:
+scan_wmi.connection_profil.login_attempt_limit:
+scan_wmi.connection_profil.mac_auth_recompute_role_from_portal:
+scan_wmi.connection_profil.network_logoff:
+>>>>>>> first_draft

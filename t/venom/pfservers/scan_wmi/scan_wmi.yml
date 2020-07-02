@@ -1,0 +1,144 @@
+name: scan_wmi
+version: 2
+testcases:
+- name: create_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "access_duration": "{{.scan_wmi.security_event.access_duration}}",
+        "actions": "email_admin",
+        "delay_by": {
+          "interval": "{{.scan_wmi.security_event.delay_by.interval}}",
+          "unit": "{{.scan_wmi.security_event.delay_by.unit}}"
+        },
+        "desc": "{{.scan_wmi.security_event.description}}",
+        "enabled": "Y",
+        "grace": {
+        "interval": "{{.scan_wmi.security_event.grace.interval}}",
+        "unit": "{{.scan_wmi.security_event.grace.unit}}"
+        },
+        "id": "3001007",
+        "triggers": {
+          "0": {
+            "custom": "{{.scan_wmi.security_event.trigger.custom}}"
+          }
+        },
+        "priority": "4"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+       
+- name: create_wmi_rule
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/wmi_rules'
+    ignore_verify_ssl: true 
+    body: >-
+      {
+        "action": "{{.scan_wmi.wmi_rule.action}}",
+        "id": "{{.scan_wmi.wmi_rule.id}}",
+        "namespace": "{{.scan_wmi.wmi_rule.namespace}}",
+        "on_tab": "1",
+        "request": "{{.scan_wmi.wmi_rule.request}}"
+      }  
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_scan_engine
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/scans'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "domain": "{{.scan_wmi.scan_engine.domain}}",
+        "duration": {
+          "interval": "{{.scan_wmi.scan_engine.duration.interval}}",
+          "unit": "{{.scan_wmi.scan_engine.duration.unit}}"
+        },
+        "id": "{{.scan_wmi.scan_engine.id}}",
+        "password": "{{.scan_wmi.scan_engine.password}}",
+        "registration": "1",
+        "type": "wmi",
+        "wmi_rules": {
+          "0": "{{.scan_wmi.wmi_rule.id}}"
+        },
+        "username": "{{.scan_wmi.scan_engine.username}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: add_scan_engine_to_connection_profil
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.scan_wmi.connection_profil}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "access_registration_when_registered": "{{.scan_wmi.connection_profil.access_registration_when_registered}}",
+        "advanced_filter": "{{.scan_wmi.connection_profil.advanced_filter}}",
+        "always_use_redirecturl": "{{.scan_wmi.connection_profil.always_use_redirecturl}}",
+        "autoregister": "{{.scan_wmi.connection_profil.autoregister}}",
+        "billing_tiers": "{{.scan_wmi.connection_profil.billing_tiers}}",
+        "block_interval": {
+          "interval": "{{.scan_wmi.connection_profil.interval}}",
+          "unit": "{{.scan_wmi.connection_profil.unit}}"
+        },
+        "default_psk_key": "{{.scan_wmi.connection_profil.default_psk_key}}",
+        "description": "{{.scan_wmi.connection_profil.description}}",
+        "dot1x_recompute_role_from_portal": "{{.scan_wmi.connection_profil.dot1x_recompute_role_from_portal}}",
+        "dot1x_unset_on_unmatch": "{{.scan_wmi.connection_profil.dot1x_unset_on_unmatch}}",
+        "dpsk": "{{.scan_wmi.connection_profil.dpsk}}",
+        "filter": {          
+          "0": {
+            "match": "{{.scan_wmi.connection_profil.match}}",
+            "type": "{{.scan_wmi.connection_profil.type}}"
+          }
+        },
+        "filter_match_style": "{{.scan_wmi.connection_profil.filter_match_style}}",
+        "id": "{{.scan_wmi.connection_profil.id}}",
+        "locale": "{{.scan_wmi.connection_profil.locale}}",
+        "login_attempt_limit": "{{.scan_wmi.connection_profil.login_attempt_limit}}",
+        "logo": "/common/packetfence-cp.png",
+        "mac_auth_recompute_role_from_portal": "{{.scan_wmi.connection_profil.mac_auth_recompute_role_from_portal}}",
+        "network_logoff": "{{.scan_wmi.connection_profil.network_logoff}}",
+        "network_logoff_popup": "{{.scan_wmi.connection_profil.network_logoff_popup}}",
+        "preregistration": "{{.scan_wmi.connection_profil.preregistration}}",
+        "provisioners": "{{.scan_wmi.connection_profil.provisioners}}",
+        "redirecturl": "http://www.packetfence.org/",
+        "reuse_dot1x_credentials": "{{.scan_wmi.connection_profil.reuse_dot1x_credentials}}",
+        "root_module": "default_policy",
+        "scans": {
+          "0": "{{.scan_wmi.scan_engine.id}}"
+        },
+        "self_service": "{{.scan_wmi.connection_profil.self_service}}",
+        "sms_pin_retry_limit": "0",
+        "sms_request_limit": "0",
+        "sources": {
+          "0": "{{.scan_wmi.connection_profil.sources}}"
+        },
+        "status": "enabled",
+        "unreg_on_acct_stop": "{{.scan_wmi.connection_profil.unreg_on_acct_stop}}",
+        "vlan_pool_technique": "username_hash"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
