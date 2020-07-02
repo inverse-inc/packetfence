@@ -195,9 +195,9 @@ record CoA in the radius audit log
 
 sub record_coa {
     my ($connection_info, $radius_code, $attributes, $vsa, %return) = @_;
-    my $request = join(' =22=2C ', map { $_." =3D ".$attributes->{$_} } keys %{$attributes});
-    my $request_vsa = join(' =22=2C ', map { $_->{'attribute'}." =3D ".$_->{'value'} } @{$vsa});
-    my $response = join(' =22=2C ', map { $_." =3D ".$return{$_} } keys %return);
+    my $request = join("\n", map { $_." =3D ".$attributes->{$_} } keys %{$attributes});
+    my $request_vsa = join("\n", map { $_->{'attribute'}." =3D ".$_->{'value'} } @{$vsa});
+    my $response = join("\n", map { $_." =3D ".$return{$_} } keys %return);
     my $mac;
     my %radius_audit_log;
     if (exists($attributes->{'Calling-Station-Id'}) ) {
@@ -216,7 +216,7 @@ sub record_coa {
     $radius_audit_log{'nas_port'} = $attributes->{'NAS-Port'} || '';
     $radius_audit_log{'radius_source_ip_address'} = $connection_info->{'LocalAddr'};
     $radius_audit_log{'auth_status'} = $return{'Code'} || '';
-    $radius_audit_log{'radius_request'} = $request."=22=2C".$request_vsa;
+    $radius_audit_log{'radius_request'} = $request."\n".$request_vsa;
     $radius_audit_log{'radius_reply'} = $response;
     pf::radius_audit_log::radius_audit_log_add(%radius_audit_log);
 }
