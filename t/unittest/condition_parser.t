@@ -16,7 +16,7 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
-our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT, @OBJECT_TO_STR_TESTS);
+our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT, @OBJECT_TO_STR_TESTS, @WRAP_TOP_OBJECT_TESTS);
 
 BEGIN {
     #include test libs
@@ -455,7 +455,60 @@ BEGIN {
         ],
     );
 
-    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS) + (scalar @OBJECT_TO_STR_TESTS);
+    @WRAP_TOP_OBJECT_TESTS = (
+        [
+            'b =~ "^a\\\\.s$"',
+            {
+                op => 'and',
+                values => [
+                    {
+                        op => 'regex',
+                        value => '^a\\.s$',
+                        field => 'b',
+                    }
+                ],
+            }
+        ],
+        [
+            '!(b =~ "^a\\\\.s$")',
+            {
+                op => 'not_and',
+                values => [
+                    {
+                        op => 'regex',
+                        value => "^a\\.s\$",
+                        field => 'b',
+                    }
+                ],
+            }
+        ],
+        [
+            '!(b =~ "^a\\\\.s$" && a == "b")',
+            {
+                op => 'not_and',
+                values => [
+                    {
+                        op => 'regex',
+                        value => "^a\\.s\$",
+                        field => 'b',
+                    },
+                    {
+                        op => 'equals',
+                        value => "b",
+                        field => 'a',
+                    }
+                ],
+            }
+        ],
+    );
+
+    $TEST_COUNT =
+      1 + ( scalar @VALID_STRING_TESTS ) +
+      ( true { @$_ == 3 } @VALID_STRING_TESTS ) +
+      ( scalar @INVALID_STRINGS ) +
+      ( scalar @VALID_IDS ) +
+      ( scalar @OBJECT_TO_STR_TESTS ) +
+      ( scalar @WRAP_TOP_OBJECT_TESTS );
 }
 
 use Test::More tests => $TEST_COUNT;
@@ -465,6 +518,18 @@ use pf::condition_parser qw(parse_condition_string ast_to_object);
 
 #This test will running last
 use Test::NoWarnings;
+
+for my $test (@WRAP_TOP_OBJECT_TESTS) {
+    my $s = $test->[0];
+    my ($ast, $err) = parse_condition_string($s);
+    my $obj = pf::condition_parser::wrap_top_object(ast_to_object($ast));
+
+    is_deeply(
+        $obj,
+        $test->[1],
+        "wrap_top_object($s)"
+    );
+}
 
 for my $test (@VALID_STRING_TESTS) {
     test_valid_string(@$test);

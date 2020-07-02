@@ -1349,7 +1349,7 @@ sub parse_condition {
         return $self->render_error(422, "Cannot parse condition", [$err]);
     }
 
-    $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
+    $self->render(json => { item => {condition_string => $condition, condition => pf::condition_parser::wrap_top_object(ast_to_object($ast)) } });
 }
 
 sub flatten_condition {

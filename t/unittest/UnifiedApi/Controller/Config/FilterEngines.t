@@ -72,9 +72,14 @@ $t->post_ok("$url/parse_condition" => json => { condition => 'b =~ "^a\\\\.s$"'}
     status => 200,
     item => {
         condition => {
-            value => '^a\\.s$',
-            op => 'regex',
-            field => 'b',
+            op => 'and',
+            values => [
+                {
+                    value => '^a\\.s$',
+                    op => 'regex',
+                    field => 'b',
+                }
+            ],
         },
         condition_string => 'b =~ "^a\\\\.s$"'
     },

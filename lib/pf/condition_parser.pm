@@ -447,6 +447,7 @@ sub _ast_to_object {
             if ($f eq $TRUE_CONDITION) {
                 return { op => $f };
             }
+
             return { op => $f, field => $args->[0], value => $args->[1] };
         }
 
@@ -462,6 +463,7 @@ sub _ast_to_object {
 
         return undef;
     }
+
     return { op => "var" , field => $ast };
 }
 
@@ -503,6 +505,20 @@ sub _object_to_str {
     my $value = $obj->{value};
     $value =~ s/(["\\])/\\$1/g;
     return "$op($obj->{field}, \"$value\")";
+}
+
+sub wrap_top_object {
+    my ($obj) = @_;
+    my $op = $obj->{op};
+    if ($op eq 'not') {
+        if (@{$obj->{values} // []} == 1) {
+            return { op => 'not_and', values => $obj->{values} };
+        }
+    } elsif ($op ne 'and' && $op ne 'or' && $op ne 'not_and' && $op ne 'not_or') {
+        return { op => 'and', values => [$obj] };
+    }
+
+    return $obj;
 }
 
 =head1 AUTHOR
