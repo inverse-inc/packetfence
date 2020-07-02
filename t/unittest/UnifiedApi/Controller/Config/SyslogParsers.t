@@ -26,11 +26,14 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 22;
 use Test::Mojo;
+use Utils;
+use pf::ConfigStore::Pfdetect;
 
 #This test will running last
 use Test::NoWarnings;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pfdetect");
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 my $collection_base_url = '/api/v1/config/syslog_parsers';
@@ -55,9 +58,10 @@ $t->post_ok("$collection_base_url/dry_run" => json => { type => 'dhcp' })
 $t->post_ok("$collection_base_url/dry_run" => json => { type => 'regex' })
   ->status_is(422);
 
+my $id = "regex_$$";
 my $config = {
     type => 'regex',
-    id => 'regex',
+    id => $id,
     path => '/usr/local/pf/var/log-regex.log',
     rules => [
         {
@@ -72,8 +76,9 @@ my $config = {
         },
         {
             regex => 'from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3})',
-            name => 'from to',
+            name => 'from to 2',
             last_if_match => 1,
+            rate_limit => {unit => 's', interval => 1},
             'ip_mac_translation' => 0,
             actions => [
                 { api_method => 'modify_node', api_parameters => '$scrip, $dstip'},
@@ -85,6 +90,17 @@ my $config = {
         "from: 1.2.3.4, to: 1.2.3.5",
     ]
 };
+
+$t->post_ok( "$collection_base_url" => json => $config )
+  ->status_is(201);
+
+$t->get_ok( "$base_url/$id")
+  ->status_is(200)
+  ->json_is("/item/rules/0/rate_limit", undef)
+  ->json_is("/item/rules/1/rate_limit", {unit => 's', interval => 1 })
+;
+
+#use Data::Dumper;print Dumper($t->tx->res->json);
 
 $t->post_ok( "$collection_base_url/dry_run" => json => $config )
   ->status_is(200)
@@ -101,17 +117,14 @@ $t->post_ok( "$collection_base_url/dry_run" => json => $config )
                         ],
                         'rule' => {
                             'ip_mac_translation' => 'disabled',
-                            'rate_limit'         => {
-                                unit     => 's',
-                                interval => 0,
-                            },
+                            'rate_limit'         => '1s',
                             'actions' => [
                                 'modify_node: $scrip, $dstip',
                                 'trigger_scan: bob, bob'
                             ],
                             'last_if_match' => 'enabled',
                             'regex' => 'from: (?P<scrip>\\d{1,3}(\\.\\d{1,3}){3}), to: (?P<dstip>\\d{1,3}(\\.\\d{1,3}){3})',
-                            'name' => 'from to'
+                            'name' => 'from to 2'
                           }
                     }
                 ],

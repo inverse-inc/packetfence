@@ -390,19 +390,15 @@ meta => {
                     type        => "string"
                 },
                 rate_limit => {
-                    default => {
-                        interval => 0,
-                        unit     => "s"
-                    },
+                    default => undef,
                     placeholder => undef,
                     properties  => {
                         interval => {
-                            default     => 0,
+                            default     => undef,
                             min_value   => 0,
                             placeholder => undef,
-                            required =>
-                              $false,
-                            type => "integer"
+                            required    => $false,
+                            type        => "integer"
                         },
                         unit => {
                             allowed => [
@@ -435,7 +431,7 @@ meta => {
                                     value => "Y"
                                 }
                             ],
-                            default     => "s",
+                            default     => undef,
                             placeholder => undef,
                             required => $false,
                             type => "string",

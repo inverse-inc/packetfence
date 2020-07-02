@@ -182,7 +182,6 @@ sub duration_inflate {
 
 sub duration_deflate {
     my ($self, $value) = @_;
-
     my $operator = '';
     my $interval = $value->{interval};
     my $unit = $value->{unit};
@@ -191,7 +190,11 @@ sub duration_deflate {
         $operator = $value->{operator} eq 'add'? '+' : '-';
     }
 
-    return $operator.$interval.$unit if (defined $interval && defined $unit);
+    if (defined $interval && defined $unit) {
+        return $operator.$interval.$unit;
+    }
+
+    return '';
 }
 
 =head1 COPYRIGHT
