@@ -223,26 +223,25 @@ scan_wmi.scan_engine.password:
 scan_wmi.wmi_rule.id:
 scan_wmi.scan_engine.username:
 
-# Connection Profil
-scan_wmi.connection_profil:
-scan_wmi.connection_profil.access_registration_when_registered:
-scan_wmi.connection_profil.advanced_filter:
-scan_wmi.connection_profil.always_use_redirecturl:
-scan_wmi.connection_profil.autoregister:
-scan_wmi.connection_profil.billing_tiers:
-scan_wmi.connection_profil.interval:
-scan_wmi.connection_profil.unit:
-scan_wmi.connection_profil.default_psk_key:
-scan_wmi.connection_profil.description:
-scan_wmi.connection_profil.dot1x_recompute_role_from_portal:
-scan_wmi.connection_profil.dot1x_unset_on_unmatch:
-scan_wmi.connection_profil.dpsk:
-scan_wmi.connection_profil.match:
-scan_wmi.connection_profil.type:
-scan_wmi.connection_profil.filter_match_style:
-scan_wmi.connection_profil.id:
-scan_wmi.connection_profil.locale:
-scan_wmi.connection_profil.login_attempt_limit:
-scan_wmi.connection_profil.mac_auth_recompute_role_from_portal:
-scan_wmi.connection_profil.network_logoff:
->>>>>>> first_draft
+# Connection Profile
+scan_wmi.connection_profile:
+scan_wmi.connection_profile.access_registration_when_registered:
+scan_wmi.connection_profile.advanced_filter:
+scan_wmi.connection_profile.always_use_redirecturl:
+scan_wmi.connection_profile.autoregister:
+scan_wmi.connection_profile.billing_tiers:
+scan_wmi.connection_profile.interval:
+scan_wmi.connection_profile.unit:
+scan_wmi.connection_profile.default_psk_key:
+scan_wmi.connection_profile.description:
+scan_wmi.connection_profile.dot1x_recompute_role_from_portal:
+scan_wmi.connection_profile.dot1x_unset_on_unmatch:
+scan_wmi.connection_profile.dpsk:
+scan_wmi.connection_profile.match:
+scan_wmi.connection_profile.type:
+scan_wmi.connection_profile.filter_match_style:
+scan_wmi.connection_profile.id:
+scan_wmi.connection_profile.locale:
+scan_wmi.connection_profile.login_attempt_limit:
+scan_wmi.connection_profile.mac_auth_recompute_role_from_portal:
+scan_wmi.connection_profile.network_logoff:
