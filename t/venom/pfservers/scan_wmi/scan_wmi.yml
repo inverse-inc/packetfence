@@ -83,58 +83,58 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: add_scan_engine_to_connection_profil
+- name: add_scan_engine_to_connection_profile
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.scan_wmi.connection_profil}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.scan_wmi.connection_profile}}'
     ignore_verify_ssl: true
     body: >-
       {
-        "access_registration_when_registered": "{{.scan_wmi.connection_profil.access_registration_when_registered}}",
-        "advanced_filter": "{{.scan_wmi.connection_profil.advanced_filter}}",
-        "always_use_redirecturl": "{{.scan_wmi.connection_profil.always_use_redirecturl}}",
-        "autoregister": "{{.scan_wmi.connection_profil.autoregister}}",
-        "billing_tiers": "{{.scan_wmi.connection_profil.billing_tiers}}",
+        "access_registration_when_registered": "{{.scan_wmi.connection_profile.access_registration_when_registered}}",
+        "advanced_filter": "{{.scan_wmi.connection_profile.advanced_filter}}",
+        "always_use_redirecturl": "{{.scan_wmi.connection_profile.always_use_redirecturl}}",
+        "autoregister": "{{.scan_wmi.connection_profile.autoregister}}",
+        "billing_tiers": "{{.scan_wmi.connection_profile.billing_tiers}}",
         "block_interval": {
-          "interval": "{{.scan_wmi.connection_profil.interval}}",
-          "unit": "{{.scan_wmi.connection_profil.unit}}"
+          "interval": "{{.scan_wmi.connection_profile.interval}}",
+          "unit": "{{.scan_wmi.connection_profile.unit}}"
         },
-        "default_psk_key": "{{.scan_wmi.connection_profil.default_psk_key}}",
-        "description": "{{.scan_wmi.connection_profil.description}}",
-        "dot1x_recompute_role_from_portal": "{{.scan_wmi.connection_profil.dot1x_recompute_role_from_portal}}",
-        "dot1x_unset_on_unmatch": "{{.scan_wmi.connection_profil.dot1x_unset_on_unmatch}}",
-        "dpsk": "{{.scan_wmi.connection_profil.dpsk}}",
+        "default_psk_key": "{{.scan_wmi.connection_profile.default_psk_key}}",
+        "description": "{{.scan_wmi.connection_profile.description}}",
+        "dot1x_recompute_role_from_portal": "{{.scan_wmi.connection_profile.dot1x_recompute_role_from_portal}}",
+        "dot1x_unset_on_unmatch": "{{.scan_wmi.connection_profile.dot1x_unset_on_unmatch}}",
+        "dpsk": "{{.scan_wmi.connection_profile.dpsk}}",
         "filter": {          
           "0": {
-            "match": "{{.scan_wmi.connection_profil.match}}",
-            "type": "{{.scan_wmi.connection_profil.type}}"
+            "match": "{{.scan_wmi.connection_profile.match}}",
+            "type": "{{.scan_wmi.connection_profile.type}}"
           }
         },
-        "filter_match_style": "{{.scan_wmi.connection_profil.filter_match_style}}",
-        "id": "{{.scan_wmi.connection_profil.id}}",
-        "locale": "{{.scan_wmi.connection_profil.locale}}",
-        "login_attempt_limit": "{{.scan_wmi.connection_profil.login_attempt_limit}}",
+        "filter_match_style": "{{.scan_wmi.connection_profile.filter_match_style}}",
+        "id": "{{.scan_wmi.connection_profile.id}}",
+        "locale": "{{.scan_wmi.connection_profile.locale}}",
+        "login_attempt_limit": "{{.scan_wmi.connection_profile.login_attempt_limit}}",
         "logo": "/common/packetfence-cp.png",
-        "mac_auth_recompute_role_from_portal": "{{.scan_wmi.connection_profil.mac_auth_recompute_role_from_portal}}",
-        "network_logoff": "{{.scan_wmi.connection_profil.network_logoff}}",
-        "network_logoff_popup": "{{.scan_wmi.connection_profil.network_logoff_popup}}",
-        "preregistration": "{{.scan_wmi.connection_profil.preregistration}}",
-        "provisioners": "{{.scan_wmi.connection_profil.provisioners}}",
+        "mac_auth_recompute_role_from_portal": "{{.scan_wmi.connection_profile.mac_auth_recompute_role_from_portal}}",
+        "network_logoff": "{{.scan_wmi.connection_profile.network_logoff}}",
+        "network_logoff_popup": "{{.scan_wmi.connection_profile.network_logoff_popup}}",
+        "preregistration": "{{.scan_wmi.connection_profile.preregistration}}",
+        "provisioners": "{{.scan_wmi.connection_profile.provisioners}}",
         "redirecturl": "http://www.packetfence.org/",
-        "reuse_dot1x_credentials": "{{.scan_wmi.connection_profil.reuse_dot1x_credentials}}",
+        "reuse_dot1x_credentials": "{{.scan_wmi.connection_profile.reuse_dot1x_credentials}}",
         "root_module": "default_policy",
         "scans": {
           "0": "{{.scan_wmi.scan_engine.id}}"
         },
-        "self_service": "{{.scan_wmi.connection_profil.self_service}}",
+        "self_service": "{{.scan_wmi.connection_profile.self_service}}",
         "sms_pin_retry_limit": "0",
         "sms_request_limit": "0",
         "sources": {
-          "0": "{{.scan_wmi.connection_profil.sources}}"
+          "0": "{{.scan_wmi.connection_profile.sources}}"
         },
         "status": "enabled",
-        "unreg_on_acct_stop": "{{.scan_wmi.connection_profil.unreg_on_acct_stop}}",
+        "unreg_on_acct_stop": "{{.scan_wmi.connection_profile.unreg_on_acct_stop}}",
         "vlan_pool_technique": "username_hash"
       }
     headers:
