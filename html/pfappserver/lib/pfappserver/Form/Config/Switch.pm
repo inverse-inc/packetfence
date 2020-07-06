@@ -53,7 +53,7 @@ has_field 'description' =>
 has_field 'TenantId' =>
   (
    type => 'Select',
-   label => 'Type',
+   label => 'Tenant ID',
    options_method => \&options_tenant,
    element_class => ['chzn-deselect'],
   );
