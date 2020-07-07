@@ -134,8 +134,6 @@ sub populate {
         my $id = delete $rule->{id};
         my $condition = delete $rule->{condition};
         my ($ast, $err) = parse_condition_string($condition);
-        my $top_op;
-        my $object = ast_to_object($ast);
         if ($err) {
             delete $err->{message};
             push @errors,
@@ -146,9 +144,8 @@ sub populate {
               );
             next;
         }
-
-        my $op = $object->{op};
-        unless ($op eq 'and' || $op eq 'or' || $op eq 'not_or' || $op eq 'not_and') {
+        my $top_op;
+        if (!ref $ast) {
             $top_op = 'and';
         }
 
