@@ -284,7 +284,7 @@ sub portal_preview_ip {
         return "127.0.0.1";
     }
     my  @ints = uniq (@internal_nets, @portal_ints);
-    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip};
+    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip} ? $ints[0]->{Tip} : "192.0.2.1";
 }
 
 =head1 AUTHOR
