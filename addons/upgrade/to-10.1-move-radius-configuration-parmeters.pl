@@ -89,7 +89,7 @@ if ($ini->exists('radius_configuration', 'ocsp_timeout')) {
 if ($ini->exists('radius_configuration', 'ocsp_softfail')) {
     my $val = $ini->val('radius_configuration', 'ocsp_softfail');
     $ini->delval('radius_configuration', 'ocsp_softfail');
-    $eap->newval('default', 'ocsp_softfail', $val);
+    $ocsp->newval('default', 'ocsp_softfail', $val);
 }
 
 $eap->RewriteConfig();
