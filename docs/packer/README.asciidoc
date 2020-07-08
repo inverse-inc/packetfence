@@ -57,14 +57,13 @@ manually or detect changes on packages specifications files to start.
 ==== Makefile
 
 Because we run build inside a GitLab pipeline, many environment variables can
-be set to change build behavior. A [filename]`Makefile` is provided to
-simplify creation a new Docker images based on environment variables.
+be set to change build behavior. A [filename]`Makefile` and a wrapper are provided to
+simplify creation of a new Docker images based on environment variables.
 
 .Example usage of Makefile
 [source,bash]
 ----
-make -C ci/packer
-GOVERSION=go1.9.3 DOCKER_TAG=$GOVERSION ACTIVE_BUILDS=pfbuild-stretch \
+GOVERSION=go1.9.3 DOCKER_TAGS=$GOVERSION ACTIVE_BUILDS=pfbuild-stretch \
 make -e -C ci/packer
 ----
 
