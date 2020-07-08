@@ -169,7 +169,7 @@ sub handle_security_events {
 
     my $security_event = security_event_view_top($mac);
 
-    return 1 unless(defined($security_event));
+    return 1 unless($security_event);
 
     return 1 if ($security_event->{security_event_id} == $POST_SCAN_SECURITY_EVENT_ID);
 
