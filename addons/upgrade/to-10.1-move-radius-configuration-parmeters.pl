@@ -39,55 +39,55 @@ if (!$ini->exists('radius_configuration', 'eap_authentication_types') && !$ini->
 }
 
 if ($ini->exists('radius_configuration', 'eap_authentication_types')) {
-    my $val = $ini->exists('radius_configuration', 'eap_authentication_types');
+    my $val = $ini->val('radius_configuration', 'eap_authentication_types');
     $ini->delval('radius_configuration', 'eap_authentication_types');
     $eap->newval('default', 'eap_authentication_types', $val);
 }
 
 if ($ini->exists('radius_configuration', 'eap_fast_opaque_key')) {
-    my $val = $ini->exists('radius_configuration', 'eap_fast_opaque_key');
+    my $val = $ini->val('radius_configuration', 'eap_fast_opaque_key');
     $ini->delval('radius_configuration', 'eap_fast_opaque_key');
     $fast->newval('default', 'pac_opaque_key', $val);
 }
 
 if ($ini->exists('radius_configuration', 'eap_fast_authority_identity')) {
-    my $val = $ini->exists('radius_configuration', 'eap_fast_authority_identity');
+    my $val = $ini->val('radius_configuration', 'eap_fast_authority_identity');
     $ini->delval('radius_configuration', 'eap_fast_authority_identity');
     $fast->newval('default', 'authority_identity', $val);
 }
 
 if ($ini->exists('radius_configuration', 'ocsp_enable')) {
-    my $val = $ini->exists('radius_configuration', 'ocsp_enable');
+    my $val = $ini->val('radius_configuration', 'ocsp_enable');
     $ini->delval('radius_configuration', 'ocsp_enable');
     $ocsp->newval('default', 'ocsp_enable', $val);
 }
 
 if ($ini->exists('radius_configuration', 'ocsp_override_cert_url')) {
-    my $val = $ini->exists('radius_configuration', 'ocsp_override_cert_url');
+    my $val = $ini->val('radius_configuration', 'ocsp_override_cert_url');
     $ini->delval('radius_configuration', 'ocsp_override_cert_url');
     $ocsp->newval('default', 'ocsp_override_cert_url', $val);
 }
 
 if ($ini->exists('radius_configuration', 'ocsp_url')) {
-    my $val = $ini->exists('radius_configuration', 'ocsp_url');
+    my $val = $ini->val('radius_configuration', 'ocsp_url');
     $ini->delval('radius_configuration', 'ocsp_url');
     $ocsp->newval('default', 'ocsp_url', $val);
 }
 
 if ($ini->exists('radius_configuration', 'ocsp_use_nonce')) {
-    my $val = $ini->exists('radius_configuration', 'ocsp_use_nonce');
+    my $val = $ini->val('radius_configuration', 'ocsp_use_nonce');
     $ini->delval('radius_configuration', 'ocsp_use_nonce');
     $ocsp->newval('default', 'ocsp_use_nonce', $val);
 }
 
 if ($ini->exists('radius_configuration', 'ocsp_timeout')) {
-    my $val = $ini->exists('radius_configuration', 'ocsp_timeout');
+    my $val = $ini->val('radius_configuration', 'ocsp_timeout');
     $ini->delval('radius_configuration', 'ocsp_timeout');
     $ocsp->newval('default', 'ocsp_timeout', $val);
 }
 
 if ($ini->exists('radius_configuration', 'ocsp_softfail')) {
-    my $val = $ini->exists('radius_configuration', 'ocsp_softfail');
+    my $val = $ini->val('radius_configuration', 'ocsp_softfail');
     $ini->delval('radius_configuration', 'ocsp_softfail');
     $eap->newval('default', 'ocsp_softfail', $val);
 }
