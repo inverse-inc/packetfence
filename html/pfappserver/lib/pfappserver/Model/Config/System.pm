@@ -345,29 +345,33 @@ sub writeNetworkConfigs {
 
     while (my ($interface, $interface_values) = each %$interfaces_ref) {
         next if ( !$interface_values->{is_running} );
+        my %vars = (
+            logical_name => $interface,
+            vlan_device  => $interface_values->{'vlan'},
+            hwaddr       => $interface_values->{'hwaddress'},
+            ipaddr       => $interface_values->{'ipaddress'},
+            netmask      => $interface_values->{'netmask'},
+            ipv6_address => $interface_values->{'ipv6_address'},
+            ipv6_prefix  => $interface_values->{'ipv6_prefix'},
+        );
 
-        my $vars = {
-            logical_name    => $interface,
-            vlan_device     => $interface_values->{'vlan'},
-            hwaddr          => $interface_values->{'hwaddress'},
-            ipaddr          => $interface_values->{'ipaddress'},
-            netmask         => $interface_values->{'netmask'},
-            ipv6_address    => $interface_values->{'ipv6_address'},
-            ipv6_prefix     => $interface_values->{'ipv6_prefix'},
-        };
 
         my $template = Template->new({
             INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
             OUTPUT_PATH     => $var_dir,
         });
-        $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
+        my $outfile = $_interface_conf_file.$interface;
+
+        $template->process( "interface_rhel.tt", \%vars, $outfile );
 
         if ( $template->error() ) {
             $status_msg = "Error while writing system network interfaces configuration";
             $logger->error("$status_msg");
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
-        my $cmd = "cat $var_dir$_interface_conf_file$interface | sudo tee $_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface 2>&1";
+        my $interface_config_file = "$_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface";
+        my $filter = variableExcludeRegex("$var_dir$outfile");
+        my $cmd = "grep --no-filename -Pv '$filter' $interface_config_file >> $var_dir$outfile;cat $var_dir$outfile | sudo tee $interface_config_file 2>&1";
         my $status = pf_run($cmd);
         # Something went wrong
         if ( !(defined($status) ) ) {
@@ -409,6 +413,15 @@ sub writeNetworkConfigs {
 
     $logger->info("System network configurations successfully written");
     return $STATUS::OK;
+}
+
+sub variableExcludeRegex {
+    my ($file) = @_;
+    open IN, '<', $file;
+    chomp(my @vars = <IN>);
+    close IN;
+    my @excludes = map { s/=.*//;$_ } grep { $_ ne ''  } @vars;
+    return '^(?:(?:' . join('|', @excludes) . ')=|$)';
 }
 
 package pfappserver::Model::Config::System::Debian;
