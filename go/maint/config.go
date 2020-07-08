@@ -46,19 +46,23 @@ func GetConfiguredJobs() []JobSetupConfig {
 	for name, config := range tasks.Element {
 		data := config.(map[string]interface{})
 		if data["status"].(string) == "enabled" {
-			var constructor func(map[string]interface{}) JobSetupConfig
-			var found bool
-			if constructor, found = builders[name]; !found {
-				constructor = NewPfmonJob
-			}
-
-			if job := constructor(data); job != nil {
+			if job := GetJob(name, data); job != nil {
 				jobs = append(jobs, job)
 			}
 		}
 	}
 
 	return jobs
+}
+
+func GetJob(name string, config map[string]interface{}) JobSetupConfig {
+	var constructor func(map[string]interface{}) JobSetupConfig
+	var found bool
+	if constructor, found = builders[name]; !found {
+		constructor = NewPfmonJob
+	}
+
+	return constructor(config)
 }
 
 type Task struct {
