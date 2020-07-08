@@ -143,6 +143,8 @@ These repositories contain all required dependencies to install PacketFence. Thi
 
 First install your supported distribution with minimal installation and no additional packages. Then:
 
+NOTE: If running UEFI mode, make sure SECURE BOOT is DISABLED.
+
 On Red Hat-based systems
 [options="compact"]
 * Disable firewall
@@ -158,6 +160,7 @@ Make sure your system is up to date and your yum or apt-get database is updated.
 [source,bash]
 ----
 yum update
+shutdown -r now
 ----
 
 On a Debian system, do:
@@ -166,6 +169,7 @@ On a Debian system, do:
 ----
 apt-get update
 apt-get upgrade
+shutdown -r now
 ----
 
 Regarding SELinux or AppArmor, even if they may be wanted by some
@@ -188,6 +192,8 @@ Install kernel development package:
 yum install kernel-devel-$(uname -r)
 ----
 
+NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to instaling this package if unsure.
+
 ===== RHEL 7.x
 
 NOTE: These are extra steps are required for RHEL 7 systems only, excluding derivatives such as CentOS or Scientific Linux.
@@ -208,6 +214,8 @@ Install kernel development package:
 ----
 apt install linux-headers-$(uname -r)
 ----
+
+NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to instaling this package if unsure.
 
 ==== Software Installation
 
