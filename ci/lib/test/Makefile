@@ -70,3 +70,17 @@ test-int-pfdeb9dev-dev:
 	GOLANG_UNIT_TESTS=yes \
 	INTEGRATION_TESTS=yes \
 	test
+
+.PHONY: test-int-dev
+test-int-dev: PF_VM_NAME=pfcen7dev
+test-int-dev: PERL_UNIT_TESTS=no
+test-int-dev: GOLANG_UNIT_TESTS=no
+test-int-dev: INTEGRATION_TESTS=yes
+test-int-dev: INT_TEST_VM_NAMES='ad switch01 node01'
+test-int-dev:
+	make PF_VM_NAME=$(PF_VM_NAME) \
+	INT_TEST_VM_NAMES=$(INT_TEST_VM_NAMES) \
+	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
+	GOLANG_UNIT_TESTS=$(GOLANG_UNIT_TESTS) \
+	INTEGRATION_TESTS=$(INTEGRATION_TESTS) \
+	test

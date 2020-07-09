@@ -16,22 +16,7 @@ testcases:
     headers:
       "Content-Type": "application/json"
     assertions:
-      # workaround because it doesn't seems possible to check subkey below swp12
+      # we didn't check MAC address on port to make this testcase reusable
       - result.body ShouldContainSubstring "{{.wired_mac_auth.roles.headless_device.vlan_id}}"
       - result.body ShouldContainSubstring AUTHORIZED
       - result.statuscode ShouldEqual 200
-
-# JSON Payload
-# {
-#     "swp12": {
-#         "00:03:00:11:11:01": {
-#             "auth_type": "unknown", 
-#             "flags": "[MAB][DYNAMIC_VLAN][AUTHORIZED]", 
-#             "ifname": "swp12", 
-#             "mac": "00:03:00:11:11:01", 
-#             "state": "AUTHORIZED", 
-#             "username": "000300111101", 
-#             "vlan": "100"
-#         }
-#     }
-# } 
