@@ -449,7 +449,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	}
 
 	a.Answer = []dns.RR{rr}
-	log.LoggerWContext(ctx).Info("Returned portal for MAC " + mac + " with IP " + srcIP + "for fqdn " + state.QName())
+	log.LoggerWContext(ctx).Debug("Returned portal for MAC " + mac + " with IP " + srcIP + "for fqdn " + state.QName())
 	state.SizeAndDo(a)
 	pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, "Portal")
 	w.WriteMsg(a)
