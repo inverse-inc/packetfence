@@ -15,7 +15,6 @@ use warnings;
 use Moo;
 use pf::factory::condition;
 use pf::util qw(mcmp make_string_rcmp make_string_cmp);
-use pf::generate_filter qw(filter_with_offset_limit);
 use pf::error qw(is_error);
 
 our %OP_TO_CONDITION = (
