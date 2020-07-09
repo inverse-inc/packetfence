@@ -311,17 +311,18 @@ read all parameters from a section
 
 sub readFromSection {
     my ($self, $id, $idKey, $config) = @_;
-    my $data;
     my $section = $self->_formatSectionName($id);
-    if ( $config->SectionExists($section) ) {
-        $data = {};
-        $self->populateItem($config, $data, $section, $config->Parameters($section));
-        for my $parent ($self->parentSections($id, $data)) {
-            $self->populateItem($config, $data, $parent, grep {!exists $data->{$_}} $config->Parameters($parent))
-        }
-
-        $data->{$idKey} = $id if defined $idKey;
+    if ( !$config->SectionExists($section) ) {
+        return undef;
     }
+
+    my $data = {};
+    $self->populateItem($config, $data, $section, $config->Parameters($section));
+    for my $parent ($self->parentSections($id, $data)) {
+        $self->populateItem($config, $data, $parent, grep {!exists $data->{$_}} $config->Parameters($parent))
+    }
+
+    $data->{$idKey} = $id if defined $idKey;
     return $data;
 }
 
@@ -351,19 +352,7 @@ populateItem
 
 sub populateItem {
     my ($self, $config, $item, $id, @params) = @_;
-    foreach my $param (@params) {
-        my $val;
-        my @vals = $config->val($id, $param);
-        if (@vals == 1 ) {
-            $val = $vals[0];
-        } elsif (@vals == 0) {
-            $val = undef;
-        } else {
-            $val = \@vals;
-        }
-
-        $item->{$param} = $val;
-    }
+    $config->populate($id, $item, @params);
     return ;
 }
 
