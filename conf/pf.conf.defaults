@@ -745,7 +745,7 @@ interfaceSNAT=
 # The IP address the portal uses in the registration and isolation networks.
 # This IP address should point to an IP outside the registration and isolation networks.
 # Do not change unless you know what you are doing.
-ip_address=69.172.200.235
+ip_address=66.70.255.147
 #
 # captive_portal.network_detection
 #
