@@ -17,6 +17,17 @@ export const view = (form = {}, meta = {}) => {
       tab: null,
       rows: [
         {
+          label: i18n.t('IP address'),
+          text: i18n.t('The IP address the portal uses in the registration and isolation networks. Do not change unless you know what you are doing.'),
+          cols: [
+            {
+              namespace: 'ip_address',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'ip_address')
+            }
+          ]
+        },
+        {
           label: i18n.t('Network detection'),
           text: i18n.t('Enable the automatic network detection feature for registration auto-redirect.'),
           cols: [
@@ -30,7 +41,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('IP'),
+          label: i18n.t('Network detection IP'),
           text: i18n.t(`This IP is used as the webserver who hosts the common/network-access-detection.gif which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is blackholed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easy solution.`),
           cols: [
             {
@@ -243,6 +254,7 @@ export const view = (form = {}, meta = {}) => {
 
 export const validators = (form = {}, meta = {}) => {
   return {
+    ip_address: validatorsFromMeta(meta, 'ip_address', i18n.t('IP address')),
     network_detection_ip: {
       ...validatorsFromMeta(meta, 'network_detection_ip', 'IP'),
       ...{
