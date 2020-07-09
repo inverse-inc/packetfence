@@ -60,7 +60,6 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ( $self, $id, $switch ) = @_;
-    my $logger = get_logger();
 
     my $config = $self->cachedConfig;
     # if the uplink attribute is set to dynamic or not set and the group we inherit from is dynamic
