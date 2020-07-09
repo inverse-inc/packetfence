@@ -28,6 +28,10 @@ func setuppfdns(c *caddy.Controller) error {
 	var ip net.IP
 	ctx := context.Background()
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
+
+	pfconfigdriver.PfconfigPool.Refresh(ctx)
+
 	for c.Next() {
 		// block with extra parameters
 		for c.NextBlock() {
@@ -91,6 +95,7 @@ func setuppfdns(c *caddy.Controller) error {
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {
+			pf.InternalPortalIP = net.ParseIP(pfconfigdriver.Config.PfConf.CaptivePortal.IpAddress).To4()
 			pf.RedirectIP = ip
 			pf.Next = next
 			return pf

@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 	"github.com/inverse-inc/packetfence/go/db"
@@ -34,6 +35,7 @@ import (
 )
 
 type pfdns struct {
+	InternalPortalIP    net.IP
 	RedirectIP          net.IP
 	Db                  *sql.DB
 	IP4log              *sql.Stmt // prepared statement for ip4log queries
@@ -382,6 +384,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			}
 		}
 
+		spew.Dump(pf.InternalPortalIP)
+
 		var returnedIP []byte
 		found = false
 		for k, v := range pf.Network {
@@ -391,7 +395,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						if x.NextHop != "" {
 							returnedIP = append([]byte(nil), v.To4()...)
 						} else {
-							returnedIP = append([]byte(nil), []byte{192, 0, 2, 1}...)
+							returnedIP = append([]byte(nil), []byte{pf.InternalPortalIP[0], pf.InternalPortalIP[1], pf.InternalPortalIP[2], pf.InternalPortalIP[3]}...)
 						}
 						rr.(*dns.A).A = returnedIP
 						found = true
@@ -448,7 +452,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	}
 
 	a.Answer = []dns.RR{rr}
-	log.LoggerWContext(ctx).Debug("Returned portal for MAC " + mac + " with IP " + srcIP + "for fqdn " + state.QName())
+	log.LoggerWContext(ctx).Info("Returned portal for MAC " + mac + " with IP " + srcIP + "for fqdn " + state.QName())
 	state.SizeAndDo(a)
 	pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, "Portal")
 	w.WriteMsg(a)
