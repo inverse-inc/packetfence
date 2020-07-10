@@ -137,9 +137,8 @@ sub parentSections {
     if (defined $inherit_from && (!defined $default_section || $default_section ne $inherit_from) && $id ne $inherit_from) {
         push @parents, "group $inherit_from";
     }
-    push @parents, $self->SUPER::parentSections($id, $item);
 
-    return @parents;
+    return @parents, $self->SUPER::parentSections($id, $item);
 }
 
 =head2 _normalizeInlineTrigger
