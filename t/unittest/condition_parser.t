@@ -277,7 +277,7 @@ BEGIN {
             '!(a == "b")',
             ['NOT', [ '==', 'a', 'b' ], ],
             {
-                op => "not",
+                op => "not_and",
                 values => [
                     {
                         op => "equals",
@@ -376,6 +376,35 @@ BEGIN {
             ['FUNC', 'true', []],
             {
                 op => 'true',
+            },
+        ],
+        [
+            'connection_type == "Ethernet-EAP" && user_name =~ "^host\\\\/.*\\\\.bh\\\\.local$" && !(user_name =~ "^host\\\\/(BradEhlert|BEhlert).*") && !(user_name =~ "^host\\\\/(dahlstrom|LMMSETUP|wied1419|lmmpunch).*")',
+            [
+                'AND',
+                ['==', 'connection_type', 'Ethernet-EAP'],
+                ['=~', 'user_name', '^host\\/.*\\.bh\\.local$'], 
+                ['NOT', ['=~', 'user_name', '^host\\/(BradEhlert|BEhlert).*']],
+                ['NOT', ['=~', 'user_name', '^host\\/(dahlstrom|LMMSETUP|wied1419|lmmpunch).*']]
+            ],
+            { 
+                op => 'and',
+                values => [
+                    { op => 'equals', field => 'connection_type', value => 'Ethernet-EAP'},
+                    { op => 'regex', field => 'user_name', value => '^host\\/.*\\.bh\\.local$'},
+                    {
+                        op => 'not_and', 
+                        values => [
+                            { op => 'regex', field => 'user_name', value => '^host\\/(BradEhlert|BEhlert).*'},
+                        ],
+                    },
+                    {
+                        op => 'not_and', 
+                        values => [
+                            { op => 'regex', field => 'user_name', value => '^host\\/(dahlstrom|LMMSETUP|wied1419|lmmpunch).*'},
+                        ],
+                    }
+                ],
             },
         ]
     );
