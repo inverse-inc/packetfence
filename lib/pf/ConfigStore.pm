@@ -335,12 +335,11 @@ parentSections
 sub parentSections {
     my ($self, $id, $item) = @_;
     my $default_section = $self->default_section;
-    my @parents;
     if (defined $default_section && length($default_section) && $default_section ne $id) {
-        push @parents, $default_section;
+        return $default_section;
     }
 
-    return @parents;
+    return;
 }
 
 
