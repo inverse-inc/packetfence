@@ -891,7 +891,6 @@ BEGIN
         `acctstoptime` = NOW(),
         `acctterminatecause` = 'UNKNOWN'
         WHERE `acctuniqueid` = `p_acctuniqueid`
-        AND `acctstarttime` < `Latest_acctstarttime`
         AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
   END IF;
   # Detect if we receive in the same time a stop before the interim update
