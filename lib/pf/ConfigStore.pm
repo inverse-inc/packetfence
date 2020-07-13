@@ -188,7 +188,7 @@ Get all the sections names
 =cut
 
 sub readAllIds {
-    my ($self,$itemKey) = @_;
+    my ($self) = @_;
     my @sections = $self->_Sections();
     return \@sections;
 }
