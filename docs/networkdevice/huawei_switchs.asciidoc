@@ -5,7 +5,6 @@ PacketFence supports the S5710 switch from Huawei.
 ==== Basic configuration
 
 ----
-l2protocol-tunnel user-defined-protocol 802.1X protocol-mac 0180-c200-0003 group-mac 0100-0000-0002
 domain pf
 
 dot1x enable
