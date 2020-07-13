@@ -22,9 +22,6 @@ install_packetfence_repo() {
     wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 }
 
-# Make DHCP Try Over and Over Again
-echo "retry 1;" >> /etc/dhcp/dhclient.conf
-
 #Replace existing network interfaces file
 echo -e "auto lo" > /etc/network/interfaces
 echo -e "iface lo inet loopback\n\n" >> /etc/network/interfaces
@@ -41,6 +38,9 @@ if [ "$?" == "0" ]; then
     # python-apt for ansible management
     apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
+
+    # to avoid conflict with systemd-networkd
+    apt remove dhclient
 fi
 
 install_venom
