@@ -1,0 +1,9 @@
+name: Check Internet access on node01
+version: 2
+testcases:
+  - name: check_internet_access_on_node01
+    steps:
+      - type: ssh
+        host: '{{.node01_mgmt_ip}}'
+        user: '{{.ssh_user}}'
+        command: '/src/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/common/check_internet_access.yml'
