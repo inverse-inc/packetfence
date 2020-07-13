@@ -212,17 +212,21 @@ _readAll
 
 sub _readAll {
     my ($self, $idKey, $method) = @_;
-    my $config = $self->cachedConfig;
     my $default_section = $self->default_section;
+    if (!defined $default_section) {
+        return [ map { $self->$method($_, $idKey) } $self->_Sections() ];
+    }
+
     my @sections;
     foreach my $id ($self->_Sections()) {
-        my $section = $self->$method($id,$idKey);
-        if (defined $default_section &&  $id eq $default_section ) {
+        my $section = $self->$method($id, $idKey);
+        if ( $id eq $default_section ) {
             unshift @sections, $section;
         } else {
             push @sections,$section;
         }
     }
+
     return \@sections;
 }
 
