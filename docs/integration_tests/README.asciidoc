@@ -146,3 +146,6 @@ scenarios.
 
 This machine has an Internet access during its first boot. After the reboot, this machine is only
 reachable using management network. A `vagrant ssh node01` will not work.
+
+All interfaces of `node01` are up after initial provisionning. We rely on
+`switch01` configuration to trigger specific scenario.
