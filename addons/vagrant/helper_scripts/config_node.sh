@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o nounset -o pipefail -o errexit
 
 echo "#################################"
 echo "  Running config_node.sh"
@@ -33,6 +34,7 @@ echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 # Other stuff
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
+    apt-get update -qy && apt-get install gnupg -qy
     install_packetfence_repo
     apt-get update -qy
     # python-apt for ansible management
@@ -40,10 +42,10 @@ if [ "$?" == "0" ]; then
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 
     # to avoid conflict with systemd-networkd
-    apt remove dhclient
-fi
+    apt-get remove isc-dhcp-client -qy
 
-install_venom
+    install_venom
+fi
 
 # Set Timezone
 cat << EOT > /etc/timezone

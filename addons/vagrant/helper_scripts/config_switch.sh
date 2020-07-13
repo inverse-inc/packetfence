@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o nounset -o pipefail -o errexit
 
 echo "#################################"
 echo "  Running Switch Post Config (config_switch.sh)"
