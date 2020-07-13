@@ -1,0 +1,10 @@
+name: Check Internet access on node01
+version: 2
+testcases:
+- name: check_internet_acces_on_node01
+  steps:
+  - type: http
+    method: GET
+    url: '{{.network_detection_url}}'
+    assertions:
+      - result.statuscode ShouldEqual 200

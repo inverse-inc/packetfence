@@ -37,6 +37,9 @@ node01_mgmt_ip: 172.17.17.251
 node01_eth1_mac_address: 00:03:00:11:11:01
 nodes_test_suite_dir: /src/t/venom/nodes
 
+# network detection
+network_detection_url: http://192.95.20.194/common/network-access-detection.gif
+
 # Access durations
 access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
 access_duration.default_choice: "5m"
