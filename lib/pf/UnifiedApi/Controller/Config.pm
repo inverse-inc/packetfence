@@ -106,7 +106,7 @@ sub normalize_sort_specs {
             my $dir       = 'asc';
             my $s         = $sort_spec;
             if ($s =~ s/  *(DESC|ASC)$//i) {
-                $dir = lc($dir);
+                $dir = lc($1);
             }
 
             { field => $s, dir => $dir }
