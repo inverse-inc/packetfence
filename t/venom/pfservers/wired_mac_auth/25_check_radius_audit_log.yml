@@ -74,7 +74,7 @@ testcases:
       id:
         from: result.bodyjson.items.items0.id
     retry: 3
-    delay: 5
+    delay: 15
       
 - name: check_radius_reply
   steps:
