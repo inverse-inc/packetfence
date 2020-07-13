@@ -51,7 +51,7 @@ dot1x_eap_peap_no_teardown: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap
 
 .PHONY: wired_mac_auth_no_teardown
-wired_mac_auth: setup global_config
+wired_mac_auth_no_teardown: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/wired_mac_auth
 
 .PHONY: backup_db_and_restore_no_teardown
