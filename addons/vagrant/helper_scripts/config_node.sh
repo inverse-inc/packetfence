@@ -7,7 +7,7 @@ sudo su
 
 
 install_venom() {
-    local venom_bin_path=/usr/local/bin
+    local venom_bin_path=/usr/bin
     local venom_binary=venom
     local venom_repo_url=https://api.github.com/repos/ovh/venom/releases/latest
     local venom_download_url=$(curl -s ${venom_repo_url}|grep "browser_download_url.*linux-amd64*"|cut -d '"' -f 4)
