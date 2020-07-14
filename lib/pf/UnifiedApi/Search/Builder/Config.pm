@@ -86,7 +86,7 @@ sub search_simple {
     my $nextCursor;
     my $ids = $configStore->readAllIds();
     my $count = scalar @$ids;
-    my $self->_resortIds($search_info, $ids);
+    $self->_resortIds($search_info, $ids);
     my $limit = $search_info->{limit} || 25;
     if ($cursor > 0) {
         splice(@$ids, 0, $cursor);
@@ -124,7 +124,7 @@ sub search_filtered_simple {
     my ($self, $search_info, $condition) = @_;
     my $configStore = $search_info->{configStore};
     my $ids = $configStore->readAllIds();
-    my $self->_resortIds($search_info, $ids);
+    $self->_resortIds($search_info, $ids);
     my $count = scalar @$ids;
     my $nextCursor;
     my @items;
