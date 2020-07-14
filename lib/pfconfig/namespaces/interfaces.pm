@@ -147,6 +147,7 @@ sub build {
             elsif ( $type eq 'portal' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
                 push @{ $self->{_interfaces}->{portal_ints} }, $int_obj;
+                push @{ $self->{_interfaces}->{listen_ints} }, $int if ( $int !~ /:\d+$/ );
             }
             elsif ( $type eq 'radius' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
