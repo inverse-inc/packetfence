@@ -72,3 +72,11 @@ interface GigabitEthernet0/0/2
  port hybrid tagged vlan 100
  mac-authen
 ----
+
+==== 802.1X commands
+
+----
+display dot1x
+display access-user
+display radius-server
+----
