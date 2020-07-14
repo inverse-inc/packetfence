@@ -1,0 +1,7 @@
+name: Kill wpasupplicant on node01
+version: 2
+testcases:
+- name: kill_wpasupplicant_on_node01
+  steps:
+  - type: exec
+    script: 'sudo pkill wpa_supplicant'

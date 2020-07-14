@@ -23,6 +23,7 @@ ad_dns_domain: example.lan
 ad_domain_admin_user: vagrant-domain
 ad_domain_admin_password: VagrantPass1
 ad_base_dn: dc=example,dc=lan
+ad_domain_user: packetfence
 
 # switchs variables
 switch01_mgmt_ip: 172.17.17.201
@@ -48,6 +49,11 @@ access_duration.default_choice: "5m"
 # Access level
 access_level_user_and_node.id: user_and_node_manager
 access_level_user_and_node.description: Users and Nodes management
+
+### Maintenance tasks
+# Node cleanup
+node_cleanup.delete_window.interval: 1
+node_cleanup.delete_window.unit: m
 
 ### Network devices
 # Switch group
@@ -83,6 +89,7 @@ dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap_peap_mschapv2
 dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP-PEAP-MSCHAPv2
 dot1x_eap_peap.profiles.wired.filters.connection_type: Ethernet-EAP
 dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
+dot1x_eap_peap.profiles.wired.unreg_on_acct_stop: enabled
 
 ################################################################################
 ## backup db and restore test suite specific variables
