@@ -42,8 +42,13 @@ sub search {
 
     my $configStore = $search_info->{configStore};
     my $condition = $search_args->{condition};
-    my @items = $configStore->filter(sub { $condition->match($_[0]) }, 'id');
     my $cmps = $search_args->{cmps};
+    if ((!defined $cmps) && !defined $condition) {
+        return $self->search_simple($search_info);
+    }
+
+    $condition //= pf::condition::true->new;
+    my @items = $configStore->filter(sub { $condition->match($_[0]) }, 'id');
     if ($cmps) {
         @items = sort { mcmp($a, $b, $cmps) } @items;
     }
@@ -70,6 +75,43 @@ sub search {
       };
 }
 
+sub search_simple {
+    my ($self, $search_info) = @_;
+    my $configStore = $search_info->{configStore};
+    my $sort = $search_info->{sort} // [];
+    my $cursor = $search_info->{cursor} // 0;
+    my $nextCursor;
+    my $ids = $configStore->readAllIds();
+    my $count = scalar @$ids;
+    if (@$sort == 1 && $sort->[0]{field} eq 'id') {
+        if ($sort->[0]{dir} eq 'desc') {
+            @$ids = sort { $b cmp $a } @$ids;
+        } else {
+            @$ids = sort @$ids;
+        }
+    }
+
+    my $limit = $search_info->{limit} || 25;
+    if ($cursor > 0) {
+        splice(@$ids, 0, $cursor);
+    }
+
+    if (@$ids > $limit) {
+        $nextCursor = $cursor + $limit;
+        splice(@$ids, $limit);
+    }
+
+    my @items = map { $configStore->read($_, 'id') } @$ids;
+
+    return 200,
+      {
+        prevCursor  => $cursor,
+        items       => \@items,
+        total_count => $count,
+        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
+      };
+}
+
 =head2 make_search_args
 
 make_search_args
@@ -82,6 +124,15 @@ sub make_search_args {
         condition => $self->make_condition($search_info),
         cmps      => $self->make_sort_cmps($search_info),
     );
+
+    # Sorting by id will be handled in search_simple
+    if (!defined $args{condition}) {
+        my $sort = $search_info->{sort} // [];
+        if (@$sort == 1 && $sort->[0]->{field} eq 'id') {
+            $args{cmps} = undef;
+        }
+    }
+
     return 200, \%args;
 }
 
@@ -117,7 +168,7 @@ sub make_condition {
     my ($self, $search) = @_;
     my $query = $search->{query};
     if (!defined $query) {
-        return pf::condition::true->new;
+        return undef;
     }
 
     return $self->query_to_condition($search, $query);
