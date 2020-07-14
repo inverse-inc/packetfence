@@ -22,7 +22,7 @@ has roles => ( is => 'rw', builder => '_build_roles');
 sub _build_roles {
     my ($self) = @_;
     my $cs = pf::ConfigStore::Roles->new;
-    return [sort { $a->{name} cmp $b->{name}  } $cs->readAll('name')];
+    return [sort { $a->{name} cmp $b->{name}  } @{$cs->readAll('name')}];
 }
 
 =head1 AUTHOR
