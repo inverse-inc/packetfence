@@ -8,3 +8,6 @@ testcases:
     url: '{{.network_detection_url}}'
     assertions:
       - result.statuscode ShouldEqual 200
+    # retry to let node get IP by DHCP
+    retry: 6
+    delay: 10
