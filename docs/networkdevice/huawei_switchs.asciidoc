@@ -5,6 +5,7 @@ PacketFence supports the S5710 switch from Huawei.
 ==== Global configuration for 802.1X and Mac Authentication
 
 ----
+undo authentication unified-mode
 domain pf
 
 dot1x enable
