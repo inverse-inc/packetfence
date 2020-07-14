@@ -41,7 +41,7 @@ blacklisted_ip_hosts_window=10s
 [use_of_insecure_protocols]
 status=disabled
 blacklisted_ip_hosts_threshold=1
-blacklisted_ports=20, 23, 80, 161
+blacklisted_ports=20,23,80,161
 device_attributes_diff_score=0
 whitelisted_ips=10.0.0.0/8, 172.0.0.0/8, 192.168.0.0/16
 description=Use of insecure protocols
