@@ -64,6 +64,7 @@ our @excludes = (
     ".gitattributes",
     ".gitconfig",
     ".gitignore",
+    ".gitlab-ci.yml",
     "addons/logrotate",
     "packetfence.logrotate",
     # Directories
