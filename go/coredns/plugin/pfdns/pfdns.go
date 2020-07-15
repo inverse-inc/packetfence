@@ -34,6 +34,7 @@ import (
 )
 
 type pfdns struct {
+	InternalPortalIP    net.IP
 	RedirectIP          net.IP
 	Db                  *sql.DB
 	IP4log              *sql.Stmt // prepared statement for ip4log queries
@@ -375,7 +376,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						if x.NextHop != "" {
 							returnedIP = append([]byte(nil), v.To4()...)
 						} else {
-							returnedIP = append([]byte(nil), []byte{192, 0, 2, 1}...)
+							returnedIP = append([]byte(nil), []byte{pf.InternalPortalIP[0], pf.InternalPortalIP[1], pf.InternalPortalIP[2], pf.InternalPortalIP[3]}...)
 						}
 						rr.(*dns.A).A = returnedIP
 						found = true
