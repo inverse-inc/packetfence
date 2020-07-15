@@ -223,11 +223,12 @@ EOT
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
 
+    my $internal_portal_ip = $Config{captive_portal}{ip_address};
     if (scalar @portal_ip > 0) {
 $tags{'http'} .= <<"EOT";
 
-frontend portal-http-192.0.2.1
-        bind 192.0.2.1:80
+frontend portal-http-$internal_portal_ip
+        bind $internal_portal_ip:80
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -250,8 +251,8 @@ EOT
         default_backend $ip_cluster-backend
         $bind_process
 
-frontend portal-https-192.0.2.1
-        bind 192.0.2.1:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+frontend portal-https-$internal_portal_ip
+        bind $internal_portal_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
