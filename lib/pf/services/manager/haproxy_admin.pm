@@ -280,11 +280,12 @@ The creates the portal preview ip addresss
 
 sub portal_preview_ip {
     my ($self) = @_;
+    my $internal_portal_ip = $Config{captive_portal}{ip_address};
     if (!$cluster_enabled) {
         return "127.0.0.1";
     }
     my  @ints = uniq (@internal_nets, @portal_ints);
-    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip} ? $ints[0]->{Tip} : "192.0.2.1";
+    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip} ? $ints[0]->{Tip} : $internal_portal_ip;
 }
 
 =head1 AUTHOR
