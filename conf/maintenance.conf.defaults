@@ -429,7 +429,7 @@ description=Task to control the population of the Active Directory NTLM cache.
 # schedule
 # 
 # The schedule of task
-schedule=@every 0s
+schedule=@every 1m
 
 [provisioning_compliance_poll]
 # 
@@ -697,7 +697,7 @@ description=Controls the cleanup of the admin_api_audit_log table. Entries older
 # schedule
 # 
 # The schedule of task
-schedule=@every 15s
+schedule=@every 1h
 #
 # batch
 #
@@ -776,7 +776,7 @@ type=bandwidth_maintenance_session
 # status
 # 
 # If the task is enabled
-status=disabled
+status=enabled
 # 
 # description
 # 
@@ -786,7 +786,7 @@ description=Controls the cleanup of the bandwidth accounting sessions. The task 
 # schedule
 # 
 # The schedule of task
-schedule=@every 1h
+schedule=@every 0s
 #
 # batch
 #
@@ -802,3 +802,25 @@ timeout=10s
 #
 # How long to keep a session open
 window=24h
+
+[ubiquiti_ap_mac_to_ip]
+# 
+# type
+# 
+# Task type
+type=ubiquiti_ap_mac_to_ip
+# 
+# status
+# 
+# If the task is enabled
+status=enabled
+# 
+# description
+# 
+# The description of task
+description=Cache MAC/IP couple for Ubiquiti AP
+# 
+# schedule
+# 
+# The schedule of task
+schedule=@every 12h
