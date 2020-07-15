@@ -21,6 +21,7 @@ use pf::file_paths qw(
 );
 
 
+my $default_cronspec = '@every 1m';
 my $pfmon = pf::IniFiles->new( -file => $pfmon_default_config_file);
 my $maintenance = pf::IniFiles->new();
 my %skip = (
@@ -44,13 +45,17 @@ for my $section ($pfmon->Sections) {
 
 sub interval_to_cronspec {
     my ($date) = @_;
-    return '@every 1m' if ( !defined($date) );
+    return $default_cronspec if ( !defined($date) );
     if ( $date =~ /^\d+$/ ) {
         return "\@every ${date}s";
     }
     my ( $num, $modifier ) =
       $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/
-      or return (0);
+      or return $default_cronspec;
+
+    if ($num == 0) {
+        return $default_cronspec;
+    }
 
     if ( $modifier eq "s" ) {
         return "\@every ${num}s";
@@ -78,7 +83,7 @@ sub interval_to_cronspec {
         return "\@every ${num}h";
     }
 
-    return "\@every 1m";
+    return $default_cronspec;
 }
 
 sub addNew {
