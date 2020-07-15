@@ -1,0 +1,32 @@
+name: Check autoregister node
+version: 2
+testcases:
+- name: check_autoregister_node
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.node01_eth1_mac_address_url_encoded}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.autoreg ShouldEqual yes
+      - result.bodyjson.item.category ShouldEqual "{{.dot1x_eap_peap.roles.ad_user.id}}"
+      - result.bodyjson.item.pid ShouldEqual "{{.ad_domain_user}}"
+      - result.bodyjson.item.status ShouldEqual reg
+    vars:
+      node01_regdate:
+        from: result.bodyjson.item.regdate
+
+- name: check_unregdate
+  steps:
+  - type: exec
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='last minute'"
+    vars:
+      last_minute:
+        from: result.systemout    
+    
+
+
