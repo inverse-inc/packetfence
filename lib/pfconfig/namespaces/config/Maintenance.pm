@@ -37,6 +37,14 @@ our %TIME_ATTR = (
     timeout => 1,
     rotate_timeout => 1,
     rotate_window => 1,
+    history_timeout=> 1,
+    history_window=> 1,
+);
+
+our %INT = (
+    batch => 1,
+    history_batch => 1,
+    rotate_batch => 1,
 );
 
 sub build_child {
@@ -45,11 +53,11 @@ sub build_child {
     foreach my $task_data (values %$tmp_cfg) {
         foreach my $key (keys %$task_data) {
             $task_data->{$key} = normalize_time($task_data->{$key}) + 0 if exists $TIME_ATTR{$key};
+            if (exists $INT{$key}) {
+                $task_data->{$key} += 0;
+            }
         }
 
-        if (exists $task_data->{batch}) {
-            $task_data->{batch} += 0;
-        }
     }
 
     return $tmp_cfg;
