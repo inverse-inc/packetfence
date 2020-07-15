@@ -50,7 +50,7 @@ testcases:
         "cliTransport": null,
         "cliUser": null,
         "coaPort": null,
-        "controllerIp": null,
+        "controllerIp": "{{.switch01_mgmt_ip}}",
         "deauthMethod": null,
         "defaultAccessList": null,
         "defaultRole": null,
@@ -99,6 +99,10 @@ testcases:
         "{{.dot1x_eap_peap.roles.ad_machine.id}}Role": null,
         "{{.dot1x_eap_peap.roles.ad_machine.id}}Url": null,
         "{{.dot1x_eap_peap.roles.ad_machine.id}}Vlan": "{{.dot1x_eap_peap.roles.ad_machine.vlan_id}}",
+        "{{.wired_mac_auth.roles.headless_device.id}}AccessList": null,
+        "{{.wired_mac_auth.roles.headless_device.id}}Role": null,
+        "{{.wired_mac_auth.roles.headless_device.id}}Url": null,
+        "{{.wired_mac_auth.roles.headless_device.id}}Vlan": "{{.wired_mac_auth.roles.headless_device.vlan_id}}",
         "voiceAccessList": null,
         "voiceRole": null,
         "voiceUrl": null,
@@ -113,7 +117,10 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: create_switch
+# workaround to make accounting working:
+# NAS-IP-Address is not included in accounting packets before VX 4.0
+# with controllerIP set, no need to create switch by IP
+- name: create_switch_by_mac
   steps:
   - type: http
     method: POST
@@ -121,7 +128,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id": "{{.cumulus_switch.id}}",
+        "id": "{{.cumulus_switch.id2}}",
         "group": "{{.cumulus_switch_group.id}}",
         "description": "{{.cumulus_switch.description}}"
       }

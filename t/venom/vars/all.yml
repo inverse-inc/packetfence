@@ -26,10 +26,20 @@ ad_base_dn: dc=example,dc=lan
 
 # switchs variables
 switch01_mgmt_ip: 172.17.17.201
+switch01.api.url: "https://{{.switch01_mgmt_ip}}:8080"
+switch01.api.user: cumulus
+switch01.api.password: CumulusLinux!
+switch01.dot1x_interface.id: swp12
+switch01.dot1x_interface.mac: 44:38:39:00:00:12
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
+node01_eth1_mac_address: 00:03:00:11:11:01
+node01_eth1_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
 nodes_test_suite_dir: /src/t/venom/nodes
+
+# network detection
+network_detection_url: http://192.95.20.194/common/network-access-detection.gif
 
 # Access durations
 access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
@@ -46,7 +56,8 @@ cumulus_switch_group.description: Cumulus switch group
 cumulus_switch_group.radiusSecret: testing123
 
 # Switch
-cumulus_switch.id: '{{.switch01_mgmt_ip}}'
+cumulus_switch.id1: '{{.switch01_mgmt_ip}}'
+cumulus_switch.id2: '{{.switch01.dot1x_interface.mac}}'
 cumulus_switch.description: switch01
 
 ################################################################################
@@ -79,3 +90,17 @@ dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
 # Create user for db
 backup_db_and_restore.user: adminvenom
 backup_db_and_restore.backup_dir: /root/backup
+
+################################################################################
+## wired_mac_auth test suite specific variables
+#################################################################################
+# Roles
+wired_mac_auth.roles.headless_device.id: headless_device
+wired_mac_auth.roles.headless_device.notes: Headless device
+wired_mac_auth.roles.headless_device.vlan_id: 100
+
+# Connection profiles
+wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
+wired_mac_auth.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
+wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
+wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled

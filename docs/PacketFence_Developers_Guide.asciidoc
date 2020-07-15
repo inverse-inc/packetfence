@@ -513,7 +513,22 @@ Example to create a node:
 [source,bash]
 ----
 /usr/local/pf/sbin/pfperl-api get -M POST /api/v1/nodes/ \
--c '{"mac":"22:33:44:55:66:77","pid":"host/MYCOMPUTER"}' \
+-c '{"mac":"22:33:44:55:66:77","pid":"default"}' \
+| python -m json.tool
+----
+
+Example to create a node with JSON payload in a dedicated file:
+
+.example.json
+[source,json]
+----
+{"mac":"22:33:44:55:66:77","pid":"default"}
+----
+
+[source,bash]
+----
+cat example.json | \
+/usr/local/pf/sbin/pfperl-api get -M POST /api/v1/nodes/ \
 | python -m json.tool
 ----
 

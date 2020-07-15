@@ -1,0 +1,19 @@
+name: Disable dynamic VLAN on switch01
+version: 2
+testcases:
+- name: disable_dynamic_vlan_on_switch01
+  steps:
+  - type: http
+    method: POST
+    basic_auth_user: "{{.switch01.api.user}}"
+    basic_auth_password: "{{.switch01.api.password}}"
+    url: '{{.switch01.api.url}}/nclu/v1/rpc'
+    ignore_verify_ssl: true
+    body: >-
+      {
+       "cmd": "del dot1x dynamic-vlan"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

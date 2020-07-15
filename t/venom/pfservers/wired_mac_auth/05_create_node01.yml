@@ -1,0 +1,62 @@
+name: Create node01 with the mac 00:03:00:11:11:01 and role headless_device
+version: 2
+testcases:
+- name: get_category_id_of_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/node_categories/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "category_id"
+        ],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "name",
+                  "op": "equals",
+                  "value": "{{.wired_mac_auth.roles.headless_device.id}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      category_id:
+        from: result.bodyjson.items.items0.category_id
+
+- name: create_node01
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/nodes'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "category_id": "{{.get_category_id_of_role.category_id}}",
+        "mac": "{{.node01_eth1_mac_address}}",
+        "notes": "node01 eth1",
+        "pid": null,
+        "status": "reg",
+        "unreg_date": null,
+        "unregdate": null
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

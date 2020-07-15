@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o nounset -o pipefail -o errexit
 
 echo "#################################"
 echo "  Running config_node.sh"
@@ -7,7 +8,7 @@ sudo su
 
 
 install_venom() {
-    local venom_bin_path=/usr/local/bin
+    local venom_bin_path=/usr/bin
     local venom_binary=venom
     local venom_repo_url=https://api.github.com/repos/ovh/venom/releases/latest
     local venom_download_url=$(curl -s ${venom_repo_url}|grep "browser_download_url.*linux-amd64*"|cut -d '"' -f 4)
@@ -22,9 +23,6 @@ install_packetfence_repo() {
     wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 }
 
-# Make DHCP Try Over and Over Again
-echo "retry 1;" >> /etc/dhcp/dhclient.conf
-
 #Replace existing network interfaces file
 echo -e "auto lo" > /etc/network/interfaces
 echo -e "iface lo inet loopback\n\n" >> /etc/network/interfaces
@@ -36,14 +34,18 @@ echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 # Other stuff
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
+    apt-get update -qy && apt-get install gnupg -qy
     install_packetfence_repo
     apt-get update -qy
     # python-apt for ansible management
     apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
-fi
 
-install_venom
+    # to avoid conflict with systemd-networkd
+    apt-get remove isc-dhcp-client -qy
+
+    install_venom
+fi
 
 # Set Timezone
 cat << EOT > /etc/timezone

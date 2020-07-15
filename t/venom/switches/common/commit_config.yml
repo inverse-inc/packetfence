@@ -1,0 +1,19 @@
+name: Commit changes in configuration
+version: 2
+testcases:
+- name: commit_configuration
+  steps:
+  - type: http
+    method: POST
+    basic_auth_user: "{{.switch01.api.user}}"
+    basic_auth_password: "{{.switch01.api.password}}"
+    url: '{{.switch01.api.url}}/nclu/v1/rpc'
+    ignore_verify_ssl: true
+    body: >-
+      {
+       "cmd": "commit"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
