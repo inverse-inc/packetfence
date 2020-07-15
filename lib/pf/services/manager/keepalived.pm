@@ -64,6 +64,8 @@ sub generateConfig {
     my ($package, $filename, $line) = caller();
     $logger->info("$package, $filename, $line");
 
+    my $internal_portal_ip = $Config{captive_portal}{ip_address};
+
     my %tags;
     $tags{'template'} = "$conf_dir/keepalived.conf";
     
@@ -81,7 +83,7 @@ sub generateConfig {
     $tags{'vrrp'} .= <<"EOT";
 
 static_ipaddress {
-    192.0.2.1 dev lo scope link
+    $internal_portal_ip dev lo scope link
     $ips
 }
 

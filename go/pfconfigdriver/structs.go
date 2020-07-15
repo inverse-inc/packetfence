@@ -134,6 +134,7 @@ type PfConfCaptivePortal struct {
 	PfconfigMethod               string   `val:"hash_element"`
 	PfconfigNS                   string   `val:"config::Pf"`
 	PfconfigHashNS               string   `val:"captive_portal"`
+	IpAddress                    string   `json:"ip_address"`
 	DetectionMecanismBypass      string   `json:"detection_mecanism_bypass"`
 	DetectionMecanismUrls        []string `json:"detection_mecanism_urls"`
 	NetworkDetection             string   `json:"network_detection"`
