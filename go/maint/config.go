@@ -38,12 +38,16 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	),
 }
 
-func GetConfiguredJobs() []JobSetupConfig {
+func GetMaintenanceConfig() map[string]interface{} {
 	var tasks pfconfigdriver.Maintenance
 	ctx := context.Background()
 	pfconfigdriver.FetchDecodeSocket(ctx, &tasks)
+	return tasks.Element
+}
+
+func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {
 	jobs := []JobSetupConfig{}
-	for name, config := range tasks.Element {
+	for name, config := range maintConfig {
 		data := config.(map[string]interface{})
 		if data["status"].(string) == "enabled" {
 			if job := GetJob(name, data); job != nil {
@@ -61,7 +65,6 @@ func GetJob(name string, config map[string]interface{}) JobSetupConfig {
 	if constructor, found = builders[name]; !found {
 		constructor = NewPfmonJob
 	}
-
 	return constructor(config)
 }
 
