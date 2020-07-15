@@ -18,7 +18,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           label: i18n.t('IP address'),
-          text: i18n.t('The IP address the portal uses in the registration and isolation networks. Do not change unless you know what you are doing.'),
+          text: i18n.t('The IP address the portal uses in the registration and isolation networks. Do not change unless you know what you are doing. Changing this requires to restart all of the PacketFence services.'),
           cols: [
             {
               namespace: 'ip_address',
