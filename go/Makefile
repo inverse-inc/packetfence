@@ -21,13 +21,6 @@ galera-autofix:
         cd - && \
         mv galeraautofix/galeraautofix galera-autofix
 
-.PHONY: pfacct
-pfacct:
-	cd acct && \
-        go build && \
-        cd - && \
-        mv acct/acct pfacct
-
 .PHONY: radius-tester
 radius-tester:
 	cd acct-tester/radius-tester && \
