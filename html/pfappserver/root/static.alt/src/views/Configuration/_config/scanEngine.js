@@ -156,6 +156,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
+          if: ['nessus', 'nessus6', 'openvas', 'rapid7', 'wmi'].includes(scanType),
           label: i18n.t('Username'),
           cols: [
             {
@@ -177,6 +178,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
+          if: ['nessus', 'nessus6', 'openvas', 'rapid7', 'wmi'].includes(scanType),
           label: i18n.t('Password'),
           cols: [
             {
@@ -199,7 +201,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          if: ['nessus', 'nessus6'].includes(scanType),
+          if: ['nessus', 'nessus6',].includes(scanType),
           label: i18n.t('Nessus client policy'),
           text: i18n.t('Name of the policy to use on the nessus server.'),
           cols: [
@@ -309,6 +311,66 @@ export const view = (meta = {}) => {
           ]
         },
         {
+          if: ['tenableio'].includes(scanType),
+          label: i18n.t('TenableIO url'),
+          text: i18n.t('URL of the tenableIO instance.'),
+          cols: [
+            {
+              namespace: 'url',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'url')
+            }
+          ]
+        },
+        {
+          if: ['tenableio'].includes(scanType),
+          label: i18n.t('Access Key'),
+          text: i18n.t('TenableIO Access Key.'),
+          cols: [
+            {
+              namespace: 'accessKey',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'accessKey')
+            }
+          ]
+        },
+        {
+          if: ['tenableio'].includes(scanType),
+          label: i18n.t('TenableIO Secret Key'),
+          text: i18n.t('TenableIO Secret Key.'),
+          cols: [
+            {
+              namespace: 'secretKey',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'secretKey')
+            }
+          ]
+        },
+        {
+          if: ['tenableio'].includes(scanType),
+          label: i18n.t('TenableIO scanner name'),
+          text: i18n.t('Name of the scanner to use on the TenableIO instance.'),
+          cols: [
+            {
+              namespace: 'scannername',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'scannername')
+            }
+          ]
+        },
+        {
+          if: ['tenableio'].includes(scanType),
+          label: i18n.t('TenableIO client policy'),
+          text: i18n.t('Name of the client policy to use.'),
+          cols: [
+            {
+              namespace: 'tenableio_clientpolicy',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'tenableio_clientpolicy')
+            }
+          ]
+        },
+        {
           label: i18n.t('Roles'),
           text: i18n.t('Nodes with the selected roles will be affected.'),
           cols: [
@@ -320,7 +382,7 @@ export const view = (meta = {}) => {
           ]
         },
         {
-          if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
+          if: ['nessus', 'nessus6', 'openvas', 'rapid7', 'tenableio'].includes(scanType),
           label: i18n.t('OS'),
           text: i18n.t('Nodes with the selected OS will be affected.'),
           cols: [
@@ -458,6 +520,10 @@ export const validators = (form = {}, meta = {}) => {
     oses: validatorsFromMeta(meta, 'oses', 'OS'),
     'duration.interval': validatorsFromMeta(meta, 'duration.interval', i18n.t('Interval')),
     'duration.unit': validatorsFromMeta(meta, 'duration.unit', i18n.t('Unit')),
+    url: validatorsFromMeta(meta, 'url', i18n.t('Url')),
+    accessKey: validatorsFromMeta(meta, 'accessKey', i18n.t('Access Key')),
+    secretKey: validatorsFromMeta(meta, 'secretKey', i18n.t('Secret Key')),
+    tenableio_clientpolicy: validatorsFromMeta(meta, 'tenableio_clientpolicy', i18n.t('Policy')),
     wmi_rules: {
       $each: {
         [i18n.t('Duplicate Rule.')]: conditional((value) => {
