@@ -1,12 +1,5 @@
 include ../config.mk
 
-.PHONY: pfdns
-pfdns:
-	cd coredns && \
-	go build && \
-	cd - && \
-	mv coredns/coredns pfdns
-
 .PHONY: clean-caddy-src
 clean-caddy-src:
 	find caddy/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
