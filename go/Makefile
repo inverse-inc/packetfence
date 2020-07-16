@@ -100,6 +100,14 @@ test:
 	/usr/local/pf/t/pfconfig-test ;\
 	PFCONFIG_TESTING=y go test -count=1 ./...
 
+CMDS = $(wildcard cmd/*)
+BINARYS = $(patsubst cmd/%, %, $(CMDS))
+.PHONY: $(BINARYS)
+$(BINARYS):
+	cd cmd/$@ && \
+	go build && \
+	mv $@ ../..
+
 .PHONY: all
 all: $(GOBINARIES)
 
