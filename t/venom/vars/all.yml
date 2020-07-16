@@ -81,8 +81,11 @@ dot1x_eap_peap.roles.ad_machine.vlan_id: 100
 # Sources
 dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
 dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+dot1x_eap_peap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
 dot1x_eap_peap.sources.ad_machine.name: dot1x_eap_peap_machine_auth
 dot1x_eap_peap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+dot1x_eap_peap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
 
 # Connection profiles
 dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap_peap_mschapv2

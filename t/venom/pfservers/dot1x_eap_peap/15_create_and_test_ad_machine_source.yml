@@ -22,7 +22,7 @@ testcases:
               },
               {
                 "type": "set_access_duration",
-                "value": "{{.access_duration.default_choice}}"
+                "value": "{{.dot1x_eap_peap.sources.ad_machine.access_duration}}"
               }
             ],
             "conditions": []
