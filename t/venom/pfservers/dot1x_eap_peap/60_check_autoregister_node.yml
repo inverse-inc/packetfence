@@ -17,16 +17,23 @@ testcases:
       - result.bodyjson.item.pid ShouldEqual "{{.ad_domain_user}}"
       - result.bodyjson.item.status ShouldEqual reg
     vars:
-      node01_regdate:
+      regdate:
         from: result.bodyjson.item.regdate
+      unregdate:
+        from: result.bodyjson.item.unregdate
 
-- name: check_unregdate
+- name: convert_access_duration
   steps:
   - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='last minute'"
+    script: |
+      perl -I/usr/local/pf/lib -Mpf::config::util -e 'my @times = get_translatable_time("{{.dot1x_eap_peap.sources.ad_user.access_duration}}"); print("$times[2]$times[1]");'
     vars:
-      last_minute:
-        from: result.systemout    
-    
+      translatable_time:
+        from: result.systemout
 
-
+- name: check_unregdate_match_access_duration
+  steps:
+  - type: exec
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}}'"
+    assertions:
+      - result.systemout ShouldEqual "{{.check_autoregister_node.unregdate}}"
