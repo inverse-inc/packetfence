@@ -18,7 +18,7 @@ use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
 use pf::file_paths qw($pfmon_config_file $pf_config_file);
 use Data::Dumper;
-use pf::ConfigStore::Pfmon;
+use pf::ConfigStore;
 
 use pf::util;
 
@@ -47,7 +47,7 @@ my %NEW_KEY_OLD = (
    },
 );
 
-my $cs = pf::ConfigStore::Pfmon->new;
+my $cs = pf::ConfigStore->new( configFile => $pfmon_config_file );
 
 my $items = $cs->readAll('id');
 
