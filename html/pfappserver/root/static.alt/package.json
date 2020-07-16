@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build",
+    "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
     "build-report": "vue-cli-service build --report",
     "lint": "vue-cli-service lint",
     "test:unit": "jest --clearCache && vue-cli-service test:unit"
