@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Pfmon;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon - Web form for pfmon.conf
+pfappserver::Form::Config::Pfmon - Web form for maintenance.conf
 
 =head1 DESCRIPTION
 

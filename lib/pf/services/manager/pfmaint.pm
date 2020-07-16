@@ -1,45 +1,29 @@
-package pfconfig::namespaces::config::PfmonDefault;
-
+package pf::services::manager::pfmaint;
 =head1 NAME
 
-pfconfig::namespaces::config::PfmonDefault
+pf::services::manager::pfmaint add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::PfmonDefault
-
-This module creates the configuration hash associated to pfmon.conf.defaults
+pf::services::manager::pfmaint
 
 =cut
 
 use strict;
 use warnings;
+use Moo;
+use pf::cluster;
 
-use pfconfig::namespaces::config;
-use pf::file_paths qw($pfmon_default_config_file);
-use Clone qw(clone);
+extends 'pf::services::manager';
 
-use base 'pfconfig::namespaces::config';
-
-sub init {
-    my ($self) = @_;
-    $self->{file} = $pfmon_default_config_file;
-}
-
-
-sub build_child {
-    my ($self) = @_;
-    my $tmp_cfg = clone($self->{cfg});
-
-    return $tmp_cfg;
-}
-
+has '+name' => ( default => sub { 'pfmaint' } );
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -65,8 +49,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
-

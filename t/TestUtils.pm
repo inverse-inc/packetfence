@@ -120,6 +120,7 @@ my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/sbin/pfdns
    /usr/local/pf/sbin/pfdhcp
    /usr/local/pf/sbin/pfipset
+   /usr/local/pf/sbin/pfmaint
    /usr/local/pf/sbin/pfstats
    /usr/local/pf/sbin/pfdetect
    /usr/local/pf/bin/ntlm_auth_wrapper

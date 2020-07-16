@@ -511,10 +511,10 @@ snmptrapd_binary=/usr/sbin/snmptrapd
 # Should pfqueue be managed by PacketFence?
 pfqueue=enabled
 #
-# services.pfmon
+# services.pfmaint
 #
-# Should pfmon be managed by PacketFence?
-pfmon=enabled
+# Should pfmaint be managed by PacketFence?
+pfmaint=enabled
 #
 # services.redis_cache
 #
@@ -703,20 +703,20 @@ trap_limit_action =
 # inline.accounting
 #
 # Should we handle accouting data for inline clients?
-# This controls inline accouting tasks in pfmon.
+# This controls inline accouting tasks in pfmaint.
 accounting = disabled
 #
 # inline.layer3_accounting_session_timeout
 #
 # Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
 # amount of seconds will be considered inactive.
-# This should be higher than the interval at which pfmon runs
+# This should be higher than the interval at which pfmaint runs
 # Defaults to 300 - 5 minutes
 layer3_accounting_session_timeout = 300
 # inline.layer3_accounting_sync_interval
 #
 # Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
-# This should be lower than the interval at which pfmon runs
+# This should be lower than the interval at which pfmaint runs
 # Defaults to 41 seconds
 layer3_accounting_sync_interval = 41
 #
@@ -1120,7 +1120,7 @@ auth_on_management=enabled
 #
 # active_active.conflict_resolution_threshold
 #
-# Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members.
+# Defines the amount of seconds after which pfmaint attempts to resolve a configuration version conflict between cluster members.
 # For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.
 conflict_resolution_threshold=5m
 #

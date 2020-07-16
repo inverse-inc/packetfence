@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence pfmon Service
+Description=PacketFence pfmaint Service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStart=/usr/local/pf/sbin/pfmon
+ExecStart=/usr/local/pf/sbin/pfmaint
 User=pf
 Restart=on-failure
 Slice=packetfence.slice

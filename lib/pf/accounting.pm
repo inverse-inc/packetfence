@@ -18,7 +18,7 @@ use warnings;
 use pf::log;
 use Readonly;
 use pf::accounting_events_history;
-use pf::config::pfmon qw(%ConfigPfmon);
+use pf::config::pfmon qw(%ConfigMaintenance);
 use pf::config::tenant;
 use pf::util qw(make_node_id);
 use pf::error qw(is_success);
@@ -173,7 +173,7 @@ sub acct_maintenance {
     }
 
     # Commit the data and give 3 times the acct_maintenance interval as a TTL which should be plenty for the next loop to populate this again
-    $events_history->commit($events_history_hash, $ConfigPfmon{acct_maintenance}{interval}*3) if $history_added;
+    $events_history->commit($events_history_hash, $ConfigMaintenance{acct_maintenance}{interval}*3) if $history_added;
     return $TRUE;
 }
 
