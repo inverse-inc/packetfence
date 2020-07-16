@@ -75,7 +75,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
 	rp.Transport = &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			Timeout:   2 * time.Second,
 			KeepAlive: 2 * time.Second,
