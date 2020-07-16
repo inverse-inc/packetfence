@@ -1,12 +1,5 @@
 include ../config.mk
 
-.PHONY: pfdhcp
-pfdhcp:
-	cd dhcp && \
-	go build && \
-	cd - && \
-	mv dhcp/dhcp pfdhcp
-
 .PHONY: pfdns
 pfdns:
 	cd coredns && \
