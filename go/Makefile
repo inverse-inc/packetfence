@@ -7,13 +7,6 @@ pfdns:
 	cd - && \
 	mv coredns/coredns pfdns
 
-.PHONY: pfdetect
-pfdetect:
-	cd detect && \
-        go build && \
-        cd - && \
-        mv detect/detect pfdetect
-
 .PHONY: galera-autofix
 galera-autofix:
 	cd galeraautofix && \
