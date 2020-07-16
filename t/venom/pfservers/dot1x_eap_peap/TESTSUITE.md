@@ -3,7 +3,7 @@
 ## Requirements
 AD server running
 
-### Global config steps
+## Global config steps
 1. Create access duration
 1. Create dot1x roles
 1. Create switches and switch groups
@@ -24,27 +24,25 @@ AD server running
 1. Start wpa_supplicant *on* node01
 1. Wait some time to let RADIUS request be sent by switch01 and handled by
    PacketFence server
-1. [ ] Check RADIUS audit log for node01 (filter on eap-peap)
-1. [/] Check node status for node01
-   1. [/] reg
-   1. [/] role
-   1. [ ] Check unregdate value
-1. [X] Check VLAN assigned to node01 *on* switch01
-1. [X] Check Internet access *on* node01
+1. Check RADIUS audit log for node01
+1. Check node status for node01
+1. Check VLAN assigned to node01 *on* switch01
+1. Check Internet access *on* node01
 
 ## Teardown steps
-1. [X] Kill wpa_supplicant: doesn't generate an accounting stop and doesn't
-       shut down access
-1. [X] Unconfigure switch port and dynamic VLAN on switch01
+1. Kill wpa_supplicant: an accounting stop will be generated if we wait
+   EAP-TIMEOUT on the switch (not the case here due to next task). Access is
+   still working until we run next task.
+1. Unconfigure switch port and dynamic VLAN on switch01
    1. Generate a RADIUS Accounting stop message (sent by switch01) which update
       `last_seen` attribute of node01 and unreg device based on
       `unreg_on_accounting_stop`
    1. Don't send a RADIUS Disconnect message
-1. [ ] Check node status for node01
-   1. [ ] unregistered
-1. [/] Wait `delete_windows` + 10 seconds before running `node_cleanup` task
-1. [/] Delete node by running `pfmon's node_cleanup` task
-1. [/] Check node has been deleted
+1. Check online status of node01: should be offline due to accounting stop
+1. Check node status for node01
+1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
+1. Delete node by running `pfmon's node_cleanup` task
+1. Check node has been deleted
 1. Disable `node_cleanup` task
 1. Restart `pfmon` to take change into account
 1. Unconfigure and delete REALMS
@@ -53,3 +51,8 @@ AD server running
 1. Delete sources
 1. Restart RADIUS services (common test suite)
 
+## Additional notes
+
+Reauthentication is done by switch based on `eap_reauth_period` setting to
+avoid node been unregistered when it reach unregdate and automatically deleted
+by `pfmon` without running teardown steps.
