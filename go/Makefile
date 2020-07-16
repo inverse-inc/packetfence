@@ -108,6 +108,12 @@ $(BINARYS):
 	go build && \
 	mv $@ ../..
 
+BINARYS_RACE = $(patsubst cmd/%, %-race, $(CMDS))
+$(BINARYS_RACE):
+	cd cmd/$(@:-race=) && \
+	go build -o $@ -race && \
+	mv $@ ../..
+
 .PHONY: all
 all: $(GOBINARIES)
 
