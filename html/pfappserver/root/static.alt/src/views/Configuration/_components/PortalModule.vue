@@ -6,7 +6,7 @@
         :module="currentModule" :is-root="isRoot" v-bind="$attrs" @remove="remove"></portal-module-button>
       <!-- vertical children -->
       <b-col v-if="!isRoot && !isChained && children" class="portal-module-col" :class="{ dragging: dragging }">
-        <draggable v-model="children" :options="{ group: { name: path, pull: path, put: ['portal-module', path] } }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
+        <draggable v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
           @start="dragging = true" @end="dragging = false">
           <portal-module v-for="(mid, i) in children" :key="mid"
             :id="mid" :parents="childParents" :modules="modules" :level="level + 1" :index="i" :last="i + 1 === children.length" />
@@ -14,7 +14,7 @@
       </b-col>
     </b-row>
     <!-- horizontal (chained) children -->
-    <draggable class="row row-nowrap portal-module-row align-items-center" :class="{ first: index === 0 && !last, last: last }" v-if="!isRoot && children && isChained" v-model="children" :options="{ group: { name: path, pull: path, put: ['portal-module', path] } }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
+    <draggable class="row row-nowrap portal-module-row align-items-center" :class="{ first: index === 0 && !last, last: last }" v-if="!isRoot && children && isChained" v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
       @start="dragging = true" @end="dragging = false">
       <div v-for="(mid, i) in children" :key="mid" :class="{ 'col portal-module-col': (i > 0), dragging: dragging }">
         <portal-module :id="mid" :parents="childParents" :modules="modules" :level="level + i + 1" :first-in-chain="i === 0" :index="0" last />
@@ -36,8 +36,7 @@ export default {
   props: {
     id: {
       type: String,
-      default: null,
-      required: true
+      default: null
     },
     module: {
       type: Object,

@@ -31,7 +31,7 @@ export default {
   },
   data () {
     return {
-      $inputDebouncer: false
+      inputDebouncer: false
     }
   },
   computed: {
@@ -48,10 +48,10 @@ export default {
           : null
       },
       set (newValue) {
-        if (!this.$inputDebouncer) {
-          this.$inputDebouncer = createDebouncer()
+        if (!this.inputDebouncer) {
+          this.inputDebouncer = createDebouncer()
         }
-        this.$inputDebouncer({
+        this.inputDebouncer({
           handler: () => {
             this.vModel[this.formNamespace] = newValue
           },

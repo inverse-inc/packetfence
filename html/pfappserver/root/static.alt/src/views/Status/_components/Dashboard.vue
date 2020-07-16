@@ -6,18 +6,18 @@
         <pf-button-service service="netdata" class="mr-1" v-can:read="'services'" restart start></pf-button-service>
       </b-alert>
       <b-tabs nav-class="nav-fill">
-        <b-tab v-for="(section, index) in sections" :title="section.name" :key="section.name">
-          <b-row align-h="center" v-if="index === 0"><!-- Show uptime on first tab only -->
+        <b-tab v-for="(section, sectionIndex) in sections" :title="section.name" :key="`${section.name}-${sectionIndex}`">
+          <b-row align-h="center" v-if="sectionIndex === 0"><!-- Show uptime on first tab only -->
             <b-col class="mt-3 text-center" :md="Math.max(parseInt(12/cluster.length), 3)" v-for="({ management_ip, host}, i) in cluster" :key="management_ip">
               <badge :ip="management_ip" :chart="'system.uptime'" :label="`${host} - uptime`" :colors="palette(i)" />
             </b-col>
           </b-row>
-          <template v-for="group in section.groups">
+          <template v-for="(group, groupIndex) in section.groups">
             <!-- Named groups are rendered inside a card -->
-            <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="group.name" :title="group.name">
+            <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="`${group.name}-${groupIndex}`" :title="group.name">
               <b-row align-h="center">
-                <template v-for="chart in group.items">
-                <b-col class="mt-3" :md="cols(chart.cols, group.items.length)" v-for="(host, index) in chartHosts(chart)" :key="chart.metric + host">
+                <template v-for="(chart, chartIndex) in group.items">
+                <b-col class="mt-3" :md="cols(chart.cols, group.items.length)" v-for="(host, index) in chartHosts(chart)" :key="`${chart.metric}${host}-${chartIndex}`">
                   <chart :store-name="storeName" :definition="chart" :host="host" :data-colors="palette(index)"></chart>
                 </b-col>
                 </template>

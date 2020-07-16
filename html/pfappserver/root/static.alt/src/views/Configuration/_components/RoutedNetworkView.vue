@@ -119,7 +119,7 @@ export default {
           })
         } else {
           // new
-          this.form = defaults(meta) // set defaults
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
         }
       })
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
@@ -132,7 +132,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_routed_networks/createRoutedNetwork', this.form).then(response => {
+      this.$store.dispatch('$_routed_networks/createRoutedNetwork', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -142,14 +142,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_routed_networks/updateRoutedNetwork', this.form).then(response => {
+      this.$store.dispatch('$_routed_networks/updateRoutedNetwork', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_routed_networks/deleteRoutedNetwork', this.id).then(response => {
+      this.$store.dispatch('$_routed_networks/deleteRoutedNetwork', this.id).then(() => {
         this.close()
       })
     }
@@ -159,7 +159,7 @@ export default {
   },
   watch: {
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

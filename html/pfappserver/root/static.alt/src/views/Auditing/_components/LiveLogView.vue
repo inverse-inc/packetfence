@@ -25,7 +25,7 @@
                   :state="state('files')"
                   :invalid-feedback="invalidFeedback('files')"
                   class="mb-3" size="sm"
-                  label="name" track-by="value"
+                  label="text" track-by="value"
                 />
 
                 <small :key="scope" class="ml-1">{{ $i18n.t('Filter') }}</small>
@@ -85,7 +85,7 @@
               :options="sizes"
               :placeholder="$t('Choose max buffer size')"
               :allow-empty="false"
-              label="name" track-by="value"
+              label="text" track-by="value"
               class="mb-3" size="sm"
             />
             <template v-if="lines > 0">

@@ -54,7 +54,7 @@
 
         <!-- drag/drop placeholder -->
         <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-target" :disabled="disabled"
-          v-model="dataBus.data.value" :formStoreName="dataBus.data.formStoreName" :formNamespace="dataBus.data.formNamespace"
+          v-model="bus.value" :formStoreName="bus.formStoreName" :formNamespace="bus.formNamespace"
           @dragOver="dragOver(index, $event)"
         >
           <!-- proxy `op` slot -->
@@ -68,7 +68,7 @@
         </pf-form-boolean>
 
         <!-- recurse -->
-        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="value" :isRoot="false" :dataBus="dataBus" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
+        <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="index" :isRoot="false" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
           @addOperator="addOperator(index)"
           @cloneOperator="cloneOperator(index)"
           @deleteOperator="deleteOperator(index)"
@@ -118,10 +118,24 @@
 </template>
 
 <script>
-import Vue from 'vue' // dataBus
+import Vue from 'vue'
 import pfMixinForm from '@/components/pfMixinForm'
 
-/*  CSS flex-box layout can stack elements either vertical (above/below) or horizontal (left/right)
+/*
+ *  Singleton reactive bus injected into all child components
+ */
+const busRef = Vue.observable({
+  source: false,
+  sourceElement: false,
+  target: false,
+  value: null,
+  formStoreName: null,
+  formNamespace: null,
+  commit: () => {}
+})
+
+/*
+ *  CSS flex-box layout can stack elements either vertical (above/below) or horizontal (left/right)
  *  2 drop zones accomodate both layouts:
  *    previous: within triangle @top-left (returns true)
  *    next: within triangle @bottom-right (returns false)
@@ -140,6 +154,14 @@ export default {
   mixins: [
     pfMixinForm
   ],
+  provide () {
+    return (this.isRoot) ? { busRef } : {/* noop */}
+  },
+  inject: {
+    bus: {
+      default: busRef
+    }
+  },
   data () {
     return {
       sourceIndex: false, // drag @source
@@ -156,16 +178,6 @@ export default {
       type: Boolean,
       default: true
     },
-    dataBus: { // singleton data bus shared /w all recursive children
-      type: Object,
-      default: new Vue({
-        data () {
-          return {
-            data: {}
-          }
-        }
-      })
-    },
     disabled: {
       type: Boolean,
       default: false
@@ -174,7 +186,7 @@ export default {
   computed: {
     inputValue: {
       get () {
-        if (this.formStoreName) {
+        if (this.formStoreName && this.formNamespace) {
           return this.formStoreValue // use FormStore
         } else {
           return this.value // use native (v-model)
@@ -216,7 +228,7 @@ export default {
     },
     addValue (index, newValue = {}) {
       let { inputValue: { values } = {} } = this
-      this.$set(this.inputValue, 'values', [...values.slice(0, index), newValue, ...values.slice(index)])
+      this.inputValue.values = [...values.slice(0, index), newValue, ...values.slice(index)]
     },
     cloneValue (index) {
       const { inputValue: { values } = {} } = this
@@ -228,18 +240,18 @@ export default {
           ? Object.assign({}, values[index])
           : null
       }
-      this.$set(this.inputValue, 'values', [...values.slice(0, index + 1), newValue, ...values.slice(index + 1)])
+      this.inputValue.values = [...values.slice(0, index + 1), newValue, ...values.slice(index + 1)]
     },
     deleteValue (index) {
       const { inputValue: { values } = {} } = this
       if (values && index in values) {
-        this.$set(this.inputValue, 'values', [...values.slice(0, index), ...values.slice(index + 1)])
+        this.inputValue.values = [...values.slice(0, index), ...values.slice(index + 1)]
       }
     },
     addOperator (index, op = 'and') {
       const { inputValue: { values } = {} } = this
       const newOp = { op, values: [] }
-      this.$set(this.inputValue, 'values', [...values.slice(0, index), newOp, ...values.slice(index)])
+      this.inputValue.values = [...values.slice(0, index), newOp, ...values.slice(index)]
     },
     cloneOperator (index) {
       const { inputValue: { values } = {} } = this
@@ -251,93 +263,92 @@ export default {
           ? Object.assign({}, values[index])
           : null
       }
-      this.$set(this.inputValue, 'values', [...values.slice(0, index + 1), newOp, ...values.slice(index + 1)])
+      this.inputValue.values = [...values.slice(0, index + 1), newOp, ...values.slice(index + 1)]
     },
     deleteOperator (index) {
       const { inputValue: { values } = {} } = this
       if (index in values) {
-        this.$set(this.inputValue, 'values', [...values.slice(0, index), ...values.slice(index + 1)])
+        this.inputValue.values = [...values.slice(0, index), ...values.slice(index + 1)]
       }
     },
     truncate () {
-      this.$set(this.inputValue, 'values', [])
+      this.inputValue.values = []
     },
     dragStart (index, event) { // @source
-        const { target: sourceElement, clientX: x, clientY: y } = event
-        if (!document.elementFromPoint(x, y).closest('.drag-handle, .pf-form-boolean').classList.contains('drag-handle')) { // not a handle
-          event.preventDefault() // cancel drag
-          return
-        }
-        this.sourceIndex = index
-        const { formStoreName, formNamespace, value } = this
-        new Promise((resolve) => {
-          this.$set(this.dataBus, 'data', {
-            source: this,
-            sourceElement,
-            formStoreName,
-            formNamespace: `${formNamespace}.values.${index}`,
-            value,
-            resolve
-          })
-        }).then(target => {
-          if (this.$el.isSameNode(target.$el)) { // same parent
-            if (target.targetIndex <= this.sourceIndex) { // target is before source
-              this.sourceIndex += 1 // increment index to include new value
-            }
-          }
-          this.deleteValue(this.sourceIndex) // delete old value
-        }).finally(() => {
-          this.dragEnd()
-        })
-    },
-    dragEnd () { // @source
-      const { dataBus: { data: { source, target } = {} } = {} } = this
-      if (source) {
-        this.$set(source, 'sourceIndex', false)
+      const { target: sourceElement, clientX: x, clientY: y } = event
+      if (!document.elementFromPoint(x, y).closest('.drag-handle, .pf-form-boolean').classList.contains('drag-handle')) { // not a handle
+        event.preventDefault() // cancel drag
+        return
       }
-      if (target) {
-        this.$set(target, 'targetIndex', false)
-      }
+      this.sourceIndex = index
+      const { formStoreName, formNamespace, inputValue } = this
+      this.$set(this.bus, 'commit', () => {})
+      this.$set(this.bus, 'formStoreName', formStoreName)
+      this.$set(this.bus, 'formNamespace', `${formNamespace}.values.${index}`)
+      this.$set(this.bus, 'value', inputValue.values[index])
+      this.$set(this.bus, 'source', this)
+      this.$set(this.bus, 'sourceElement', sourceElement)
     },
     dragOver (index, event) { // @target
       if (this.disabled) return
       event.preventDefault() // always allow drop
+
       const isNext = isMouseOverNext(event) // determine mouse position over @target
-      let targetElement = event.target.closest('.pf-form-boolean')
-      if (targetElement.classList.contains('drag-target')) return // ignore placeholder
-      if (targetElement.classList.contains('root')) return // ignore root
-      const { dataBus: { data: { sourceElement, target } = {} } = {} } = this
-      if (this.values.length > 0) { // has values (not empty)
-        if (sourceElement.contains(targetElement)) return // ignore self, ignore children
-        const { previousElementSibling, nextElementSibling } = targetElement
-        if (
-          (!isNext && previousElementSibling && previousElementSibling.isSameNode(sourceElement))
-          ||
-          (isNext && nextElementSibling && nextElementSibling.isSameNode(sourceElement))
-        ) return // ignore sibling previousElement@next and nextElement@previous
-        // @target is a valid drop target
-        if (isNext) {
-          index += 1 // shift after following
-        }
+      const targetElement = event.target.closest('.pf-form-boolean')
+      if (targetElement.classList.contains('drag-target')) {
+        return // ignore placeholder
       }
-      if (this.targetIndex !== index) {
-        if (target) {
-          this.$set(target, 'targetIndex', false)
-        }
-        this.targetIndex = index
-        this.$set(this.dataBus.data, 'target', this)
+      if (targetElement.classList.contains('root')) {
+        this.targetIndex = false
+        this.$set(this.bus, 'commit', () => {})
+        return // ignore root
       }
+      const { bus: { sourceElement } = {} } = this
+      if (sourceElement.contains(targetElement)) {
+        this.targetIndex = false
+        this.$set(this.bus, 'commit', () => {})
+        return // ignore self, ignore children
+      }
+      const { previousElementSibling, nextElementSibling } = targetElement
+      if (!isNext && previousElementSibling && previousElementSibling.isSameNode(sourceElement)) {
+        return // ignore previous sibling
+      }
+      if (isNext && nextElementSibling && nextElementSibling.isSameNode(sourceElement)) {
+        return // ignore next sibling
+      }
+      // @target is valid
+      if (isNext) {
+        index += 1 // shift after following
+      }
+      this.targetIndex = index
+      this.$set(this.bus, 'target', this)
+      this.$set(this.bus, 'commit', (() => {
+        let sourceIndex = this.bus.source.sourceIndex
+        const value = this.bus.source.inputValue.values[sourceIndex]
+        this.bus.target.addValue(this.bus.target.targetIndex, value)
+
+        let targetIndex = this.bus.target.targetIndex
+        if (this.bus.source === this.bus.target && targetIndex < sourceIndex) {
+          sourceIndex += 1
+        }
+        this.bus.source.deleteValue(sourceIndex)
+      }))
     },
     dragDrop () { // @anywhere
-      let { dataBus: { data: { source, source: { sourceIndex } = {}, target, target: { targetIndex } = {}, resolve } = {} } = {} } = this
-      let value = JSON.parse(JSON.stringify(source.inputValue.values[sourceIndex]))
-      target.addValue(targetIndex, value) // add new value
-      resolve(target)
+      this.bus.commit()
+    },
+    dragEnd () { // @source
+      if (this.bus.source) {
+        this.$set(this.bus.source, 'sourceIndex', false)
+      }
+      if (this.bus.target) {
+        this.$set(this.bus.target, 'targetIndex', false)
+      }
     }
   },
   watch: {
     isBoolean: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (a) { // is a pure boolean (true) with no values
           this.truncate() // empty values
         }

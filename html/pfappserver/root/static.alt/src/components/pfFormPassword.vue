@@ -12,6 +12,7 @@
         :type="type"
         :state="inputState"
         :disabled="disabled"
+        :autocomplete="autocomplete"
         @keyup.native="resetTest($event)"
         @focus.native="isFocus = true"
         @blur.native="isFocus = false"
@@ -129,6 +130,10 @@ export default {
     generate: {
       type: Boolean,
       default: false
+    },
+    autocomplete: {
+      type: String,
+      default: 'false'
     }
   },
   data () {

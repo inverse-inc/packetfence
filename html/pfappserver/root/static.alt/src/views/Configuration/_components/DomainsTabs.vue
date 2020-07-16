@@ -35,8 +35,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['domains', 'realms'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['domains', 'realms'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

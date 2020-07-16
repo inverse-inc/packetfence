@@ -36,12 +36,17 @@ export default {
       config: config(this)
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_switch_groups/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneSwitchGroup', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', item.id).then(response => {
+      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

@@ -62,7 +62,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -75,57 +75,41 @@ export default {
     },
     values: {
       type: Object,
-      default: () => {
-        return { checked: true, unchecked: false, default: null }
-      },
-      validator (value) {
-        return (value.checked && value.unchecked && 'default' in value)
-      }
+      default: () => ({ checked: true, unchecked: false, default: null }),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     colors: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     icons: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     innerLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     leftLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     rightLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     tooltips: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 60
     }
   },

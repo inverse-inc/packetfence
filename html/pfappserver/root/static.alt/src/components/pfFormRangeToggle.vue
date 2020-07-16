@@ -61,7 +61,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -78,60 +78,46 @@ export default {
         return { checked: true, unchecked: false }
       },
       validator (value) {
-        return (value.checked && value.unchecked)
+        return ('checked' in value && 'unchecked' in value)
       }
     },
     colors: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     icons: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     innerLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     lazy: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     leftLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     rightLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     tooltips: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 40
     }
   },
@@ -178,8 +164,7 @@ export default {
         if (this.formStoreName) {
           this.formStoreValue = value // use FormStore
         } else {
-          this.$set(this, 'value', value)
-          this.$emit('input', this.value) // use native (v-model)
+          this.$emit('input', value) // use native (v-model)
         }
 
         // lazy handling

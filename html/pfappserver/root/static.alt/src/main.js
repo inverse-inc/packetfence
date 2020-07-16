@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import CompositionApi from '@vue/composition-api'
 import BootstrapVue from 'bootstrap-vue'
 import i18n from '@/utils/locale'
 import VueTimeago from 'vue-timeago'
@@ -137,6 +138,10 @@ import App from './App'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue2vis/dist/vue2vis.css'
 
+// Ignore custom elements defined outside of Vue
+Vue.config.ignoredElements = [
+  'mac'
+]
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 Vue.config.devtools = process.env.VUE_APP_DEBUG === 'true'
 Vue.config.performance = process.env.VUE_APP_DEBUG === 'true'
@@ -150,6 +155,7 @@ Vue.use(VueTimeago, {
 })
 Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
+Vue.use(CompositionApi)
 Vue.use(pfTemplatePlugin)
 
 // Register global filters

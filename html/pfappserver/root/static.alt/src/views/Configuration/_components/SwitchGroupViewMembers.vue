@@ -72,13 +72,11 @@ export default {
   props: {
     id: {
       type: String,
-      default: null,
-      required: true
+      default: null
     },
     members: {
       type: Array,
-      default: () => { return [] },
-      required: true
+      default: () => { return [] }
     }
   },
   data () {
@@ -132,7 +130,7 @@ export default {
   },
   methods: {
     add () {
-      this.$store.dispatch('$_switches/updateSwitch', { quiet: true, id: this.memberId, group: this.id }).then(response => {
+      this.$store.dispatch('$_switches/updateSwitch', { quiet: true, id: this.memberId, group: this.id }).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Switch <code>{id}</code> added to group.', { id: this.memberId }) })
         this.memberId = null
         this.$store.dispatch('$_switch_groups/getSwitchGroupMembers', this.id).then(members => {
@@ -141,7 +139,7 @@ export default {
       })
     },
     remove (item) {
-      this.$store.dispatch('$_switches/updateSwitch', { quiet: true, id: item.id, group: null }).then(response => {
+      this.$store.dispatch('$_switches/updateSwitch', { quiet: true, id: item.id, group: null }).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Switch <code>{id}</code> removed from group.', { id: item.id }) })
         this.$store.dispatch('$_switch_groups/getSwitchGroupMembers', this.id).then(members => {
           this.members = members

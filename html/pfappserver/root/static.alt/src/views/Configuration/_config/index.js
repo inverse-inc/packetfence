@@ -81,7 +81,15 @@ export const attributesFromMeta = (meta = {}, key = null) => {
         attrs.step = 1 // pfFormInput
         break
     }
-    if (placeholder) attrs.placeholder = placeholder
+    if (placeholder) {
+      switch (placeholder.constructor) {
+        case Array:
+          attrs.placeholder = placeholder.join(', ')
+          break
+        default:
+          attrs.placeholder = `${placeholder}` // String
+      }
+    }
     if (allow_custom) attrs.taggable = true // pfFormChosen
     if (allowed) attrs.options = allowed
     else if (allowedLookup) {

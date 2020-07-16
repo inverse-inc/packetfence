@@ -44,16 +44,18 @@ export default {
     pfSearch
   },
   props: {
+/*
     searchableOptions: {
       type: Object,
-      default: {
+      default: () => ({
         searchApiEndpointOnly: false,
         defaultSearchCondition: () => {
           return { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
         },
         extraFields: false
-      }
+      })
     },
+*/
     query: {
       type: String,
       default: null
@@ -114,12 +116,17 @@ export default {
         }
       }
     },
-    searchableStoreName () {
-      const { searchableOptions: { searchApiEndpoint = null } = {} } = this
-      if (searchApiEndpoint) {
-        return '$_' + searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
-      } else {
-        return undefined
+    searchableStoreName: {
+      get () {
+        const { searchableOptions: { searchApiEndpoint = null } = {} } = this
+        if (searchApiEndpoint) {
+          return '$_' + searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
+        } else {
+          return undefined
+        }
+      },
+      set () {
+        // noop
       }
     }
   },
@@ -311,12 +318,15 @@ export default {
   },
   mounted () {
     // called after the component's mounted function.
-    const { searchableOptions: { defaultSearchCondition, searchApiEndpointOnly } = {} } = this
-    if (!searchApiEndpointOnly && JSON.stringify(this.condition) === JSON.stringify(defaultSearchCondition)) {
-      // query all w/o criteria
-      this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
-    } else {
-      this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, this.condition)
+    if (this.searchableStoreName) {
+      const { searchableOptions: { defaultSearchCondition, searchApiEndpointOnly } = {} } = this
+      if (!searchApiEndpointOnly && JSON.stringify(this.condition) === JSON.stringify(defaultSearchCondition)) {
+        // query all w/o criteria
+        this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
+      } else {
+        this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, this.condition)
+      }
+      this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
     }
     this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
   },

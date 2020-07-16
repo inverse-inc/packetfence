@@ -47,12 +47,17 @@ export default {
       config: config(this)
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_pki_providers/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'clonePkiProvider', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_pki_providers/deletePkiProvider', item.id).then(response => {
+      this.$store.dispatch('$_pki_providers/deletePkiProvider', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

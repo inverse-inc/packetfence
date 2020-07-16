@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <b-row no-gutters class="border-bottom">
       <b-col sm="auto">
         <pf-form-range-toggle v-model="unreg"></pf-form-range-toggle>
@@ -131,17 +130,17 @@ export default {
   ],
   props: {
     value: {
-      default: () => { return { actions: [] } }
+      default: () => ({ actions: [], target_category: false })
     },
     meta: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     }
   },
   computed: {
     inputValue: {
       get () {
-        if (this.formStoreName) {
+        if (this.formStoreName && this.formNamespace) {
           return this.formStoreValue // use FormStore
         } else {
           return this.value // use native (v-model)
@@ -157,7 +156,8 @@ export default {
     },
     unreg: {
       get () {
-        return this.inputValue.actions && this.inputValue.actions.includes('unreg')
+        const { actions = [] } = this.inputValue || {}
+        return actions.includes('unreg')
       },
       set (newValue) {
         if (newValue) {
@@ -173,7 +173,8 @@ export default {
     },
     autoreg: {
       get () {
-        return this.inputValue.actions && this.inputValue.actions.includes('autoreg')
+        const { actions = [] } = this.inputValue || {}
+        return actions.includes('autoreg')
       },
       set (newValue) {
         if (newValue) {
@@ -193,7 +194,8 @@ export default {
     },
     isolate: {
       get () {
-        return this.inputValue.actions && this.inputValue.actions.includes('reevaluate_access')
+        const { actions = [] } = this.inputValue || {}
+        return actions.includes('reevaluate_access')
       },
       set (newValue) {
         if (newValue) {
@@ -205,7 +207,8 @@ export default {
     },
     email_admin: {
       get () {
-        return this.inputValue.actions && this.inputValue.actions.includes('email_admin')
+        const { actions = [] } = this.inputValue || {}
+        return actions.includes('email_admin')
       },
       set (newValue) {
         if (newValue) {
@@ -217,7 +220,8 @@ export default {
     },
     email_user: {
       get () {
-        return this.inputValue.actions && this.inputValue.actions.includes('email_user')
+        const { actions = [] } = this.inputValue || {}
+        return actions.includes('email_user')
       },
       set (newValue) {
         if (newValue) {
@@ -229,7 +233,8 @@ export default {
     },
     external: {
       get () {
-        return this.inputValue.actions && this.inputValue.actions.includes('external')
+        const { actions = [] } = this.inputValue || {}
+        return actions.includes('external')
       },
       set (newValue) {
         if (newValue) {
@@ -241,7 +246,8 @@ export default {
     },
     close: {
       get () {
-        return this.inputValue.actions && this.inputValue.actions.includes('close')
+        const { actions = [] } = this.inputValue || {}
+        return actions.includes('close')
       },
       set (newValue) {
         if (newValue) {
@@ -273,14 +279,13 @@ export default {
   },
   watch: {
     'inputValue.target_category': { // add 'role' to actions if target_category is set, otherwise remove
-      handler: function (a, b) {
-        if (a) {
-          this.inputValue.actions.push('role')
-        } else {
-          const { inputValue: { actions = [] } = {} } = this
-          const index = actions.indexOf('role')
-          if (index >= 0) {
-            this.inputValue.actions.splice(index, 1)
+      handler: function (a) {
+        const { actions = [] } = this.inputValue || {}
+        if (actions.length > 0) {
+          if (a) {
+            this.addValueAction('role')
+          } else {
+            this.removeValueAction('role')
           }
         }
       },

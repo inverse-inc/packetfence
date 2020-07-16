@@ -13,14 +13,14 @@
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
           <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)" reverse/>
           <b-form @submit.prevent="save(rootModule)">
-            <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-t="'Save'"></pf-button-save>
+            <pf-button-save :isLoading="isLoading" v-t="'Save'"></pf-button-save>
           </b-form>
         </b-form-row>
         <div class="position-relative">
           <div class="steps-row">
             <template v-for="step in stepsCount(rootModule.id)">
-            <icon class="card-bg" name="caret-right" :key="step" v-show="!minimize"><!-- force proper spacing --></icon>
-            <div class="step-col" :key="step">
+            <icon class="card-bg" name="caret-right" :key="`${step}-icon`" v-show="!minimize"><!-- force proper spacing --></icon>
+            <div class="step-col" :key="`${step}-div`">
               <div class="step">
                 <div class="float-right py-1 pr-2 text-secondary small"><span v-show="!minimize" v-t="'step'"></span> {{ step }}</div>
               </div>
@@ -48,9 +48,9 @@
     <!-- All portal modules grouped by type -->
     <b-card-footer class="card-footer-fixed disconnect">
       <b-tabs small card>
-        <b-tab title-link-class="text-nowrap" v-for="moduleType in activeModuleTypes" :key="moduleType">
+        <b-tab title-link-class="text-nowrap" v-for="(moduleType, moduleIndex) in activeModuleTypes" :key="`${moduleType.name}-${moduleIndex}`">
           <template v-slot:title><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ getModuleTypeName(moduleType) }}</template>
-          <draggable element="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
+          <draggable tag="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
             :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
             ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
             <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" v-show="mid" is-root></portal-module>
@@ -58,9 +58,9 @@
         </b-tab>
         <template v-slot:tabs-end>
           <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" :boundary="$refs.container">
-            <template v-for="group in moduleTypes">
-              <b-dropdown-header class="text-secondary px-2" v-t="group.name" :key="group.name"></b-dropdown-header>
-              <b-dropdown-item v-for="moduleType in group.types" :key="moduleType.name" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
+            <template v-for="(group, groupIndex) in moduleTypes">
+              <b-dropdown-header class="text-secondary px-2" v-t="group.name" :key="`${group.name}-${groupIndex}`"></b-dropdown-header>
+              <b-dropdown-item v-for="(moduleType, moduleIndex) in group.types" :key="`${moduleType.name}-${moduleIndex}`" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
                 <icon :style="{ color: moduleType.color }" class="mb-1" name="circle" scale=".5"></icon> {{ moduleType.name }}
               </b-dropdown-item>
               <b-dropdown-divider :key="group.name"></b-dropdown-divider>

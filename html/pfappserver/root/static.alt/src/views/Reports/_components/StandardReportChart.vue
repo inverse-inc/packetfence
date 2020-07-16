@@ -211,6 +211,9 @@ export default {
         return `/${datetimeStart}/${datetimeEnd}`
       }
       return false
+    },
+    onSortingChanged () {
+      // noop
     }
   },
   beforeRouteUpdate (to, from, next) {

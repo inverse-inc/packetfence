@@ -74,16 +74,9 @@ export default {
       default: false
     },
     color: {
-      type: [String, Object],
-      default: () => ({
-        checked: constants.colorChecked,
-        unchecked: constants.colorUnchecked
-      }),
-      validator (value) {
-        return typeof value === 'object'
-          ? (value.checked || value.unchecked)
-          : typeof value === 'string'
-      }
+      type: Object,
+      default: () => ({ checked: constants.colorChecked, unchecked: constants.colorUnchecked }),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value),
     },
     cssColors: {
       type: Boolean,

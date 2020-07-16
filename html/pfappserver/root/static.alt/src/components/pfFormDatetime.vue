@@ -98,7 +98,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -113,14 +113,22 @@ export default {
       default: () => ({})
     },
     min: {
-      type: String
+      type: [String, Number]
     },
     max: {
-      type: String
+      type: [String, Number]
     },
     moments: {
       type: Array,
       default: () => []
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -131,7 +139,9 @@ export default {
         time_24hr: true,
         wrap: true
       },
-      isFocus: false
+      isFocus: false,
+      localMin: null,
+      localMax: null
     }
   },
   computed: {
@@ -170,7 +180,7 @@ export default {
         }
         return undefined
       },
-      set (newValue) {
+      set () {
         //  don't do anything here, instead use the `on-change` event => `onChange` method
       }
     },
@@ -180,8 +190,8 @@ export default {
     },
     flatpickrConfig () {
       let extraConfig = {
-        minDate: (this.min === '0000-00-00 00:00:00') ? new Date(-8640000000000000) : this.min,
-        maxDate: (this.max === '0000-00-00 00:00:00') ? new Date(8640000000000000) : this.max
+        minDate: (!this.localMin) ? new Date(-8640000000000000) : this.localMin,
+        maxDate: (!this.localMax) ? new Date(8640000000000000) : this.localMax
       }
       let config = { ...this.options, ...extraConfig }
       if ('datetimeFormat' in config) {
@@ -386,12 +396,23 @@ export default {
       // instanceof Date, convert to String
       this.inputValue = format(this.inputValue, datetimeFormat)
     }
-    // normalize (floor) min/max
-    if (this.min) {
-      this.min = parse(format((this.min instanceof Date && isValid(this.min) ? this.min : parse(this.min)), datetimeFormat))
-    }
-    if (this.max) {
-      this.max = parse(format((this.max instanceof Date && isValid(this.max) ? this.max : parse(this.max)), datetimeFormat))
+  },
+  watch: {
+    min: {
+      handler: function (a) {
+        this.localMin = (a)
+          ? parse(format((a instanceof Date && isValid(a) ? a : parse(a)), this.options.datetimeFormat))
+          : null
+      },
+      immediate: true
+    },
+    max: {
+      handler: function (a) {
+        this.localMax = (a)
+          ? parse(format((a instanceof Date && isValid(a) ? a : parse(a)), this.options.datetimeFormat))
+          : null
+      },
+      immediate: true
     }
   }
 }

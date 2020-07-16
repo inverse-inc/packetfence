@@ -75,7 +75,7 @@
                 {{ $t('Field Mappings') }}
               </b-col>
               <template v-for="(_, colIndex) in new Array(perPage)">
-                <b-col class="text-nowrap" :key="colIndex">
+                <b-col class="text-nowrap" :key="`col-${colIndex}`">
                   <template v-if="((perPage * page) - perPage + colIndex + 1) <= (linesCount - ((config.header) ? 1 : 0))">
                     {{ $t('Line') }} #{{ (perPage * page) - perPage + colIndex + 1 }}
                   </template>
@@ -86,7 +86,7 @@
               </template>
             </b-row>
             <!-- table body -->
-            <b-row class="pf-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="rowIndex">
+            <b-row class="pf-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="`row-${rowIndex}`">
               <b-col>
                 <b-form-group
                   :state="($v && 'importMapping' in $v && $v.importMapping.$invalid) ? false : null"
@@ -109,17 +109,17 @@
                         </optgroup>
                       </template>
                       <optgroup :label="$t('Required fields')">
-                        <option v-for="option in importMappingOptions.filter(o => o.required)" :key="option.value" :value="option.value" :disabled="option.disabled" :class="{'bg-success text-white': !option.disabled}">{{ option.text }}</option>
+                        <option v-for="option in importMappingOptions.filter(o => o.required)" :key="`required-${option.value}`" :value="option.value" :disabled="option.disabled" :class="{'bg-success text-white': !option.disabled}">{{ option.text }}</option>
                       </optgroup>
                       <optgroup :label="$t('Optional fields')">
-                        <option v-for="option in importMappingOptions.filter(o => !o.required)" :key="option.value" :value="option.value" :disabled="option.disabled" :class="{'bg-warning': !option.disabled}">{{ option.text }}</option>
+                        <option v-for="option in importMappingOptions.filter(o => !o.required)" :key="`optional-${option.value}`" :value="option.value" :disabled="option.disabled" :class="{'bg-warning': !option.disabled}">{{ option.text }}</option>
                       </optgroup>
                     </b-form-select>
                   </b-input-group>
                 </b-form-group>
               </b-col>
               <template v-for="(_, colIndex) in new Array(perPage)">
-                <b-col class="col-overflow-hidden" :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="colIndex">
+                <b-col class="col-overflow-hidden" :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="`col-${colIndex}`">
                   <template v-if="getPreviewVuelidateFeedback(colIndex, rowIndex)">
                     <!-- invalid -->
                     <icon name="exclamation-circle" class="text-danger mr-1"/> {{ getPreview(colIndex, rowIndex) }}
@@ -148,7 +148,7 @@
 
                 <pf-form-chosen v-if="isComponentType([componentType.SELECTMANY, componentType.SELECTONE], staticMap)"
                   :value="staticMap.value"
-                  label="name"
+                  label="text"
                   track-by="value"
                   :ref="staticMap.key"
                   :disabled="isDisabled"
@@ -356,11 +356,11 @@
               <h4 class="mb-0">{{ $t('Error(s) on line #{line}', { line: importProgress.lastError.line }) }}</h4>
               <b-form-text v-t="'Review the error(s) below and choose an option to continue.'" class="mt-0"></b-form-text>
               <template v-for="(error) in importProgress.lastError.errors">
-                <b-row class="bg-light mt-3" align-v="center" :key="error.key">
+                <b-row class="bg-light mt-3" align-v="center" :key="`row1-${error.key}`">
                   <b-col cols="10" class="small">{{ error.field }} </b-col>
                   <b-col cols="2" class="text-right my-1">{{ error.value }}</b-col>
                 </b-row>
-                <b-row :key="error.key">
+                <b-row :key="`row2-${error.key}`">
                   <b-col cols="10"></b-col>
                   <b-col cols="2" class="small text-right text-danger my-1">{{ error.message }}</b-col>
                 </b-row>

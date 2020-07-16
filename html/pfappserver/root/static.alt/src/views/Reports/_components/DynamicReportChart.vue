@@ -99,17 +99,16 @@
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
         </template>
-        <template v-for="nodeField in nodeFields" :v-slot:nodeField="data">
-          <router-link v-if="data" :key="nodeField" :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
+        <template v-for="nodeField in nodeFields" v-slot:[`cell(${nodeField})`]="{ value }">
+          <router-link :key="nodeField" :to="{ name: 'node', params: { mac: value } }">{{ value }}</router-link>
         </template>
-        <template v-for="personField in personFields" :v-slot:personField="data">
-          <router-link v-if="data" :key="personField" :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+        <template v-for="personField in personFields" v-slot:[`cell(${personField})`]="{ value }">
+          <router-link :key="personField" :to="{ name: 'user', params: { pid: value } }">{{ value }}</router-link>
         </template>
       </b-table>
     </div>
   </b-card>
 </template>
-
 <script>
 import { format, subSeconds } from 'date-fns'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
@@ -140,10 +139,6 @@ export default {
     id: { // from router
       type: String,
       default: null
-    },
-    searchableOptions: { // overloaded after `this.report` is set/reset
-      type: Object,
-      default: () => {}
     }
   },
   data () {
@@ -155,7 +150,9 @@ export default {
       datetimeStart: null,
       datetimeEnd: null,
       maxStartDatetime: '9999-12-12 23:59:59',
-      minEndDatetime: '0000-00-00 00:00:00'
+      minEndDatetime: '0000-00-00 00:00:00',
+      showPeriod: false,
+      searchableOptions: {}
     }
   },
   computed: {
@@ -282,7 +279,7 @@ export default {
       const searchCriteria = this.parsedSearches.map(search => {
         return { field: `${search.table}.${search.column}`, op: 'contains', value: null }
       })
-      let searchableOptions = {
+      this.searchableOptions = {
         searchApiEndpoint: `dynamic_report/${this.id}`,
         defaultSortKeys: [], // no local sorting
         defaultSortDesc: false, // no local sorting
@@ -293,7 +290,6 @@ export default {
           'end_date': (this.datetimeEnd !== '0000-00-00 00:00:00') ? this.datetimeEnd : '9999-12-12 23:59:59'
         }
       }
-      this.$set(this, 'searchableOptions', searchableOptions)
     },
     setRangeByPeriod (period) {
       this.datetimeEnd = format(new Date(), 'YYYY-MM-DD HH:mm:ss')
@@ -309,7 +305,7 @@ export default {
         this.init()
       }
     },
-    items (a, b) {
+    items (a) {
       if (a.length > 0 && this.columns.length === 1) { // columns were not initially known
         const columns = Object.keys(a[0]).map(column => {
           return {

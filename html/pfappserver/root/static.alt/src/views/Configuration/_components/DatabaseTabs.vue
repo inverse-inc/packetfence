@@ -32,8 +32,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['database', 'database_advanced'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['database', 'database_advanced'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

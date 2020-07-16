@@ -52,8 +52,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusSsls', 'radiusOcsps'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusSsls', 'radiusOcsps'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

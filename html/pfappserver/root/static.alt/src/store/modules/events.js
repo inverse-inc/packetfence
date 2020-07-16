@@ -191,7 +191,12 @@ const actions = {
     commit('FOCUS', event)
   },
   onResize: ({ commit }, event) => {
-    commit('RESIZE', event)
+    state.$windowSizeDebouncer({ // debounce windowsSize mutations
+      handler: () => {
+        commit('RESIZE', event)
+      },
+      time: 300
+    })
   }
 }
 
@@ -235,17 +240,16 @@ const mutations = {
     state.focus = true
   },
   RESIZE: (state, event) => {
-    state.$windowSizeDebouncer({ // debounce windowsSize mutations
-      handler: () => {
-        const { documentElement: { clientWidth = state.document.clientWidth, clientHeight = state.document.clientHeight } = {} } = document
-        state.windowEvent = event
-        state.windowSize = {
-          clientHeight,
-          clientWidth
-        }
-      },
-      time: 300
-    })
+    const { documentElement: { clientWidth = state.document.clientWidth, clientHeight = state.document.clientHeight } = {} } = document
+    state.windowEvent = event
+    state.windowSize = {
+      clientHeight,
+      clientWidth
+    }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    // noop
   }
 }
 

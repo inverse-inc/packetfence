@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
 import PkiCasList from './PkiCasList'
 import PkiProfilesList from './PkiProfilesList'
 import PkiCertsList from './PkiCertsList'
@@ -42,8 +41,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['pkiCas', 'pkiProfiles', 'pkiCerts', 'pkiRevokedCerts'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['pkiCas', 'pkiProfiles', 'pkiCerts', 'pkiRevokedCerts'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

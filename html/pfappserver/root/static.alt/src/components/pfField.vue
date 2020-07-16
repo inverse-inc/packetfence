@@ -35,17 +35,15 @@ export default {
   props: {
     default: {
       type: Object,
-      default: () => {
-        return null
-      }
+      default: () => (null)
     },
     value: {
-      type: Object,
-      default: () => { return null }
+      type: [String, Object],
+      default: () => (null)
     },
     field: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     },
     disabled: {
       type: Boolean,

@@ -168,6 +168,9 @@ export default {
     }
   },
   computed: {
+    isLoading () {
+      return this.$store.getters['$_domains/isLoading']
+    },
     invalidForm () {
       return this.$v.join.$invalid
     },
@@ -221,7 +224,7 @@ export default {
     },
     doJoin (item) {
       this.$set(this.join, 'showWaitModal', true)
-      this.$store.dispatch('$_domains/joinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+      this.$store.dispatch('$_domains/joinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(() => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
         Object.keys(this.domainJoinTests).forEach(id => { // refresh all
@@ -231,7 +234,7 @@ export default {
     },
     doRejoin (item) {
       this.$set(this.join, 'showWaitModal', true)
-      this.$store.dispatch('$_domains/rejoinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+      this.$store.dispatch('$_domains/rejoinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(() => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
         Object.keys(this.domainJoinTests).forEach(id => { // refresh all
@@ -241,7 +244,7 @@ export default {
     },
     doUnjoin (item) {
       this.$set(this.join, 'showWaitModal', true)
-      this.$store.dispatch('$_domains/unjoinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+      this.$store.dispatch('$_domains/unjoinDomain', { id: item.id, username: this.join.username, password: this.join.password }).then(() => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
         Object.keys(this.domainJoinTests).forEach(id => { // refresh all
@@ -250,7 +253,7 @@ export default {
       })
     },
     remove (item) {
-      this.$store.dispatch('$_domains/deleteDomain', item.id).then(response => {
+      this.$store.dispatch('$_domains/deleteDomain', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
@@ -293,7 +296,7 @@ export default {
   },
   watch: {
     domainJoinTests: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (this.autoJoinDomain && this.autoJoinDomain.id in a) { // automatically join domain
           const { [this.autoJoinDomain.id]: { status = null } = {} } = a
           if ([true, false].includes(status)) { // wait until tests are complete

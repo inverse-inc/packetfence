@@ -113,7 +113,7 @@ export default {
           })
         } else {
           // new
-          this.form = defaults(options.meta) // set defaults
+          this.$store.dispatch(`${this.formStoreName}/setForm`, defaults(options.meta)) // set defaults
           this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), ...{ id: this.role } }) // set defaults
         }
       })

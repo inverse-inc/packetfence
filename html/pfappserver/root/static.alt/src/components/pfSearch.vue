@@ -12,7 +12,7 @@
             <b-dropdown variant="primary" right>
               <template v-if="canSaveSearch">
                 <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
-                <b-dropdown-item @click="showSaveSearchModal=true">
+                <b-dropdown-item @click="localShowSaveSearchModal=true">
                   <icon class="position-absolute mt-1" name="save"></icon>
                   <span class="ml-4">{{ $t('Save Search') }}</span>
                 </b-dropdown-item>
@@ -52,11 +52,11 @@
           <b-button variant="primary" @click="importJsonTextarea">{{ $t('Import JSON') }}</b-button>
         </template>
       </b-modal>
-      <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
-        <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
+      <b-modal v-model="localShowSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
+        <b-form-input ref="saveSearchInput" v-model="localSaveSearchString" type="text"
           :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
         <template v-slot:modal-footer>
-          <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="secondary" class="mr-1" @click="localShowSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
         </template>
       </b-modal>
@@ -101,8 +101,7 @@ export default {
   props: {
     storeName: { // from router
       type: String,
-      default: null,
-      required: true
+      default: null
     },
     condition: {
       type: Object
@@ -149,7 +148,9 @@ export default {
   },
   data () {
     return {
-      quickValue: ''
+      quickValue: '',
+      localShowSaveSearchModal: false,
+      localSaveSearchString: null
     }
   },
   computed: {
@@ -164,7 +165,7 @@ export default {
     }
   },
   methods: {
-    onSubmit (event) {
+    onSubmit () {
       let query = this.condition
       if (!this.advancedMode) {
         if (this.quickWithFields) {
@@ -175,7 +176,7 @@ export default {
       }
       this.$emit('submit-search', query)
     },
-    onReset (event) {
+    onReset () {
       this.quickValue = ''
       this.$emit('reset-search')
     },
@@ -212,7 +213,7 @@ export default {
     keyUpSaveSearchInput (event) {
       switch (event.keyCode) {
         case 13: // [ENTER] submits
-          if (this.saveSearchString.length > 0) this.saveSearch()
+          if (this.localSaveSearchString.length > 0) this.saveSearch()
           break
       }
     },
@@ -221,7 +222,7 @@ export default {
       this.$store.dispatch('saveSearch/set', {
         namespace: this.saveSearchNamespace,
         search: {
-          name: this.saveSearchString,
+          name: this.localSaveSearchString,
           route: {
             path,
             params,
@@ -230,8 +231,8 @@ export default {
             }
           }
         }
-      }).then(response => {
-        this.saveSearchString = ''
+      }).then(() => {
+        this.localSaveSearchString = ''
         this.showSaveSearchModal = false
       })
     },
@@ -243,6 +244,21 @@ export default {
     const { condition = null, advancedMode = false, quickWithFields = false } = this
     if (condition && !advancedMode && !quickWithFields) {
       this.quickValue = this.condition.values[0].value
+    }
+  },
+  watch: {
+    showSaveSearchModal: {
+      handler (a) {
+        this.localShowSaveSearchModal = a
+      },
+      immediate: true
+    },
+    saveSearchString: {
+      handler (a) {
+        this.localSaveSearchString = a
+      },
+      immediate: true
+
     }
   }
 }

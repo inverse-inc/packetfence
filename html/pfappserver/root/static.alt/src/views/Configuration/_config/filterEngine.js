@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import Vue from 'vue'
 import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
@@ -72,7 +71,7 @@ const actionsFieldsFromMeta = (meta = {}) => {
 }
 
 const answerFieldsFromMeta = (meta = {}) => {
-  const { answers: { item: { properties: { prefix: { allowed: prefixes } = {}, type: { allowed = [], allowed_lookup: { search_path: searchPath, field_name: fieldName, value_name: valueName } = {} } = {} } = {} } = {} } = {} } = meta
+  const { answers: { item: { properties: { type: { allowed = [], allowed_lookup: { search_path: searchPath, field_name: fieldName, value_name: valueName } = {} } = {} } = {} } = {} } = {} } = meta
   if (searchPath) {
     store.dispatch('lookup/postSearchPath', searchPath) // prime cache
     return store.getters['lookup/getFields'](searchPath, fieldName, valueName)
@@ -91,7 +90,7 @@ const fieldOperatorsFromMeta = (meta = {}) => {
       return {
         text,
         value,
-        options: allowed_values.sort((a, b) => {
+        options: allowed_values.concat().sort((a, b) => {
           return a.text.localeCompare(b.text)
         })
       }
@@ -134,7 +133,6 @@ const valuesOperatorsFromMeta = (meta = {}) => {
 
 export const viewFields = {
   id: (form, meta = {}) => {
-    const { isNew = false, isClone = false } = meta
     return {
       label: i18n.t('Name'),
       text: i18n.t('Specify a unique name for your filter.'),

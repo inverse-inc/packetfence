@@ -34,7 +34,7 @@
         :disabled="disabled"
         :taggable="field.taggable"
         :tag-placeholder="field.tagPlaceholder || $t('Click to add new option')"
-        label="name"
+        label="text"
         track-by="value"
         collapse-object
         @tag="addUserTaggedOption"
@@ -231,7 +231,7 @@ export default {
   },
   watch: {
     localType: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           const field = this.field
           if (field && 'staticValue' in field) {

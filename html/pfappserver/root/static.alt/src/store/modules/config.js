@@ -601,32 +601,32 @@ const getters = {
   adminRolesList: state => {
     if (!state.adminRoles) return []
     return state.adminRoles.map((item) => {
-      return { value: item.id, name: item.id }
+      return { value: item.id, text: item.id }
     })
   },
   domainsList: state => {
     if (!state.domains) return []
     return state.domains.map((item) => {
-      return { value: item.id, name: item.id }
+      return { value: item.id, text: item.id }
     })
   },
   connectionProfilesList: state => {
     if (!state.connectionProfiles) return []
     return state.connectionProfiles.map((item) => {
-      return { value: item.id, name: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
+      return { value: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   portalModulesList: state => {
     if (!state.portalModules) return []
     return state.portalModules.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   realmsList: state => {
     let list = []
     for (let i = 0; i < state.realms.length; i++) {
       list = [ ...list, ...state.realms[i].map((item) => {
-        return { value: item.id, name: item.id, text: item.id }
+        return { value: item.id, text: item.id }
       }) ]
     }
     return list
@@ -634,46 +634,46 @@ const getters = {
   rolesList: state => {
     if (!state.roles) return []
     return [
-      ...[{ value: null, name: i18n.t('empty - None'), text: i18n.t('empty - None') }],
+      ...[{ value: null, text: i18n.t('empty - None') }],
       ...state.roles.map((item) => {
-        return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
+        return { value: item.category_id, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
       })
     ]
   },
   rootPortalModulesList: state => {
     if (!state.portalModules) return []
     return state.portalModules.filter(item => item.type === 'Root').map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   sourcesList: state => {
     if (!state.sources) return []
     return state.sources.map((item) => {
-      return { value: item.id, name: item.description, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
+      return { value: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   ssidsList: state => { // TODO - replace once `config/ssid` endpoint is available
     if (!state.ssids) return []
     return state.ssids.filter(item => item.ssid !== 'Total').map((item) => {
-      return { value: item.ssid, name: item.ssid, text: item.ssid }
+      return { value: item.ssid, text: item.ssid }
     })
   },
   switchGroupsList: state => {
     if (!state.switchGroups) return []
     return state.switchGroups.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   switchesList: state => {
     if (!state.switches) return []
     return state.switches.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   tenantsList: state => {
     if (!state.tenants) return []
     return state.tenants.map((item) => {
-      return { value: item.id, name: item.name }
+      return { value: item.id, text: item.name }
     })
   },
   securityEventsList: state => {

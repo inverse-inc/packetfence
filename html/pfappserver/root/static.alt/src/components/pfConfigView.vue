@@ -45,7 +45,6 @@
                     :is-loading="isLoading"
                     :class="getClass(row, col)"
                     :disabled="(col.attrs && col.attrs.disabled) || disabled"
-                    v-once
                   ><span v-if="col.html">{{ col.html }}</span></component>
                 </template>
               </b-input-group>
@@ -82,7 +81,7 @@ export default {
       default: null
     },
     view: {
-      type: Object,
+      type: Array,
       required: true
     },
     isLoading: {

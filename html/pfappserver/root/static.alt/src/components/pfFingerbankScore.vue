@@ -13,7 +13,7 @@ export default {
   name: 'pf-fingerbank-score',
   props: {
     score: {
-      type: Number,
+      type: [String, Number],
       default: 0
     },
     hideValue: {

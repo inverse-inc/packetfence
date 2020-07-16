@@ -21,13 +21,14 @@
 
       <draggable v-else
         v-model="inputValue"
-        :options="{handle: '.draghandle', dragClass: 'dragclass'}"
+        handle=".draghandle"
+        dragClass="dragclass"
         class="container-fluid px-0"
         @start="onDragStart"
         @end="onDragEnd"
       >
         <b-container
-          v-for="(value, index) in inputValue" :key="value"
+          v-for="(value, index) in inputValue" :key="index"
           class="mx-0 px-1 pf-form-field-component-container"
           @mouseleave="onMouseLeave()"
         >
@@ -38,7 +39,7 @@
             v-model="inputValue[index]"
             v-bind="field.attrs"
             v-on="field.listeners"
-            :key="value"
+            :key="index"
             :drag="drag"
             :disabled="disabled"
             @mouseenter="onMouseEnter(index)"
@@ -109,15 +110,15 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     minFields: {
-      type: Number,
+      type: [String, Number],
       default: 0
     },
     maxFields: {
-      type: Number,
+      type: [String, Number],
       default: 0
     },
     disabled: {
@@ -185,11 +186,11 @@ export default {
         this.inputValue.splice(index, 1) // delete 1 row
       }
     },
-    onDragStart (event) {
+    onDragStart () {
       this.drag = true
       this.hover = null
     },
-    onDragEnd (event) {
+    onDragEnd () {
       setTimeout(() => { // defer drag stop until after DOM redraw
         this.$nextTick(() => {
           this.drag = false

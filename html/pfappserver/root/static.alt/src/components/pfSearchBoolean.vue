@@ -20,7 +20,7 @@
     <!-- BEGIN ADVANCED SEARCH -->
     <b-container fluid class="px-0" v-for="(rule, outerindex) in model.values" :key="outerindex">
       <b-container fluid class="rc px-0 py-1 bg-secondary">
-        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd">
+        <draggable v-model="model.values[outerindex].values" group="or" handle=".draghandle" filter=".nodrag" dragClass="sortable-drag" @start="onDragStart" @end="onDragEnd">
           <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
             <b-row class="bg-white rc align-items-center m-0 p-1 isdrag">
               <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mx-2" v-b-tooltip.hover.right.d1000 :title="$t('Click & drag statement to reorder')">
@@ -101,14 +101,11 @@ export default {
     advancedMode: {
       type: Boolean,
       default: false
-    },
-    drag: {
-      type: Boolean,
-      default: false
     }
   },
   data () {
     return {
+      drag: false,
       substringValueType: conditionValue.TEXT,
       selectValueType: conditionValue.SELECT,
       datetimeValueType: conditionValue.DATETIME,
@@ -116,7 +113,7 @@ export default {
     }
   },
   watch: {
-    advancedMode (a, b) {
+    advancedMode (a) {
       if (a === false) {
         // truncate model to singular
         this.model.values.length = 1
@@ -212,10 +209,10 @@ export default {
         this.model.values[outerindex].values.splice(innerindex, 1)
       }
     },
-    onDragStart (event) {
+    onDragStart () {
       this.drag = true
     },
-    onDragEnd (event) {
+    onDragEnd () {
       this.drag = false
       for (var i = this.model.values.length - 1; i >= 0; i--) {
         if (this.model.values[i].values.length === 0) {

@@ -80,19 +80,24 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return [
-        'general_settings',
-        'device_change_detection',
-        'combinations',
-        'devices',
-        'dhcp_fingerprints',
-        'dhcp_vendors',
-        'dhcpv6_fingerprints',
-        'dhcpv6_enterprises',
-        'mac_vendors',
-        'user_agents'
-      ].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return [
+          'general_settings',
+          'device_change_detection',
+          'combinations',
+          'devices',
+          'dhcp_fingerprints',
+          'dhcp_vendors',
+          'dhcpv6_fingerprints',
+          'dhcpv6_enterprises',
+          'mac_vendors',
+          'user_agents'
+        ].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     },
     isUpdateDatabaseLoading () {
       return this.$store.getters['$_fingerbank/isUpdateDatabaseLoading']

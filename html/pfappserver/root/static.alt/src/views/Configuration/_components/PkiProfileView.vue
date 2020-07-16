@@ -63,7 +63,7 @@ export default {
       default: false
     },
     id: { // from router
-      type: String,
+      type: [String, Number],
       default: null
     },
     ca_id: { // from router
@@ -147,7 +147,7 @@ export default {
     save () {
       const actionKey = this.actionKey
       const { ID, ...form } = { ...this.form, ...{ id: ~~this.id } } // lower-case `ID` to `id`, cast as (int)
-      this.$store.dispatch('$_pkis/updateProfile', recomposeProfile(form)).then(response => {
+      this.$store.dispatch('$_pkis/updateProfile', recomposeProfile(form)).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }

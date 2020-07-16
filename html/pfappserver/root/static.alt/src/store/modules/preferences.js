@@ -98,7 +98,7 @@ const actions = {
   all: ({ state, commit }) => {
     commit('PREFERENCE_REQUEST')
     if (state.allPromise == null) {
-      state.allPromise = api.allPreferences()
+      commit('PROMISE_UPDATED', api.allPreferences())
     }
     return state.allPromise.then(items => {
       commit('PREFERENCE_SUCCESS')
@@ -141,6 +141,9 @@ const actions = {
 }
 
 const mutations = {
+  PROMISE_UPDATED: (state, promise) => {
+    state.allPromise = promise
+  },
   PREFERENCE_REQUEST: (state) => {
     state.requestStatus = types.LOADING
     state.message = ''

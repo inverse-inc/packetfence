@@ -47,7 +47,7 @@
         :close-on-select="isComponentType([componentType.SELECTONE])"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
-        label="name"
+        label="text"
         track-by="value"
       />
 
@@ -264,7 +264,7 @@ export default {
   },
   watch: {
     localPrefix: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           this.$nextTick(() => {
             this.focus()
@@ -273,7 +273,7 @@ export default {
       }
     },
     localType: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           const field = this.field
           if (field && 'staticValue' in field) {

@@ -49,12 +49,17 @@ export default {
       config: config(this) // ../_config/adminRole
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_admin_roles/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneAdminRole', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(response => {
+      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

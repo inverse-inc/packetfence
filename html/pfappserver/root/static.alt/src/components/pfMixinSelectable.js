@@ -79,24 +79,18 @@ export default {
   props: {
     storeName: { // from router
       type: String,
-      default: null,
-      required: true
-    },
-    selectValues: {
-      type: Array,
-      default: []
-    },
-    selectAll: {
-      type: Boolean,
-      default: false
-    },
-    lastIndex: {
-      type: Number,
       default: null
     },
     eventsListen: {
       type: Boolean,
       default: true
+    }
+  },
+  data () {
+    return {
+      selectValues: [],
+      selectAll: false,
+      lastIndex: null
     }
   },
   computed: {

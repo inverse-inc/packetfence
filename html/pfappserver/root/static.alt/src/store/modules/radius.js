@@ -2,8 +2,6 @@
 * "radius" store module
 */
 import Vue from 'vue'
-import i18n from '@/utils/locale'
-import store from '@/store'
 import apiCall from '@/utils/api'
 
 const api = {
@@ -59,7 +57,7 @@ const mutations = {
   RADIUS_ATTRIBUTES_SUCCESS: (state, data) => {
     const { items = {} } = data
     Vue.set(state, 'attributes', items.reduce((items, item) => {
-      const { name = null, ...remainder } = item
+      const { name = null } = item
       items[name] = item
       return items
     }, {}))
@@ -72,6 +70,10 @@ const mutations = {
     if (message) {
       state.message = message
     }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 

@@ -43,6 +43,11 @@ export default {
       config: config(this) // ../_config/switchTemplate
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_switch_templates/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneSwitchTemplate', params: { id: item.id } })

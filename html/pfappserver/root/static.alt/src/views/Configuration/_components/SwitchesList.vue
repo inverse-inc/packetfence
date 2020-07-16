@@ -52,6 +52,11 @@ export default {
       config: config(this)
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_switches/isLoading']
+    }
+  },
   methods: {
     init () {
       this.$store.dispatch('$_switches/optionsBySwitchGroup').then(switchGroupOptions => {

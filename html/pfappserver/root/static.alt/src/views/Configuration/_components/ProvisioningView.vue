@@ -118,9 +118,9 @@ export default {
         this.$store.dispatch('$_provisionings/optionsById', this.id).then(options => {
           this.$store.dispatch('$_provisionings/getProvisioning', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.provisioningType = form.type
+            const provisioningType = form.type
             const { meta = {} } = options
-            const { isNew, isClone, provisioningType } = this
+            const { isNew, isClone } = this
             this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, provisioningType } })
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
@@ -135,15 +135,15 @@ export default {
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
-    close (event) {
+    close () {
       this.$router.push({ name: 'provisionings' })
     },
     clone () {
       this.$router.push({ name: 'cloneProvisioning' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_provisionings/createProvisioning', this.form).then(response => {
+      this.$store.dispatch('$_provisionings/createProvisioning', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -151,16 +151,16 @@ export default {
         }
       })
     },
-    save (event) {
+    save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_provisionings/updateProvisioning', this.form).then(response => {
+      this.$store.dispatch('$_provisionings/updateProvisioning', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (event) {
-      this.$store.dispatch('$_provisionings/deleteProvisioning', this.id).then(response => {
+    remove () {
+      this.$store.dispatch('$_provisionings/deleteProvisioning', this.id).then(() => {
         this.close()
       })
     },
@@ -173,12 +173,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

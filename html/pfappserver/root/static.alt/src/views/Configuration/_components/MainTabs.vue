@@ -47,8 +47,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['general', 'alerting', 'advanced', 'maintenance_tasks', 'services'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['general', 'alerting', 'advanced', 'maintenance_tasks', 'services'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

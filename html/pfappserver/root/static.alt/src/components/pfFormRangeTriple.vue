@@ -61,7 +61,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -74,57 +74,41 @@ export default {
     },
     values: {
       type: Object,
-      default: () => {
-        return { left: 0, middle: 1, right: 2 }
-      },
-      validator (value) {
-        return (value.left && value.middle && value.right)
-      }
+      default: () => ({ left: 0, middle: 1, right: 2 }),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     colors: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     icons: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     innerLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     leftLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     rightLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     tooltips: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 60
     }
   },
@@ -137,7 +121,7 @@ export default {
     inputValue: {
       get () {
         let value
-        if (this.formStoreName) {
+        if (this.formStoreName && this.formNamespace) {
           value = this.formStoreValue // use FormStore
         } else {
           value = this.value // use native (v-model)

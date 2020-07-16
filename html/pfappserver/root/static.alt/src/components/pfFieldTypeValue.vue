@@ -32,7 +32,7 @@
         :close-on-select="isComponentType([componentType.SELECTONE])"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
-        label="name"
+        label="text"
         track-by="value"
       />
 

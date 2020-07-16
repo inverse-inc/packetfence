@@ -124,10 +124,6 @@ export default {
     readAsText: {
       type: Boolean,
       default: false
-    },
-    class: {
-      type: String,
-      default: ''
     }
   },
   data () {

@@ -30,8 +30,8 @@
                 </b-button-group>
             </b-form-row>
           </b-popover>
-          <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="localDatetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="localDatetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -51,7 +51,7 @@
 
 <script>
 import Plotly from 'plotly.js'
-import { format, isValid, subSeconds } from 'date-fns'
+import { format, subSeconds } from 'date-fns'
 import {
   pfReportChartColorsFull as colorsFull,
   pfReportChartColorsNull as colorsNull
@@ -87,6 +87,8 @@ export default {
   },
   data () {
     return {
+      localDatetimeStart: null,
+      localDatetimeEnd: null,
       chartSizeLimit: 25,
       showPeriod: false,
       maxStartDatetime: '9999-12-12 23:59:59',
@@ -165,7 +167,7 @@ export default {
   },
   watch: {
     items: {
-      handler: function (a, b) {
+      handler: function () {
         this.queueRender()
       },
       immediate: true,
@@ -180,7 +182,13 @@ export default {
       immediate: true,
       deep: true
     },
-    datetimeStart (a, b) {
+    datetimeStart: {
+      handler (a) {
+        this.localDatetimeStart = a
+      },
+      immediate: true
+    },
+    localDatetimeStart (a, b) {
       if (a !== b) {
         if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
           this.$emit('changeDatetimeStart', a)
@@ -188,7 +196,13 @@ export default {
         }
       }
     },
-    datetimeEnd (a, b) {
+    datetimeEnd: {
+      handler (a) {
+        this.localDatetimeEnd = a
+      },
+      immediate: true
+    },
+    localDatetimeEnd (a, b) {
       if (a !== b) {
         if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
           this.$emit('changeDatetimeEnd', a)

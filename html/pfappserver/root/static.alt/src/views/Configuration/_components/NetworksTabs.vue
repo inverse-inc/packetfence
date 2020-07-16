@@ -55,8 +55,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['network', 'interfaces', 'inline', 'traffic_shapings', 'fencing', 'parking'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['network', 'interfaces', 'inline', 'traffic_shapings', 'fencing', 'parking'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

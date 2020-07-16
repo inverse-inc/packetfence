@@ -76,6 +76,7 @@ const duration = {
     const sort = (~~interval * unit2seconds(unit)) + (~~extendedInterval * unit2seconds(extendedUnit))
     return {
       name,
+      text: name,
       value,
       sort,
       interval,

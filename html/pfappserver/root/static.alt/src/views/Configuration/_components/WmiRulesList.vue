@@ -52,6 +52,11 @@ export default {
       config: config(this) // ../_config/wmiRule
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_wmi_rules/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneWmiRule', params: { id: item.id } })
