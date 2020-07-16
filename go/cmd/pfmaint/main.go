@@ -77,12 +77,15 @@ func main() {
 	log.SetProcessName("pfmaint")
 	if len(os.Args) > 1 {
 		jobName := os.Args[1]
+		code := 0
 		if additionalArgs, err := makeArgs(os.Args[2:]); err != nil {
 			fmt.Printf("%s\n", err.Error())
-			os.Exit(1)
+			code = 1
 		} else {
-			os.Exit(runJobNow(jobName, additionalArgs))
+			code = runJobNow(jobName, additionalArgs)
+			fmt.Printf("task %s finished\n", jobName)
 		}
+		os.Exit(code)
 	}
 
 	ctx := context.Background()

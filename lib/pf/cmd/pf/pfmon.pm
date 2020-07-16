@@ -104,8 +104,12 @@ sub _run {
     my ($self) = @_;
     my $task_id = $self->{task_id};
     my $params = $self->{params};
-    my $task = pf::factory::pfmon::task->new($task_id, $params);
-    $task->run();
+    my $task = eval {pf::factory::pfmon::task->new($task_id, $params)};
+    if ($@) {
+        exec('/usr/local/pf/sbin/pfmaint', map {/^(.*)$/;$1} $self->args);
+    } else {
+        $task->run();
+    }
     print "task $task_id finished\n"; 
     return $EXIT_SUCCESS;
 }
