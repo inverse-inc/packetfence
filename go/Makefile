@@ -7,13 +7,6 @@ pfdns:
 	cd - && \
 	mv coredns/coredns pfdns
 
-.PHONY: galera-autofix
-galera-autofix:
-	cd galeraautofix && \
-        go build && \
-        cd - && \
-        mv galeraautofix/galeraautofix galera-autofix
-
 .PHONY: radius-tester
 radius-tester:
 	cd acct-tester/radius-tester && \
