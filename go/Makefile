@@ -7,20 +7,6 @@ pfdns:
 	cd - && \
 	mv coredns/coredns pfdns
 
-.PHONY: radius-tester
-radius-tester:
-	cd acct-tester/radius-tester && \
-	go build && \
-	cd - && \
-	mv acct-tester/radius-tester/radius-tester radius-tester
-
-.PHONY: db-tester
-db-tester:
-	cd acct-tester/db-tester && \
-	go build && \
-	cd - && \
-	mv acct-tester/db-tester/db-tester db-tester
-
 .PHONY: clean-caddy-src
 clean-caddy-src:
 	find caddy/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
