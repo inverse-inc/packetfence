@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"github.com/robfig/cron/v3"
-	"os"
-	"sync"
-	//	"github.com/coreos/go-systemd/daemon"
 	"context"
+	"fmt"
+	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/maint"
+	"github.com/robfig/cron/v3"
+	"os"
 	"os/signal"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -73,6 +73,13 @@ func makeArgs(args []string) (map[string]interface{}, error) {
 	return config, nil
 }
 
+func NotifySystemd(msg string) {
+	_, err := daemon.SdNotify(false, msg)
+	if err != nil {
+		log.LoggerWContext(context.Background()).Error(fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
+	}
+}
+
 func main() {
 	log.SetProcessName("pfmaint")
 	if len(os.Args) > 1 {
@@ -98,12 +105,14 @@ func main() {
 
 	w := sync.WaitGroup{}
 	w.Add(1)
+	NotifySystemd("READY=1")
 	c.Start()
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-ch
 		w.Done()
+		NotifySystemd("STOPPING=1")
 	}()
 
 	w.Wait()
