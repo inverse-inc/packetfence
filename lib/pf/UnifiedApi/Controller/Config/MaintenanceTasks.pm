@@ -17,11 +17,11 @@ use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
-has 'config_store_class' => 'pf::ConfigStore::Pfmon';
+has 'config_store_class' => 'pf::ConfigStore::Maintenance';
 has 'form_class' => 'pfappserver::Form::Config::Pfmon';
 has 'primary_key' => 'maintenance_task_id';
 
-use pf::ConfigStore::Pfmon;
+use pf::ConfigStore::Maintenance;
 use pfappserver::Form::Config::Pfmon::acct_maintenance;
 use pfappserver::Form::Config::Pfmon::auth_log_cleanup;
 use pfappserver::Form::Config::Pfmon::certificates_check;

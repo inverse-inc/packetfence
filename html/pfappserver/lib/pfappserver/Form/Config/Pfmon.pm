@@ -15,7 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
+use pf::config::pfmon qw(%ConfigMaintenanceDefault);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(default_field_method batch_help_text timeout_help_text window_help_text);
@@ -27,7 +27,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Pfmon Name',
    required => 1,
-   messages => { required => 'Please specify the name of the pfmon entry' },
+   messages => { required => 'Please specify the name of the maintenance task' },
   );
 
 has_field 'description' =>
@@ -49,15 +49,15 @@ has_field 'status' =>
    unchecked_value => 'disabled',
    default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.' },
+             help => 'Whether or not this task is enabled.<br>Requires a restart of pfmaint to be effective.' },
   );
 
-has_field 'interval' =>
+has_field 'schedule' =>
   (
-   type => 'Duration',
+   type => 'Text',
    default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.' },
+             help => 'The schedule for maintenance task (cron like spec).' },
   );
 
 has_block  definition =>
@@ -70,7 +70,7 @@ sub default_field_method {
     my $name = $field->name;
     my $task_name = ref($field->form);
     $task_name =~ s/^pfappserver::Form::Config::Pfmon:://;
-    my $value = $ConfigPfmonDefault{$task_name}{$name};
+    my $value = $ConfigMaintenanceDefault{$task_name}{$name};
     if ($field->has_inflate_default_method) {
         $value = $field->inflate_default($value);
     }

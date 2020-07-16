@@ -1,33 +1,41 @@
-package pf::config::pfmon;
+package pfconfig::namespaces::config::MaintenanceDefault;
 
 =head1 NAME
 
-pf::config::pfmon
+pfconfig::namespaces::config::MaintenanceDefault
 
 =cut
 
 =head1 DESCRIPTION
 
-Configuration from conf/pfmon.conf and conf/pfmon.conf.defaults
+pfconfig::namespaces::config::MaintenanceDefault
+
+This module creates the configuration hash associated to maintenance.conf.defaults
 
 =cut
 
 use strict;
 use warnings;
-use pfconfig::cached_hash;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT_OK = qw(%ConfigPfmon %ConfigMaintenance %ConfigMaintenanceDefault);
+use pfconfig::namespaces::config;
+use pf::file_paths qw($maintenance_default_config_file);
+use Clone qw(clone);
+
+use base 'pfconfig::namespaces::config';
+
+sub init {
+    my ($self) = @_;
+    $self->{file} = $maintenance_default_config_file;
 }
 
-tie our %ConfigPfmon, 'pfconfig::cached_hash', 'config::Pfmon';
 
-tie our %ConfigMaintenance, 'pfconfig::cached_hash', 'config::Maintenance';
+sub build_child {
+    my ($self) = @_;
+    my $tmp_cfg = clone($self->{cfg});
 
-tie our %ConfigMaintenanceDefault, 'pfconfig::cached_hash', 'config::MaintenanceDefault';
+    return $tmp_cfg;
+}
+
 
 =head1 AUTHOR
 
@@ -57,3 +65,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

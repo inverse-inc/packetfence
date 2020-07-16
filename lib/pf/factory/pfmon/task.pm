@@ -21,7 +21,7 @@ use Module::Pluggable
   inner       => 0,
   require     => 1;
 
-use pf::config::pfmon qw(%ConfigPfmon);
+use pf::config::pfmon qw(%ConfigMaintenance);
 
 sub factory_for { 'pf::pfmon::task' }
 
@@ -39,7 +39,7 @@ If no task is found the return undef
 sub new {
     my ($class, $name, $additional) = @_;
     my $object;
-    my $data = $ConfigPfmon{$name};
+    my $data = $ConfigMaintenance{$name};
     if ($data) {
         %$data = (%$data, %{ $additional // {}});
         $data->{id} = $name;
