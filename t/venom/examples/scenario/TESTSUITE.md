@@ -2,7 +2,7 @@
 
 ## Requirements
 
-### Global config steps
+## Global config steps
 Add steps
 
 ## Scenario steps
