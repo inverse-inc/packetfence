@@ -42,6 +42,15 @@ has_field 'secretKey' =>
              help => 'Define the secret key' },
   );
 
+has_field 'folderId' =>
+  (
+   type => 'Folder ID',
+   label => 'Folder ID',
+   default => '162',
+   tags => { after_element => \&help,
+             help => 'Define the Folder ID' },
+  );
+
 has_field 'type' =>
   (
    type => 'Hidden',
@@ -50,7 +59,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id url accessKey secretKey type tenableio_clientpolicy scannername categories oses duration pre_registration registration post_registration) ],
+   render_list => [ qw(id url accessKey secretKey folderId type tenableio_clientpolicy scannername categories oses duration pre_registration registration post_registration) ],
   );
 
 has_field 'tenableio_clientpolicy' =>

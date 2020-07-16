@@ -9,12 +9,14 @@ use base('pf::scan');
 
 use pf::util;
 use pf::config qw(%Config);
+use pf::log;
 use Log::Log4perl; 
 use Readonly;
 use Net::TenableIO;
 use Data::Dumper qw(Dumper);
 use pf::security_event;
 use pf::constants::trigger;
+use pf::constants::scan qw($STATUS_CLOSED $SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
 use XML::LibXML::Reader;
 
 sub new{
@@ -39,6 +41,7 @@ sub new{
             '_oses'                   => undef,
             '_categories'             => undef,
             '_scannername'            => undef,
+            '_folderId'               => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -59,6 +62,7 @@ sub startScan {
     my $mac        = $self->{_scanMac};
     my $policy     = $self->{_tenableio_clientpolicy};
     my $scanner    = $self->{_scannername};
+    my $folderid   = $self->{_folderId};
 
     my $scan_security_event_id = $POST_SCAN_SECURITY_EVENT_ID;
     $scan_security_event_id = $SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
@@ -135,7 +139,7 @@ sub startScan {
             description    => 'Scan from PacketFence',
             policy_id      => $policy_id,
             agentGroup     => [ $group_uuid ],
-            folderid       => 162,
+            folderid       => $folderid,
         );
 
         if ( $scan_id eq "") {
@@ -202,7 +206,13 @@ sub startScan {
 }
 
 sub parse_scan_report {
-    my ( $self ) = @_;
+    my ( $self , $scan_security_event_id) = @_;
+
+    my $logger = get_logger();
+
+    my $host       = $self->{_scanIp};
+    my $mac        = $self->{_scanMac};
+    my $type       = $self->{_type};
 
     my $plugin_result;
     my $dom = XML::LibXML->load_xml(string => $self->{'report'});

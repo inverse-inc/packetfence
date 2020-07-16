@@ -371,6 +371,18 @@ export const view = (meta = {}) => {
           ]
         },
         {
+          if: ['tenableio'].includes(scanType),
+          label: i18n.t('Folder ID'),
+          text: i18n.t('Folder ID to use.'),
+          cols: [
+            {
+              namespace: 'tenableio_clientpolicy',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'tenableio_clientpolicy')
+            }
+          ]
+        },
+        {
           label: i18n.t('Roles'),
           text: i18n.t('Nodes with the selected roles will be affected.'),
           cols: [
