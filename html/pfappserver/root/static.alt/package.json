@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
+    "@vue/composition-api": "^1.0.0-beta.2",
     "axios": "0.19.2",
     "bootstrap": "4.4.1",
     "bootstrap-vue": "2.13.1",
