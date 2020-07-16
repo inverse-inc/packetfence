@@ -7,13 +7,6 @@ pfdns:
 	cd - && \
 	mv coredns/coredns pfdns
 
-.PHONY: pfstats
-pfstats:
-	cd stats && \
-        go build && \
-        cd - && \
-        mv stats/stats pfstats
-
 .PHONY: pfdetect
 pfdetect:
 	cd detect && \
