@@ -50,6 +50,16 @@ testcases:
                   "value": "Accept"
                 }
               ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "connection_type",
+                  "op": "equals",
+                  "value": "{{.wired_mac_auth.profiles.wired.filters.connection_type}}"
+                }
+              ]
             },            
             {
               "op": "or",

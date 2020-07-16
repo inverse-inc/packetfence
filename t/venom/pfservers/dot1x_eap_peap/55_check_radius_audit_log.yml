@@ -50,7 +50,17 @@ testcases:
                   "value": "Accept"
                 }
               ]
-            },            
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "connection_type",
+                  "op": "equals",
+                  "value": "{{.dot1x_eap_peap.profiles.wired.filters.connection_type}}"
+                }
+              ]
+            },
             {
               "op": "or",
               "values": [            
