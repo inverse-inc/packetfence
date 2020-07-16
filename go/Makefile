@@ -1,27 +1,5 @@
 include ../config.mk
 
-.PHONY: pfhttpd-sha
-pfhttpd-sha:
-	make NAME="pfhttpd" _pfhttpd
-
-.PHONY: pfhttpd
-pfhttpd:
-	make NAME="pfhttpd" _pfhttpd
-
-.PHONY: _pfhttpd
-_pfhttpd:
-	cd caddy/caddy/caddy && \
-	go build && \
-	cd - && \
-	mv caddy/caddy/caddy/caddy ${NAME}
-
-.PHONY: pfhttpd-race
-pfhttpd-race:
-	cd caddy/caddy/caddy && \
-	go build -race && \
-	cd - && \
-	mv caddy/caddy/caddy/caddy pfhttpd-race
-
 .PHONY: pfdhcp
 pfdhcp:
 	cd dhcp && \
