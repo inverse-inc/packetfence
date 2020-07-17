@@ -43,8 +43,8 @@ Matches all the sub conditions
 =cut
 
 sub match {
-    my ($self, $arg) = @_;
-    return all { $_->match($arg) } $self->all_conditions;
+    my ($self, $arg, $args) = @_;
+    return all { $_->match($arg, $args) } $self->all_conditions;
 }
 
 

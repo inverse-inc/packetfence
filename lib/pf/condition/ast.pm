@@ -37,7 +37,7 @@ Check if the is true
 =cut
 
 sub match {
-    my ($self, $arg) = @_;
+    my ($self, $arg, $args) = @_;
     return $FALSE if(!defined($arg));
     my $value = eval {
         $self->ast->value($arg)

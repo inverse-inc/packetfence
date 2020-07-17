@@ -38,7 +38,7 @@ Matches if the argument exists in the hash
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
+    my ($self,$arg,$args) = @_;
     return $FALSE if(!defined($arg));
     return exists ${$self->lookup}{$arg} ? $TRUE : $FALSE;
 }

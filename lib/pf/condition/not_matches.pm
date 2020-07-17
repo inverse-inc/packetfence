@@ -36,8 +36,8 @@ Matches if the argument does not match the value
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    my $match = $self->value;
+    my ($self,$arg,$args) = @_;
+    my $match = $self->evalParam($self->value, $args);
     return $FALSE if(!defined($arg));
     return $arg !~ /\Q$match\E/;
 }
