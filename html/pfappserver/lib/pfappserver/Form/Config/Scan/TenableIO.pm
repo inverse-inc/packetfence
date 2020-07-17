@@ -22,7 +22,7 @@ has_field 'url' =>
   (
    type => 'Text',
    label => 'TenableIO url',
-   default => 'cloud.tenable.com'
+   default => 'cloud.tenable.com',
    required => 1,
    messages => { required => 'Please specify the url of the TenableIO' },
   );
@@ -43,6 +43,12 @@ has_field 'secretKey' =>
              help => 'Define the secret key' },
   );
 
+has_field 'type' =>
+  (
+   type => 'Hidden',
+   default => 'tenableio',
+  );
+
 has_field 'folderId' =>
   (
    type => 'Text',
@@ -52,15 +58,9 @@ has_field 'folderId' =>
              help => 'Define the Folder ID' },
   );
 
-has_field 'type' =>
-  (
-   type => 'Hidden',
-   default => 'tenableio',
-  );
-
 has_block definition =>
   (
-   render_list => [ qw(id url accessKey secretKey folderId type tenableio_clientpolicy scannername categories oses duration pre_registration registration post_registration) ],
+   render_list => [ qw(id url accessKey secretKey type folderId tenableio_clientpolicy scannername categories oses duration pre_registration registration post_registration) ],
   );
 
 has_field 'tenableio_clientpolicy' =>
