@@ -21,6 +21,8 @@ use pf::log;
 use pf::constants;
 use pf::config qw(
     $WEBAUTH_WIRED
+    $WIRED_MAC_AUTH
+    $WIRED_802_1X
 );
 use pf::SwitchSupports qw(
     RoleBasedEnforcement
@@ -83,6 +85,56 @@ sub parseExternalPortalRequest {
 
     return \%params;
 }
+
+
+=item wiredeauthTechniques
+
+Returns the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+=item deauthenticateMacRadius
+
+Deauthenticate a wired endpoint using RADIUS CoA
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex,$mac) = @_;
+
+    $self->radiusDisconnect($mac);
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
