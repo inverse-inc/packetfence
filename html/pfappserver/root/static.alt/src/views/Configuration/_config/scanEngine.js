@@ -376,9 +376,9 @@ export const view = (meta = {}) => {
           text: i18n.t('Folder ID to use.'),
           cols: [
             {
-              namespace: 'tenableio_clientpolicy',
+              namespace: 'folderId',
               component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'tenableio_clientpolicy')
+              attrs: attributesFromMeta(meta, 'folderId')
             }
           ]
         },

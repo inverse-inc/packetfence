@@ -22,13 +22,14 @@ has_field 'url' =>
   (
    type => 'Text',
    label => 'TenableIO url',
+   default => 'cloud.tenable.com'
    required => 1,
    messages => { required => 'Please specify the url of the TenableIO' },
   );
 
 has_field 'accessKey' =>
   (
-   type => 'Access KEY',
+   type => 'Text',
    label => 'Access KEY',
    tags => { after_element => \&help,
              help => 'Define the access key' },
@@ -36,7 +37,7 @@ has_field 'accessKey' =>
 
 has_field 'secretKey' =>
   (
-   type => 'Secret KEY',
+   type => 'Text',
    label => 'Secret KEY',
    tags => { after_element => \&help,
              help => 'Define the secret key' },
@@ -44,7 +45,7 @@ has_field 'secretKey' =>
 
 has_field 'folderId' =>
   (
-   type => 'Folder ID',
+   type => 'Text',
    label => 'Folder ID',
    default => '162',
    tags => { after_element => \&help,
