@@ -49,7 +49,7 @@ has_field 'status' =>
    unchecked_value => 'disabled',
    default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'Whether or not this task is enabled.<br>Requires a restart of pfmaint to be effective.' },
+             help => 'Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.' },
   );
 
 has_field 'schedule' =>

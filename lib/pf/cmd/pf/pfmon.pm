@@ -106,7 +106,7 @@ sub _run {
     my $params = $self->{params};
     my $task = eval {pf::factory::pfmon::task->new($task_id, $params)};
     if ($@) {
-        exec('/usr/local/pf/sbin/pfmaint', map {/^(.*)$/;$1} $self->args);
+        exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
     } else {
         $task->run();
     }

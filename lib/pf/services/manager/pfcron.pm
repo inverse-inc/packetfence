@@ -1,13 +1,13 @@
-package pf::services::manager::pfmaint;
+package pf::services::manager::pfcron;
 =head1 NAME
 
-pf::services::manager::pfmaint add documentation
+pf::services::manager::pfcron add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::pfmaint
+pf::services::manager::pfcron
 
 =cut
 
@@ -18,7 +18,7 @@ use pf::cluster;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'pfmaint' } );
+has '+name' => ( default => sub { 'pfcron' } );
 
 =head1 AUTHOR
 

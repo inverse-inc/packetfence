@@ -235,7 +235,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfdhcplistener
 	dh_installinit --name=packetfence-pfdns
 	dh_installinit --name=packetfence-pffilter
-	dh_installinit --name=packetfence-pfmaint
+	dh_installinit --name=packetfence-pfcron
 	dh_installinit --name=packetfence-pfperl-api
 	dh_installinit --name=packetfence-pfpki
 	dh_installinit --name=packetfence-pfqueue

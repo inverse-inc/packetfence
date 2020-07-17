@@ -4,7 +4,7 @@
 # use 'global' variables (vs 'define' with local scope)
 %global     builddoc 0
 %global     perl_version 5.10.1
-%global     logfiles packetfence.log snmptrapd.log pfdetect pfmaint security_event.log httpd.admin.audit.log
+%global     logfiles packetfence.log snmptrapd.log pfdetect pfcron security_event.log httpd.admin.audit.log
 %global     logdir /usr/local/pf/logs
 %global     debug_package %{nil}
 
@@ -133,7 +133,7 @@ Requires: perl(Net::OAuth2) >= 0.65
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl(Net::Netmask)
-# pfmaint, pfdhcplistener
+# pfcron, pfdhcplistener
 Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
@@ -414,7 +414,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfmaint.service %{buildroot}%{_unitdir}/packetfence-pfmon.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfmon.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}%{_unitdir}/packetfence-pfqueue.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
@@ -1106,8 +1106,8 @@ fi
                         /usr/local/pf/conf/monitoring/statsd.d/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config                 /usr/local/pf/conf/profiles.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/pfmaint.conf
-%config                 /usr/local/pf/conf/pfmaint.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/pfcron.conf
+%config                 /usr/local/pf/conf/pfcron.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
@@ -1252,7 +1252,7 @@ fi
 %ghost                  %logdir/security_event.log
 %ghost                  %logdir/httpd.admin.audit.log
 %ghost                  %logdir/pfdetect
-%ghost                  %logdir/pfmaint
+%ghost                  %logdir/pfcron
 %doc                    /usr/local/pf/NEWS.asciidoc
 %doc                    /usr/local/pf/NEWS.old
 %doc                    /usr/local/pf/README.md
@@ -1261,7 +1261,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfmaint
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper

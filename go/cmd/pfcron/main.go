@@ -110,7 +110,7 @@ func NotifySystemd(msg string) {
 }
 
 func main() {
-	log.SetProcessName("pfmaint")
+	log.SetProcessName("pfcron")
 	if len(os.Args) > 1 {
 		jobName := os.Args[1]
 		code := 0
