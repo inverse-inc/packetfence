@@ -148,8 +148,7 @@ sub _run {
 
 sub postPfStartService {
     my ($managers) = @_;
-    my $count = true {$_->status ne '0'} @$managers;
-    pf::config::configreload(1) unless $count;
+    pf::config::configreload(1);
 }
 
 
