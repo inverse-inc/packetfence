@@ -12,7 +12,7 @@
           <b-btn variant="link" id="periods" :disabled="isLoading">
             <icon name="stopwatch"></icon>
           </b-btn>
-          <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="pfReportChart" :show.sync="showPeriod">
+          <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="pfReportChart" v-model:show="showPeriod">
             <b-form-row class="align-items-center">
               <div class="mx-1">{{ $t('Previous') }}</div>
                 <b-button-group vrel="periodButtonGroup">

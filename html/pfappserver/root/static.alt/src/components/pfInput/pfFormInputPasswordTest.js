@@ -40,12 +40,12 @@ export default {
     localScopedSlots () {
       return (h) => {
         return {
-          ...this.$scopedSlots,
-          append: ((this.$scopedSlots.append)
+          ...this.$slots,
+          append: ((this.$slots.append)
             ? props => [
                 ...renderSlotsPassword(this, h),
                 ...renderSlotsTest(this, h),
-                this.$scopedSlots.append(props)
+                this.$slots.append(props)
               ]
             : () => [
               ...renderSlotsPassword(this, h),

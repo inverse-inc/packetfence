@@ -48,9 +48,9 @@
       </template>
       <b-form-group class="mb-0">
         <pf-form-input ref="usernameInput" v-model="join.username" :column-label="$t('Username')"
-          :vuelidate="$v.join.username" v-on:keyup.13.native="keyupEnterModal()" />
+          :vuelidate="$v.join.username" v-on:keyup.enter.native="keyupEnterModal()" />
         <pf-form-password ref="passwordInput" v-model="join.password" :column-label="$t('Password')"
-          :vuelidate="$v.join.password" v-on:keyup.13.native="keyupEnterModal()" />
+          :vuelidate="$v.join.password" v-on:keyup.enter.native="keyupEnterModal()" />
       </b-form-group>
       <template v-slot:modal-footer>
         <div @mouseenter="$v.$touch()">

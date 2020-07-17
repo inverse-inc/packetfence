@@ -43,7 +43,7 @@
       triggers="click"
       placement="top"
       :key="category"
-      :show.sync="popover[category]"
+      v-model:show="popover[category]"
       :target="`${category}_${uuid}`"
       :container="`security-event-trigger-row_${uuid}`"
     >

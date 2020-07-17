@@ -14,8 +14,6 @@ import services from './modules/services'
 import session from './modules/session'
 import system from './modules/system'
 
-Vue.use(Vuex)
-
 const debug = process.env.VUE_APP_DEBUG === 'true'
 Vue.config.devtools = debug
 
@@ -25,7 +23,7 @@ export const types = {
   ERROR: 'error'
 }
 
-const store = new Vuex.Store({
+const store = Vuex.createStore({
   modules: {
     config,
     documentation,

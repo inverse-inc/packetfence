@@ -25,7 +25,7 @@
             <b-btn variant="link" id="periods">
               <icon name="stopwatch"></icon>
             </b-btn>
-            <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="DynamicReportChartDates" :show.sync="showPeriod">
+            <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="DynamicReportChartDates" v-model:show="showPeriod">
               <b-form-row class="align-items-center">
                 <div class="mx-1">{{ $t('Previous') }}</div>
                   <b-button-group vrel="periodButtonGroup">

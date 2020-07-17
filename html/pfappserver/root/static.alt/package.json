@@ -5,10 +5,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
-    "build-report": "vue-cli-service build --report",
+    "test:unit": "jest --clearCache && vue-cli-service test:unit",
     "lint": "vue-cli-service lint --report-unused-disable-directives",
-    "test:unit": "jest --clearCache && vue-cli-service test:unit"
+    "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
+    "build-report": "vue-cli-service build --report"
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
@@ -49,8 +49,9 @@
     "@vue/cli-plugin-eslint": "^4.3.1",
     "@vue/cli-plugin-unit-jest": "^4.4.4",
     "@vue/cli-service": "^4.3.1",
+    "@vue/compiler-sfc": "^3.0.0-beta.1",
     "@vue/eslint-config-standard": "^5.0.0",
-    "@vue/test-utils": "^1.0.3",
+    "@vue/test-utils": "^2.0.0-alpha.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.1",
@@ -63,8 +64,8 @@
     "svg-arc-to-cubic-bezier": "^3.2.0",
     "vue-cli-plugin-bootstrap-vue": "0.6.0",
     "vue-cli-plugin-i18n": "^0.6.1",
-    "vue-jest": "^3.0.5",
-    "vue-template-compiler": "2.6.11"
+    "vue-cli-plugin-vue-next": "~0.1.3",
+    "vue-jest": "^3.0.5"
   },
   "postcss": {
     "plugins": {

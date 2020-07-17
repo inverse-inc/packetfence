@@ -68,7 +68,7 @@ export default {
     },
     localScopedSlots () { // overloaded through inheritance
       return (h) => {
-        return this.$scopedSlots // defaults
+        return this.$slots // defaults
       }
     }
   },
