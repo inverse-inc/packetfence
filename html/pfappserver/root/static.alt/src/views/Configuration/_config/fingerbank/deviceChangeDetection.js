@@ -7,7 +7,7 @@ import {
   validatorsFromMeta
 } from '../'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null, // ignore tabs
@@ -119,7 +119,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     device_class_whitelist: validatorsFromMeta(meta, 'device_class_whitelist', i18n.t('Whitelist')),
     triggers: validatorsFromMeta(meta, 'triggers', i18n.t('Triggers'))

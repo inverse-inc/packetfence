@@ -86,11 +86,13 @@ export default {
     if ('can' in this.item) {
       this.visible = this.$can.apply(null, this.item.can.split(' '))
     }
+    /*
     if ('saveSearchNamespace' in this.item) {
       this.$store.dispatch('saveSearch/get', this.item.saveSearchNamespace).then(savedSearches => {
-        // this.$set(this, 'savedSearches', savedSearches)
+        this.$set(this, 'savedSearches', savedSearches)
       })
     }
+    */
   }
 }
 </script>

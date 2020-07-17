@@ -32,9 +32,7 @@ import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  config,
-  revoke,
-  download
+  config
 } from '../_config/pki/revokedCert'
 import {
   revokeReasons

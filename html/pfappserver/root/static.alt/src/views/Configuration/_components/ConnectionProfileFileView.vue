@@ -117,7 +117,7 @@ export default {
     newFilename: {
       required,
       isFilenameWithExtension: isFilenameWithExtension(['html', 'mjml']),
-      isUnique (value) {
+      isUnique () {
         return this.$store.dispatch('$_connection_profiles/getFile', {
           id: this.id,
           filename: [this.filename, this.newFilename].join('/'),
@@ -207,7 +207,7 @@ export default {
         content: this.content
       }
       if (this.isNew) params.filename += '/' + this.newFilename
-      this.$store.dispatch(`$_connection_profiles/${action}File`, params).then(response => {
+      this.$store.dispatch(`$_connection_profiles/${action}File`, params).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -223,7 +223,7 @@ export default {
       })
     },
     remove ($event, close) {
-      this.$store.dispatch('$_connection_profiles/deleteFile', { id: this.id, filename: this.filename }).then(response => {
+      this.$store.dispatch('$_connection_profiles/deleteFile', { id: this.id, filename: this.filename }).then(() => {
         if (close) {
           this.close()
         } else {
@@ -238,7 +238,7 @@ export default {
       this.init().then(() => {
         this.$nextTick(() => {
           // Enable save button upon modification
-          this.editor.on('change', (e) => { this.contentModified = true })
+          this.editor.on('change', () => { this.contentModified = true })
         })
       })
     }

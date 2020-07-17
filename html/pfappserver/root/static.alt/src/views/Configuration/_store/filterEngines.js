@@ -139,7 +139,7 @@ const actions = {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
-      return api.updateFilterEngine({ resource, id, data }).then(response => {
+      return api.updateFilterEngine({ resource, id, data }).then(() => {
         commit('ITEM_REPLACED', { collection, id, item: data })
         store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return state.cache[collection].items.find(item => item.id === id)

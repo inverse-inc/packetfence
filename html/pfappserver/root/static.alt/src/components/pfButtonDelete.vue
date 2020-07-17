@@ -63,12 +63,12 @@ export default {
     }
   },
   methods: {
-    startInterrupt (event) {
+    startInterrupt () {
       if (this.timerStop) clearTimeout(this.timerStop)
       this.interrupt = true
       this.timerStop = setTimeout(this.stopInterrupt, this.timeout)
     },
-    stopInterrupt (event) {
+    stopInterrupt () {
       if (this.timerStop) clearTimeout(this.timerStop)
       this.interrupt = false
     },

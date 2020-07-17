@@ -7,7 +7,7 @@ import {
   validatorsFromMeta
 } from './'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -68,7 +68,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     bounce_duration: {
       interval: validatorsFromMeta(meta, 'bounce_duration.interval', i18n.t('Interval')),

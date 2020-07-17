@@ -59,7 +59,7 @@ export default {
       this.$router.push({ name: 'cloneScanEngine', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_scans/deleteScanEngine', item.id).then(response => {
+      this.$store.dispatch('$_scans/deleteScanEngine', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

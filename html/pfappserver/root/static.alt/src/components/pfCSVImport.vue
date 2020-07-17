@@ -602,7 +602,6 @@ export default {
     },
     loadPreview () {
       const parseLine = async (line) => {
-        // eslint-disable-next-line no-return-await
         return await new Promise((resolve) => {
           Papa.parse(line, {
             ...this.config,
@@ -872,7 +871,6 @@ export default {
                 }
                 resolve() // continue processing
               }
-              // eslint-disable-next-line prefer-promise-reject-errors
               reject() // stop processing
             }).catch((err) => {
               reject(err) // stop processing

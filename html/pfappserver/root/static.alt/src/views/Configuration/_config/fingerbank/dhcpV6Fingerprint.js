@@ -92,7 +92,7 @@ export const config = (context = {}) => {
   }
 }
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false
@@ -128,7 +128,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = () => {
   return {
     value: {
       [i18n.t('Fingerprint required.')]: required,

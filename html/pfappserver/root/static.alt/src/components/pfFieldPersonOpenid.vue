@@ -114,7 +114,7 @@ export default {
   },
   watch: {
     localPerson: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           this.$set(this.formStoreValue, 'openid_field', null) // clear value
           this.$nextTick(() => {

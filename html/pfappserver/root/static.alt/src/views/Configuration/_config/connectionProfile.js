@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import router from '@/router'
 import store from '@/store'
 import i18n from '@/utils/locale'
@@ -900,7 +899,7 @@ export const validators = (form = {}, meta = {}) => {
     }, {})
 
   const advancedFilterValidator = (meta = {}, advanced_filter = {}, level = 0) => {
-    const { field, op, value, values } = advanced_filter
+    const { op, values } = advanced_filter
     if (values && values.constructor === Array) { // op
       return {
         op: {

@@ -6,7 +6,7 @@ import {
   validatorsFromMeta
 } from './'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -64,7 +64,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     lease_length: validatorsFromMeta(meta, 'lease_length', i18n.t('Length')),
     threshold: validatorsFromMeta(meta, 'threshold', i18n.t('Threshold'))

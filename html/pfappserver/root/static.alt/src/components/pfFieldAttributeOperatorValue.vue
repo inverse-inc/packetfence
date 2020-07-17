@@ -229,7 +229,7 @@ export default {
   },
   watch: {
     localAttribute: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (!this.drag && a) { // don't focus when being dragged
           this.$set(this.formStoreValue, 'operator', null) // clear operator
           this.$set(this.formStoreValue, 'value', null) // clear value
@@ -240,7 +240,7 @@ export default {
       }
     },
     localOperator: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (!this.drag && a) { // don't focus when being dragged
           this.$set(this.formStoreValue, 'value', null) // clear value
           this.$nextTick(() => {

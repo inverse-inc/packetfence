@@ -134,7 +134,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_admin_roles/createAdminRole', this.form).then(response => {
+      this.$store.dispatch('$_admin_roles/createAdminRole', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -143,13 +143,13 @@ export default {
       })
     },
     remove () {
-      this.$store.dispatch('$_admin_roles/deleteAdminRole', this.id).then(response => {
+      this.$store.dispatch('$_admin_roles/deleteAdminRole', this.id).then(() => {
         this.close()
       })
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_admin_roles/updateAdminRole', this.form).then(response => {
+      this.$store.dispatch('$_admin_roles/updateAdminRole', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
@@ -161,7 +161,7 @@ export default {
   },
   watch: {
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

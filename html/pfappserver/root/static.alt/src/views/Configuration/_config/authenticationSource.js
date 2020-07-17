@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'

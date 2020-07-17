@@ -316,6 +316,7 @@ const mutations = {
       state.message = response.data.message
     }
   },
+  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
     state = initialState()
   }

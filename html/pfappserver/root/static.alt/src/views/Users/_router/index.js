@@ -58,7 +58,7 @@ const route = {
       path: 'import',
       name: 'userImport',
       component: UsersImport,
-      props: (route) => ({ formStoreName: 'formUserImport' }),
+      props: () => ({ formStoreName: 'formUserImport' }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formUserImport) { // Register store module only once
           store.registerModule('formUserImport', FormStore)

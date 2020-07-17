@@ -37,9 +37,7 @@ const api = {
       return apiCall.getQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => { // exists
         const { data: { item: { value = null } = {} } = {} } = response
         if (value) {
-          // eslint-disable-next-line
           const { meta: { created_at = null } = {} } = JSON.parse(value)
-          // eslint-disable-next-line
           if (created_at) { // retain `created_at`
             body = {
               id: `${IDENTIFIER_PREFIX}${id}`,
@@ -159,6 +157,7 @@ const mutations = {
       state.message = message
     }
   },
+  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
     state = initialState()
   }

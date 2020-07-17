@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 /**
  * See modules under html/pfappserver/lib/pfappserver/Form/Config/PortalModule/
  */
@@ -155,7 +154,7 @@ export const moduleTypeName = (moduleType) => {
 }
 
 export const viewFields = {
-  id: (form, meta = {}) => {
+  id: (_, meta = {}) => {
     const {
       isNew = false,
       isClone = false
@@ -176,7 +175,7 @@ export const viewFields = {
       ]
     }
   },
-  actions: (form, meta = {}) => {
+  actions: (_, meta = {}) => {
     return {
       label: i18n.t('Actions'),
       cols: [
@@ -201,7 +200,7 @@ export const viewFields = {
       ]
     }
   },
-  admin_role: (form, meta = {}) => {
+  admin_role: (_, meta = {}) => {
     return {
       label: i18n.t('Admin Roles'),
       text: i18n.t('Which roles should have access to this module to select the role'),
@@ -219,7 +218,7 @@ export const viewFields = {
       ]
     }
   },
-  aup_template: (form, meta = {}) => {
+  aup_template: (_, meta = {}) => {
     return {
       label: i18n.t('AUP template'),
       text: i18n.t('The template to use for the Acceptable Use Policy'),
@@ -232,7 +231,7 @@ export const viewFields = {
       ]
     }
   },
-  custom_fields: (form, meta = {}) => {
+  custom_fields: (_, meta = {}) => {
     return {
       label: i18n.t('Mandatory fields'),
       text: i18n.t('The additionnal fields that should be required for registration'),
@@ -250,7 +249,7 @@ export const viewFields = {
       ]
     }
   },
-  description: (form, meta = {}) => {
+  description: (_, meta = {}) => {
     return {
       label: i18n.t('Description'),
       text: i18n.t('The description that will be displayed to users'),
@@ -263,7 +262,7 @@ export const viewFields = {
       ]
     }
   },
-  fields_to_save: (form, meta = {}) => {
+  fields_to_save: (_, meta = {}) => {
     return {
       label: i18n.t('Fields to save'),
       text: i18n.t('These fields will be saved through the registration process'),
@@ -281,7 +280,7 @@ export const viewFields = {
       ]
     }
   },
-  forced_sponsor: (form, meta = {}) => {
+  forced_sponsor: (_, meta = {}) => {
     return {
       label: i18n.t('Forced Sponsor'),
       text: i18n.t('Defines the sponsor email used. Leave empty so that the user has to specify a sponsor.'),
@@ -294,7 +293,7 @@ export const viewFields = {
       ]
     }
   },
-  landing_template: (form, meta = {}) => {
+  landing_template: (_, meta = {}) => {
     return {
       label: i18n.t('Landing template'),
       text: i18n.t('The template to use for the signup'),
@@ -307,7 +306,7 @@ export const viewFields = {
       ]
     }
   },
-  list_role: (form, meta = {}) => {
+  list_role: (_, meta = {}) => {
     return {
       label: i18n.t('Roles'),
       text: i18n.t('Which roles can be select'),
@@ -325,7 +324,7 @@ export const viewFields = {
       ]
     }
   },
-  message: (form, meta = {}) => {
+  message: (_, meta = {}) => {
     return {
       label: i18n.t('Message'),
       text: i18n.t('The message that will be displayed to the user. Use with caution as the HTML contained in this field will NOT be escaped.'),
@@ -406,7 +405,7 @@ export const viewFields = {
       ]
     }
   },
-  multi_source_auth_classes: (form, meta = {}) => {
+  multi_source_auth_classes: (_, meta = {}) => {
     return {
       label: i18n.t('Sources by Auth Class'),
       text: i18n.t('The sources of these authentication classes and part of the connection profile will be added to the available sources'),
@@ -419,7 +418,7 @@ export const viewFields = {
       ]
     }
   },
-  multi_source_object_classes: (form, meta = {}) => {
+  multi_source_object_classes: (_, meta = {}) => {
     return {
       label: i18n.t('Sources by Class'),
       text: i18n.t('The sources inheriting from these classes and part of the connection profile will be added to the available sources'),
@@ -432,7 +431,7 @@ export const viewFields = {
       ]
     }
   },
-  multi_source_types: (form, meta = {}) => {
+  multi_source_types: (_, meta = {}) => {
     return {
       label: i18n.t('Sources by type'),
       text: i18n.t('The sources of these types and part of the connection profile will be added to the available sources'),
@@ -445,7 +444,7 @@ export const viewFields = {
       ]
     }
   },
-  pid_field: (form, meta = {}) => {
+  pid_field: (_, meta = {}) => {
     return {
       label: i18n.t('PID field'),
       text: i18n.t('Which field should be used as the PID.'),
@@ -458,7 +457,7 @@ export const viewFields = {
       ]
     }
   },
-  show_first_module_on_default: (form, meta = {}) => {
+  show_first_module_on_default: (_, meta = {}) => {
     return {
       label: i18n.t('Show first module when none is selected'),
       cols: [
@@ -475,7 +474,7 @@ export const viewFields = {
       ]
     }
   },
-  signup_template: (form, meta = {}) => {
+  signup_template: (_, meta = {}) => {
     return {
       label: i18n.t('Signup template'),
       text: i18n.t('The template to use for the signup'),
@@ -488,7 +487,7 @@ export const viewFields = {
       ]
     }
   },
-  skipable: (form, meta = {}) => {
+  skipable: (_, meta = {}) => {
     return {
       label: i18n.t('Skippable'),
       text: i18n.t('Whether or not, this message can be skipped'),
@@ -506,7 +505,7 @@ export const viewFields = {
       ]
     }
   },
-  source_id: (form, meta = {}) => {
+  source_id: (_, meta = {}) => {
     return {
       label: i18n.t('Authentication Source'),
       text: i18n.t('The source to use in the module. If no source is specified, all the sources of the connection profile will be used.'),
@@ -524,7 +523,7 @@ export const viewFields = {
       ]
     }
   },
-  ssl_mobileconfig_path: (form, meta = {}) => {
+  ssl_mobileconfig_path: (_, meta = {}) => {
     return {
       label: i18n.t('SSL iOS profile URL'),
       text: i18n.t('URL of an iOS mobileconfig profile to install the certificate.'),
@@ -537,7 +536,7 @@ export const viewFields = {
       ]
     }
   },
-  ssl_path: (form, meta = {}) => {
+  ssl_path: (_, meta = {}) => {
     return {
       label: i18n.t('SSL Certificate URL'),
       text: i18n.t('URL of the SSL certificate in X509 Base64 format.'),
@@ -550,7 +549,7 @@ export const viewFields = {
       ]
     }
   },
-  stone_roles: (form, meta = {}) => {
+  stone_roles: (_, meta = {}) => {
     return {
       label: i18n.t('Roles'),
       text: i18n.t('Nodes with the selected roles will be affected'),
@@ -568,7 +567,7 @@ export const viewFields = {
       ]
     }
   },
-  survey_id: (form, meta = {}) => {
+  survey_id: (_, meta = {}) => {
     return {
       label: i18n.t('Survey'),
       text: i18n.t('The survey to use in this portal module. Surveys are defined in survey.conf'),
@@ -581,7 +580,7 @@ export const viewFields = {
       ]
     }
   },
-  template: (form, meta = {}) => {
+  template: (_, meta = {}) => {
     return {
       label: i18n.t('Template'),
       cols: [
@@ -593,7 +592,7 @@ export const viewFields = {
       ]
     }
   },
-  url: (form, meta = {}) => {
+  url: (_, meta = {}) => {
     return {
       label: 'URL',
       text: i18n.t('The URL on which the user should be redirected.'),
@@ -606,7 +605,7 @@ export const viewFields = {
       ]
     }
   },
-  username: (form, meta = {}) => {
+  username: (_, meta = {}) => {
     return {
       label: i18n.t('Username'),
       text: i18n.t('Defines the username used for all authentications'),
@@ -619,7 +618,7 @@ export const viewFields = {
       ]
     }
   },
-  with_aup: (form, meta = {}) => {
+  with_aup: () => {
     return {
       label: i18n.t('Require AUP'),
       text: i18n.t('Require the user to accept the AUP'),
@@ -994,7 +993,7 @@ export const view = (form = {}, meta = {}) => {
 }
 
 export const validatorFields = {
-  id: (form, meta = {}) => {
+  id: (_, meta = {}) => {
     const {
       isNew = false,
       isClone = false
@@ -1016,31 +1015,31 @@ export const validatorFields = {
       actions: pfActionValidators(pfActionsFromMeta(meta, 'actions.type'), actions)
     }
   },
-  admin_role: (form, meta = {}) => {
+  admin_role: (_, meta = {}) => {
     return { admin_role: validatorsFromMeta(meta, 'admin_role', i18n.t('Role')) }
   },
-  aup_template: (form, meta = {}) => {
+  aup_template: (_, meta = {}) => {
     return { aup_template: validatorsFromMeta(meta, 'aup_template', i18n.t('Template')) }
   },
-  custom_fields: (form, meta = {}) => {
+  custom_fields: (_, meta = {}) => {
     return { custom_fields: validatorsFromMeta(meta, 'custom_fields', i18n.t('Fields')) }
   },
-  description: (form, meta = {}) => {
+  description: (_, meta = {}) => {
     return { description: validatorsFromMeta(meta, 'description', i18n.t('Description')) }
   },
-  fields_to_save: (form, meta = {}) => {
+  fields_to_save: (_, meta = {}) => {
     return { fields_to_save: validatorsFromMeta(meta, 'fields_to_save', i18n.t('Fields')) }
   },
-  forced_sponsor: (form, meta = {}) => {
+  forced_sponsor: (_, meta = {}) => {
     return { forced_sponsor: validatorsFromMeta(meta, 'forced_sponsor', i18n.t('Email')) }
   },
-  landing_template: (form, meta = {}) => {
+  landing_template: (_, meta = {}) => {
     return { landing_template: validatorsFromMeta(meta, 'landing_template', i18n.t('Template')) }
   },
-  list_role: (form, meta = {}) => {
+  list_role: (_, meta = {}) => {
     return { list_role: validatorsFromMeta(meta, 'list_role', i18n.t('Role')) }
   },
-  message: (form, meta = {}) => {
+  message: (_, meta = {}) => {
     return { message: validatorsFromMeta(meta, 'message', i18n.t('Message')) }
   },
   modules: (form = {}, meta = {}) => {
@@ -1075,46 +1074,46 @@ export const validatorFields = {
       }
     }
   },
-  multi_source_auth_classes: (form, meta = {}) => {
+  multi_source_auth_classes: (_, meta = {}) => {
     return { multi_source_auth_classes: validatorsFromMeta(meta, 'multi_source_auth_classes', i18n.t('Classes')) }
   },
-  multi_source_object_classes: (form, meta = {}) => {
+  multi_source_object_classes: (_, meta = {}) => {
     return { multi_source_object_classes: validatorsFromMeta(meta, 'multi_source_object_classes', i18n.t('Classes')) }
   },
-  multi_source_types: (form, meta = {}) => {
+  multi_source_types: (_, meta = {}) => {
     return { multi_source_types: validatorsFromMeta(meta, 'multi_source_types', i18n.t('Types')) }
   },
-  pid_field: (form, meta = {}) => {
+  pid_field: (_, meta = {}) => {
     return { pid_field: validatorsFromMeta(meta, 'pid_field', 'PID') }
   },
-  show_first_module_on_default: (form, meta = {}) => {},
-  signup_template: (form, meta = {}) => {
+  show_first_module_on_default: () => {},
+  signup_template: (_, meta = {}) => {
     return { signup_template: validatorsFromMeta(meta, 'signup_template', 'Template') }
   },
-  skipable: (form, meta = {}) => {},
-  source_id: (form, meta = {}) => {},
-  ssl_mobileconfig_path: (form, meta = {}) => {
+  skipable: () => {},
+  source_id: () => {},
+  ssl_mobileconfig_path: (_, meta = {}) => {
     return { ssl_mobileconfig_path: validatorsFromMeta(meta, 'ssl_mobileconfig_path', 'SSL iOS profile URL') }
   },
-  ssl_path: (form, meta = {}) => {
+  ssl_path: (_, meta = {}) => {
     return { ssl_path: validatorsFromMeta(meta, 'ssl_path', 'SSL Certificate URL') }
   },
-  stone_roles: (form, meta = {}) => {
+  stone_roles: (_, meta = {}) => {
     return { stone_roles: validatorsFromMeta(meta, 'stone_roles', i18n.t('Role')) }
   },
-  survey_id: (form, meta = {}) => {
+  survey_id: (_, meta = {}) => {
     return { survey_id: validatorsFromMeta(meta, 'survey_id', i18n.t('Survey')) }
   },
-  template: (form, meta = {}) => {
+  template: (_, meta = {}) => {
     return { template: validatorsFromMeta(meta, 'template', 'Template') }
   },
-  url: (form, meta = {}) => {
+  url: (_, meta = {}) => {
     return { url: validatorsFromMeta(meta, 'url', 'URL') }
   },
-  username: (form, meta = {}) => {
+  username: (_, meta = {}) => {
     return { username: validatorsFromMeta(meta, 'username', 'Username') }
   },
-  with_aup: (form, meta = {}) => {}
+  with_aup: () => {}
 }
 
 export const validators = (form = {}, meta = {}) => {

@@ -627,7 +627,7 @@ const actions = {
   updateDatabase: ({ commit }, data) => {
     commit('UPDATE_DATABASE_REQUEST')
     return api.fingerbankUpdateDatabase().then(response => {
-      commit('UPDATE_DATABASE_SUCCESS')
+      commit('UPDATE_DATABASE_SUCCESS', data)
       return response
     }).catch(err => {
       commit('UPDATE_DATABASE_ERROR', err.response)

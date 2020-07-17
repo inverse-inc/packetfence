@@ -383,7 +383,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false

@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     enable (item) {
-      return (value) => { // 'enabled'
+      return () => { // 'enabled'
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item).then(() => {
             resolve('enabled')
@@ -72,7 +72,7 @@ export default {
       }
     },
     disable (item) {
-      return (value) => { // 'disabled'
+      return () => { // 'disabled'
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item).then(() => {
             resolve('disabled')

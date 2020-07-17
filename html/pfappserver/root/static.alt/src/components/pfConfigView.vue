@@ -62,7 +62,6 @@
 import uuidv4 from 'uuid/v4'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfFormInput from '@/components/pfFormInput'
 import { createDebouncer } from 'promised-debounce'
 
 export default {
@@ -138,10 +137,9 @@ export default {
           // eslint-disable-next-line vue/no-side-effects-in-computed-properties
           this.tabErrorCountCache = this.conditionalView.map(() => 0)
         }
-        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.tabErrorCountDebouncer({
           handler: () => {
-          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.tabErrorCountCache = this.conditionalView.map(view => {
               return view.rows.reduce((rowCount, row) => {
                 if (!('cols' in row)) return rowCount

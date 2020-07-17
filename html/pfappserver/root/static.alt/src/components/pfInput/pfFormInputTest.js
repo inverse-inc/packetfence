@@ -138,7 +138,7 @@ export default {
     }
   },
   methods: {
-    doRunTest (event) {
+    doRunTest () {
       this.isTesting = true
       this.testResult = null
       Promise.resolve(this.test()).then(response => {

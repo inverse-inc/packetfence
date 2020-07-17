@@ -134,7 +134,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_domains/createDomain', this.form).then(response => {
+      this.$store.dispatch('$_domains/createDomain', this.form).then(() => {
         if (!actionKey) {
           this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         } else {
@@ -144,14 +144,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_domains/updateDomain', this.form).then(response => {
+      this.$store.dispatch('$_domains/updateDomain', this.form).then(() => {
         if ((this.isNew && !actionKey) || (this.isClone && !actionKey) || (!this.isNew && !this.isClone && actionKey)) {
           this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_domains/deleteDomain', this.id).then(response => {
+      this.$store.dispatch('$_domains/deleteDomain', this.id).then(() => {
         this.close()
       })
     }
@@ -161,12 +161,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

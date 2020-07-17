@@ -179,7 +179,7 @@ export default {
     }
   },
   watch: {
-    value (a, b) {
+    value (a) {
       this.toggled = (typeof this.values === 'object')
         ? (a === this.values.checked)
         : !!a

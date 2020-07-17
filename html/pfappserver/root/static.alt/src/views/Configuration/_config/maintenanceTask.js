@@ -97,7 +97,7 @@ export const config = () => {
 }
 
 export const viewFields = {
-  id: (form = {}, meta = {}) => {
+  id: (_, meta = {}) => {
     return {
       label: i18n.t('Maintenance Task Name'),
       cols: [
@@ -114,7 +114,7 @@ export const viewFields = {
       ]
     }
   },
-  batch: (form = {}, meta = {}) => {
+  batch: (_, meta = {}) => {
     return {
       label: i18n.t('Batch'),
       text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
@@ -127,7 +127,7 @@ export const viewFields = {
       ]
     }
   },
-  certificates: (form = {}, meta = {}) => {
+  certificates: (_, meta = {}) => {
     return {
       label: i18n.t('Certificates'),
       text: i18n.t('SSL certificate(s) to monitor. Comma-separated list.'),
@@ -145,7 +145,7 @@ export const viewFields = {
       ]
     }
   },
-  delay: (form = {}, meta = {}) => {
+  delay: (_, meta = {}) => {
     return {
       label: i18n.t('Delay'),
       text: i18n.t('Minimum gap before certificate expiration date (will the certificate expires in ...).'),
@@ -163,7 +163,7 @@ export const viewFields = {
       ]
     }
   },
-  delete_window: (form = {}, meta = {}) => {
+  delete_window: (_, meta = {}) => {
     return {
       label: i18n.t('Delete window'),
       text: i18n.t(`How long can an unregistered node be inactive before being deleted.\nThis shouldn't be used if you are using port-security.`),
@@ -181,7 +181,7 @@ export const viewFields = {
       ]
     }
   },
-  description: (form = {}, meta = {}) => {
+  description: () => {
     return {
       label: i18n.t('Description'),
       cols: [
@@ -195,7 +195,7 @@ export const viewFields = {
       ]
     }
   },
-  schedule: (form = {}, meta = {}) => {
+  schedule: () => {
     return {
       label: i18n.t('Schedule'),
       cols: [
@@ -210,7 +210,7 @@ export const viewFields = {
       ]
     }
   },
-  process_switchranges: (form = {}, meta = {}) => {
+  process_switchranges: () => {
     return {
       label: i18n.t('Process switchranges'),
       text: i18n.t('Whether or not a switch range should be expanded to process each of its IPs.'),
@@ -225,7 +225,7 @@ export const viewFields = {
       ]
     }
   },
-  rotate: (form = {}, meta = {}, logName = 'ip4log') => {
+  rotate: (_, __, logName = 'ip4log') => {
     return {
       label: i18n.t('Rotate'),
       text: i18n.t(`Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive.`),
@@ -240,7 +240,7 @@ export const viewFields = {
       ]
     }
   },
-  rotate_batch: (form = {}, meta = {}) => {
+  rotate_batch: (_, meta = {}) => {
     return {
       label: i18n.t('Rotate batch'),
       text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
@@ -253,7 +253,7 @@ export const viewFields = {
       ]
     }
   },
-  rotate_timeout: (form = {}, meta = {}) => {
+  rotate_timeout: (_, meta = {}) => {
     return {
       label: i18n.t('Rotate timeout'),
       text: i18n.t('Maximum amount of time this task can run.'),
@@ -271,7 +271,7 @@ export const viewFields = {
       ]
     }
   },
-  rotate_window: (form = {}, meta = {}, logName = 'ip4log') => {
+  rotate_window: (_, meta = {}, logName = 'ip4log') => {
     return {
       label: i18n.t('Rotate window'),
       text: i18n.t(`How long to keep ${logName} history entry before rotating it to ${logName} archive.`),
@@ -289,7 +289,7 @@ export const viewFields = {
       ]
     }
   },
-  status: (form = {}, meta = {}) => {
+  status: () => {
     return {
       label: i18n.t('Enabled'),
       text: i18n.t('Whether or not this task is enabled.\nRequires a restart of pfcron to be effective.'),
@@ -304,7 +304,7 @@ export const viewFields = {
       ]
     }
   },
-  timeout: (form = {}, meta = {}) => {
+  timeout: (_, meta = {}) => {
     return {
       label: i18n.t('Timeout'),
       text: i18n.t('Maximum amount of time this task can run.'),
@@ -322,7 +322,7 @@ export const viewFields = {
       ]
     }
   },
-  unreg_window: (form = {}, meta = {}) => {
+  unreg_window: (_, meta = {}) => {
     return {
       label: i18n.t('Unreg window'),
       text: i18n.t('How long can a registered node be inactive before it becomes unregistered.'),
@@ -340,7 +340,7 @@ export const viewFields = {
       ]
     }
   },
-  voip: (form = {}, meta = {}) => {
+  voip: () => {
     return {
       label: i18n.t('VoIP'),
       text: i18n.t('Whether or not the VoIP devices should be handled by this maintenance task.'),
@@ -355,7 +355,7 @@ export const viewFields = {
       ]
     }
   },
-  window: (form = {}, meta = {}) => {
+  window: (_, meta = {}) => {
     return {
       label: i18n.t('Window'),
       text: i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.'),
@@ -373,7 +373,7 @@ export const viewFields = {
       ]
     }
   },
-  history_batch: (form = {}, meta = {}) => {
+  history_batch: (_, meta = {}) => {
     return {
       label: i18n.t('History Batch'),
       text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
@@ -386,7 +386,7 @@ export const viewFields = {
       ]
     }
   },
-  history_timeout: (form = {}, meta = {}) => {
+  history_timeout: (_, meta = {}) => {
     return {
       label: i18n.t('History Timeout'),
       text: i18n.t('Maximum amount of time this task can run.'),
@@ -404,7 +404,7 @@ export const viewFields = {
       ]
     }
   },
-  history_window: (form = {}, meta = {}) => {
+  history_window: (_, meta = {}) => {
     return {
       label: i18n.t('History Window'),
       text: i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.'),
@@ -422,7 +422,7 @@ export const viewFields = {
       ]
     }
   },
-  session_batch: (form = {}, meta = {}) => {
+  session_batch: (_, meta = {}) => {
     return {
       label: i18n.t('Session Batch'),
       text: i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.'),
@@ -435,7 +435,7 @@ export const viewFields = {
       ]
     }
   },
-  session_timeout: (form = {}, meta = {}) => {
+  session_timeout: (_, meta = {}) => {
     return {
       label: i18n.t('Session Timeout'),
       text: i18n.t('Maximum amount of time this task can run.'),
@@ -453,7 +453,7 @@ export const viewFields = {
       ]
     }
   },
-  session_window: (form = {}, meta = {}) => {
+  session_window: (_, meta = {}) => {
     return {
       label: i18n.t('Session Window'),
       text: i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.'),
@@ -841,7 +841,7 @@ export const view = (form = {}, meta = {}) => {
 }
 
 export const validatorFields = {
-  id: (form = {}, meta = {}) => {
+  id: (_, meta = {}) => {
     const {
       isNew = false
     } = meta
@@ -854,13 +854,13 @@ export const validatorFields = {
       }
     }
   },
-  batch: (form = {}, meta = {}) => {
+  batch: (_, meta = {}) => {
     return { batch: validatorsFromMeta(meta, 'batch', i18n.t('Batch')) }
   },
-  certificates: (form = {}, meta = {}) => {
+  certificates: (_, meta = {}) => {
     return { certificates: validatorsFromMeta(meta, 'certificates', i18n.t('Certificates')) }
   },
-  delay: (form = {}, meta = {}) => {
+  delay: (_, meta = {}) => {
     return {
       delay: {
         interval: validatorsFromMeta(meta, 'delay.interval', i18n.t('Interval')),
@@ -868,7 +868,7 @@ export const validatorFields = {
       }
     }
   },
-  delete_window: (form = {}, meta = {}) => {
+  delete_window: (_, meta = {}) => {
     return {
       delete_window: {
         interval: validatorsFromMeta(meta, 'delete_window.interval', i18n.t('Interval')),
@@ -876,8 +876,8 @@ export const validatorFields = {
       }
     }
   },
-  description: (form = {}, meta = {}) => {},
-  interval: (form = {}, meta = {}) => {
+  description: () => {},
+  interval: (_, meta = {}) => {
     return {
       interval: {
         interval: validatorsFromMeta(meta, 'interval.interval', i18n.t('Interval')),
@@ -885,12 +885,12 @@ export const validatorFields = {
       }
     }
   },
-  process_switchranges: (form = {}, meta = {}) => {},
-  rotate: (form = {}, meta = {}, logName = 'ip4log') => {},
-  rotate_batch: (form = {}, meta = {}) => {
+  process_switchranges: () => {},
+  rotate: () => {},
+  rotate_batch: (_, meta = {}) => {
     return { rotate_batch: validatorsFromMeta(meta, 'rotate_batch', i18n.t('Batch')) }
   },
-  rotate_timeout: (form = {}, meta = {}) => {
+  rotate_timeout: (_, meta = {}) => {
     return {
       rotate_timeout: {
         interval: validatorsFromMeta(meta, 'rotate_timeout.interval', i18n.t('Interval')),
@@ -898,7 +898,7 @@ export const validatorFields = {
       }
     }
   },
-  rotate_window: (form = {}, meta = {}, logName = 'ip4log') => {
+  rotate_window: (_, meta = {}) => {
     return {
       rotate_window: {
         interval: validatorsFromMeta(meta, 'rotate_window.interval', i18n.t('Interval')),
@@ -906,8 +906,8 @@ export const validatorFields = {
       }
     }
   },
-  status: (form = {}, meta = {}) => {},
-  timeout: (form = {}, meta = {}) => {
+  status: () => {},
+  timeout: (_, meta = {}) => {
     return {
       timeout: {
         interval: validatorsFromMeta(meta, 'timeout.interval', i18n.t('Interval')),
@@ -915,7 +915,7 @@ export const validatorFields = {
       }
     }
   },
-  unreg_window: (form = {}, meta = {}) => {
+  unreg_window: (_, meta = {}) => {
     return {
       unreg_window: {
         interval: validatorsFromMeta(meta, 'unreg_window.interval', i18n.t('Interval')),
@@ -923,7 +923,7 @@ export const validatorFields = {
       }
     }
   },
-  window: (form = {}, meta = {}) => {
+  window: (_, meta = {}) => {
     return {
       window: {
         interval: validatorsFromMeta(meta, 'window.interval', i18n.t('Interval')),
@@ -931,10 +931,10 @@ export const validatorFields = {
       }
     }
   },
-  history_batch: (form = {}, meta = {}) => {
+  history_batch: (_, meta = {}) => {
     return { history_batch: validatorsFromMeta(meta, 'history_batch', i18n.t('Batch')) }
   },
-  history_timeout: (form = {}, meta = {}) => {
+  history_timeout: (_, meta = {}) => {
     return {
       history_timeout: {
         interval: validatorsFromMeta(meta, 'history_timeout.interval', i18n.t('Interval')),
@@ -942,7 +942,7 @@ export const validatorFields = {
       }
     }
   },
-  history_window: (form = {}, meta = {}) => {
+  history_window: (_, meta = {}) => {
     return {
       history_window: {
         interval: validatorsFromMeta(meta, 'history_window.interval', i18n.t('Interval')),

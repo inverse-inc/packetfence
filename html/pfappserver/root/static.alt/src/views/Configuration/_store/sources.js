@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 /**
 * "$_sources" store module
 */

@@ -89,7 +89,7 @@ export default {
       })
     },
     enable (item) {
-      return (value) => { // 'enabled'
+      return () => { // 'enabled'
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} enabled.', { desc: this.$strong(item.desc) }) })
@@ -105,7 +105,7 @@ export default {
       }
     },
     disable (item) {
-      return (value) => { // 'disabled'
+      return () => { // 'disabled'
         return new Promise((resolve, reject) => {
           this.$store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} disabled.', { desc: this.$strong(item.desc) }) })

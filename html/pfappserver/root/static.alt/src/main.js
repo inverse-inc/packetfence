@@ -163,7 +163,6 @@ for (const filter of Object.keys(filters)) {
   Vue.filter(filter, filters[filter])
 }
 
-/* eslint-disable no-new */
 const app = new Vue({
   render: h => h(App),
   router,

@@ -1667,7 +1667,7 @@ const actions = {
       return Promise.resolve(state.wrixLocations)
     }
   },
-  stringifyCondition: ({ commit }, json) => {
+  stringifyCondition: (_, json) => {
     return api.flattenCondition({ condition: json }).then(response => {
       const { item: { condition_string } = {} } = response
       return condition_string
@@ -1675,7 +1675,7 @@ const actions = {
       throw err
     })
   },
-  parseCondition: ({ commit }, string) => {
+  parseCondition: (_, string) => {
     return api.parseCondition({ condition: string }).then(response => {
       const { item: { condition } = {} } = response
       return condition
@@ -2109,7 +2109,7 @@ const mutations = {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
   },
-  SWITCH_GROUPS_ERROR: (state, err) => {
+  SWITCH_GROUPS_ERROR: (state) => {
     state.switchGroupsStatus = types.ERROR
   },
   SWITCH_TEMPLATES_REQUEST: (state) => {
@@ -2119,7 +2119,7 @@ const mutations = {
     state.switchTemplates = switchTemplates
     state.switchTemplatesStatus = types.SUCCESS
   },
-  SWITCH_TEMPLATES_ERROR: (state, err) => {
+  SWITCH_TEMPLATES_ERROR: (state) => {
     state.switchTemplatesStatus = types.ERROR
   },
   SYSLOG_FORWARDERS_REQUEST: (state) => {
@@ -2164,6 +2164,7 @@ const mutations = {
     state.wrixLocations = wrixLocations
     state.wrixLocationsStatus = types.SUCCESS
   },
+  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
     state = initialState()
   }

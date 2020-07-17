@@ -161,7 +161,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_switch_groups/createSwitchGroup', this.form).then(response => {
+      this.$store.dispatch('$_switch_groups/createSwitchGroup', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -171,14 +171,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_switch_groups/updateSwitchGroup', this.form).then(response => {
+      this.$store.dispatch('$_switch_groups/updateSwitchGroup', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', this.id).then(response => {
+      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', this.id).then(() => {
         this.close()
       })
     }
@@ -188,12 +188,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

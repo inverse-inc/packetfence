@@ -169,7 +169,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_connection_profiles/createConnectionProfile', this.form).then(response => {
+      this.$store.dispatch('$_connection_profiles/createConnectionProfile', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -179,14 +179,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_connection_profiles/updateConnectionProfile', this.form).then(response => {
+      this.$store.dispatch('$_connection_profiles/updateConnectionProfile', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       }).catch(this.notifyError)
     },
     remove () {
-      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', this.id).then(response => {
+      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', this.id).then(() => {
         this.close()
       }).catch(this.notifyError)
     },
@@ -228,12 +228,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

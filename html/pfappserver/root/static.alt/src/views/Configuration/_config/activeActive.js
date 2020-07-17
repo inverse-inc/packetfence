@@ -8,7 +8,7 @@ import {
   validatorsFromMeta
 } from './'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -143,7 +143,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     password: validatorsFromMeta(meta, 'password', i18n.t('Password')),
     virtual_router_id: validatorsFromMeta(meta, 'virtual_router_id', 'ID'),

@@ -25,7 +25,6 @@ export const buildValidatorsFromTableSchemas = (...tableSchemas) => {
   let validation = {}
   for (var tableSchema of tableSchemas) {
     for (let [columnKey, columnSchema] of Object.entries(tableSchema)) {
-      // eslint-disable-next-line
       if ('type' in columnSchema && new columnSchema.type() instanceof pfDatabaseSchemaType) {
         // pfDatabaseSchema definition:
         //   Create vuelidate struct from one or more tableSchema(s).
@@ -47,7 +46,6 @@ export const buildValidatorsFromTableSchemas = (...tableSchemas) => {
 export const buildValidatorsFromColumnSchemas = (...columnSchemas) => {
   let validation = {}
   for (let columnSchema of columnSchemas) {
-    // eslint-disable-next-line
     if ('type' in columnSchema && new columnSchema.type() instanceof pfDatabaseSchemaType) {
       switch (true) {
         case (columnSchema.type === pfString):

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { factory, shallowFactory } from '@/utils/test'
 import Component from './pfInput'
 

@@ -1,8 +1,6 @@
+/* eslint-disable no-undef, no-unused-vars */
 import { factory, shallowFactory } from '@/utils/test'
 import Component from './pfFormInput'
-import {
-  BFormInput
-} from 'bootstrap-vue'
 
 describe('Component', () => {
   it('has no scoped data', () => {

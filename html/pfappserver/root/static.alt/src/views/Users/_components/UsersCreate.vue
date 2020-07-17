@@ -387,7 +387,7 @@ column-label="#7 pf-form-input-password-test"
 </template>
 
 <script>
-
+/* eslint-disable no-unused-vars */
 import {
   pfInput,
   pfFormInput as pfFormInputNew,
@@ -502,7 +502,7 @@ export default {
   },
   methods: {
     test () {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         setTimeout(() => {
           resolve(new Error('GTFO'))
         }, 3000)

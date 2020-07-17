@@ -120,7 +120,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_maintenance_tasks/createMaintenanceTask', this.form).then(response => {
+      this.$store.dispatch('$_maintenance_tasks/createMaintenanceTask', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -130,14 +130,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_maintenance_tasks/updateMaintenanceTask', this.form).then(response => {
+      this.$store.dispatch('$_maintenance_tasks/updateMaintenanceTask', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_maintenance_tasks/deleteMaintenanceTask', this.id).then(response => {
+      this.$store.dispatch('$_maintenance_tasks/deleteMaintenanceTask', this.id).then(() => {
         this.close()
       })
     }

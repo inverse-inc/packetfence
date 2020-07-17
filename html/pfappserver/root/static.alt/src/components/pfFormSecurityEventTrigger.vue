@@ -156,7 +156,6 @@ export default {
             const { meta: { triggers: { item: { properties: { [type]: { allowed_lookup: allowedLookup } = {} } = {} } = {} } = {} } = {} } = this
             if (allowedLookup) {
               const { field_name: fieldName, value_name: valueName, search_path: url } = allowedLookup
-              // eslint-disable-next-line
               apiCall.request({
                 url,
                 method: 'post',

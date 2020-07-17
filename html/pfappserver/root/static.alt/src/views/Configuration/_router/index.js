@@ -133,16 +133,10 @@ const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
 const RadiusTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTabs')
-const RadiusGeneralView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusGeneralView')
-const RadiusEapList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusEapList')
 const RadiusEapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusEapView')
-const RadiusTlsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTlsList')
 const RadiusTlsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTlsView')
-const RadiusFastList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusFastList')
 const RadiusFastView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusFastView')
-const RadiusSslList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusSslList')
 const RadiusSslView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusSslView')
-const RadiusOcspList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusOcspList')
 const RadiusOcspView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusOcspView')
 const DnsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DnsView')
 const AdminRolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRolesList')
@@ -1323,7 +1317,7 @@ const route = {
       path: 'switch_template/new',
       name: 'newSwitchTemplate',
       component: SwitchTemplateView,
-      props: (route) => ({ formStoreName: 'formSwitchTemplates', isNew: true }),
+      props: () => ({ formStoreName: 'formSwitchTemplates', isNew: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formSwitchTemplates) { // Register store module only once
           store.registerModule('formSwitchTemplates', FormStore)

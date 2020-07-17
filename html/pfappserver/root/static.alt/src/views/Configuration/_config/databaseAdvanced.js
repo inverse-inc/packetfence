@@ -6,7 +6,7 @@ import {
   validatorsFromMeta
 } from './'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -159,7 +159,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     key_buffer_size: validatorsFromMeta(meta, 'key_buffer_size', i18n.t('Size')),
     innodb_buffer_pool_size: validatorsFromMeta(meta, 'innodb_buffer_pool_size', i18n.t('Size')),

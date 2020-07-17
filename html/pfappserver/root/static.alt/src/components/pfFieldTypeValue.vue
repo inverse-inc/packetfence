@@ -218,7 +218,7 @@ export default {
   },
   watch: {
     localType: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           const field = this.field
           if (field && 'staticValue' in field) {

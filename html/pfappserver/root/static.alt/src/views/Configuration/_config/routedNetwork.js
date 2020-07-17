@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormHtml from '@/components/pfFormHtml'
@@ -11,7 +10,6 @@ import {
 } from './'
 import {
   and,
-  or,
   not,
   conditional,
   hasRoutedNetworks,

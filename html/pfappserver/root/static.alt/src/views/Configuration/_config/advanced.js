@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -12,7 +11,7 @@ import {
   requiredIf
 } from 'vuelidate/lib/validators'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,

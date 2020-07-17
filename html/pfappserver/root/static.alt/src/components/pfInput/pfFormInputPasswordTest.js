@@ -1,14 +1,6 @@
-import {
-  BButton,
-  BButtonGroup,
-  BPopover
-} from 'bootstrap-vue'
-import * as Icon from 'vue-awesome'
-
 import pfFormInputTest from './pfFormInputTest'
 import { renderSlots as renderSlotsPassword } from './pfFormInputPassword'
 import { renderSlots as renderSlotsTest } from './pfFormInputTest'
-import pfStaticGeneratePassword from './pfStaticGeneratePassword'
 import mixinScss from './mixin.scss' // mixin scoped scss
 import {
   mixinFormHandlers,

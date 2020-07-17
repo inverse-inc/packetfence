@@ -12,7 +12,7 @@ import {
 } from '@/components/_mixins/'
 
 export const renderSlots = (ctx, h) => {
-console.log('render')
+//console.log('render')
   let powersInRange = ctx.powers.filter(power => power.multiplier <= ctx.max)
   let selectedLabel = ctx.powers[ctx.powerIndex].label || ''
 /*

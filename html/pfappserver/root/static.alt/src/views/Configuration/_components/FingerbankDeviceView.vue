@@ -141,14 +141,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_fingerbank/updateDevice', this.form).then(response => {
+      this.$store.dispatch('$_fingerbank/updateDevice', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_fingerbank/deleteDevice', this.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteDevice', this.id).then(() => {
         this.close()
       })
     }
@@ -158,12 +158,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

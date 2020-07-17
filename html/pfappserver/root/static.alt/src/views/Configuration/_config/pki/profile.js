@@ -138,8 +138,7 @@ export const recomposeProfile = (item) => {
 export const view = (form = {}, meta = {}) => {
   const {
     key_type = null,
-    key_size = null,
-    cert = null
+    key_size = null
   } = form
   const {
     isNew = false,
@@ -352,7 +351,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false

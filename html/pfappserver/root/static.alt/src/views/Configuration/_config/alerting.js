@@ -165,7 +165,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     emailaddr: {
       ...validatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses')),

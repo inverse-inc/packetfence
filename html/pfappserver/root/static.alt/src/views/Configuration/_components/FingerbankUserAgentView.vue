@@ -128,7 +128,7 @@ export default {
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_fingerbank/createUserAgent', this.form).then(response => {
+      this.$store.dispatch('$_fingerbank/createUserAgent', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -138,14 +138,14 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_fingerbank/updateUserAgent', this.form).then(response => {
+      this.$store.dispatch('$_fingerbank/updateUserAgent', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_fingerbank/deleteUserAgent', this.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteUserAgent', this.id).then(() => {
         this.close()
       })
     }
@@ -155,12 +155,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

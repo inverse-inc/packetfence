@@ -46,7 +46,7 @@ export const fields = [
   }
 ]
 
-export const config = (context = {}) => {
+export const config = () => {
   return {
     columns,
     fields,
@@ -86,7 +86,7 @@ export const config = (context = {}) => {
   }
 }
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false
@@ -367,11 +367,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
+export const validators = (_, meta = {}) => {
   return {
       devices_included: validatorsFromMeta(meta, 'devices_included', 'Device'),
       devices_excluded: validatorsFromMeta(meta, 'devices_excluded', 'Device'),

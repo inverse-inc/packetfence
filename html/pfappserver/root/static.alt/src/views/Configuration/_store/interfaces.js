@@ -28,7 +28,7 @@ const getters = {
 }
 
 const actions = {
-  all: ({ state, commit }) => {
+  all: ({ commit }) => {
     const params = {
       sort: 'id',
       fields: columnsInterface.map(r => r.key).join(','),
@@ -44,7 +44,7 @@ const actions = {
       throw err
     })
   },
-  getInterface: ({ state, commit }, id) => {
+  getInterface: ({ commit }, id) => {
     /* Fix #5363, always fetch a fresh copy
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
@@ -144,11 +144,11 @@ const mutations = {
   },
   INTERFACE_DOWN: (state, id) => {
     state.status = types.SUCCESS
-    Vue.set(state.cache, 'is_running', false)
+    Vue.set(state.cache[id], 'is_running', false)
   },
   INTERFACE_UP: (state, id) => {
     state.status = types.SUCCESS
-    Vue.set(state.cache, 'is_running', true)
+    Vue.set(state.cache[id], 'is_running', true)
   }
 }
 

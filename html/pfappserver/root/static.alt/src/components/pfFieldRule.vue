@@ -207,7 +207,7 @@ export default {
       if (this.visible) this.collapse()
       else this.expand()
     },
-    click (event) {
+    click () {
       this.toggle()
       if (this.actionKey) { // [CTRL] + CLICK = toggle all siblings
         this.$nextTick(() => {

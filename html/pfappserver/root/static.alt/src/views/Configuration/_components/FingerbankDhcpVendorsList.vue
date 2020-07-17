@@ -67,7 +67,7 @@ export default {
       this.$router.push({ name: 'cloneFingerbankDhcpVendor', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_fingerbank/deleteDhcpVendor', item.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteDhcpVendor', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

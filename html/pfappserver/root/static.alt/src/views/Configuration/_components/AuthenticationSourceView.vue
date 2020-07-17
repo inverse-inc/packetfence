@@ -158,15 +158,15 @@ export default {
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
-    close (event) {
+    close () {
       this.$router.push({ name: 'sources' })
     },
     clone () {
       this.$router.push({ name: 'cloneAuthenticationSource' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_sources/createAuthenticationSource', this.form).then(response => {
+      this.$store.dispatch('$_sources/createAuthenticationSource', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -174,16 +174,16 @@ export default {
         }
       })
     },
-    save (event) {
+    save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_sources/updateAuthenticationSource', this.form).then(response => {
+      this.$store.dispatch('$_sources/updateAuthenticationSource', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (event) {
-      this.$store.dispatch('$_sources/deleteAuthenticationSource', this.id).then(response => {
+    remove () {
+      this.$store.dispatch('$_sources/deleteAuthenticationSource', this.id).then(() => {
         this.close()
       })
     },
@@ -201,12 +201,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

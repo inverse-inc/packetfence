@@ -28,7 +28,7 @@ const getters = {
 }
 
 const actions = {
-  all: ({ commit }) => {
+  all: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -904,7 +904,7 @@ const actions = {
       throw err
     })
   },
-  testDatabase: ({ commit }, data) => {
+  testDatabase: (_, data) => {
     return api.testDatabase(data)
   },
   testSmtp: ({ commit }, data) => {

@@ -104,7 +104,7 @@ export default {
     initDocument () {
       const here = new URL(window.location.href)
       const documentFrame = window.frames['documentFrame'].document.body
-      documentFrame.addEventListener('click', (event) => { // iframe clicks blur the parent window
+      documentFrame.addEventListener('click', () => { // iframe clicks blur the parent window
         window.focus() // regain focus
       })
       // inject css
@@ -168,13 +168,13 @@ export default {
       })
       // rewrite images
       const images = [...documentFrame.getElementsByTagName('img')]
-      images.forEach((image, index) => {
+      images.forEach(image => {
         const width = image.naturalWidth
         const height = image.naturalHeight
         if (width >= 100 || height >= 100) { // ignore thumbnails
           image.setAttribute('style', 'cursor: pointer')
           image.setAttribute('title', this.$i18n.t('Click to expand'))
-          image.addEventListener('click', (event) => {
+          image.addEventListener('click', () => {
             this.image = { src: image.src, alt: image.alt || image.src, width, height }
             this.showImageModal = true
           })
@@ -219,7 +219,7 @@ export default {
     }
   },
   watch: {
-    showViewer: function (a, b) {
+    showViewer: function (a) {
       if (a) { // shown
         if (!this.path) { // initial title/path
           this.$store.dispatch('documentation/setPath', 'PacketFence_Installation_Guide.html')
@@ -237,7 +237,7 @@ export default {
       }
     },
     fullscreen: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (a) { // fullscreen
           if (!document.body.classList.contains('modal-open')) { // hide body scrollbar
             document.body.classList.add('modal-open')
@@ -254,7 +254,7 @@ export default {
       }
     },
     path: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (a) {
           this.isLoading = true
           this.isLoadingTimeout = setTimeout(() => {
@@ -267,7 +267,7 @@ export default {
       }
     },
     hash: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (a) {
           this.scrollToSection(a)
         }

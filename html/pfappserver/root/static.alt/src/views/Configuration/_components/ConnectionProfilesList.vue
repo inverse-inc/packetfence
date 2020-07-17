@@ -85,20 +85,20 @@ export default {
       this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', item.id).then(response => {
+      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
     },
     sort (items) {
-      this.$store.dispatch('$_connection_profiles/sortConnectionProfiles', items.map(item => item.id)).then(response => {
+      this.$store.dispatch('$_connection_profiles/sortConnectionProfiles', items.map(item => item.id)).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Connection profiles resorted.') })
       })
     },
     enable (item) {
-      return (value) => { // 'enabled'
+      return () => { // 'enabled'
         return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(response => {
+          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(() => {
             const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
             this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
               resolve('enabled')
@@ -110,9 +110,9 @@ export default {
       }
     },
     disable (item) {
-      return (value) => { // 'disabled'
+      return () => { // 'disabled'
         return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(response => {
+          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(() => {
             const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
             this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
               resolve('disabled')

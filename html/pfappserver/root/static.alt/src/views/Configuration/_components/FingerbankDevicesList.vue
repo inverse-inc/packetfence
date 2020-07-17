@@ -99,7 +99,7 @@ export default {
       this.$router.push({ name: 'cloneFingerbankDevice', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_fingerbank/deleteDevice', item.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteDevice', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
