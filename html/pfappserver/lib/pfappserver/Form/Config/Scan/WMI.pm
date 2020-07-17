@@ -33,6 +33,22 @@ has_field 'type' =>
    default => 'wmi',
   );
 
+has_field 'username' =>
+  (
+   type => 'Text',
+   label => 'Username',
+   required => 1,
+   messages => { required => 'Please specify the username for the Scan Engine' },
+  );
+
+has_field 'password' =>
+  (
+   type => 'ObfuscatedText',
+   label => 'Password',
+   required => 1,
+   messages => { required => 'You must specify the password' },
+  );
+
 has_block definition =>
   (
    render_list => [ qw(id type username domain password categories oses duration pre_registration registration post_registration) ],
