@@ -12,13 +12,42 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"syscall"
 )
+
+/*
+sub reload_config {
+    if ( pf::cluster::is_management ) {
+        $process = $TRUE;
+    }
+    elsif ( !$pf::cluster::cluster_enabled ) {
+        $process = $TRUE;
+    }
+    else {
+        $process = $FALSE;
+    }
+
+    $logger->debug("Reload configuration with status $process");
+}
+*/
+
+var processJobs uint32 = 1
 
 func wrapJob(logger log.PfLogger, j maint.JobSetupConfig) cron.Job {
 	var ch = make(chan struct{}, 1)
 	ch <- struct{}{}
 	return cron.FuncJob(func() {
+		if atomic.LoadUint32(&processJobs) == 0 {
+			return
+		}
+
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Error(fmt.Sprintf("Job %s panic: %s", j.Name(), r))
+			}
+		}()
+
 		select {
 		case v := <-ch:
 			j.Run()
