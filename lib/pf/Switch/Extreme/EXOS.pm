@@ -18,8 +18,13 @@ use base ('pf::Switch::Extreme::Summit');
 use pf::Switch::constants;
 use pf::util;
 use pf::log;
+use pf::constants;
+use pf::config qw(
+    $WEBAUTH_WIRED
+);
 use pf::SwitchSupports qw(
     RoleBasedEnforcement
+    ExternalPortal
 );
 
 sub description { "Extreme EXOS" } 
@@ -46,6 +51,38 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc);
 }
 
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    my $client_mac = clean_mac($req->param('mac'));
+
+    my $locationlog = pf::locationlog::locationlog_view_open_mac($client_mac);
+    my $switch_id = $locationlog->{switch};
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+
+    my $redirect_url;
+    if ( defined($req->param('dest')) ) {
+        $redirect_url = $req->param('redirect');
+    }
+    elsif ( defined($r->headers_in->{'Referer'}) ) {
+        $redirect_url = $r->headers_in->{'Referer'};
+    }
+
+    %params = (
+        switch_id               => $switch_id,
+        client_mac              => $client_mac,
+        client_ip               => $client_ip,
+        redirect_url            => $redirect_url,
+        synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRED,
+    );
+
+    return \%params;
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
