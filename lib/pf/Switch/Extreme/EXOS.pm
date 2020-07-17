@@ -88,7 +88,7 @@ sub parseExternalPortalRequest {
 
     my $redirect_url;
     if ( defined($req->param('dest')) ) {
-        $redirect_url = $req->param('redirect');
+        $redirect_url = $req->param('dest');
     }
     elsif ( defined($r->headers_in->{'Referer'}) ) {
         $redirect_url = $r->headers_in->{'Referer'};
