@@ -2904,7 +2904,7 @@ AAA Configuration
 Web-auth profile
 
   configure dns-client add name-server 8.8.8.8 vr VR-Mgmt
-  configure dns-client add domain-suffix extr.local
+  configure dns-client add domain-suffix example.com
   configure policy captive-portal web-redirect 1 server 1 url http://192.168.1.5:80/Extreme::EXOS enable
   configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0 web-redirect 1
   configure policy rule 4 ipdestsocket 192.168.1.5 mask 32 forward
