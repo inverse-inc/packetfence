@@ -7,6 +7,8 @@ and manage Extreme Networks' Summit X250e switches
 
 =head1 STATUS
 
+Developped and tested on a X440G2-12p-10G4.6 running ExtremeXOS version 30.6.1.11
+
 =cut
 
 use strict;
