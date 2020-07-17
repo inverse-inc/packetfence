@@ -35,6 +35,12 @@ sub description { "Extreme EXOS" }
 
 sub returnRoleAttribute { "Filter-Id" }
 
+=head2 findIfdescUsingSNMP
+
+Calls the switch to obtain the interface description of an ifindex
+
+=cut
+
 sub findIfdescUsingSNMP {
     my ($self, $ifIndex) = @_;
     my $logger = get_logger;
@@ -48,12 +54,24 @@ sub findIfdescUsingSNMP {
     return $result->{"$oid_ifDesc.$ifIndex"};
 }
 
+=head2 parseRequest
+
+Parse the RADIUS request, overriding here to fetch the ifDesc using SNMP if it can't be extracted from the packet
+
+=cut
+
 sub parseRequest {
     my ($self, $radius_request) = @_;
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $self->SUPER::parseRequest($radius_request);
     $ifDesc = $ifDesc || $self->findIfdescUsingSNMP($port);
     return ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc);
 }
+
+=head2 parseExternalPortalRequest
+
+Parse an external portal request
+
+=cut
 
 sub parseExternalPortalRequest {
     my ( $self, $r, $req ) = @_;
