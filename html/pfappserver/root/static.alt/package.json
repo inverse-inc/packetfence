@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
     "build-report": "vue-cli-service build --report",
-    "lint": "vue-cli-service lint",
+    "lint": "vue-cli-service lint --report-unused-disable-directives",
     "test:unit": "jest --clearCache && vue-cli-service test:unit"
   },
   "dependencies": {
