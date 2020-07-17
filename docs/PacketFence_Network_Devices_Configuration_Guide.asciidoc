@@ -2828,7 +2828,7 @@ SNMP configuration
 AAA Configuration
 
   configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
-  configure radius netlogin primary shared-secret 12345
+  configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
 Netlogin (MAC Authentication)
@@ -2855,7 +2855,7 @@ SNMP configuration
 AAA Configuration
 
   configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
-  configure radius netlogin primary shared-secret 12345
+  configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
 Netlogin (802.1X)
