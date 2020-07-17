@@ -3675,9 +3675,9 @@ sub remove_switch_from_cache {
     my $logger = $self->logger;
 
     my $cache = $self->cache_distributed;
-    my %cache_content = $cache->get_keys();
+    my @cache_content = $cache->get_keys();
 
-    foreach ( keys %cache_content ) {
+    foreach ( @cache_content ) {
         $cache->remove($_) if $_ =~ /^$key-/;
     }
 }
