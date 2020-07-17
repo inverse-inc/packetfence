@@ -2775,6 +2775,7 @@ PacketFence supports Extreme Networks switches using:
 * MAC Address Lockdown (Port Security)
 * Netlogin - MAC Authentication
 * Netlogin - 802.1X
+* Netlogin - web authentication
 * RADIUS authentication for CLI access
 
 Don't forget to save the configuration!
