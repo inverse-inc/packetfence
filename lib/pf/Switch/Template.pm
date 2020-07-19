@@ -530,6 +530,36 @@ sub _bouncePortCoa {
     return perform_coa($connection_info, {@$attrs}, $vsa);
 }
 
+sub returnAuthorizeRead {
+    my ($self, $args) = @_;
+    return $self->returnCliAuthorize($args, 'Read');
+}
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    return $self->returnCliAuthorize($args, 'Write');
+}
+
+sub returnCliAuthorize {
+    my ($self, $args, $accessType) = @_;
+    my $logger = $self->logger;
+    my %radius_reply;
+    my $status;
+    my $template = $self->{_template}{"cliAuthorize${$accessType}"};
+    my %tmp_args = %$args;
+    if ($template) {
+        $self->updateArgsVariablesForSet(\%tmp_args, $template);
+        my $attrs = $self->makeRadiusAttributes($template, \%tmp_args);
+    } else {
+        $radius_reply{'Reply-Message'} = "Switch $accessType access granted by PacketFence";
+    }
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with $accessType access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test("returnAuthorize${accessType}", \%tmp_args);
+    ( my $radius_reply_ref, $status) = $filter->handleAnswerInRule($rule, \%tmp_args, \%radius_reply);
+    return [$status, %$radius_reply_ref];
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
