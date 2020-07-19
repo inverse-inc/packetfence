@@ -22,6 +22,7 @@ use pf::constants::template_switch qw(
 
 our %SetToSupports = (
     voip => [qw(RadiusVoip)],
+    acceptUrl => [qw(ExternalPortal)],
 );
 
 sub buildEntry {
