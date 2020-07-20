@@ -290,21 +290,21 @@ has_field 'ldap_source_ttls_pap' =>
    label => 'LDAP Source for TTLS PAP',
    options_method => \&options_ldap,
    element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to select a LDAP Server'},
+   element_attr => {'data-placeholder' => 'Click to select an LDAP Server'},
    tags => { after_element => \&help,
-             help => 'The LDAP Server to use for EAP TTLS PAP authorization and authentication' },
+             help => 'The LDAP Server to use for EAP TTLS PAP authentication and authorization' },
   );
 
 has_field 'edir_source' =>
   (
    type => 'Select',
    multiple => 0,
-   label => 'EDIR Source for PEAP',
+   label => 'eDirectory Source for PEAP',
    options_method => \&options_edir,
    element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to select a EDIR Server'},
+   element_attr => {'data-placeholder' => 'Click to select an eDirectory Server'},
    tags => { after_element => \&help,
-             help => 'The EDIR Server to use for EAP PEAP authorization and authentication' },
+             help => 'The eDirectory Server to use for EAP PEAP authentication and authorization' },
   );
 
 =head2 options_domains
