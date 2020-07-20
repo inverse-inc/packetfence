@@ -176,7 +176,36 @@ BEGIN {
                     },
                 },
             },
-        }
+        },
+        {
+            'tmpl' => [
+                [ 'F' , 'uc', [[ 'S', 'hello' ]]],
+                [ 'S', ' good-bye'],
+            ],
+            'in' => '${uc("hello")} good-bye',
+            'info' => {
+                funcs => {
+                    uc => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [
+                [ 'F', 'lc', 
+                    [
+                        [ 'F' , 'uc', [[ 'S', 'hello' ]]]
+                    ],
+                ],
+                [ 'S', ' good-bye'],
+            ],
+            'in' => '${lc(uc("hello"))} good-bye',
+            'info' => {
+                funcs => {
+                    uc => undef,
+                    lc => undef,
+                },
+            },
+        },
     );
 
     @TEMPLATE_OUTPUT = (
@@ -235,6 +264,11 @@ BEGIN {
             input => { mac => 'aa:bb:cc:dd:ee:ff' },
             out   => 'AA-BB-CC',
         },
+        {
+            tmpl  => '${uc("hello")} world',
+            input => { },
+            out   => 'HELLO world',
+        },
     );
 }
 
@@ -258,6 +292,9 @@ sub test_valid_string {
     my $string = $test->{in};
     my ($array, $info, $msg) = pf::mini_template::parse_template($string);
     is_deeply($array, $test->{tmpl}, "Expected tmpl for '$string' is valid");
+    if ($test->{dump}) {
+        use Data::Dumper;print Dumper($array);
+    }
     is_deeply($info, $test->{info}, "Expected info for '$string' is valid");
     unless ($array){
         print "$msg\n";
