@@ -2775,6 +2775,7 @@ PacketFence supports Extreme Networks switches using:
 * MAC Address Lockdown (Port Security)
 * Netlogin - MAC Authentication
 * Netlogin - 802.1X
+* Netlogin - web authentication
 * RADIUS authentication for CLI access
 
 Don't forget to save the configuration!
@@ -2818,10 +2819,16 @@ where `<portlist>` are ports you want to secure. It can be an individual port or
 MAC Authentication
 ++++++++++++++++++
 
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
 AAA Configuration
 
   configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
-  configure radius netlogin primary shared-secret 12345
+  configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
 Netlogin (MAC Authentication)
@@ -2839,10 +2846,16 @@ Netlogin (MAC Authentication)
 802.1X
 ++++++
 
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
 AAA Configuration
 
   configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
-  configure radius netlogin primary shared-secret 12345
+  configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
 Netlogin (802.1X)
@@ -2855,7 +2868,55 @@ Netlogin (802.1X)
   configure netlogin ports 1-48 mode port-based-vlans
   configure netlogin ports 1-48 no-restart
 
-NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will roll back to the MAC Authentication.
+NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will fallback to the MAC Authentication.
+
+Policy based access
++++++++++++++++++++
+
+You can assign policies defined on the switch via PacketFence.
+
+First define your policy in the switch:
+
+  configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521 untagged-vlans 3521
+  configure policy profile 2 name "guest" pvid-status "enable" pvid 3522 untagged-vlans 3522
+  configure policy maptable response both
+  configure policy vlanauthorization enable
+
+Next, in PacketFence, enable 'Role by Switch Role' in your switch configuration and assign the policies to the roles there. They will be returned inside the Filter-Id attribute.
+
+Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
+
+Web authentication
+++++++++++++++++++
+
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret useStrongerSecret
+  enable radius netlogin
+
+Web-auth profile
+
+  configure dns-client add name-server 8.8.8.8 vr VR-Mgmt
+  configure dns-client add domain-suffix example.com
+  configure policy captive-portal web-redirect 1 server 1 url http://192.168.1.5:80/Extreme::EXOS enable
+  configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0 web-redirect 1
+  configure policy rule 4 ipdestsocket 192.168.1.5 mask 32 forward
+  configure policy rule 4 udpdestportIP 53 mask 16 forward
+  configure policy rule 4 udpdestportIP 67 mask 16 forward
+  configure policy rule 4 ether 0x0806 mask 16 forward
+  configure policy captive-portal listening 80
+  configure policy captive-portal listening 443
+
+Next, in the switch configuration in PacketFence, enable 'External Portal Enforcement' and 'Role by Switch Role'. Under the 'registration' role, put 'Unregistered'
+
+Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
 
 RADIUS authentication for CLI access
 ++++++++++++++++++++++++++++++++++++
