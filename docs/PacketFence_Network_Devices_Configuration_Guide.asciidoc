@@ -2882,7 +2882,7 @@ First define your policy in the switch:
   configure policy maptable response both
   configure policy vlanauthorization enable
 
-Next, in PacketFence, enable 'Role by Switch Role' your the switch configuration and assign the policies to the roles there. They will be returned inside the Filter-Id attribute.
+Next, in PacketFence, enable 'Role by Switch Role' in your switch configuration and assign the policies to the roles there. They will be returned inside the Filter-Id attribute.
 
 Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
 
@@ -2898,7 +2898,7 @@ SNMP configuration
 AAA Configuration
 
   configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
-  configure radius netlogin primary shared-secret 12345
+  configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
 Web-auth profile
