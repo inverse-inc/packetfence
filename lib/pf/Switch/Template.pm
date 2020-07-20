@@ -453,6 +453,22 @@ sub deauthenticateMacRadius {
     $self->radiusDisconnect($mac );
 }
 
+=head2 generateACL
+
+Generate an ACL from the configured template if defined
+
+=cut
+
+sub generateACL {
+    my ($self, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
+    if(my $t = $self->{_template}->{acl_template}) {
+        return $self->generateACLFromTemplate($t, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port);
+    }
+    else {
+        return $self->SUPER::generateACL($allow, $proto, $src_host, $src_port, $dst_host, $dst_port);
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

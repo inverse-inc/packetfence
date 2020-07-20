@@ -5,6 +5,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   attributesFromMeta,
   validatorsFromMeta
@@ -306,7 +307,23 @@ export const view = (form, meta = {}) => {
               }
             }
           ]
-        }
+        },
+        {
+          label: i18n.t('ACL template'),
+          text: i18n.t(`The template to use to generate an access list for this module.`),
+          cols: [
+            {
+              namespace: 'acl_template',
+              component: pfFormTextarea,
+              attrs: {
+                ...attributesFromMeta(meta, 'acl_template'),
+                ...{
+                  rows: 3
+                }
+              }
+            }
+          ]
+        },
       ]
     }
   ]
@@ -334,6 +351,9 @@ export const validators = (form, meta = {}) => {
     },
     description: {
       [i18n.t('Description required.')]: required
+    },
+    acl_template: {
+      ...validatorsFromMeta(meta, 'acl_template', 'ACL template'),
     },
     acceptVlan: {
       ...(acceptVlan || []).map(_acceptVlan => { // index based validators

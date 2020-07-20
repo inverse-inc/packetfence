@@ -62,6 +62,7 @@ use pf::access_filter::radius;
 use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
     -Cdp
@@ -3568,10 +3569,7 @@ sub generateACLFromTemplate {
 
 sub generateACL {
     my ($self, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
-    return $self->generateACLFromTemplate(
-        '${if($allow, "permit", "deny")} $proto ${if($src_host, join(" ", "host", $src_host), "any")} ${if($src_port, join(" ", "eq", $src_port), "")} ${if($dst_host, join(" ", "host", $dst_host), "any")} ${if($dst_port, join(" ", "eq", $dst_port), "")}',
-        $allow, $proto, $src_host, $src_port, $dst_host, $dst_port, 
-    );
+    return $self->generateACLFromTemplate($DEFAULT_ACL_TEMPLATE, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port);
 }
 
 =back
