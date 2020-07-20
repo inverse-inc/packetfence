@@ -1,7 +1,8 @@
-name: Sleep some time
+name: Sleep delete windows and 10 seconds
 version: 2
 testcases:
-- name: sleep_some_time
+- name: sleep_delete_windows
   steps:
   - type: exec
+    # delete windows + 10 seconds
     script: 'sleep {{.node_cleanup.delete_window.interval}}{{.node_cleanup.delete_window.unit}} 10'
