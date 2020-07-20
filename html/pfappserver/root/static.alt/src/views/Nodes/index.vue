@@ -1,7 +1,7 @@
 <template>
   <b-row>
     <pf-sidebar v-model="sections"></pf-sidebar>
-    <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
+    <b-col cols="12" md="9" xl="10" class="py-3">
       <transition name="slide-bottom">
         <router-view></router-view>
       </transition>
@@ -54,14 +54,14 @@ export default {
             {
               name: this.$i18n.t('Offline Nodes'),
               path: {
-                name: 'search',
+                name: 'nodeSearch',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }) }
               }
             },
             {
               name: this.$i18n.t('Online Nodes'),
               path: {
-                name: 'search',
+                name: 'nodeSearch',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }) }
               }
             }
@@ -69,7 +69,9 @@ export default {
         },
         {
           name: this.$i18n.t('Switch Groups'),
+          can: 'master tenant',
           collapsable: true,
+          loading: this.isLoadingSwitchGroups,
           items: this.switchGroupsMembers.map(switchGroup => {
             return {
               name: switchGroup.id || this.$i18n.t('Default'),
@@ -79,24 +81,26 @@ export default {
                   name: switchGroupMember.id,
                   caption: switchGroupMember.description,
                   path: {
-                    name: 'search',
+                    name: 'nodeSearch',
                     query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: network.cidrToIpv4(switchGroupMember.id) }] }] }) }
                   }
                 }
               })
             }
-          }),
-          can: 'read switches'
+          })
         }
       ]
     },
     roles () {
       return this.$store.state.config.roles
+    },
+    isLoadingSwitchGroups () {
+      return this.$store.getters['config/isLoadingSwitchGroups']
     }
   },
   created () {
     this.$store.dispatch('config/getRoles')
-    if (this.$can('read', 'switches')) {
+    if (this.$can('master', 'tenant')) {
       this.$store.dispatch('config/getSwitchGroups').then(switchGroups => {
         switchGroups.map((switchGroup, index) => {
           let { id, description, members = [] } = switchGroup

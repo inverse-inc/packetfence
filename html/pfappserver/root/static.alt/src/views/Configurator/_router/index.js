@@ -25,6 +25,10 @@ const route = {
     transitionDelay: 150 // force scroll to the top
   },
   beforeEnter: (to, from, next) => {
+    // do not include X-PacketFence-Tenant-Id header when in configrator, fixes #5610
+    if (localStorage.getItem('X-PacketFence-Tenant-Id')) {
+      localStorage.removeItem('X-PacketFence-Tenant-Id')
+    }
     // Force initial visit to start with the first step
     if (!['configurator-network', 'configurator-interfaces'].includes(to.name)) {
       next({ name: 'configurator-network'})

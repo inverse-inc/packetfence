@@ -357,7 +357,14 @@ sub action_autoregister {
     }
     else {
         require pf::role::custom;
-        ( $status, $status_msg ) = pf::node::node_register($mac, "default", "unregdate"=>$unregdate);
+
+        my $node_info = node_view($mac);
+        my $pid = $node_info->{'pid'} || 'default';
+        my %info = (
+            auto_registered => 1
+        );
+        ( $status, $status_msg ) = pf::node::node_register($mac, $pid, %info);
+
         if(!$status){
             $logger->error("auto-registration of node $mac failed");
             return;

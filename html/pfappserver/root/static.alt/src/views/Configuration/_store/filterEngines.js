@@ -13,11 +13,13 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: false, // item details
-  message: '',
-  itemStatus: '',
-  collectionsStatus: ''
+const state = () => {
+  return {
+    cache: false, // item details
+    message: '',
+    itemStatus: '',
+    collectionsStatus: ''
+  }
 }
 
 const getters = {
@@ -95,7 +97,7 @@ const actions = {
       })
     })
   },
-  options: ({ commit, dispatch }, { collection, id }) => {
+  options: ({ state, commit, dispatch }, { collection, id }) => {
     return dispatch('getCollection', collection).then(() => {
       if (id) {
         commit('ITEM_REQUEST')
@@ -133,7 +135,7 @@ const actions = {
       })
     })
   },
-  updateFilterEngine: ({ commit, dispatch }, { collection, id, data }) => {
+  updateFilterEngine: ({ state, commit, dispatch }, { collection, id, data }) => {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
@@ -147,7 +149,7 @@ const actions = {
       })
     })
   },
-  deleteFilterEngine: ({ commit, dispatch }, { collection, id }) => {
+  deleteFilterEngine: ({ state, commit, dispatch }, { collection, id }) => {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
@@ -161,7 +163,7 @@ const actions = {
       })
     })
   },
-  enableFilterEngine: ({ commit, dispatch }, { collection, id }) => {
+  enableFilterEngine: ({ state, commit, dispatch }, { collection, id }) => {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
@@ -175,7 +177,7 @@ const actions = {
       })
     })
   },
-  disableFilterEngine: ({ commit, dispatch }, { collection, id }) => {
+  disableFilterEngine: ({ state, commit, dispatch }, { collection, id }) => {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache

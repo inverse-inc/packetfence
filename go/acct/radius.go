@@ -401,7 +401,7 @@ func addAttributeToMap(ctx context.Context, attributes map[string]interface{}, d
 			attributes[da.Name] = item
 		}
 	} else {
-		logWarn(ctx, fmt.Sprintf("Not handled %s\n", da.Name))
+		logDebug(ctx, fmt.Sprintf("Serialization of data type %s for %s not handled\n", da.Type, da.Name))
 	}
 }
 
@@ -415,6 +415,10 @@ func logWarn(ctx context.Context, msg string) {
 
 func logInfo(ctx context.Context, msg string) {
 	log.LoggerWContext(ctx).Info(msg)
+}
+
+func logDebug(ctx context.Context, msg string) {
+	log.LoggerWContext(ctx).Debug(msg)
 }
 
 type RadiusStatements struct {

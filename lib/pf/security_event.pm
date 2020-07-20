@@ -885,11 +885,13 @@ sub security_event_maintenance {
     my $start_time = time;
     my $end_time;
     my $rows_processed = 0;
+    my @processed;
     while(1) {
         my ($status, $iter) = pf::dal::security_event->search(
             -where => {
                 status => ["open", "delayed"],
                 release_date => [-and => {"!=" => $ZERO_DATE}, {"<=" => \'NOW()'}],
+                id => { -not_in => \@processed },
             },
            -limit => $batch,
            -columns => [qw(id mac security_event_id notes status)],
@@ -903,6 +905,7 @@ sub security_event_maintenance {
         while (my $row = $iter->next(undef)) {
             if($row->{status} eq 'delayed' ) {
                 $client->notify(security_event_delayed_run => ($row));
+                push @processed, $row->{id};
             }
             else {
                 my $mac = $row->{mac};

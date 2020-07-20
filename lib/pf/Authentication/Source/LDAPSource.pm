@@ -21,7 +21,7 @@ use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config qw(%Config);
-use List::MoreUtils qw(uniq any firstval);
+use List::MoreUtils qw(uniq any firstval none);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
@@ -486,11 +486,11 @@ sub _match_in_subclass {
             # If we found a result, we push all conditions as matched ones.
             # That is normal, as we used them all to build our LDAP filter.
             $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
-            if (any {$_->type eq $Actions::SET_ROLE } @{$rule->{actions} // []} ) {
+            if ( (any {$_->type eq $Actions::SET_ROLE_ON_NOT_FOUND } @{$rule->{actions} // []}) && (none {$_->type eq $Actions::SET_ROLE } @{$rule->{actions} // []}) ) {
+                $logger->trace("[$self->{'id'} $rule->{'id'}] match ($dn) but no set role action, continue");
+            } else {
                 push @{ $matching_conditions }, @{ $own_conditions };
                 return ((($params->{'username'} || $params->{'email'}) ? $entry : undef), $Actions::SET_ROLE_ON_NOT_FOUND);
-            } else {
-                $logger->trace("[$self->{'id'} $rule->{'id'}] match ($dn) but no set role action, continue");
             }
         }
     }
@@ -613,22 +613,12 @@ sub ldap_filter_for_conditions {
 
 sub replaceVar {
     my ($name, $params) = @_;
-    my @parts = split(/\./, $name);
-    my $last_part = pop @parts;
-    for my $part (@parts) {
-        if (ref $params eq 'HASH' && exists $params->{$part}) {
-            $params = $params->{$part}
-        } else {
-            return ''
-        }
-    }
-
-    return escape_filter_value(exists $params->{$last_part} ? $params->{$last_part} : '');
+    return escape_filter_value(exists $params->{$name} ? $params->{$name} : '');
 }
 
 sub update_template {
     my ($self, $template, $params) = @_;
-    $template =~ s/\${([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)}/replaceVar($1, $params)/ge;
+    $template =~ s/\$\{([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)\}/replaceVar($1, $params)/ge;
     return $template;
 }
 
@@ -695,9 +685,10 @@ Create the filter to search for the dn
 
 sub _makefilter {
     my ($self,$username) = @_;
+    my $append_search = defined($self->{'append_to_searchattributes'}) ? $self->{'append_to_searchattributes'} : '';
     if (@{$self->{'searchattributes'} // []}) {
         my $search = join ("", map { "($_=$username)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
-        return "(&(|$search)".$self->{'append_to_searchattributes'}.")";
+        return "(&(|$search)".$append_search.")";
     } else {
         return '(' . "$self->{'usernameattribute'}=$username" . ')';
     }

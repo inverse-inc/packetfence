@@ -16,7 +16,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id2}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.pfserver_token}}"

@@ -202,7 +202,7 @@ sub doSponsorRegistration : Private {
                         $c->stash->{set_access_durations} = \@options_duration;
                         $c->detach('set_access_durations');
                     }
-		}
+		        }
             }
         }
         # handling log out (not exposed to the UI at this point)

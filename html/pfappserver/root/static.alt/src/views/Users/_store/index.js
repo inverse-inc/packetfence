@@ -11,7 +11,7 @@ const inflateActions = (data) => {
     data.actions.push({ type: pfActions.set_access_duration.value, value: data.access_duration })
   }
   if (data.access_level) {
-    data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level })
+    data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level.split(',') })
   }
   if (data.can_sponsor && parseInt(data.can_sponsor)) {
     data.actions.push({ type: pfActions.mark_as_sponsor.value, value: data.can_sponsor })
@@ -19,7 +19,7 @@ const inflateActions = (data) => {
   if (data.category) {
     data.actions.push({ type: pfActions.set_role.value, value: data.category })
   }
-  if (data.unregdate !== '0000-00-00 00:00:00') {
+  if (data.unregdate && data.unregdate !== '0000-00-00 00:00:00') {
     data.actions.push({ type: pfActions.set_unreg_date.value, value: data.unregdate })
   }
 }
@@ -40,7 +40,7 @@ const deflateActions = (data) => {
           data.access_duration = action.value
           break
         case pfActions.set_access_level.value:
-          data.access_level = action.value
+          data.access_level = action.value.join(',')
           break
         case pfActions.mark_as_sponsor.value:
           data.sponsor = 1
@@ -59,18 +59,20 @@ const deflateActions = (data) => {
 }
 
 // Default values
-const state = {
-  users: {}, // users details
-  usersStatus: '',
-  usersMessage: '',
-  usersNodes: {}, // user nodes
-  usersNodesStatus: '',
-  usersNodesMessage: '',
-  usersSecurityEvents: {}, // user security_events
-  usersSecurityEventsStatus: '',
-  usersSecurityEventsMessage: '',
-  userExists: {}, // node exists true|false
-  createdUsers: []
+const state = () => {
+  return {
+    users: {}, // users details
+    usersStatus: '',
+    usersMessage: '',
+    usersNodes: {}, // user nodes
+    usersNodesStatus: '',
+    usersNodesMessage: '',
+    usersSecurityEvents: {}, // user security_events
+    usersSecurityEventsStatus: '',
+    usersSecurityEventsMessage: '',
+    userExists: {}, // node exists true|false
+    createdUsers: []
+  }
 }
 
 const getters = {
@@ -126,14 +128,14 @@ const actions = {
       })
     })
   },
-  getUser: ({ commit, state }, arg) => {
+  getUser: ({ state, commit }, arg) => {
     const body = (typeof arg === 'object') ? arg : { pid: arg }
     const { pid } = body
     if (state.users[pid]) {
       return Promise.resolve(state.users[pid])
     }
     commit('USER_REQUEST')
-    return api.user(body).then(data => {
+    return api.user({ quiet: true, ...body }).then(data => {
       inflateActions(data)
       commit('USER_REPLACED', data)
       return state.users[pid]
@@ -142,7 +144,7 @@ const actions = {
       throw err
     })
   },
-  getUserNodes: ({ commit, state }, pid) => {
+  getUserNodes: ({ state, commit }, pid) => {
     if (state.usersNodes[pid]) {
       return Promise.resolve(state.usersNodes[pid])
     }
@@ -155,7 +157,7 @@ const actions = {
       return err
     })
   },
-  getUserSecurityEvents: ({ commit, state }, pid) => {
+  getUserSecurityEvents: ({ state, commit }, pid) => {
     if (state.usersSecurityEvents[pid]) {
       return Promise.resolve(state.usersSecurityEvents[pid])
     }

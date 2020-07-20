@@ -55,6 +55,13 @@ packetfence_install__configuration:
               - name: 'pfperl_api_processes'
                 value: '1'
 
+          - name: 'webservices'
+            settings:
+
+              - name: 'pass'
+                value: 'secret'
+
+
           - name: "interface {{ packetfence_install__mgmt_interface['id'] }}"
             settings:
 

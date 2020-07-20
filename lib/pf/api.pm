@@ -1497,7 +1497,7 @@ sub handle_accounting_metadata : Public {
     }
 
     if ($acct_status_type == $ACCOUNTING::STOP) {
-        my $profile_name = pf::Connection::ProfileFactory->get_profile_name($mac);
+        my ($profile_name, undef) = pf::Connection::ProfileFactory->get_profile_name($mac);
         my $profile = $pf::config::Profiles_Config{$profile_name};
         if (pf::util::isenabled($profile->{unreg_on_acct_stop}) && pf::util::isenabled($profile->{autoregister})) {
             $logger->info("Unregistering $mac on Accounting-Stop");
@@ -1741,6 +1741,11 @@ sub update_role_configuration : Public :AllowedAsAction(role, $role) {
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $role = delete $postdata{'role'};
+
+    if(!$role) {
+        pf::log::get_logger->error("Undefined role for update_role_configuration. Skipping reconfiguration.");
+        return $pf::config::FALSE;
+    }
 
     my $tc_cs = pf::ConfigStore::TrafficShaping->new;
     if ($postdata{'upload'} == 0 && $postdata{'download'} == 0) {

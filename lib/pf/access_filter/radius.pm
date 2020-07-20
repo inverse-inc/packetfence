@@ -106,24 +106,40 @@ sub handleAnswerInRule {
 sub addAnswer {
     my ($self, $rule, $radius_reply, $a, $args) = @_;
     my $name = $a->{name};
-    my $value = $a->{tmpl}->process($args, \%FUNCS);
+    my $value = $a->{tmpl}->pre_process($args, \%FUNCS);
     $self->updateAnswerNameValue($name, $value, $radius_reply);
     my @values = split(';', $value);
-    $radius_reply->{$name} = (@values > 1) ? \@values : $values[0];
+    if (exists($radius_reply->{$name})) {
+        if (reftype($radius_reply->{$name}) eq 'ARRAY') {
+            push @{$radius_reply->{$name}}, @values;
+        } else {
+            $radius_reply->{$name} = [$radius_reply->{$name}, @values];
+        }
+    } else {
+        $radius_reply->{$name} = (@values > 1) ? \@values : $values[0];
+    }
 }
 
 sub updateAnswerNameValue {
     my ($self, $name, $value, $radius_reply) = @_;
     my $logger = $self->logger;
     if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
-        my $prefix = $1 // '';
-        unless (ref($value)) {
-            $value = [$value];
-        }
-        foreach my $response (@{$value}) {
-            my ($key, $val) = split(/\s*=\s*/, $response, 2);
-            if ($val) {
-                $radius_reply->{"$prefix". $key} = $val;
+        my $prefix = $1 // 'reply:';
+        if (ref($value) eq 'ARRAY') {
+            my $key;
+            my @attributes;
+            foreach my $response (@{$value}) {
+                if ($response =~ /([\w\-:]*)\s?[:=]\s?([\w\-:]*)/) {
+                    $key = $1;
+                    $radius_reply->{"$prefix".$1} = $2;
+                } else {
+                    $logger->error("Packetfence-Raw: '$value' is not in a valid format");
+                }
+            }
+        } elsif ($value =~ /([\w\-:]*)\s?[:=]\s?([\w\-:]*)/) {
+            my ($new_name, $new_value) = ($1, $2);
+            if (defined $new_value && length($new_value)) {
+                $radius_reply->{"$prefix".$new_name} = $new_value;
             } else {
                 $logger->error("Packetfence-Raw: '$value' is not in a valid format");
             }

@@ -32,7 +32,7 @@ The last thing, you need to add permissions on the API, to do that click on 'API
  Device.ReadWrite.All
  DeviceManagementManagedDevices.Read.All
 
-And click on 'Grant admin consent for ...'
+And click on 'Grant admin consent for (Name of your app)'
 
 Configure PacketFence
 ^^^^^^^^^^^^^^^^^^^^^

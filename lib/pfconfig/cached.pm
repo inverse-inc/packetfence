@@ -176,10 +176,11 @@ sub _get_from_socket {
 
     $method = $method || $self->{element_socket_method};
 
+    my $json = JSON->new->allow_nonref;
     my %info;
     my $payload;
     %info = ( ( method => $method, key => $what, tenant_id => pf::config::tenant::get_tenant() ), %additionnal_info );
-    $payload = encode_json( \%info );
+    $payload = $json->encode( \%info );
 
     my $socket;
 

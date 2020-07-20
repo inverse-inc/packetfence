@@ -1,7 +1,7 @@
 <!-- TODO have the build system take care of this  -->
-<releaseinfo>Version 10.0.0 - April 2020</releaseinfo>
-<subtitle>for PacketFence version 10.0.0</subtitle>
-<date>2019-11-26</date>
+<releaseinfo>Version 10.1.0 - June 2020</releaseinfo>
+<subtitle>for PacketFence version 10.1.0</subtitle>
+<date>2020-06-17</date>
 
 <legalnotice>
   <para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included in the section entitled "GNU Free Documentation License".</para>

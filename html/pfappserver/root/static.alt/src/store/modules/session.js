@@ -3,12 +3,13 @@
  */
 import qs from 'qs'
 import { types } from '@/store'
-import acl, { setupAcl } from '@/utils/acl'
+import acl, { ADMIN_ROLES_ACTIONS, setupAcl } from '@/utils/acl'
 import apiCall, { pfappserverCall } from '@/utils/api'
 import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
 
 const STORAGE_TOKEN_KEY = 'user-token'
+const STORAGE_TENANT_ID = 'X-PacketFence-Tenant-Id'
 
 const api = {
   login: user => {
@@ -72,7 +73,8 @@ const state = {
   expired: false,
   oldAdminEnabled: false,
   roles: [],
-  tenant_id: [],
+  tenant: null,
+  tenant_id_mask: localStorage.getItem(STORAGE_TENANT_ID) || null,
   tenants: [],
   languages: [],
   api: true,
@@ -136,7 +138,32 @@ const getters = {
   allowedUserActions: state => state.allowedUserActions || [],
   allowedUserRoles: state => state.allowedUserRoles || [],
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
-  allowedUserUnregDate: state => state.allowedUserUnregDate || []
+  allowedUserUnregDate: state => state.allowedUserUnregDate || [],
+  tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
+  tenantMask: (state, getters) => {
+    if (state.tenant_id_mask) {
+      return state.tenants.find(t => t.id === state.tenant_id_mask)
+    }
+    return state.tenant
+  },
+  aclContext: state => {
+    if (state.roles.includes('TENANT_MASTER')) { // is tenant master
+      if (!state.tenant_id_mask) { // tenant is not masked
+        return state.roles // return all roles
+      }
+    }
+    // mask TENANT_MASTER, CONFIGURATION_MAIN and SERVICES roles
+    return state.roles.filter(role => {
+      switch (true) {
+        case role === 'TENANT_MASTER':
+        case new RegExp("^CONFIGURATION_MAIN").test(role):
+        case new RegExp("^SERVICES").test(role):
+          return false // prohibit ACL
+      }
+      return role
+    })
+  },
+  configuratorEnabled: state => state.configuratorEnabled
 }
 
 const actions = {
@@ -157,13 +184,19 @@ const actions = {
     return dispatch('getTokenInfo').then(roles => {
       commit('ROLES_UPDATED', roles)
       setupAcl()
+      dispatch('getConfiguratorState')
+      dispatch('getTenants')
     })
   },
   delete: ({ commit }) => {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
+    localStorage.removeItem(STORAGE_TENANT_ID)
     acl.reset()
     commit('TOKEN_DELETED')
     commit('EXPIRES_AT_DELETED')
+    commit('TENANT_DELETED')
+    commit('TENANT_ID_MASK_DELETED')
+    commit('TENANTS_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
     commit('ALLOWED_NODE_ROLES_DELETED')
@@ -225,13 +258,18 @@ const actions = {
     return api.getTokenInfo(readonly).then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
       commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
+      commit('TENANT_UPDATED', response.data.item.tenant)
       return response.data.item.admin_actions // return ACLs
     })
   },
   getTenants: ({ commit }) => {
-    return api.getTenants().then(response => {
-      commit('TENANTS_UPDATED', response.data)
-    })
+    if (acl.$can('read', 'system')) {
+      return api.getTenants().then(response => {
+        commit('TENANTS_UPDATED', response.data)
+      })
+    } else {
+      return Promise.resolve()
+    }
   },
   setLanguage: ({ state }, params) => {
     if (i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
@@ -331,6 +369,20 @@ const actions = {
       commit('CONFIGURATOR_DISABLED')
     }
   },
+  setTenantIdMask: ({ state, commit }, tenantId = 0) => {
+    if (tenantId !== state.tenant_id_mask) {
+      if (state.tenant.id === 0) { // is multi-tenant, can mutate
+        if (!+tenantId) {
+          commit('TENANT_ID_MASK_DELETED')
+        }
+        else if (+tenantId !== state.tenant_id_mask) {
+          commit('TENANT_ID_MASK_UPDATED', tenantId)
+        }
+      }
+      acl.reset()
+      setupAcl()
+    }
+  }
 }
 
 const mutations = {
@@ -382,6 +434,26 @@ const mutations = {
   EXPIRES_AT_DELETED: (state) => {
     state.expires_at = null
   },
+  TENANT_UPDATED: (state, tenant) => {
+    state.tenant = tenant
+  },
+  TENANT_DELETED: (state) => {
+    state.tenant = null
+  },
+  TENANT_ID_MASK_UPDATED: (state, tenantId) => {
+    state.tenant_id_mask = tenantId
+    localStorage.setItem(STORAGE_TENANT_ID, +tenantId)
+  },
+  TENANT_ID_MASK_DELETED: (state) => {
+    state.tenant_id_mask = null
+    localStorage.removeItem(STORAGE_TENANT_ID)
+  },
+  TENANTS_UPDATED: (state, data) => {
+    state.tenants = data.items
+  },
+  TENANTS_DELETED: (state) => {
+    state.tenants = []
+  },
   OLDADMIN_ENABLED: (state) => {
     state.oldAdminEnabled = true
   },
@@ -393,9 +465,6 @@ const mutations = {
   },
   ROLES_DELETED: (state) => {
     state.roles = []
-  },
-  TENANTS_UPDATED: (state, data) => {
-    state.tenants = data.items
   },
   API_OK: (state) => {
     state.api = true

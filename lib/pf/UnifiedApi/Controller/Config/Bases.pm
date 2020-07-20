@@ -218,7 +218,7 @@ fields_to_mask
 
 =cut
 
-sub fields_to_mask { qw(smtp_password pass galera_replication_password) }
+sub fields_to_mask { qw(smtp_password pass galera_replication_password root_pass) }
 
 =head1 AUTHOR
 

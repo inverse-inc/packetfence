@@ -553,7 +553,7 @@ sub getNodeInfoForAutoReg {
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
-        pid             => $args->{node_info}->{pid},
+        pid             => $args->{node_info}->{pid} // 'default',
         status          => 'reg',
         auto_registered => 1, # tells node_register to autoreg
         autoreg         => 'yes',
@@ -643,6 +643,14 @@ sub getNodeInfoForAutoReg {
                 %node_info = (%node_info, (category => ''));
             }
             $node_info{'pid'} = $args->{'user_name'};
+        }
+        if (($args->{'connection_type'} & $EAP) == $EAP ) {
+            if ( isenabled($profile->dot1xRecomputeRoleFromPortal) ) {
+                if (!(exists($node_info{'category'})) || $node_info{'category'} eq '') {
+                    $logger->info("No rules matches or no category defined for the node, set it as unreg." );
+                    $node_info{'status'} = 'unreg';
+                }
+            }
         }
         $logger->warn("No category computed for autoreg") if (!(exists($node_info{'category'})) || $node_info{'category'} eq '');
     }

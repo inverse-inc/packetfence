@@ -62,7 +62,7 @@ foreach my $service (@services) {
         $t->post_ok("/api/v1/service/$service/restart" => json => { })
         ->json_is('/restart', 1)
         ->json_has('/pid')
-        ->json_unlike('/pid', qr/$pid/)
+        ->json_unlike('/pid', qr/$pid/, "different pid for $service after restart")
         ->status_is(200);
     }
     if( $enabled ) {

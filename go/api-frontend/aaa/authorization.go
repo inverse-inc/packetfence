@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
@@ -20,6 +23,53 @@ var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefi
 type adminRoleMapping struct {
 	prefix string
 	role   string
+}
+
+var multipleTenants = false
+var successMultipleTenants = false
+var successMultipleTenantsLock = &sync.Mutex{}
+
+func init() {
+	successMultipleTenants = computeMultipleTenants()
+}
+
+func computeMultipleTenants() bool {
+	successMultipleTenantsLock.Lock()
+	defer func() {
+		successMultipleTenantsLock.Unlock()
+		if err := recover(); err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		}
+	}()
+
+	pfdb, err := db.DbFromConfig(context.Background())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		return false
+	}
+	defer pfdb.Close()
+
+	res, err := pfdb.Query(`select count(1) from tenant`)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		return false
+	}
+	defer res.Close()
+
+	for res.Next() {
+		var count int
+		err := res.Scan(&count)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+			return false
+		}
+		if count > 2 {
+			log.Logger().Info("Running in multi-tenant mode")
+			multipleTenants = true
+		}
+	}
+
+	return true
 }
 
 const ALLOW_ANY = "*"
@@ -128,6 +178,19 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/wmi_rules", role: "WMI"},
 }
 
+var allTenantsPaths = []string{
+	configApiPrefix + "/security_events",
+	configApiPrefix + "/security_event/",
+	configApiPrefix + "/base/guests_admin_registration",
+	configApiPrefix + "/admin_roles",
+}
+
+var multiTenantDenyPaths = []string{
+	apiPrefix + "/queues",
+	apiPrefix + "/services",
+	apiPrefix + "/service",
+}
+
 var methodSuffixMap = map[string]string{
 	"GET":     "_READ",
 	"OPTIONS": "_READ",
@@ -157,6 +220,13 @@ func (tam *TokenAuthorizationMiddleware) TokenFromBearerRequest(ctx context.Cont
 // Checks whether or not that request is authorized based on the path and method
 // It will extract the token out of the Authorization header and call the appropriate method
 func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
+
+	// If we were unable to get the multi-tenant status on init (because DB wasn't ready), then we try to find it here
+	if !successMultipleTenants {
+		log.LoggerWContext(ctx).Info("Multi-tenant status hasn't been initialized. Attempting to initialize it during this request.")
+		successMultipleTenants = computeMultipleTenants()
+	}
+
 	token := tam.TokenFromBearerRequest(ctx, r)
 	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
 
@@ -168,11 +238,11 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 
 	var tenantId int
 
-	if tokenInfo.TenantId == AccessAllTenants && xptid == "" {
+	if tokenInfo.Tenant.Id == AccessAllTenants && xptid == "" {
 		log.LoggerWContext(ctx).Debug("Token wasn't issued for a particular tenant and no X-PacketFence-Tenant-Id was provided. Request will use the default PacketFence tenant")
 	} else if xptid == "" {
 		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to token tenant ID")
-		tenantId = tokenInfo.TenantId
+		tenantId = tokenInfo.Tenant.Id
 		r.Header.Set("X-PacketFence-Tenant-Id", strconv.Itoa(tenantId))
 	} else {
 		var err error
@@ -208,12 +278,12 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return authAdminRoles, err
 	}
 
-	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.TenantId)
+	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.Tenant.Id)
 	if !authTenant || err != nil {
 		return authTenant, err
 	}
 
-	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, path, tokenInfo.TenantId)
+	authConfig, err := tam.isAuthorizedMultiTenant(ctx, method, path, tokenInfo)
 	if !authConfig || err != nil {
 		return authConfig, err
 	}
@@ -288,13 +358,48 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, path string, tokenTenantId int) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) isAuthorizedMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
+	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, method, path, tokenInfo)
+	if !authConfig || err != nil {
+		return authConfig, err
+	}
+
+	authMultiTenant, err := tam.isAuthorizedPathMultiTenant(ctx, method, path, tokenInfo)
+	if !authMultiTenant || err != nil {
+		return authMultiTenant, err
+	}
+
+	return true, nil
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedPathMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
+	if !tokenInfo.IsTenantMaster() {
+		for _, base := range multiTenantDenyPaths {
+			if strings.HasPrefix(path, base) {
+				return false, errors.New(fmt.Sprintf("Token is not allowed to access this namespace because it is scoped to a single tenant."))
+			}
+		}
+		return true, nil
+	} else {
+		return true, nil
+	}
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
 	// If we're not hitting the config namespace, then there is no need to enforce anything below
 	if !configNamespaceRe.MatchString(path) {
 		return true, nil
 	}
 
-	if tokenTenantId != AccessAllTenants {
+	if !tokenInfo.IsTenantMaster() {
+		if method == "GET" || method == "OPTIONS" {
+			for _, base := range allTenantsPaths {
+				if strings.HasPrefix(path, base) {
+					return true, nil
+				}
+			}
+		}
+
 		return false, errors.New(fmt.Sprintf("Token is not allowed to access the configuration namespace because it is scoped to a single tenant."))
 	} else {
 		return true, nil

@@ -33,12 +33,20 @@ has_field 'id' => (
             check   => \&check_id,
             message => 'Cannot be an existing Switch Module',
         }
-    ]
+    ],
+    tags => {
+        option_pattern => sub {
+            return {
+                regex => "^[0-9a-zA-Z_]+(::[0-9a-zA-Z_])*\$",
+                message => "The id is invalid. The id be alphanumeric seperate by ::.",
+            };
+        },
+    },
 );
 
 sub check_id {
    my ($value, $field) = @_;
-   return !exists $pf::SwitchFactory::TYPE_TO_MODULE{$value} && !exists $pf::SwitchFactory::VENDORS{$value};;
+   return !exists $pf::SwitchFactory::TYPE_TO_MODULE{$value} && !exists $pf::SwitchFactory::VENDORS{$value} && $value =~ /^[0-9a-zA-Z_]+(::[0-9a-zA-Z_])*$/;
 }
 
 has_field 'description' => (

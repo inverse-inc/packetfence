@@ -19,7 +19,7 @@ use pf::Switch::constants;
 use pf::constants;
 use pf::util qw(isenabled);
 use List::MoreUtils qw(uniq);
-use pf::constants::role qw($REJECT_ROLE);
+use pf::constants::role qw($REJECT_ROLE $VOICE_ROLE);
 use pf::access_filter::radius;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::roles::custom;
@@ -63,7 +63,7 @@ sub lookupLastAccounting {
     return undef;
 }
 
-sub makeRadiusAttributes {
+sub makeRadiusAttributesWithVSA {
     my ($self, $attrs_tmpl, $vars) = @_;
     my @vsas;
     my @attrs;
@@ -77,6 +77,17 @@ sub makeRadiusAttributes {
     }
 
     return (\@attrs, \@vsas);
+}
+
+sub makeRadiusAttributes {
+    my ($self, $attrs_tmpl, $vars) = @_;
+    my @vsas;
+    my @attrs;
+    for my $a (@{$attrs_tmpl // []}) {
+        push @attrs, $a->{name}, $a->{tmpl}->process($vars);
+    }
+
+    return \@attrs;
 }
 
 =item handleRadiusDeny
@@ -93,7 +104,7 @@ sub handleRadiusDeny {
         $logger->info("According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
         $self->disconnectRead();
         $self->disconnectWrite();
-        my ($attrs, undef) = $self->makeRadiusAttributes($self->{_template}->{reject}, $args);
+        my $attrs = $self->makeRadiusAttributes($self->{_template}->{reject}, $args);
         return [ $RADIUS::RLM_MODULE_USERLOCK, @$attrs ];
     }
 
@@ -126,7 +137,7 @@ sub returnRadiusAccessAccept {
         if ( defined $vlanTemplate &&  defined($tmp_args{'vlan'}) && $tmp_args{'vlan'} ne "" && $tmp_args{'vlan'} ne 0) {
             $self->updateArgsVariablesForSet(\%tmp_args, $vlanTemplate);
             $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS Access-Accept");
-            my ($attrs, undef) = $self->makeRadiusAttributes($vlanTemplate, \%tmp_args);
+            my $attrs = $self->makeRadiusAttributes($vlanTemplate, \%tmp_args);
             $radius_reply_ref = { @$attrs };
         } else {
             $logger->debug("(".$self->{'_id'}.") Received undefined VLAN. No VLAN added to RADIUS Access-Accept");
@@ -142,7 +153,7 @@ sub returnRadiusAccessAccept {
         $tmp_args{role} = $role;
         if (defined $roleTemplate && defined($role) && $role ne "" ) {
             $self->updateArgsVariablesForSet(\%tmp_args, $roleTemplate);
-            my ($attrs, undef) = $self->makeRadiusAttributes($roleTemplate, \%tmp_args);
+            my $attrs = $self->makeRadiusAttributes($roleTemplate, \%tmp_args);
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 @$attrs,
@@ -246,7 +257,7 @@ sub handleDisconnect {
         mac => $mac,
     );
     $self->updateArgsVariablesForSet(\%args, $radiusDisconnect);
-    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, \%args);
+    my ($attrs, $vsa) = $self->makeRadiusAttributesWithVSA($radiusDisconnect, \%args);
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
     return perform_disconnect($connection_info, $attributes_ref, $vsa);
@@ -302,7 +313,7 @@ sub handleCoa {
         role => $role,
     );
     $self->updateArgsVariablesForSet(\%args, $radiusDisconnect);
-    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, \%args);
+    my ($attrs, $vsa) = $self->makeRadiusAttributesWithVSA($radiusDisconnect, \%args);
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
     return perform_coa($connection_info, $attributes_ref, $vsa);
@@ -399,8 +410,13 @@ sub getVoipVsa {
         return;
     }
 
-    my ($attrs, undef) = $self->makeRadiusAttributes($template, { switch => $self });
+    my $attrs = $self->makeRadiusAttributes($template, { switch => $self, vlan => $self->getVlanByName($VOICE_ROLE) });
     return (@{$attrs // []});
+}
+
+sub isVoIPEnabled {
+    my ($self) = @_;
+    return isenabled($self->{_VoIPEnabled}) ;
 }
 
 =head2 wiredeauthTechniques

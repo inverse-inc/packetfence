@@ -31,8 +31,9 @@ export const columns = [
   {
     key: 'id',
     label: 'Network', // i18n defer
-    sortable: false,
-    visible: true
+    sortable: true,
+    visible: true,
+    required: true
   },
   {
     key: 'algorithm',
@@ -43,7 +44,7 @@ export const columns = [
   {
     key: 'pool_backend',
     label: 'Backend', // i18n defer
-    sortable: false,
+    sortable: true,
     visible: true,
   },
   {

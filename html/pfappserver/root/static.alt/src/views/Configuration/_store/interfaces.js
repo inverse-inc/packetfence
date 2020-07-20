@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import { columns as columnsInterface } from '../_config/interface'
 
 const types = {
   LOADING: 'loading',
@@ -12,11 +13,13 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {},
-  message: '',
-  status: '',
-  interfaces: []
+const state = () => {
+  return {
+    cache: {},
+    message: '',
+    status: '',
+    interfaces: []
+  }
 }
 
 const getters = {
@@ -26,8 +29,13 @@ const getters = {
 
 const actions = {
   all: ({ state, commit }) => {
+    const params = {
+      sort: 'id',
+      fields: columnsInterface.map(r => r.key).join(','),
+      limit: 1000
+    }
     commit('INTERFACE_REQUEST')
-    return api.interfaces().then(response => {
+    return api.interfaces(params).then(response => {
       commit('INTERFACE_SUCCESS')
       commit('INTERFACES_REPLACED', response.items)
       return response.items
@@ -71,7 +79,7 @@ const actions = {
       throw err
     })
   },
-  downInterface: ({ state, commit }, id) => {
+  downInterface: ({ commit }, id) => {
     commit('INTERFACE_REQUEST')
     return api.downInterface(id).then(response => {
       commit('INTERFACE_DOWN', id)
@@ -81,7 +89,7 @@ const actions = {
       throw err
     })
   },
-  upInterface: ({ state, commit }, id) => {
+  upInterface: ({ commit }, id) => {
     commit('INTERFACE_REQUEST')
     return api.upInterface(id).then(response => {
       commit('INTERFACE_UP', id)
@@ -91,7 +99,7 @@ const actions = {
       throw err
     })
   },
-  deleteInterface: ({ state, commit }, id) => {
+  deleteInterface: ({ commit }, id) => {
     commit('INTERFACE_REQUEST')
     return api.deleteInterface(id).then(response => {
       commit('INTERFACE_DESTROYED', id)

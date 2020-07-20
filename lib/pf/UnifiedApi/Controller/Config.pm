@@ -106,7 +106,7 @@ sub normalize_sort_specs {
             my $dir       = 'asc';
             my $s         = $sort_spec;
             if ($s =~ s/  *(DESC|ASC)$//i) {
-                $dir = lc($dir);
+                $dir = lc($1);
             }
 
             { field => $s, dir => $dir }
@@ -314,7 +314,8 @@ sub get {
 
 sub item {
     my ($self, $id) = @_;
-    return $self->cleanup_item($self->item_from_store($id));
+    my $skip_inheritance = isenabled($self->req->param('skip_inheritance'));
+    return $self->cleanup_item($self->item_from_store($id, $skip_inheritance));
 }
 
 sub id {
@@ -329,8 +330,12 @@ sub id {
 }
 
 sub item_from_store {
-    my ($self, $id) = @_;
-    return $self->config_store->read($id // $self->id, 'id')
+    my ($self, $id, $skip_inheritance) = @_;
+    if ($skip_inheritance) {
+        return $self->config_store->readWithoutInherited($id // $self->id, 'id')
+    } else {
+        return $self->config_store->read($id // $self->id, 'id')
+    }
 }
 
 sub cleanup_item {
@@ -468,25 +473,37 @@ sub remove {
 
 sub update {
     my ($self) = @_;
-    my ($error, $new_data) = $self->get_json;
+    my ($error, $data) = $self->get_json;
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
     }
     my $old_item = $self->item;
-    my $new_item = {%$old_item, %$new_data};
+    my $new_item = {%$old_item, %$data};
     my $id = $self->id;
     $new_item->{id} = $id;
     delete $new_item->{not_deletable};
-    (my $status, $new_data) = $self->validate_item($new_item);
+    my ($status, $new_data) = $self->validate_item($new_item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $new_data);
     }
 
     delete $new_data->{id};
     my $cs = $self->config_store;
+    $self->cleanupItemForUpdate($old_item, $new_data, $data);
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings updated"});
+}
+
+=head2 cleanupItemForUpdate
+
+cleanupItemForUpdate
+
+=cut
+
+sub cleanupItemForUpdate {
+    my ($self, $old_item, $new_data, $data) = @_;
+    return;
 }
 
 sub replace {

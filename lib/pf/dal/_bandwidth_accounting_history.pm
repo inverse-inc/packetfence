@@ -36,41 +36,38 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        tenant_id
-        mac
+        node_id
         time_bucket
         in_bytes
         out_bytes
         total_bytes
+        mac
+        tenant_id
     );
 
     %DEFAULTS = (
-        tenant_id => '',
-        mac => '',
+        node_id => '',
         time_bucket => '',
         in_bytes => '',
         out_bytes => '',
         total_bytes => undef,
+        mac => '',
+        tenant_id => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        tenant_id
-        mac
+        node_id
         time_bucket
         in_bytes
         out_bytes
         total_bytes
+        mac
+        tenant_id
     );
 
     %FIELDS_META = (
-        tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        mac => {
-            type => 'CHAR',
+        node_id => {
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
@@ -99,21 +96,33 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        mac => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'SMALLINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
-        tenant_id
-        mac
+        node_id
         time_bucket
     );
 
     @COLUMN_NAMES = qw(
-        bandwidth_accounting_history.tenant_id
-        bandwidth_accounting_history.mac
+        bandwidth_accounting_history.node_id
         bandwidth_accounting_history.time_bucket
         bandwidth_accounting_history.in_bytes
         bandwidth_accounting_history.out_bytes
         bandwidth_accounting_history.total_bytes
+        bandwidth_accounting_history.mac
+        bandwidth_accounting_history.tenant_id
     );
 
 }

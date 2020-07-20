@@ -53,42 +53,46 @@ has_field 'scopes' => (
     required => 1,
 );
 
+our %connection_type_field_options = (
+    siblings => {
+        value => {
+            allowed_values =>
+              [ map { { text => $_, value => $_ } } keys %connection_type ],
+        },
+    },
+);
+
 our %ADDITIONAL_FIELD_OPTIONS = (
     'node_info.category' => {
         siblings => {
             value => {
-                allowed_values => [ map { { text => $_->{name}, value => $_->{name} } } nodecategory_view_all() ],
+                allowed_values => [
+                    map { { text => $_->{name}, value => $_->{name} } }
+                      nodecategory_view_all()
+                ],
             },
         },
     },
     'node_info.autoreg' => {
         siblings => {
             value => {
-                allowed_values => [ map { { text => $_, value => $_ } } ("yes", "no") ],
+                allowed_values =>
+                  [ map { { text => $_, value => $_ } } ( "yes", "no" ) ],
             },
         },
     },
     'node_info.status' => {
         siblings => {
             value => {
-                allowed_values => [ map { { text => $_, value => $_ } } ("reg", "unreg", "pending") ],
+                allowed_values => [
+                    map { { text => $_, value => $_ } }
+                      ( "reg", "unreg", "pending" )
+                ],
             },
         },
     },
-    'node_info.last_connection_type' => {
-        siblings => {
-            value => {
-                allowed_values => [ map { { text => $_, value => $_ } } keys %connection_type ],
-            },
-        },
-    },
-    connection_type => {
-        siblings => {
-            value => {
-                allowed_values => [ map { { text => $_, value => $_ } } keys %connection_type ],
-            },
-        },
-    },
+    'node_info.last_connection_type' => \%connection_type_field_options,
+    'connection_type'                => \%connection_type_field_options
 );
 
 sub option_scopes {

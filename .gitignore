@@ -27,9 +27,15 @@ conf/caddy-services/*.conf
 conf/pfdns.conf
 conf/pfdhcp.conf
 conf/etcd.conf.yml
+conf/ssl.conf
 conf/template_switches.conf
+conf/radiusd/eap_profiles.conf
+conf/radiusd/fast.conf
+conf/radiusd/ocsp.conf
+conf/radiusd/tls.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
+sbin/pfcertmanager
 sbin/pfhttpd
 sbin/pfdetect
 sbin/pfdhcp

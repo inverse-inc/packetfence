@@ -3132,7 +3132,7 @@ Check if switch should use CoA
 sub shouldUseCoA {
     my ($self, $args) = @_;
     # Roles are configured and the user should have one
-    return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
+    return (defined($args->{role}) && (isenabled($self->{_RoleMap}) || isenabled($self->{_UrlMap})) && isenabled($self->{_useCoA}));
 }
 
 =item getRelayAgentInfoOptRemoteIdSub
@@ -3491,9 +3491,9 @@ sub remove_switch_from_cache {
     my $logger = $self->logger;
 
     my $cache = $self->cache_distributed;
-    my %cache_content = $cache->get_keys();
+    my @cache_content = $cache->get_keys();
 
-    foreach ( keys %cache_content ) {
+    foreach ( @cache_content ) {
         $cache->remove($_) if $_ =~ /^$key-/;
     }
 }

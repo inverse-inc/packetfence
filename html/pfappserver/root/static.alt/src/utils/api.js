@@ -134,6 +134,17 @@ Object.assign(apiCall, {
   if (apiServer) {
     request.headers['X-PacketFence-Server'] = apiServer
   }
+  const apiTenant = localStorage.getItem('X-PacketFence-Tenant-Id')
+  if (apiTenant) {
+    request.headers['X-PacketFence-Tenant-Id'] = apiTenant
+  }
+  else {
+    const { state: { session: { tenant } = {} } = {} } = store
+    if (tenant) {
+      const { id } = tenant
+      request.headers['X-PacketFence-Tenant-Id'] = id
+    }
+  }
   return request
 })
 

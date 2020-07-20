@@ -79,6 +79,16 @@ sub form_parameters {
     ];
 }
 
+sub cleanupItemForUpdate {
+    my ($self, $old_item, $new_data, $data) = @_;
+    my %new_item;
+    while ( my ($k, $v) = each %$data ) {
+        $new_item{$k} = defined $v ? $new_data->{$k} : undef ;
+    }
+    %$new_data = %new_item;
+    return;
+}
+
 =head2 fields_to_mask
 
 fields_to_mask

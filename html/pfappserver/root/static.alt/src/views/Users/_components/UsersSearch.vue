@@ -5,10 +5,18 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')" save-search-namespace="users"
-      :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
-    <div class="card-body">
+    <pf-search class="flex-shrink-0"
+      :quick-with-fields="false"
+      :quick-placeholder="$t('Search by name or email')"
+      save-search-namespace="users"
+      :fields="fields"
+      :advanced-mode="advancedMode"
+      :condition="condition"
+      :storeName="storeName"
+      @submit-search="onSearch"
+      @reset-search="onReset"
+      @import-search="onImport"></pf-search>
+    <div class="card-body flex-shrink-0 pt-0">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
 
@@ -92,21 +100,32 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
+                <b-form-select class="mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3 my-0" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" filename="users.csv" :disabled="isLoading"
+              <pf-button-export-to-csv filename="users.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
           </b-container>
         </b-col>
       </b-row>
-      <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting sort-icon-left striped>
+    </div>
+    <div class="card-body pt-0" v-scroll-100>
+      <b-table
+        v-model="tableValues"
+        class="table-clickable"
+        :items="items"
+        :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged"
+        @row-clicked="onRowClick"
+        @head-clicked="clearSelected"
+        show-empty hover no-local-sorting sort-icon-left striped
+      >
         <template v-slot:head(actions)>
           <b-form-checkbox id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange"></b-form-checkbox>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
@@ -133,6 +152,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFormToggle from '@/components/pfFormToggle'
+import scroll100 from '@/directives/scroll-100'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
@@ -146,6 +166,9 @@ export default {
     pfProgress,
     pfEmptyTable,
     pfFormToggle
+  },
+  directives: {
+    scroll100
   },
   props: {
     storeName: { // from router

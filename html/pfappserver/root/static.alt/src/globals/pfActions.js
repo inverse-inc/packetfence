@@ -44,10 +44,11 @@ export const pfActionsFromMeta = (meta = {}, key = null) => {
   return fields
 }
 
-export const pfActionValidators = (pfActions = [], formActions = []) => {
+export const pfActionValidators = (availableActions = [], formActions = []) => {
   return {
     ...(formActions || []).map((action) => {
       const { type, value } = action || {}
+      const { [type]: { staticValue } = {} } = pfActions
       return {
         type: {
           ...((type)
@@ -70,7 +71,7 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ...((type === 'set_access_duration')
             ? {
               // 'set_access_duration' requires 'set_role'
-              [i18n.t('Action requires either "Set Role" or "set_role_on_not_found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
+              [i18n.t('Action requires either "Set Role" or "Role On Not Found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
               // 'set_access_duration' restricts 'set_unreg_date'
               [i18n.t('Action conflicts with "Unregistration date".')]: conditional(() => formActions.filter(action => action && action.type === 'set_unreg_date').length === 0)
             }
@@ -99,15 +100,15 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
           ),
           ...((type === 'set_role_from_source')
             ? {
-              // 'set_role_from_source' requires either 'set_access_duration' or 'set_unreg_date'
-              [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0)
+              // 'set_role_from_source' requires either ('set_access_duration' or 'set_unreg_date') and 'set_role'
+              [i18n.t('Action requires either ("Access duration" or "Unregistration date") and "Set Role".')]: conditional(() => formActions.filter(action => action && ['set_access_duration', 'set_unreg_date'].includes(action.type)).length > 0 && formActions.filter(action => action && ['set_role'].includes(action.type)).length > 0)
             }
             : {/* noop */}
           ),
           ...((type === 'set_unreg_date')
             ? {
               // 'set_unreg_date' requires 'set_role'
-              [i18n.t('Action requires either "Set Role" or "set_role_on_not_found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
+              [i18n.t('Action requires either "Set Role" or "Role On Not Found".')]: conditional(() => formActions.filter(action => action && ['set_role', 'set_role_on_not_found'].includes(action.type)).length > 0),
               // 'set_unreg_date' restricts 'set_access_duration'
               [i18n.t('Action conflicts with "Access duration".')]: conditional(() => formActions.filter(action => action && action.type === 'set_access_duration').length === 0)
             }
@@ -117,15 +118,19 @@ export const pfActionValidators = (pfActions = [], formActions = []) => {
         value: {
           ...((value)
             ? (() => {
-              let pfAction = pfActions.filter((pfAction) => pfAction.value === type)[0]
+              let pfAction = availableActions.filter((pfAction) => pfAction.value === type)[0]
               return ('validators' in pfAction)
                 ? pfAction.validators // dynamic `value` validators
                 : {}
             })()
-            : {
+            : {/* noop */}
+          ),
+          ...((!value && !staticValue)
+            ? {
               // `value` required
               [i18n.t('Value required')]: required
             }
+            : {/* noop */}
           )
         }
       }
@@ -253,30 +258,36 @@ export const pfActions = {
   set_unreg_date: {
     value: 'set_unreg_date',
     text: i18n.t('Unregistration date'),
-    placeholder: 'YYYY-MM-DD',
+    placeholder: 'YYYY-MM-DD HH:mm:ss',
     /* TODO - Workaround for Issue #4672
      * types: [fieldType.DATETIME],
      * moments: ['1 days', '1 weeks', '1 months', '1 years'],
      */
-    types: [fieldType.SUBSTRING],
+    types: [fieldType.SUBSTRING]
+    /* TODO
+     * https://github.com/inverse-inc/packetfence/issues/5592
     validators: {
       [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD')
     }
+     */
   },
   set_unreg_date_by_acl_user: {
     value: 'set_unreg_date',
     text: i18n.t('Unregistration date'),
-    placeholder: 'YYYY-MM-DD',
+    placeholder: 'YYYY-MM-DD HH:mm:ss',
     /* TODO - Workaround for Issue #4672
      * types: [fieldType.DATETIME],
      * moments: ['1 days', '1 weeks', '1 months', '1 years'],
      */
-    types: [fieldType.SUBSTRING],
+    types: [fieldType.SUBSTRING]
+    /* TODO
+     * https://github.com/inverse-inc/packetfence/issues/5592
     validators: {
       [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD'),
-      /* Limit maximum date w/ current user ACL */
+      // Limit maximum date w/ current user ACL
       [i18n.t('Date exceeds maximum allowed by current user.')]: isValidUnregDateByAclUser('YYYY-MM-DD')
     }
+     */
   },
   time_balance_from_source: {
     value: 'time_balance_from_source',

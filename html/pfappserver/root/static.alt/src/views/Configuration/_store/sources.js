@@ -13,11 +13,13 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // items details
-  saml_metadata: {}, // SAML
-  message: '',
-  itemStatus: ''
+const state = () => {
+  return {
+    cache: {}, // items details
+    saml_metadata: {}, // SAML
+    message: '',
+    itemStatus: ''
+  }
 }
 
 const getters = {

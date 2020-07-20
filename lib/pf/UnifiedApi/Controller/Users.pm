@@ -65,6 +65,7 @@ sub cleanup_item {
     if (exists $item->{category_id}) {
         $item->{category} = delete $item->{category_id};
     }
+
     return $item;
 }
 
@@ -583,6 +584,7 @@ sub import_item {
     my @actions = (
         { type => 'valid_from', value => $item->{valid_from} },
         { type => 'expiration', value => $item->{expiration} },
+        @{$item->{actions}}
     );
     $result = pf::password::generate($pid, \@actions, $item->{password});
 

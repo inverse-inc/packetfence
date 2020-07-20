@@ -175,6 +175,7 @@ sub instantiate {
         $module = "pf::Switch";
     }
     unless ($module) {
+        $type //= '(undefined)';
         $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
                   . "The type is unknown or the perl module has compilation errors. ");
         $pf::StatsD::statsd->increment(called() . ".error" );
@@ -226,6 +227,11 @@ Get the module from the type
 
 sub getModule {
     my ($type) = @_;
+    unless ($type) {
+        get_logger->error("Undefined type");
+        return undef;
+    }
+
     if (exists $TemplateSwitches{$type}) {
         $type = 'Template';
     }

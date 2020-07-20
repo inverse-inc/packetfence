@@ -97,10 +97,14 @@ func TestHttpRequest(t *testing.T) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	searchResults := RadiusAttributesResults{}
 	json.Unmarshal(body, &searchResults)
-	if len(searchResults.Items) != 1 {
+	if len(searchResults.Items) == 0 {
 		t.Errorf("Result count is incorrect got %d instead of 1", len(searchResults.Items))
-	} else if searchResults.Items[0].Name != "User-Name" {
-		t.Errorf("Got %s instead of 'User-Name'", searchResults.Items[0].Name)
+	} else {
+		for _, i := range searchResults.Items {
+			if i.Name != "User-Name" {
+				t.Errorf("Got %s instead of 'User-Name'", i.Name)
+			}
+		}
 	}
 
 	w = doSearch(`{}`)

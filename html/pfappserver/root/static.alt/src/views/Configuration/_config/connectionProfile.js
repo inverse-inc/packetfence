@@ -435,7 +435,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Automatically deregister devices on accounting stop'),
-          text: i18n.t('This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.'),
+          text: i18n.t('This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop. This option only makes sense in the context of an 802.1x authentication.'),
           cols: [
             {
               namespace: 'unreg_on_acct_stop',

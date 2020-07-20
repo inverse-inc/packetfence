@@ -144,7 +144,7 @@ sub rejoin_domain {
     if ($info) {
         my ($unjoin_error, $leave_output) = unjoin_domain($domain, $info);
         if ($unjoin_error) {
-            $results->{unjoin} = $unjoin_error->{message};
+            $results->{unjoin} = $unjoin_error;
             push @errors, $unjoin_error;
         } else {
             $results->{unjoin} = $leave_output;

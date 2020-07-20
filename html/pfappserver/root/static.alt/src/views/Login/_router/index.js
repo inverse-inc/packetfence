@@ -1,4 +1,4 @@
-import store from '@/store'
+import { reset as resetStore } from '@/store'
 import LoginView from '../'
 
 const route = {
@@ -7,14 +7,7 @@ const route = {
   name: 'login',
   component: LoginView,
   beforeEnter: (to, from, next) => {
-    // Reset states and unregister temporary modules
-    Object.keys(store._modules.root._children).forEach(module => {
-      if (module[0] === '$' && module[1] === '_') {
-        store.unregisterModule(module)
-      } else {
-        store.commit(`${module}/$RESET`, null, { root: true })
-      }
-    })
+    resetStore()
     next()
   }
 }

@@ -5,10 +5,12 @@ import Vue from 'vue'
 import api from '../_api'
 
 // Default values
-const state = {
-  reports: {}, // reports details
-  reportStatus: '',
-  message: ''
+const state = () => {
+  return {
+    reports: {}, // reports details
+    reportStatus: '',
+    message: ''
+  }
 }
 
 const getters = {

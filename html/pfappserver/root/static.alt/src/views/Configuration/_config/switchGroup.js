@@ -49,7 +49,10 @@ export const config = () => {
           ]
         }]
       },
-      defaultRoute: { name: 'switch_groups' }
+      defaultRoute: { name: 'switch_groups' },
+      extraFields: {
+        raw: 1
+      }
     },
     searchableQuickCondition: (quickCondition) => {
       return {

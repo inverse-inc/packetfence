@@ -1,8 +1,9 @@
 /* eslint-disable camelcase */
 import store from '@/store'
 import i18n from '@/utils/locale'
-import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFieldPersonOpenid from '@/components/pfFieldPersonOpenid'
 import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
@@ -282,11 +283,7 @@ export const viewFields = {
               component: pfFieldRule,
               attrs: {
                 default: {
-                  id: null,
-                  description: null,
-                  match: 'all',
-                  actions: [ { type: 'set_access_level', value: null } ],
-                  conditions: []
+                  actions: [ { type: 'set_access_level', value: null } ]
                 },
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
@@ -447,11 +444,7 @@ export const viewFields = {
               component: pfFieldRule,
               attrs: {
                 default: {
-                  id: null,
-                  description: null,
-                  match: 'all',
-                  actions: [ { type: 'set_role', value: 'default' } ],
-                  conditions: []
+                  actions: [ { type: 'set_role', value: 'default' } ]
                 },
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
@@ -1171,6 +1164,30 @@ export const viewFields = {
       ]
     }
   },
+  person_mappings: (form, meta = {}) => {
+    return {
+      label: 'User Mappings',
+      cols: [
+        {
+          namespace: 'person_mappings',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: i18n.t('Add Mapping'),
+            sortable: true,
+            field: {
+              component: pfFieldPersonOpenid,
+              attrs: {
+                ...attributesFromMeta(meta, 'person_mappings.person_field'),
+                personLabel: i18n.t('Select User field'),
+                openidLabel: i18n.t('Select OpenID field')
+              }
+            },
+            invalidFeedback: i18n.t('Mappings contain one or more errors.')
+          }
+        }
+      ]
+    }
+  },
   pin_code_length: (form, meta = {}) => {
     return {
       label: i18n.t('PIN length'),
@@ -1749,7 +1766,7 @@ export const viewFields = {
   },
   username_attribute: (form, meta = {}) => {
     return {
-      label: i18n.t('Attribute of the username in the SAML response.'),
+      label: i18n.t('Attribute of the username in the response.'),
       cols: [
         {
           namespace: 'username_attribute',
@@ -2221,7 +2238,9 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
-            viewFields.authentication_rules(form, meta)
+            viewFields.authentication_rules(form, meta),
+            viewFields.person_mappings(form, meta),
+            viewFields.username_attribute(form, meta)
           ]
         }
       ]
@@ -2606,7 +2625,7 @@ export const validatorFields = {
     return { password: validatorsFromMeta(meta, 'password', i18n.t('Password')) }
   },
   append_to_searchattributes: (form, meta = {}) => {
-    return { append_to_searchattributes: validatorsFromMeta(meta, 'append_to_searchattributes', i18n.t('ldap filter')) }
+    return { append_to_searchattributes: validatorsFromMeta(meta, 'append_to_searchattributes', i18n.t('LDAP filter')) }
   },
   auth_listening_port: (form, meta = {}) => {
     return { auth_listening_port: validatorsFromMeta(meta, 'auth_listening_port', i18n.t('Port')) }
@@ -2802,6 +2821,32 @@ export const validatorFields = {
   },
   paypal_cert_file: (form, meta = {}) => {
     return { paypal_cert_file: validatorsFromMeta(meta, 'paypal_cert_file', i18n.t('File')) }
+  },
+  person_mappings: (form, meta = {}) => {
+    const {
+      person_mappings = []
+    } = form
+    return {
+      person_mappings: {
+        ...validatorsFromMeta(meta, 'person_mappings', i18n.t('Mappings')),
+        ...{
+          $each: {
+            person_field: {
+              [i18n.t('Person field required.')]: required,
+              [i18n.t('Duplicate person field.')]: conditional(value => !value || person_mappings.filter(v => {
+                  const { person_field } = v || {}
+                  return person_field === value
+              }).length <= 1)
+            },
+            openid_field: {
+              [i18n.t('OpenID field required.')]: required,
+            }
+/*
+*/
+          }
+        }
+      }
+    }
   },
   pin_code_length: (form, meta = {}) => {
     return { pin_code_length: validatorsFromMeta(meta, 'pin_code_length', i18n.t('Length')) }
@@ -3230,7 +3275,9 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
-        ...validatorFields.authentication_rules(form, meta)
+        ...validatorFields.authentication_rules(form, meta),
+        ...validatorFields.person_mappings(form, meta),
+        ...validatorFields.username_attribute(form, meta)
       }
     case 'Pinterest':
       return {

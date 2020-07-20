@@ -20,6 +20,8 @@ use base ('pf::Switch::Extreme::Summit');
 use pf::Switch::constants;
 use pf::util;
 
+sub description { "ExtremeNet Summit X250e" } 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

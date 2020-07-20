@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 96;
+use Test::More tests => 97;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -73,12 +73,12 @@ $t->post_ok('/api/v1/nodes/bulk_restart_switchport' => json => { items => [$mac]
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');
 
-$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 1,  items => [$mac] })
+$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 2,  items => [$mac] })
   ->status_is(200)
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'success');
 
-$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 1,  items => [$mac] })
+$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 2,  items => [$mac] })
   ->status_is(200)
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');
@@ -149,7 +149,8 @@ $t->post_ok('/api/v1/nodes' => json => { mac => "112233445566" })
   ->status_is(201);
 
 $t->get_ok('/api/v1/node/11:22:33:44:55:66')
-  ->status_is(200);
+  ->status_is(200)
+  ->json_is("/item/category_id", 1);
 
 =head1 AUTHOR
 

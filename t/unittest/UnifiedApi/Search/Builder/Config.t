@@ -57,7 +57,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Config->new();
 
     is_deeply(
         $sb->make_condition( {query => undef} ),
-        pf::condition::true->new(),
+        undef,
         'No query'
     );
 
@@ -155,7 +155,7 @@ FILE
             200,
             {
                 'prevCursor'  => 0,
-                'total_count' => 5,
+                'total_count' => 10,
                 'items'       => [
                     {
                         'id' => 'a',

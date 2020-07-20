@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import { columns as columnsLayer2Network } from '../_config/layer2Network'
 
 const types = {
   LOADING: 'loading',
@@ -12,10 +13,12 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {},
-  message: '',
-  status: ''
+const state = () => {
+  return {
+    cache: {},
+    message: '',
+    status: ''
+  }
 }
 
 const getters = {
@@ -24,9 +27,14 @@ const getters = {
 }
 
 const actions = {
-  all: ({ state, commit }) => {
+  all: ({ commit }) => {
+    const params = {
+      sort: 'id',
+      fields: columnsLayer2Network.map(r => r.key).join(','),
+      limit: 1000
+    }
     commit('LAYER2_NETWORK_REQUEST')
-    return api.layer2Networks().then(response => {
+    return api.layer2Networks(params).then(response => {
       commit('LAYER2_NETWORK_SUCCESS')
       return response.items
     }).catch((err) => {

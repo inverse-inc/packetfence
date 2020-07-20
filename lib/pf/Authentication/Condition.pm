@@ -124,7 +124,7 @@ sub getValue {
     my ($self, $params) = @_;
     my $value = $self->value;
     if (defined $params) {
-        $value =~ s/\${([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)}/replaceVar($1, $params)/ge;
+        $value =~ s/\$\{([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)\}/replaceVar($1, $params)/ge;
     }
 
     return $value;

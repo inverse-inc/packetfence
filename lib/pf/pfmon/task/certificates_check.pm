@@ -22,7 +22,7 @@ use pf::util qw(isenabled);
 extends qw(pf::pfmon::task);
 
 has 'delay'         => ( is => 'rw', default => "30D" );
-has 'certificates'  => ( isa => 'Maybe[Str]', is => 'rw', default => "/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt" );
+has 'certificates'  => ( isa => 'Maybe[Str]', is => 'rw', default => "/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt,/usr/local/pf/certmanager/radius_default_tls-common.crt" );
 
 =head2 run
 

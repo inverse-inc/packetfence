@@ -1,3 +1,5 @@
+import acl from '@/utils/acl'
+import i18n from '@/utils/locale'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import UsersView from '../'
@@ -14,8 +16,14 @@ const route = {
   name: 'users',
   redirect: '/users/search',
   component: UsersView,
+  meta: {
+    can: () => {
+      return acl.$can('read', 'users') || acl.$can('create', 'users') // has ACL for 1+ children
+    },
+    fail: { path: '/configuration', replace: true }, // no ACL in this view, redirect to next sibling
+    transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
+  },
   props: { storeName: '$_users' },
-  meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   beforeEnter: (to, from, next) => {
     if (!store.state.$_users) {
       // Register store module only once
@@ -26,15 +34,17 @@ const route = {
   children: [
     {
       path: 'search',
+      name: 'userSearch',
       component: UsersSearch,
       props: (route) => ({ storeName: '$_users', query: route.query.query }),
       meta: {
         can: 'read users',
-        fail: { path: '/configuration', replace: true }
+        fail: { name: 'userCreate', replace: true } // redirect to next sibling
       }
     },
     {
       path: 'create',
+      name: 'userCreate',
       component: UsersCreate,
       props: { formStoreName: 'formUsersCreate' },
       beforeEnter: (to, from, next) => {
@@ -44,11 +54,13 @@ const route = {
         next()
       },
       meta: {
-        can: 'create users'
+        can: 'create users',
+        fail: { name: 'userImport', replace: true } // redirect to next sibling
       }
     },
     {
       path: 'import',
+      name: 'userImport',
       component: UsersImport,
       props: (route) => ({ formStoreName: 'formUserImport' }),
       beforeEnter: (to, from, next) => {
@@ -58,7 +70,8 @@ const route = {
         next()
       },
       meta: {
-        can: 'create users'
+        can: 'create users',
+        fail: { name: 'userSearch', replace: true } // redirect to next sibling
       }
     },
     {
@@ -67,7 +80,8 @@ const route = {
       component: UsersPreview,
       props: { storeName: '$_users' },
       meta: {
-        can: 'create users'
+        can: 'create users',
+        fail: { name: 'users', replace: true } // redirect to first sibling
       }
     },
     {
@@ -81,10 +95,14 @@ const route = {
         }
         store.dispatch('$_users/getUser', to.params.pid).then(() => {
           next()
+        }).catch(() => { // `pid` does not exist
+          store.dispatch('notification/danger', { message: i18n.t('User <code>{pid}</code> does not exist or is not available for this tenant.', to.params) })
+          next({ name: 'userSearch' })
         })
       },
       meta: {
-        can: 'read users'
+        can: 'read users',
+        fail: { name: 'users', replace: true } // redirect to first sibling
       }
     }
   ]

@@ -245,6 +245,13 @@ sub node_add {
         $logger->warn("attempt to add existing node $mac");
         return (2);
     }
+    my $node_status = $data{status};
+    if ( defined $node_status && ( $node_status eq $STATUS_REGISTERED )) {
+        my $regdate = $data{regdate};
+        if ( !defined $regdate || $regdate eq '' || $regdate eq $ZERO_DATE ) {
+            $data{regdate} = \'NOW()';
+        }
+    }
 
     foreach my $field (keys %DEFAULT_NODE_VALUES)
     {
@@ -252,10 +259,6 @@ sub node_add {
     }
 
     _cleanup_attributes(\%data);
-
-    if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
-        $data{regdate} = mysql_date();
-    }
 
     # category handling
     $data{'category_id'} = _node_category_handling(%data);
@@ -699,6 +702,7 @@ sub node_register {
     if ( any { isenabled($_->{'_registration'}) } @scanners) {
         # trigger Scan for On Registration scanners
         $logger->debug("Triggering On Registration Scan");
+        require pf::api;
         pf::api::trigger_scan('pf::api',ip => pf::ip4log::mac2ip($mac) , mac => $mac , net_type => 'registration');
     }
 

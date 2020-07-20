@@ -12,10 +12,12 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // items details
-  message: '',
-  itemStatus: ''
+const state = () => {
+  return {
+    cache: {}, // items details
+    message: '',
+    itemStatus: ''
+  }
 }
 
 const getters = {
@@ -27,7 +29,8 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id', 'description'].join(',')
+      fields: ['id', 'description'].join(','),
+      limit: 1000
     }
     return api.switchGroups(params).then(response => {
       return response.items
@@ -69,7 +72,7 @@ const actions = {
       throw err
     })
   },
-  getSwitchGroupMembers: ({ commit }, id) => {
+  getSwitchGroupMembers: ({ state, commit }, id) => {
     commit('ITEM_REQUEST')
     return api.switchGroupMembers(id).then(members => {
       commit('ITEM_UPDATED', { id, prop: 'members', data: members })

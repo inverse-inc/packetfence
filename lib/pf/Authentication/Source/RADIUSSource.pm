@@ -53,7 +53,7 @@ sub available_attributes {
 
   my $super_attributes = $self->SUPER::available_attributes;
   my @attributes = @{$Config{radius_configuration}->{radius_attributes} // []};
-  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+  my @radius_attributes = map { { value => "radius_request.".$_, type => $Conditions::SUBSTRING } } @attributes;
   return [@$super_attributes, @radius_attributes];
 }
 

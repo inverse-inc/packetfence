@@ -13,11 +13,13 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // items details
-  joins: {}, // domain join details
-  message: '',
-  itemStatus: ''
+const state = () => {
+  return {
+    cache: {}, // items details
+    joins: {}, // domain join details
+    message: '',
+    itemStatus: ''
+  }
 }
 
 const getters = {
@@ -98,7 +100,7 @@ const actions = {
       throw err
     })
   },
-  testDomain: ({ commit }, id) => {
+  testDomain: ({ state, commit }, id) => {
     if (id in state.joins) {
       return Promise.resolve(state.joins[id])
     }
@@ -111,7 +113,7 @@ const actions = {
       return state.joins[id]
     })
   },
-  joinDomain: ({ commit }, data) => {
+  joinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
     return api.joinDomain(data).then(response => {
       return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
@@ -123,7 +125,7 @@ const actions = {
       return state.joins[data.id]
     })
   },
-  rejoinDomain: ({ commit }, data) => {
+  rejoinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
     return api.rejoinDomain(data).then(response => {
       return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
@@ -135,7 +137,7 @@ const actions = {
       return state.joins[data.id]
     })
   },
-  unjoinDomain: ({ commit }, data) => {
+  unjoinDomain: ({ state, commit }, data) => {
     commit('UNJOIN_REQUEST', data.id)
     return api.unjoinDomain(data).then(response => {
       return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {

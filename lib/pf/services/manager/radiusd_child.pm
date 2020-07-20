@@ -1239,9 +1239,10 @@ sub generate_eap_choice {
             next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
             my $choice = $key;
             $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+            my $eap = ( defined($pf::config::ConfigRealm{$key}->{'eap'}) && $pf::config::ConfigRealm{$key}->{'eap'} ne '') ? $pf::config::ConfigRealm{$key}->{'eap'} : 'eap';
             $$authorize_eap_choice .= <<"EOT";
             $if (Realm =~ /$choice/) {
-                $pf::config::ConfigRealm{$key}->{'eap'} {
+                $eap {
                     ok = return
                 }
             }

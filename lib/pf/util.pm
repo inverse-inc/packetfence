@@ -110,6 +110,7 @@ BEGIN {
         os_detection
         random_from_range
         extract
+        ends_with
     );
 }
 
@@ -1698,6 +1699,10 @@ sub extract {
     }
 
     return $default;
+}
+
+sub ends_with {
+    return $_[1] eq substr($_[0], -length($_[1]));
 }
 
 =back

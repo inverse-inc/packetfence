@@ -947,7 +947,7 @@ sub billing {
         }
     }
     # validate billing tiers have the necessary configuration
-    my @required_tier_params = qw(name description price role access_duration use_time_balance);
+    my @required_tier_params = qw(name description price role access_duration);
     foreach my $tier_id (keys %ConfigBillingTiers){
         foreach my $param (@required_tier_params){
             add_problem($WARN, "Missing parameter $param for billing tier $tier_id") unless($ConfigBillingTiers{$tier_id}{$param});
@@ -1124,35 +1124,6 @@ sub valid_certs {
     };
     if($@){
         add_problem($WARN, "Cannot open the following certificate $httpd_crt")
-    }
-
-    my $radius_conf;
-    # if there is no file, we assume this is a first run
-    my $radius_configured = -e "$install_dir/raddb/radiusd.conf" ? 1 : 0 ;
-    if ( $radius_configured ) {
-
-        $radius_conf = read_file("$install_dir/raddb/mods-enabled/eap");
-
-        if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
-             $radius_crt = $1;
-        }
-        else{
-            add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
-        }
-
-        eval {
-            if(pf::util::cert_expires_in($radius_crt)){
-                add_problem($WARN, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
-                         "Regenerate a new self-signed certificate or update your current certificate.");
-            }
-        };
-        if($@){
-            add_problem($WARN, "Cannot open the following certificate $radius_crt")
-        }
-    }
-    else {
-        # not a problem per se, we just warn you
-        print STDERR "Radius configuration is missing from raddb directory. Assuming this is a first run.\n";
     }
 }
 

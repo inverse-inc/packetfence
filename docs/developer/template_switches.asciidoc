@@ -286,6 +286,7 @@ So here is mini templating language to format values.
 ** switch._wsPwd
 ** switch._wsTransport
 ** switch._wsUser
+** vlan
 
 ==== Available functions
 

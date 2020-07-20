@@ -12,44 +12,66 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
 Version X.Y.Z released on xxxx-xx-xx
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
-* Support for MS-CHAP authentication for CLI/VPN access
-* New service pfcertmanager that generate certificate files based on the configuration.
-* EAP configuration template, add a way to define multiples eap profiles in freeradius.
+
 
 Enhancements
 ++++++++++++
+* Adjust the settings in the admin for the SAML and OAuth portal modules (#5479)
+
+Bug Fixes
++++++++++
+* Fixed CoA for Meraki web-authentication so that it doesn't disconnect the user from the SSID
+* Honor the AUP setting of the SAML portal module (#5476)
+
+Version 10.1.0 released on 2020-06-17
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+* Live log viewer from admin interface
+* Fully tenant-aware admin interface
+* Support for MS-CHAP authentication for CLI/VPN access
+* New pfcertmanager service that generates certificate files from configuration
+
+Enhancements
+++++++++++++
+* EAP configuration template - add a way to define multiples EAP profiles in FreeRADIUS
 * New action for AD/LDAP sources to set role when user is not found
 * Provide an advanced LDAP condition to allow custom LDAP queries
-* The captive-portal can now feed HTTP client hints to the Fingerbank collector
+* The captive portal can now feed HTTP client hints to the Fingerbank collector
 * Added ability to enable/disable a network anomaly detection policy (#5403)
 * Return the portal IP if the QNAME matches one of the portal FQDN for registered devices using inline enforcement
 * Individual source rules can be disabled
-* Support for Dell n1500 starting from 6.6.0.10
-* CoA support for Unifi AP
+* Support for Dell N1500 starting from 6.6.0.10
+* CoA support for Ubiquiti Unifi AP
 * Added a way to define the Unifi AP by IP or IP range
 * Use the value of an LDAP attribute as a role
 * Added the return of the LDAP/RADIUS attributes to use them in RADIUS filter
 * The /api/v1/radius_attributes endpoint is now searchable
 * Proxy the captive portal detection URL when the device is registered
-* Choose which eap profile to use based on the realm.
-* Basedn can be define in the authentication sources rules
-* New hooks for the radius filter engine in eduroam virtual server.
-* Redefined "restart" in the service manager to allow "PartOf" in systemcd scripts
+* Choose which EAP profile to use based on the realm
+* LDAP's basedn can be defined in the authentication sources rules
+* New hooks for the RADIUS filter engine in eduroam virtual server
+* Redefined "restart" in the service manager to allow "PartOf" in systemd scripts
 * Set role from source authentication rule option (needs #5459)
-* Flatten the radius request for the authentication sources (attributes like radius_request.User-Name)
-* Radius request attributes / Username are part of the common attributes.
-* Support of multiples ldap servers in freeradius ldap_packetfence configuration file
-* copy outter user-Name attribute in PacketFence-Outer-User attribute to be able to use it in the authentication rules.
-* copy the LDAP-UserDN attribute in PacketFence-UserDN attribute to be able to use it in the authentication rules.
-* Added a way to extend the ldap filter for searchattributes configuration
+* Flatten the RADIUS request for the authentication sources (attributes like radius_request.User-Name)
+* RADIUS request attributes / username are part of the common attributes
+* Support of multiples LDAP servers in FreeRADIUS ldap_packetfence configuration file
+* Copy outer User-Name attribute in PacketFence-Outer-User attribute to be able to use it in the authentication rules
+* Copy the LDAP-UserDN attribute in PacketFence-UserDN attribute to be able to use it in the authentication rules
+* Added a way to extend the LDAP filter for searchattributes configuration
 * Documentation for EAP profile selection
 * Documentation for regex realm
 * Documentation for new action/condition in LDAP authentication
 * Moved the VLAN filters example as default disabled VLAN filter
+* Use PUT for node reevaluate_access to fix issue with admin_role actions mapping
+* OpenID pid mapping is now configurable
+* Can map OpenID attributes to a person attributes
+* Allow to create authentication rules based on OpenID attributes
 
 Bug Fixes
 +++++++++
@@ -57,6 +79,8 @@ Bug Fixes
 * Barracuda NG firewall SSO SSH fails (#4828)
 * Impossible to set multiple access level in administration rule (#5440)
 * Fixed pf-maint.pl when its running behind a proxy (#3425 )
+* Fix vendor attributes not being sent from Switch Template (#5453)
+* Fixed issue authorizing a user in web-auth on Unifi when the node has its date set to '0000-00-00 00:00:00'
 
 Version 10.0.0 released on 2020-04-16
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

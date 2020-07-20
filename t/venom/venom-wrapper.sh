@@ -28,8 +28,9 @@ configure_and_check() {
     INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
 
     # paths
-    VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${PWD}/results}"
-    VENOM_VARS_DIR=${VARS:-${PWD}/vars}
+    VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
+    VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${VENOM_ROOT_DIR}/results}"
+    VENOM_VARS_DIR=${VARS:-${VENOM_ROOT_DIR}/vars}
     VENOM_VARS_FILE=${VENOM_VARS_FILE:-${VENOM_VARS_DIR}/all.yml}
 
     mkdir -vp ${VENOM_RESULT_DIR} || die "mkdir failed: ${VENOM_RESULT_DIR}"

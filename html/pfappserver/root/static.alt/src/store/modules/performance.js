@@ -199,13 +199,13 @@ apiCall.interceptors.request.use((config) => {
 
 // Intercept responses
 apiCall.interceptors.response.use((response) => {
-  const { config: { baseURL, method, url, params = {}, performance = true } } = response
+  const { config: { baseURL, method, url, params = {}, performance = true } = {} } = response
   if (performance) {
     store.dispatch('performance/stopRequest', { method, url: `${baseURL}${url}`, params }) // stop performance benchmark
   }
   return response
-}, (error) => {
-  const { config: { baseURL, method, url, params = {}, performance = true } } = error
+}, (error, test) => {
+  const { config: { baseURL, method, url, params = {}, performance = true } = {} } = error
   if (performance) {
     store.dispatch('performance/dropRequest', { method, url: `${baseURL}${url}`, params }) // discard performance benchmark
   }

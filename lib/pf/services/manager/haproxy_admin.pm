@@ -42,7 +42,6 @@ has '+haproxy_config_template' => (default => sub { "$conf_dir/haproxy-admin.con
 my $host_id = $pf::config::cluster::host_id;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
-tie @config_cluster_servers, 'pfconfig::cached_array', "resource::all_cluster_servers";
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -68,7 +67,7 @@ sub generateConfig {
         $mgmt_cluster_ip = pf::cluster::cluster_ip($mgmt_int) || $mgmt_cfg->{'vip'} || $mgmt_cfg->{'ip'};
         my @mgmt_backend_ip;
         if ($cluster_enabled) {
-            @mgmt_backend_ip = map { $_->{'management_ip'} } @config_cluster_servers;
+            @mgmt_backend_ip = map { $_->{'management_ip'} } pf::cluster::config_enabled_servers;
         } else {
             @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
         }
@@ -280,11 +279,12 @@ The creates the portal preview ip addresss
 
 sub portal_preview_ip {
     my ($self) = @_;
+    my $internal_portal_ip = $Config{captive_portal}{ip_address};
     if (!$cluster_enabled) {
         return "127.0.0.1";
     }
     my  @ints = uniq (@internal_nets, @portal_ints);
-    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip};
+    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip} ? $ints[0]->{Tip} : $internal_portal_ip;
 }
 
 =head1 AUTHOR

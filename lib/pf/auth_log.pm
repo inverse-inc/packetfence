@@ -178,6 +178,7 @@ sub cleanup {
                 },
             },
             -limit => $batch,
+            -no_auto_tenant_id => 1,
         },
         $time_limit
     );

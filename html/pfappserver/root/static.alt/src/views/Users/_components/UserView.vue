@@ -107,16 +107,14 @@
           <b-form-group label-cols="3" :label="$t('Registration Window')">
             <b-row>
               <b-col>
-                <pf-form-datetime
+                <pf-form-input
                   :form-store-name="formStoreName" form-namespace="valid_from"
-                  :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
-                <pf-form-datetime
+                <pf-form-input
                   :form-store-name="formStoreName" form-namespace="expiration"
-                  :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
                 />
               </b-col>
             </b-row>
@@ -179,6 +177,21 @@
             </template>
             <template v-slot:empty>
               <pf-empty-table :isLoading="isLoadingNodes" text="">{{ $t('No devices found') }}</pf-empty-table>
+            </template>
+            <template v-slot:table-caption v-if="nodes.length >= 1000" class="text-center">
+              <b-button variant="outline-primary mb-0" :to="{ name: 'nodeSearch', query: {
+                query: JSON.stringify({
+                  'op':'and',
+                  'values':[
+                    {
+                      op:'or',
+                      values:[
+                        { field: 'pid', op: 'equals', value: pid }
+                      ]
+                    }
+                  ]
+                })
+              } }">{{ $t('View All') }}</b-button>
             </template>
           </b-table>
         </b-tab>

@@ -112,7 +112,7 @@ rpc_proto  = %%rpc_proto%%
 #	make
 #	make install
 #
-libdir = /usr/lib64/freeradius
+libdir = /usr/lib64/freeradius:/usr/lib/freeradius
 
 #  pidfile: Where to place the PID of the RADIUS server.
 #

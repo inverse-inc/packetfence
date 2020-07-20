@@ -22,22 +22,47 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 9;
+use Utils;
 use pf::ConfigStore::Switch;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
 
 #This test will running last
 use Test::NoWarnings;
+my $old;
+my $new;
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    $old = $cs->read('111.1.1.1');
+    $cs->update('111.1.1.1', { voiceVlan => 501 });
+    $cs->commit;
+}
+my $oldVoiceVlan = $old->{voiceVlan};
+
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    $cs->update('111.1.1.1', { voiceVlan => undef });
+    $cs->commit;
+}
+
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    $new = $cs->read('111.1.1.1');
+}
+
+is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
 
 my $cs = pf::ConfigStore::Switch->new;
-
 is_deeply(
     [$cs->parentSections('id', {group => 'bob'})],
     ['group bob', 'default'],
+    "",
 );
 
 is_deeply(
     [$cs->parentSections('default', {group => 'bob'})],
     [],
+    "parentSections of default section"
 );
 
 is_deeply(
@@ -48,6 +73,24 @@ is_deeply(
 is_deeply(
     [$cs->parentSections('bob', {group => 'bob'})],
     ['default'],
+);
+
+is_deeply(
+    [$cs->parentSections('111.1.1.1', {})],
+    ['group bug-5482', 'default'],
+    "parentSections for bug-5482"
+);
+
+is_deeply(
+    [$cs->parentSections('111.1.1.1', { group => 'bob'})],
+    ['group bob', 'default'],
+    "parentSections for bug-5482 with defined group"
+);
+
+is_deeply(
+    [$cs->parentSections('bug-5482', { })],
+    ['default'],
+    "parentSections for bug-5482"
 );
 
 =head1 AUTHOR

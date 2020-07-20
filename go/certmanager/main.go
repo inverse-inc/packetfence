@@ -60,6 +60,10 @@ func main() {
 
 	opts.MountOptions = fuse.MountOptions{AllowOther: true}
 
+	// Read Fresh configuration
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.EAPConfiguration)
+	certStore.eap = pfconfigdriver.Config.EAPConfiguration
+
 	certStore.Init(ctx)
 
 	server, err := fs.Mount(mountpoint, certStore, opts)

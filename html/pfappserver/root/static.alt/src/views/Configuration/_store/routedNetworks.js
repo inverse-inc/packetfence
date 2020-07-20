@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import { columns as columnsRoutedNetwork } from '../_config/routedNetwork'
 
 const types = {
   LOADING: 'loading',
@@ -12,10 +13,12 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {},
-  message: '',
-  status: ''
+const state = () => {
+  return {
+    cache: {},
+    message: '',
+    status: ''
+  }
 }
 
 const getters = {
@@ -25,8 +28,13 @@ const getters = {
 
 const actions = {
   all: ({ state, commit }) => {
+    const params = {
+      sort: 'id',
+      fields: columnsRoutedNetwork.map(r => r.key).join(','),
+      limit: 1000
+    }
     commit('ROUTED_NETWORK_REQUEST')
-    return api.routedNetworks().then(response => {
+    return api.routedNetworks(params).then(response => {
       commit('ROUTED_NETWORK_SUCCESS')
       return response.items
     }).catch((err) => {
@@ -87,7 +95,7 @@ const actions = {
       throw err
     })
   },
-  deleteRoutedNetwork: ({ state, commit }, id) => {
+  deleteRoutedNetwork: ({ commit }, id) => {
     commit('ROUTED_NETWORK_REQUEST')
     return api.deleteRoutedNetwork(id).then(response => {
       commit('ROUTED_NETWORK_DESTROYED', id)

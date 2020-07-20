@@ -77,9 +77,9 @@ export default {
     },
     getPlaceholderHtml () {
       let html = []
-      html.push('<div class="border border-light rounded bg-light p-2 text-white">')
-      html.push(`<strong class="mr-1 text-dark">${this.labelHtml}:</strong> `)
-      this.placeholder.split(',').forEach(item => {
+      html.push('<div class="border border-gray rounded p-2">')
+      html.push(`<h6 class="mr-1">${this.labelHtml}</h6> `)
+      this.placeholder.split(/[,\n]/).forEach(item => {
         html.push(`<span class="badge badge-info mr-1">${item}</span> `)
       })
       html.push('</div>')

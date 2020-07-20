@@ -390,14 +390,14 @@ sub sync_storages {
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
             
-            next unless($pfconfig_namespace);
-
-            my $config_file = $cs->configFile;
-            my %data = (
-                namespace => $pfconfig_namespace,
-                conf_file => $config_file,
-            );
-            my ($result) = $apiclient->call( 'expire_cluster', %data );
+            if($pfconfig_namespace) {
+                my $config_file = $cs->configFile;
+                my %data = (
+                    namespace => $pfconfig_namespace,
+                    conf_file => $config_file,
+                );
+                my ($result) = $apiclient->call( 'expire_cluster', %data );
+            }
         };
         if($@){
             print STDERR "ERROR !!! Failed to sync store : $store ($@) \n";
@@ -761,6 +761,33 @@ Finds a server configuration using the hostname
 sub all_find_server_by_hostname {
     my ($hostname) = @_;
     return firstval { $_->{host} eq $hostname } @config_cluster_servers;
+}
+
+=head2 isSlaveMode
+
+Return if the cluster is in Slave mode
+
+=cut
+
+sub isSlaveMode {
+    my ($self) = @_;
+    if (defined($ConfigCluster{CLUSTER}{masterslavemode}) && $ConfigCluster{CLUSTER}{masterslavemode} eq 'SLAVE' ) {
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
+=head2 getDBMaster
+
+Return the db master
+
+=cut
+
+sub getDBMaster {
+    if (defined(${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip})) {
+        return ${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip};
+    }
+    return $FALSE;
 }
 
 =head1 AUTHOR

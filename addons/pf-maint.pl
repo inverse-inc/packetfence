@@ -64,6 +64,7 @@ our @excludes = (
     ".gitattributes",
     ".gitconfig",
     ".gitignore",
+    ".gitlab-ci.yml",
     "addons/logrotate",
     "packetfence.logrotate",
     # Directories
@@ -212,9 +213,17 @@ if($BASE_BINARIES_URL) {
 
 $step++;
 print "=" x $TERMINAL_WIDTH . "\n";
-print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
-system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
-system("systemctl restart rsyslog");
+{
+    local $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = undef;
+    local $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = undef;
+    local $ENV{PATH} = $ENV{PATH};
+    if ($ENV{PATH} =~ /^(.*)$/) {
+        $ENV{PATH} = $1;
+    }
+    print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
+    system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
+    system("systemctl restart rsyslog");
+}
 
 print "=" x $TERMINAL_WIDTH . "\n";
 print "All done...\n";
@@ -282,8 +291,8 @@ sub get_url {
     my $request  = HTTP::Request->new( GET => $url ), my $response_body;
     my $ua       = LWP::UserAgent->new;
     $ua->show_progress(1);
-    for my $proxy_var qw(http_proxy HTTP_PROXY) {
-        if($ENV{$proxy_var} && $ENV{$proxy_var} =~ /^https?:\/\/(.+)/) {
+    foreach ('http_proxy', 'HTTP_PROXY') {
+        if($ENV{$_} && $ENV{$_} =~ /^https?:\/\/(.+)/) {
             $ua->proxy("https", "connect://$1");
         }
     }

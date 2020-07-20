@@ -67,7 +67,7 @@ validates id
 
 =cut
 
-sub validId { 1; }
+sub validId { return defined($_[1]) && length($_[1]) > 0 }
 
 =head2 validParam
 
@@ -188,7 +188,7 @@ Get all the sections names
 =cut
 
 sub readAllIds {
-    my ($self,$itemKey) = @_;
+    my ($self) = @_;
     my @sections = $self->_Sections();
     return \@sections;
 }
@@ -212,17 +212,21 @@ _readAll
 
 sub _readAll {
     my ($self, $idKey, $method) = @_;
-    my $config = $self->cachedConfig;
     my $default_section = $self->default_section;
+    if (!defined $default_section) {
+        return [ map { $self->$method($_, $idKey) } $self->_Sections() ];
+    }
+
     my @sections;
     foreach my $id ($self->_Sections()) {
-        my $section = $self->$method($id,$idKey);
-        if (defined $default_section &&  $id eq $default_section ) {
+        my $section = $self->$method($id, $idKey);
+        if ( $id eq $default_section ) {
             unshift @sections, $section;
         } else {
             push @sections,$section;
         }
     }
+
     return \@sections;
 }
 
@@ -311,17 +315,18 @@ read all parameters from a section
 
 sub readFromSection {
     my ($self, $id, $idKey, $config) = @_;
-    my $data;
     my $section = $self->_formatSectionName($id);
-    if ( $config->SectionExists($section) ) {
-        $data = {};
-        $self->populateItem($config, $data, $section, $config->Parameters($section));
-        for my $parent ($self->parentSections($id, $data)) {
-            $self->populateItem($config, $data, $parent, grep {!exists $data->{$_}} $config->Parameters($parent))
-        }
-
-        $data->{$idKey} = $id if defined $idKey;
+    if ( !$config->SectionExists($section) ) {
+        return undef;
     }
+
+    my $data = {};
+    $self->populateItem($config, $data, $section, $config->Parameters($section));
+    for my $parent ($self->parentSections($id, $data)) {
+        $self->populateItem($config, $data, $parent, grep {!exists $data->{$_}} $config->Parameters($parent))
+    }
+
+    $data->{$idKey} = $id if defined $idKey;
     return $data;
 }
 
@@ -334,12 +339,11 @@ parentSections
 sub parentSections {
     my ($self, $id, $item) = @_;
     my $default_section = $self->default_section;
-    my @parents;
     if (defined $default_section && length($default_section) && $default_section ne $id) {
-        push @parents, $default_section;
+        return $default_section;
     }
 
-    return @parents;
+    return;
 }
 
 
@@ -351,19 +355,7 @@ populateItem
 
 sub populateItem {
     my ($self, $config, $item, $id, @params) = @_;
-    foreach my $param (@params) {
-        my $val;
-        my @vals = $config->val($id, $param);
-        if (@vals == 1 ) {
-            $val = $vals[0];
-        } elsif (@vals == 0) {
-            $val = undef;
-        } else {
-            $val = \@vals;
-        }
-
-        $item->{$param} = $val;
-    }
+    $config->populate($id, $item, @params);
     return ;
 }
 
@@ -429,13 +421,7 @@ sub _update_section {
                 $config->newval($section, $param, $value);
             }
         } else { #Handle deleting param from section
-            #if the param exists in the imported config then use that the value in the imported file
-            if ( defined $default_value ) {
-                $config->setval($section, $param, $default_value);
-            } elsif ( $imported && $imported->exists($section, $param) ) {
-                $config->setval($section, $param, $imported->val($section, $param));
-            } elsif ( $param_exists ) {
-                #
+            if ($param_exists) {
                 $config->delval($section, $param);
             }
         }

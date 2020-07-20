@@ -21,7 +21,6 @@ with 'pfappserver::Form::Config::ProfileCommon';
 use pf::config;
 use pf::condition_parser;
 use List::MoreUtils qw(uniq);
-use pf::constants::filters qw(@BASE_FIELDS @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS);
 
 =head1 FIELDS
 
@@ -182,11 +181,57 @@ sub _additional_field_options {
 }
 
 sub options_field_names {
-    (
-        @BASE_FIELDS,
-        @NODE_INFO_FIELDS,
-        @FINGERBANK_FIELDS,
-        @SWITCH_FIELDS,
+    qw(
+      autoreg
+      bandwidth_balance
+      bypass_role
+      bypass_role_id
+      bypass_vlan
+      category
+      category_id
+      computername
+      detect_date
+      device_class
+      device_manufacturer
+      device_score
+      device_type
+      device_version
+      dhcp6_enterprise
+      dhcp6_fingerprint
+      dhcp_fingerprint
+      dhcp_vendor
+      fqdn
+      last_arp
+      last_connection_sub_type
+      last_connection_type
+      last_dhcp
+      last_dot1x_username
+      last_ifDesc
+      last_ip
+      last_port
+      last_role
+      last_seen
+      lastskip
+      last_ssid
+      last_start_time
+      last_start_timestamp
+      last_switch
+      last_switch_mac
+      last_vlan
+      mac
+      machine_account
+      notes
+      pid
+      realm
+      regdate
+      sessionid
+      status
+      stripped_user_name
+      tenant_id
+      time_balance
+      unregdate
+      user_agent
+      voip
     );
 }
 
@@ -214,4 +259,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

@@ -27,6 +27,7 @@ use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
+use pf::Authentication::utils;
 use Sort::Naturally qw(nsort);
 use pf::constants::authentication;
 
@@ -166,6 +167,11 @@ sub newAuthenticationSource {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
+    my $type = $data->{type};
+    if (defined $type && $type eq 'OpenID') {
+        pf::Authentication::utils::inflatePersonMappings($data);
+    }
+
     $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources) );
 }
 

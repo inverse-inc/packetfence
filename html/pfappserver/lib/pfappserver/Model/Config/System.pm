@@ -343,17 +343,17 @@ sub writeNetworkConfigs {
 
     my $status_msg;
 
-    foreach my $interface ( sort keys(%$interfaces_ref) ) {
-        next if ( !($interfaces_ref->{$interface}->{'is_running'}) );
+    while (my ($interface, $interface_values) = each %$interfaces_ref) {
+        next if ( !$interface_values->{is_running} );
 
         my $vars = {
             logical_name    => $interface,
-            vlan_device     => $interfaces_ref->{$interface}->{'vlan'},
-            hwaddr          => $interfaces_ref->{$interface}->{'hwaddress'},
-            ipaddr          => $interfaces_ref->{$interface}->{'ipaddress'},
-            netmask         => $interfaces_ref->{$interface}->{'netmask'},
-            ipv6_address    => $interfaces_ref->{$interface}->{'ipv6_address'},
-            ipv6_prefix     => $interfaces_ref->{$interface}->{'ipv6_prefix'},
+            vlan_device     => $interface_values->{'vlan'},
+            hwaddr          => $interface_values->{'hwaddress'},
+            ipaddr          => $interface_values->{'ipaddress'},
+            netmask         => $interface_values->{'netmask'},
+            ipv6_address    => $interface_values->{'ipv6_address'},
+            ipv6_prefix     => $interface_values->{'ipv6_prefix'},
         };
 
         my $template = Template->new({

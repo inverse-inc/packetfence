@@ -266,7 +266,7 @@ sub verify_compliance {
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
 
         foreach my $entry (@{$info->{value}}) {
-            if ($entry->{wiFiMacAddress} eq $azuremac) {
+            if (uc($entry->{wiFiMacAddress}) eq $azuremac) {
                 $logger->warn($azuremac);
                 if ($entry->{complianceState} ne 'compliant') {
                     $logger->info("Device $mac is not compliant. Raising security_event");

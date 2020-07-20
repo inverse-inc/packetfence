@@ -9,12 +9,14 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/timedlock"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/mholt/caddy"
 	cache "github.com/patrickmn/go-cache"
 )
 
 func init() {
+	GlobalTransactionLock = timedlock.NewRWLock()
 	caddy.RegisterPlugin("pfdns", caddy.Plugin{
 		ServerType: "dns",
 		Action:     setuppfdns,
@@ -26,6 +28,10 @@ func setuppfdns(c *caddy.Controller) error {
 	var ip net.IP
 	ctx := context.Background()
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
+
+	pfconfigdriver.PfconfigPool.Refresh(ctx)
+
 	for c.Next() {
 		// block with extra parameters
 		for c.NextBlock() {
@@ -89,6 +95,7 @@ func setuppfdns(c *caddy.Controller) error {
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {
+			pf.InternalPortalIP = net.ParseIP(pfconfigdriver.Config.PfConf.CaptivePortal.IpAddress).To4()
 			pf.RedirectIP = ip
 			pf.Next = next
 			return pf

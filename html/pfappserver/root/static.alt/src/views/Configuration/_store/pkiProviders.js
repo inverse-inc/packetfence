@@ -12,10 +12,12 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // items details
-  message: '',
-  itemStatus: ''
+const state = () => {
+  return {
+    cache: {}, // items details
+    message: '',
+    itemStatus: ''
+  }
 }
 
 const getters = {
@@ -53,7 +55,7 @@ const actions = {
       throw err
     })
   },
-  getPkiProvidersByType: ({ state, commit }, type) => {
+  getPkiProvidersByType: (_, type) => {
     const params = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(','),

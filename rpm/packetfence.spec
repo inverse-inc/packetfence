@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    10.0.9
+Version:    10.1.9
 Release:    1%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -89,14 +89,13 @@ Requires: perl(IPTables::ChainMgr)
 Requires: perl(IPTables::Parse)
 Requires: perl(Tie::DxHash)
 Requires: perl(File::FcntlLock)
-requires: perl(Proc::ProcessTable)
-requires: perl(Apache::SSLLookup)
-requires: perl(Crypt::OpenSSL::PKCS12)
-requires: perl(Crypt::OpenSSL::X509)
-requires: perl(Crypt::OpenSSL::RSA)
-requires: perl(Crypt::OpenSSL::PKCS10)
-requires: perl(Crypt::LE)
-requires: perl(Const::Fast)
+Requires: perl(Proc::ProcessTable)
+Requires: perl(Crypt::OpenSSL::PKCS12)
+Requires: perl(Crypt::OpenSSL::X509)
+Requires: perl(Crypt::OpenSSL::RSA)
+Requires: perl(Crypt::OpenSSL::PKCS10)
+Requires: perl(Crypt::LE)
+Requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode.
@@ -271,6 +270,7 @@ Requires: perl(DateTime::TimeZone)
 
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
+Requires: python2-impacket
 Requires: netdata < 1.11.0., fping, MySQL-python
 #OpenVAS
 Requires: openvas-cli
@@ -294,7 +294,7 @@ Requires: perl(Net::UDP)
 Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.2.0, fingerbank < 5.0.0
-Requires: fingerbank-collector >= 1.3.4, fingerbank-collector < 2.0.0
+Requires: fingerbank-collector >= 1.3.6, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
 %description
@@ -628,6 +628,9 @@ else
     echo "packetfence-config service will be started by packetfence-httpd.admin service later"
 fi
 
+echo "Disabling emergency error logging to the console"
+/usr/bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
+
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
@@ -654,9 +657,6 @@ if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   chmod g+w /usr/local/pf/logs/$fic_log
 fi
 done
-
-echo "Restarting rsyslogd"
-/bin/systemctl restart rsyslog
 
 #Make ssl certificate
 cd /usr/local/pf
@@ -712,6 +712,9 @@ sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
 # reloading systemd unit files
 /bin/systemctl daemon-reload
+
+echo "Restarting rsyslogd"
+/bin/systemctl restart rsyslog
 
 #Starting PacketFence.
 #removing old cache
@@ -852,6 +855,7 @@ fi
                         /usr/local/pf/conf/apache_filters.conf.example
 %config                 /usr/local/pf/conf/apache_filters.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
+%dir %attr(0770, pf pf) /usr/local/pf/conf/certmanager
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
@@ -1307,6 +1311,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Wed Jun 17 2020 Inverse <info@inverse.ca> - 10.1.0-1
+- New release 10.1.0
+
 * Thu Apr 16 2020 Inverse <info@inverse.ca> - 10.0.0-1
 - New release 10.0.0
 

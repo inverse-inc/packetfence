@@ -76,7 +76,7 @@ sub handler {
 }
 
 sub _handler {
-    my $r = Apache::SSLLookup->new(shift);
+    my $r = shift;
     my $logger = get_logger();
             
     my $hostname = $r->hostname || $r->connection->local_ip();

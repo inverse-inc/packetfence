@@ -3,7 +3,7 @@
 --
 
 SET @MAJOR_VERSION = 10;
-SET @MINOR_VERSION = 0;
+SET @MINOR_VERSION = 1;
 SET @SUBMINOR_VERSION = 9;
 
 --
@@ -27,6 +27,8 @@ CREATE TABLE `tenant` (
   UNIQUE KEY tenant_domain_name (`domain_name`)
 );
 
+SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
+    INSERT INTO `tenant` VALUES (0, 'global', NULL, NULL);
 INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL);
 
 --
@@ -474,7 +476,8 @@ CREATE TABLE `password` (
   `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
-  PRIMARY KEY (tenant_id, pid)
+  PRIMARY KEY (tenant_id, pid),
+  UNIQUE KEY pid_password_unique (pid)
 ) ENGINE=InnoDB;
 
 --
@@ -888,7 +891,6 @@ BEGIN
         `acctstoptime` = NOW(),
         `acctterminatecause` = 'UNKNOWN'
         WHERE `acctuniqueid` = `p_acctuniqueid`
-        AND `acctstarttime` < `Latest_acctstarttime`
         AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
   END IF;
   # Detect if we receive in the same time a stop before the interim update

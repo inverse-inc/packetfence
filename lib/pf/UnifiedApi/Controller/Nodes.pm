@@ -372,7 +372,7 @@ sub post_update {
         return;
     }
 
-    if ($updated_data->{category_id} ne $old_node->{category_id} || $updated_data->{status} ne $old_node->{status}) {
+    if ( ((defined($updated_data->{category_id}) ? $updated_data->{category_id} : '') ne (defined($old_node->{category_id}) ? $old_node->{category_id} : '') ) || $updated_data->{status} ne $old_node->{status}) {
         pf::enforcement::reevaluate_access($self->id, "admin_modify");
     }
 
@@ -1057,6 +1057,21 @@ sub can_remove {
     }
 
     return (422, $msg);
+}
+
+=head2 create_data_update
+
+create_data_update
+
+=cut
+
+sub create_data_update {
+    my ($self, $data) = @_;
+    if (exists $data->{category_id} && length($data->{category_id})) {
+        return;
+    }
+
+    $data->{category_id} = 1;
 }
 
 =head1 AUTHOR

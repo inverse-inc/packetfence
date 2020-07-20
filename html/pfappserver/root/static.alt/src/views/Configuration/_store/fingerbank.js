@@ -12,70 +12,72 @@ const types = {
 }
 
 // Default values
-const state = {
-  accountInfo: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  canUseNbaEndpoints: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  generalSettings: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  deviceChangeDetection: {
-    cache: false,
-    message: '',
-    status: ''
-  },
-  combinations: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  devices: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpFingerprints: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpVendors: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpv6Fingerprints: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  dhcpv6Enterprises: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  macVendors: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  userAgents: {
-    cache: {},
-    message: '',
-    status: ''
-  },
-  updateDatabase: {
-    message: '',
-    status: ''
+const state = () => {
+  return {
+    accountInfo: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    canUseNbaEndpoints: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    generalSettings: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    deviceChangeDetection: {
+      cache: false,
+      message: '',
+      status: ''
+    },
+    combinations: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    devices: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpFingerprints: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpVendors: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpv6Fingerprints: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    dhcpv6Enterprises: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    macVendors: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    userAgents: {
+      cache: {},
+      message: '',
+      status: ''
+    },
+    updateDatabase: {
+      message: '',
+      status: ''
+    }
   }
 }
 
@@ -198,7 +200,7 @@ const actions = {
       throw err
     })
   },
-  combinations: ({ state, commit }) => {
+  combinations: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -251,7 +253,7 @@ const actions = {
       throw err
     })
   },
-  devices: ({ state, commit }) => {
+  devices: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -304,7 +306,7 @@ const actions = {
       throw err
     })
   },
-  dhcpFingerprints: ({ state, commit }) => {
+  dhcpFingerprints: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -357,7 +359,7 @@ const actions = {
       throw err
     })
   },
-  dhcpVendors: ({ state, commit }) => {
+  dhcpVendors: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -410,7 +412,7 @@ const actions = {
       throw err
     })
   },
-  dhcpv6Fingerprints: ({ state, commit }) => {
+  dhcpv6Fingerprints: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -463,7 +465,7 @@ const actions = {
       throw err
     })
   },
-  dhcpv6Enterprises: ({ state, commit }) => {
+  dhcpv6Enterprises: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -516,7 +518,7 @@ const actions = {
       throw err
     })
   },
-  macVendors: ({ state, commit }) => {
+  macVendors: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
@@ -569,7 +571,7 @@ const actions = {
       throw err
     })
   },
-  userAgents: ({ state, commit }) => {
+  userAgents: () => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
