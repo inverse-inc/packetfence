@@ -18,6 +18,7 @@ use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::Switch::constants;
 use pf::constants;
 use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
+use pf::radius::constants;
 use pf::util qw(isenabled);
 use List::MoreUtils qw(uniq);
 use pf::constants::role qw($REJECT_ROLE $VOICE_ROLE);
@@ -544,7 +545,6 @@ sub returnCliAuthorize {
     my ($self, $args, $accessType) = @_;
     my $logger = $self->logger;
     my %radius_reply;
-    my $status;
     my $template = $self->{_template}{"cliAuthorize${$accessType}"};
     my %tmp_args = %$args;
     if ($template) {
@@ -553,11 +553,16 @@ sub returnCliAuthorize {
     } else {
         $radius_reply{'Reply-Message'} = "Switch $accessType access granted by PacketFence";
     }
+
     $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with $accessType access");
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test("returnAuthorize${accessType}", \%tmp_args);
-    ( my $radius_reply_ref, $status) = $filter->handleAnswerInRule($rule, \%tmp_args, \%radius_reply);
-    return [$status, %$radius_reply_ref];
+    if ($rule) {
+        my ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule, \%tmp_args, \%radius_reply);
+        return [$status, %$radius_reply_ref];
+    }
+
+    return [$RADIUS::RLM_MODULE_OK, %radius_reply];
 }
 
 =head1 AUTHOR
