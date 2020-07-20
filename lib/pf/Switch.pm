@@ -3550,6 +3550,16 @@ sub getCiscoAvPairAttribute {
     return ;
 }
 
+sub generateACL {
+    my ($self, $allow, $proto, $shost, $sport, $dhost, $dport) = @_;
+    my $verb = $allow ? "permit" : "deny";
+    my $shost_directive = $shost ? "host $shost" : "any";
+    my $dhost_directive = $dhost ? "host $dhost" : "any";
+    my $sport_directive = $sport ? "eq $sport" : "";
+    my $dport_directive = $dport ? "eq $dport" : "";
+    return "$verb $proto $shost_directive $sport_directive $dhost_directive $dport_directive";
+}
+
 =back
 
 =head1 AUTHOR
