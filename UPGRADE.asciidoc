@@ -1305,6 +1305,16 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.0.0-10.1.0.sql
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Self registration portal
+
+The parameter device_registration_role has been renamed device_registration_roles, in order to apply the change run the following script:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.2-selfservice-conf.pl
+----
+
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
