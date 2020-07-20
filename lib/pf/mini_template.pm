@@ -161,12 +161,18 @@ sub _parse_var {
         if (/\G\s*\(\s*/gc) {
             my $n = join('.', @names);
             $_[0]->{funcs}{$n} = undef;
-            return ['F', $n, _parse_func($_[0])];
+            my $f = ['F', $n, _parse_func($_[0])];
+            if (!/\G\s*\}/gc) {
+                die format_parse_error("no matching }", $_, pos);
+            }
+
+            return _optimize([$f, _parse_text($_[0])]);
         }
 
         if (!/\G\s*\}/gc) {
             die format_parse_error("no matching }", $_, pos);
         }
+
         if (@names == 1) {
             $_[0]->{vars}{$names[0]} = undef;
             return [['V', @names], _parse_text($_[0])];
