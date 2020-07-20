@@ -78,13 +78,17 @@ sub index : Path : Args(0) {
         my $device_mac = clean_mac($request->param('device_mac'));
         my $device_type;
         $device_type = $request->param('console_type') if ( defined($request->param('console_type')) );
-
+        my $registration_role = $request->param('registration_role') if ( defined($request->param('registration_role')) );
         if(valid_mac($device_mac)) {
             # Register device
-            $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
+            $c->forward('registerNode', [ $pid, $device_mac, $device_type, $registration_role ]);
         }
         $c->stash(txt_auth_error => "Please verify the provided MAC address.");
     }
+
+    my $device_reg_profile = $c->profile->{'_self_service'};
+    my @registration_roles = map { { value => $_, label => $_ } } split(',', $ConfigSelfService{$device_reg_profile}{'device_registration_roles'});
+    $c->stash->{device_registration_list_roles} = \@registration_roles;
     # User is authenticated so display registration page
     $c->stash(title => "Registration", template => 'device-registration/registration.html');
 }
@@ -118,7 +122,7 @@ sub landing : Local : Args(0) {
 }
 
 sub registerNode : Private {
-    my ( $self, $c, $pid, $mac, $type ) = @_;
+    my ( $self, $c, $pid, $mac, $type, $role ) = @_;
     my $logger = $c->log;
     my $device_reg_profile = $c->profile->{'_self_service'};
     if ( is_allowed($mac, $device_reg_profile) && valid_mac($mac) ) {
@@ -133,15 +137,16 @@ sub registerNode : Private {
             my $params = { username => $pid, 'context' => $pf::constants::realm::PORTAL_CONTEXT};
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
-            my $role =
-              $ConfigSelfService{$device_reg_profile}{'device_registration_role'};
-            if ($role) {
-                $logger->debug("Device registration role is $role (from pf.conf)");
-            } else {
-                # Use role of user
-                $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
-                $logger->debug("Gaming devices role is $role (from username $pid)");
-            }
+            if (!(defined($role))) {
+                $role = $ConfigSelfService{$device_reg_profile}{'device_registration_roles'};
+                if ($role) {
+                    $logger->debug("Device registration role is $role (from self_service.conf)");
+                } else {
+                    # Use role of user
+                    $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
+                    $logger->debug("Gaming devices role is $role (from username $pid)");
+                }
+	    }
 
             my $duration = $ConfigSelfService{$device_reg_profile}{'device_registration_access_duration'};
             if($duration > 0) {

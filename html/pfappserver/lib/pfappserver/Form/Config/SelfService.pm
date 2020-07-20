@@ -46,13 +46,14 @@ has_field 'roles_allowed_to_unregister' =>
              help => 'The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.' },
   );
 
-has_field 'device_registration_role' =>
+has_field 'device_registration_roles' =>
   (
    type => 'Select',
+   multiple => 1,
    label => 'Role to assign',
    options_method => \&options_roles,
    tags => { after_element => \&help,
-             help => 'The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.' },
+             help => 'The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose' },
   );
 
 has_field 'device_registration_access_duration' =>
@@ -92,7 +93,7 @@ has_block status_definition =>
 
 has_block device_registration_definition =>
   (
-   render_list => [ qw(device_registration_role device_registration_access_duration device_registration_allowed_devices) ],
+   render_list => [ qw(device_registration_roles device_registration_access_duration device_registration_allowed_devices) ],
   );
 
 =head2 options_roles

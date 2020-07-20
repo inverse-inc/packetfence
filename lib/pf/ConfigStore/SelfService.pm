@@ -72,7 +72,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(device_registration_allowed_devices roles_allowed_to_unregister);
+    return qw(device_registration_allowed_devices roles_allowed_to_unregister device_registration_roles);
 }
 
 =head1 AUTHOR

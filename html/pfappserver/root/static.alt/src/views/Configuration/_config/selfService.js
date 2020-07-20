@@ -146,12 +146,12 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Role to assign'),
-          text: i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.'),
+          text: i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose.'),
           cols: [
             {
-              namespace: 'device_registration_role',
+              namespace: 'device_registration_roles',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'device_registration_role')
+              attrs: attributesFromMeta(meta, 'device_registration_roles')
             }
           ]
         },
@@ -201,7 +201,7 @@ export const validators = (form = {}, meta = {}) => {
     },
     description: validatorsFromMeta(meta, 'description', i18n.t('Description')),
     roles_allowed_to_unregister: validatorsFromMeta(meta, 'roles_allowed_to_unregister', i18n.t('Allowed roles')),
-    device_registration_role: validatorsFromMeta(meta, 'device_registration_role', i18n.t('Role to assign')),
+    device_registration_roles: validatorsFromMeta(meta, 'device_registration_roles', i18n.t('Role to assign')),
     device_registration_access_duration: {
       interval: validatorsFromMeta(meta, 'device_registration_access_duration.interval', i18n.t('Interval')),
       unit: validatorsFromMeta(meta, 'device_registration_access_duration.unit', i18n.t('Unit'))
