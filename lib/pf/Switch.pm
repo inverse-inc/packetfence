@@ -3550,17 +3550,28 @@ sub getCiscoAvPairAttribute {
     return ;
 }
 
-sub generateACL {
-    my ($self, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
-    my $t = '${if($allow, "permit", "deny")} $proto ${if($src_host, join(" ", "host", $src_host), "any")} ${if($src_port, join(" ", "eq", $src_port), "")} ${if($dst_host, join(" ", "host", $dst_host), "any")} ${if($dst_port, join(" ", "eq", $dst_port), "")}';
-    return pf::mini_template->new($t)->process({
+sub generateACLFromTemplate {
+    my ($self, $t, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
+    my $acl = pf::mini_template->new($t)->process({
         allow => $allow,
         proto => $proto,
-        src_host => $src_host,
-        src_port => $src_port,
-        dst_host => $dst_host,
-        dst_port => $dst_port,
+        src_host => $src_host // "",
+        src_port => $src_port // "",
+        dst_host => $dst_host // "",
+        dst_port => $dst_port // "",
     });
+
+    # remove double spaces to cleanup ACL
+    $acl =~ s/  / /g;
+    return $acl;
+}
+
+sub generateACL {
+    my ($self, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
+    return $self->generateACLFromTemplate(
+        '${if($allow, "permit", "deny")} $proto ${if($src_host, join(" ", "host", $src_host), "any")} ${if($src_port, join(" ", "eq", $src_port), "")} ${if($dst_host, join(" ", "host", $dst_host), "any")} ${if($dst_port, join(" ", "eq", $dst_port), "")}',
+        $allow, $proto, $src_host, $src_port, $dst_host, $dst_port, 
+    );
 }
 
 =back
