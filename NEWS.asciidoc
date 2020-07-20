@@ -22,6 +22,7 @@ Enhancements
 ++++++++++++
 * Adjust the settings in the admin for the SAML and OAuth portal modules (#5479)
 * Select the role of the device when register via self-service portal.
+* Improved support for Extreme switches running EXOS
 
 Bug Fixes
 +++++++++
