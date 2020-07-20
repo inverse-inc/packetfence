@@ -30,6 +30,7 @@ our %FUNCS = (
     log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
     replace => \&replaceStr,
     BuildFromMatch => \&extract,
+    if => sub { $_[0] ? $_[1] : $_[2] }
 );
 
 sub replaceStr {

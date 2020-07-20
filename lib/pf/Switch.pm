@@ -3551,13 +3551,16 @@ sub getCiscoAvPairAttribute {
 }
 
 sub generateACL {
-    my ($self, $allow, $proto, $shost, $sport, $dhost, $dport) = @_;
-    my $verb = $allow ? "permit" : "deny";
-    my $shost_directive = $shost ? "host $shost" : "any";
-    my $dhost_directive = $dhost ? "host $dhost" : "any";
-    my $sport_directive = $sport ? "eq $sport" : "";
-    my $dport_directive = $dport ? "eq $dport" : "";
-    return "$verb $proto $shost_directive $sport_directive $dhost_directive $dport_directive";
+    my ($self, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
+    my $t = '${if($allow, "permit", "deny")} $proto ${if($src_host, join(" ", "host", $src_host), "any")} ${if($src_port, join(" ", "eq", $src_port), "")} ${if($dst_host, join(" ", "host", $dst_host), "any")} ${if($dst_port, join(" ", "eq", $dst_port), "")}';
+    return pf::mini_template->new($t)->process({
+        allow => $allow,
+        proto => $proto,
+        src_host => $src_host,
+        src_port => $src_port,
+        dst_host => $dst_host,
+        dst_port => $dst_port,
+    });
 }
 
 =back
