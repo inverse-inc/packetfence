@@ -3551,6 +3551,12 @@ sub getCiscoAvPairAttribute {
     return ;
 }
 
+=head2 generateACLFromTemplate
+
+Generate an ACL from a template
+
+=cut
+
 sub generateACLFromTemplate {
     my ($self, $t, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
     my $acl = pf::mini_template->new($t)->process({
@@ -3566,6 +3572,12 @@ sub generateACLFromTemplate {
     $acl =~ s/  / /g;
     return $acl;
 }
+
+=head2 generateACL
+
+Generate an ACL using the default template
+
+=cut
 
 sub generateACL {
     my ($self, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
