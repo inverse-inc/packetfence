@@ -346,7 +346,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Cli Authorize Read Scope'),
+          label: i18n.t('CLI Authorize Read Scope'),
           cols: [
             {
               namespace: 'cliAuthorizeRead',
@@ -367,7 +367,7 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('Cli Authorize Write Scope'),
+          label: i18n.t('CLI Authorize Write Scope'),
           cols: [
             {
               namespace: 'cliAuthorizeWrite',
