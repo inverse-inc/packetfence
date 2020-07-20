@@ -161,8 +161,8 @@ export default {
     },
     setRangeByPeriod (period) {
       this.showPeriod = false
-      this.$emit('changeDatetimeEnd', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
-      this.$emit('changeDatetimeStart', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
+      this.$emit('end', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
+      this.$emit('start', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
     }
   },
   watch: {
@@ -191,7 +191,7 @@ export default {
     localDatetimeStart (a, b) {
       if (a !== b) {
         if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
-          this.$emit('changeDatetimeStart', a)
+          this.$emit('start', a)
           this.minEndDatetime = a
         }
       }
@@ -205,7 +205,7 @@ export default {
     localDatetimeEnd (a, b) {
       if (a !== b) {
         if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
-          this.$emit('changeDatetimeEnd', a)
+          this.$emit('end', a)
           this.maxStartDatetime = a
         }
       }
@@ -219,7 +219,7 @@ export default {
       deep: true
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.timeoutRender) {
       clearTimeout(this.timeoutRender)
     }

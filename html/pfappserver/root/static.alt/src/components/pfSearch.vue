@@ -18,18 +18,18 @@
                 </b-dropdown-item>
                 <template v-if="savedSearches.length > 0">
                   <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
-                    <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+                    <icon class="position-absolute mt-1" name="trash-alt" @click.stop.prevent="deleteSavedSearch(search)"></icon>
                     <span class="ml-4">{{ search.name }}</span>
                   </b-dropdown-item>
                 </template>
                 <b-dropdown-divider></b-dropdown-divider>
               </template>
               <b-dropdown-header>{{ $t('Import / Export Search') }}</b-dropdown-header>
-              <b-dropdown-item @click="showExportJsonModal=true">
+              <b-dropdown-item @click="localShowImportJsonModal=true">
                 <icon class="position-absolute mt-1" name="sign-out-alt"></icon>
                 <span class="ml-4">{{ $t('Export to JSON') }}</span>
               </b-dropdown-item>
-              <b-dropdown-item @click="showImportJsonModal=true">
+              <b-dropdown-item @click="localShowImportJsonModal=true">
                 <icon class="position-absolute mt-1" name="sign-in-alt"></icon>
                 <span class="ml-4">{{ $t('Import from JSON') }}</span>
               </b-dropdown-item>
@@ -37,18 +37,18 @@
           </b-button-group>
         </b-container>
       </b-form>
-      <b-modal v-model="showExportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
+      <b-modal v-model="localShowImportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
         <b-form-textarea ref="exportJsonTextarea" v-model="jsonCondition" :rows="3" :max-rows="3" readonly></b-form-textarea>
         <template v-slot:modal-footer>
-          <b-button variant="secondary" class="mr-1" @click="showExportJsonModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="secondary" class="mr-1" @click="localShowImportJsonModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="copyJsonTextarea">{{ $t('Copy to Clipboard') }}</b-button>
         </template>
       </b-modal>
-      <b-modal v-model="showImportJsonModal" size="lg" centered id="importJsonModal" :title="$t('Import from JSON')" @shown="focusImportJsonTextarea">
+      <b-modal v-model="localShowImportJsonModal" size="lg" centered id="importJsonModal" :title="$t('Import from JSON')" @shown="focusImportJsonTextarea">
         <b-card v-if="importJsonError" class="mb-3" bg-variant="danger" text-variant="white"><icon name="exclamation-triangle" class="mr-1"></icon>{{ importJsonError }}</b-card>
-        <b-form-textarea ref="importJsonTextarea" v-model="importJsonString" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
+        <b-form-textarea ref="importJsonTextarea" v-model="localImportJsonString" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
         <template v-slot:modal-footer>
-          <b-button variant="secondary" class="mr-1" @click="showImportJsonModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="secondary" class="mr-1" @click="localShowImportJsonModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="importJsonTextarea">{{ $t('Import JSON') }}</b-button>
         </template>
       </b-modal>
@@ -129,9 +129,6 @@ export default {
       type: Boolean,
       default: false
     },
-    importJsonError: {
-      type: String
-    },
     importJsonString: {
       type: String
     },
@@ -149,8 +146,12 @@ export default {
   data () {
     return {
       quickValue: '',
-      localShowSaveSearchModal: false,
-      localSaveSearchString: null
+      localShowExportJsonModal: this.showExportJsonModal,
+      localShowImportJsonModal: this.showImportJsonModal,
+      localShowSaveSearchModal: this.showSaveSearchModal,
+      localSaveSearchString: this.saveSearchString,
+      localImportJsonString: this.importJsonString,
+      importJsonError: null
     }
   },
   computed: {
@@ -184,17 +185,17 @@ export default {
       if (document.queryCommandSupported('copy')) {
         this.$refs.exportJsonTextarea.$el.select()
         document.execCommand('copy')
-        this.showExportJsonModal = false
+        this.localShowExportJsonModal = false
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Search copied to clipboard') })
       }
     },
     importJsonTextarea () {
       this.importJsonError = ''
       try {
-        const json = JSON.parse(this.importJsonString)
+        const json = JSON.parse(this.localImportJsonString)
         this.$emit('import-search', json)
-        this.importJsonString = ''
-        this.showImportJsonModal = false
+        this.localImportJsonString = ''
+        this.localShowImportJsonModal = false
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Search imported') })
       } catch (e) {
         if (e instanceof SyntaxError) {
@@ -233,7 +234,7 @@ export default {
         }
       }).then(() => {
         this.localSaveSearchString = ''
-        this.showSaveSearchModal = false
+        this.localShowSaveSearchModal = false
       })
     },
     deleteSavedSearch (search) {
@@ -247,6 +248,18 @@ export default {
     }
   },
   watch: {
+    showExportJsonModal: {
+      handler (a) {
+        this.localShowExportJsonModal = a
+      },
+      immediate: true
+    },
+    showImportJsonModal: {
+      handler (a) {
+        this.localShowImportJsonModal = a
+      },
+      immediate: true
+    },
     showSaveSearchModal: {
       handler (a) {
         this.localShowSaveSearchModal = a

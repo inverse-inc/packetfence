@@ -81,7 +81,7 @@
         </template>
         <template v-slot:cell(actions)="data">
           <div class="text-nowrap">
-            <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
+            <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
             <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index] && tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
           </div>
         </template>

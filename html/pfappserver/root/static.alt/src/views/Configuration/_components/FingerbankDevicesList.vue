@@ -12,9 +12,9 @@
             </b-col>
             <b-col cols="auto" align="right" class="flex-grow-0">
               <b-button-group>
-                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
-                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
-                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
+                <b-button v-t="'All'" :variant="(localScope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
+                <b-button v-t="'Local'" :variant="(localScope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
+                <b-button v-t="'Upstream'" :variant="(localScope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
               </b-button-group>
             </b-col>
           </b-row>
@@ -23,18 +23,18 @@
       <template v-slot:tableHeader v-if="parentTree.length > 0">
         <b-row class="mb-3">
           <b-col cols="auto">
-            <b-button variant="link" class="px-0 mr-2 text-secondary" :to="{ name: 'fingerbankDevices', params: { scope: scope } }">
+            <b-button variant="link" class="px-0 mr-2 text-secondary" :to="{ name: 'fingerbankDevices', params: { localScope: localScope } }">
               <icon name="times" variant="primary"></icon>
             </b-button>
-            <b-button v-for="(parent, index) in parentTreeReverse" :key="parent.id" variant="link" class="px-0 mr-2 text-primary" :disabled="index === parentTree.length - 1" :to="{ name: 'fingerbankDevicesByParentId', params: { parentId: parent.id, scope: scope } }">
+            <b-button v-for="(parent, index) in parentTreeReverse" :key="parent.id" variant="link" class="px-0 mr-2 text-primary" :disabled="index === parentTree.length - 1" :to="{ name: 'fingerbankDevicesByParentId', params: { parentId: parent.id, localScope: localScope } }">
               <icon v-if="index > 0" name="caret-right" variant="text-secondary" class="mr-1"></icon>
               {{ parent.name }}
             </b-button>
           </b-col>
         </b-row>
       </template>
-      <template v-slot:buttonAdd v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDevice', params: { scope: 'local' } }">{{ $t('New Device') }}</b-button>
+      <template v-slot:buttonAdd v-if="localScope === 'local'">
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDevice', params: { localScope: 'local' } }">{{ $t('New Device') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>
@@ -79,14 +79,14 @@ export default {
     },
     scope: {
       type: String,
-      default: 'all',
-      required: false
+      default: 'all'
     }
   },
   data () {
     return {
       config: config(this),
-      parentTree: []
+      parentTree: [],
+      localScope: this.scope
     }
   },
   computed: {
@@ -124,14 +124,16 @@ export default {
       resetSearch()
     },
     changeScope (scope) {
-      this.scope = scope
+      this.localScope = scope
+      this.resetSearch() // reset search
     }
   },
   watch: {
     scope: { // reset search when `scope` changes
       handler: function (a, b) {
         if (a !== b) {
-          this.$set(this, 'config', config(this)) // reset config
+          this.localScope = a
+          this.config = config(this) // reset config
           this.resetSearch() // reset search
         }
         this.buildParentTree() // clear parentTree
@@ -140,7 +142,7 @@ export default {
     parentId: { // reset search when `parentId` changes
       handler: function (a, b) {
         if (a !== b) {
-          this.$set(this, 'config', config(this)) // reset config
+          this.config = config(this) // reset config
         }
         this.buildParentTree(a) // build parentTree
       }

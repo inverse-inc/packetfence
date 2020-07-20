@@ -1,7 +1,5 @@
 <template>
-  <b-form-row class="pf-field mx-0 mb-1 px-0" align-v="center"
-    v-on="forwardListeners"
-  >
+  <b-form-row class="pf-field mx-0 mb-1 px-0" align-v="center">
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -11,7 +9,6 @@
         :form-namespace="`${formNamespace}`"
         v-model="inputValue"
         v-bind="field.attrs"
-        v-on="forwardListeners"
         :is="field.component"
         :disabled="disabled"
         no-gutter
@@ -68,10 +65,6 @@ export default {
           this.$emit('input', newValue) // use native (v-model)
         }
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {

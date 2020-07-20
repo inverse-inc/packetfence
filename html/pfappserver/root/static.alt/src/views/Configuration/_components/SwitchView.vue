@@ -141,9 +141,9 @@ export default {
           this.$store.dispatch('$_switches/optionsById', this.id).then(options => {
             this.$store.dispatch('$_switches/getSwitch', this.id).then(form => {
               if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-              this.switchGroup = form.group
+              const switchGroup = form.group
               const { meta = {} } = options
-              const { isNew, isClone, switchGroup, roles, switchTemplates } = this
+              const { isNew, isClone, roles, switchTemplates } = this
               this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, switchGroup, roles, switchTemplates } })
               this.$store.dispatch(`${this.formStoreName}/setForm`, form)
             })

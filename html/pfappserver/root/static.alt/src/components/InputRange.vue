@@ -21,7 +21,6 @@
         </div>
       </div>
       <input
-        v-on="forwardListeners"
         type="range"
         :tabindex="tabIndex"
         :value="inputValue"
@@ -101,10 +100,6 @@ export default {
       set (newValue) {
         this.$emit('input', newValue)
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {

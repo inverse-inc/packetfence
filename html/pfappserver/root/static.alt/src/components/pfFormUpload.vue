@@ -83,14 +83,14 @@
       @hide="clearFirstError()"
     >
       <b-media>
-        <icon name="exclamation-triangle" scale="2" slot="aside" class="text-danger"></icon>
+        <template v-slot:aside><icon name="exclamation-triangle" scale="2" class="text-danger"></icon></template>
         <h4>{{ firstError.name }}</h4>
         <p class="font-weight-light mt-3 mb-0">{{ firstError.error.message }}</p>
         <p class="font-weight-light mt-3 mb-0 text-pre text-black-50">Ref: {{ firstError.error.name }} (#{{ firstError.error.code}})</p>
       </b-media>
-      <div slot="modal-footer">
+      <template v-slot:modal-footer>
         <b-button variant="primary" @click="clearFirstError()">{{ $t('Continue') }}</b-button>
-      </div>
+      </template>
     </b-modal>
   </div>
 </template>

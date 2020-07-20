@@ -12,23 +12,23 @@
             </b-col>
             <b-col cols="auto" align="right" class="flex-grow-0">
               <b-button-group>
-                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
-                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
-                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
+                <b-button v-t="'All'" :variant="(localScope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
+                <b-button v-t="'Local'" :variant="(localScope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
+                <b-button v-t="'Upstream'" :variant="(localScope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
               </b-button-group>
             </b-col>
           </b-row>
         </b-card-header>
       </template>
-      <template v-slot:buttonAdd v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpVendor', params: { scope: 'local' } }">{{ $t('New DHCP Vendor') }}</b-button>
+      <template v-slot:buttonAdd v-if="localScope === 'local'">
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpVendor', params: { localScope: 'local' } }">{{ $t('New DHCP Vendor') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP vendors found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No DHCP vendors found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Vendor?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable && localScope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Vendor?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -52,14 +52,14 @@ export default {
   props: {
     scope: {
       type: String,
-      default: 'all',
-      required: false
+      default: 'all'
     }
   },
   data () {
     return {
       data: [],
-      config: config(this)
+      config: config(this),
+      localScope: this.scope
     }
   },
   methods: {
@@ -73,7 +73,8 @@ export default {
       })
     },
     changeScope (scope) {
-      this.scope = scope
+        this.localScope = scope
+        this.config = config(this) // reset config
     }
   },
   created () {
@@ -83,10 +84,9 @@ export default {
   },
   watch: {
     scope: {
-      handler: function (a, b) {
-        if (a !== b) {
-          this.config = config(this) // reset config
-        }
+      handler: function (a) {
+        this.localScope = a
+        this.config = config(this) // reset config
       }
     }
   }

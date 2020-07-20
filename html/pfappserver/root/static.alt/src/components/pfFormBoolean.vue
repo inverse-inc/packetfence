@@ -1,9 +1,9 @@
 <template>
   <div class="pf-form-boolean" :class="{ 'root': isRoot, 'highlight': highlight }"
     :draggable="!isRoot"
-    @dragstart.stop="$emit('dragStart', $event)"
-    @dragend.stop="$emit('dragEnd', $event)"
-    @dragover.stop="$emit('dragOver', $event)"
+    @dragstart.stop="$emit('drag-start', $event)"
+    @dragend.stop="$emit('drag-end', $event)"
+    @dragover.stop="$emit('drag-over', $event)"
     @drop.stop="dragDrop($event)"
   >
 
@@ -24,10 +24,10 @@
             <icon name="cog"></icon>
           </template>
           <b-dropdown-group v-if="!isRoot">
-            <b-dropdown-item @click="$emit('cloneOperator'); highlight = false;">
+            <b-dropdown-item @click="$emit('clone-operator'); highlight = false;">
               <icon name="clone" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
-            <b-dropdown-item @click="$emit('deleteOperator'); highlight = false;">
+            <b-dropdown-item @click="$emit('delete-operator'); highlight = false;">
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
             </b-dropdown-item>
           </b-dropdown-group>
@@ -55,7 +55,7 @@
         <!-- drag/drop placeholder -->
         <pf-form-boolean v-if="index === targetIndex" :key="'placeholder-' + index" :isRoot="false" class="drag-target" :disabled="disabled"
           v-model="bus.value" :formStoreName="bus.formStoreName" :formNamespace="bus.formNamespace"
-          @dragOver="dragOver(index, $event)"
+          @drag-over="dragOver(index, $event)"
         >
           <!-- proxy `op` slot -->
           <template v-slot:op="{ op, formStoreName, formNamespace, disabled }">
@@ -69,16 +69,16 @@
 
         <!-- recurse -->
         <pf-form-boolean v-if="value" v-bind="attrs(index)" :key="index" :isRoot="false" :class="{ 'drag-source': index === sourceIndex }" :disabled="disabled"
-          @addOperator="addOperator(index)"
-          @cloneOperator="cloneOperator(index)"
-          @deleteOperator="deleteOperator(index)"
-          @addValue="addValue(index)"
-          @cloneValue="cloneValue(index)"
-          @deleteValue="deleteValue(index)"
+          @add-operator="addOperator(index)"
+          @clone-operator="cloneOperator(index)"
+          @delete-operator="deleteOperator(index)"
+          @add-value="addValue(index)"
+          @clone-value="cloneValue(index)"
+          @delete-value="deleteValue(index)"
 
-          @dragStart="dragStart(index, $event)"
-          @dragOver="dragOver(index, $event)"
-          @dragEnd="dragEnd(index, $event)"
+          @drag-start="dragStart(index, $event)"
+          @drag-over="dragOver(index, $event)"
+          @drag-end="dragEnd(index, $event)"
         >
           <!-- proxy `op` slot -->
           <template v-slot:op="{ op, formStoreName, formNamespace, disabled }">
@@ -103,10 +103,10 @@
             <icon name="cog"></icon>
           </template>
           <b-dropdown-group>
-            <b-dropdown-item @click="$emit('cloneValue'); highlight = false;">
+            <b-dropdown-item @click="$emit('clone-value'); highlight = false;">
               <icon name="clone" class="mr-1"></icon> {{ $t('Clone') }}
             </b-dropdown-item>
-            <b-dropdown-item @click="$emit('deleteValue'); highlight = false;">
+            <b-dropdown-item @click="$emit('delete-value'); highlight = false;">
               <icon name="trash-alt" class="mr-1"></icon>  {{ $t('Delete') }}
             </b-dropdown-item>
           </b-dropdown-group>

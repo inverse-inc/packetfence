@@ -3,27 +3,27 @@
     <!-- BEGIN SIMPLE SEARCH -->
     <b-row class="mx-auto">
       <b-input-group class="mr-1">
-        <b-input-group-prepend is-text v-if="icon(model.values[0].values[0])">
-          <icon :name="icon(model.values[0].values[0])"></icon>
+        <b-input-group-prepend is-text v-if="icon(localModel.values[0].values[0])">
+          <icon :name="icon(localModel.values[0].values[0])"></icon>
         </b-input-group-prepend>
-        <b-form-select v-model="model.values[0].values[0].field" :options="localeFields"></b-form-select>
+        <b-form-select v-model="localModel.values[0].values[0].field" :options="localeFields"></b-form-select>
       </b-input-group>
-      <b-form-select class="mr-1" v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
-      <b-form-input class="mr-1" type="text" v-model="model.values[0].values[0].value" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
-      <pf-form-datetime class="mr-1" v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
-      <pf-form-prefix-multiplier class="mr-1" v-model="model.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, model.values[0].values[0])"></pf-form-prefix-multiplier>
-      <b-form-select class="mr-1" v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])" v-else-if="isFieldType(selectValueType, model.values[0].values[0])"></b-form-select>
+      <b-form-select class="mr-1" v-model="localModel.values[0].values[0].op" :options="operators(localModel.values[0].values[0])"></b-form-select>
+      <b-form-input class="mr-1" type="text" v-model="localModel.values[0].values[0].value" v-if="isFieldType(substringValueType, localModel.values[0].values[0])"></b-form-input>
+      <pf-form-datetime class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, localModel.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
+      <pf-form-prefix-multiplier class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, localModel.values[0].values[0])"></pf-form-prefix-multiplier>
+      <b-form-select class="mr-1" v-localModel.lazy="localModel.values[0].values[0].value" :options="values(localModel.values[0].values[0])" v-else-if="isFieldType(selectValueType, localModel.values[0].values[0])"></b-form-select>
     </b-row>
     <!-- END SIMPLE SEARCH -->
   </b-container>
   <b-container fluid class="px-0" v-else>
     <!-- BEGIN ADVANCED SEARCH -->
-    <b-container fluid class="px-0" v-for="(rule, outerindex) in model.values" :key="outerindex">
+    <b-container fluid class="px-0" v-for="(rule, outerindex) in localModel.values" :key="outerindex">
       <b-container fluid class="rc px-0 py-1 bg-secondary">
-        <draggable v-model="model.values[outerindex].values" group="or" handle=".draghandle" filter=".nodrag" dragClass="sortable-drag" @start="onDragStart" @end="onDragEnd">
-          <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
+        <draggable v-model="localModel.values[outerindex].values" group="or" handle=".draghandle" filter=".nodrag" dragClass="sortable-drag" @start="onDragStart" @end="onDragEnd">
+          <b-container fluid class="px-1" v-for="(rule, innerindex) in localModel.values[outerindex].values" :key="innerindex">
             <b-row class="bg-white rc align-items-center m-0 p-1 isdrag">
-              <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mx-2" v-b-tooltip.hover.right.d1000 :title="$t('Click & drag statement to reorder')">
+              <span v-if="localModel.values.length > 1 || localModel.values[outerindex].values.length > 1" class="draghandle mx-2" v-b-tooltip.hover.right.d1000 :title="$t('Click & drag statement to reorder')">
                 <icon name="grip-vertical"></icon>
               </span>
               <b-input-group class="mr-1">
@@ -36,8 +36,8 @@
               <b-form-input type="text" class="mr-1" v-model="rule.value" v-if="isFieldType(substringValueType, rule)"></b-form-input>
               <pf-form-datetime class="mr-1" v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
               <pf-form-prefix-multiplier class="mr-1" v-model="rule.value" v-else-if="isFieldType(prefixmultipleValueType, rule)"></pf-form-prefix-multiplier>
-              <b-form-select class="mr-1" v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
-              <b-button class="ml-auto mr-1 nodrag" v-if="model.values.length > 1 || model.values[outerindex].values.length > 1 && drag === false" variant="link" v-b-tooltip.hover.left.d1000 :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
+              <b-form-select class="mr-1" v-localModel.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
+              <b-button class="ml-auto mr-1 nodrag" v-if="localModel.values.length > 1 || localModel.values[outerindex].values.length > 1 && drag === false" variant="link" v-b-tooltip.hover.left.d1000 :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
             </b-row>
             <b-row class="mx-auto isdrag">
               <b-col cols="1"></b-col>
@@ -45,7 +45,7 @@
                 <div class="mx-auto text-center text-nowrap font-weight-bold">{{ $t('or') }}</div>
               </b-col>
             </b-row>
-            <b-row class="mx-auto nodrag" v-if="innerindex === model.values[outerindex].values.length - 1 && drag === false">
+            <b-row class="mx-auto nodrag" v-if="innerindex === localModel.values[outerindex].values.length - 1 && drag === false">
               <b-col cols="12" class="bg-white rc">
                 <b-container class="mx-0 px-1 py-1">
                   <a href="javascript:void(0)" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
@@ -109,15 +109,21 @@ export default {
       substringValueType: conditionValue.TEXT,
       selectValueType: conditionValue.SELECT,
       datetimeValueType: conditionValue.DATETIME,
-      prefixmultipleValueType: conditionValue.PREFIXMULTIPLE
+      prefixmultipleValueType: conditionValue.PREFIXMULTIPLE,
+      localModel: this.model
     }
   },
   watch: {
     advancedMode (a) {
       if (a === false) {
         // truncate model to singular
-        this.model.values.length = 1
-        this.model.values[0].values.length = 1
+        this.localModel.values.length = 1
+        this.localModel.values[0].values.length = 1
+      }
+    },
+    model: {
+      handler: function (a) {
+        this.localModel = a
       }
     }
   },
@@ -187,26 +193,26 @@ export default {
       return isType
     },
     addOuterStatement () {
-      this.model.values.push({ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] })
+      this.localModel.values.push({ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] })
     },
     addInnerStatement (outerindex) {
       let field = this.fields[0].value
       let op = null
       // repeat last `field` and `op` - if exists
-      if (this.model.values[outerindex].values.length > 0) {
-        let lastindex = this.model.values[outerindex].values.length - 1
-        field = this.model.values[outerindex].values[lastindex].field
-        op = this.model.values[outerindex].values[lastindex].op
+      if (this.localModel.values[outerindex].values.length > 0) {
+        let lastindex = this.localModel.values[outerindex].values.length - 1
+        field = this.localModel.values[outerindex].values[lastindex].field
+        op = this.localModel.values[outerindex].values[lastindex].op
       }
-      this.model.values[outerindex].values.push({ field: field, op: op, value: null })
+      this.localModel.values[outerindex].values.push({ field: field, op: op, value: null })
     },
     removeStatement (outerindex, innerindex) {
-      if (this.model.values[outerindex].values.length === 1) {
-        if (this.model.values.length > 1) {
-          this.model.values.splice(outerindex, 1)
+      if (this.localModel.values[outerindex].values.length === 1) {
+        if (this.localModel.values.length > 1) {
+          this.localModel.values.splice(outerindex, 1)
         }
       } else {
-        this.model.values[outerindex].values.splice(innerindex, 1)
+        this.localModel.values[outerindex].values.splice(innerindex, 1)
       }
     },
     onDragStart () {
@@ -214,9 +220,9 @@ export default {
     },
     onDragEnd () {
       this.drag = false
-      for (var i = this.model.values.length - 1; i >= 0; i--) {
-        if (this.model.values[i].values.length === 0) {
-          this.model.values.splice(i, 1)
+      for (var i = this.localModel.values.length - 1; i >= 0; i--) {
+        if (this.localModel.values[i].values.length === 0) {
+          this.localModel.values.splice(i, 1)
         }
       }
     }

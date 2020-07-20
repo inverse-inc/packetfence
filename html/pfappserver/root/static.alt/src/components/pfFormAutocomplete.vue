@@ -10,12 +10,12 @@
         v-bind="$attrs"
         :state="inputState"
         :class="{ 'form-control-with-suggestions': suggestions.length && visible }"
-        @blur.native="hideSuggestions"
-        @focus.native="showSuggestions"
-        @keyup.native.up.stop="highlightPrevious"
-        @keyup.native.down.stop="highlightNext"
-        @keyup.native.enter.stop="selectHighlighted"
-        @keyup.native.delete="hideSuggestions"
+        @blur="hideSuggestions"
+        @focus="showSuggestions"
+        @keyup.up.stop="highlightPrevious"
+        @keyup.down.stop="highlightNext"
+        @keyup.enter.stop="selectHighlighted"
+        @keyup.delete="hideSuggestions"
       ></b-form-input>
       <ul class="pf-form-autocomplete-suggestions dropdown-menu" :class="{ show: suggestions.length && visible }"
         @mouseout="resetHightlight" @mousedown="selectHighlighted">

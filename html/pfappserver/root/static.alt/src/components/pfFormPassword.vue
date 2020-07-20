@@ -13,9 +13,9 @@
         :state="inputState"
         :disabled="disabled"
         :autocomplete="autocomplete"
-        @keyup.native="resetTest($event)"
-        @focus.native="isFocus = true"
-        @blur.native="isFocus = false"
+        @keyup="resetTest($event)"
+        @focus="isFocus = true"
+        @blur="isFocus = false"
       />
       <b-input-group-append>
         <b-button v-if="disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>

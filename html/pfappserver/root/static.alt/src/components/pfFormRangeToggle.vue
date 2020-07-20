@@ -6,17 +6,16 @@
     </template>
     <b-input type="text" ref="vacuum" :value="null" :disabled="disabled" readonly
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
-      @focus.native="focus = true"
-      @blur.native="focus = false"
-      @keydown.native.space.prevent
-      @keyup.native="keyUp"
+      @focus="focus = true"
+      @blur="focus = false"
+      @keydown.space.prevent
+      @keyup="keyUp"
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
         <span v-if="leftLabel" class="mr-2" :class="{ 'text-secondary': lazyLoading }">{{ leftLabel }}</span>
         <input-range
           v-model="inputValue"
-          v-on="forwardListeners"
           min="0"
           max="1"
           step="1"
@@ -206,10 +205,6 @@ export default {
           }
         }
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     color () {
       if (Object.keys(this.colors).length === 0) return null

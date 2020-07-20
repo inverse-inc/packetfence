@@ -1,7 +1,7 @@
 <template>
   <b-button ref="saveButton" type="submit"
     :disabled="disabled || isLoading" :style="{ minWidth: btnWidth }" :variant="variant"
-    v-bind="$attrs" v-on="forwardListeners"
+    v-bind="$attrs"
   >
     <icon name="circle-notch" spin v-if="isLoading"></icon>
     <template v-else>
@@ -30,12 +30,6 @@ export default {
   data () {
     return {
       btnWidth: 0
-    }
-  },
-  computed: {
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   watch: {

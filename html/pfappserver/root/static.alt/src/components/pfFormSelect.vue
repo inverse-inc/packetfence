@@ -13,7 +13,7 @@
         :readonly="readonly"
         :options="options"
       >
-        <slot name="first" v-slot:first/>
+        <template v-slot:first><slot name="first"/></template>
         <slot/>
       </b-form-select>
     </b-input-group>

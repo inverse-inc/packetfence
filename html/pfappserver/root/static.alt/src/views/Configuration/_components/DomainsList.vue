@@ -48,9 +48,9 @@
       </template>
       <b-form-group class="mb-0">
         <pf-form-input ref="usernameInput" v-model="join.username" :column-label="$t('Username')"
-          :vuelidate="$v.join.username" v-on:keyup.enter.native="keyupEnterModal()" />
+          :vuelidate="$v.join.username" v-on:keyup.enter="keyupEnterModal()" />
         <pf-form-password ref="passwordInput" v-model="join.password" :column-label="$t('Password')"
-          :vuelidate="$v.join.password" v-on:keyup.enter.native="keyupEnterModal()" />
+          :vuelidate="$v.join.password" v-on:keyup.enter="keyupEnterModal()" />
       </b-form-group>
       <template v-slot:modal-footer>
         <div @mouseenter="$v.$touch()">
@@ -143,6 +143,7 @@ export default {
   data () {
     return {
       config: config(this),
+      localAutoJoinDomain: this.autoJoinDomain,
       domainJoinTests: {},
       join: { // for 'Join', 'Unjoin' and 'Rejoin'
         type: null, // 'Join', 'Unjoin' or 'Rejoin'
@@ -297,18 +298,18 @@ export default {
   watch: {
     domainJoinTests: {
       handler: function (a) {
-        if (this.autoJoinDomain && this.autoJoinDomain.id in a) { // automatically join domain
-          const { [this.autoJoinDomain.id]: { status = null } = {} } = a
+        if (this.localAutoJoinDomain && this.localAutoJoinDomain.id in a) { // automatically join domain
+          const { [this.localAutoJoinDomain.id]: { status = null } = {} } = a
           if ([true, false].includes(status)) { // wait until tests are complete
             switch (status) {
               case true: // already joined
-                this.clickRejoin(this.autoJoinDomain) // rejoin domain
+                this.clickRejoin(this.localAutoJoinDomain) // rejoin domain
                 break
               default: // not joined
-                this.clickJoin(this.autoJoinDomain) // join domain
+                this.clickJoin(this.localAutoJoinDomain) // join domain
                 break
             }
-            this.autoJoinDomain = null
+            this.localAutoJoinDomain = null
           }
         }
       },

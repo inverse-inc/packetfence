@@ -102,7 +102,7 @@ export default {
       this.$emit('on-confirm', event)
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.timerStop) {
       clearTimeout(this.timerStop)
     }

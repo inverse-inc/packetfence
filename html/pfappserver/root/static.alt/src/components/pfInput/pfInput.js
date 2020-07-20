@@ -47,7 +47,7 @@ export default {
   mounted () {},
   deactivated () {},
   activated () {},
-  beforeDestroy () {},
+  beforeUnmount () {},
   methods: {
     focus () {
       this.$refs.input.focus()
@@ -71,7 +71,6 @@ export default {
         value: this.localValue
       },
       on: {
-        ...this.$listeners, // forward $listeners
         input: this.onInput,
         change: this.onChange
       }

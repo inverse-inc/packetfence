@@ -20,8 +20,8 @@
       :datetime-start="datetimeStart"
       :datetime-end="datetimeEnd"
       :is-loading="isLoading"
-      @changeDatetimeStart="onChangeDatetimeStart"
-      @changeDatetimeEnd="onChangeDatetimeEnd"
+      @start="onChangeDatetimeStart"
+      @end="onChangeDatetimeEnd"
       class="mt-3"
     ></pf-report-chart>
 

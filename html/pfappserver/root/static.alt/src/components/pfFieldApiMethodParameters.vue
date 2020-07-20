@@ -1,7 +1,5 @@
 <template>
-  <b-form-row class="pf-field-api-method-parameters mx-0 mb-1 px-0" align-v="center"
-    v-on="forwardListeners"
-  >
+  <b-form-row class="pf-field-api-method-parameters mx-0 mb-1 px-0" align-v="center">
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -122,10 +120,6 @@ export default {
     moments () {
       if ('moments' in this.field) return this.field.moments
       return []
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {

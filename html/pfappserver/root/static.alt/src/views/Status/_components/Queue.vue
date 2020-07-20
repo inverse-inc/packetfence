@@ -174,7 +174,7 @@ export default {
       this.$store.dispatch(`${this.storeName}/getStats`)
     }, this.statsIntervalTimeout)
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.statsInterval) clearInterval(this.statsInterval)
   }
 }

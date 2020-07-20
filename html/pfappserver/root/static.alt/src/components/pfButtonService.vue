@@ -3,7 +3,6 @@
     :text="service"
     :variant="buttonVariant"
     v-bind="$attrs"
-    v-on="forwardListeners"
     :disabled="isError"
   >
     <template v-slot:button-content>
@@ -118,10 +117,6 @@ export default {
     },
     isError () {
       return (this.status.status === 'error') || blacklistedServices.find(bls => bls === this.service)
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     buttonVariant () {
       switch (true) {

@@ -109,7 +109,7 @@ export default {
     // Non reactive properties
     this.$popover = null
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // Destroy the BPopover instance
     this.$popover && this.$popover.$destroy()
     this.$popover = null

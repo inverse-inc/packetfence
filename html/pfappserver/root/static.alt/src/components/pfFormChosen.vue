@@ -8,7 +8,6 @@
       <multiselect ref="multiselect"
         v-model="multiselectValue"
         v-bind="$attrs"
-        v-on="forwardListeners"
         :allow-empty="allowEmpty"
         :clear-on-select="clearOnSelect"
         :disabled="disabled"
@@ -267,10 +266,6 @@ export default {
         }
         this.inputValue = newValue
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     optionsList () {
       return (this.localOptions || []).map(option => {

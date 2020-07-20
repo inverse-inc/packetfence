@@ -3,7 +3,6 @@
     v-bind="$attrs"
     :type="type"
     :variant="variant"
-    v-on="forwardListeners"
   >
     <icon name="circle-notch" spin v-if="isLoading"></icon>
     <template v-else-if="label">
@@ -34,12 +33,6 @@ export default {
     isLoading: {
       type: Boolean,
       default: false
-    }
-  },
-  computed: {
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   }
 }

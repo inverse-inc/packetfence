@@ -901,7 +901,7 @@ export default {
       this.getAlarms()
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.pingNetdataTimer) clearTimeout(this.pingNetdataTimer)
     if (this.getAlarmsTimer) clearTimeout(this.getAlarmsTimer)
   }

@@ -1,7 +1,5 @@
 <template>
-  <b-form-row class="pf-field-attribute-operator-value mx-0 mb-1 px-0" align-v="center" no-gutters
-    v-on="forwardListeners"
-  >
+  <b-form-row class="pf-field-attribute-operator-value mx-0 mb-1 px-0" align-v="center" no-gutters>
     <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -187,10 +185,6 @@ export default {
     fieldAttrs () {
       const { field: { attrs } = {} } = this
       return attrs || { options: this.options }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {

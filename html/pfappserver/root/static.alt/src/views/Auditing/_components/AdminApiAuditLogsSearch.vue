@@ -20,7 +20,7 @@
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">

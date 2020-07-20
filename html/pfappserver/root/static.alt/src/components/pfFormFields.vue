@@ -61,11 +61,11 @@
                 :class="['cursor-pointer mx-1', { 'text-primary': actionKey, 'text-secondary': !actionKey }]"
                 v-b-tooltip.hover.left.d300
                 :title="actionKey ? $t('Delete All') : $t('Delete Row')"
-                @click.native.stop.prevent="rowDel(index)"></icon>
+                @click.stop.prevent="rowDel(index)"></icon>
               <icon name="plus-circle" v-if="canAdd"
                 :class="['cursor-pointer mx-1', { 'text-primary': actionKey, 'text-secondary': !actionKey }]"
                 v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
-                @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+                @click.stop.prevent="rowAdd(index + 1)"></icon>
             </template>
           </component>
         </b-container>

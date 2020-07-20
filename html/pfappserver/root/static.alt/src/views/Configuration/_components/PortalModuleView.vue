@@ -118,9 +118,9 @@ export default {
         this.$store.dispatch('$_portalmodules/optionsById', this.id).then(options => {
           this.$store.dispatch('$_portalmodules/getPortalModule', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.moduleType = form.type
+            const moduleType = form.type
             const { meta = {} } = options
-            const { isNew, isClone, moduleType } = this
+            const { isNew, isClone } = this
             this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, moduleType } })
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })

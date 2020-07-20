@@ -3,9 +3,7 @@ import {
   BFormGroup,
   BFormInput,
   BFormText,
-  BInputGroup,
-  BInputGroupAppend,
-  BInputGroupPrepend
+  BInputGroup
 } from 'bootstrap-vue'
 import * as Icon from 'vue-awesome'
 
@@ -67,7 +65,7 @@ export default {
       return this.disabled
     },
     localScopedSlots () { // overloaded through inheritance
-      return (h) => {
+      return () => {
         return this.$slots // defaults
       }
     }
@@ -102,7 +100,6 @@ export default {
       },
       domProps: {/* noop */},
       on: {
-        ...this.$listeners, // forward $listeners
         input: this.onInput,
         change: this.onChange
       }

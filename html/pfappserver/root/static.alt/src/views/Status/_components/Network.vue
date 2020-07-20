@@ -22,7 +22,7 @@
                   </b-dropdown-item>
                   <template v-if="savedSearches.length > 0">
                     <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
-                      <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+                      <icon class="position-absolute mt-1" name="trash-alt" @click.stop.prevent="deleteSavedSearch(search)"></icon>
                       <span class="ml-4">{{ search.name }}</span>
                     </b-dropdown-item>
                   </template>
@@ -49,7 +49,7 @@
                 </b-dropdown-item>
                 <template v-if="savedSearches.length > 0">
                   <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
-                    <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+                    <icon class="position-absolute mt-1" name="trash-alt" @click.stop.prevent="deleteSavedSearch(search)"></icon>
                     <span class="ml-4">{{ search.name }}</span>
                   </b-dropdown-item>
                 </template>
@@ -731,7 +731,7 @@ export default {
     }
     this.setDimensions()
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.liveModeInterval) {
       clearTimeout(this.liveModeInterval)
     }
