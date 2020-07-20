@@ -43,7 +43,8 @@ sub match {
     my ($self, $arg, $args) = @_;
     return $FALSE if !defined $arg;
     my $reftype = reftype($arg) // '';
-    return any { $self->evalParam($self->value, $args) eq $_ } ($reftype eq 'ARRAY' ? @$arg : $arg);
+    my $value = $self->evalParam($self->value, $args);
+    return any { $value eq $_ } ($reftype eq 'ARRAY' ? @$arg : $arg);
 }
 
 =head1 AUTHOR
