@@ -2,5 +2,5 @@
 [default]
 description=default
 device_registration_allowed_devices=
-device_registration_role=
+device_registration_roles=
 roles_allowed_to_unregister=
