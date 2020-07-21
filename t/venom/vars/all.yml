@@ -214,3 +214,11 @@ captive_portal.profiles.locales4: it_IT
 
 # URL
 captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-portal'
+
+################################################################################
+# dot1x_eap_tls_pfpki test suite specific variables
+################################################################################
+# Roles
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100

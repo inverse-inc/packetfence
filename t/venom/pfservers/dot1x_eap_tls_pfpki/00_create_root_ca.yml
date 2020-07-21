@@ -1,0 +1,31 @@
+name: Create Inverse Root Certificate authority
+version: 2
+testcases:
+- name: create_root_ca
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/cas'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cn": "InverseCA",
+        "mail": "pki@inverse.ca",
+        "organisation": "Inverse",
+        "country": "CA",
+        "state": "Quebec",
+        "locality": "Montreal",
+        "street_address": "7000 park avenue",
+        "postal_code": "H3N 1X1",
+        "key_type": "1",
+        "digest": "4",
+        "key_usage": "",
+        "extended_key_usage": "",
+        "days": "750",
+        "key_size": "2048"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
