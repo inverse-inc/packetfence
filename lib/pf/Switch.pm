@@ -641,7 +641,7 @@ sub getAccessListByName {
 
     # Change to a check for FB ACL enabled
     my $fb_acl = "";
-    if(1) {
+    if( isenabled($role->{fingerbank_dynamic_access_list})) {
         $fb_acl = join("\n", @{$self->fingerbank_dynamic_acl($mac)}) . "\n";
     }
 

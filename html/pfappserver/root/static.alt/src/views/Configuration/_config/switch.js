@@ -513,6 +513,41 @@ export const viewFields = {
       }
     })
   },
+  mapDynamicAccessListFingerbank: (form = {}, meta = {}) => {
+    const {
+      AccessListMap
+    } = form
+    const {
+      roles = [],
+      advancedMode = false
+    } = meta
+    return [
+      { id: 'registration', label: i18n.t('registration') },
+      { id: 'isolation', label: i18n.t('isolation') },
+      { id: 'macDetection', label: i18n.t('macDetection') },
+      { id: 'inline', label: i18n.t('inline') },
+      ...roles
+    ].map(role => {
+      return {
+        if: ((advancedMode || supports(form, meta, ['AccessListBasedEnforcement'])) && (AccessListMap === 'Y' || (!AccessListMap && placeholder(meta, 'AccessListMap') === 'Y'))),
+        label: `${role.id} Fingerbank dynamic ACL`,
+        cols: [
+          {
+            namespace: `${role.id}DynamicAccessListFingerbank`,
+            component: pfFormRangeToggleDefault,
+            attrs: {
+              ...attributesFromMeta(meta, `${role.id}DynamicAccessListFingerbank`),
+              tooltip: false,
+              values: { checked: 'Y', unchecked: '', default: '' },
+              icons: { checked: 'check', unchecked: 'times' },
+              colors: { checked: 'var(--primary)', default: (placeholder(meta, `${role.id}DynamicAccessListFingerbank`) === 'Y') ? 'var(--primary)' : '' },
+              tooltips: { checked: i18n.t('Y'), unchecked: i18n.t(''), default: i18n.t('Default ({default})', { default: placeholder(meta, `${role.id}DynamicAccessListFingerbank`) }) }
+            }
+          }
+        ]
+      }
+    })
+  },
   mapRole: (form = {}, meta = {}) => {
     const {
       RoleMap
@@ -1246,6 +1281,7 @@ export const view = (form = {}, meta = {}) => {
         },
         viewFields.AccessListMap(form, meta),
         ...viewFields.mapAccessList(form, meta),
+        ...viewFields.mapDynamicAccessListFingerbank(form, meta),
         {
           if: advancedMode || supports(form, meta, ['ExternalPortal']),
           label: i18n.t('Role mapping by Web Auth URL'),
