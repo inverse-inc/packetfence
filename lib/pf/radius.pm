@@ -408,6 +408,7 @@ sub accounting {
 
     if($isStart || $isUpdate){
         pf::accounting->cache->set($mac, $radius_request);
+        pf::fingerbank::process($mac);
     }
 
     if ($isStop || $isUpdate) {
