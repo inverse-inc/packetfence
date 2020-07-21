@@ -19,6 +19,7 @@ use warnings;
 no warnings 'portable';
 
 use Cwd;
+use Socket;
 use Number::Range;
 use File::Basename;
 use POSIX::2008;
@@ -111,6 +112,7 @@ BEGIN {
         random_from_range
         extract
         ends_with
+        resolve
     );
 }
 
@@ -1703,6 +1705,18 @@ sub extract {
 
 sub ends_with {
     return $_[1] eq substr($_[0], -length($_[1]));
+}
+
+sub resolve {
+    my ($name) = @_;
+    my $logger = get_logger;
+    my @addresses = gethostbyname($name);
+    unless(@addresses) {
+        $logger->error("Unable to resolve $name");
+        return undef;
+    }
+    @addresses = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+    return \@addresses;
 }
 
 =back

@@ -597,6 +597,15 @@ sub device_class_transition_allowed {
     }
 }
 
+sub get_hosts_ports {
+    my ($mac) = @_;
+    return [
+        "*:6969",
+        "amazon.ca:443",
+        "aws.com:*",
+    ];
+}
+
 =head2 CLONE
 
 Clear the cache in a thread environment
