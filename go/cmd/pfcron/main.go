@@ -6,7 +6,9 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/maint"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
+	"net"
 	"os"
 	"os/signal"
 	"strconv"
@@ -14,23 +16,51 @@ import (
 	"sync"
 	"sync/atomic"
 	"syscall"
+	"time"
 )
 
-/*
-sub reload_config {
-    if ( pf::cluster::is_management ) {
-        $process = $TRUE;
-    }
-    elsif ( !$pf::cluster::cluster_enabled ) {
-        $process = $TRUE;
-    }
-    else {
-        $process = $FALSE;
-    }
+func setProcessing() {
+	var Management pfconfigdriver.ManagementNetwork
+	ctx := context.Background()
+	pfconfigdriver.FetchDecodeSocket(ctx, &Management)
+	for {
+		if isMaster(ctx, &Management) {
+			atomic.StoreUint32(&processJobs, 1)
+		} else {
+			atomic.StoreUint32(&processJobs, 0)
+		}
 
-    $logger->debug("Reload configuration with status $process");
+		time.Sleep(1 * time.Minute)
+	}
 }
-*/
+
+func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork) bool {
+	if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
+		var keyConfCluster pfconfigdriver.NetInterface
+		keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
+
+		keyConfCluster.PfconfigHashNS = "interface " + management.Int
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+		// Nothing in keyConfCluster.Ip so we are not in cluster mode
+		if keyConfCluster.Ip == "" {
+			return true
+		}
+
+		eth, _ := net.InterfaceByName(management.Int)
+		addresses, _ := eth.Addrs()
+
+		for _, address := range addresses {
+			IP, _, _ := net.ParseCIDR(address.String())
+			clusterIp := net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(clusterIp) {
+				return true
+			}
+		}
+		return false
+	}
+
+	return true
+}
 
 var processJobs uint32 = 1
 
@@ -135,16 +165,16 @@ func main() {
 	w := sync.WaitGroup{}
 	w.Add(1)
 	NotifySystemd("READY=1")
-	c.Start()
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-ch
 		w.Done()
-		NotifySystemd("STOPPING=1")
 	}()
-
+	go setProcessing()
+	c.Start()
 	w.Wait()
 	doneCtx := c.Stop()
 	<-doneCtx.Done()
+	NotifySystemd("STOPPING=1")
 }
