@@ -22,11 +22,14 @@ testcases:
       unregdate:
         from: result.bodyjson.item.unregdate
 
+# convert 5m to 5minutes
+# In order to calculate unregdate based on regdate + 5minutes using date command (next testcase)
 - name: convert_access_duration
   steps:
   - type: exec
     script: |
-      perl -I/usr/local/pf/lib -Mpf::config::util -e 'my @times = get_translatable_time("{{.dot1x_eap_peap.sources.ad_user.access_duration}}"); print("$times[2]$times[1]");'
+      perl -I/usr/local/pf/lib -Mpf::config::util \
+      -e 'my @times = get_translatable_time("{{.dot1x_eap_peap.sources.ad_user.access_duration}}"); print("$times[2]$times[1]");'
     vars:
       translatable_time:
         from: result.systemout

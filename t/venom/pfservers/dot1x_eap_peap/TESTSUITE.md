@@ -16,7 +16,7 @@ AD server running
 1. Configure REALMS
 1. Restart RADIUS services (common test suite)
 1. Create and test AD sources
-1. [X] Create connection profile with auto-registration, AD sources, specific
+1. Create connection profile with auto-registration, AD sources, specific
    filter and `unreg_on_accounting_stop`
 1. Perform Checkup (common test suite)
 1. Configure 802.1X only and dynamic VLAN on dot1x interface on
