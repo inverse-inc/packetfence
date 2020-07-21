@@ -12,7 +12,7 @@
       <b-tabs v-if="view && (view[0].tab || view.length > 1)" v-model="tabIndex" :key="tabKey" card>
         <template v-for="(tab, t) in conditionalView">
           <b-tab :key="t"
-            :disabled="tab.disabled"
+            :disabled="tab.disabled || disabled"
             :title-link-class="{ 'is-invalid': tabErrorCount[t] > 0 }"
             :title="tab.tab"
             no-body
