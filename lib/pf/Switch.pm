@@ -646,6 +646,11 @@ sub getAccessListByName {
     }
 
     return join("\n", @$acls, $fb_acl) if defined $acls && @$acls;
+    # return if found
+    return $self->{'_access_lists'}->{$access_list_name} . "\n" . $fb_acl if (defined($self->{'_access_lists'}->{$access_list_name}) || $fb_acl);
+
+    # otherwise log and return undef
+    $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
     return;
 }
 
