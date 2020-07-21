@@ -17,6 +17,7 @@ use Try::Tiny;
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::Switch::constants;
 use pf::constants;
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::util qw(isenabled);
 use List::MoreUtils qw(uniq);
 use pf::constants::role qw($REJECT_ROLE $VOICE_ROLE);
@@ -451,6 +452,17 @@ sub deauthenticateMacRadius {
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     $self->radiusDisconnect($mac );
+}
+
+=head2 aclTemplate
+
+Override the default ACL template if applicable
+
+=cut
+
+sub aclTemplate {
+    my ($self) = @_;
+    return $self->{_template}{acl_template} || $DEFAULT_ACL_TEMPLATE
 }
 
 =head1 AUTHOR

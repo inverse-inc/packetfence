@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::util;
 use pf::SwitchFactory;
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::constants::template_switch qw(
   $DISCONNECT_TYPE_COA
   $DISCONNECT_TYPE_DISCONNECT
@@ -71,6 +72,10 @@ has_field 'radiusDisconnect' => (
     ],
 );
 
+has_field 'acl_template' => (
+    type     => 'TextArea',
+    element_attr => { placeholder => $DEFAULT_ACL_TEMPLATE},
+);
 
 for my $n (@RADIUS_ATTRIBUTE_SETS) {
     has_field $n => (

@@ -62,6 +62,7 @@ use pf::access_filter::radius;
 use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
     -Cdp
@@ -3548,6 +3549,39 @@ sub getCiscoAvPairAttribute {
     );
 
     return ;
+}
+
+=head2 generateACLFromTemplate
+
+Generate an ACL from a template
+
+=cut
+
+sub generateACLFromTemplate {
+    my ($self, $t, $args) = @_;
+
+    for my $k (qw(src_host src_port dst_host dst_port)) {
+        $args->{$k} //= "";
+    }
+
+    my $acl = pf::mini_template->new($t)->process($args);
+
+    # remove double spaces to cleanup ACL
+    $acl =~ s/  / /g;
+    return $acl;
+}
+
+sub aclTemplate { $DEFAULT_ACL_TEMPLATE }
+
+=head2 generateACL
+
+Generate an ACL using the default template
+
+=cut
+
+sub generateACL {
+    my ($self, $args) = @_;
+    return $self->generateACLFromTemplate($self->aclTemplate, $args);
 }
 
 =back
