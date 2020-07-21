@@ -18,5 +18,6 @@ testcases:
     assertions:
       # we didn't check MAC address on port to make this testcase reusable
       - result.body ShouldContainSubstring "{{.wired_mac_auth.roles.headless_device.vlan_id}}"
+      - result.body ShouldContainSubstring MAB
       - result.body ShouldContainSubstring AUTHORIZED
       - result.statuscode ShouldEqual 200
