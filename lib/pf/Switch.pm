@@ -3558,20 +3558,20 @@ Generate an ACL from a template
 =cut
 
 sub generateACLFromTemplate {
-    my ($self, $t, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
-    my $acl = pf::mini_template->new($t)->process({
-        allow => $allow,
-        proto => $proto,
-        src_host => $src_host // "",
-        src_port => $src_port // "",
-        dst_host => $dst_host // "",
-        dst_port => $dst_port // "",
-    });
+    my ($self, $t, $args) = @_;
+
+    for my $k (qw(src_host src_port dst_host dst_port)) {
+        $args->{$k} //= "";
+    }
+
+    my $acl = pf::mini_template->new($t)->process($args);
 
     # remove double spaces to cleanup ACL
     $acl =~ s/  / /g;
     return $acl;
 }
+
+sub aclTemplate { $DEFAULT_ACL_TEMPLATE }
 
 =head2 generateACL
 
@@ -3580,8 +3580,8 @@ Generate an ACL using the default template
 =cut
 
 sub generateACL {
-    my ($self, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port) = @_;
-    return $self->generateACLFromTemplate($DEFAULT_ACL_TEMPLATE, $allow, $proto, $src_host, $src_port, $dst_host, $dst_port);
+    my ($self, $args) = @_;
+    return $self->generateACLFromTemplate($self->aclTemplate, $args);
 }
 
 =back
