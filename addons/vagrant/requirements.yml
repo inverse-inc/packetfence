@@ -6,7 +6,6 @@ roles:
 
 collections:
   - name: inverse_inc.packetfence
-    version: 1.0.3-1
   - name: debops.debops
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
