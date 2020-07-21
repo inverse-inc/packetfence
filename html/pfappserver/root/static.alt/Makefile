@@ -1,6 +1,6 @@
 FILES = dist/index.html dist/css/* dist/js/* dist/js/*
 
-.PHONY: all vendor dev dist test
+.PHONY: all vendor dev dist
 
 all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the static JS/CSS files and 'make dist' to commit the distribution version."
@@ -20,10 +20,6 @@ dist:
 	else \
 		echo "Nothing to commit; skipping git-commit"; \
 	fi
-
-test:
-	npm run test:unit
-
 
 light-dist:
 	npm run build

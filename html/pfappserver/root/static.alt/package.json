@@ -5,7 +5,6 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "jest --clearCache && vue-cli-service test:unit",
     "lint": "vue-cli-service lint --report-unused-disable-directives",
     "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
     "build-report": "vue-cli-service build --report"
@@ -51,7 +50,6 @@
     "@vue/cli-service": "^4.3.1",
     "@vue/compiler-sfc": "^3.0.0-beta.1",
     "@vue/eslint-config-standard": "^5.0.0",
-    "@vue/test-utils": "^1.0.3",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.1",
