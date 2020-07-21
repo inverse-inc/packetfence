@@ -3650,7 +3650,7 @@ sub fingerbank_dynamic_acl {
         if($host_port =~ /(.+):([0-9]+|\*)$/) {
             $host = $1;
             $port = $2;
-            my $args = {};
+            my $args = {allow => 1};
             my @protos;
 
             if($port ne "*") {
