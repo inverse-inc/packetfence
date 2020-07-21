@@ -632,18 +632,21 @@ sub getVlanByName {
 }
 
 sub getAccessListByName {
-    my ($self, $access_list_name) = @_;
+    my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
     return if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
     return if !exists $role->{acls};
     my $acls = $role->{acls};
-    return join("\n", @$acls) if defined $acls && @$acls;
 
-    # otherwise log and return undef
-    $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
+    # Change to a check for FB ACL enabled
+    my $fb_acl = "";
+    if(1) {
+        $fb_acl = join("\n", @{$self->fingerbank_dynamic_acl($mac)}) . "\n";
+    }
+
+    return join("\n", @$acls, $fb_acl) if defined $acls && @$acls;
     return;
-
 }
 
 =item getUrlByName
