@@ -30,7 +30,7 @@
             placement="bottom"
             :target="uuid"
             :title="$t('Generate password')"
-            v-model:show="showGenerator"
+            :show.sync="showGenerator"
             @shown="showingGenerator = true"
             @hidden="showingGenerator = false">
             <div ref="generator">

@@ -1,4 +1,4 @@
-import Vue, { createApp, h } from 'vue';
+import Vue from 'vue'
 import CompositionApi from '@vue/composition-api'
 import BootstrapVue from 'bootstrap-vue'
 import i18n from '@/utils/locale'
@@ -145,21 +145,33 @@ Vue.config.ignoredElements = [
 Vue.config.devtools = process.env.VUE_APP_DEBUG === 'true'
 Vue.config.performance = process.env.VUE_APP_DEBUG === 'true'
 
+Vue.use(VueTimeago, {
+  name: 'Timeago',
+  locale: undefined,
+  locales: {
+    'fr': require('date-fns/locale/fr')
+  }
+})
 Vue.component('icon', Icon)
+Vue.use(BootstrapVue)
+Vue.use(CompositionApi)
+Vue.use(pfTemplatePlugin)
 
 // Register global filters
 for (const filter of Object.keys(filters)) {
   Vue.filter(filter, filters[filter])
 }
 
-const app = createApp({
-  render: () => h(App),
+const app = new Vue({
+  render: h => h(App),
+  router,
+  store,
   i18n,
 
   mounted () {
     store.dispatch('events/bind')
   }
-}).use(router).use(store).mount('#app')
+}).$mount('#app')
 
 if (process.env.VUE_APP_DEBUG === 'true') {
   // Configure Vue.js devtools (https://github.com/vuejs/vue-devtools)
