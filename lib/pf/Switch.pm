@@ -3631,6 +3631,53 @@ sub canDoCliAccess {
     return isenabled($self->{_cliAccess});
 }
 
+sub fingerbank_dynamic_acl {
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
+
+    my @acls;
+
+    my $hosts_ports = pf::fingerbank::get_hosts_ports($mac);
+    for my $host_port (@$hosts_ports) {
+        my $host;
+        my $port;
+        if($host_port =~ /(.+):([0-9]+|\*)$/) {
+            $host = $1;
+            $port = $2;
+            my $args = {};
+            my @protos;
+
+            if($port ne "*") {
+                $args->{dst_port} = $port;
+                @protos = ("tcp", "udp");
+            }
+            else {
+                @protos = ("ip");
+            }
+
+            for my $proto (@protos) {
+                $args->{proto} = $proto;
+                if($host ne "*") {
+                    my $addresses = resolve($host);
+                    next unless defined($addresses);
+                    for my $addr (@$addresses) {
+                        $args->{dst_host} = $addr;
+                        push @acls, $self->generateACL($args);
+                    }
+                }
+                else {
+                    push @acls, $self->generateACL($args);
+                }
+            }
+        }
+        else {
+            $logger->warn("Ignoring invalid Fingerbank host/port entry '$host_port'");
+        }
+    }
+
+    return \@acls;
+}
+
 =back
 
 =head1 AUTHOR
