@@ -5,8 +5,10 @@ BOOTPROTO=static
 NM_CONTROLLED=no
 IPADDR=[% ipaddr %]
 NETMASK=[% netmask %]
-
-[% IF ipv6_address %]
+[% IF ipv6_address -%]
 IPV6INIT=yes
 IPV6ADDR=[% ipv6_address %]/[% ipv6_prefix %]
+[% ELSE -%]
+IPV6INIT=no
+IPV6ADDR=
 [% END %]
