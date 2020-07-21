@@ -640,9 +640,6 @@ sub getAccessListByName {
         $fb_acl = join("\n", @{$self->fingerbank_dynamic_acl($mac)}) . "\n";
     }
 
-    # skip if not defined or empty
-    return if (!defined($self->{'_access_lists'}) || !%{$self->{'_access_lists'}});
-
     # return if found
     return $self->{'_access_lists'}->{$access_list_name} . "\n" . $fb_acl if (defined($self->{'_access_lists'}->{$access_list_name}) || $fb_acl);
 
