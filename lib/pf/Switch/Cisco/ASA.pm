@@ -176,7 +176,7 @@ sub returnAuthorizeVPN {
     }
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getAccessListByName($args->{'user_role'}))){
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
+            my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac});
             if ($access_list) {
                 my $acl_num = 101;
                 while($access_list =~ /([^\n]+)\n?/g){

@@ -631,14 +631,20 @@ sub getVlanByName {
 }
 
 sub getAccessListByName {
-    my ($self, $access_list_name) = @_;
+    my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
+
+    # Change to a check for FB ACL enabled
+    my $fb_acl = "";
+    if(1) {
+        $fb_acl = join("\n", @{$self->fingerbank_dynamic_acl($mac)}) . "\n";
+    }
 
     # skip if not defined or empty
     return if (!defined($self->{'_access_lists'}) || !%{$self->{'_access_lists'}});
 
     # return if found
-    return $self->{'_access_lists'}->{$access_list_name} if (defined($self->{'_access_lists'}->{$access_list_name}));
+    return $self->{'_access_lists'}->{$access_list_name} . "\n" . $fb_acl if (defined($self->{'_access_lists'}->{$access_list_name}));
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
