@@ -41,8 +41,6 @@ for my $section ($ss_ini->Sections()) {
 
 $ss_ini->RewriteConfig();
 
-$profile_ini->RewriteConfig();
-
 print "All done\n";
 
 =head1 AUTHOR
