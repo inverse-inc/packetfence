@@ -29,6 +29,7 @@ Bug Fixes
 * Fixed CoA for Meraki web-authentication so that it doesn't disconnect the user from the SSID
 * Honor the AUP setting of the SAML portal module (#5476)
 * Use the prebuilt freeradius perl dictionary.
+* Don't override user defined values in the interface file for centos.
 
 Version 10.1.0 released on 2020-06-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
