@@ -98,10 +98,10 @@
           </b-col>
         </b-row>
       </b-container>
-      <div v-slot:modal-footer>
+      <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="join.showResultModal=false">{{ $t('Cancel') }}</b-button>
         <b-button variant="primary" @click="clickModal()">{{ $t('Try again') }}</b-button>
-      </div>
+      </template>
     </b-modal>
 
   </div>

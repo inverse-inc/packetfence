@@ -59,7 +59,7 @@
           <b-nav-item-dropdown right no-caret>
             <template v-slot:button-content>
               <icon-counter name="tools" v-model="isProcessing" variant="bg-dark">
-                <icon name="circle-notch" spin>
+                <icon name="circle-notch" spin></icon>
               </icon-counter>
             </template>
             <b-dropdown-item-button @click="checkup" :disabled="isPerfomingCheckup">

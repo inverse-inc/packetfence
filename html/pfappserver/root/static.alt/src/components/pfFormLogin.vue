@@ -22,7 +22,7 @@
             <template v-slot:[footerSlotName] class="justify-content-start">
                 <template v-if="sessionTime">
                   <b-link variant="outline-secondary" @click="logout">{{ $t('Logout now') }}</b-link>
-                  <b-button class="ml-2" variant="primary" @click="extendSession()" v-t="'Extend Session'"><b-button>
+                  <b-button class="ml-2" variant="primary" @click="extendSession()" v-t="'Extend Session'"></b-button>
                 </template>
                 <template v-else>
                   <b-link variant="outline-secondary" @click="logout" v-if="modal">{{ $t('Use a different username') }}</b-link>

@@ -30,7 +30,7 @@
               <icon v-if="index > 0" name="caret-right" variant="text-secondary" class="mr-1"></icon>
               {{ parent.name }}
             </b-button>
-          <b-col>
+          </b-col>
         </b-row>
       </template>
       <template v-slot:buttonAdd v-if="scope === 'local'">
