@@ -984,7 +984,7 @@ configurator = enabled
 # advanced.netflow_on_all_networks
 #
 # Listen to netflow on all networks
-netflow_on_all_network = disabled
+netflow_on_all_networks = disabled
 
 # advanced.accounting_timebucket_size
 #
