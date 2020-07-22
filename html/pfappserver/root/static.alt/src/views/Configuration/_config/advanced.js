@@ -331,7 +331,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('NetFlow on all networks'),
-          text: i18n.t('Listen to NetFlow on all networks.'),
+          text: i18n.t('Listen to NetFlow on all networks. Changing this requires to restart pfacct.'),
           cols: [
             {
               namespace: 'netflow_on_all_network',
