@@ -330,6 +330,19 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('NetFlow on all networks'),
+          text: i18n.t('Listen to NetFlow on all networks.'),
+          cols: [
+            {
+              namespace: 'netflow_on_all_network',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Accounting timebucket size'),
           text: i18n.t('Accounting timebucket size. Changing this requires to restart pfacct.'),
           cols: [
