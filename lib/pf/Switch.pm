@@ -3644,10 +3644,10 @@ sub fingerbank_dynamic_acl {
     my @acls;
     
     # Always allow access to DHCP and DNS
-    $self->generateACL({allow => 1, proto => "udp", dst_port => 67});
-    $self->generateACL({allow => 1, proto => "udp", dst_port => 68});
-    $self->generateACL({allow => 1, proto => "udp", dst_port => 53});
-    $self->generateACL({allow => 1, proto => "tcp", dst_port => 53});
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 67});
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 68});
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 53});
+    push @acls, $self->generateACL({allow => 1, proto => "tcp", dst_port => 53});
 
     my $hosts_ports = pf::fingerbank::get_hosts_ports($mac);
     for my $host_port (@$hosts_ports) {
