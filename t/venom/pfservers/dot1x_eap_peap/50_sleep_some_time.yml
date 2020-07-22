@@ -4,4 +4,4 @@ testcases:
 - name: sleep_some_time
   steps:
   - type: exec
-    script: sleep 70
+    script: sleep 20

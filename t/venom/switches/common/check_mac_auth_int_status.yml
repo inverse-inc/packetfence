@@ -1,7 +1,7 @@
-name: Check dot1x interface status on switch01
+name: Check Mac auth interface status on switch01
 version: 2
 testcases:
-- name: check_dot1x_int_status_on_switch01
+- name: check_mac_auth_int_status_on_switch01
   steps:
   - type: http
     method: POST
@@ -17,8 +17,7 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       # we didn't check MAC address on port to make this testcase reusable
-      - result.body ShouldContainSubstring "{{.dot1x_eap_peap.roles.ad_user.vlan_id}}"
-      - result.body ShouldContainSubstring PEAP
-      - result.body ShouldContainSubstring "{{.ad_domain_user}}"
+      - result.body ShouldContainSubstring "{{.wired_mac_auth.roles.headless_device.vlan_id}}"
+      - result.body ShouldContainSubstring MAB
       - result.body ShouldContainSubstring AUTHORIZED
       - result.statuscode ShouldEqual 200

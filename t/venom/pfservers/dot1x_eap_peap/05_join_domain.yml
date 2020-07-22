@@ -36,7 +36,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: join_domain_to_create_chroot
+- name: join_domain
   steps:
   - type: http
     method: POST
@@ -53,26 +53,36 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 202
+    vars:
+      task_id:
+        from: result.bodyjson.task_id
 
-# hack to join domain due to incompatibility when running 'netns exec' with libvirt
-# commands are run directly in chroot
-# we don't use testjoin API call
-- name: join_domain
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/pfqueue/task/{{.join_domain.task_id}}/status/poll'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual Completed
+      - result.bodyjson.progress ShouldEqual 100
+      - result.bodyjson.status ShouldEqual 200
+    # wait two minutes before failing
+    retry: 8
+    delay: 15
+
+- name: test_join
   steps:
-    - type: exec
-      script: '/usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads join -s /etc/samba/{{.ad_domain_id}}.conf -U {{.ad_domain_admin_user}}%{{.ad_domain_admin_password}}'
-      # failed after 3 minutes
-      retry: 12
-      delay: 15
-
-- name: check_domain_join
-  steps:
-    - type: exec
-      script: '/usr/sbin/chroot /chroots/{{.ad_domain_id}} /usr/bin/net ads testjoin -s /etc/samba/{{.ad_domain_id}}.conf'
-      retry: 5
-      delay: 15
-
-    - type: exec
-      script: '/usr/sbin/chroot /chroots/{{.ad_domain_id}} wbinfo -t'
-      retry: 5
-      delay: 15
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id}}/test_join'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.status ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Join is OK"

@@ -58,10 +58,10 @@ testcases:
                 {
                   "field": "connection_type",
                   "op": "equals",
-                  "value": "{{.wired_mac_auth.profiles.wired.filters.connection_type}}"
+                  "value": "{{.dot1x_eap_peap.profiles.wired.filters.connection_type}}"
                 }
               ]
-            },            
+            },
             {
               "op": "or",
               "values": [            
@@ -96,5 +96,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_mac_auth.roles.headless_device.vlan_id}}"'
+      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.dot1x_eap_peap.roles.ad_user.vlan_id}}"'
 
