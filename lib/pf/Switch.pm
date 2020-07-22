@@ -637,15 +637,15 @@ sub getAccessListByName {
     return if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
     return if !exists $role->{acls};
-    my $acls = $role->{acls};
+    my $acls = $role->{acls} // [];
 
     # Change to a check for FB ACL enabled
-    my $fb_acl = "";
+    my $fb_acl = [];
     if( isenabled($role->{fingerbank_dynamic_access_list})) {
-        $fb_acl = join("\n", @{$self->fingerbank_dynamic_acl($mac)}) . "\n";
+        $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return join("\n", @$acls, $fb_acl) if defined $acls && @$acls;
+    return join("\n", @$acls, @$fb_acl) ."\n" if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -3642,6 +3642,12 @@ sub fingerbank_dynamic_acl {
     my $logger = $self->logger;
 
     my @acls;
+    
+    # Always allow access to DHCP and DNS
+    $self->generateACL({allow => 1, proto => "udp", dst_port => 67});
+    $self->generateACL({allow => 1, proto => "udp", dst_port => 68});
+    $self->generateACL({allow => 1, proto => "udp", dst_port => 53});
+    $self->generateACL({allow => 1, proto => "tcp", dst_port => 53});
 
     my $hosts_ports = pf::fingerbank::get_hosts_ports($mac);
     for my $host_port (@$hosts_ports) {
