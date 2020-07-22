@@ -27,8 +27,8 @@ Match if argument does not match the regex defined
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    my $match = $self->value;
+    my ($self,$arg,$args) = @_;
+    my $match = $self->evalParam($self->value, $args);
     return 0 if(!defined($arg));
     return $arg !~ $match;
 }

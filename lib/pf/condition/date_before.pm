@@ -33,7 +33,7 @@ has value => (
 my $date_format = "%Y-%m-%d %H:%M:%S";
 
 sub match {
-    my ($self, $arg) = @_;
+    my ($self, $arg, $args) = @_;
 
     my $date_to_compare = $arg;
     my $date_control = $self->value // strftime $date_format, localtime;

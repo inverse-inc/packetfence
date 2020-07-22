@@ -24,7 +24,7 @@ Match if the argument is not defined
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
+    my ($self,$arg,$args) = @_;
     return !defined($arg);
 }
 

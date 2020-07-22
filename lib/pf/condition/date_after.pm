@@ -30,7 +30,7 @@ has value => (
 );
 
 sub match {
-    my ($self, $arg) = @_;
+    my ($self, $arg, $args) = @_;
 
     my $date_format = "%Y-%m-%d %H:%M:%S";
 

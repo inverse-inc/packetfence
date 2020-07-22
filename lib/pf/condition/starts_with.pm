@@ -37,8 +37,8 @@ Check if the value starts with the string passed as an argument
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    my $value = quotemeta $self->value;
+    my ($self,$arg,$args) = @_;
+    my $value = quotemeta $self->evalParam($self->value, $args);
     return 0 if(!defined($arg));
     return $arg =~ /^$value/i;
 }

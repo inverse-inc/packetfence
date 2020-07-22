@@ -37,8 +37,8 @@ Match if argument matches the value
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    my $match = $self->value;
+    my ($self,$arg,$args) = @_;
+    my $match = $self->evalParam($self->value, $args);
     return 0 if(!defined($arg));
     return $arg =~ /\Q$match\E/i;
 }

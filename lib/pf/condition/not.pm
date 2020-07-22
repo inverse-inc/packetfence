@@ -24,8 +24,8 @@ has condition => (
 );
 
 sub match {
-    my ($self,$arg) = @_;
-    return !$self->condition->match($arg);
+    my ($self,$arg,$args) = @_;
+    return !$self->condition->match($arg,$args);
 }
 
 =head1 AUTHOR

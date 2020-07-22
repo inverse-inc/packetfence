@@ -24,7 +24,7 @@ Match defined arguments
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
+    my ($self,$arg,$args) = @_;
     return defined($arg);
 }
 
