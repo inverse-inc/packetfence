@@ -94,6 +94,7 @@ New Features
 ++++++++++++
 * Added support for network anomaly detection through Fingerbank
 * New, fully integrated PacketFence PKI service
+* New service (`pfacct`) to track bandwidth usage using RADIUS accounting and NetFlow traffic (inline setups only)
 * New service for automatic clustering issue resolution
 * New GUI for all filtering engines and switch templates
 * New API and Vue.js based step-by-step configurator
