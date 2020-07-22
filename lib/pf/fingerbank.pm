@@ -607,7 +607,14 @@ sub get_hosts_ports {
     $api_client //= fingerbank::API->new_from_config;
 
     my $node = node_view($mac);
-    my $device_id = device_name_to_device_id($node->{device_type});
+    my $device_type = $node->{device_type};
+
+    unless(defined($device_type)) {
+        $logger->error("Unable to compute hosts/ports for device because we don't have the Fingerbank device profiling information for it.");
+        return;
+    }
+
+    my $device_id = device_name_to_device_id($device_type);
 
     if(!defined($device_id)) {
         $logger->error("Unable to find device ID for $mac. Unable to obtain hosts and ports it should communicate with through Fingerbank.");
