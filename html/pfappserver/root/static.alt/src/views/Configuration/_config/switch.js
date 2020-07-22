@@ -487,6 +487,9 @@ export const viewFields = {
       roles = [],
       advancedMode = false
     } = meta
+    const aclEnabled = i18n.t('Fingerbank dynamic ACL Enabled')
+    const aclDisabled = i18n.t('Fingerbank dynamic ACL Disabled')
+
     return [
       { id: 'registration', label: i18n.t('registration') },
       { id: 'isolation', label: i18n.t('isolation') },
@@ -499,48 +502,36 @@ export const viewFields = {
         label: role.label || role.id,
         cols: [
           {
-            namespace: `${role.id}AccessList`,
-            component: pfFormTextarea,
-            attrs: {
-              ...attributesFromMeta(meta, `${role.id}AccessList`),
-              ...{
-                rows: 3
-              }
-            }
-          }
-        ]
-      }
-    })
-  },
-  mapDynamicAccessListFingerbank: (form = {}, meta = {}) => {
-    const {
-      AccessListMap
-    } = form
-    const {
-      roles = [],
-      advancedMode = false
-    } = meta
-    return [
-      { id: 'registration', label: i18n.t('registration') },
-      { id: 'isolation', label: i18n.t('isolation') },
-      { id: 'macDetection', label: i18n.t('macDetection') },
-      { id: 'inline', label: i18n.t('inline') },
-      ...roles
-    ].map(role => {
-      return {
-        if: ((advancedMode || supports(form, meta, ['AccessListBasedEnforcement'])) && (AccessListMap === 'Y' || (!AccessListMap && placeholder(meta, 'AccessListMap') === 'Y'))),
-        label: `${role.id} Fingerbank dynamic ACL`,
-        cols: [
-          {
             namespace: `${role.id}DynamicAccessListFingerbank`,
             component: pfFormRangeToggleDefault,
             attrs: {
               ...attributesFromMeta(meta, `${role.id}DynamicAccessListFingerbank`),
+              class: 'mr-3 mb-3 text-nowrap',
               tooltip: false,
               values: { checked: 'Y', unchecked: '', default: '' },
               icons: { checked: 'check', unchecked: 'times' },
               colors: { checked: 'var(--primary)', default: (placeholder(meta, `${role.id}DynamicAccessListFingerbank`) === 'Y') ? 'var(--primary)' : '' },
-              tooltips: { checked: i18n.t('Y'), unchecked: i18n.t(''), default: i18n.t('Default ({default})', { default: placeholder(meta, `${role.id}DynamicAccessListFingerbank`) }) }
+              tooltips: {
+                  checked: i18n.t('Enabled'),
+                  unchecked: i18n.t('Disabled'),
+                  default: i18n.t('Default ({default})', { default: placeholder(meta, `${role.id}DynamicAccessListFingerbank`) })
+              },
+              rightLabels: {
+                checked: aclEnabled,
+                unchecked: aclDisabled,
+                default: (placeholder(meta, `${role.id}DynamicAccessListFingerbank`) === 'Y')
+                  ? aclEnabled
+                  : aclDisabled
+              }
+            }
+          },
+          {
+            namespace: `${role.id}AccessList`,
+            component: pfFormTextarea,
+            attrs: {
+              ...attributesFromMeta(meta, `${role.id}AccessList`),
+              class: 'w-100',
+              rows: 3
             }
           }
         ]
@@ -1280,7 +1271,6 @@ export const view = (form = {}, meta = {}) => {
         },
         viewFields.AccessListMap(form, meta),
         ...viewFields.mapAccessList(form, meta),
-        ...viewFields.mapDynamicAccessListFingerbank(form, meta),
         {
           if: advancedMode || supports(form, meta, ['ExternalPortal']),
           label: i18n.t('Role mapping by Web Auth URL'),
