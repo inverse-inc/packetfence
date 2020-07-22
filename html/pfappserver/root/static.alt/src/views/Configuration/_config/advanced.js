@@ -334,7 +334,7 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('Listen to NetFlow on all networks. Changing this requires to restart pfacct.'),
           cols: [
             {
-              namespace: 'netflow_on_all_network',
+              namespace: 'netflow_on_all_networks',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
