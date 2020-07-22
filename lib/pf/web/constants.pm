@@ -92,7 +92,6 @@ Readonly::Scalar our $URL_SIGNUP                => '/signup';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email(.*)';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION_LINK => '/activate/email';
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
-Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
 Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
