@@ -16,15 +16,15 @@ test:
 	PFCONFIG_TESTING=y go test -count=1 ./...
 
 CMDS = $(wildcard cmd/*)
-BINARYS = $(patsubst cmd/%, %, $(CMDS))
-.PHONY: $(BINARYS)
-$(BINARYS):
+BINARIES = $(patsubst cmd/%, %, $(CMDS))
+.PHONY: $(BINARIES)
+$(BINARIES):
 	cd cmd/$@ && \
 	go build && \
 	mv $@ ../..
 
-BINARYS_RACE = $(patsubst cmd/%, %-race, $(CMDS))
-$(BINARYS_RACE):
+BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
+$(BINARIES_RACE):
 	cd cmd/$(@:-race=) && \
 	go build -o $@ -race && \
 	mv $@ ../..
