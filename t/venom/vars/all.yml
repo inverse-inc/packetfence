@@ -347,3 +347,14 @@ dot1x_eap_tls_pfpki.profiles.wired.description: 802.1X wired EAP-TLS
 dot1x_eap_tls_pfpki.profiles.wired.filters.connection_type: Ethernet-EAP
 dot1x_eap_tls_pfpki.profiles.wired.filters.connection_sub_type: EAP-TLS
 dot1x_eap_tls_pfpki.profiles.wired.unreg_on_acct_stop: enabled
+
+#################################################################################
+## inline_l2 test suite specific variables
+#################################################################################
+inline_l2.interface.ipaddress: 172.17.6.254
+inline_l2.interface.netmask: 255.255.255.0
+inline_l2.interface.network: 172.17.6.0
+inline_l2.interface.nat_enabled: enabled
+inline_l2.interface.dhcpd_enabled: enabled
+inline_l2.interface.dns: '{{.ad_mgmt_ip}}'
+

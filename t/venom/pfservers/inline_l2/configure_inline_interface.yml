@@ -1,0 +1,44 @@
+name: Configure inline interface
+version: 2
+testcases:
+- name: get_id_interface
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interfaces'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    # hack, see https://github.com/inverse-inc/packetfence/issues/5718
+    # on CentOS, last interface is the first one
+    vars:
+      inline_int_id:
+        from: result.bodyjson.items.items0.id
+
+- name: configure_inline_interface
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interface/{{.get_id_interface.inline_int_id}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.get_id_interface.inline_int_id}}",
+        "ifindex: "6",
+        "name:" "{{.get_id_interface.inline_int_id}}",
+        "ipaddress": "{{.inline_l2.interface.ipaddress}}",
+        "netmask": "{{.inline_l2.interface.netmask}}",
+        "network": "{{.inline_l2.interface.network}}",
+        "nat_enabled": "{{.inline_l2.interface.nat_enabled}}",
+        "dhcpd_enabled": "{{.inline_l2.interface.dhcpd_enabled}}",
+        "dns": "{{.inline_l2.interface.dns}}",
+        "type": "inlinel2"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
