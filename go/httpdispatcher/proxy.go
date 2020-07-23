@@ -14,7 +14,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"text/template"
+	"html/template"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/db"
