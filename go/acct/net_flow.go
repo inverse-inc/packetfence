@@ -139,7 +139,7 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 }
 
 func (h *PfAcct) netflowProcessor() (*processor.Processor, error) {
-	addr := "127.0.0.1:" + h.NetFlowPort
+	addr := netFlowAddr + ":" + h.NetFlowPort
 	conn, err := net.ListenPacket("udp", addr)
 	if err != nil {
 		return nil, err

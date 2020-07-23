@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -13,7 +14,10 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
+var netFlowAddr = "127.0.0.1"
+
 func main() {
+	flag.Parse()
 	log.SetProcessName("pfacct")
 	increaseFileLimit()
 
@@ -56,6 +60,10 @@ func main() {
 		processor.Start()
 	}
 	w.Wait()
+}
+
+func init() {
+	flag.StringVar(&netFlowAddr, "netflow-ipaddress", "127.0.0.1", "IP Address netflow processor listens on")
 }
 
 func NotifySystemd(msg string) {
