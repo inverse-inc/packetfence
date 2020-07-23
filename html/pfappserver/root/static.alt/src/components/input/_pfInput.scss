@@ -1,0 +1,43 @@
+/**
+ * Global SCSS
+ */
+.pf-input,
+.pf-form-input {
+  & > .form-row > div[role="group"] { // style only direct decendants
+    & > .is-invalid,
+    & > .is-valid {
+      border-radius: $input-border-radius;
+      overflow: hidden; // clip child content that extends outside border-radius
+      & > input { // remove default border from input element
+        border: 0;
+      }
+    }
+    & > .is-invalid { // add invalid border to group
+      border: 1px solid $form-feedback-invalid-color;
+    }
+    & > .is-valid { // add valid border to group
+      border: 1px solid $form-feedback-valid-color;
+    }
+
+    .pf-input-button-group button {
+      margin-left: 0px; // override bootstrap -1px
+      text-transform: none;
+      &.disabled {
+        color: var(--light);
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+      }
+      &:not(.disabled):hover {
+        background-color: $input-btn-hover-bg-color;
+        color: $input-btn-hover-text-color;
+        border-color: $input-btn-hover-bg-color;
+        cursor: pointer;
+      }
+      &.btn-primary:not(.disabled) {
+        color: var(--white);
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+    }
+  }
+}
