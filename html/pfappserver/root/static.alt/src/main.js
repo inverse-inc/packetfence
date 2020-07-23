@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import CompositionApi from '@vue/composition-api'
 import BootstrapVue from 'bootstrap-vue'
+import { Plugin as Fragment } from 'vue-fragment'
 import i18n from '@/utils/locale'
 import VueTimeago from 'vue-timeago'
 import Icon from 'vue-awesome/components/Icon'
@@ -155,6 +156,7 @@ Vue.use(VueTimeago, {
 Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
 Vue.use(CompositionApi)
+Vue.use(Fragment)
 Vue.use(pfTemplatePlugin)
 
 // Register global filters
