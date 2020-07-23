@@ -3,141 +3,6 @@
     <b-card no-body>
       <b-card-header>
         <h4 class="mb-0" v-t="'Create Users'"></h4>
-<!--
-      <pf-form-input
-        v-model="form.single.test"
-        :state="false"
-        :test="this.test"
-        placeholder="pf-form-input"
-      >
-          <template v-slot:prepend>
-            Prepend
-          </template>
-          <template v-slot:append>
-            Append
-          </template>
-      </pf-form-input>
-
-      <pf-input
-        v-model="form.single.test"
-        placeholder="pf-input"
-      ></pf-input>
--->
-      <pf-form-input
-        v-model="form.single.test"
-        placeholder="pf-form-input #1"
-        :text="form.single.test"
-        :state="(form.single.test === 'a')"
-        :state-map="{ true: true, false: false }"
-        :invalid-feedback="'Error!'"
-        :valid-feedback="'Success!'"
-      >
-        <template v-slot:prepend>Prepend</template>
-        <template v-slot:append>Append</template>
-      </pf-form-input>
-      <pf-form-input
-        v-model="form.single.test"
-        placeholder="pf-form-input #2"
-        :disabled="form.single.test === 'a'"
-        :tabIndex="-1"
-        :column-label="'#2'"
-        label-cols="4"
-      >
-        <template v-slot:prepend>Prepend</template>
-        <template v-slot:append>Append</template>
-      </pf-form-input>
-      <pf-form-input
-        v-model="form.single.test"
-        placeholder="pf-form-input #3"
-        :readonly="form.single.test !== 'a'"
-      >
-        <template v-slot:prepend>Prepend</template>
-        <template v-slot:append>Append</template>
-      </pf-form-input>
-<!--
-      <pf-form-input-new
-v-model="form.single.test"
-class="pf-extra"
-:state="false"
-invalid-feedback="You suck"
-valid-feedback="You rock"
- :zzzform-store-name="formStoreName" zzzform-namespace="single.test"
-column-label="#3"
-:text="$t('The <strong>username</strong> to use for login to the captive portal.')"
-        >
-          <template v-slot:prepend>
-            <b-button disabled variant="link" v-b-tooltip.hover.top.d300 :title="$t('Domain Name will be appended.')">{{ domainName }}</b-button>
-          </template>
-        </pf-form-input-new>
-
-        <pf-form-input-test
-v-model="form.single.test"
-:state="false"
-invalid-feedback="You suck"
-column-label="#4"
-:disabled="true"
-        >
-          <template v-slot:prepend>
-            Test Prepend Slot
-          </template>
-          <template v-slot:append>
-            Test Append Slot
-          </template>
-        </pf-form-input-test>
-
-        <pf-form-input-test
-v-model="form.single.test"
-:state="true"
-invalid-feedback="You suck"
-column-label="#5"
-:disabled="false"
-:test="test"
-        >
-          <template v-slot:prepend>
-            Test Prepend Slot
-          </template>
-          <template v-slot:append>
-            Test Append Slot
-          </template>
-        </pf-form-input-test>
---->
-
-        <pf-form-input-password
-v-model="form.single.test"
-:state="true"
-invalid-feedback="You suck"
-column-label="#6 pf-form-input-password"
-:disabled="false"
-        >
-          <template v-slot:prepend>
-            Test Prepend Slot
-          </template>
-          <template v-slot:append>
-            Test Append Slot
-          </template>
-        </pf-form-input-password>
-
-        <pf-form-input-password-test
-v-model="form.single.test"
-:state="true"
-invalid-feedback="You suck"
-column-label="#7 pf-form-input-password-test"
-:disabled="false"
-:test="() => { return true }"
-        >
-          <template v-slot:prepend>
-            Test Prepend Slot
-          </template>
-          <template v-slot:append>
-            Test Append Slot
-          </template>
-        </pf-form-input-password-test>
-
-
-
-        <pre>{{ JSON.stringify(form, null, 2) }}</pre>
-
-
       </b-card-header>
       <b-tabs v-model="modeIndex" card>
         <b-tab title="Single">
@@ -389,13 +254,9 @@ column-label="#7 pf-form-input-password-test"
 <script>
 /* eslint-disable no-unused-vars */
 import {
-  pfInput,
-  pfFormInput as pfFormInputNew,
-  pfFormInputTest,
-  pfFormInputPassword,
-  pfFormInputPasswordTest,
-  pfFormInputPower
-} from '@/components/pfInput/'
+  BaseInput,
+  BaseFormGroupInput
+} from '@/components/new/'
 
 
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
@@ -424,13 +285,8 @@ import {
 export default {
   name: 'users-create',
   components: {
-    pfInput,
-    //pfFormInputNew,
-    //pfFormInputTest,
-    //pfFormInputPower,
-
-    pfFormInputPassword,
-    pfFormInputPasswordTest,
+    BaseInput,
+    BaseFormGroupInput,
 
     pfFormChosen,
     pfFormDatetime,
