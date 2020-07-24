@@ -1442,20 +1442,20 @@ sub _report_osclassbandwidth_with_range {
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
-    my @return_data;
 
     foreach my $record (@data) {
         $total_bytes += $record->{'bytes'};
         $total_bytes_in += $record->{'bytes_in'};
         $total_bytes_out += $record->{'bytes_out'};
     }
+
     foreach my $record (@data) {
-        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
-        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
-        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
-        push @return_data, $record;
+        $record->{'percent_in'} = _format_percentage($record->{'bytes_in'}, $total_bytes_in);
+        $record->{'percent_out'} = _format_percentage($record->{'bytes_out'}, $total_bytes_out);
+        $record->{'percent'} = _format_percentage($record->{'bytes'}, $total_bytes);
     }
-    push @return_data, {
+
+    push @data, {
       'dhcp_fingerprint' => "Total",
       'bytes' => $total_bytes,
       'bytes_in' => $total_bytes_in,
@@ -1464,7 +1464,8 @@ sub _report_osclassbandwidth_with_range {
       'percent_in' =>"100",
       'percent_out' =>"100"
     };
-    return (@return_data);
+
+    return (@data);
 }
 
 =item report_osclassbandwidth_hour
@@ -1539,13 +1540,14 @@ sub report_nodebandwidth {
       $total_bytes_in += $record->{'bytes_in'};
       $total_bytes_out += $record->{'bytes_out'};
     }
+
     foreach my $record (@data) {
-        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
-        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
-        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
-        push @return_data, $record;
+        $record->{'percent_in'} = _format_percentage($record->{'bytes_in'}, $total_bytes_in);
+        $record->{'percent_out'} = _format_percentage($record->{'bytes_out'}, $total_bytes_out);
+        $record->{'percent'} = _format_percentage($record->{'bytes'}, $total_bytes);
     }
-    push @return_data, {
+
+    push @data, {
       'mac' => "Total",
       'bytes' => $total_bytes,
       'bytes_in' => $total_bytes_in,
@@ -1554,7 +1556,13 @@ sub report_nodebandwidth {
       'percent_in' =>"100",
       'percent_out' =>"100"
     };
-    return (@return_data);
+
+    return (@data);
+}
+
+sub _format_percentage {
+    my ($bytes, $total_bytes) = @_;
+    return sprintf("%.2f", $total_bytes ? ( ($bytes / $total_bytes ) * 100.0 ) : 0.0);
 }
 
 =item _report_nodebandwidth_with_range
@@ -1574,20 +1582,20 @@ sub _report_nodebandwidth_with_range {
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
-    my @return_data;
 
     foreach my $record (@data) {
         $total_bytes += $record->{'bytes'};
         $total_bytes_in += $record->{'bytes_in'};
         $total_bytes_out += $record->{'bytes_out'};
     }
+
     foreach my $record (@data) {
-        $record->{'percent_in'} = sprintf("%.2f", ( $record->{'bytes_in'} / $total_bytes_in ) * 100 );
-        $record->{'percent_out'} = sprintf("%.2f", ( $record->{'bytes_out'} / $total_bytes_out ) * 100 );
-        $record->{'percent'} = sprintf("%.2f", ( $record->{'bytes'} / $total_bytes ) * 100 );
-        push @return_data, $record;
+        $record->{'percent_in'} = _format_percentage($record->{'bytes_in'}, $total_bytes_in);
+        $record->{'percent_out'} = _format_percentage($record->{'bytes_out'}, $total_bytes_out);
+        $record->{'percent'} = _format_percentage($record->{'bytes'}, $total_bytes);
     }
-    push @return_data, {
+
+    push @data, {
       'mac' => "Total",
       'bytes' => $total_bytes,
       'bytes_in' => $total_bytes_in,
@@ -1596,7 +1604,8 @@ sub _report_nodebandwidth_with_range {
       'percent_in' =>"100",
       'percent_out' =>"100"
     };
-    return (@return_data);
+
+    return (@data);
 }
 
 =item report_nodebandwidth_hour
