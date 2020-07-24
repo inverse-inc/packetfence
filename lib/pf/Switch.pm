@@ -1404,6 +1404,89 @@ sub isPhoneAtIfIndex {
     }
 }
 
+=head2 getPhonesLLDPAtIfIndex
+
+Return list of MACs found through LLDP on a given ifIndex.
+If this proves to be generic enough, it could be promoted to L<pf::Switch>.
+In that case, create a generic ifIndexToLldpLocalPort also.
+
+=cut
+
+sub getPhonesLLDPAtIfIndex {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+    my @phones;
+    my $lldpLocalPort = $self->ifIndexToLldpLocalPort( $ifIndex );
+    if ( !$lldpLocalPort ) { return @phones; }
+    if ( !$self->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on switch "
+                . $self->{_ip}
+                . ". getPhonesLLDPAtIfIndex will return empty list." );
+        return @phones;
+    }
+    my $oid_lldpRemPortId  = '1.0.8802.1.1.2.1.4.1.1.7';
+    my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
+
+    if ( !$self->connectRead() ) {
+        return @phones;
+    }
+    $logger->trace(
+        "SNMP get_next_request for lldpRemSysCapEnabled: $oid_lldpRemSysCapEnabled");
+    my $result = $self->{_sessionRead}
+        ->get_table( -baseoid => $oid_lldpRemSysCapEnabled );
+    foreach my $oid ( keys %{$result} ) {
+        if ( $oid =~ /^$oid_lldpRemSysCapEnabled\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
+            if ( $lldpLocalPort eq $2 ) {
+                my $cache_lldpRemTimeMark     = $1;
+                my $cache_lldpRemLocalPortNum = $2;
+                my $cache_lldpRemIndex        = $3;
+
+                if ( $self->getlldpRemSysCapEnabled($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+                    $logger->trace(
+                        "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                    );
+                    my $MACresult = $self->{_sessionRead}->get_request(
+                        -varbindlist => [
+                            "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                        ]
+                    );
+                    if ($MACresult
+                        && ($MACresult->{
+                                "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                            }
+                            =~ /^(?:0x)?([0-9A-Z]{2})[\s\-\,\.]?([0-9A-Z]{2})[\s\-\,\.]?([0-9A-Z]{2})[\s\-\,\.]?([0-9A-Z]{2})[\s\-\,\.]?([0-9A-Z]{2})[\s\-\,\.]?([0-9A-Z]{2})(?:.*)?(?::..)?$/i
+                        )
+                        )
+                    {
+                        push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    }
+                }
+            }
+        }
+    }
+    return @phones;
+}
+
+=item getlldpRemSysCapEnabled
+
+Returns the bit for the capabilitie specified
+The input must be the untranslated raw result of an snmp get_table
+
+=cut
+
+sub getlldpRemSysCapEnabled {
+    my ( $self, $bitStream, $capabilitie ) = @_;
+    my $bin ='';
+    if ($bitStream =~ /^0x/) {
+        $bitStream =~ s/^0x//i;
+        $bin = join('', map { unpack( "B4", pack( "H", $_ ) ) } ( split //, $bitStream ) );
+    } else {
+        $bin = unpack( 'B*', $bitStream );
+    }
+    if ( substr($bin,0,8) ne '00000000' ) { return substr( $bin, $capabilitie, 1 ); }
+    else { return substr( $bin, $capabilitie -8, 1 ); }
+}
+
 sub getMinOSVersion {
     my ($self) = @_;
     my $logger = $self->logger;
