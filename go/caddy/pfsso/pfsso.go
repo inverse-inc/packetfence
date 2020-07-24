@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -162,13 +163,22 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 
 	var shouldStart bool
 	for _, firewall := range firewallsso.Firewalls.Structs {
-		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
+		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|mac|" + info["mac"] + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
 		// Check whether or not this firewall has cache updates
 		// Then check if an entry in the cache exists
 		//  If it does exist, we don't send a Start
 		//  Otherwise, we add an entry in the cache
 		// Note that this has a race condition between the cache.Get and the cache.Set but it is acceptable since worst case will be that 2 SSO will be sent if both requests came in at that same nanosecond
 		if firewall.ShouldCacheUpdates(ctx) {
+			// Delete any entries for this MAC that aren't matching this cache key
+			for k, _ := range h.updateCache.Items() {
+				// If its not our current cache key but its made for the same MAC, then we'll remove it since its not relevant anymore
+				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]) {
+					log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
+					h.updateCache.Delete(k)
+				}
+			}
+
 			if _, found := h.updateCache.Get(cacheKey); !found {
 
 				var cacheTimeout int
