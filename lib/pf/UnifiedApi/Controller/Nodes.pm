@@ -1033,15 +1033,30 @@ sub validate {
     }
 
     if (@errors) {
-            return 422, {
-                    message => 'Invalid request',
-                    errors => \@errors,
-            };
+        return 422, {
+            message => 'Invalid request',
+            errors => \@errors,
+        };
     }
+
     if ($mac) {
         $json->{mac} = clean_mac($mac);
     }
+
     return 200, undef;
+}
+
+sub do_get {
+    my ($self, $data) = @_;
+    my ($status, $item) = $self->dal->find($data);
+    if (is_error($status)) {
+        $item = undef;
+    } else {
+        $item->_load_locationlog;
+        $item = $item->to_hash();
+    }
+
+    return ($status, $item);
 }
 
 sub status_to_error_msg {
