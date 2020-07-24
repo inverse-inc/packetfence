@@ -18,13 +18,13 @@
       @focus="onFocus"
       @blur="onBlur"
     />
-    <small v-if="inputInvalidFeedback"
+    <small v-if="stateInvalidFeedback"
       class="invalid-feedback"
-      v-html="inputInvalidFeedback"
+      v-html="stateInvalidFeedback"
     />
-    <small v-if="inputValidFeedback"
+    <small v-if="stateValidFeedback"
       class="valid-feedback"
-      v-html="inputValidFeedback"
+      v-html="stateValidFeedback"
     />
     <small v-if="inputText"
       v-html="inputText"
@@ -85,8 +85,8 @@ export default {
 
       // useInputValidation
       stateMapped,
-      inputInvalidFeedback: invalidFeedback,
-      inputValidFeedback: validFeedback
+      stateInvalidFeedback: invalidFeedback,
+      stateValidFeedback: validFeedback
     }
   }
 }

@@ -1,7 +1,11 @@
 import BaseInput from './BaseInput'
-import BaseFormGroupInput from './BaseFormGroupInput'
+import BaseInputGroup from './BaseInputGroup'
+import BaseFormGroup from './BaseFormGroup'
+import BaseArray from './BaseArray'
 
 export {
   BaseInput,
-  BaseFormGroupInput
+  BaseInputGroup,
+  BaseFormGroup,
+  BaseArray
 }

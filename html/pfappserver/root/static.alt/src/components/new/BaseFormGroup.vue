@@ -2,11 +2,11 @@
   <b-form-group ref="form-group"
     class="base-form-group"
     :class="{
-      'mb-0': !columnLabel
+      'mb-0': !formGroupLabel
     }"
     :state="stateMapped"
-    :labelCols="labelCols"
-    :label="columnLabel"
+    :labelCols="formGroupLabelCols"
+    :label="formGroupLabel"
   >
     <template v-slot:invalid-feedback>
       {{ stateInvalidFeedback }}
@@ -14,46 +14,24 @@
     <template v-slot:valid-feedback>
       {{ stateValidFeedback }}
     </template>
-
     <b-input-group
       :class="{
-        'is-focus': isFocus,
-        'is-blur': !isFocus,
         'is-valid': stateMapped === true,
         'is-invalid': stateMapped === false
       }"
     >
-      <b-form-input ref="input"
-        class="base-form-input"
-        :disabled="isLocked"
-        :readonly="inputReadonly"
-        :state="stateMapped"
-        :placeholder="inputPlaceholder"
-        :tabIndex="inputTabIndex"
-        :type="inputType"
-        :value="inputValue"
-        @input="onInput"
-        @change="onChange"
-        @focus="onFocus"
-        @blur="onBlur"
-      />
+      <!-- Proxy slots -->
+      <template v-slot:default>
+        <slot name="default"></slot>
+      </template>
       <template v-slot:prepend>
         <slot name="prepend"></slot>
       </template>
       <template v-slot:append>
         <slot name="append"></slot>
-        <b-button v-if="isLocked"
-          class="input-group-text"
-          :disabled="true"
-          tabIndex="-1"
-        >
-          <icon ref="icon-lock"
-            name="lock"
-          />
-        </b-button>
       </template>
     </b-input-group>
-    <b-form-text v-if="text" v-html="text"></b-form-text>
+    <b-form-text v-if="formGroupText" v-html="formGroupText"></b-form-text>
   </b-form-group>
 </template>
 <script>
@@ -69,7 +47,7 @@ export const props = {
 
 // @vue/component
 export default {
-  name: 'base-form-group-input',
+  name: 'base-form-group',
   inheritAttrs: false,
   props,
   setup(props, context) {
@@ -101,9 +79,9 @@ export default {
 
     return {
       // useFormGroup
-      columnLabel,
-      labelCols,
-      text,
+      formGroupLabel: columnLabel,
+      formGroupLabelCols: labelCols,
+      formGroupText: text,
 
       // useInput
       inputValue: value,
