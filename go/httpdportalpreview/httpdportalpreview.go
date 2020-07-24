@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"golang.org/x/net/html"
 )
@@ -97,8 +96,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if previewStatic {
 		r.URL = &url.URL{Path: "/captive-portal"}
 	}
-	spew.Dump(host)
-	spew.Dump(r)
 	rp.ServeHTTP(w, r)
 }
 
