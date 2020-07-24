@@ -253,6 +253,14 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 
 	ctx = h.addInfoToContext(ctx, info)
 
+	// Delete any cache entries for this IP
+	for k, _ := range h.updateCache.Items() {
+		if strings.Contains(k, "|ip|"+info["ip"]+"|") {
+			log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
+			h.updateCache.Delete(k)
+		}
+	}
+
 	for _, firewall := range firewallsso.Firewalls.Structs {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
