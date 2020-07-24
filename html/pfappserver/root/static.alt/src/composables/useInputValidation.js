@@ -7,7 +7,8 @@ export const useInputValidationProps = {
   },
   stateMap: {
     type: Object,
-    default: () => ({ false: false, true: null })
+    default: () => ({ false: false, true: null }),
+    validator: value => ('false' in value && 'true' in value)
   },
   invalidFeedback: {
     type: String
@@ -22,9 +23,10 @@ export const useInputValidation = (props) => {
   const {
     state,
     stateMap,
-    invalidFeedback,
-    validFeedback
+    invalidFeedback: propInvalidFeedback,
+    validFeedback: propValidFeedback
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
+
 
   // state
   const stateMapped = computed(() => {
@@ -33,24 +35,24 @@ export const useInputValidation = (props) => {
       : null
   })
 
-  // mask :invalidFeedback if :state is truey or :invalidFeedback is not defined
-  const maskInvalidFeedback = computed(() => {
-    return (stateMapped.value === false && invalidFeedback.value)
-      ? invalidFeedback.value
+  // mask :invalidFeedback if :state is truthy or :invalidFeedback is not defined
+  const invalidFeedback = computed(() => {
+    return (stateMapped.value === false && propInvalidFeedback.value)
+      ? propInvalidFeedback.value
       : null
   })
 
   // mask :validFeedback if :state is falsey or :validFeedback is not defined
-  const maskValidFeedback = computed(() => {
-    return (stateMapped.value === true && validFeedback.value)
-      ? validFeedback.value
+  const validFeedback = computed(() => {
+    return (stateMapped.value === true && propValidFeedback.value)
+      ? propValidFeedback.value
       : null
   })
 
   return {
     state,
     stateMapped,
-    invalidFeedback: maskInvalidFeedback,
-    validFeedback: maskValidFeedback
+    invalidFeedback,
+    validFeedback
   }
 }

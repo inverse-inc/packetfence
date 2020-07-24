@@ -50,10 +50,7 @@ export const useInput = (props, { emit, parent, refs }, inputRef = 'input') => {
   const doSelect = () => refs[inputRef].$el.select()
 
   // events
-  const onInput = value => {
-    console.log('input', value)
-    emit('input', value)
-  }
+  const onInput = value => emit('input', value)
   const onChange = value => emit('change', value)
   const onFocus = event => {
     isFocus.value = true

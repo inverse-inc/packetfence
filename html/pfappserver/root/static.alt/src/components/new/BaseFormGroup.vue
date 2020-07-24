@@ -29,6 +29,15 @@
       </template>
       <template v-slot:append>
         <slot name="append"></slot>
+        <b-button v-if="isLocked"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+        >
+          <icon ref="icon-lock"
+            name="lock"
+          />
+        </b-button>
       </template>
     </b-input-group>
     <b-form-text v-if="formGroupText" v-html="formGroupText"></b-form-text>

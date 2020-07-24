@@ -18,6 +18,9 @@
       @focus="onFocus"
       @blur="onBlur"
     />
+    <small v-if="inputText"
+      v-html="inputText"
+    />
     <small v-if="stateInvalidFeedback"
       class="invalid-feedback"
       v-html="stateInvalidFeedback"
@@ -25,9 +28,6 @@
     <small v-if="stateValidFeedback"
       class="valid-feedback"
       v-html="stateValidFeedback"
-    />
-    <small v-if="inputText"
-      v-html="inputText"
     />
   </fragment>
 </template>
@@ -40,54 +40,55 @@ export const props = {
   ...useInputValidationProps
 }
 
+export const setup = (props, context) => {
+  const {
+    value,
+    placeholder,
+    readonly,
+    tabIndex,
+    text,
+    type,
+    isFocus,
+    isLocked,
+    onInput,
+    onChange,
+    onFocus,
+    onBlur
+  } = useInput(props, context)
+
+  const {
+    stateMapped,
+    invalidFeedback,
+    validFeedback
+  } = useInputValidation(props, context)
+
+  return {
+    // useInput
+    inputValue: value,
+    inputReadonly: readonly,
+    inputPlaceholder: placeholder,
+    inputTabIndex: tabIndex,
+    inputText: text,
+    inputType: type,
+    isFocus,
+    isLocked,
+    onInput,
+    onChange,
+    onFocus,
+    onBlur,
+
+    // useInputValidation
+    stateMapped,
+    stateInvalidFeedback: invalidFeedback,
+    stateValidFeedback: validFeedback
+  }
+}
+
 // @vue/component
 export default {
   name: 'base-input',
   inheritAttrs: false,
   props,
-  setup(props, context) {
-
-    const {
-      value,
-      placeholder,
-      readonly,
-      tabIndex,
-      text,
-      type,
-      isFocus,
-      isLocked,
-      onInput,
-      onChange,
-      onFocus,
-      onBlur
-    } = useInput(props, context)
-
-    const {
-      stateMapped,
-      invalidFeedback,
-      validFeedback
-    } = useInputValidation(props, context)
-
-    return {
-      // useInput
-      inputValue: value,
-      inputReadonly: readonly,
-      inputPlaceholder: placeholder,
-      inputTabIndex: tabIndex,
-      inputText: text,
-      inputType: type,
-      isFocus,
-      isLocked,
-      onInput,
-      onChange,
-      onFocus,
-      onBlur,
-
-      // useInputValidation
-      stateMapped,
-      stateInvalidFeedback: invalidFeedback,
-      stateValidFeedback: validFeedback
-    }
-  }
+  setup
 }
 </script>

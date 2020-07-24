@@ -15,8 +15,20 @@
       </template>
       <template v-slot:append>
         <slot name="append"></slot>
+        <b-button v-if="isLocked"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+        >
+          <icon ref="icon-lock"
+            name="lock"
+          />
+        </b-button>
       </template>
     </b-input-group>
+    <small v-if="inputText"
+      v-html="inputText"
+    />
     <small v-if="stateInvalidFeedback"
       class="invalid-feedback"
       v-html="stateInvalidFeedback"
@@ -24,9 +36,6 @@
     <small v-if="stateValidFeedback"
       class="valid-feedback"
       v-html="stateValidFeedback"
-    />
-    <small v-if="inputText"
-      v-html="inputText"
     />
   </fragment>
 </template>
@@ -46,7 +55,8 @@ export default {
   props,
   setup(props, context) {
     const {
-      text
+      text,
+      isLocked
     } = useInputGroup(props)
 
     const {
@@ -58,6 +68,7 @@ export default {
     return {
       // useInputGroup
       inputText: text,
+      isLocked,
 
       // useInputValidation
       stateMapped,
