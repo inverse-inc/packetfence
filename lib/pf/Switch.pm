@@ -1406,7 +1406,7 @@ sub isPhoneAtIfIndex {
 
 =head2 getPhonesLLDPAtIfIndex
 
-Return list of MACs found through LLDP on a given ifIndex.
+Return list of phones found through LLDP on a given ifIndex.
 
 =cut
 
@@ -1439,7 +1439,7 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
 
-                if ( $self->getLldpRemSysCapEnabled($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+                if ( $self->getLLDPRemSysCapEnabled($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
@@ -1465,14 +1465,14 @@ sub getPhonesLLDPAtIfIndex {
     return @phones;
 }
 
-=item getLldpRemSysCapEnabled
+=item getLLDPRemSysCapEnabled
 
 Returns the bit for the capabilitie specified
 The input must be the untranslated raw result of an snmp get_table
 
 =cut
 
-sub getlldpRemSysCapEnabled {
+sub getLLDPRemSysCapEnabled {
     my ( $self, $bitStream, $capabilitie ) = @_;
     my $bin ='';
     if ($bitStream =~ /^0x/) {
