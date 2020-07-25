@@ -1407,8 +1407,6 @@ sub isPhoneAtIfIndex {
 =head2 getPhonesLLDPAtIfIndex
 
 Return list of MACs found through LLDP on a given ifIndex.
-If this proves to be generic enough, it could be promoted to L<pf::Switch>.
-In that case, create a generic ifIndexToLldpLocalPort also.
 
 =cut
 
@@ -1441,7 +1439,7 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
 
-                if ( $self->getlldpRemSysCapEnabled($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+                if ( $self->getLldpRemSysCapEnabled($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
@@ -1467,7 +1465,7 @@ sub getPhonesLLDPAtIfIndex {
     return @phones;
 }
 
-=item getlldpRemSysCapEnabled
+=item getLldpRemSysCapEnabled
 
 Returns the bit for the capabilitie specified
 The input must be the untranslated raw result of an snmp get_table
