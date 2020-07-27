@@ -30,15 +30,15 @@ $(ALL_BINARIES_RACE):
 	mv $@ ../..
 
 .PHONY: all
-all: $(GOBINARIES)
+all: $(PF_BINARIES)
 
 .PHONY: copy
 copy:
-	cp -f $(GOBINARIES) $(DESTDIR)$(SBINDIR)
+	cp -f $(PF_BINARIES) $(DESTDIR)$(SBINDIR)
 
 .PHONY: clean
 clean:
-	rm -f $(GOBINARIES)
+	rm -f $(PF_BINARIES)
 
 .PHONY: clean-coredns-src
 clean-coredns-src:
