@@ -208,6 +208,17 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 					Index := NetIndex
 					IPSET.Network[&Index] = ConfNet.Type
 				}
+				if ConfNet.SplitNetwork == "enabled" {
+					ipv4Addr, ipv4Net, err := net.ParseCIDR(ConfNet.RegNetwork)
+					if err != nil {
+						logger.Error(err)
+					} else {
+						NetIndex.Mask = ipv4Net.Mask
+						NetIndex.IP = ipv4Addr
+						Index := NetIndex
+						IPSET.Network[&Index] = ConfNet.Type
+					}
+				}
 			}
 		}
 	}
