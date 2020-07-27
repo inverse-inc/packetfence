@@ -37,6 +37,7 @@ use pf::SwitchFactory;
 use pf::util qw(valid_ip valid_mac clean_mac);
 use pf::Connection::ProfileFactory;
 use pf::log;
+use pf::enforcement;
 
 our %STATUS_TO_MSG = (
     %pf::UnifiedApi::Controller::STATUS_TO_MSG,
@@ -1076,6 +1077,19 @@ sub can_remove {
     return (422, $msg);
 }
 
+sub do_remove {
+    my ($self) = @_;
+    my $mac = $self->id;
+    my ($result, $msg) = pf::node::_can_delete($mac);
+    if (!$result) {
+        pf::node::node_deregister($mac);
+        pf::enforcement::reevaluate_access($mac, "admin_modify", sync => 1);
+        pf::locationlog::locationlog_update_end_mac($mac);
+    }
+
+    return $self->dal->remove_by_id($self->build_item_lookup);
+}
+
 =head2 create_data_update
 
 create_data_update
@@ -1089,6 +1103,7 @@ sub create_data_update {
     }
 
     $data->{category_id} = 1;
+    return;
 }
 
 =head1 AUTHOR
