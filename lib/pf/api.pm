@@ -51,6 +51,7 @@ use pf::services();
 use pf::firewallsso();
 use pf::pfqueue::stats();
 use pf::pfqueue::producer::redis();
+use pf::util qw(mysql_date);
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap any);
@@ -982,7 +983,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
     if ( $postdata{'net_type'} eq 'registration' ) { # On Registration Scans
 
         if( any { pf::util::isenabled($_->{'_registration'}) } @scanners ) {
-            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::SCAN_SECURITY_EVENT_ID );
+            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::SCAN_SECURITY_EVENT_ID, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
         }
 
         return if (!defined($added) || $added == 0 || $added == -1);
@@ -1007,7 +1008,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
     } elsif ( pf::util::is_prod_interface($postdata{'net_type'}) ) { # Post Registration Scans
 
         if( any { pf::util::isenabled($_->{'_post_registration'}) } @scanners ) {
-            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID );
+            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
         }
 
         return if (!defined($added) || $added == 0 || $added == -1);
@@ -1032,7 +1033,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
     } else { # Pre Registration Scans
 
         if (any { pf::util::isenabled($_->{'_pre_registration'}) } @scanners ) {
-                $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID );
+                $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
             }
 
         return if (!defined($added) || $added == 0 || $added == -1);
