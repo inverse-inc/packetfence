@@ -388,28 +388,19 @@ sub writeNetworkConfigs {
     }
 
     open IN, '<', $_network_conf_dir.$_network_conf_file;
-    chomp(my @content = <IN>);
+    my @content = <IN>;
     close IN;
 
-    @content = grep !/^GATEWAY=/, @content;
-
-    my $cmd = "echo @content | sudo tee $_network_conf_dir$_network_conf_file";
-    my $status = pf_run($cmd);
-    # Something went wrong
-    if ( !(defined($status) ) ) {
+    @content = grep { !/^GATEWAY=/ } @content;
+    open(my $out, "|-", "sudo tee $_network_conf_dir$_network_conf_file > /dev/null");
+    if (!$out) {
         $status_msg = "Something went wrong while writing the network file";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-    $cmd = "echo GATEWAY=$gateway | sudo tee -a $_network_conf_dir$_network_conf_file";
-
-    $status = pf_run($cmd);
-    # Something went wrong
-    if ( !(defined($status) ) ) {
-        $status_msg = "Something went wrong while writing the network file";
-        $logger->warn($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
+    print $out @content;
+    print $out "GATEWAY=$gateway\n";
+    close $out;
 
     $logger->info("System network configurations successfully written");
     return $STATUS::OK;
