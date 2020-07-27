@@ -728,9 +728,9 @@ sub node_deregister {
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    if(my $provisioner = $profile->findProvisioner($mac)){
-        if(my $pki_provider = $provisioner->getPkiProvider() ){
-            if(isenabled($pki_provider->revoke_on_unregistration)){
+    if (my $provisioner = $profile->findProvisioner($mac)) {
+        if (my $pki_provider = $provisioner->getPkiProvider() ) {
+            if (isenabled($pki_provider->revoke_on_unregistration)) {
                 my $node_info = node_view($mac);
                 my $cn = $pki_provider->user_cn($node_info);
                 $pki_provider->revoke($cn);
