@@ -106,6 +106,14 @@ dot1x_eap_peap.roles.ad_machine.id: machine_employee
 dot1x_eap_peap.roles.ad_machine.notes: Machine Employee
 dot1x_eap_peap.roles.ad_machine.vlan_id: 100
 
+################################################################################
+# dot1x_eap_tls_pfpki test suite specific variables
+################################################################################
+# Roles
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100
+
 # Sources
 dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
 dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
