@@ -162,6 +162,7 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 
 // detectType of each network
 func (IPSET *pfIPSET) detectType(ctx context.Context) error {
+	logger := log.LoggerWContext(ctx)
 	IPSET.ListALL, _ = ipset.ListAll()
 	var NetIndex net.IPNet
 	IPSET.Network = make(map[*net.IPNet]string)
@@ -211,7 +212,7 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 				if ConfNet.SplitNetwork == "enabled" {
 					ipv4Addr, ipv4Net, err := net.ParseCIDR(ConfNet.RegNetwork)
 					if err != nil {
-						logger.Error(err)
+						logger.Error(err.Error())
 					} else {
 						NetIndex.Mask = ipv4Net.Mask
 						NetIndex.IP = ipv4Addr
