@@ -99,7 +99,9 @@ sub iptables_generate {
                 $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
                 if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
-                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout 45 2>&1";
+                    my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                    my $reg_net = NetAddr::IP->new($reg_ip->network());
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_".$reg_net->addr()." bitmap:ip,mac range ".$reg_ip->network()." timeout 45 2>&1";
                 } else {
                     $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
                 }
@@ -148,7 +150,13 @@ sub generate_mangle_rules {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                 $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src ";
             } else {
-                $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
+                if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
+                    my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                    my $reg_net = NetAddr::IP->new($reg_ip->network());
+                    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_".$reg_net->addr()." src,src ";
+                } else {
+                    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
+                }
             }
             $mangle_rules .= "--jump MARK --set-mark 0x$IPTABLES_MARK\n";
         }
@@ -310,6 +318,19 @@ sub iptables_mark_node {
             my $node_info = pf::node::node_view($mac);
             my $role_id = $node_info->{'category_id'} // "0";
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
+            if (isenabled($ConfigNetworks{$network}{'split_network'}) ) {
+                my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                my $reg_net = NetAddr::IP->new($reg_ip->network());
+                if ($reg_inet->contains($ip)) {
+                    call_ipsetd("/ipset/mark_layer2?local=0",{
+                        "network" => $reg_net->addr(),
+                        "type"    => $mark_type_to_str{$mark},
+                        "role_id" => "".$role_id,
+                        "ip"      => $iplog,
+                        "mac"     => $mac
+                    });
+                }
+            }
             if ($net_addr->contains($ip)) {
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
@@ -405,7 +426,18 @@ sub update_node {
                     "ip" => $oldip
                  });
             }
-            #Add in ipset session if the ip change
+            if (isenabled($ConfigNetworks{$network}{'split_network'}) ) {
+                my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                my $reg_net = NetAddr::IP->new($reg_ip->network());
+                if ($reg_net->contains($src_ip)) {
+                    call_ipsetd("/ipset/mark_ip_layer2?local=0",{
+                        "network" => $reg_net->addr(),
+                        "role_id" => "".$id,
+                        "ip"      => $srcip
+                    });
+                }
+            }
+	    #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                     call_ipsetd("/ipset/mark_ip_layer3?local=0",{

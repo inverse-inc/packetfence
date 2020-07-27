@@ -362,7 +362,8 @@ sub generate_inline_rules {
             . "--jump DNAT --to $gateway\n";
 
         if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
-            $rule = "--protocol udp --destination-port 53 -s $ConfigNetworks{$network}{'reg_network'}";
+            my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+            $rule = "--protocol udp --destination-port 53 -s ".$reg_ip->network();
             $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
                 . "--jump DNAT --to $gateway\n";
             $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
@@ -463,6 +464,10 @@ sub generate_passthrough_rules {
                 my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                 if (defined ($nat) && (isenabled($nat))) {
                     $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+                    if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
+                        my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                        $$nat_rules_ref .= "-A POSTROUTING -s ".$reg_ip->network()." -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+                    }
                 }
             } else {
                 $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
@@ -480,6 +485,10 @@ sub generate_passthrough_rules {
                 my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                 if (defined ($nat) && (isenabled($nat))) {
                     $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address."\n";
+                    if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
+                        my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                        $$nat_rules_ref .= "-A POSTROUTING -s ".$reg_ip->network()." -o $int -j SNAT --to ".$if->address."\n";
+                    }
                 }
             } else {
                 $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to ".$if->address."\n";
