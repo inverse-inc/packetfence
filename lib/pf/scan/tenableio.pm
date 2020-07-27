@@ -15,6 +15,7 @@ use Readonly;
 use Net::TenableIO;
 use Data::Dumper qw(Dumper);
 use pf::security_event;
+use pf::constants;
 use pf::constants::trigger;
 use pf::constants::scan qw($STATUS_CLOSED $SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
 use XML::LibXML::Reader;
@@ -201,7 +202,8 @@ sub startScan {
         $self->parse_scan_report($scan_security_event_id);
 
     } else {
-        $logger->info("Nessus agent is not installed on the device")
+        $logger->info("Nessus agent is not installed on the device");
+        return $TRUE;
     }
 }
 
