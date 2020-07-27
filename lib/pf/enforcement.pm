@@ -110,7 +110,7 @@ sub reevaluate_access {
     }
 
     my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
-    if ( $conn_type != $INLINE ) {
+    if ( defined $conn_type && $conn_type != $INLINE ) {
         return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
     }
 
