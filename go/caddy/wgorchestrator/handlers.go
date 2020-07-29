@@ -14,7 +14,7 @@ import (
 )
 
 func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
-	peerPubKey, err := remoteclients.B64KeyToBytes(c.Query("public_key"))
+	peerPubKey, err := remoteclients.URLB64KeyToBytes(c.Query("public_key"))
 	if err != nil {
 		log.LoggerWContext(c).Error("Error while decoding peer public key: " + err.Error())
 		renderError(c, http.StatusBadRequest, errors.New("Public key is missing or doesn't have the right format"))
@@ -101,7 +101,7 @@ func (h *WgorchestratorHandler) handlerSharedSecret(peerPubKey [32]byte) [32]byt
 }
 
 func (h *WgorchestratorHandler) handleGetServerChallenge(c *gin.Context) {
-	peerPubKey, err := remoteclients.B64KeyToBytes(c.Query("public_key"))
+	peerPubKey, err := remoteclients.URLB64KeyToBytes(c.Query("public_key"))
 	if err != nil {
 		log.LoggerWContext(c).Error("Error while decoding peer public key: " + err.Error())
 		renderError(c, http.StatusBadRequest, errors.New("Public key is missing or doesn't have the right format"))

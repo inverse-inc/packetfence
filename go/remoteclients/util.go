@@ -60,6 +60,15 @@ func B64KeyToBytes(key string) ([32]byte, error) {
 	return b2, err
 }
 
+func URLB64KeyToBytes(key string) ([32]byte, error) {
+	b, err := base64.URLEncoding.DecodeString(key)
+	var b2 [32]byte
+	for i := range b {
+		b2[i] = b[i]
+	}
+	return b2, err
+}
+
 func EncryptMessage(key, text []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {

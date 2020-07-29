@@ -54,7 +54,7 @@ func TestHandleGetProfile(t *testing.T) {
 	encryptedChallenge, err := base64.URLEncoding.DecodeString(m["challenge"].(string))
 	sharedutils.CheckError(err)
 
-	serverPublicKey, err := remoteclients.B64KeyToBytes(m["public_key"].(string))
+	serverPublicKey, err := remoteclients.URLB64KeyToBytes(m["public_key"].(string))
 	sharedutils.CheckError(err)
 
 	sharedSecret := remoteclients.SharedSecret(priv, serverPublicKey)
