@@ -1,11 +1,11 @@
 
-
+drop table remote_clients;
 create table `remote_clients` (
   id int NOT NULL AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   private_key varchar(255) NOT NULL,
   public_key varchar(255) NOT NULL,
-  ip_address varchar(255) NOT NULL,
+  ip_address int NOT NULL,
   bypass_role int NOT NULL, 
   PRIMARY KEY (id),
   UNIQUE KEY remote_clients_private_key (`private_key`),
