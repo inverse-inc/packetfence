@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"net"
@@ -302,4 +303,17 @@ func IsIPv4(address net.IP) bool {
 // IsIPv6 return true if the ip is an IPv6 address
 func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
+}
+
+func IP2Int(ip net.IP) uint32 {
+	if len(ip) == 16 {
+		return binary.BigEndian.Uint32(ip[12:16])
+	}
+	return binary.BigEndian.Uint32(ip)
+}
+
+func Int2IP(nn uint32) net.IP {
+	ip := make(net.IP, 4)
+	binary.BigEndian.PutUint32(ip, nn)
+	return ip
 }

@@ -2,6 +2,7 @@ package wgorchestrator
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"regexp"
 	"time"
@@ -9,10 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jcuga/golongpoll"
+	"github.com/jinzhu/gorm"
 )
 
 var handledPath = regexp.MustCompile(`^/api/v1/remote_client`)
@@ -20,6 +23,7 @@ var handledPath = regexp.MustCompile(`^/api/v1/remote_client`)
 const defaultPollTimeout = 30 * time.Second
 const maxSessionIdleTime = 5 * time.Minute
 const LONG_POLL_CONTEXT_KEY = "GLP-GIN-MIDDLEWARE"
+const DB_CLIENT_CONTEXT_KEY = "DB-CLIENT-GIN-MIDDLEWARE"
 
 // Register the plugin in caddy
 func init() {
@@ -61,6 +65,7 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 
 	router := gin.Default()
 	router.Use(longPollMiddleware())
+	router.Use(dbMiddleware())
 	api := router.Group("/api/v1/remote_clients")
 
 	api.GET("/server_challenge", wgOrchestrator.handleGetServerChallenge)
@@ -114,6 +119,39 @@ func longPollMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set(LONG_POLL_CONTEXT_KEY, pubsub)
 		c.Next()
+	}
+}
+
+func dbFromContext(c *gin.Context) *gorm.DB {
+	if v, ok := c.Get(DB_CLIENT_CONTEXT_KEY); ok {
+		return v.(*gorm.DB)
+	} else {
+		return nil
+	}
+}
+
+func dbMiddleware() gin.HandlerFunc {
+	var gormdb *gorm.DB
+	successDBConnect := false
+	for !successDBConnect {
+		var err error
+		gormdb, err = gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
+		if err != nil {
+			time.Sleep(time.Duration(5) * time.Second)
+		} else {
+			successDBConnect = true
+		}
+	}
+
+	return func(c *gin.Context) {
+		c.Set(DB_CLIENT_CONTEXT_KEY, gormdb)
+		if err := gormdb.DB().Ping(); err != nil {
+			log.LoggerWContext(c).Error(err.Error())
+			renderError(c, http.StatusInternalServerError, errors.New("Error connecting to the database"))
+			c.Abort()
+		} else {
+			c.Next()
+		}
 	}
 }
 

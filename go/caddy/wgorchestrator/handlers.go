@@ -23,9 +23,10 @@ const (
 )
 
 type Peer struct {
-	WireguardIP      net.IP `json:"wireguard_ip"`
-	WireguardNetmask int    `json:"wireguard_netmask"`
-	PublicKey        string `json:"public_key"`
+	WireguardIP      net.IP   `json:"wireguard_ip"`
+	WireguardNetmask int      `json:"wireguard_netmask"`
+	PublicKey        string   `json:"public_key"`
+	AllowedPeers     []string `json:"allowed_peers,omitempty"`
 }
 
 var peers = map[string]*Peer{}
@@ -61,11 +62,27 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 			return
 		}
 	}
+
+	db := dbFromContext(c)
+	rc, _ := GetOrCreateRemoteClient(db, c.Query("public_key"))
+
+	c.JSON(http.StatusOK, Peer{
+		WireguardIP:      rc.IPAddress(),
+		WireguardNetmask: rc.Netmask(),
+		PublicKey:        rc.PublicKey,
+		AllowedPeers:     rc.AllowedPeers(db),
+	})
 }
 
 func (h *WgorchestratorHandler) handleGetPeer(c *gin.Context) {
-	if peer, ok := peers[c.Param("id")]; ok {
-		c.JSON(http.StatusOK, gin.H{"public_key": peer.PublicKey, "wireguard_ip": peer.WireguardIP})
+	db := dbFromContext(c)
+	rc := RemoteClient{PublicKey: c.Param("id")}
+	if db.Where(&rc).First(&rc); rc.ID != 0 {
+		c.JSON(http.StatusOK, Peer{
+			PublicKey:        rc.PublicKey,
+			WireguardIP:      rc.IPAddress(),
+			WireguardNetmask: rc.Netmask(),
+		})
 	} else {
 		renderError(c, http.StatusNotFound, errors.New("Unable to find a peer with this identifier"))
 	}

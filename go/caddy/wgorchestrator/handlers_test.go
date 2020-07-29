@@ -10,7 +10,9 @@ import (
 	"time"
 
 	httpexpect "github.com/gavv/httpexpect/v2"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/jinzhu/gorm"
 )
 
 var handler WgorchestratorHandler
@@ -30,6 +32,14 @@ func TestHandleGetProfile(t *testing.T) {
 	sharedutils.CheckError(err)
 	pub, err := GeneratePublicKey(priv)
 	sharedutils.CheckError(err)
+
+	// Delete existing clients + add a another client
+	gormdb, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
+	gormdb.DB().Query("delete from remote_clients")
+	peers := []string{"testpub"}
+	for _, peer := range peers {
+		GetOrCreateRemoteClient(gormdb, peer)
+	}
 
 	m := e.GET("/api/v1/remote_clients/server_challenge").WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
 		Expect().
@@ -72,9 +82,28 @@ func TestHandleGetProfile(t *testing.T) {
 	encryptedChallengeRaw, err := EncryptMessage(sharedSecret[:], challenge)
 	sharedutils.CheckError(err)
 
-	e.GET("/api/v1/remote_clients/profile").
+	m = e.GET("/api/v1/remote_clients/profile").
 		WithQuery("auth", base64.URLEncoding.EncodeToString(encryptedChallengeRaw)).
 		WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ContainsKey("wireguard_ip").
+		ContainsKey("wireguard_netmask").
+		ContainsKey("public_key").
+		ContainsKey("allowed_peers").
+		ContainsMap(map[string]interface{}{"allowed_peers": peers}).
+		Raw()
+
+	for _, peer := range peers {
+		e.GET("/api/v1/remote_clients/peer/" + peer).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Object().
+			ContainsKey("wireguard_ip").
+			ContainsKey("wireguard_netmask").
+			ContainsKey("public_key")
+	}
 }
