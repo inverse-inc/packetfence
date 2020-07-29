@@ -52,7 +52,7 @@ func BuildP2PKey(key1, key2 string) string {
 }
 
 func B64KeyToBytes(key string) ([32]byte, error) {
-	b, err := base64.URLEncoding.DecodeString(key)
+	b, err := base64.StdEncoding.DecodeString(key)
 	var b2 [32]byte
 	for i := range b {
 		b2[i] = b[i]
