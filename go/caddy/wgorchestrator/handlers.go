@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
@@ -27,16 +28,18 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	auth, err := remoteclients.DecryptMessage(shared[:], authEncrypted)
 	sharedutils.CheckError(err)
 
-	timestampBytes := auth[AUTH_TIMESTAMP_START:AUTH_TIMESTAMP_END]
+	timestampBytes := auth[remoteclients.AUTH_TIMESTAMP_START:remoteclients.AUTH_TIMESTAMP_END]
 	timestampInt := int64(binary.LittleEndian.Uint64(timestampBytes))
 	timestamp := time.Unix(timestampInt, 0)
+
+	spew.Dump(timestamp)
 
 	if timestamp.Before(time.Now().Add(-5 * time.Second)) {
 		renderError(c, http.StatusUnprocessableEntity, errors.New("This auth is too old, please try again"))
 		return
 	}
 
-	authPeerPubKey := auth[AUTH_PUB_START:AUTH_PUB_END]
+	authPeerPubKey := auth[remoteclients.AUTH_PUB_START:remoteclients.AUTH_PUB_END]
 
 	for i := range authPeerPubKey {
 		if authPeerPubKey[i] != peerPubKey[i] {
@@ -51,7 +54,6 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),
 		WireguardNetmask: rc.Netmask(),
-		PublicKey:        rc.PublicKey,
 		AllowedPeers:     rc.AllowedPeers(db),
 	})
 }
