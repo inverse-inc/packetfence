@@ -225,3 +225,11 @@ packetfence-balanced-key-policy {
         }
     }
 }
+
+packetfence-nas-ip-address {
+    if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+            update request {
+                    NAS-IP-Address := "%{Packet-Src-IP-Address}"
+            }
+    }
+}

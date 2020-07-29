@@ -12,6 +12,7 @@ server packetfence {
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
 authorize {
+	packetfence-nas-ip-address
 
 	# Add in PacketFence specific configuration
 	update {
@@ -273,6 +274,8 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
+	packetfence-nas-ip-address
+
 	# Add in PacketFence specific configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
