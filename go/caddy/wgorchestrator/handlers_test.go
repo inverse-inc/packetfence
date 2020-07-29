@@ -11,6 +11,7 @@ import (
 
 	httpexpect "github.com/gavv/httpexpect/v2"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jinzhu/gorm"
 )
@@ -28,9 +29,9 @@ func init() {
 func TestHandleGetProfile(t *testing.T) {
 	e := httpexpect.New(t, testServer.URL)
 
-	priv, err := GeneratePrivateKey()
+	priv, err := remoteclients.GeneratePrivateKey()
 	sharedutils.CheckError(err)
-	pub, err := GeneratePublicKey(priv)
+	pub, err := remoteclients.GeneratePublicKey(priv)
 	sharedutils.CheckError(err)
 
 	// Delete existing clients + add a another client
@@ -53,12 +54,12 @@ func TestHandleGetProfile(t *testing.T) {
 	encryptedChallenge, err := base64.URLEncoding.DecodeString(m["challenge"].(string))
 	sharedutils.CheckError(err)
 
-	serverPublicKey, err := b64KeyToBytes(m["public_key"].(string))
+	serverPublicKey, err := remoteclients.B64KeyToBytes(m["public_key"].(string))
 	sharedutils.CheckError(err)
 
-	sharedSecret := SharedSecret(priv, serverPublicKey)
+	sharedSecret := remoteclients.SharedSecret(priv, serverPublicKey)
 
-	challenge, err := DecryptMessage(sharedSecret[:], []byte(encryptedChallenge))
+	challenge, err := remoteclients.DecryptMessage(sharedSecret[:], []byte(encryptedChallenge))
 	sharedutils.CheckError(err)
 
 	challengeInt := int64(binary.LittleEndian.Uint64(challenge[AUTH_TIMESTAMP_START:AUTH_TIMESTAMP_END]))
@@ -79,7 +80,7 @@ func TestHandleGetProfile(t *testing.T) {
 
 	challenge = append(challenge, pub[:]...)
 
-	encryptedChallengeRaw, err := EncryptMessage(sharedSecret[:], challenge)
+	encryptedChallengeRaw, err := remoteclients.EncryptMessage(sharedSecret[:], challenge)
 	sharedutils.CheckError(err)
 
 	m = e.GET("/api/v1/remote_clients/profile").

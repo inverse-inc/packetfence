@@ -1,4 +1,4 @@
-package wgorchestrator
+package remoteclients
 
 import (
 	"crypto/aes"
@@ -35,7 +35,7 @@ func SharedSecret(privateKey, publicKey [32]byte) [32]byte {
 	return out1
 }
 
-func buildP2PKey(key1, key2 string) string {
+func BuildP2PKey(key1, key2 string) string {
 	if key2 < key1 {
 		key1bak := key1
 		key1 = key2
@@ -51,7 +51,7 @@ func buildP2PKey(key1, key2 string) string {
 	return base64.URLEncoding.EncodeToString(combined)
 }
 
-func b64KeyToBytes(key string) ([32]byte, error) {
+func B64KeyToBytes(key string) ([32]byte, error) {
 	b, err := base64.URLEncoding.DecodeString(key)
 	var b2 [32]byte
 	for i := range b {

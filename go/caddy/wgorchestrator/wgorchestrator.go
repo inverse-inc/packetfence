@@ -13,6 +13,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jcuga/golongpoll"
 	"github.com/jinzhu/gorm"
@@ -78,9 +79,9 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 
 	// TODO: store this somewhere so that its persistent
 	var err error
-	wgOrchestrator.privateKey, err = GeneratePrivateKey()
+	wgOrchestrator.privateKey, err = remoteclients.GeneratePrivateKey()
 	sharedutils.CheckError(err)
-	wgOrchestrator.publicKey, err = GeneratePublicKey(wgOrchestrator.privateKey)
+	wgOrchestrator.publicKey, err = remoteclients.GeneratePublicKey(wgOrchestrator.privateKey)
 	sharedutils.CheckError(err)
 
 	return wgOrchestrator, nil
