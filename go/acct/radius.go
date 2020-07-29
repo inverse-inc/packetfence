@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"hash"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -200,6 +201,11 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 	attr["PF_HEADERS"] = map[string]string{
 		"X-FreeRADIUS-Server":  "packetfence",
 		"X-FreeRADIUS-Section": "accounting",
+	}
+
+	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
+		attr["NAS-IP-Address"] = strings.Split(r.RemoteAddr.String(), ":")[0]
+		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
 	}
 
 	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, 1); err != nil {
