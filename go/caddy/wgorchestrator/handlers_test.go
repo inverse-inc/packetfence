@@ -126,3 +126,50 @@ func TestPrivEventsRestriction(t *testing.T) {
 		ContainsKey("timestamp")
 
 }
+
+func TestHandleGetPrivEvents(t *testing.T) {
+	priv, err := remoteclients.GeneratePrivateKey()
+	sharedutils.CheckError(err)
+	pub, err := remoteclients.GeneratePublicKey(priv)
+	sharedutils.CheckError(err)
+
+	shared := remoteclients.SharedSecret(priv, handler.publicKey)
+	challenge := make([]byte, 8)
+	binary.LittleEndian.PutUint64(challenge, uint64(time.Now().Unix()))
+	encryptedChallenge, err := remoteclients.EncryptMessage(shared[:], challenge)
+	sharedutils.CheckError(err)
+
+	e := httpexpect.New(t, testServer.URL)
+	e.GET("/api/v1/remote_clients/my_events").
+		WithQuery("timeout", "1").
+		WithQuery("auth", base64.URLEncoding.EncodeToString(encryptedChallenge)).
+		WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ContainsKey("timestamp")
+
+	e.GET("/api/v1/remote_clients/my_events").
+		WithQuery("timeout", "1").
+		WithQuery("auth", base64.URLEncoding.EncodeToString(encryptedChallenge)).
+		WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
+		WithQuery("category", "priv-"+base64.URLEncoding.EncodeToString(pub[:])).
+		Expect().
+		Status(http.StatusForbidden).
+		JSON().
+		Object().
+		ContainsKey("message")
+
+	time.Sleep(5 * time.Second)
+
+	e.GET("/api/v1/remote_clients/my_events").
+		WithQuery("timeout", "1").
+		WithQuery("auth", base64.URLEncoding.EncodeToString(encryptedChallenge)).
+		WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
+		Expect().
+		Status(http.StatusUnprocessableEntity).
+		JSON().
+		Object().
+		ContainsKey("message")
+}

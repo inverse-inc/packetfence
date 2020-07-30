@@ -77,7 +77,7 @@ func (h *WgorchestratorHandler) handleGetEvents(c *gin.Context) {
 	if lp := longPollFromContext(c); lp != nil {
 		k := c.Query("category")
 		if h.isPrivEventCategory(k) {
-			renderError(c, http.StatusForbidden, errors.New("Cannot use this event category in this API call, use /api/v1/remote_clients/priv_events"))
+			renderError(c, http.StatusForbidden, errors.New("Cannot use this event category in this API call, use /api/v1/remote_clients/my_events"))
 			return
 		}
 		lp.SubscriptionHandler(c.Writer, c.Request)
@@ -103,7 +103,7 @@ func (h *WgorchestratorHandler) handlePostEvents(c *gin.Context) {
 		if err := c.BindJSON(&e); err == nil {
 			k := c.Param("k")
 			if h.isPrivEventCategory(k) {
-				renderError(c, http.StatusForbidden, errors.New("Cannot use this event category in this API call, use /api/v1/remote_clients/priv_events"))
+				renderError(c, http.StatusForbidden, errors.New("Cannot use this event category in this API call, use /api/v1/remote_clients/my_events"))
 				return
 			}
 			lp.Publish(k, e)
@@ -139,4 +139,43 @@ func (h *WgorchestratorHandler) handleGetServerChallenge(c *gin.Context) {
 	sharedutils.CheckError(err)
 
 	c.JSON(http.StatusOK, gin.H{"challenge": base64.URLEncoding.EncodeToString(encryptedChallenge), "public_key": base64.URLEncoding.EncodeToString(h.publicKey[:])})
+}
+
+func (h *WgorchestratorHandler) handleGetPrivEvents(c *gin.Context) {
+	peerPubKey, err := remoteclients.URLB64KeyToBytes(c.Query("public_key"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "Unable to base64 decode the public key")
+		return
+	}
+
+	if _, found := c.GetQuery("category"); found {
+		renderError(c, http.StatusForbidden, errors.New("You cannot specify a category on this API call"))
+		return
+	}
+
+	shared := h.handlerSharedSecret(peerPubKey)
+
+	authEncrypted, err := base64.URLEncoding.DecodeString(c.Query("auth"))
+	sharedutils.CheckError(err)
+	auth, err := remoteclients.DecryptMessage(shared[:], authEncrypted)
+	sharedutils.CheckError(err)
+
+	timestampBytes := auth[remoteclients.AUTH_TIMESTAMP_START:remoteclients.AUTH_TIMESTAMP_END]
+	timestampInt := int64(binary.LittleEndian.Uint64(timestampBytes))
+	timestamp := time.Unix(timestampInt, 0)
+
+	if timestamp.Before(time.Now().Add(-5 * time.Second)) {
+		renderError(c, http.StatusUnprocessableEntity, errors.New("This auth is too old, please try again"))
+		return
+	}
+
+	if lp := longPollFromContext(c); lp != nil {
+		q := c.Request.URL.Query()
+		q.Set("category", "priv-"+c.Query("public_key"))
+		c.Request.URL.RawQuery = q.Encode()
+
+		lp.SubscriptionHandler(c.Writer, c.Request)
+	} else {
+		renderError(c, http.StatusInternalServerError, errors.New("Unable to find events manager in context"))
+	}
 }

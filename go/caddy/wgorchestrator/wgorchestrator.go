@@ -74,6 +74,7 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 	api.GET("/peer/:id", wgOrchestrator.handleGetPeer)
 	api.GET("/events", wgOrchestrator.handleGetEvents)
 	api.POST("/events/:k", wgOrchestrator.handlePostEvents)
+	api.GET("/my_events", wgOrchestrator.handleGetPrivEvents)
 
 	wgOrchestrator.router = router
 
