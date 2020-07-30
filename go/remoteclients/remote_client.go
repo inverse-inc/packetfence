@@ -5,12 +5,15 @@ import (
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/jcuga/golongpoll"
 	"github.com/jinzhu/gorm"
 )
 
 // TODO: have this configurable and potentially support multiple ranges
 var startingIP = sharedutils.IP2Int(net.ParseIP("192.168.69.1"))
 var netmask = 24
+
+var publishNewClientsTo *golongpoll.LongpollManager
 
 type RemoteClient struct {
 	ID         uint `gorm:"primary_key"`
@@ -27,9 +30,28 @@ func GetOrCreateRemoteClient(db *gorm.DB, publicKey string) (*RemoteClient, erro
 	if rc.PublicKey != publicKey {
 		rc.PublicKey = publicKey
 		err := db.Create(&rc).Error
+		publishNewClient(db, rc)
 		return &rc, err
 	} else {
 		return &rc, nil
+	}
+}
+
+func publishNewClient(db *gorm.DB, rc RemoteClient) {
+	if publishNewClientsTo != nil {
+		rcs := []RemoteClient{}
+		if err := db.Where("public_key != ", rc.PublicKey).Find(&rcs).Error; err != nil {
+			// TODO: handle this differently like with retries
+			panic("Failed to get clients to publish new peer")
+		}
+		for _, publishTo := range rcs {
+			publishNewClientsTo.Publish(PRIVATE_EVENTS_SUFFIX+publishTo.PublicKey, Event{
+				Type: "new_peer",
+				Data: map[string]interface{}{
+					"id": rc.PublicKey,
+				},
+			})
+		}
 	}
 }
 

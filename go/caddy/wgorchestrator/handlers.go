@@ -86,12 +86,7 @@ func (h *WgorchestratorHandler) handleGetEvents(c *gin.Context) {
 	}
 }
 
-type Event struct {
-	Type string                 `json:"type"`
-	Data map[string]interface{} `json:"data"`
-}
-
-var privRegexp = regexp.MustCompile(`^priv-`)
+var privRegexp = regexp.MustCompile(`^` + remoteclients.PRIVATE_EVENTS_SUFFIX)
 
 func (h *WgorchestratorHandler) isPrivEventCategory(category string) bool {
 	return privRegexp.MatchString(category)
@@ -99,7 +94,7 @@ func (h *WgorchestratorHandler) isPrivEventCategory(category string) bool {
 
 func (h *WgorchestratorHandler) handlePostEvents(c *gin.Context) {
 	if lp := longPollFromContext(c); lp != nil {
-		e := Event{}
+		e := remoteclients.Event{}
 		if err := c.BindJSON(&e); err == nil {
 			k := c.Param("k")
 			if h.isPrivEventCategory(k) {
@@ -171,7 +166,7 @@ func (h *WgorchestratorHandler) handleGetPrivEvents(c *gin.Context) {
 
 	if lp := longPollFromContext(c); lp != nil {
 		q := c.Request.URL.Query()
-		q.Set("category", "priv-"+c.Query("public_key"))
+		q.Set("category", remoteclients.PRIVATE_EVENTS_SUFFIX+c.Query("public_key"))
 		c.Request.URL.RawQuery = q.Encode()
 
 		lp.SubscriptionHandler(c.Writer, c.Request)

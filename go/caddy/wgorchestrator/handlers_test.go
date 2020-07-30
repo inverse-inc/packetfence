@@ -92,7 +92,6 @@ func TestHandleGetProfile(t *testing.T) {
 		Object().
 		ContainsKey("wireguard_ip").
 		ContainsKey("wireguard_netmask").
-		ContainsKey("public_key").
 		ContainsKey("allowed_peers").
 		ContainsMap(map[string]interface{}{"allowed_peers": peers}).
 		Raw()
@@ -111,14 +110,14 @@ func TestHandleGetProfile(t *testing.T) {
 
 func TestPrivEventsRestriction(t *testing.T) {
 	e := httpexpect.New(t, testServer.URL)
-	e.GET("/api/v1/remote_clients/events").WithQuery("category", "priv-something").
+	e.GET("/api/v1/remote_clients/events").WithQuery("category", remoteclients.PRIVATE_EVENTS_SUFFIX+"something").
 		Expect().
 		Status(http.StatusForbidden).
 		JSON().
 		Object().
 		ContainsKey("message")
 
-	e.GET("/api/v1/remote_clients/events").WithQuery("category", "notpriv-something").WithQuery("timeout", "1").
+	e.GET("/api/v1/remote_clients/events").WithQuery("category", "not-"+remoteclients.PRIVATE_EVENTS_SUFFIX+"something").WithQuery("timeout", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -154,7 +153,7 @@ func TestHandleGetPrivEvents(t *testing.T) {
 		WithQuery("timeout", "1").
 		WithQuery("auth", base64.URLEncoding.EncodeToString(encryptedChallenge)).
 		WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
-		WithQuery("category", "priv-"+base64.URLEncoding.EncodeToString(pub[:])).
+		WithQuery("category", remoteclients.PRIVATE_EVENTS_SUFFIX+base64.URLEncoding.EncodeToString(pub[:])).
 		Expect().
 		Status(http.StatusForbidden).
 		JSON().

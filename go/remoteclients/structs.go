@@ -11,6 +11,13 @@ const (
 	AUTH_PUB_END         = 72
 )
 
+const PRIVATE_EVENTS_SUFFIX = "priv-"
+
+type Event struct {
+	Type string                 `json:"type"`
+	Data map[string]interface{} `json:"data"`
+}
+
 type Peer struct {
 	WireguardIP      net.IP   `json:"wireguard_ip"`
 	WireguardNetmask int      `json:"wireguard_netmask"`

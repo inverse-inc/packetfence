@@ -2,6 +2,8 @@ package glpclient
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,6 +12,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
@@ -48,6 +51,10 @@ type Client struct {
 
 	// Whether or not logging should be enabled
 	LoggingEnabled bool
+
+	// Private+Public key to use to use a private channel
+	PrivateKey string
+	PublicKey  string
 }
 
 func NewClient(apiClient *unifiedapiclient.Client, path string, category string) *Client {
@@ -123,7 +130,16 @@ func (c Client) fetchEvents(since int64) (PollResponse, error) {
 	}
 
 	query := url.Values{}
-	query.Set("category", c.category)
+	if c.PrivateKey != "" && c.PublicKey != "" {
+		shared := remoteclients.SharedSecret(priv, handler.publicKey)
+		challenge := make([]byte, 8)
+		binary.LittleEndian.PutUint64(challenge, uint64(time.Now().Unix()))
+		encryptedChallenge, err := remoteclients.EncryptMessage(shared[:], challenge)
+		sharedutils.CheckError(err)
+		query.Set("auth", base64.URLEncoding.EncodeToString(encryptedChallenge))
+	} else {
+		query.Set("category", c.category)
+	}
 	query.Set("since_time", fmt.Sprintf("%d", since))
 	query.Set("timeout", fmt.Sprintf("%d", c.Timeout))
 	rawQuery := query.Encode()
