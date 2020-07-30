@@ -33,7 +33,7 @@ type PollEvent struct {
 }
 
 type Client struct {
-	url      *url.URL
+	path     string
 	category string
 	// Timeout controls the timeout in all the requests, can be changed after instantiating the client
 	Timeout uint64
@@ -50,12 +50,9 @@ type Client struct {
 	LoggingEnabled bool
 }
 
-// Instantiate a new client to connect to a given URL and send the events into a channel
-// The URL shouldn't contain any GET parameters although its fine if it contains some but category, since_time and timeout will be overriten
-// stubChanData must either be an empty structure of the events data or a map[string]interface{} if the events do not follow a specific structure
-func NewClient(apiClient *unifiedapiclient.Client, url *url.URL, category string) *Client {
+func NewClient(apiClient *unifiedapiclient.Client, path string, category string) *Client {
 	return &Client{
-		url:            url,
+		path:           path,
 		category:       category,
 		Timeout:        DEFAULT_TIMEOUT,
 		Reattempt:      DEFAULT_REATTEMPT * time.Second,
@@ -65,18 +62,15 @@ func NewClient(apiClient *unifiedapiclient.Client, url *url.URL, category string
 	}
 }
 
-// Start the polling of the events on the URL defined in the client
-// Will send the events in the EventsChan of the client
 func (c *Client) Start() {
-	u := c.url
 	if c.LoggingEnabled {
-		log.Println("Now observing changes on", u.String())
+		log.Println("Now observing changes on", c.path)
 	}
 
 	atomic.AddUint64(&(c.runID), 1)
 	currentRunID := atomic.LoadUint64(&(c.runID))
 
-	go func(runID uint64, u *url.URL) {
+	go func(runID uint64, path string) {
 		since := time.Now().Unix() * 1000
 		for {
 			pr, err := c.fetchEvents(since)
@@ -84,7 +78,7 @@ func (c *Client) Start() {
 			if err != nil {
 				if c.LoggingEnabled {
 					log.Println(err)
-					log.Printf("Reattempting to connect to %s in %d seconds", u.String(), c.Reattempt)
+					log.Printf("Reattempting to connect to %s in %d seconds", path, c.Reattempt)
 				}
 				time.Sleep(c.Reattempt)
 				continue
@@ -94,14 +88,14 @@ func (c *Client) Start() {
 			clientRunID := atomic.LoadUint64(&(c.runID))
 			if clientRunID != runID {
 				if c.LoggingEnabled {
-					log.Printf("Client on URL %s has been stopped, not sending events", u.String())
+					log.Printf("Client on path %s has been stopped, not sending events", path)
 				}
 				return
 			}
 
 			if len(pr.Events) > 0 {
 				if c.LoggingEnabled {
-					log.Println("Got", len(pr.Events), "event(s) from URL", u.String())
+					log.Println("Got", len(pr.Events), "event(s) from path", path)
 				}
 				for _, event := range pr.Events {
 					since = event.Timestamp
@@ -114,7 +108,7 @@ func (c *Client) Start() {
 				}
 			}
 		}
-	}(currentRunID, u)
+	}(currentRunID, c.path)
 }
 
 func (c *Client) Stop() {
@@ -124,21 +118,20 @@ func (c *Client) Stop() {
 
 // Call the longpoll server to get the events since a specific timestamp
 func (c Client) fetchEvents(since int64) (PollResponse, error) {
-	u := c.url
 	if c.LoggingEnabled {
-		log.Println("Checking for changes events since", since, "on URL", u.String())
+		log.Println("Checking for changes events since", since, "on URL", c.path)
 	}
 
-	query := u.Query()
+	query := url.Values{}
 	query.Set("category", c.category)
 	query.Set("since_time", fmt.Sprintf("%d", since))
 	query.Set("timeout", fmt.Sprintf("%d", c.Timeout))
-	u.RawQuery = query.Encode()
+	rawQuery := query.Encode()
 
 	var pr PollResponse
-	err := c.APIClient.Call(context.Background(), "GET", u.String(), &pr)
+	err := c.APIClient.Call(context.Background(), "GET", c.path+`?`+rawQuery, &pr)
 	if err != nil {
-		msg := fmt.Sprintf("Error while connecting to %s to observe changes. Error was: %s", u, err)
+		msg := fmt.Sprintf("Error while connecting to %s to observe changes. Error was: %s", c.path, err)
 		return PollResponse{}, errors.New(msg)
 	}
 

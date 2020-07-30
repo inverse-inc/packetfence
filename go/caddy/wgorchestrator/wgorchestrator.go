@@ -88,16 +88,8 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 }
 
 func renderError(c *gin.Context, code int, err error) {
-	renderErrors(c, code, []error{err})
-}
-
-func renderErrors(c *gin.Context, code int, errs []error) {
-	strErrs := []string{}
-	for _, err := range errs {
-		log.LoggerWContext(c).Error("Got the following error while processing the request: " + err.Error())
-		strErrs = append(strErrs, err.Error())
-	}
-	c.JSON(code, gin.H{"errors": strErrs})
+	log.LoggerWContext(c).Error("Got the following error while processing the request: " + err.Error())
+	c.JSON(code, gin.H{"message": err.Error()})
 }
 
 func longPollFromContext(c *gin.Context) *golongpoll.LongpollManager {
