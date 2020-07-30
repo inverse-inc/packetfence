@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -74,6 +75,11 @@ func (h *WgorchestratorHandler) handleGetPeer(c *gin.Context) {
 
 func (h *WgorchestratorHandler) handleGetEvents(c *gin.Context) {
 	if lp := longPollFromContext(c); lp != nil {
+		k := c.Query("category")
+		if h.isPrivEventCategory(k) {
+			renderError(c, http.StatusForbidden, errors.New("Cannot use this event category in this API call, use /api/v1/remote_clients/priv_events"))
+			return
+		}
 		lp.SubscriptionHandler(c.Writer, c.Request)
 	} else {
 		renderError(c, http.StatusInternalServerError, errors.New("Unable to find events manager in context"))
@@ -85,11 +91,22 @@ type Event struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+var privRegexp = regexp.MustCompile(`^priv-`)
+
+func (h *WgorchestratorHandler) isPrivEventCategory(category string) bool {
+	return privRegexp.MatchString(category)
+}
+
 func (h *WgorchestratorHandler) handlePostEvents(c *gin.Context) {
 	if lp := longPollFromContext(c); lp != nil {
 		e := Event{}
 		if err := c.BindJSON(&e); err == nil {
-			lp.Publish(c.Param("k"), e)
+			k := c.Param("k")
+			if h.isPrivEventCategory(k) {
+				renderError(c, http.StatusForbidden, errors.New("Cannot use this event category in this API call, use /api/v1/remote_clients/priv_events"))
+				return
+			}
+			lp.Publish(k, e)
 		} else {
 			renderError(c, http.StatusBadRequest, errors.New("Unable to parse JSON payload: "+err.Error()))
 		}

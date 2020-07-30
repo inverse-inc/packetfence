@@ -62,7 +62,7 @@ func TestHandleGetProfile(t *testing.T) {
 	challenge, err := remoteclients.DecryptMessage(sharedSecret[:], []byte(encryptedChallenge))
 	sharedutils.CheckError(err)
 
-	challengeInt := int64(binary.LittleEndian.Uint64(challenge[AUTH_TIMESTAMP_START:AUTH_TIMESTAMP_END]))
+	challengeInt := int64(binary.LittleEndian.Uint64(challenge[remoteclients.AUTH_TIMESTAMP_START:remoteclients.AUTH_TIMESTAMP_END]))
 
 	challengeTime := time.Unix(challengeInt, 0)
 
@@ -107,4 +107,22 @@ func TestHandleGetProfile(t *testing.T) {
 			ContainsKey("wireguard_netmask").
 			ContainsKey("public_key")
 	}
+}
+
+func TestPrivEventsRestriction(t *testing.T) {
+	e := httpexpect.New(t, testServer.URL)
+	e.GET("/api/v1/remote_clients/events").WithQuery("category", "priv-something").
+		Expect().
+		Status(http.StatusForbidden).
+		JSON().
+		Object().
+		ContainsKey("message")
+
+	e.GET("/api/v1/remote_clients/events").WithQuery("category", "notpriv-something").WithQuery("timeout", "1").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ContainsKey("timestamp")
+
 }
