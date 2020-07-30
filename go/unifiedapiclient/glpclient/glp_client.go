@@ -53,8 +53,8 @@ type Client struct {
 	LoggingEnabled bool
 
 	// Private+Public key to use to use a private channel
-	PrivateKey string
-	PublicKey  string
+	PrivateKey [32]byte
+	PublicKey  [32]byte
 }
 
 func NewClient(apiClient *unifiedapiclient.Client, path string, category string) *Client {
