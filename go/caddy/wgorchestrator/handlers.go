@@ -47,7 +47,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	}
 
 	db := dbFromContext(c)
-	rc, _ := GetOrCreateRemoteClient(db, c.Query("public_key"))
+	rc, _ := remoteclients.GetOrCreateRemoteClient(db, c.Query("public_key"))
 
 	c.JSON(http.StatusOK, remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),
@@ -58,7 +58,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 
 func (h *WgorchestratorHandler) handleGetPeer(c *gin.Context) {
 	db := dbFromContext(c)
-	rc := RemoteClient{PublicKey: c.Param("id")}
+	rc := remoteclients.RemoteClient{PublicKey: c.Param("id")}
 	if db.Where(&rc).First(&rc); rc.ID != 0 {
 		c.JSON(http.StatusOK, remoteclients.Peer{
 			PublicKey:        rc.PublicKey,

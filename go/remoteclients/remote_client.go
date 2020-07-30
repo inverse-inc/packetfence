@@ -41,7 +41,7 @@ func GetOrCreateRemoteClient(db *gorm.DB, publicKey string) (*RemoteClient, erro
 func publishNewClient(db *gorm.DB, rc RemoteClient) {
 	if PublishNewClientsTo != nil {
 		rcs := []RemoteClient{}
-		if err := db.Where("public_key != ", rc.PublicKey).Find(&rcs).Error; err != nil {
+		if err := db.Where("public_key != ?", rc.PublicKey).Find(&rcs).Error; err != nil {
 			// TODO: handle this differently like with retries
 			panic("Failed to get clients to publish new peer")
 		}
