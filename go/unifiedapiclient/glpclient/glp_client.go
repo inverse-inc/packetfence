@@ -12,6 +12,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
@@ -53,8 +54,10 @@ type Client struct {
 	LoggingEnabled bool
 
 	// Private+Public key to use to use a private channel
-	PrivateKey [32]byte
-	PublicKey  [32]byte
+	PrivateMode     bool
+	PrivateKey      [32]byte
+	PublicKey       [32]byte
+	ServerPublicKey [32]byte
 }
 
 func NewClient(apiClient *unifiedapiclient.Client, path string, category string) *Client {
@@ -130,13 +133,14 @@ func (c Client) fetchEvents(since int64) (PollResponse, error) {
 	}
 
 	query := url.Values{}
-	if c.PrivateKey != "" && c.PublicKey != "" {
-		shared := remoteclients.SharedSecret(priv, handler.publicKey)
+	if c.PrivateMode {
+		shared := remoteclients.SharedSecret(c.PrivateKey, c.ServerPublicKey)
 		challenge := make([]byte, 8)
 		binary.LittleEndian.PutUint64(challenge, uint64(time.Now().Unix()))
 		encryptedChallenge, err := remoteclients.EncryptMessage(shared[:], challenge)
 		sharedutils.CheckError(err)
 		query.Set("auth", base64.URLEncoding.EncodeToString(encryptedChallenge))
+		query.Set("public_key", base64.URLEncoding.EncodeToString(c.PublicKey[:]))
 	} else {
 		query.Set("category", c.category)
 	}
@@ -152,4 +156,11 @@ func (c Client) fetchEvents(since int64) (PollResponse, error) {
 	}
 
 	return pr, nil
+}
+
+func (c *Client) SetPrivateMode(priv, pub, serverPub [32]byte) {
+	c.PrivateKey = priv
+	c.PublicKey = pub
+	c.ServerPublicKey = serverPub
+	c.PrivateMode = true
 }
