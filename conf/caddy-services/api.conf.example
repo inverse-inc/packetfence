@@ -27,6 +27,8 @@
   
   api
 
+  wgorchestrator
+
   log-tailer
 
   # Job status access
