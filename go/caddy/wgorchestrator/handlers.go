@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
@@ -32,8 +31,6 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	timestampBytes := auth[remoteclients.AUTH_TIMESTAMP_START:remoteclients.AUTH_TIMESTAMP_END]
 	timestampInt := int64(binary.LittleEndian.Uint64(timestampBytes))
 	timestamp := time.Unix(timestampInt, 0)
-
-	spew.Dump(timestamp)
 
 	if timestamp.Before(time.Now().Add(-5 * time.Second)) {
 		renderError(c, http.StatusUnprocessableEntity, errors.New("This auth is too old, please try again"))

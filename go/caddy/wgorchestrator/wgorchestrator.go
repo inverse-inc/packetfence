@@ -110,6 +110,8 @@ func longPollMiddleware() gin.HandlerFunc {
 	})
 	sharedutils.CheckError(err)
 
+	remoteclients.PublishNewClientsTo = pubsub
+
 	return func(c *gin.Context) {
 		c.Set(LONG_POLL_CONTEXT_KEY, pubsub)
 		c.Next()
