@@ -39,7 +39,7 @@ func TestHandleGetProfile(t *testing.T) {
 	gormdb.DB().Query("delete from remote_clients")
 	peers := []string{"testpub"}
 	for _, peer := range peers {
-		GetOrCreateRemoteClient(gormdb, peer)
+		remoteclients.GetOrCreateRemoteClient(gormdb, peer)
 	}
 
 	m := e.GET("/api/v1/remote_clients/server_challenge").WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
