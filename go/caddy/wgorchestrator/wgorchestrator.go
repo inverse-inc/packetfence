@@ -69,6 +69,7 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 	router.Use(dbMiddleware())
 	api := router.Group("/api/v1/remote_clients")
 
+	api.GET("/server_time", wgOrchestrator.handleGetServerTime)
 	api.GET("/server_challenge", wgOrchestrator.handleGetServerChallenge)
 	api.GET("/profile", wgOrchestrator.handleGetProfile)
 	api.GET("/peer/:id", wgOrchestrator.handleGetPeer)

@@ -134,9 +134,14 @@ func (c Client) fetchEvents(since int64) (PollResponse, error) {
 
 	query := url.Values{}
 	if c.PrivateMode {
+		serverNow, err := c.GetServerTimestamp()
+		if err != nil {
+			return PollResponse{}, errors.New("Failed to obtain server time: " + err.Error())
+		}
+
 		shared := remoteclients.SharedSecret(c.PrivateKey, c.ServerPublicKey)
 		challenge := make([]byte, 8)
-		binary.LittleEndian.PutUint64(challenge, uint64(time.Now().Unix()))
+		binary.LittleEndian.PutUint64(challenge, uint64(serverNow))
 		encryptedChallenge, err := remoteclients.EncryptMessage(shared[:], challenge)
 		sharedutils.CheckError(err)
 		query.Set("auth", base64.URLEncoding.EncodeToString(encryptedChallenge))
@@ -163,4 +168,14 @@ func (c *Client) SetPrivateMode(priv, pub, serverPub [32]byte) {
 	c.PublicKey = pub
 	c.ServerPublicKey = serverPub
 	c.PrivateMode = true
+}
+
+type ServerTimestamp struct {
+	Timestamp int64 `json:"timestamp"`
+}
+
+func (c *Client) GetServerTimestamp() (int64, error) {
+	st := ServerTimestamp{}
+	err := c.APIClient.Call(context.Background(), "GET", "/api/v1/remote_clients/server_time", &st)
+	return st.Timestamp, err
 }

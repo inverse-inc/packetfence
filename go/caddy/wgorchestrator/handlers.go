@@ -14,6 +14,10 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
+func (h *WgorchestratorHandler) handleGetServerTime(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"timestamp": time.Now().Unix()})
+}
+
 func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	peerPubKey, err := remoteclients.URLB64KeyToBytes(c.Query("public_key"))
 	if err != nil {
