@@ -39,6 +39,10 @@ func init() {
 	}
 }
 
+func SetHTTPClient(hc *http.Client) {
+	httpClient = hc
+}
+
 const UnsetTenantId = -1
 
 type Client struct {
