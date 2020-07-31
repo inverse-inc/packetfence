@@ -131,6 +131,7 @@ backend $mgmt_back_ip-api
         balance source
         option httpclose
         option forwardfor
+        http-response set-header X-Frame-Options SAMEORIGIN
         errorfile 502 /usr/local/pf/html/pfappserver/root/static/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/static/503.json.http
         server $mgmt_back_ip $mgmt_back_ip:9999 weight 1 maxconn 100 ssl verify none
@@ -156,6 +157,7 @@ frontend admin-https-$mgmt_cluster_ip
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
+        http-response set-header X-Frame-Options SAMEORIGIN
         http-request lua.admin
         use_backend %[var(req.action)]
         http-request redirect location /admin/alt if { lua.redirect 1 }
@@ -252,6 +254,7 @@ frontend admin-https-0.0.0.0
         capture request header Host len 40
         reqadd X-Forwarded-Proto:\\ https
         http-request lua.change_host
+        http-response set-header X-Frame-Options SAMEORIGIN
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.admin
