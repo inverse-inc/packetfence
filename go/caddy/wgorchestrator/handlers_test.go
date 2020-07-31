@@ -106,6 +106,8 @@ func TestHandleGetProfile(t *testing.T) {
 			ContainsKey("wireguard_netmask").
 			ContainsKey("public_key")
 	}
+
+	gormdb.DB().Query("delete from remote_clients")
 }
 
 func TestPrivEventsRestriction(t *testing.T) {
@@ -171,4 +173,5 @@ func TestHandleGetPrivEvents(t *testing.T) {
 		JSON().
 		Object().
 		ContainsKey("message")
+
 }
