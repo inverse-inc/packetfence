@@ -4,7 +4,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jcuga/golongpoll"
 	"github.com/jinzhu/gorm"
@@ -45,9 +44,7 @@ func publishNewClient(db *gorm.DB, rc RemoteClient) {
 			// TODO: handle this differently like with retries
 			panic("Failed to get clients to publish new peer")
 		}
-		spew.Dump(rcs)
 		for _, publishTo := range rcs {
-			spew.Dump(PRIVATE_EVENTS_SUFFIX + publishTo.PublicKey)
 			PublishNewClientsTo.Publish(PRIVATE_EVENTS_SUFFIX+publishTo.PublicKey, Event{
 				Type: "new_peer",
 				Data: map[string]interface{}{
