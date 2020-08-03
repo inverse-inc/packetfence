@@ -26,6 +26,22 @@ has_field 'ip' =>
    messages => { required => 'Please specify the hostname or IP of the scan engine' },
   );
 
+has_field 'username' =>
+  (
+   type => 'Text',
+   label => 'Username',
+   required => 1,
+   messages => { required => 'Please specify the username for the Scan Engine' },
+  );
+
+has_field 'password' =>
+  (
+   type => 'ObfuscatedText',
+   label => 'Password',
+   required => 1,
+   messages => { required => 'You must specify the password' },
+  );
+
 has_field 'port' =>
   (
    type => 'Port',
@@ -34,6 +50,7 @@ has_field 'port' =>
              help => 'If you use an alternative port, please specify' },
    default => 8834,
   );
+
 has_field 'type' =>
   (
    type => 'Hidden',
