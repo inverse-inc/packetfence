@@ -458,11 +458,20 @@ sub make_location_url {
     return "$url/$id";
 }
 
+sub can_delete {
+    return (200, '');
+}
+
 sub remove {
     my ($self) = @_;
+    my ($status, $msg) = $self->can_delete();
+    if (is_error($status)) {
+        return $self->render_error($status, $msg);
+    }
+
     my $id = $self->id;
     my $cs = $self->config_store;
-    my ($msg, $deleted) = $cs->remove($id, 'id');
+    ($msg, my $deleted) = $cs->remove($id, 'id');
     if (!$deleted) {
         return $self->render_error(422, "Unable to delete $id - $msg");
     }
