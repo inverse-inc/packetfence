@@ -148,7 +148,11 @@ func (p *Proxy) RewriteAnswer(r *http.Response, buff []byte) error {
 				buff = bytes.Replace(buff, []byte("\""+urlOrig+"\""), []byte("\""+v.String()+"\""), -1)
 			}
 			for _, v := range LINK {
-				buff = bytes.Replace(buff, []byte("\""+v+"\""), []byte("\""+"/portal_preview"+v+"\""), -1)
+				if strings.HasPrefix(v, "/") {
+					buff = bytes.Replace(buff, []byte("\""+v+"\""), []byte("\""+"/portal_preview"+v+"\""), -1)
+				} else {
+					buff = bytes.Replace(buff, []byte("\""+v+"\""), []byte("\""+"/portal_preview/captive-portal"+v+"\""), -1)
+				}
 			}
 			boeuf := bytes.NewBufferString("")
 			boeuf.Write(buff)
