@@ -53,7 +53,8 @@ CREATE TABLE class (
   target_category varchar(255),
   delay_by int(11) NOT NULL default 0,
   external_command varchar(255) DEFAULT NULL,
-  PRIMARY KEY (security_event_id)
+  PRIMARY KEY (security_event_id),
+  KEY password_target_category (target_category)
 ) ENGINE=InnoDB;
 
 --
@@ -186,6 +187,7 @@ CREATE TABLE node (
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   KEY `node_last_seen` (`last_seen`),
+  KEY `node_bypass_role_id` (`bypass_role_id`),
   CONSTRAINT `0_57` FOREIGN KEY (`tenant_id`, `pid`) REFERENCES `person` (`tenant_id`, `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`),
   CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
@@ -477,6 +479,7 @@ CREATE TABLE `password` (
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
   PRIMARY KEY (tenant_id, pid),
+  KEY password_category (category),
   UNIQUE KEY pid_password_unique (pid)
 ) ENGINE=InnoDB;
 
