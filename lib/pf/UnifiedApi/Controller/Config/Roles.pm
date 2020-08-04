@@ -35,6 +35,17 @@ sub can_delete {
         return ($status, $msg);
     }
 
+    ($status, $msg) = $self->can_delete_from_config();
+    if (is_error($status)) {
+        return ($status, $msg);
+    }
+
+    return (200, '');
+}
+
+sub can_delete_from_config {
+    my ($self) = @_;
+
     return (200, '');
 }
 
