@@ -290,11 +290,12 @@ rule_cache_key
 
 sub rule_cache_key {
     my ($self, $rule, $params, $extra) = @_;
-    my %allowed_conditions = map { $_->{attributes} => 1  } @{$self->{conditions} // []};
+    my %allowed_conditions = map { $_->{attribute} => 1 } @{$rule->{conditions} // []};
     my @key_values = (
         $self->{id},
         $rule->{id},
         $rule->{cache_key},
+        $params->{username} || $params->{email} || '',
         (
             map {
                 my $v = $_->{value};

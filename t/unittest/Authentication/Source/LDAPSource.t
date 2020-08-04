@@ -114,10 +114,20 @@ BEGIN {
 
 }
 
-use Test::More tests => 5 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 6 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
+
+{
+    my $source = getAuthenticationSource('LDAP');
+    my $rules = $source->rules;
+    is_deeply(
+        $source->rule_cache_key($rules->[0], {username => 'bob', SSID => 'james'}, {}),
+        ['LDAP', 'Network_Team_Auth', 'memberOf,equals,CN=NOC Users,DC=ldap,DC=inverse,DC=caSSID,starts,Network_Team_Auth', 'bob', 'SSID', 'james'],
+        'rule cache key',
+    );
+}
 
 my $source_id = 'LDAPCACHEMATCH';
 
