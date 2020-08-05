@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use List::MoreUtils qw(uniq);
 use pf::file_paths qw($admin_roles_config_file);
 use pf::constants::admin_roles;
 
@@ -47,19 +46,7 @@ sub build_child {
 
     $self->{roleReverseLookup} = {};
     while (my ($key, $val) = each %ADMIN_ROLES) {
-        my @categories;
-        for my $option (qw(allowed_roles allowed_node_roles)) {
-            next unless exists $val->{$option};
-            my $optVal = $val->{$option};
-            next if !defined $optVal;
-            push @categories, split /\s*,\s*/, $optVal;
-        }
-        @categories = uniq @categories;
-        if (@categories) {
-            for my $c (@categories) {
-                push @{$self->{roleReverseLookup}{$c}{admin_roles}}, $key;
-            }
-        }
+        $self->updateRoleReverseLookup($key, $val, 'admin_roles', qw(allowed_roles allowed_node_roles));
     }
 
     return \%ADMIN_ROLES;

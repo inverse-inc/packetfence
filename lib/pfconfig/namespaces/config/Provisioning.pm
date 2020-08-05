@@ -19,13 +19,14 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($provisioning_config_file);
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
     $self->{file} = $provisioning_config_file;
-    $self->{child_resources} = ['resource::ProvisioningReverseLookup', 'resource::passthroughs'];
+    $self->{child_resources} = ['resource::ProvisioningReverseLookup', 'resource::passthroughs', 'resource::RolesReverseLookup'];
 }
 
 sub build_child {
@@ -33,9 +34,11 @@ sub build_child {
 
     my %tmp_cfg = %{ $self->{cfg} };
     my %reverseLookup;
+    $self->{roleReverseLookup} = {};
 
     while ( my ($key, $provisioner) = each %tmp_cfg) {
         $self->cleanup_after_read($key, $provisioner);
+        $self->updateRoleReverseLookup($key, $provisioner, 'provisioning', qw(category role_to_apply));
         foreach my $field (qw(pki_provider)) {
             my $values = $provisioner->{$field};
             if (ref ($values) eq '') {
@@ -65,7 +68,6 @@ sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
     $self->expand_list( $data, qw(category oses) );
 }
-
 
 =head1 AUTHOR
 

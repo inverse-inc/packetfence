@@ -37,12 +37,7 @@ sub build_child {
     $self->{roleReverseLookup} = {};
     while ( my ($key, $val) = each %tmp_cfg) {
         $self->cleanup_after_read($key, $val);
-        my $categories = exists $val->{categories} ? $val->{categories} : undef;
-        if (defined $categories && @$categories) {
-            for my $c (@$categories) {
-                push @{$self->{roleReverseLookup}{$c}{scan}}, $key;
-            }
-        }
+        $self->updateRoleReverseLookup($key, $val, 'scan', qw(categories));
     }
 
     return \%tmp_cfg;

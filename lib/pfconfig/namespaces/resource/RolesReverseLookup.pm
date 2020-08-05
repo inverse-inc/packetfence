@@ -14,6 +14,8 @@ use strict;
 use warnings;
 use pfconfig::namespaces::config::Scan;
 use pfconfig::namespaces::config::AdminRoles;
+use pfconfig::namespaces::config::Provisioning;
+use pfconfig::namespaces::config::SelfService;
 use Hash::Merge qw(merge);
 
 use base 'pfconfig::namespaces::resource';
@@ -24,8 +26,29 @@ sub build {
     $configScan->build;
     my $configAdminRoles = pfconfig::namespaces::config::AdminRoles->new( $self->{cache} );
     $configAdminRoles->build;
-    my $mergedHashed = merge($configScan->{roleReverseLookup}, $configAdminRoles->{roleReverseLookup});
+    my $configProvisioning = pfconfig::namespaces::config::Provisioning->new( $self->{cache} );
+    $configProvisioning->build;
+    my $mergedHashed = {};
+    for my $lookup ($self->lookups()) {
+        $mergedHashed = merge($mergedHashed, $lookup);
+    }
+
     return $mergedHashed;
+}
+
+sub lookups {
+    my ($self) = @_;
+    my $cache = $self->{cache};
+    my @lookups;
+    for my $module (qw(pfconfig::namespaces::config::Scan pfconfig::namespaces::config::AdminRoles pfconfig::namespaces::config::Provisioning pfconfig::namespaces::config::SelfService)) {
+        my $config = $module->new($cache);
+        $config->build;
+        my $lookup = $config->{roleReverseLookup};
+        next if !defined $lookup || keys %$lookup == 0;
+        push @lookups, $lookup;
+    }
+
+    return @lookups;
 }
 
 =head1 AUTHOR
