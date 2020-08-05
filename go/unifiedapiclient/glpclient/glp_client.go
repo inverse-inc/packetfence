@@ -37,6 +37,8 @@ type PollEvent struct {
 }
 
 type Client struct {
+        // Flag that tracks the current run ID
+        runID uint64
 	path     string
 	category string
 	// Timeout controls the timeout in all the requests, can be changed after instantiating the client
@@ -45,8 +47,6 @@ type Client struct {
 	Reattempt time.Duration
 	// Will get all the events data
 	EventsChan chan PollEvent
-	// Flag that tracks the current run ID
-	runID uint64
 	// The HTTP client to perform the requests, any changes on this should be done prior to starting the client the first time
 	APIClient *unifiedapiclient.Client
 
@@ -69,7 +69,6 @@ func NewClient(apiClient *unifiedapiclient.Client, path string, category string)
 		EventsChan:     make(chan PollEvent),
 		APIClient:      apiClient,
 		LoggingEnabled: true,
-		runID:          0,
 	}
 }
 
