@@ -10,8 +10,6 @@ pf::UnifiedApi::Controller::Config::Roles -
 
 pf::UnifiedApi::Controller::Config::Roles
 
-
-
 =cut
 
 use strict;
@@ -27,6 +25,9 @@ has 'primary_key' => 'role_id';
 
 use pf::ConfigStore::Roles;
 use pfappserver::Form::Config::Roles;
+use pfconfig::cached_hash;
+
+tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
 
 sub can_delete {
     my ($self) = @_;
@@ -45,6 +46,9 @@ sub can_delete {
 
 sub can_delete_from_config {
     my ($self) = @_;
+    if (exists $RolesReverseLookup{$self->id}) {
+        return (422, 'Role still in use');
+    }
 
     return (200, '');
 }
