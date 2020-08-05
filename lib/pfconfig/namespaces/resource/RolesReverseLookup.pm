@@ -17,18 +17,13 @@ use pfconfig::namespaces::config::AdminRoles;
 use pfconfig::namespaces::config::Provisioning;
 use pfconfig::namespaces::config::SelfService;
 use pfconfig::namespaces::config::BillingTiers;
+use pfconfig::namespaces::config::Firewall_SSO;
 use Hash::Merge qw(merge);
 
 use base 'pfconfig::namespaces::resource';
 
 sub build {
     my ($self) = @_;
-    my $configScan = pfconfig::namespaces::config::Scan->new( $self->{cache} );
-    $configScan->build;
-    my $configAdminRoles = pfconfig::namespaces::config::AdminRoles->new( $self->{cache} );
-    $configAdminRoles->build;
-    my $configProvisioning = pfconfig::namespaces::config::Provisioning->new( $self->{cache} );
-    $configProvisioning->build;
     my $mergedHashed = {};
     for my $lookup ($self->lookups()) {
         $mergedHashed = merge($mergedHashed, $lookup);
@@ -41,7 +36,7 @@ sub lookups {
     my ($self) = @_;
     my $cache = $self->{cache};
     my @lookups;
-    for my $module (qw(pfconfig::namespaces::config::Scan pfconfig::namespaces::config::AdminRoles pfconfig::namespaces::config::Provisioning pfconfig::namespaces::config::SelfService pfconfig::namespaces::config::BillingTiers)) {
+    for my $module (qw(pfconfig::namespaces::config::Scan pfconfig::namespaces::config::AdminRoles pfconfig::namespaces::config::Provisioning pfconfig::namespaces::config::SelfService pfconfig::namespaces::config::BillingTiers pfconfig::namespaces::config::Firewall_SSO)) {
         my $config = $module->new($cache);
         $config->build;
         my $lookup = $config->{roleReverseLookup};

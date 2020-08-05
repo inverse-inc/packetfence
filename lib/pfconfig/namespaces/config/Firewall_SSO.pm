@@ -26,16 +26,17 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $firewall_sso_config_file;
+    $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
 }
 
 sub build_child {
     my ($self) = @_;
     my %tmp_cfg = %{ $self->{cfg} };
 
-    foreach my $key ( keys %tmp_cfg ) {
-        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
-        my @networks = map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$tmp_cfg{$key}{networks}};
-        $tmp_cfg{$key}{networks} = \@networks;
+    while ( my ($key, $item) = each %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $item);
+        $item->{networks} = [map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$item->{networks}}];
+        $self->updateRoleReverseLookup($key, $item, 'firewall_sso', qw(categories));
     }
 
     return \%tmp_cfg;
