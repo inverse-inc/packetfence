@@ -17,7 +17,7 @@ pf::UnifiedApi::Controller::Config::Roles
 use strict;
 use warnings;
 use pf::dal::node_category;
-use pf::error (is_error);
+use pf::error qw(is_error);
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
@@ -64,7 +64,7 @@ SQL
 sub can_delete_from_db {
     my ($self) = @_;
     my $id = $self->id;
-    my ($status, $sth) = pf::dal::node_category->db_execute($sql, $id);
+    my ($status, $sth) = pf::dal::node_category->db_execute($CAN_DELETE_FROM_DB_SQL, $id);
     if (is_error($status)) {
         return ($status, "Unable to check role in the database");
     }
@@ -72,7 +72,7 @@ sub can_delete_from_db {
     my ($count) = $sth->fetchrow_array();
     $sth->finish;
     if ($count) {
-        (422, 'Role still in use');
+        return (422, 'Role still in use');
     }
 
     return (200, '');
