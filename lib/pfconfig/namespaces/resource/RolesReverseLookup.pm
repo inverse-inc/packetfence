@@ -13,15 +13,19 @@ pfconfig::namespaces::resource::RolesReverseLookup
 use strict;
 use warnings;
 use pfconfig::namespaces::config::Scan;
+use pfconfig::namespaces::config::AdminRoles;
+use Hash::Merge qw(merge);
+
 use base 'pfconfig::namespaces::resource';
 
 sub build {
     my ($self) = @_;
-
     my $configScan = pfconfig::namespaces::config::Scan->new( $self->{cache} );
     $configScan->build;
-
-    return $configScan->{roleReverseLookup};
+    my $configAdminRoles = pfconfig::namespaces::config::AdminRoles->new( $self->{cache} );
+    $configAdminRoles->build;
+    my $mergedHashed = merge($configScan->{roleReverseLookup}, $configAdminRoles->{roleReverseLookup});
+    return $mergedHashed;
 }
 
 =head1 AUTHOR
