@@ -69,6 +69,7 @@ func NewClient(apiClient *unifiedapiclient.Client, path string, category string)
 		EventsChan:     make(chan PollEvent),
 		APIClient:      apiClient,
 		LoggingEnabled: true,
+		runID:          0,
 	}
 }
 
