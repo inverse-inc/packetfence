@@ -16,6 +16,7 @@ use pfconfig::namespaces::config::Scan;
 use pfconfig::namespaces::config::AdminRoles;
 use pfconfig::namespaces::config::Provisioning;
 use pfconfig::namespaces::config::SelfService;
+use pfconfig::namespaces::config::BillingTiers;
 use Hash::Merge qw(merge);
 
 use base 'pfconfig::namespaces::resource';
@@ -40,7 +41,7 @@ sub lookups {
     my ($self) = @_;
     my $cache = $self->{cache};
     my @lookups;
-    for my $module (qw(pfconfig::namespaces::config::Scan pfconfig::namespaces::config::AdminRoles pfconfig::namespaces::config::Provisioning pfconfig::namespaces::config::SelfService)) {
+    for my $module (qw(pfconfig::namespaces::config::Scan pfconfig::namespaces::config::AdminRoles pfconfig::namespaces::config::Provisioning pfconfig::namespaces::config::SelfService pfconfig::namespaces::config::BillingTiers)) {
         my $config = $module->new($cache);
         $config->build;
         my $lookup = $config->{roleReverseLookup};
