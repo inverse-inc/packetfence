@@ -515,7 +515,7 @@ sub _bouncePortCoa {
     my %args = (
         disconnectIp => $send_disconnect_to,
         mac => $mac,
-        ifindex => $ifIndex,
+        ifIndex => $ifIndex,
         switch => $self,
     );
 

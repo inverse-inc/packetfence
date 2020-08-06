@@ -288,6 +288,61 @@ So here is mini templating language to format values.
 ** switch._wsUser
 ** vlan
 
+* bounce
+** disconnectIp
+** mac
+** ifIndex
+** switch._ExternalPortalEnforcement
+** switch._RoleMap
+** switch._SNMPAuthPasswordRead
+** switch._SNMPAuthPasswordTrap
+** switch._SNMPAuthPasswordWrite
+** switch._SNMPAuthProtocolRead
+** switch._SNMPAuthProtocolTrap
+** switch._SNMPAuthProtocolWrite
+** switch._SNMPCommunityRead
+** switch._SNMPCommunityTrap
+** switch._SNMPCommunityWrite
+** switch._SNMPEngineID
+** switch._SNMPPrivPasswordRead
+** switch._SNMPPrivPasswordTrap
+** switch._SNMPPrivPasswordWrite
+** switch._SNMPPrivProtocolRead
+** switch._SNMPPrivProtocolTrap
+** switch._SNMPPrivProtocolWrite
+** switch._SNMPUserNameRead
+** switch._SNMPUserNameTrap
+** switch._SNMPUserNameWrite
+** switch._SNMPVersion
+** switch._SNMPVersionTrap
+** switch._TenantId
+** switch._UrlMap
+** switch._VlanMap
+** switch._VoIPEnabled
+** switch._cliEnablePwd
+** switch._cliPwd
+** switch._cliTransport
+** switch._cliUser
+** switch._coaPort
+** switch._controllerIp
+** switch._deauthMethod
+** switch._disconnectPort
+** switch._id
+** switch._inlineTrigger
+** switch._ip
+** switch._macSearchesMaxNb
+** switch._macSearchesSleepInterval
+** switch._mode
+** switch._roles
+** switch._switchIp
+** switch._switchMac
+** switch._uplink
+** switch._useCoA
+** switch._vlans
+** switch._wsPwd
+** switch._wsTransport
+** switch._wsUser
+
 ==== Available functions
 
 * `macToEUI48($mac)`            - format a mac to AA-BB-CC-DD-FF-EE format
