@@ -474,17 +474,18 @@ sub bouncePort {
         return $TRUE;
     }
 
-    return $self->_bouncePortCoa($ifindex);
+    my $radiusBounce = $self->{_template}{bounce};
+    if (!defined $radiusBounce) {
+        $logger->debug("Bounce template not defined using SNMP");
+        return $self->SUPER::bouncePort($ifindex);
+    }
+
+    return $self->_bouncePortCoa($ifindex, $radiusBounce);
 }
 
 sub _bouncePortCoa {
-    my ($self, $ifIndex) = @_;
+    my ($self, $ifIndex, $radiusBounce) = @_;
     my $logger = $self->logger;
-    my $radiusBounce = $self->{_template}{bounce};
-    if (!defined $radiusBounce) {
-        $logger->debug("Bounce template not defined won't perform a port bounce");
-        return;
-    }
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
