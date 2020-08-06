@@ -309,6 +309,27 @@ export const view = (form, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Bounce Port Scope'),
+          cols: [
+            {
+              namespace: 'bounce',
+              component: pfFormFields,
+              attrs: {
+                buttonLabel: i18n.t('Add RADIUS Attribute'),
+                sortable: true,
+                field: {
+                  component: pfFieldTypeValue,
+                  attrs: {
+                    typeLabel: i18n.t('Type to filter RADIUS attributes'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: radiusFields
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('ACL template'),
           text: i18n.t(`The template to use to generate an access list for this module.`),
           cols: [
@@ -336,7 +357,8 @@ export const validators = (form, meta = {}) => {
     disconnect = [],
     coa = [],
     reject = [],
-    voip = []
+    voip = [],
+    bounce = []
   } = form
   const {
     isNew = false,
@@ -414,6 +436,17 @@ export const validators = (form, meta = {}) => {
       ...(voip || []).map(_voip => { // index based validators
         if (_voip) {
           const { type } = _voip
+          if (type) {
+            return { value: { [i18n.t('Value required.')]: required } }
+          }
+        }
+        return { type: { [i18n.t('Attribute required')]: required } }
+      })
+    },
+    bounce: {
+      ...(bounce || []).map(_bounce => { // index based validators
+        if (_bounce) {
+          const { type } = _bounce
           if (type) {
             return { value: { [i18n.t('Value required.')]: required } }
           }
