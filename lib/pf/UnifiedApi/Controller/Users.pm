@@ -195,6 +195,17 @@ sub bulk_deregister {
     return $self->render(json => { items => $results });
 }
 
+sub create_obj {
+    my ($self, $data) = @_;
+    my $obj = $self->dal->new($data);
+    my $status = $data->{pid_overwrite} ? $obj->create_or_update() : $obj->insert();
+    if (is_error($status)) {
+        return ($status, {message => $self->status_to_error_msg($status)});
+    }
+
+    return ($status, $obj);
+}
+
 =head2 bulk_close_security_events
 
 bulk_close_security_events
