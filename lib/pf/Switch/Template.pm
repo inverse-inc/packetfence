@@ -484,7 +484,7 @@ sub bouncePort {
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($self, $ifIndex, $mac) = @_;
-    return $self->bouncePortSNMP($ifindex);
+    return $self->bouncePortSNMP($ifIndex);
 }
 
 sub _bouncePortCoa {
