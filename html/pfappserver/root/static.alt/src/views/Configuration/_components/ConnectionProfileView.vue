@@ -6,7 +6,7 @@
     :isDeletable="isDeletable"
     :isNew="isNew"
     :isClone="isClone"
-    :initialTabIndex="tabIndex"
+    :initial-tab-index="tabIndex"
     :view="view"
     @close="close"
     @create="create"

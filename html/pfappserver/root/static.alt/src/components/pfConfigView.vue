@@ -221,6 +221,15 @@ export default {
   },
   mounted () {
     this.$store.commit('session/FORM_OK')
+    // When tabs are defined, make sure to show the initial tab once the form has finished loading
+    // See https://github.com/inverse-inc/packetfence/issues/5721
+    if (this.view && (this.view[0].tab || this.view.length > 1)) {
+      let unwatch = this.$watch('isLoading', function () {
+        if (this.tabIndex < 0)
+          this.tabIndex = this.initialTabIndex
+        unwatch()
+      })
+    }
   }
 }
 </script>
