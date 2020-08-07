@@ -1137,6 +1137,18 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 
 sub bouncePort {
     my ($self, $ifIndex) = @_;
+    return $self->bouncePortSNMP($ifIndex);
+}
+
+=item bouncePortSNMP
+
+Performs a shut / no-shut on the port.
+Usually used to force the operating system to do a new DHCP Request after a VLAN change.
+
+=cut
+
+sub bouncePortSNMP {
+    my ($self, $ifIndex) = @_;
 
     $self->setAdminStatus( $ifIndex, $SNMP::DOWN );
     sleep($Config{'snmp_traps'}{'bounce_duration'});
