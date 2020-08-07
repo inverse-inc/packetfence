@@ -476,11 +476,15 @@ sub bouncePort {
 
     my $radiusBounce = $self->{_template}{bounce};
     if (!defined $radiusBounce) {
-        $logger->debug("Bounce template not defined using SNMP");
         return $self->SUPER::bouncePort($ifindex);
     }
 
     return $self->_bouncePortCoa($ifindex, $radiusBounce);
+}
+
+sub handleReAssignVlanTrapForWiredMacAuth {
+    my ($self, $ifIndex, $mac) = @_;
+    return $self->bouncePortSNMP($ifindex);
 }
 
 sub _bouncePortCoa {
