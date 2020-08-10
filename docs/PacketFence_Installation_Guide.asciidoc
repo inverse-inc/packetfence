@@ -5505,6 +5505,28 @@ The Content-Security-Policy HTTP response header tells modern browsers what can 
 If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
 
 
+=== `pfacct`: track bandwidth usage
+
+Starting from v10, `pfacct` daemon is used to track bandwidth usage of nodes using <<_radius_accounting>> or NetFlow traffic (inline networks only).
+It is enabled by default and replaced `packetfence-radiusd-acct` service.
+
+`pfacct` will store data into `bandwidth_accounting` table. Using a security
+event with a bandwidth limit trigger, you can limit data usage of your
+nodes. GUI also use `bandwidth_accounting` table informations to display
+online/offline status of nodes.
+
+Bandwidth usage reports are available in _Reports_ menu under _Accounting_ section.
+
+==== NetFlow traffic on inline networks
+
+NetFlow traffic can be handle by `pfacct` on inline L2/L3 networks. You need
+to enable _Netflow Accounting Enabled_ setting when defining an inline network.
+
+In order to not conflict with the `fingerbank-collector` (which listens
+NetFlow traffic on all interfaces), `pfacct` listens NetFlow traffic on
+localhost, using `udp/2056` port. It received data using NetFlow kernel
+module.
+
 include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]
