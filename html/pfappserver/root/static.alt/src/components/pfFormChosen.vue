@@ -1,8 +1,8 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
-    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled }">
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled, [`pf-form-chosen-${size}`]: size }">
     <template v-slot:invalid-feedback>
-      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+      {{ inputInvalidFeedback }}
     </template>
     <b-input-group>
       <multiselect ref="multiselect"
@@ -12,34 +12,47 @@
         :allow-empty="allowEmpty"
         :clear-on-select="clearOnSelect"
         :disabled="disabled"
+        :group-label="groupLabel"
         :group-values="groupValues"
         :id="id"
-        :internal-search="internalSearch"
+        :internal-search="false"
         :multiple="multiple"
         :label="label"
-        :options="options"
+        :options="multiselectOptions"
         :options-limit="optionsLimit"
         :placeholder="placeholder"
+        :taggable="taggable"
+        :tag-placeholder="multiselectTagPlaceholder"
         :preserve-search="preserveSearch"
         :searchable="searchable"
         :show-labels="false"
         :state="inputState"
         :track-by="trackBy"
+        :size="size"
         @search-change="onSearchChange($event)"
         @open="onFocus"
         @close="onBlur"
+        @tag="addTag"
       >
         <template v-slot:singleLabel="{ option }">
-          {{ tagCache[option.value] }}
+          {{ tagCache[option.value] || option.value }}
         </template>
         <template v-slot:tag="{ option }">
           <span class="multiselect__tag" :class="(isFocus && optionsList.includes(option.value)) ? 'bg-primary' : 'bg-secondary'">
-            <span>{{ tagCache[option.value] }}</span>
+            <span>{{ tagCache[option.value] || option.value }}</span>
             <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="removeTag(option.value)"></i>
           </span>
         </template>
+        <template v-slot:beforeList v-if="internalSearch || optionsSearchFunction">
+          <li class="multiselect__element" v-if="internalSearch">
+            <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
+          </li>
+          <li class="multiselect__element" v-if="optionsSearchFunction">
+            <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search results') }}</div>
+          </li>
+        </template>
         <template v-slot:noResult>
-          <template v-if="loading">
+          <template v-if="isLoading">
             <b-media class="text-secondary" md="auto">
               <template v-slot:aside><icon name="circle-notch" spin scale="1.5" class="mt-2 ml-2"></icon></template>
               <strong>{{ $t('Loading results') }}</strong>
@@ -55,11 +68,11 @@
           </template>
         </template>
       </multiselect>
-      <b-input-group-append v-if="readonly || disabled">
-        <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+      <b-input-group-append v-show="readonly || disabled" :size="size">
+        <b-button :size="size" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-html="text"></b-form-text>
+    <b-form-text v-show="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
@@ -114,6 +127,9 @@ export default {
       type: Boolean,
       default: false
     },
+    groupLabel: {
+      type: String
+    },
     groupValues: {
       type: String
     },
@@ -127,10 +143,6 @@ export default {
     label: {
       type: String,
       default: 'text'
-    },
-    loading: {
-      type: Boolean,
-      default: false
     },
     multiple: {
       type: Boolean,
@@ -151,6 +163,14 @@ export default {
       type: String,
       default: null
     },
+    taggable: {
+      type: Boolean,
+      default: false
+    },
+    tagPlaceholder: {
+      type: String,
+      default: null
+    },
     preserveSearch: {
       type: Boolean,
       default: false
@@ -162,6 +182,10 @@ export default {
     trackBy: {
       type: String,
       default: 'value'
+    },
+    size: {
+      type: String,
+      default: 'md'
     }
   },
   errorCaptured (err) { // capture exceptions from vue-multiselect component
@@ -171,7 +195,9 @@ export default {
   },
   data () {
     return {
+      isLoading: false,
       isFocus: false,
+      internalSearchQuery: null,
       tagCache: {}
     }
   },
@@ -242,6 +268,53 @@ export default {
       return (this.options || []).map(option => {
         return option[this.trackBy]
       })
+    },
+    multiselectOptions () {
+      if (this.internalSearchQuery) {
+        const compoundSearch = (text, compoundQuery = null) => {
+          if (!compoundQuery) return true
+          let [ query, ...rest ] = compoundQuery.split(' ')
+          // case-insensitive and locale-ized
+          const textLocale = text.toLocaleLowerCase(this.$i18n.locale)
+          const queryLocale = query.toLocaleLowerCase(this.$i18n.locale)
+          if (rest.length > 0) {
+            // && with recursion
+            return (textLocale.includes(queryLocale) && compoundSearch(text, rest.join(' ')))
+          }
+          return textLocale.includes(queryLocale)
+        }
+
+        if (this.groupValues) {
+          return this.options.map(group => {
+            const { [this.groupLabel]: groupLabel, [this.groupValues]: groupValues } = group
+            if (compoundSearch(groupLabel, this.internalSearchQuery)) {
+              return group
+            }
+            return {
+              ...group,
+              [this.groupValues]: groupValues.filter(option => {
+                const { [this.label]: text } = option
+                return compoundSearch(text, this.internalSearchQuery)
+              })
+            }
+          }).filter(group => {
+            const { [this.groupValues]: groupValues } = group
+            return groupValues.length > 0
+          })
+        }
+        else {
+          return this.options.filter(option => {
+            const { [this.label]: text } = option
+            return compoundSearch(text, this.internalSearchQuery)
+          })
+        }
+      }
+      else {
+        return this.options
+      }
+    },
+    multiselectTagPlaceholder () {
+      return this.tagPlaceholder || this.$i18n.t('Click to add value')
     }
   },
   methods: {
@@ -253,25 +326,37 @@ export default {
       this.isFocus = true
       this.onSearchChange(this.inputValue)
     },
+    blur () {
+      const { $refs: { multiselect: { $el } = {} } = {} } = this
+      $el.blur()
+    },
     onBlur () {
       this.isFocus = false
       this.onSearchChange(this.inputValue)
     },
     onSearchChange (query) {
-      if (this.optionsSearchFunction) {
+      if (this.internalSearch) {
+        if (query !== this.inputValue) {
+          this.internalSearchQuery = query
+        }
+        else {
+          this.internalSearchQuery = null
+        }
+      }
+      else if (this.optionsSearchFunction) {
         if (query && query.constructor === Array) { // not a user defined query
           query = ''
         }
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
         }
-        this.loading = true
+        this.isLoading = true
         this.$debouncer({
           handler: () => {
             Promise.resolve(this.optionsSearchFunction(this, query, SEARCH_BY_TEXT)).then(options => {
               this.options = options
             }).finally(() => {
-              this.loading = false
+              this.isLoading = false
             })
           },
           time: 300
@@ -285,16 +370,25 @@ export default {
       if (this.groupValues) {
         let flattened = []
         for (let group of options) {
-          flattened = [ ...flattened, ...group[this.groupValues] ]
+          flattened = [ ...flattened, ...( group[this.groupValues] || []) ]
         }
         options = flattened
       }
       (options || []).map(option => {
         const { [this.trackBy]: value, [this.label]: label } = option
-        if (!(value in this.tagCache)) {
+        if (!(value in this.tagCache) || value !== label) {
           this.$set(this.tagCache, value, label)
         }
       })
+    },
+    addTag (newTag) {
+      if (this.multiple) {
+        this.$set(this, 'inputValue', [ ...this.inputValue, newTag ])
+        this.focus()
+      } else {
+        this.$set(this, 'inputValue', newTag)
+        this.blur()
+      }
     }
   },
   watch: {
@@ -306,14 +400,21 @@ export default {
     },
     inputValue: {
       handler (a) {
-        if (this.optionsSearchFunction) {
-          (((this.multiple) ? a : [a]) || []).map(value => {
-            if (!(value in this.tagCache)) {
-              Promise.resolve(this.optionsSearchFunction(this, value, SEARCH_BY_ID)).then(options => {
-                this.cacheTagsFromOptions(options)
-              })
-            }
-          })
+        this.internalSearchQuery = null
+        if (a) {
+          if (this.optionsSearchFunction) {
+            (((this.multiple) ? a : [a]) || []).map(value => {
+              if (!(value in this.tagCache)) {
+                Promise.resolve(this.optionsSearchFunction(this, value, SEARCH_BY_ID)).then(options => {
+                  this.cacheTagsFromOptions(options)
+                })
+              }
+            })
+          } else {
+            this.cacheTagsFromOptions((((this.multiple) ? a : [a]) || []).map(value => {
+              return { [this.label]: value, [this.trackBy]: value }
+            }))
+          }
         }
       },
       immediate: true
@@ -324,4 +425,5 @@ export default {
 
 <style lang="scss">
 /* See styles/_form-chosen.scss */
+
 </style>
