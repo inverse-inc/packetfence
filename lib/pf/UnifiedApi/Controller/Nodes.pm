@@ -1079,7 +1079,17 @@ sub can_remove {
 
 sub do_remove {
     my ($self) = @_;
-    my $mac = $self->id;
+    return $self->_do_remove($self->id);
+}
+
+=head2 _do_remove
+
+_do_remove
+
+=cut
+
+sub _do_remove {
+    my ($self, $mac) = @_;
     my ($result, $msg) = pf::node::_can_delete($mac);
     if (!$result) {
         pf::node::node_deregister($mac);
