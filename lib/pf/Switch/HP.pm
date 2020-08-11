@@ -518,7 +518,7 @@ sub returnAuthorizeWrite {
    my $logger = $self->logger;
    my $radius_reply_ref = {};
    my $status;
-   $radius_reply_ref->{'APC-Service-Type'} = 'Admin';
+   $radius_reply_ref->{'Service-Type'} = 'Administrative-User';
    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
    my $filter = pf::access_filter::radius->new;
@@ -538,7 +538,7 @@ sub returnAuthorizeRead {
    my $logger = $self->logger;
    my $radius_reply_ref = {};
    my $status;
-   $radius_reply_ref->{'APC-Service-Type'} = 'ReadOnly';
+   $radius_reply_ref->{'Service-Type'} = 'NAS-Prompt-User';
    $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
    my $filter = pf::access_filter::radius->new;
