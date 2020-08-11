@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 97;
+use Test::More tests => 101;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -151,6 +151,11 @@ $t->post_ok('/api/v1/nodes' => json => { mac => "112233445566" })
 $t->get_ok('/api/v1/node/11:22:33:44:55:66')
   ->status_is(200)
   ->json_is("/item/category_id", 1);
+
+$t->delete_ok('/api/v1/nodes/bulk_delete' => json => { items => ['11:22:33:44:55:66']})
+  ->status_is(200)
+  ->json_is("/items/0/mac", '11:22:33:44:55:66')
+  ->json_is("/items/0/status", 200);
 
 =head1 AUTHOR
 

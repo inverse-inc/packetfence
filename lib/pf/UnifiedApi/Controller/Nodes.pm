@@ -1077,9 +1077,42 @@ sub can_remove {
     return (422, $msg);
 }
 
+sub bulk_delete {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    ($status, my $iter) = $self->dal->search(
+        -columns => [qw(mac)],
+        -where => {
+            mac => { -in => $items},
+        },
+        -with_class => undef,
+    );
+
+    if (is_error($status)) {
+        return $self->render_error($status, "Error deleting nodes");
+    }
+
+    my ($indexes, $results) = bulk_init_results($items);
+    my $nodes = $iter->all;
+    for my $node (@$nodes) {
+        my $mac = $node->{mac};
+        my $index = $indexes->{$mac};
+        my ($status, $msg) = $self->_do_remove($node);
+        $results->[$index]{status} = $status;
+        $results->[$index]{message} = is_error($status) ? ($msg // "Unable to remove resource") : "Deleted $mac successfully";
+    }
+
+    return $self->render(status => 200, json => { items => $results });
+}
+
 sub do_remove {
     my ($self) = @_;
-    return $self->_do_remove($self->id);
+    return $self->_do_remove($self->build_item_lookup);
 }
 
 =head2 _do_remove
@@ -1089,7 +1122,8 @@ _do_remove
 =cut
 
 sub _do_remove {
-    my ($self, $mac) = @_;
+    my ($self, $lookup) = @_;
+    my $mac = $lookup->{mac};
     my ($result, $msg) = pf::node::_can_delete($mac);
     if (!$result) {
         pf::node::node_deregister($mac);
@@ -1097,7 +1131,7 @@ sub _do_remove {
         pf::locationlog::locationlog_update_end_mac($mac);
     }
 
-    return $self->dal->remove_by_id($self->build_item_lookup);
+    return $self->dal->remove_by_id($lookup);
 }
 
 =head2 create_data_update
