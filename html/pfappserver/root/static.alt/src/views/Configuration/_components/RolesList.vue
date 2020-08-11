@@ -18,7 +18,8 @@
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No roles found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
-        <span class="float-right text-nowrap">
+        <span class="float-right text-nowrap text-right">
+          <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
           <b-button v-if="isInline" size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>
         </span>
@@ -28,6 +29,7 @@
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
@@ -36,6 +38,7 @@ import { config } from '../_config/role'
 export default {
   name: 'roles-list',
   components: {
+    pfButtonDelete,
     pfButtonHelp,
     pfConfigList,
     pfEmptyTable
@@ -54,6 +57,12 @@ export default {
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneRole', params: { id: item.id } })
+    },
+    remove (item) {
+      this.$store.dispatch('$_roles/deleteRole', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
+      })
     },
     trafficShapingRoute (id) {
       return (this.trafficShapingPolicies.includes(id))
