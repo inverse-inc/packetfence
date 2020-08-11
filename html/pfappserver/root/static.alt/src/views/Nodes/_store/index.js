@@ -393,6 +393,15 @@ const actions = {
     }).catch(err => {
       commit('NODE_ERROR', err.response)
     })
+  },
+  bulkDelete: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkDelete(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
   }
 }
 

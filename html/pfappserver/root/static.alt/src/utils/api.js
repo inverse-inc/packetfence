@@ -19,14 +19,14 @@ function _encodeURL (url) {
   return url
 }
 
-const methodsWithoutData = ['delete', 'get', 'head', 'options']
+const methodsWithoutData = ['get', 'head', 'options']
 methodsWithoutData.forEach((method) => {
   apiCall[method] = (url, config = {}) => {
     return apiCall.request({ ...config, method, url: _encodeURL(url) })
   }
 })
 
-const methodsWithData = ['post', 'put', 'patch']
+const methodsWithData = ['post', 'put', 'patch', 'delete']
 methodsWithData.forEach((method) => {
   apiCall[method] = (url, data, config = {}) => {
     return apiCall.request({ ...config, method, url: _encodeURL(url), data })
