@@ -1,3 +1,4 @@
+---
 environment__group_variables:
   - name: 'PF_TEST_MGMT_INT'
     value: "{{ packetfence_install__mgmt_interface['id'] }}"
@@ -8,6 +9,3 @@ environment__group_variables:
   - name: 'PF_TEST_MGMT_MASK'
     value: "{{ packetfence_install__mgmt_interface['mask'] }}"
 
-  # completely unsecure but it's only for short-lived virtual machines
-  - name: 'MYSQL_PWD'
-    value: "{{ packetfence_install__database_root_pass }}"
