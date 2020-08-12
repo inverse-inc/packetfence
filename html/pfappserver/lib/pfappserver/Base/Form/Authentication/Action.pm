@@ -120,7 +120,7 @@ our %ACTION_FIELD_OPTIONS = (
         do_label       => 0,
         wrapper        => 0,
         element_class => ['chzn-deselect'],
-        options_method => \&options_attributes,
+        options_method => \&options_set_role_from_source,
     },
 );
 
@@ -265,14 +265,19 @@ sub options_durations_absolute {
     return make_durations_options($form, \@choices);
 }
 
-=head2 options_attributes
+=head2 options_set_role_from_source
 
 retrive the realms
 
 =cut
 
-sub options_attributes {
+sub options_set_role_from_source {
     my ($self) = @_;
+    my $form = $self->form;
+    if ($form->can('_options_set_role_from_source')) {
+        return $form->_options_set_role_from_source();
+    }
+
     return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
 }
 
