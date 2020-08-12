@@ -12,8 +12,3 @@
       -A INPUT --in-interface {{ ansible_default_ipv4['interface'] }} --jump ACCEPT
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
     insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
-  register: site_register_iptables_rule
-
-- name: apply new iptables rule for vagrant management
-  command: "{{ packetfence_install__pfcmd }} service iptables restart"
-  when: site_register_iptables_rule is changed
