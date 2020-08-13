@@ -1,9 +1,6 @@
 import { ref, toRefs, unref, computed } from '@vue/composition-api'
 
 export const useInputProps = {
-  value: {
-    default: null
-  },
   disabled: {
     type: Boolean,
     default: false
@@ -28,10 +25,9 @@ export const useInputProps = {
   }
 }
 
-export const useInput = (props, { emit, parent, refs }, inputRef = 'input') => {
+export const useInput = (props, { emit, refs }, inputRef = 'input') => {
 
   const {
-    value,
     disabled,
     placeholder,
     readonly,
@@ -50,8 +46,6 @@ export const useInput = (props, { emit, parent, refs }, inputRef = 'input') => {
   const doSelect = () => refs[inputRef].$el.select()
 
   // events
-  const onInput = value => emit('input', value)
-  const onChange = value => emit('change', value)
   const onFocus = event => {
     isFocus.value = true
     emit('focus', event)
@@ -63,7 +57,6 @@ export const useInput = (props, { emit, parent, refs }, inputRef = 'input') => {
 
   return {
     // props
-    value,
     placeholder,
     readonly,
     tabIndex,
@@ -80,8 +73,6 @@ export const useInput = (props, { emit, parent, refs }, inputRef = 'input') => {
     doSelect,
 
     //events
-    onInput,
-    onChange,
     onFocus,
     onBlur
   }

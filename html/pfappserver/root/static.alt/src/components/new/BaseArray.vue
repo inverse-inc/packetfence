@@ -20,7 +20,6 @@ export default {
   inheritAttrs: false,
   props,
   setup(props, context) {
-
     const {
       value,
       slotsList

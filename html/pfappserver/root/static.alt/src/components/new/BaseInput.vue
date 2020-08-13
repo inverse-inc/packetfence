@@ -34,15 +34,17 @@
 <script>
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputValidation, useInputValidationProps } from '@/composables/useInputValidation'
+import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
   ...useInputProps,
-  ...useInputValidationProps
+  ...useInputValidationProps,
+  ...useInputValueProps
 }
 
 export const setup = (props, context) => {
+
   const {
-    value,
     placeholder,
     readonly,
     tabIndex,
@@ -50,8 +52,6 @@ export const setup = (props, context) => {
     type,
     isFocus,
     isLocked,
-    onInput,
-    onChange,
     onFocus,
     onBlur
   } = useInput(props, context)
@@ -62,9 +62,14 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidation(props, context)
 
+  const {
+    value,
+    onInput,
+    onChange
+  } = useInputValue(props, context)
+
   return {
     // useInput
-    inputValue: value,
     inputReadonly: readonly,
     inputPlaceholder: placeholder,
     inputTabIndex: tabIndex,
@@ -72,15 +77,18 @@ export const setup = (props, context) => {
     inputType: type,
     isFocus,
     isLocked,
-    onInput,
-    onChange,
     onFocus,
     onBlur,
 
     // useInputValidation
     stateMapped,
     stateInvalidFeedback: invalidFeedback,
-    stateValidFeedback: validFeedback
+    stateValidFeedback: validFeedback,
+
+    // useInputValue
+    inputValue: value,
+    onInput,
+    onChange
   }
 }
 

@@ -47,11 +47,13 @@
 import { useFormGroup, useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputValidation, useInputValidationProps } from '@/composables/useInputValidation'
+import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
   ...useFormGroupProps,
   ...useInputProps,
-  ...useInputValidationProps
+  ...useInputValidationProps,
+  ...useInputValueProps
 }
 
 // @vue/component
@@ -67,15 +69,12 @@ export default {
     } = useFormGroup(props, context)
 
     const {
-      value,
       placeholder,
       readonly,
       tabIndex,
       type,
       isFocus,
       isLocked,
-      onInput,
-      onChange,
       onFocus,
       onBlur
     } = useInput(props, context)
@@ -86,6 +85,12 @@ export default {
       validFeedback
     } = useInputValidation(props, context)
 
+    const {
+      value,
+      onInput,
+      onChange
+    } = useInputValue(props, context)
+
     return {
       // useFormGroup
       formGroupLabel: columnLabel,
@@ -93,22 +98,24 @@ export default {
       formGroupText: text,
 
       // useInput
-      inputValue: value,
       inputReadonly: readonly,
       inputPlaceholder: placeholder,
       inputTabIndex: tabIndex,
       inputType: type,
       isFocus,
       isLocked,
-      onInput,
-      onChange,
       onFocus,
       onBlur,
 
       // useInputValidation
       stateMapped,
       stateInvalidFeedback: invalidFeedback,
-      stateValidFeedback: validFeedback
+      stateValidFeedback: validFeedback,
+
+      // useInputValue
+      inputValue: value,
+      onInput,
+      onChange
     }
   }
 }

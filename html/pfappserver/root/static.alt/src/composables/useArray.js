@@ -3,7 +3,7 @@ import { toRefs, computed } from '@vue/composition-api'
 export const useArrayProps = {
   value: {
     default: null,
-    type: Array
+    type: [Array, Object]
   }
 }
 
