@@ -21,13 +21,6 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($billing_tiers_config_file);
-use pf::constants::authentication;
-use pf::Authentication::constants;
-use pf::Authentication::Action;
-use pf::Authentication::Condition;
-use pf::Authentication::Rule;
-use pf::constants::authentication;
-
 use base 'pfconfig::namespaces::config';
 
 sub init {
