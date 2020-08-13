@@ -103,13 +103,7 @@ func NewDispatcher(maxWorkers, jobQueueSize int, bytesHandler BytesHandler, byte
 
 // SubmitJob submit a byte array to be processed
 func (d *Dispatcher) SubmitJob(job []byte) {
-	select {
-	case d.jobQueue <- job:
-	default:
-		go func() {
-			d.jobQueue <- job
-		}()
-	}
+	d.jobQueue <- job
 }
 
 // Run the dispatcher
@@ -141,20 +135,11 @@ func (d *Dispatcher) Wait() {
 
 func (d *Dispatcher) dispatch(jobQueue <-chan []byte, workerPool <-chan chan []byte) {
 	for {
-		select {
-		// a job request has been received
-		case job := <-jobQueue:
-			select {
-			// Take care of it right away
-			case jobChannel := <-workerPool:
-				jobChannel <- job
-			// No workers available put it in a go routine
-			default:
-				go func(job []byte) {
-					jobChannel := <-workerPool
-					jobChannel <- job
-				}(job)
-			}
-		}
+        // Find a worker
+        jobChannel := <-workerPool
+        //Get a Job
+        job := <-jobQueue
+        // Send it to the worker queue
+        jobChannel <- job
 	}
 }
