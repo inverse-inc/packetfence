@@ -63,7 +63,7 @@ type Processor struct {
 	// Default : 2048
 	PacketSize int
 	// ByteArrayPoolSize the number byte arrays to have avialable in the pool.
-	// Default : Twice as many workers
+	// Default : The same size of the backlog
 	ByteArrayPoolSize int
 	byteArrayPool     *bytearraypool.ByteArrayPool
 	stopChan          chan struct{}
@@ -88,7 +88,7 @@ func (p *Processor) setDefaults() {
 	}
 
 	if p.ByteArrayPoolSize <= 0 {
-		p.ByteArrayPoolSize = p.Workers * 2
+		p.ByteArrayPoolSize = p.Backlog
 	}
 
 	p.byteArrayPool = bytearraypool.NewByteArrayPool(p.ByteArrayPoolSize, p.PacketSize)
