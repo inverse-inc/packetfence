@@ -294,6 +294,7 @@ sub rule_cache_key {
     my @key_values = (
         $self->{id},
         $rule->{id},
+        $rule->{class},
         $rule->{cache_key},
         $params->{username} || $params->{email} || '',
         (

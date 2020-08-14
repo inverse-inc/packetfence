@@ -124,7 +124,7 @@ use Test::NoWarnings;
     my $rules = $source->rules;
     is_deeply(
         $source->rule_cache_key($rules->[0], {username => 'bob', SSID => 'james'}, {}),
-        ['LDAP', 'Network_Team_Auth', 'memberOf,equals,CN=NOC Users,DC=ldap,DC=inverse,DC=caSSID,starts,Network_Team_Auth', 'bob', 'SSID', 'james'],
+        ['LDAP', 'Network_Team_Auth' , 'authentication', 'memberOf,equals,CN=NOC Users,DC=ldap,DC=inverse,DC=caSSID,starts,Network_Team_Auth', 'bob', 'SSID', 'james'],
         'rule cache key',
     );
 }
