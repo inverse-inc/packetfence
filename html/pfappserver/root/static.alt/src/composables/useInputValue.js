@@ -1,16 +1,22 @@
-import { computed, inject, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, inject, ref, set, toRefs } from '@vue/composition-api'
 
 export const getFormNamespace = (ns, o) =>
-  ns.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, o)
+  ns.reduce((xs, x) => (xs && xs[x]) ? xs[x] : setFormNamespace(ns, o, null), o)
 
 export const setFormNamespace = (ns, o, v) => {
   const [ nsf, ...nsr ] = ns
-  if (!(nsf && nsf in o))
-    return
-  if (nsr.length)
-    setFormNamespace(nsr, o[nsf], v) // recurse
+  if (nsr.length) { // recurse
+    if (!(nsf && nsf in o)) {
+      set(o, nsf, (+nsr[0] === parseInt(nsr[0]))
+        ? [] // o[nsf] = []
+        : {} // o[nsf] = {}
+      )
+    }
+    return setFormNamespace(nsr, o[nsf], v)
+  }
   else
-    o[nsf] = v
+    set(o, nsf, v) // o[nsf] = v
+  return o[nsf]
 }
 
 export const useInputValueProps = {
@@ -39,31 +45,23 @@ export const useInputValue = (props, { emit }) => {
     //const meta = inject('meta', {})
     const namespaceArr = computed(() => namespace.value.split('.'))
 
-    inputValue = computed(() => {
-      return getFormNamespace(namespaceArr.value, form)
-    })
+    inputValue = customRef((track, trigger) => ({
+      get() {
+        track()
+        return getFormNamespace(namespaceArr.value, form)
+      },
+      set(newValue) {
+        setFormNamespace(namespaceArr.value, form, newValue)
+        trigger()
+      }
+    }))
 
     onInput = value => {
-      setFormNamespace(namespaceArr.value, form, value)
+      inputValue.value = value
     }
     onChange = value => {
-      setFormNamespace(namespaceArr.value, form, value)
+      inputValue.value = value
     }
-
-    /*
-    inputValue = customRef((track, trigger) => {
-      return {
-        get() {
-          track()
-          return getFormNamespace(namespaceArr.value, form)
-        },
-        set(newValue) {
-          setFormNamespace(namespaceArr.value, form, newValue)
-          trigger()
-        }
-      }
-    })
-    */
   }
   else {
     // use v-model
