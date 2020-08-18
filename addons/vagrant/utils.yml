@@ -1,0 +1,15 @@
+---
+- name: Install utils for test
+  hosts: pfservers
+  gather_facts: False
+  become: True
+  collections:
+    - inverse_inc.utils
+
+  roles:
+    - role: venom
+      tags: venom
+
+    - role: psonoci
+      tags: psonoci
+
