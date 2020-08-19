@@ -1,7 +1,7 @@
 ---
 - name: Install utils for test
   hosts: pfservers
-  gather_facts: False
+  gather_facts: True
   become: True
   collections:
     - inverse_inc.utils
@@ -13,3 +13,5 @@
     - role: psonoci
       tags: psonoci
 
+    - role: mailhog
+      tags: mailhog

@@ -21,5 +21,4 @@
 - import_playbook: nodes.yml
   
 - import_playbook: utils.yml
-  
-- import_playbook: mailhog.yml
+
