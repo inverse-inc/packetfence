@@ -1,0 +1,16 @@
+# -*- text -*-
+# Copyright (C) 2019 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+#
+#	Ruckus Wireless, Inc. dictionary
+#
+#
+
+VENDOR		Ruckus				25053
+
+BEGIN-VENDOR	Ruckus
+
+# Value Format:    group_attr1,group_attr2,...
+ATTRIBUTE	Ruckus-DPSK			142	octets
+
+END-VENDOR Ruckus

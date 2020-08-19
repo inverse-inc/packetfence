@@ -45,6 +45,7 @@
 #	These attributes are examples
 #
 $INCLUDE    /usr/local/pf/raddb/dictionary.inverse
+$INCLUDE    /usr/local/pf/raddb/dictionary.ruckus
 #ATTRIBUTE	My-Local-String		3000	string
 #ATTRIBUTE	My-Local-IPAddr		3001	ipaddr
 #ATTRIBUTE	My-Local-Integer	3002	integer
