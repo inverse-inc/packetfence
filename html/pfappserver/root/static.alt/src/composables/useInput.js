@@ -6,7 +6,7 @@ export const useInputProps = {
     default: false
   },
   placeholder: {
-    type: String
+    type: [String, Array]
   },
   readonly: {
     type: Boolean,
@@ -36,6 +36,13 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
     type
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
+  // props
+  const localPlaceholder = computed(() =>
+    (unref(placeholder) && unref(placeholder).constructor === Array)
+      ? unref(placeholder).join(', ') // join Array
+      : unref(placeholder)
+  )
+
   // state
   const isFocus = ref(false)
   const isLocked = computed(() => unref(disabled) || unref(readonly))
@@ -57,7 +64,7 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
 
   return {
     // props
-    placeholder,
+    placeholder: localPlaceholder,
     readonly,
     tabIndex,
     text,

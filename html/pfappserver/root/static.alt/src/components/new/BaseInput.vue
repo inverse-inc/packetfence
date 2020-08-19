@@ -33,16 +33,21 @@
 </template>
 <script>
 import { useInput, useInputProps } from '@/composables/useInput'
+import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
 import { useInputValidation, useInputValidationProps } from '@/composables/useInputValidation'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
   ...useInputProps,
+  ...useInputMetaProps,
   ...useInputValidationProps,
   ...useInputValueProps
 }
 
 export const setup = (props, context) => {
+
+  const metaProps = useInputMeta(props, context)
+console.log('BaseInput', {metaProps})
 
   const {
     placeholder,
@@ -54,7 +59,7 @@ export const setup = (props, context) => {
     isLocked,
     onFocus,
     onBlur
-  } = useInput(props, context)
+  } = useInput(metaProps, context)
 
   const {
     stateMapped,

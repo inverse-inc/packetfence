@@ -1,17 +1,16 @@
-import { computed, customRef, inject, ref, set, toRefs } from '@vue/composition-api'
+import { computed, customRef, inject, ref, set, toRefs, unref } from '@vue/composition-api'
 
 export const getFormNamespace = (ns, o) =>
-  ns.reduce((xs, x) => (xs && xs[x]) ? xs[x] : setFormNamespace(ns, o, null), o)
+  ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : setFormNamespace(ns, o, null), o)
 
 export const setFormNamespace = (ns, o, v) => {
   const [ nsf, ...nsr ] = ns
   if (nsr.length) { // recurse
-    if (!(nsf && nsf in o)) {
+    if (!(nsf && nsf in o))
       set(o, nsf, (+nsr[0] === parseInt(nsr[0]))
         ? [] // o[nsf] = []
         : {} // o[nsf] = {}
       )
-    }
     return setFormNamespace(nsr, o[nsf], v)
   }
   else
@@ -39,23 +38,21 @@ export const useInputValue = (props, { emit }) => {
   let onInput
   let onChange
 
-  if (namespace.value) {
+  if (unref(namespace)) {
     // use namespace
     const form = inject('form', {})
-    //const meta = inject('meta', {})
-    const namespaceArr = computed(() => namespace.value.split('.'))
+    const namespaceArr = computed(() => unref(namespace).split('.'))
 
     inputValue = customRef((track, trigger) => ({
       get() {
         track()
-        return getFormNamespace(namespaceArr.value, form)
+        return getFormNamespace(unref(namespaceArr), form)
       },
       set(newValue) {
-        setFormNamespace(namespaceArr.value, form, newValue)
+        setFormNamespace(unref(namespaceArr), form, newValue)
         trigger()
       }
     }))
-
     onInput = value => {
       inputValue.value = value
     }

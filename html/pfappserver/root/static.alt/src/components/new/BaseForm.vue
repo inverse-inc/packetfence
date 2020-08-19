@@ -19,9 +19,7 @@ export default {
 
     useFormProvide(props, context)
 
-    return {
-      /* noop */
-    }
+    return
   }
 }
 </script>
