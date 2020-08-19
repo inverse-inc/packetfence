@@ -36,6 +36,8 @@ use pf::SwitchSupports qw(
     -WebFormRegistration
 );
 
+use Crypt::PBKDF2;
+
 =over
 
 
@@ -231,6 +233,57 @@ sub deauthenticateMacWebservices {
     else {
         $logger->error("Failed to contact Ruckus for deauthentication: ".$res->status_line);
     }
+}
+
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Overrides the default implementation to add the dynamic PSK
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+
+    if ($args->{profile}->dpskEnabled()) {
+        if (defined($args->{owner}->{psk})) {
+            $radius_reply_ref->{"Ruckus-DPSK"} = $self->generate_dpsk_attribute_value($args->{ssid}, $args->{owner}->{psk});
+        } else {
+            $radius_reply_ref->{"Ruckus-DPSK"} = $self->generate_dpsk_attribute_value($args->{ssid}, $args->{profile}->{_default_psk_key});
+        }
+    }
+    
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=head2 generate_dpsk_attribute_value
+
+Generates the RADIUS attribute value for Ruckus-DPSK given an SSID name and the passphrase
+
+=cut
+
+sub generate_dpsk_attribute_value {
+    my ($self, $ssid, $dpsk) = @_;
+
+    my $pbkdf2 = Crypt::PBKDF2->new(
+        iterations => 4096,
+        output_len => 32,
+    );
+     
+    my $hash = $pbkdf2->PBKDF2_hex($ssid, $dpsk);
+    return "0x00".$hash;
 }
 
 =back
