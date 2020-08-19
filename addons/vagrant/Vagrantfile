@@ -11,6 +11,7 @@ networks = inventory['all']['vars']['networks']
 Vagrant.configure("2") do |config|
 
   ### Global settings for all VMS
+  config.vagrant.sensitive = [ ENV['PSONO_CI_API_KEY_ID'], ENV['PSONO_CI_API_SECRET_KEY_HEX'] ]
 
   # disable synced folders
   config.vm.synced_folder ".", "/vagrant", disabled: true
