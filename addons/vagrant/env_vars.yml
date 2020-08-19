@@ -1,0 +1,15 @@
+- hosts: pfservers
+  name: configure environment variables used for tests
+  become: True
+  # to hide secrets stored in environment variables into runners
+  # when they are passed to virtual machines
+  no_log: True
+  collections:
+    - debops.debops
+    - debops.roles01
+    - debops.roles02
+    - debops.roles03
+
+  roles:
+    - role: environment
+      tags: env

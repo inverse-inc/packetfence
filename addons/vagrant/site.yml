@@ -1,73 +1,25 @@
 ---
-- hosts: pfservers
-  name: upgrade OS to latest version
-  become: True
-  gather_facts: False
-  tags: upgrade
+# no sub directory for ansible playbooks to find roles under roles/ directory
 
-  # to ensure nightly builds are always installed
-  # on latest distribution versions when vagrant boxes take time
-  # to be released
-  tasks:
-    - name: update to latest OS version
-      package:
-        name: '*'
-        state: latest
-      register: site_register_upgrade
+- import_playbook: upgrade_os.yml
 
-    - name: reboot to have latest Linux kernel packages in place when installing PacketFence
-      reboot:
-      when: site_register_upgrade is changed
+- import_playbook: config_dev_repos.yml
 
-- hosts: ['nightly', 'dev']
-  name: install packetfence development packages
-  become: True
-
-  roles:
-    - role: inverse_inc.gitlab_buildpkg_tools
-      tags: ci
-
-- hosts: pfservers
-  name: install pf on standalone
-  become: True
-  collections:
-    - inverse_inc.packetfence
-
-  # search roles in collections
-  roles:
-
-    - role: packetfence_common
-      tags: install
-
-    - role: packetfence_install
-      tags: install
-
-  tasks:
-    - import_tasks: vagrant_tasks.yml
-      tags: vagrant
-
-- hosts: dev
-  name: configure environment for tests
-  become: True
-  collections:
-    - debops.debops
-    - debops.roles01
-    - debops.roles02
-    - debops.roles03
-    - inverse_inc.packetfence
-
-  roles:
-    # inject environment variables here to not conflict with install
-    - role: environment
-      tags: env
-
-    - role: packetfence_go
-      tags: go
-      when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
-
-# no sub directory for ansible to find roles under roles/ directory
+- import_playbook: install_pf.yml
+    
+  # inject environment variables here to not conflict with install when we add
+  # MYSQL_* variables
+- import_playbook: env_vars.yml
+  
+- import_playbook: go_env.yml
+  when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
+  
 - import_playbook: winservers.yml
+  
 - import_playbook: cumulus.yml
+  
 - import_playbook: nodes.yml
+  
 - import_playbook: utils.yml
+  
 - import_playbook: mailhog.yml

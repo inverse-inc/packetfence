@@ -1,0 +1,23 @@
+---
+environment__group_variables:
+  - name: 'PF_TEST_MGMT_INT'
+    value: "{{ packetfence_install__mgmt_interface['id'] }}"
+    
+  - name: 'PF_TEST_MGMT_IP'
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}"
+    
+  - name: 'PF_TEST_MGMT_MASK'
+    value: "{{ packetfence_install__mgmt_interface['mask'] }}"
+
+  - name: 'PSONO_CI_SERVER_URL'
+    value: 'https://psono.inverse.ca/server'
+
+  # lookup masked variables available to GitLab runner
+  # defined in GitLab UI
+  
+  - name: 'PSONO_CI_API_KEY_ID'
+    value: '{{ lookup("env", "PSONO_CI_API_KEY_ID") }}'
+
+  - name: 'PSONO_CI_API_SECRET_KEY_HEX'
+    value: '{{ lookup("env", "PSONO_CI_API_SECRET_KEY_HEX") }}'
+

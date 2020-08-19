@@ -10,5 +10,6 @@ collections:
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
   - name: inverse_inc.utils
+    version: 1.0.0
 
 
