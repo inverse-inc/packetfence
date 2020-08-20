@@ -2032,13 +2032,21 @@ Users can have access to a self service portal that allows them to manage their 
 
 Users of the local PacketFence database can also change their password through this portal.
 
-By default all users can manage their devices through this self service portal. You can specify which roles can manage their devices on this page by configuring a self service portal policy in *Configuration->Advanced Access Configuration->Self Service Portal*. Then, make sure you assign this policy to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+By default all users can manage their devices through this self service
+portal. You can specify which roles can manage their devices on this page by
+configuring a self service portal policy in _Configuration->Advanced Access Configuration->Self Service Portal_.
+Then, make sure you assign this policy to the appropriate connection profile
+in _Configuration->Policies and Access Control->Connection Profiles_.
 
-You can also prevent this page from being served in the PacketFence managed networks (registration, isolation, inline) by enabling the parameter *Status URI only on production network* in *Configuration->Advanced Access Configuration->Captive Portal*
+By default, this page is accessible in PacketFence managed networks
+(registration, isolation, inline) and on any interface which has the `portal`
+daemon enabled. You can prevent this page from being served in PacketFence
+managed networks by enabling the parameter *Status URI only on production network*
+in _Configuration->Advanced Access Configuration->Captive Portal_.
 
 After this, the page will be accessible at https://YOUR_PORTAL_HOSTNAME/status.
 
-Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in _Configuration->Policies and Access Control->Connection Profiles_.
 
 WARNING: You may also have to add the 'portal' listening daemon on your management interface in order for this self service portal to be accessible to your users.
 
