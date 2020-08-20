@@ -8,7 +8,7 @@
       }"
       :disabled="isLocked"
       :readonly="inputReadonly"
-      :state="stateMapped"
+      :state="inputState"
       :placeholder="inputPlaceholder"
       :tabIndex="inputTabIndex"
       :type="inputType"
@@ -21,13 +21,13 @@
     <small v-if="inputText"
       v-html="inputText"
     />
-    <small v-if="stateInvalidFeedback"
+    <small v-if="inputInvalidFeedback"
       class="invalid-feedback"
-      v-html="stateInvalidFeedback"
+      v-html="inputInvalidFeedback"
     />
-    <small v-if="stateValidFeedback"
+    <small v-if="inputValidFeedback"
       class="valid-feedback"
-      v-html="stateValidFeedback"
+      v-html="inputValidFeedback"
     />
   </fragment>
 </template>
@@ -47,7 +47,6 @@ export const props = {
 export const setup = (props, context) => {
 
   const metaProps = useInputMeta(props, context)
-console.log('BaseInput', {metaProps})
 
   const {
     placeholder,
@@ -62,16 +61,16 @@ console.log('BaseInput', {metaProps})
   } = useInput(metaProps, context)
 
   const {
-    stateMapped,
-    invalidFeedback,
-    validFeedback
-  } = useInputValidation(props, context)
-
-  const {
     value,
     onInput,
     onChange
-  } = useInputValue(props, context)
+  } = useInputValue(metaProps, context)
+
+  const {
+    state,
+    invalidFeedback,
+    validFeedback
+  } = useInputValidation(metaProps, value)
 
   return {
     // useInput
@@ -85,15 +84,15 @@ console.log('BaseInput', {metaProps})
     onFocus,
     onBlur,
 
-    // useInputValidation
-    stateMapped,
-    stateInvalidFeedback: invalidFeedback,
-    stateValidFeedback: validFeedback,
-
     // useInputValue
     inputValue: value,
     onInput,
-    onChange
+    onChange,
+
+    // useInputValidation
+    inputState: state,
+    inputInvalidFeedback: invalidFeedback,
+    inputValidFeedback: validFeedback
   }
 }
 

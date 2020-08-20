@@ -4,20 +4,20 @@
     :class="{
       'mb-0': !formGroupLabel
     }"
-    :state="stateMapped"
+    :state="inputState"
     :labelCols="formGroupLabelCols"
     :label="formGroupLabel"
   >
     <template v-slot:invalid-feedback>
-      {{ stateInvalidFeedback }}
+      {{ inputInvalidFeedback }}
     </template>
     <template v-slot:valid-feedback>
-      {{ stateValidFeedback }}
+      {{ inputValidFeedback }}
     </template>
     <b-input-group
       :class="{
-        'is-valid': stateMapped === true,
-        'is-invalid': stateMapped === false
+        'is-valid': inputState === true,
+        'is-invalid': inputState === false
       }"
     >
       <!-- Proxy slots -->
@@ -80,16 +80,16 @@ export default {
     } = useInput(props, context)
 
     const {
-      stateMapped,
-      invalidFeedback,
-      validFeedback
-    } = useInputValidation(props, context)
-
-    const {
       value,
       onInput,
       onChange
     } = useInputValue(props, context)
+
+    const {
+      state,
+      invalidFeedback,
+      validFeedback
+    } = useInputValidation(props, value)
 
     return {
       // useFormGroup
@@ -108,9 +108,9 @@ export default {
       onBlur,
 
       // useInputValidation
-      stateMapped,
-      stateInvalidFeedback: invalidFeedback,
-      stateValidFeedback: validFeedback,
+      inputState: state,
+      inputInvalidFeedback: invalidFeedback,
+      inputValidFeedback: validFeedback,
 
       // useInputValue
       inputValue: value,

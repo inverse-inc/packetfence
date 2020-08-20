@@ -4,30 +4,30 @@
     :class="{
       'mb-0': !columnLabel
     }"
-    :state="stateMapped"
+    :state="inputState"
     :labelCols="labelCols"
     :label="columnLabel"
   >
     <template v-slot:invalid-feedback>
-      {{ stateInvalidFeedback }}
+      {{ inputInvalidFeedback }}
     </template>
     <template v-slot:valid-feedback>
-      {{ stateValidFeedback }}
+      {{ inputValidFeedback }}
     </template>
 
     <b-input-group
       :class="{
         'is-focus': isFocus,
         'is-blur': !isFocus,
-        'is-valid': stateMapped === true,
-        'is-invalid': stateMapped === false
+        'is-valid': inputState === true,
+        'is-invalid': inputState === false
       }"
     >
       <b-form-input ref="input"
         class="base-form-input"
         :disabled="isLocked"
         :readonly="inputReadonly"
-        :state="stateMapped"
+        :state="inputState"
         :placeholder="inputPlaceholder"
         :tabIndex="inputTabIndex"
         :type="inputType"
@@ -96,16 +96,16 @@ export default {
     } = useInput(props, context)
 
     const {
-      stateMapped,
-      invalidFeedback,
-      validFeedback
-    } = useInputValidation(props, context)
-
-    const {
       value,
       onInput,
       onChange
     } = useInputValue(props, context)
+
+    const {
+      state,
+      invalidFeedback,
+      validFeedback
+    } = useInputValidation(props, value)
 
     return {
       // useFormGroup
@@ -124,9 +124,9 @@ export default {
       onBlur,
 
       // useInputValidation
-      stateMapped,
-      stateInvalidFeedback: invalidFeedback,
-      stateValidFeedback: validFeedback,
+      inputState: state,
+      inputInvalidFeedback: invalidFeedback,
+      inputValidFeedback: validFeedback
 
       // useInputValue
       inputValue: value,

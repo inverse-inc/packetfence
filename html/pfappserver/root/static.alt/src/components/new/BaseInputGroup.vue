@@ -2,8 +2,8 @@
   <fragment>
     <b-input-group
       :class="{
-        'is-valid': stateMapped === true,
-        'is-invalid': stateMapped === false
+        'is-valid': inputState === true,
+        'is-invalid': inputState === false
       }"
     >
       <!-- Proxy slots -->
@@ -29,13 +29,13 @@
     <small v-if="inputText"
       v-html="inputText"
     />
-    <small v-if="stateInvalidFeedback"
+    <small v-if="inputInvalidFeedback"
       class="invalid-feedback"
-      v-html="stateInvalidFeedback"
+      v-html="inputInvalidFeedback"
     />
-    <small v-if="stateValidFeedback"
+    <small v-if="inputValidFeedback"
       class="valid-feedback"
-      v-html="stateValidFeedback"
+      v-html="inputValidFeedback"
     />
   </fragment>
 </template>
@@ -60,10 +60,10 @@ export default {
     } = useInputGroup(props)
 
     const {
-      stateMapped,
+      state,
       invalidFeedback,
       validFeedback
-    } = useInputValidation(props, context)
+    } = useInputValidation(props, null)
 
     return {
       // useInputGroup
@@ -71,9 +71,9 @@ export default {
       isLocked,
 
       // useInputValidation
-      stateMapped,
-      stateInvalidFeedback: invalidFeedback,
-      stateValidFeedback: validFeedback
+      inputState: state,
+      inputInvalidFeedback: invalidFeedback,
+      inputValidFeedback: validFeedback
     }
   }
 }

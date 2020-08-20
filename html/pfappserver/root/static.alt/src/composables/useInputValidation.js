@@ -1,4 +1,4 @@
-import { toRefs, computed } from '@vue/composition-api'
+import { computed, ref, toRefs, unref, watch, watchEffect } from '@vue/composition-api'
 
 export const useInputValidationProps = {
   state: {
@@ -15,44 +15,89 @@ export const useInputValidationProps = {
   },
   validFeedback: {
     type: String
+  },
+  validators: {
+    type: Object
   }
 }
 
-export const useInputValidation = (props) => {
+export const useInputValidation = (props, value) => {
 
   const {
     state,
     stateMap,
-    invalidFeedback: propInvalidFeedback,
-    validFeedback: propValidFeedback
+    invalidFeedback,
+    validFeedback,
+    validators
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
+  // defaults (dereferenced)
+  let localState = ref(unref(state))
+  let localInvalidFeedback = ref(unref(invalidFeedback))
+  let localValidFeedback = ref(unref(validFeedback))
 
-  // state
-  const stateMapped = computed(() => {
-    return (stateMap && state)
-      ? stateMap.value[!!state.value]
-      : null
-  })
+  if (unref(validators)) { // is :validators
 
-  // mask :invalidFeedback if :state is truthy or :invalidFeedback is not defined
-  const invalidFeedback = computed(() => {
-    return (stateMapped.value === false && propInvalidFeedback.value)
-      ? propInvalidFeedback.value
-      : null
-  })
+    watchEffect(() => {
+      const _validators = unref(validators)
+      const asyncErrors = Object.keys(_validators)
+      if (asyncErrors.length === 0)
+        return
 
-  // mask :validFeedback if :state is falsey or :validFeedback is not defined
-  const validFeedback = computed(() => {
-    return (stateMapped.value === true && propValidFeedback.value)
-      ? propValidFeedback.value
+      const asyncRules = Object.values(_validators).map(schema => {
+        // yup | https://github.com/jquense/yup
+        return schema.isValid(unref(value))
+      })
+      Promise.all(asyncRules).then(results => {
+        const invalidFeedbackStack = results.reduce((stack, result, index) => {
+          if (result === false)
+            stack.push(asyncErrors[index])
+          return stack
+        }, [])
+
+        if (invalidFeedbackStack.length > 0) {
+          localState.value = false
+          localValidFeedback.value = null
+          localInvalidFeedback.value = invalidFeedbackStack.join(' ')
+        }
+        else if (unref(validFeedback)) {
+          localState.value = true
+          localValidFeedback.value = unref(validFeedback)
+          localInvalidFeedback.value = null
+        }
+        else {
+          localState.value = null
+          localValidFeedback.value = null
+          localInvalidFeedback.value = null
+        }
+      })
+    })
+  }
+
+  else { // no :validators
+
+    // state
+    localState = computed(() => (stateMap && state)
+      ? unref(stateMap)[!!unref(state)]
       : null
-  })
+    )
+
+    // mask :invalidFeedback if :state is truthy or :invalidFeedback is not defined
+    localInvalidFeedback = computed(() => (unref(localState) === false && unref(invalidFeedback))
+      ? unref(invalidFeedback)
+      : null
+    )
+
+    // mask :validFeedback if :state is falsey or :validFeedback is not defined
+    localValidFeedback = computed(() => (unref(localState) === true && unref(validFeedback))
+      ? unref(validFeedback)
+      : null
+    )
+  }
 
   return {
-    state,
-    stateMapped,
-    invalidFeedback,
-    validFeedback
+    state: localState,
+    invalidFeedback: localInvalidFeedback,
+    validFeedback: localValidFeedback
   }
 }
