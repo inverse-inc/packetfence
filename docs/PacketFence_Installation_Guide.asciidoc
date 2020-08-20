@@ -43,16 +43,13 @@ The latest version of this guide is available at https://packetfence.org/documen
 
 These files are included in the package and release tarballs.
 
-Introduction
-------------
+= Introduction
 
 PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDS, vulnerability scanners and firewalls; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks. For a more detailed presentation on PacketFence please visit https://packetfence.org.
 
-System Requirements
--------------------
+== System Requirements
 
-Assumptions
-~~~~~~~~~~~
+=== Assumptions
 
 PacketFence reuses many components in an infrastructure. Nonetheless, it will install the following ones and manage them itself:
 
@@ -67,8 +64,8 @@ In this guide, we assume that all those components are running on the same serve
 
 Good understanding of those underlying components and GNU/Linux is required to install PacketFence. When installing PacketFence, all these components will be properly installed. Moreover, PacketFence will manage the services listed above. Make sure that all the other services are automatically started by your operating system.
 
-Minimum Hardware Requirements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Minimum Hardware Requirements
+
 
 The following provides a list of the minimum server hardware recommendations:
 
@@ -78,8 +75,12 @@ The following provides a list of the minimum server hardware recommendations:
 * 100 GB of disk space (RAID-1 recommended)
 * 1 network card (2 recommended)
 
-Operating System Requirements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+==== Recommendations
+
+* Use logical volume management (LVM) to allocate space
+* Create a dedicated partition for database files under `/var/lib/mysql` directory
+
+=== Operating System Requirements
 
 PacketFence supports the following operating systems on the x86_64 architecture:
 
