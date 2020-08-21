@@ -40,7 +40,8 @@
     "vue2vis": "0.0.18",
     "vuedraggable": "2.23.2",
     "vuelidate": "0.7.5",
-    "vuex": "3.5.1"
+    "vuex": "3.5.1",
+    "yup": "^0.29.3"
   },
   "devDependencies": {
     "@babel/polyfill": "^7.8.7",

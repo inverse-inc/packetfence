@@ -17,7 +17,7 @@ export const useInputValidationProps = {
     type: String
   },
   validators: {
-    type: Object
+    type: Array
   }
 }
 
@@ -40,18 +40,20 @@ export const useInputValidation = (props, value) => {
 
     watchEffect(() => {
       const _validators = unref(validators)
-      const asyncErrors = Object.keys(_validators)
-      if (asyncErrors.length === 0)
-        return
 
-      const asyncRules = Object.values(_validators).map(schema => {
-        // yup | https://github.com/jquense/yup
-        return schema.isValid(unref(value))
+      const schemas = _validators.map(schema => {
+        return new Promise((resolve, reject) => { // wrap to handle yup.validate exceptions
+          // yup | https://github.com/jquense/yup
+          schema.validate(unref(value))
+            .then(() => resolve(true))
+            .catch(({ message }) => reject(message))
+        }).catch(e => e)
       })
-      Promise.all(asyncRules).then(results => {
-        const invalidFeedbackStack = results.reduce((stack, result, index) => {
-          if (result === false)
-            stack.push(asyncErrors[index])
+
+      Promise.all(schemas).then(results => {
+        const invalidFeedbackStack = results.reduce((stack, valid, index) => {
+          if (valid !== true)
+            stack.push(valid /*asyncErrors[index]*/)
           return stack
         }, [])
 
