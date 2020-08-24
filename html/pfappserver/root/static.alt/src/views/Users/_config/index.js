@@ -19,7 +19,9 @@ import {
   conditional,
   compareDate,
   userNotExists,
-  sourceExists
+  sourceExists,
+  categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
+  categoryIdStringExists // validate category_id/bypass_role_id (String) exists
 } from '@/globals/pfValidators'
 import {
   required,
@@ -388,6 +390,17 @@ export const importFields = [
     types: [fieldType.SUBSTRING],
     required: false,
     validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.psk)
+  },
+  {
+    value: 'category_id',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE_BY_ACL_NODE],
+    required: false,
+    formatter: formatter.categoryIdFromIntOrString,
+    validators: buildValidatorsFromColumnSchemas({
+      [i18n.t('Role does not exist.')]: categoryIdNumberExists,
+      [i18n.t('Role does not exist.')]: categoryIdStringExists
+    })
   },
   {
     value: 'source',
