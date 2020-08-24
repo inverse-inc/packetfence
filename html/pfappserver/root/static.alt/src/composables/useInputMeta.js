@@ -1,7 +1,6 @@
-import { computed, inject, reactive, ref, toRefs, unref, set, watch, watchEffect,
-  isReactive, isRef
-} from '@vue/composition-api'
-import { string, nullable, required } from 'yup'
+import { computed, inject, reactive, toRefs, unref, set, watch } from '@vue/composition-api'
+import { string } from 'yup'
+import i18n from '@/utils/locale'
 
 export const getMetaNamespace = (ns, o) =>
   ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : {}, o)
@@ -9,6 +8,9 @@ export const getMetaNamespace = (ns, o) =>
 export const useInputMetaProps = {
   namespace: {
     type: String
+  },
+  validator: {
+    type: Object
   }
 }
 
@@ -16,7 +18,7 @@ export const useInputMeta = (props) => {
 
   const {
     namespace,
-    validators
+    validator
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
@@ -37,21 +39,55 @@ export const useInputMeta = (props) => {
       namespaceMeta,
       (namespaceMeta) => {
         const {
+          min_length: metaMinLength,
+          max_length: metaMaxLength,
+          min_value: metaMinValue,
+          max_value: metaMaxValue,
+          pattern: metaPattern,
           placeholder: metaPlaceholder,
           required: metaRequired,
           type: metaType
         } = unref(namespaceMeta)
 
-        // placeholder
+       // placeholder
         if (metaPlaceholder)
           set(localProps, 'placeholder', metaPlaceholder)
 
-        // validators
-        const _validators = unref(validators)
-        if (metaRequired && (!_validators || _validators.length === 0)) {
-          set(localProps, 'validators', [
-            string().nullable().required('Meta required.')
-          ])
+        // validator
+        if (!unref(validator)) {
+          let schema = string().nullable()
+
+          if (metaRequired)
+            schema = schema.required('Value required.')
+
+          if (metaPattern) {
+            const { regex, message } = metaPattern
+            const re = new RegExp(`^${regex}$`)
+            schema = schema.matches(re, message)
+          }
+
+          if (metaMinLength)
+            schema = schema.min(
+              metaMinLength,
+              i18n.t('Minimum {minLength} characters.', { minLength: metaMinLength })
+            )
+
+          if (metaMaxLength)
+            schema = schema.max(metaMaxLength,
+              i18n.t('Maximum {maxLength} characters.', { maxLength: metaMaxLength })
+            )
+
+          if (metaMinValue)
+            schema = schema.min(metaMinValue,
+              i18n.t('Minimum {minValue}.', { minValue: metaMinValue })
+            )
+
+          if (metaMaxValue)
+            schema = schema.max(metaMaxValue,
+              i18n.t('Maximum {minValue}.', { maxValue: metaMaxValue })
+            )
+
+          set(localProps, 'validator', schema)
         }
 
         // type
