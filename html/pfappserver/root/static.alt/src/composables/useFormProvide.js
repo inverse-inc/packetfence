@@ -6,10 +6,18 @@ export const useFormProvideProps = {
   },
   meta: {
     type: Object
+  },
+  schema: {
+    type: Object
   }
 }
 
 export const useFormProvide = (props) => {
   provide('form', props.form)
-  provide('meta', props.meta)
+
+  if(props.meta !== {})
+    provide('meta', props.meta)
+
+  if (props.schema !== {})
+    provide('schema', props.schema)
 }

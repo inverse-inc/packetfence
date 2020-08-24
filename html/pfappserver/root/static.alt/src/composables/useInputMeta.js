@@ -1,7 +1,7 @@
 import { computed, inject, reactive, ref, toRefs, unref, set, watch, watchEffect,
   isReactive, isRef
 } from '@vue/composition-api'
-import { string, required } from 'yup'
+import { string, nullable, required } from 'yup'
 
 export const getMetaNamespace = (ns, o) =>
   ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : {}, o)
@@ -15,7 +15,8 @@ export const useInputMetaProps = {
 export const useInputMeta = (props) => {
 
   const {
-    namespace
+    namespace,
+    validators
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
@@ -46,12 +47,11 @@ export const useInputMeta = (props) => {
           set(localProps, 'placeholder', metaPlaceholder)
 
         // validators
-        if (metaRequired && unref(props.validators) === {}) {
-          /*
-          set(localProps, 'validators', {
-            ['Value is required']: string().required()
-          })
-          */
+        const _validators = unref(validators)
+        if (metaRequired && (!_validators || _validators.length === 0)) {
+          set(localProps, 'validators', [
+            string().nullable().required('Meta required.')
+          ])
         }
 
         // type

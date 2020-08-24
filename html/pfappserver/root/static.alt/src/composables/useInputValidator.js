@@ -1,5 +1,5 @@
 import { computed, inject, ref, toRefs, unref, watch, watchEffect } from '@vue/composition-api'
-import { object, reach } from 'yup'
+import { object, nullable, reach } from 'yup'
 
 export const useInputValidatorProps = {
   namespace: {
@@ -49,8 +49,10 @@ export const useInputValidator = (props, value) => {
       **/
       try {
         return reach(schema, unref(namespace))
-      } catch (e) { // path not defined
-        return object() // placeholder
+      } catch (e) { // path not defined in schema
+        if (unref(validator))
+          return unref(validator) // fallback to prop
+        return object().nullable() // fallback to placeholder
       }
     })
   }
