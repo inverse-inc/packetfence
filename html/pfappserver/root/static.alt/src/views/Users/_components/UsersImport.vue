@@ -215,6 +215,14 @@ export default {
         if ('items' in payload) {
           payload.items = payload.items.map(item => { // glue payload together with local slot
             let merged = { ...item, ...this.form }
+            const { category_id, actions = [] } = merged
+            if (category_id) {
+              delete merged.category_id
+              merged.actions = [
+                ...actions.filter(({ type }) => type !== 'set_role'),
+                { type: 'set_role', value: category_id }
+              ]
+            }
             if (!('password' in merged)) { // generate a unique password
               merged.password = password.generate(passwordOptions)
             }
