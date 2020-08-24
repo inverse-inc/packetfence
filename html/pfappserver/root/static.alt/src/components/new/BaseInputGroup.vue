@@ -1,5 +1,5 @@
 <template>
-  <fragment>
+  <div>
     <b-input-group
       :class="{
         'is-valid': inputState === true,
@@ -37,15 +37,15 @@
       class="valid-feedback"
       v-html="inputValidFeedback"
     />
-  </fragment>
+  </div>
 </template>
 <script>
 import { useInputGroup, useInputGroupProps } from '@/composables/useInputGroup'
-import { useInputValidation, useInputValidationProps } from '@/composables/useInputValidation'
+import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 
 export const props = {
   ...useInputGroupProps,
-  ...useInputValidationProps
+  ...useInputValidatorProps
 }
 
 // @vue/component
@@ -53,7 +53,7 @@ export default {
   name: 'base-input-group',
   inheritAttrs: false,
   props,
-  setup(props, context) {
+  setup(props) {
     const {
       text,
       isLocked
@@ -63,14 +63,14 @@ export default {
       state,
       invalidFeedback,
       validFeedback
-    } = useInputValidation(props, null)
+    } = useInputValidator(props, null)
 
     return {
       // useInputGroup
       inputText: text,
       isLocked,
 
-      // useInputValidation
+      // useInputValidator
       inputState: state,
       inputInvalidFeedback: invalidFeedback,
       inputValidFeedback: validFeedback

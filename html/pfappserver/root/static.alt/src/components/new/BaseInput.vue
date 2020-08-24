@@ -1,5 +1,5 @@
 <template>
-  <fragment>
+  <div style="flex-grow: 100;">
     <b-form-input ref="input"
       class="base-input"
       :class="{
@@ -29,18 +29,18 @@
       class="valid-feedback"
       v-html="inputValidFeedback"
     />
-  </fragment>
+  </div>
 </template>
 <script>
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
-import { useInputValidation, useInputValidationProps } from '@/composables/useInputValidation'
+import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
   ...useInputProps,
   ...useInputMetaProps,
-  ...useInputValidationProps,
+  ...useInputValidatorProps,
   ...useInputValueProps
 }
 
@@ -70,7 +70,7 @@ export const setup = (props, context) => {
     state,
     invalidFeedback,
     validFeedback
-  } = useInputValidation(metaProps, value)
+  } = useInputValidator(metaProps, value)
 
   return {
     // useInput
@@ -89,7 +89,7 @@ export const setup = (props, context) => {
     onInput,
     onChange,
 
-    // useInputValidation
+    // useInputValidator
     inputState: state,
     inputInvalidFeedback: invalidFeedback,
     inputValidFeedback: validFeedback

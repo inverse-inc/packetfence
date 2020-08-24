@@ -59,13 +59,13 @@
 <script>
 import { useFormGroup, useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
-import { useInputValidation, useInputValidationProps } from '@/composables/useInputValidation'
+import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
   ...useFormGroupProps,
   ...useInputProps,
-  ...useInputValidationProps,
+  ...useInputValidatorProps,
   ...useInputValueProps
 }
 
@@ -105,7 +105,7 @@ export default {
       state,
       invalidFeedback,
       validFeedback
-    } = useInputValidation(props, value)
+    } = useInputValidator(props, value)
 
     return {
       // useFormGroup
@@ -123,7 +123,7 @@ export default {
       onFocus,
       onBlur,
 
-      // useInputValidation
+      // useInputValidator
       inputState: state,
       inputInvalidFeedback: invalidFeedback,
       inputValidFeedback: validFeedback

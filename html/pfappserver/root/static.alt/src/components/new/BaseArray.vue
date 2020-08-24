@@ -1,11 +1,11 @@
 <template>
-  <fragment>
+  <div>
     <template v-for="(_, index) in inputValue">
       <template v-for="slotName in slotsList">
         <slot :name="slotName" v-bind="{ index }"></slot>
       </template>
     </template>
-  </fragment>
+  </div>
 </template>
 <script>
 import { useArray, useArrayProps } from '@/composables/useArray'

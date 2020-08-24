@@ -1,7 +1,7 @@
 <template>
-  <fragment>
+  <div>
     <slot/>
-  </fragment>
+  </div>
 </template>
 <script>
 import { useFormProvide, useFormProvideProps } from '@/composables/useFormProvide'
