@@ -1,32 +1,49 @@
-package pf::pfmon::task::nodes_maintenance;
+package pf::pfcron::task::security_event_maintenance;
 
 =head1 NAME
 
-pf::pfmon::task::nodes_maintenance - class for pfmon task nodes maintenance
+pf::pfcron::task::security_event_maintenance - class for pfmon task security_event maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::nodes_maintenance
+pf::pfcron::task::security_event_maintenance
 
 =cut
 
 use strict;
 use warnings;
 use Moose;
-use pf::node;
-extends qw(pf::pfmon::task);
+use pf::security_event;
+use pf::dal::tenant;
+use pf::config::tenant;
+use pf::error qw(is_error);
+extends qw(pf::pfcron::task);
 
+has 'batch' => ( is => 'rw');
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 
-run the nodes maintenance task
+run the security_event maintenance task
 
 =cut
 
 sub run {
-    nodes_maintenance();
+    my ($self) = @_;
+    my ($batch, $timeout) = ($self->batch, $self->timeout);
+    my ($status, $iter) = pf::dal::tenant->search(
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return;
+    }
+
+    while (my $t = $iter->next) {
+        local $pf::config::tenant::CURRENT_TENANT = $t->{id};
+        security_event_maintenance($batch, $timeout);
+    }
 }
 
 =head1 AUTHOR

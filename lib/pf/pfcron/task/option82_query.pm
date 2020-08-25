@@ -1,34 +1,34 @@
-package pf::pfmon::task::inline_accounting_maintenance;
+package pf::pfcron::task::option82_query;
 
 =head1 NAME
 
-pf::pfmon::task::inline_accounting_maintenance - class for pfmon task inline accounting maintenance
+pf::pfcron::task::option82_query - class for pfmon task option82 query
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::inline_accounting_maintenance
+pf::pfcron::task::option82_query
 
 =cut
 
 use strict;
 use warnings;
-use pf::inline::accounting;
-use pf::config qw(%Config);
-use pf::util qw(isenabled);
 use Moose;
-extends qw(pf::pfmon::task);
+use pf::config qw(%Config);
+use pf::option82 qw(search_switch);
+use pf::util;
+extends qw(pf::pfcron::task);
 
 
 =head2 run
 
-run the inline accounting maintenance task
+run the option82 query task
 
 =cut
 
 sub run {
-    inline_accounting_maintenance( $Config{'inline'}{'layer3_accounting_session_timeout'} ) if isenabled($Config{'inline'}{'accounting'});
+    search_switch() if isenabled($Config{'network'}{'dhcpoption82logger'});
 }
 
 =head1 AUTHOR

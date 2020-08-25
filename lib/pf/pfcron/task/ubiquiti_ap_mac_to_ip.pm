@@ -1,8 +1,8 @@
-package pf::pfmon::task::ubiquiti_ap_mac_to_ip;
+package pf::pfcron::task::ubiquiti_ap_mac_to_ip;
 
 =head1 NAME
 
-pf::pfmon::task::ubiquiti_ap_mac_to_ip
+pf::pfcron::task::ubiquiti_ap_mac_to_ip
 
 =cut
 
@@ -23,7 +23,7 @@ use pf::util qw(isenabled);
 use pf::log;
 use List::MoreUtils qw(uniq);
 
-extends qw(pf::pfmon::task);
+extends qw(pf::pfcron::task);
 
 
 =head2 run

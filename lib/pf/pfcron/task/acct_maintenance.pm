@@ -1,58 +1,36 @@
-package pf::pfmon::task;
+package pf::pfcron::task::acct_maintenance;
 
 =head1 NAME
 
-pf::pfmon::task - The base class for pfmon tasks
+pf::pfcron::task::acct_maintenance - class for pfmon task acct maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task
+pf::pfcron::task::acct_maintenance
 
 =cut
 
 use strict;
 use warnings;
-
-use pf::util qw(isenabled);
-use pf::Moose::Types;
+use pf::accounting qw(acct_maintenance);
 use Moose;
+extends qw(pf::pfcron::task);
 
-has type => (is => 'ro', isa => 'Str', required => 1);
-
-has id => (is => 'ro', isa => 'Str', required => 1);
-
-has status => (is => 'ro', isa => 'Str', required => 1);
-
-has interval => (is => 'ro', isa => 'PfInterval', required => 1, coerce => 1);
 
 =head2 run
 
-The method for the sub classes to override
+run the acct maintenance task
 
 =cut
 
 sub run {
-    my ($proto) = @_;
-    my $class = ref ($proto) || $proto;
-    die "${class}::run was not overridden";
+    acct_maintenance();
 }
-
-
-=head2 is_enabled
-
-checks if enabled is "true"
-
-=cut
-
-sub is_enabled {
-    my ($self) = @_;
-    return isenabled($self->status);
-}
-
 
 =head1 AUTHOR
+
 
 Inverse inc. <info@inverse.ca>
 

@@ -1,32 +1,38 @@
-package pf::pfmon::task::acct_maintenance;
+package pf::pfcron::task::node_cleanup;
 
 =head1 NAME
 
-pf::pfmon::task::acct_maintenance - class for pfmon task acct maintenance
+pf::pfcron::task::node_cleanup - class for pfmon task node cleanup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::acct_maintenance
+pf::pfcron::task::node_cleanup
 
 =cut
 
 use strict;
 use warnings;
-use pf::accounting qw(acct_maintenance);
+use pf::node;
 use Moose;
-extends qw(pf::pfmon::task);
+extends qw(pf::pfcron::task);
 
+has 'delete_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+
+has 'unreg_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+
+has 'voip' => (is => 'ro', isa => 'Str');
 
 =head2 run
 
-run the acct maintenance task
+run the node cleanup task
 
 =cut
 
 sub run {
-    acct_maintenance();
+    my ($self) = @_;
+    node_cleanup($self->delete_window, $self->unreg_window, $self->voip);
 }
 
 =head1 AUTHOR

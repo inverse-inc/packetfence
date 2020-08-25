@@ -16,22 +16,22 @@ use strict;
 use warnings;
 use List::MoreUtils qw(any);
 use Module::Pluggable
-  search_path => 'pf::pfmon::task',
+  search_path => 'pf::pfcron::task',
   sub_name    => 'modules',
   inner       => 0,
   require     => 1;
 
 use pf::config::pfcron qw(%ConfigMaintenance);
 
-sub factory_for { 'pf::pfmon::task' }
+sub factory_for { 'pf::pfcron::task' }
 
 our @MODULES = __PACKAGE__->modules;
 
-our @TYPES = map { /^pf::pfmon::task::(.*)$/ ; $1 } @MODULES;
+our @TYPES = map { /^pf::pfcron::task::(.*)$/ ; $1 } @MODULES;
 
 =head2 new
 
-Will create a new pf::pfmon::task sub class  based off the name of the task
+Will create a new pf::pfcron::task sub class  based off the name of the task
 If no task is found the return undef
 
 =cut
@@ -52,7 +52,7 @@ sub new {
 
 =head2 getModuleName
 
-Get the sub module pf::pfmon::task base off it's configuration
+Get the sub module pf::pfcron::task base off it's configuration
 
 =cut
 

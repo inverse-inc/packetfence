@@ -1,44 +1,34 @@
-package pf::pfmon::task::person_cleanup;
+package pf::pfcron::task::inline_accounting_maintenance;
 
 =head1 NAME
 
-pf::pfmon::task::person_cleanup - class for pfmon task person cleanup
+pf::pfcron::task::inline_accounting_maintenance - class for pfmon task inline accounting maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::person_cleanup
+pf::pfcron::task::inline_accounting_maintenance
 
 =cut
 
 use strict;
 use warnings;
+use pf::inline::accounting;
+use pf::config qw(%Config);
+use pf::util qw(isenabled);
 use Moose;
-use pf::person;
-use pf::dal::tenant;
-use pf::config::tenant;
-use pf::error qw(is_error);
-extends qw(pf::pfmon::task);
+extends qw(pf::pfcron::task);
+
 
 =head2 run
 
-run the person cleanup task
+run the inline accounting maintenance task
 
 =cut
 
 sub run {
-    my ($status, $iter) = pf::dal::tenant->search(
-        -with_class => undef,
-    );
-    if (is_error($status)) {
-        return;
-    }
-
-    while (my $t = $iter->next) {
-        local $pf::config::tenant::CURRENT_TENANT = $t->{id};
-        person_cleanup();
-    }
+    inline_accounting_maintenance( $Config{'inline'}{'layer3_accounting_session_timeout'} ) if isenabled($Config{'inline'}{'accounting'});
 }
 
 =head1 AUTHOR

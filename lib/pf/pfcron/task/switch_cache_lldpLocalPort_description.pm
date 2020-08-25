@@ -1,8 +1,8 @@
-package pf::pfmon::task::switch_cache_lldpLocalPort_description;
+package pf::pfcron::task::switch_cache_lldpLocalPort_description;
 
 =head1 NAME
 
-pf::pfmon::task::switch_cache_lldpLocalPort_description
+pf::pfcron::task::switch_cache_lldpLocalPort_description
 
 =cut
 
@@ -22,7 +22,7 @@ use pf::util qw(isenabled);
 
 use pf::log;
 
-extends qw(pf::pfmon::task);
+extends qw(pf::pfcron::task);
 
 has 'process_switchranges'  => ( is => 'rw', default => 'disabled' );
 

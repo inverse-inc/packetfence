@@ -1,14 +1,14 @@
-package pf::pfmon::task::password_of_the_day;
+package pf::pfcron::task::password_of_the_day;
 
 =head1 NAME
 
-pf::pfmon::task::password_of_the_day - class for pfmon task password generation
+pf::pfcron::task::password_of_the_day - class for pfmon task password generation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::password_of_the_day
+pf::pfcron::task::password_of_the_day
 
 =cut
 
@@ -25,7 +25,7 @@ use DateTime;
 use DateTime::Format::MySQL;
 use pf::log;
 
-extends qw(pf::pfmon::task);
+extends qw(pf::pfcron::task);
 
 =head2 run
 

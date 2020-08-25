@@ -1,14 +1,14 @@
-package pf::pfmon::task::cluster_check;
+package pf::pfcron::task::cluster_check;
 
 =head1 NAME
 
-pf::pfmon::task::cluster_check - class for pfmon task cluster check
+pf::pfcron::task::cluster_check - class for pfmon task cluster check
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::cluster_check
+pf::pfcron::task::cluster_check
 
 =cut
 
@@ -19,7 +19,7 @@ use pf::cluster;
 use pf::CHI;
 use pf::log;
 use Moose;
-extends qw(pf::pfmon::task);
+extends qw(pf::pfcron::task);
 
 
 =head2 run

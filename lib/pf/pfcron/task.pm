@@ -1,40 +1,58 @@
-package pf::pfmon::task::provisioning_compliance_poll;
+package pf::pfcron::task;
 
 =head1 NAME
 
-pf::pfmon::task::provisioning_compliance_poll - class for pfmon task provisioning compliance poll
+pf::pfcron::task - The base class for pfmon tasks
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::provisioning_compliance_poll
+pf::pfcron::task
 
 =cut
 
 use strict;
 use warnings;
+
+use pf::util qw(isenabled);
+use pf::Moose::Types;
 use Moose;
-extends qw(pf::pfmon::task);
+
+has type => (is => 'ro', isa => 'Str', required => 1);
+
+has id => (is => 'ro', isa => 'Str', required => 1);
+
+has status => (is => 'ro', isa => 'Str', required => 1);
+
+has interval => (is => 'ro', isa => 'PfInterval', required => 1, coerce => 1);
 
 =head2 run
 
-Polls each provisioner to enforce compliance
+The method for the sub classes to override
 
 =cut
 
 sub run {
-    my ($self) = @_;
-    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
-        my $provisioner = pf::factory::provisioner->new($id);
-        if($provisioner->supportsPolling){
-            $provisioner->pollAndEnforce($self->interval);
-        }
-    }
+    my ($proto) = @_;
+    my $class = ref ($proto) || $proto;
+    die "${class}::run was not overridden";
 }
 
-=head1 AUTHOR
 
+=head2 is_enabled
+
+checks if enabled is "true"
+
+=cut
+
+sub is_enabled {
+    my ($self) = @_;
+    return isenabled($self->status);
+}
+
+
+=head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 

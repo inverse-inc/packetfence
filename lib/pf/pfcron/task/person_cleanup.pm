@@ -1,38 +1,33 @@
-package pf::pfmon::task::security_event_maintenance;
+package pf::pfcron::task::person_cleanup;
 
 =head1 NAME
 
-pf::pfmon::task::security_event_maintenance - class for pfmon task security_event maintenance
+pf::pfcron::task::person_cleanup - class for pfmon task person cleanup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::security_event_maintenance
+pf::pfcron::task::person_cleanup
 
 =cut
 
 use strict;
 use warnings;
 use Moose;
-use pf::security_event;
+use pf::person;
 use pf::dal::tenant;
 use pf::config::tenant;
 use pf::error qw(is_error);
-extends qw(pf::pfmon::task);
-
-has 'batch' => ( is => 'rw');
-has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+extends qw(pf::pfcron::task);
 
 =head2 run
 
-run the security_event maintenance task
+run the person cleanup task
 
 =cut
 
 sub run {
-    my ($self) = @_;
-    my ($batch, $timeout) = ($self->batch, $self->timeout);
     my ($status, $iter) = pf::dal::tenant->search(
         -with_class => undef,
     );
@@ -42,7 +37,7 @@ sub run {
 
     while (my $t = $iter->next) {
         local $pf::config::tenant::CURRENT_TENANT = $t->{id};
-        security_event_maintenance($batch, $timeout);
+        person_cleanup();
     }
 }
 
