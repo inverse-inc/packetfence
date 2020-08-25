@@ -11,6 +11,8 @@ PFSERVERS_DIR=pfservers
 install:
 	./install-venom.sh
 
+# configurator is different: it runs **before** all test suites. It doesn't need
+# a token to perform actions so there is no dependency to setup test suite
 .PHONY: configurator
 configurator:
 	./venom-wrapper.sh $(PFSERVERS_DIR)/pfservers/configurator
