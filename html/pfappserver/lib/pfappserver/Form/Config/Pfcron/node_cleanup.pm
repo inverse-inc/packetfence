@@ -1,36 +1,44 @@
-package pfappserver::Form::Config::Pfmon::security_event_maintenance;
+package pfappserver::Form::Config::Pfcron::node_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::security_event_maintenance - Web form for security_event_maintenance pfmon task
+pfappserver::Form::Config::Pfcron::node_cleanup - Web form for node_cleanup pfmon task
 
 =head1 DESCRIPTION
 
-Web form for security_event_maintenance pfmon task
+Web form for node_cleanup pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfmon qw(default_field_method batch_help_text timeout_help_text window_help_text);
+use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text timeout_help_text window_help_text);
 
-extends 'pfappserver::Form::Config::Pfmon';
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'batch' => (
-    type => 'PosInteger',
-    default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&batch_help_text },
-);
-
-has_field 'timeout' => (
+has_field 'unreg_window' => (
     type => 'Duration',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => \&timeout_help_text },
+             help => 'How long can a registered node be inactive on the network before it becomes unregistered' },
 );
 
+has_field 'delete_window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'How long can an unregistered node be inactive on the network before being deleted.<br>This shouldn\'t be used if you are using port-security' },
+);
+
+has_field 'voip' =>  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'Enable voip device cleanup' },
+);
 
 =head2 default_type
 
@@ -39,12 +47,12 @@ default value of type
 =cut
 
 sub default_type {
-    return "security_event_maintenance";
+    return "node_cleanup";
 }
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval batch timeout)],
+    render_list => [qw(type status voip interval unreg_window delete_window)],
   );
 
 

@@ -1,36 +1,37 @@
-package pfappserver::Form::Config::Pfmon::inline_accounting_maintenance;
+package pf::config::pfcron;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::inline_accounting_maintenance - Web form for inline_accounting_maintenance pfmon task
+pf::config::pfcron
+
+=cut
 
 =head1 DESCRIPTION
 
-Web form for inline_accounting_maintenance pfmon task
+Configuration from conf/pfmon.conf and conf/pfmon.conf.defaults
 
 =cut
 
-use HTML::FormHandler::Moose;
+use strict;
+use warnings;
+use pfconfig::cached_hash;
 
-extends 'pfappserver::Form::Config::Pfmon';
-with 'pfappserver::Base::Form::Role::Help';
-
-
-=head2 default_type
-
-default value of type
-
-=cut
-
-sub default_type {
-    return "inline_accounting_maintenance";
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(%ConfigPfmon %ConfigMaintenance %ConfigMaintenanceDefault);
 }
 
-has_block  definition =>
-  (
-    render_list => [qw(type status interval)],
-  );
+tie our %ConfigPfmon, 'pfconfig::cached_hash', 'config::Pfmon';
 
+tie our %ConfigMaintenance, 'pfconfig::cached_hash', 'config::Maintenance';
+
+tie our %ConfigMaintenanceDefault, 'pfconfig::cached_hash', 'config::MaintenanceDefault';
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -54,7 +55,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

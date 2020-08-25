@@ -1,42 +1,20 @@
-package pfappserver::Form::Config::Pfmon::dns_audit_log_cleanup;
+package pfappserver::Form::Config::Pfcron::password_of_the_day;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::dns_audit_log_cleanup - Web form for dns_audit_log_cleanup pfmon task
+pfappserver::Form::Config::Pfcron::password_of_the_day - Web form for password_of_the_day pfmon task
 
 =head1 DESCRIPTION
 
-Web form for dns_audit_log_cleanup pfmon task
+Web form for password_of_the_day pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfmon qw(default_field_method batch_help_text timeout_help_text window_help_text);
-
-extends 'pfappserver::Form::Config::Pfmon';
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'batch' => (
-    type => 'PosInteger',
-    default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&batch_help_text },
-);
-
-has_field 'timeout' => (
-    type => 'Duration',
-    default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&timeout_help_text },
-);
-
-has_field 'window' => (
-    type => 'Duration',
-    default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&window_help_text },
-);
 
 =head2 default_type
 
@@ -45,12 +23,12 @@ default value of type
 =cut
 
 sub default_type {
-    return "dns_audit_log_cleanup";
+    return "password_of_the_day";
 }
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval batch timeout window)],
+    render_list => [qw(type status interval)],
   );
 
 

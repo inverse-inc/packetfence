@@ -1,38 +1,42 @@
-package pfappserver::Form::Config::Pfmon::switch_cache_lldpLocalPort_description;
+package pfappserver::Form::Config::Pfcron::bandwidth_maintenance_session;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::switch_cache_lldpLocalPort_description
+pfappserver::Form::Config::Pfcron::bandwidth_maintenance - Web form for bandwidth_maintenance pfmon task
 
 =head1 DESCRIPTION
 
-Web form for switch_cache_lldpLocalPort_description pfmon task
+Web form for bandwidth_maintenance pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfmon qw(default_field_method);
-
-extends 'pfappserver::Form::Config::Pfmon';
+use pfappserver::Form::Config::Pfcron qw(default_field_method);
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
 
-has_field 'process_switchranges' => (
-    type            => 'Toggle',
-    checked_value   => 'enabled',
-    unchecked_value => 'disabled',
-    default_method  => \&default_field_method,
-    tags => { 
-        after_element   => \&help,
-        help            => "Whether or not a switch range should be expanded to process each of its IPs",
-    },
+has_field 'batch' => (
+    type => 'PosInteger',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&batch_help_text },
 );
 
-has_block definition => (
-    render_list => [qw(type status interval process_switchranges)],
+has_field 'timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
 );
 
+has_field 'window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
 
 =head2 default_type
 
@@ -41,8 +45,13 @@ default value of type
 =cut
 
 sub default_type {
-    return "switch_cache_lldpLocalPort_description";
+    return "bandwidth_maintenance_session";
 }
+
+has_block  definition =>
+  (
+    render_list => [qw(type status interval batch window timeout)],
+  );
 
 
 =head1 COPYRIGHT

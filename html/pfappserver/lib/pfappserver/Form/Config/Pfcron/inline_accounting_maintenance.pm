@@ -1,18 +1,18 @@
-package pfappserver::Form::Config::Pfmon::fingerbank_data_update;
+package pfappserver::Form::Config::Pfcron::inline_accounting_maintenance;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::fingerbank_data_update - Web form for fingerbank_data_update pfmon task
+pfappserver::Form::Config::Pfcron::inline_accounting_maintenance - Web form for inline_accounting_maintenance pfmon task
 
 =head1 DESCRIPTION
 
-Web form for fingerbank_data_update pfmon task
+Web form for inline_accounting_maintenance pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-extends 'pfappserver::Form::Config::Pfmon';
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
 
@@ -23,7 +23,7 @@ default value of type
 =cut
 
 sub default_type {
-    return "fingerbank_data_update";
+    return "inline_accounting_maintenance";
 }
 
 has_block  definition =>

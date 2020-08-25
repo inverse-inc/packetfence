@@ -1,37 +1,36 @@
-package pf::config::pfmon;
+package pfappserver::Form::Config::Pfcron::fingerbank_data_update;
 
 =head1 NAME
 
-pf::config::pfmon
-
-=cut
+pfappserver::Form::Config::Pfcron::fingerbank_data_update - Web form for fingerbank_data_update pfmon task
 
 =head1 DESCRIPTION
 
-Configuration from conf/pfmon.conf and conf/pfmon.conf.defaults
+Web form for fingerbank_data_update pfmon task
 
 =cut
 
-use strict;
-use warnings;
-use pfconfig::cached_hash;
+use HTML::FormHandler::Moose;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT_OK = qw(%ConfigPfmon %ConfigMaintenance %ConfigMaintenanceDefault);
+extends 'pfappserver::Form::Config::Pfcron';
+with 'pfappserver::Base::Form::Role::Help';
+
+
+=head2 default_type
+
+default value of type
+
+=cut
+
+sub default_type {
+    return "fingerbank_data_update";
 }
 
-tie our %ConfigPfmon, 'pfconfig::cached_hash', 'config::Pfmon';
+has_block  definition =>
+  (
+    render_list => [qw(type status interval)],
+  );
 
-tie our %ConfigMaintenance, 'pfconfig::cached_hash', 'config::Maintenance';
-
-tie our %ConfigMaintenanceDefault, 'pfconfig::cached_hash', 'config::MaintenanceDefault';
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -55,5 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

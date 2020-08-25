@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::Pfmon;
+package pfappserver::Form::Config::Pfcron;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon - Web form for maintenance.conf
+pfappserver::Form::Config::Pfcron - Web form for maintenance.conf
 
 =head1 DESCRIPTION
 
-Form definition to update an pfmon tasks
+Form definition to update an pfcron tasks
 
 =cut
 
@@ -15,7 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
-use pf::config::pfmon qw(%ConfigMaintenanceDefault);
+use pf::config::pfcron qw(%ConfigMaintenanceDefault);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(default_field_method batch_help_text timeout_help_text window_help_text);
@@ -25,7 +25,7 @@ use pf::log;
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Pfmon Name',
+   label => 'Pfcron Name',
    required => 1,
    messages => { required => 'Please specify the name of the maintenance task' },
   );
@@ -69,7 +69,7 @@ sub default_field_method {
     my ($field) = @_;
     my $name = $field->name;
     my $task_name = ref($field->form);
-    $task_name =~ s/^pfappserver::Form::Config::Pfmon:://;
+    $task_name =~ s/^pfappserver::Form::Config::Pfcron:://;
     my $value = $ConfigMaintenanceDefault{$task_name}{$name};
     if ($field->has_inflate_default_method) {
         $value = $field->inflate_default($value);

@@ -1,18 +1,18 @@
-package pfappserver::Form::Config::Pfmon::acct_maintenance;
+package pfappserver::Form::Config::Pfcron::person_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::acct_maintenance - Web form for acct_maintenance pfmon task
+pfappserver::Form::Config::Pfcron::person_cleanup - Web form for person_cleanup pfmon task
 
 =head1 DESCRIPTION
 
-Web form for acct_maintenance pfmon task
+Web form for person_cleanup pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-extends 'pfappserver::Form::Config::Pfmon';
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
 
@@ -23,7 +23,7 @@ default value of type
 =cut
 
 sub default_type {
-    return "acct_maintenance";
+    return "person_cleanup";
 }
 
 has_block  definition =>

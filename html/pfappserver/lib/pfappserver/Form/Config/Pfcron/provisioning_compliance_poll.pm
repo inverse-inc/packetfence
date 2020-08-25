@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::Pfmon::provisioning_compliance_poll;
+package pfappserver::Form::Config::Pfcron::provisioning_compliance_poll;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::provisioning_compliance_poll - Web form for provisioning_compliance_poll pfmon task
+pfappserver::Form::Config::Pfcron::provisioning_compliance_poll - Web form for provisioning_compliance_poll pfmon task
 
 =head1 DESCRIPTION
 
@@ -12,7 +12,7 @@ Web form for provisioning_compliance_poll pfmon task
 
 use HTML::FormHandler::Moose;
 
-extends 'pfappserver::Form::Config::Pfmon';
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
 

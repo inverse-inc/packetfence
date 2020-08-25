@@ -67,7 +67,7 @@ pf::cmd::pf::pfmon
 
 use strict;
 use warnings;
-use pf::config::pfmon qw(%ConfigMaintenance);
+use pf::config::pfcron qw(%ConfigMaintenance);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants;
 use pf::factory::pfmon::task;

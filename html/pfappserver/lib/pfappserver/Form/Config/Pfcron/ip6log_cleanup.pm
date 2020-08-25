@@ -1,20 +1,20 @@
-package pfappserver::Form::Config::Pfmon::ip4log_cleanup;
+package pfappserver::Form::Config::Pfcron::ip6log_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::ip4log_cleanup - Web form for ip4log_cleanup pfmon task
+pfappserver::Form::Config::Pfcron::ip6log_cleanup - Web form for ip6log_cleanup pfmon task
 
 =head1 DESCRIPTION
 
-Web form for ip4log_cleanup pfmon task
+Web form for ip6log_cleanup pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfmon qw(default_field_method batch_help_text timeout_help_text window_help_text);
+use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text timeout_help_text window_help_text);
 
-extends 'pfappserver::Form::Config::Pfmon';
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'batch' => (
@@ -30,7 +30,7 @@ has_field 'rotate' => (
     unchecked_value => 'disabled',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'Enable or disable ip4log rotation (moving ip4log_history records to ip4log_archive)<br>If disabled, this task will delete from the ip4log_history table rather than the ip4log_archive.' },
+             help => 'Enable or disable ip6log rotation (moving ip6log_history records to ip6log_archive)<br>If disabled, this task will delete from the ip6log_history table rather than the ip6log_archive.' },
 );
 
 has_field 'rotate_batch' => (
@@ -51,7 +51,7 @@ has_field 'rotate_window' => (
     type => 'Duration',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'How long to keep ip4log history entry before rotating it to ip4log archive.' },
+             help => 'How long to keep ip6log history entry before rotating it to ip6log archive.' },
 );
 
 has_field 'timeout' => (
@@ -65,8 +65,9 @@ has_field 'window' => (
     type => 'Duration',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'How long to keep a ip4log archive entry before deleting it (or ip4log history if rotation is disabled)' },
+             help => 'How long to keep a ip6log archive entry before deleting it (or ip6log history if rotation is disabled)' },
 );
+
 
 =head2 default_type
 
@@ -75,7 +76,7 @@ default value of type
 =cut
 
 sub default_type {
-    return "ip4log_cleanup";
+    return "ip6log_cleanup";
 }
 
 has_block  definition =>

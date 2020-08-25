@@ -21,7 +21,7 @@ use Module::Pluggable
   inner       => 0,
   require     => 1;
 
-use pf::config::pfmon qw(%ConfigMaintenance);
+use pf::config::pfcron qw(%ConfigMaintenance);
 
 sub factory_for { 'pf::pfmon::task' }
 

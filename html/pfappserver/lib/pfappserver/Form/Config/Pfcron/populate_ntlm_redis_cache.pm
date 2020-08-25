@@ -1,18 +1,18 @@
-package pfappserver::Form::Config::Pfmon::password_of_the_day;
+package pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::password_of_the_day - Web form for password_of_the_day pfmon task
+pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache - Web form for populate_ntlm_redis_cache pfmon task
 
 =head1 DESCRIPTION
 
-Web form for password_of_the_day pfmon task
+Web form for populate_ntlm_redis_cache pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-extends 'pfappserver::Form::Config::Pfmon';
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
 
@@ -23,7 +23,7 @@ default value of type
 =cut
 
 sub default_type {
-    return "password_of_the_day";
+    return "populate_ntlm_redis_cache";
 }
 
 has_block  definition =>

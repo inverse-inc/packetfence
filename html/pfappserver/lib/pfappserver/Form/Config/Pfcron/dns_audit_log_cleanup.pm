@@ -1,20 +1,42 @@
-package pfappserver::Form::Config::Pfmon::populate_ntlm_redis_cache;
+package pfappserver::Form::Config::Pfcron::dns_audit_log_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::populate_ntlm_redis_cache - Web form for populate_ntlm_redis_cache pfmon task
+pfappserver::Form::Config::Pfcron::dns_audit_log_cleanup - Web form for dns_audit_log_cleanup pfmon task
 
 =head1 DESCRIPTION
 
-Web form for populate_ntlm_redis_cache pfmon task
+Web form for dns_audit_log_cleanup pfmon task
 
 =cut
 
 use HTML::FormHandler::Moose;
 
-extends 'pfappserver::Form::Config::Pfmon';
+use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text timeout_help_text window_help_text);
+
+extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
+has_field 'batch' => (
+    type => 'PosInteger',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&batch_help_text },
+);
+
+has_field 'timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
+
+has_field 'window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&window_help_text },
+);
 
 =head2 default_type
 
@@ -23,12 +45,12 @@ default value of type
 =cut
 
 sub default_type {
-    return "populate_ntlm_redis_cache";
+    return "dns_audit_log_cleanup";
 }
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval)],
+    render_list => [qw(type status interval batch timeout window)],
   );
 
 

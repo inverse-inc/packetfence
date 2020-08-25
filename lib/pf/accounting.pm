@@ -18,7 +18,7 @@ use warnings;
 use pf::log;
 use Readonly;
 use pf::accounting_events_history;
-use pf::config::pfmon qw(%ConfigMaintenance);
+use pf::config::pfcron qw(%ConfigMaintenance);
 use pf::config::tenant;
 use pf::util qw(make_node_id);
 use pf::error qw(is_success);
