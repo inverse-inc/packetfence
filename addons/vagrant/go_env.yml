@@ -4,5 +4,6 @@
   collections:
     - inverse_inc.packetfence
 
+  roles:
     - role: packetfence_go
       tags: go
