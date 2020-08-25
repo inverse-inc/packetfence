@@ -16,7 +16,8 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* EAP_TTLS PAP Support on a ldap source
+* Edirectory source
 
 Enhancements
 ++++++++++++
