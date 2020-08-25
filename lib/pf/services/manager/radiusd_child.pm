@@ -263,6 +263,12 @@ EOT
 
     generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
+    $tags{'authorize_ldap_choice'} = "";
+    $tags{'authentication_ldap_auth_type'} = "";
+    $tags{'edir_configuration'} = "";
+
+    generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
+
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
 
@@ -672,12 +678,26 @@ sub generate_radiusd_ldap {
     my $ldap_config = $FALSE;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
         my $searchattributes = '';
-        if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}} == 0) {
-            next;
+        my $edir_options;
+        if ($ConfigAuthenticationLdap{$ldap}->{type} eq 'EDIR') {
+            $edir_options .= << "EOT";
+
+    # Enable Novell eDirectory support
+    edir = yes
+    edir_account_policy_check = yes
+    #
+    # eDirectory attribute for Universal Password
+    password_attribute = nspmPassword
+
+EOT
+        } else {
+            $edir_options = '';
         }
 
-        foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
-            $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
+        if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
+            foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
+                $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
+            }
         }
         $ldap_config = $TRUE;
         my $server_list;
@@ -702,6 +722,8 @@ $server_list
     base_filter     = "(objectclass=user)"
     rebind          = "yes"
     chase_referrals = "yes"
+$edir_options
+
     update {
         control:AD-Samaccountname := 'sAMAccountName'
         request:PacketFence-UserNameAttribute := "$ConfigAuthenticationLdap{$ldap}->{usernameattribute}"
@@ -1251,6 +1273,65 @@ EOT
 EOT
         }
 
+}
+
+sub generate_ldap_choice {
+    my ($authorize_ldap_choice, $authentication_ldap_auth_type, $edir_configuration) = @_;
+    my $if = 'if';
+    my $of = 'if';
+    my $edir_config = "";
+    foreach my $key ( @pf::config::ConfigOrderedRealm ) {
+        my $choice = $key;
+        if (defined($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap})) {
+            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+            $$authorize_ldap_choice .= <<"EOT";
+        $if (Realm =~ /$choice/) {
+            $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'}
+            update control {
+                Auth-Type := $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'}
+            }
+        }
+EOT
+            $if = 'elsif';
+            $$authentication_ldap_auth_type .= <<"EOT";
+        Auth-Type $pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap} {
+            $pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}
+        }
+EOT
+
+        }
+        if (defined($pf::config::ConfigRealm{$key}->{edir_source}) && exists($pf::config::ConfigRealm{$key}->{edir_source})) {
+            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+            $edir_config .= <<"EOT";
+            $of (Realm =~ /$choice/) {
+                -$pf::config::ConfigRealm{$key}->{edir_source}
+                if (updated) {
+                    update control {
+                        &MS-CHAP-Use-NTLM-Auth := No
+                    }
+                }
+	    }
+EOT
+            my $of = 'elsif';
+        }
+    }
+    if ($edir_config ne "") {
+        $$edir_configuration .= << "EOT"
+        update control {
+            Cache-Status-Only = 'yes'
+        }
+        cache_password
+        if (ok) {
+            update control {
+                &MS-CHAP-Use-NTLM-Auth := No
+            }
+        }
+        if (notfound) {
+$edir_config
+        }
+        cache_password
+EOT
+    }
 }
 
 =head1 AUTHOR

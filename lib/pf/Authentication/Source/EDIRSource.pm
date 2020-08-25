@@ -1,38 +1,22 @@
-package pfconfig::namespaces::resource::authentication_sources_ldap;
+package pf::Authentication::Source::EDIRSource;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::authentication_sources_ldap
-
-=cut
+pf::Authentication::Source::ADSource
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::authentication_sources_ldap
-
 =cut
 
-use strict;
-use warnings;
+use pf::Authentication::constants;
+use pf::constants::authentication::messages;
+use pf::Authentication::Source::LDAPSource;
+use pf::constants;
 
-use base 'pfconfig::namespaces::resource';
+use Moose;
+extends 'pf::Authentication::Source::LDAPSource';
 
-sub init {
-    my ($self) = @_;
-    $self->{child_resources} = ['resource::passthroughs'];
-    $self->{_authentication_config} = $self->{cache}->get_cache('config::Authentication');
-}
-
-sub build {
-    my ($self) = @_;
-    my %hash;
-    while ( my ($id, $data) = each %{$self->{_authentication_config}->{authentication_config_hash}}) {
-        next unless $data->{'type'} eq "AD" or $data->{'type'} eq "LDAP" or $data->{'type'} eq "EDIR";
-        $hash{$id} = $data;
-    }
-    return \%hash;
-}
-
+has '+type' => ( default => 'EDIR' );
 
 =head1 AUTHOR
 
@@ -61,6 +45,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

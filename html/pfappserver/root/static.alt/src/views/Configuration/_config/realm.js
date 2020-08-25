@@ -175,6 +175,17 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('eDirectory'),
+          text: i18n.t('The eDirectory server to use for the authentication in that realm.'),
+          cols: [
+            {
+              namespace: 'edir_source',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'edir_source')
+            }
+          ]
+        },
+        {
           label: i18n.t('EAP Configuration'), labelSize: 'lg'
         },
         {
@@ -188,7 +199,7 @@ export const view = (form = {}, meta = {}) => {
             }
           ]
         },
-        {
+	{
           label: i18n.t('Freeradius Proxy Configuration'), labelSize: 'lg'
         },
         {
@@ -395,6 +406,20 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'ldap_source')
             }
           ]
+        },
+        {
+          label: i18n.t('EAP TTLS'), labelSize: 'lg'
+        },
+        {
+          label: i18n.t('LDAP Source for TTLS PAP'),
+          text: i18n.t('The LDAP Server to use for EAP TTLS PAP authorization and authentication.'),
+          cols: [
+            {
+              namespace: 'ldap_source_ttls_pap',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'ldap_source_ttls_pap')
+            }
+          ]
         }
       ]
     }
@@ -436,6 +461,8 @@ export const validators = (form = {}, meta = {}) => {
         }
         : {}
       )
-    }
+    },
+    ldap_source_ttls_pap: validatorsFromMeta(meta, 'ldap_source_ttls_pap', i18n.t('Source')),
+    edir_source: validatorsFromMeta(meta, 'edir_source', i18n.t('Source'))
   }
 }

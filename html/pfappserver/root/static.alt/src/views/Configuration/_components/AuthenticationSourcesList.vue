@@ -16,6 +16,7 @@
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Authorization' } }">Authorization</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EDIR' } }">Edirectory</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'HTTP' } }">HTTP</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kerberos' } }">Kerberos</b-dropdown-item>

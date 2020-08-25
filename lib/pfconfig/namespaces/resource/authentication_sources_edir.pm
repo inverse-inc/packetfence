@@ -1,14 +1,14 @@
-package pfconfig::namespaces::resource::authentication_sources_ldap;
+package pfconfig::namespaces::resource::authentication_sources_edir;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::authentication_sources_ldap
+pfconfig::namespaces::resource::authentication_sources_edir
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::authentication_sources_ldap
+pfconfig::namespaces::resource::authentication_sources_edir
 
 =cut
 
@@ -27,12 +27,11 @@ sub build {
     my ($self) = @_;
     my %hash;
     while ( my ($id, $data) = each %{$self->{_authentication_config}->{authentication_config_hash}}) {
-        next unless $data->{'type'} eq "AD" or $data->{'type'} eq "LDAP" or $data->{'type'} eq "EDIR";
+        next unless $data->{'type'} eq "EDIR";
         $hash{$id} = $data;
     }
     return \%hash;
 }
-
 
 =head1 AUTHOR
 

@@ -132,7 +132,7 @@ const administrationRuleActions = (form, meta = {}) => {
       pfActions.mark_as_sponsor,
       pfActions.set_tenant_id
     ],
-    ...((['AD', 'LDAP'].includes(sourceType))
+    ...((['AD', 'LDAP', 'EDIR'].includes(sourceType))
       ? [pfActions.set_access_durations]
       : []
     )
@@ -165,7 +165,7 @@ const authenticationRuleActions = (form, meta = {}) => {
         pfActions.set_bandwidth_balance,
         pfActions.set_role_from_source
       ],
-    ...((['AD', 'LDAP'].includes(sourceType))
+    ...((['AD', 'LDAP', 'EDIR'].includes(sourceType))
       ? [pfActions.set_role_on_not_found]
       : []
     )
@@ -1949,6 +1949,33 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
+    case 'EDIR':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.host_port_encryption(form, meta),
+            viewFields.connection_timeout(form, meta),
+            viewFields.write_timeout(form, meta),
+            viewFields.read_timeout(form, meta),
+            viewFields.basedn(form, meta),
+            viewFields.scope(form, meta),
+            viewFields.usernameattribute(form, meta),
+            viewFields.searchattributes(form, meta),
+            viewFields.email_attribute(form, meta),
+            viewFields.binddn(form, meta),
+            viewFields.password(form, meta),
+            viewFields.cache_match(form, meta),
+            viewFields.monitor(form, meta),
+            viewFields.shuffle(form, meta),
+            viewFields.realms(form, meta),
+            viewFields.authentication_rules(form, meta),
+            viewFields.administration_rules(form, meta)
+          ]
+        }
+      ]
     case 'Potd':
       return [
         {
@@ -3037,6 +3064,25 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.usernameattribute(form, meta),
         ...validatorFields.searchattributes(form, meta),
         ...validatorFields.append_to_searchattributes(form, meta),
+        ...validatorFields.email_attribute(form, meta),
+        ...validatorFields.binddn(form, meta),
+        ...validatorFields.password(form, meta),
+        ...validatorFields.realms(form, meta),
+        ...validatorFields.authentication_rules(form, meta),
+        ...validatorFields.administration_rules(form, meta)
+      }
+    case 'EDIR':
+      return {
+        ...validatorFields.id(form, meta),
+        ...validatorFields.description(form, meta),
+        ...validatorFields.host_port_encryption(form, meta),
+        ...validatorFields.connection_timeout(form, meta),
+        ...validatorFields.write_timeout(form, meta),
+        ...validatorFields.read_timeout(form, meta),
+        ...validatorFields.basedn(form, meta),
+        ...validatorFields.scope(form, meta),
+        ...validatorFields.usernameattribute(form, meta),
+        ...validatorFields.searchattributes(form, meta),
         ...validatorFields.email_attribute(form, meta),
         ...validatorFields.binddn(form, meta),
         ...validatorFields.password(form, meta),

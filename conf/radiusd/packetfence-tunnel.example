@@ -109,6 +109,8 @@ authorize {
 
 %%authorize_eap_choice%%
 
+%%authorize_ldap_choice%%
+
 	#
 	#  Read the 'users' file
 	#files
@@ -123,19 +125,8 @@ authorize {
 
 
 	#
-	#  The ldap module reads passwords from the LDAP database.
-	#-ldap
-	#
-	# Or if you want to cache the password (ex: Novell eDirectory using Universal Password) uncomment the following
-	#update control {
-	#    Cache-Status-Only = 'yes'
-	#}
-	#cache_password
-	#if (notfound) {
-	#       -ldap
-	#}
-	#cache_password
 
+%%edir_configuration%%
 
 	#
 	#  If no other module has claimed responsibility for
@@ -222,6 +213,8 @@ authenticate {
 	}
 
 %%authentication_auth_type%%
+
+%%authentication_ldap_auth_type%%
 
 	# Uncomment it if you want to use ldap for authentication
 	#

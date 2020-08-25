@@ -283,6 +283,30 @@ has_field 'eap' =>
              help => 'The EAP configuration to use for this realm' },
   );
 
+has_field 'ldap_source_ttls_pap' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'LDAP Source for TTLS PAP',
+   options_method => \&options_ldap,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select an LDAP Server'},
+   tags => { after_element => \&help,
+             help => 'The LDAP Server to use for EAP TTLS PAP authentication and authorization' },
+  );
+
+has_field 'edir_source' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'eDirectory Source for PEAP',
+   options_method => \&options_edir,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select an eDirectory Server'},
+   tags => { after_element => \&help,
+             help => 'The eDirectory Server to use for EAP PEAP authentication and authorization' },
+  );
+
 =head2 options_domains
 
 =cut
@@ -330,6 +354,16 @@ sub options_eap {
     my @eap = map { $_ => $_ } keys %ConfigEAP;
     unshift @eap, ("" => "");
     return @eap;
+}
+
+=head2 options_edir
+
+=cut
+
+sub options_edir {
+    my $self = shift;
+    my @edir = map { $_ => $_ } keys %pf::config::ConfigAuthenticationEdir;
+    return @edir;
 }
 
 =over
