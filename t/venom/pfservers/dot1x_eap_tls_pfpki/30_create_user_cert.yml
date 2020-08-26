@@ -1,0 +1,26 @@
+name: Create user certificate
+version: 2
+testcases:
+- name: create_user_cert
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/certs'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "profile_id": "6",
+        "cn": "UserCertificate",
+        "mail": "UserCertificate@inverse.ca",
+        "organisation": "Inverse",
+        "country": "CA",
+        "state": "Quebec",
+        "locality": "Montreal",
+        "street_address": "7000 park avenue",
+        "postal_code": "H3N 1X1"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

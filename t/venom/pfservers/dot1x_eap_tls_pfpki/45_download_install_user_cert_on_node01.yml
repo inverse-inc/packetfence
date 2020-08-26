@@ -1,0 +1,20 @@
+name: Download the RADIUS certificate
+version: 2
+testcases:
+- name: download_radius_cert
+  steps:
+  - type: http
+    method: GET
+    url: 'http://127.0.0.1:22225/api/v1/pki/cert/2/download/qwerty123'
+    ignore_verify_ssl: true
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      key:
+        from: result.bodyjson.key
+
+
+#- name: write-pfx-to-file
+#  steps:
+#    - type: exec
+#      script: "echo '{{.download_radius_cert.key}}' > {{.venom_result_dir}}/radius.pfx"
