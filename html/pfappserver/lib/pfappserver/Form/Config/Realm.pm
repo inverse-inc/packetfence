@@ -276,6 +276,7 @@ has_field 'eap' =>
    type => 'Select',
    multiple => 0,
    label => 'EAP',
+   default => "default",
    options_method => \&options_eap,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to select a eap configuration'},
@@ -352,7 +353,6 @@ sub options_radius {
 sub options_eap {
     my $self = shift;
     my @eap = map { $_ => $_ } keys %ConfigEAP;
-    unshift @eap, ("" => "");
     return @eap;
 }
 
