@@ -17,11 +17,11 @@ use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
-has 'config_store_class' => 'pf::ConfigStore::Maintenance';
+has 'config_store_class' => 'pf::ConfigStore::Cron';
 has 'form_class' => 'pfappserver::Form::Config::Pfcron';
 has 'primary_key' => 'maintenance_task_id';
 
-use pf::ConfigStore::Maintenance;
+use pf::ConfigStore::Cron;
 use pfappserver::Form::Config::Pfcron::acct_maintenance;
 use pfappserver::Form::Config::Pfcron::auth_log_cleanup;
 use pfappserver::Form::Config::Pfcron::certificates_check;

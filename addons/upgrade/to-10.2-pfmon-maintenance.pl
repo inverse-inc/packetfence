@@ -17,7 +17,7 @@ use pf::IniFiles;
 use pf::constants::config;
 use pf::file_paths qw(
     $pfmon_config_file
-    $maintenance_config_file
+    $cron_config_file
 );
 
 
@@ -97,7 +97,7 @@ sub addNew {
     $ci->SetParameterComment($s, $p, @desc)
 }
 
-$maintenance->WriteConfig($maintenance_config_file);
+$maintenance->WriteConfig($cron_config_file);
 
 =head1 AUTHOR
 

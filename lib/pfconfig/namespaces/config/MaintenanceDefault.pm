@@ -18,14 +18,14 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($maintenance_default_config_file);
+use pf::file_paths qw($cron_default_config_file);
 use Clone qw(clone);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $maintenance_default_config_file;
+    $self->{file} = $cron_default_config_file;
 }
 
 

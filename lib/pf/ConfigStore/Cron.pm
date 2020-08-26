@@ -1,29 +1,28 @@
-package pf::ConfigStore::Maintenance;
+package pf::ConfigStore::Cron;
 
 =head1 NAME
 
-pf::ConfigStore::Maintenance
+pf::ConfigStore::Cron
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Maintenance
+pf::ConfigStore::Cron
 
 =cut
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
-use pf::file_paths qw($maintenance_config_file $maintenance_default_config_file);
+use pf::file_paths qw($cron_config_file $cron_default_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $maintenance_config_file }
+sub configFile { $cron_config_file }
 
-sub importConfigFile { $maintenance_default_config_file }
+sub importConfigFile { $cron_default_config_file }
 
-sub pfconfigNamespace { 'config::Maintenance' }
-
+sub pfconfigNamespace { 'config::Cron' }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

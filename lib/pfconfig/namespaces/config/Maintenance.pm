@@ -10,7 +10,7 @@ pfconfig::namespaces::config::Maintenance
 
 pfconfig::namespaces::config::Maintenance
 
-This module creates the configuration hash associated to pfmon.conf
+This module creates the configuration hash associated to maintenance.conf
 
 =cut
 
@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($maintenance_config_file $maintenance_default_config_file);
+use pf::file_paths qw($cron_config_file $cron_default_config_file);
 use pf::util qw(normalize_time);
 use pf::IniFiles;
 use Clone qw(clone);
@@ -27,8 +27,8 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $maintenance_config_file;
-    my $defaults = pf::IniFiles->new(-file => $maintenance_default_config_file);
+    $self->{file} = $cron_config_file;
+    my $defaults = pf::IniFiles->new(-file => $cron_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
 

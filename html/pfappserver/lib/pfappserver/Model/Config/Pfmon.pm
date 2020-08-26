@@ -15,12 +15,11 @@ pfappserver::Model::Config::Pfmon
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use pf::ConfigStore::Maintenance;
+use pf::ConfigStore::Cron;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Maintenance->new }
+sub _buildConfigStore { pf::ConfigStore::Cron->new }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
