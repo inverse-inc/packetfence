@@ -67,75 +67,8 @@ pf::cmd::pf::pfmon
 
 use strict;
 use warnings;
-use pf::config::pfcron qw(%ConfigMaintenance);
-use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::constants;
-use pf::factory::pfmon::task;
-use base qw(pf::cmd);
+use base qw(pf::cmd::pf::pfcron);
 
-=head2 parseArgs
-
-parse args of pfmon task
-
-=cut
-
-sub parseArgs {
-    my ($self) = @_;
-    my ($task_id, @args) = $self->args;
-    return 0 unless defined $task_id;
-    unless (exists $ConfigMaintenance{$task_id}) {
-        print STDERR "$task_id is not a valid task\n";
-        return 0;
-    }
-    unless ($self->_parse_attributes(@args)) {
-        return 0;
-    }
-    $self->{task_id}  = $task_id;
-    return 1;
-}
-
-=head2 _run
-
-Run the pfmon task
-
-=cut
-
-sub _run {
-    my ($self) = @_;
-    my $task_id = $self->{task_id};
-    my $params = $self->{params};
-    my $task = eval {pf::factory::pfmon::task->new($task_id, $params)};
-    if ($@) {
-        exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
-    } else {
-        $task->run();
-    }
-    print "task $task_id finished\n"; 
-    return $EXIT_SUCCESS;
-}
-
-=head2 _parse_attributes
-
-parse and validate the arguments for 'pfcmd pfmon <task> [args]' command
-
-=cut
-
-sub _parse_attributes {
-    my ($self,@attributes) = @_;
-    my %params;
-    for my $attribute (@attributes) {
-        if($attribute =~ /^([a-zA-Z0-9_-]+)=(.*)$/ ) {
-            $params{$1} = $2;
-        } else {
-            print STDERR "$attribute is incorrectly formatted\n";
-            return 0;
-        }
-    }
-    $self->{params} = \%params;
-    return 1;
-}
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -164,4 +97,3 @@ USA.
 =cut
 
 1;
-

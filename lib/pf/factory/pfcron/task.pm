@@ -1,4 +1,4 @@
-package pf::factory::pfmon::task;
+package pf::factory::pfcron::task;
 
 =head1 NAME
 
