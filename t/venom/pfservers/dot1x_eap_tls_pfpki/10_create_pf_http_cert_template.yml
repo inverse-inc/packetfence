@@ -9,7 +9,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "ca_id": "2",
+        "ca_id": "1",
         "name": "PF_HTTP",
         "validity": "750",
         "key_type": "1",
