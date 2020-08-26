@@ -1,4 +1,4 @@
-name: step1_interfaces 
+name: Configurator step1
 version: 2
 testcases:
 - name: step1_dhcp_listener

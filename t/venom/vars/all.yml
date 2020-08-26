@@ -5,7 +5,7 @@
 # Variables assigned based on environment variables
 venom_result_dir: '{{.VENOM_RESULT_DIR}}'
 pfserver_token: '{{.TOKEN}}'
-pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}' 
+pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
 
 # ssh executor variables
 ssh_user: vagrant
