@@ -1,5 +1,5 @@
 import { computed, inject, reactive, toRefs, unref, set, watch } from '@vue/composition-api'
-import { string } from 'yup'
+import yup from '@/utils/yup'
 import i18n from '@/utils/locale'
 
 export const getMetaNamespace = (ns, o) =>
@@ -55,10 +55,10 @@ export const useInputMeta = (props) => {
 
         // validator
         if (!unref(validator)) {
-          let schema = string().nullable()
+          let schema = yup.string().nullable()
 
           if (metaRequired)
-            schema = schema.required('Value required.')
+            schema = schema.required()
 
           if (metaPattern) {
             const { regex, message } = metaPattern
@@ -67,25 +67,16 @@ export const useInputMeta = (props) => {
           }
 
           if (metaMinLength)
-            schema = schema.min(
-              metaMinLength,
-              i18n.t('Minimum {minLength} characters.', { minLength: metaMinLength })
-            )
+            schema = schema.min(metaMinLength)
 
           if (metaMaxLength)
-            schema = schema.max(metaMaxLength,
-              i18n.t('Maximum {maxLength} characters.', { maxLength: metaMaxLength })
-            )
+            schema = schema.max(metaMaxLength)
 
           if (metaMinValue)
-            schema = schema.min(metaMinValue,
-              i18n.t('Minimum {minValue}.', { minValue: metaMinValue })
-            )
+            schema = schema.minAsInt(metaMinValue)
 
           if (metaMaxValue)
-            schema = schema.max(metaMaxValue,
-              i18n.t('Maximum {minValue}.', { maxValue: metaMaxValue })
-            )
+            schema = schema.maxAsInt(metaMaxValue)
 
           set(localProps, 'validator', schema)
         }

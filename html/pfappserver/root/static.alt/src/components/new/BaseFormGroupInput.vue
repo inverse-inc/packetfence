@@ -59,14 +59,77 @@
 <script>
 import { useFormGroup, useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
+import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
   ...useFormGroupProps,
   ...useInputProps,
+  ...useInputMetaProps,
   ...useInputValidatorProps,
   ...useInputValueProps
+}
+
+export const setup = (props, context) => {
+
+  const metaProps = useInputMeta(props, context)
+
+  const {
+    columnLabel,
+    labelCols
+  } = useFormGroup(metaProps, context)
+
+  const {
+    placeholder,
+    readonly,
+    tabIndex,
+    text,
+    type,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur
+  } = useInput(metaProps, context)
+
+  const {
+    value,
+    onInput,
+    onChange
+  } = useInputValue(metaProps, context)
+
+  const {
+    state,
+    invalidFeedback,
+    validFeedback
+  } = useInputValidator(metaProps, value)
+
+  return {
+    // useFormGroup
+    formGroupLabel: columnLabel,
+    formGroupLabelCols: labelCols,
+
+    // useInput
+    inputPlaceholder: placeholder,
+    inputReadonly: readonly,
+    inputTabIndex: tabIndex,
+    inputText: text,
+    inputType: type,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur,
+
+    // useInputValue
+    inputValue: value,
+    onInput,
+    onChange,
+
+    // useInputValidator
+    inputState: state,
+    inputInvalidFeedback: invalidFeedback,
+    inputValidFeedback: validFeedback
+  }
 }
 
 // @vue/component
@@ -74,65 +137,6 @@ export default {
   name: 'base-form-group-input',
   inheritAttrs: false,
   props,
-  setup(props, context) {
-    const {
-      columnLabel,
-      labelCols,
-      text
-    } = useFormGroup(props, context)
-
-    const {
-      value,
-      placeholder,
-      readonly,
-      tabIndex,
-      type,
-      isFocus,
-      isLocked,
-      onInput,
-      onChange,
-      onFocus,
-      onBlur
-    } = useInput(props, context)
-
-    const {
-      value,
-      onInput,
-      onChange
-    } = useInputValue(props, context)
-
-    const {
-      state,
-      invalidFeedback,
-      validFeedback
-    } = useInputValidator(props, value)
-
-    return {
-      // useFormGroup
-      columnLabel,
-      labelCols,
-      text,
-
-      // useInput
-      inputReadonly: readonly,
-      inputPlaceholder: placeholder,
-      inputTabIndex: tabIndex,
-      inputType: type,
-      isFocus,
-      isLocked,
-      onFocus,
-      onBlur,
-
-      // useInputValidator
-      inputState: state,
-      inputInvalidFeedback: invalidFeedback,
-      inputValidFeedback: validFeedback
-
-      // useInputValue
-      inputValue: value,
-      onInput,
-      onChange
-    }
-  }
+  setup
 }
 </script>

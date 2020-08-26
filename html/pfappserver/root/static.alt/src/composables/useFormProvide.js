@@ -4,6 +4,9 @@ export const useFormProvideProps = {
   form: {
     type: Object
   },
+  loading: {
+    type: Boolean
+  },
   meta: {
     type: Object
   },
@@ -14,6 +17,7 @@ export const useFormProvideProps = {
 
 export const useFormProvide = (props) => {
   provide('form', props.form)
+  provide('loading', props.loading)
 
   if(props.meta !== {})
     provide('meta', props.meta)

@@ -74,8 +74,8 @@ export const setup = (props, context) => {
 
   return {
     // useInput
-    inputReadonly: readonly,
     inputPlaceholder: placeholder,
+    inputReadonly: readonly,
     inputTabIndex: tabIndex,
     inputText: text,
     inputType: type,

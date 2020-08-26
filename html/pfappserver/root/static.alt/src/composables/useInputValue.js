@@ -19,19 +19,19 @@ export const setFormNamespace = (ns, o, v) => {
 }
 
 export const useInputValueProps = {
-  value: {
-    default: null
-  },
   namespace: {
     type: String
+  },
+  value: {
+    default: null
   }
 }
 
 export const useInputValue = (props, { emit }) => {
 
   const {
-    value,
-    namespace
+    namespace,
+    value
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   let inputValue = ref(null)
