@@ -1,20 +1,25 @@
 name: Download the RADIUS certificate
 version: 2
 testcases:
-- name: download_radius_cert
+- name: create_temp_directory
   steps:
-  - type: http
-    method: GET
-    url: 'http://127.0.0.1:22225/api/v1/pki/cert/2/download/qwerty123'
-    ignore_verify_ssl: true
-    assertions:
-      - result.statuscode ShouldEqual 200
-    vars:
-      key:
-        from: result.bodyjson.key
+    - type: exec
+      script: "mktemp -d"
+      vars:
+        temp_dir:
+          from: result.systemout
 
+- name: download_p12_file
+  steps:
+  - type: exec
+    script: "curl -k --output {{.create_temp_directory.temp_dir}}/cert.p12 http://127.0.0.1:22225/api/v1/pki/cert/2/download/secret"
 
-#- name: write-pfx-to-file
-#  steps:
-#    - type: exec
-#      script: "echo '{{.download_radius_cert.key}}' > {{.venom_result_dir}}/radius.pfx"
+- name: extract_certificates
+  steps:
+  - type: exec
+    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/cert.p12 -nokeys -out {{.create_temp_directory.temp_dir}}/cert.pem --passin pass:secret"
+
+- name: extract_private_key
+  steps:
+  - type: exec
+    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/cert.p12 -nocerts -nodes -out {{.create_temp_directory.temp_dir}}/key.pem --passin pass:secret"
