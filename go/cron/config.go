@@ -39,7 +39,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 }
 
 func GetMaintenanceConfig() map[string]interface{} {
-	var tasks pfconfigdriver.Maintenance
+	var tasks pfconfigdriver.Cron
 	ctx := context.Background()
 	pfconfigdriver.FetchDecodeSocket(ctx, &tasks)
 	return tasks.Element

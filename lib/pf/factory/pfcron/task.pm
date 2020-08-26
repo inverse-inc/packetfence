@@ -2,13 +2,13 @@ package pf::factory::pfcron::task;
 
 =head1 NAME
 
-pf::factory::pfmon::task -
+pf::factory::pfcron::task -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::pfmon::task
+pf::factory::pfcron::task
 
 =cut
 
@@ -21,7 +21,7 @@ use Module::Pluggable
   inner       => 0,
   require     => 1;
 
-use pf::config::pfcron qw(%ConfigMaintenance);
+use pf::config::pfcron qw(%ConfigCron);
 
 sub factory_for { 'pf::pfcron::task' }
 
@@ -39,7 +39,7 @@ If no task is found the return undef
 sub new {
     my ($class, $name, $additional) = @_;
     my $object;
-    my $data = $ConfigMaintenance{$name};
+    my $data = $ConfigCron{$name};
     if ($data) {
         %$data = (%$data, %{ $additional // {}});
         $data->{id} = $name;

@@ -8,7 +8,7 @@ pf::config::pfcron
 
 =head1 DESCRIPTION
 
-Configuration from conf/pfmon.conf and conf/pfmon.conf.defaults
+Configuration from conf/pfcron.conf and conf/pfcron.conf.defaults
 
 =cut
 
@@ -20,14 +20,12 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(%ConfigPfmon %ConfigMaintenance %ConfigMaintenanceDefault);
+    @EXPORT_OK = qw(%ConfigCron %ConfigCronDefault);
 }
 
-tie our %ConfigPfmon, 'pfconfig::cached_hash', 'config::Pfmon';
+tie our %ConfigCron, 'pfconfig::cached_hash', 'config::Cron';
 
-tie our %ConfigMaintenance, 'pfconfig::cached_hash', 'config::Maintenance';
-
-tie our %ConfigMaintenanceDefault, 'pfconfig::cached_hash', 'config::MaintenanceDefault';
+tie our %ConfigCronDefault, 'pfconfig::cached_hash', 'config::CronDefault';
 
 =head1 AUTHOR
 

@@ -1,14 +1,14 @@
-package pfconfig::namespaces::config::Maintenance;
+package pfconfig::namespaces::config::Cron;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Maintenance
+pfconfig::namespaces::config::Cron
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Maintenance
+pfconfig::namespaces::config::Cron
 
 This module creates the configuration hash associated to maintenance.conf
 

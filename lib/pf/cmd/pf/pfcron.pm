@@ -67,7 +67,7 @@ pf::cmd::pf::pfcron
 
 use strict;
 use warnings;
-use pf::config::pfcron qw(%ConfigMaintenance);
+use pf::config::pfcron qw(%ConfigCron);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants;
 use pf::factory::pfcron::task;
@@ -83,7 +83,7 @@ sub parseArgs {
     my ($self) = @_;
     my ($task_id, @args) = $self->args;
     return 0 unless defined $task_id;
-    unless (exists $ConfigMaintenance{$task_id}) {
+    unless (exists $ConfigCron{$task_id}) {
         print STDERR "$task_id is not a valid task\n";
         return 0;
     }

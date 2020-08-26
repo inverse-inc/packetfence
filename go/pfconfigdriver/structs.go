@@ -662,10 +662,10 @@ type EAPConfiguration struct {
 	Element                 map[string]EAP
 }
 
-type Maintenance struct {
+type Cron struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
-	PfconfigNS              string `val:"config::Maintenance"`
+	PfconfigNS              string `val:"config::Cron"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]interface{}
 }

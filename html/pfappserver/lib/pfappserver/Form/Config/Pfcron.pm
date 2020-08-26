@@ -15,7 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
-use pf::config::pfcron qw(%ConfigMaintenanceDefault);
+use pf::config::pfcron qw(%ConfigCronDefault);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(default_field_method batch_help_text timeout_help_text window_help_text);
@@ -70,7 +70,7 @@ sub default_field_method {
     my $name = $field->name;
     my $task_name = ref($field->form);
     $task_name =~ s/^pfappserver::Form::Config::Pfcron:://;
-    my $value = $ConfigMaintenanceDefault{$task_name}{$name};
+    my $value = $ConfigCronDefault{$task_name}{$name};
     if ($field->has_inflate_default_method) {
         $value = $field->inflate_default($value);
     }
