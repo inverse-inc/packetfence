@@ -4,18 +4,18 @@ import (
 	"os/exec"
 )
 
-type PfmonJob struct {
+type PfcronJob struct {
 	Task
 }
 
-func (j *PfmonJob) Run() {
+func (j *PfcronJob) Run() {
 	cmd := exec.Command("/usr/local/pf/bin/pfcmd", "pfcron", j.Type)
 	err := cmd.Run()
 	_ = err
 }
 
-func NewPfmonJob(config map[string]interface{}) JobSetupConfig {
-	return &PfmonJob{
+func NewPfcronJob(config map[string]interface{}) JobSetupConfig {
+	return &PfcronJob{
 		Task: SetupTask(config),
 	}
 }

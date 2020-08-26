@@ -63,7 +63,7 @@ func GetJob(name string, config map[string]interface{}) JobSetupConfig {
 	var constructor func(map[string]interface{}) JobSetupConfig
 	var found bool
 	if constructor, found = builders[name]; !found {
-		constructor = NewPfmonJob
+		constructor = NewPfcronJob
 	}
 	return constructor(config)
 }
