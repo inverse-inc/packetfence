@@ -11,7 +11,6 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -159,7 +158,7 @@ func main() {
 	c := cron.New(cron.WithSeconds())
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig()) {
 		id := c.Schedule(job.Schedule(), wrapJob(logger, job))
-		logger.Info("Job id " + strconv.FormatInt(int64(id), 10))
+		logger.Info(fmt.Sprintf("task '%s' created with id %d", job.Name(), int64(id)))
 	}
 
 	w := sync.WaitGroup{}
