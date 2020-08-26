@@ -2,7 +2,7 @@ package pf::pfcron::task::option82_query;
 
 =head1 NAME
 
-pf::pfcron::task::option82_query - class for pfmon task option82 query
+pf::pfcron::task::option82_query - class for pfcron task option82 query
 
 =cut
 

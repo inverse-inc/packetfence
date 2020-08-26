@@ -2,7 +2,7 @@ package pf::pfcron::task::provisioning_compliance_poll;
 
 =head1 NAME
 
-pf::pfcron::task::provisioning_compliance_poll - class for pfmon task provisioning compliance poll
+pf::pfcron::task::provisioning_compliance_poll - class for pfcron task provisioning compliance poll
 
 =cut
 

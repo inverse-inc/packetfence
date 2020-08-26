@@ -2,7 +2,7 @@ package pf::pfcron::task::node_cleanup;
 
 =head1 NAME
 
-pf::pfcron::task::node_cleanup - class for pfmon task node cleanup
+pf::pfcron::task::node_cleanup - class for pfcron task node cleanup
 
 =cut
 

@@ -2,7 +2,7 @@ package pf::pfcron::task::password_of_the_day;
 
 =head1 NAME
 
-pf::pfcron::task::password_of_the_day - class for pfmon task password generation
+pf::pfcron::task::password_of_the_day - class for pfcron task password generation
 
 =cut
 

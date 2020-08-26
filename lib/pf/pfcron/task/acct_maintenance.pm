@@ -2,7 +2,7 @@ package pf::pfcron::task::acct_maintenance;
 
 =head1 NAME
 
-pf::pfcron::task::acct_maintenance - class for pfmon task acct maintenance
+pf::pfcron::task::acct_maintenance - class for pfcron task acct maintenance
 
 =cut
 

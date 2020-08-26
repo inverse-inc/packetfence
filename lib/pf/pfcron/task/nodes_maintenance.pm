@@ -2,7 +2,7 @@ package pf::pfcron::task::nodes_maintenance;
 
 =head1 NAME
 
-pf::pfcron::task::nodes_maintenance - class for pfmon task nodes maintenance
+pf::pfcron::task::nodes_maintenance - class for pfcron task nodes maintenance
 
 =cut
 

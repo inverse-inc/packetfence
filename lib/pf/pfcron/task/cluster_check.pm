@@ -2,7 +2,7 @@ package pf::pfcron::task::cluster_check;
 
 =head1 NAME
 
-pf::pfcron::task::cluster_check - class for pfmon task cluster check
+pf::pfcron::task::cluster_check - class for pfcron task cluster check
 
 =cut
 

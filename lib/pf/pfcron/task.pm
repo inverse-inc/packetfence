@@ -2,7 +2,7 @@ package pf::pfcron::task;
 
 =head1 NAME
 
-pf::pfcron::task - The base class for pfmon tasks
+pf::pfcron::task - The base class for pfcron tasks
 
 =cut
 

@@ -2,7 +2,7 @@ package pf::pfcron::task::security_event_maintenance;
 
 =head1 NAME
 
-pf::pfcron::task::security_event_maintenance - class for pfmon task security_event maintenance
+pf::pfcron::task::security_event_maintenance - class for pfcron task security_event maintenance
 
 =cut
 

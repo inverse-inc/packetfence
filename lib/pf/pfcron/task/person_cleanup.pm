@@ -2,7 +2,7 @@ package pf::pfcron::task::person_cleanup;
 
 =head1 NAME
 
-pf::pfcron::task::person_cleanup - class for pfmon task person cleanup
+pf::pfcron::task::person_cleanup - class for pfcron task person cleanup
 
 =cut
 

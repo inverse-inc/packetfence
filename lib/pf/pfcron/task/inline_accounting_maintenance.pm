@@ -2,7 +2,7 @@ package pf::pfcron::task::inline_accounting_maintenance;
 
 =head1 NAME
 
-pf::pfcron::task::inline_accounting_maintenance - class for pfmon task inline accounting maintenance
+pf::pfcron::task::inline_accounting_maintenance - class for pfcron task inline accounting maintenance
 
 =cut
 
