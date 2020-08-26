@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/maint"
+	"github.com/inverse-inc/packetfence/go/cron"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
 	"net"
