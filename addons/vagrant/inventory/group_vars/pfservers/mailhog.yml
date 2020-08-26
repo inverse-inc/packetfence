@@ -1,0 +1,13 @@
+---
+
+mailhog__env_vars:
+
+  # Listen on port different than 1025 to avoid conflict with HAProxy
+  - name: "MH_SMTP_BIND_ADDR"
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}:2525"
+
+  - name: "MH_API_BIND_ADDR"
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}:8025"
+
+  - name: "MH_UI_BIND_ADDR"
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}:8025"
