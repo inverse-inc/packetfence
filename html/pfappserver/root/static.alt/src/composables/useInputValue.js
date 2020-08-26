@@ -40,16 +40,16 @@ export const useInputValue = (props, { emit }) => {
 
   if (unref(namespace)) {
     // use namespace
-    const form = inject('form', {})
+    const form = inject('form', ref({}))
     const namespaceArr = computed(() => unref(namespace).split('.'))
 
     inputValue = customRef((track, trigger) => ({
       get() {
         track()
-        return getFormNamespace(unref(namespaceArr), form)
+        return getFormNamespace(unref(namespaceArr), unref(form))
       },
       set(newValue) {
-        setFormNamespace(unref(namespaceArr), form, newValue)
+        setFormNamespace(unref(namespaceArr), unref(form), newValue)
         trigger()
       }
     }))

@@ -1,4 +1,4 @@
-import { ref, toRefs, unref, computed } from '@vue/composition-api'
+import { inject, ref, toRefs, unref, computed } from '@vue/composition-api'
 
 export const useInputProps = {
   disabled: {
@@ -45,7 +45,8 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
 
   // state
   const isFocus = ref(false)
-  const isLocked = computed(() => unref(disabled) || unref(readonly))
+  const isLoading = inject('isLoading', ref(false))
+  const isLocked = computed(() => unref(isLoading) || unref(disabled) || unref(readonly))
 
   // methods
   const doFocus = () => refs[inputRef].$el.focus()

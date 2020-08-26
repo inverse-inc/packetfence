@@ -8,13 +8,6 @@
     :labelCols="labelCols"
     :label="columnLabel"
   >
-    <template v-slot:invalid-feedback>
-      {{ inputInvalidFeedback }}
-    </template>
-    <template v-slot:valid-feedback>
-      {{ inputValidFeedback }}
-    </template>
-
     <b-input-group
       :class="{
         'is-focus': isFocus,
@@ -53,7 +46,15 @@
         </b-button>
       </template>
     </b-input-group>
-    <b-form-text v-if="text" v-html="text"></b-form-text>
+    <template v-slot:description v-if="inputText">
+      <div v-html="inputText"/>
+    </template>
+    <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
+      <div v-html="inputInvalidFeedback"/>
+    </template>
+    <template v-slot:valid-feedback v-if="inputValidFeedback">
+      <div v-html="inputValidFeedback"/>
+    </template>
   </b-form-group>
 </template>
 <script>

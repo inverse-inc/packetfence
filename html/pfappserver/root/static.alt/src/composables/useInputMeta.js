@@ -1,4 +1,4 @@
-import { computed, inject, reactive, toRefs, unref, set, watch } from '@vue/composition-api'
+import { computed, inject, reactive, ref, toRefs, unref, set, watch } from '@vue/composition-api'
 import yup from '@/utils/yup'
 import i18n from '@/utils/locale'
 
@@ -31,18 +31,18 @@ export const useInputMeta = (props) => {
 
   if (unref(namespace)) {
     // use namespace
-    const meta = inject('meta', {})
+    const meta = inject('meta', ref({}))
     const namespaceArr = computed(() => unref(namespace).split('.'))
-    const namespaceMeta = computed(() => getMetaNamespace(unref(namespaceArr), meta))
+    const namespaceMeta = computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
 
     watch(
       namespaceMeta,
       (namespaceMeta) => {
         const {
-          min_length: metaMinLength,
-          max_length: metaMaxLength,
-          min_value: metaMinValue,
-          max_value: metaMaxValue,
+          min_length: metaMinLength = undefined,
+          max_length: metaMaxLength = undefined,
+          min_value: metaMinValue = undefined,
+          max_value: metaMaxValue = undefined,
           pattern: metaPattern,
           placeholder: metaPlaceholder,
           required: metaRequired,
@@ -66,16 +66,16 @@ export const useInputMeta = (props) => {
             schema = schema.matches(re, message)
           }
 
-          if (metaMinLength)
+          if (metaMinLength !== undefined)
             schema = schema.min(metaMinLength)
 
-          if (metaMaxLength)
+          if (metaMaxLength !== undefined)
             schema = schema.max(metaMaxLength)
 
-          if (metaMinValue)
+          if (metaMinValue !== undefined)
             schema = schema.minAsInt(metaMinValue)
 
-          if (metaMaxValue)
+          if (metaMaxValue !== undefined)
             schema = schema.maxAsInt(metaMaxValue)
 
           set(localProps, 'validator', schema)

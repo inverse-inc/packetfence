@@ -3,7 +3,8 @@ import yup from '@/utils/yup'
 
 export default yup.object().shape({
   id: yup.string()
-    .required(i18n.t('Identifier is required.')),
+    .nullable()
+    .required(i18n.t('Identifier required.')),
 
   notes: yup.string()
     .nullable(),

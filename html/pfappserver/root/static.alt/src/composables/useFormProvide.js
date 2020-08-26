@@ -1,27 +1,32 @@
-import { provide } from '@vue/composition-api'
+import { provide, toRefs } from '@vue/composition-api'
 
 export const useFormProvideProps = {
   form: {
     type: Object
-  },
-  loading: {
-    type: Boolean
   },
   meta: {
     type: Object
   },
   schema: {
     type: Object
+  },
+  isLoading: {
+    type: Boolean
   }
 }
 
 export const useFormProvide = (props) => {
-  provide('form', props.form)
-  provide('loading', props.loading)
 
-  if(props.meta !== {})
-    provide('meta', props.meta)
+  const {
+    form,
+    meta,
+    schema,
+    isLoading
+  } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
-  if (props.schema !== {})
-    provide('schema', props.schema)
+  provide('form', form)
+  provide('meta', meta)
+  provide('schema', schema)
+  provide('isLoading', isLoading)
+
 }

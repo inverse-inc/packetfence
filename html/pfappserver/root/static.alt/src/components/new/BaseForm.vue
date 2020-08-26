@@ -10,16 +10,15 @@ export const props = {
   ...useFormProvideProps,
 }
 
+export const setup = (props, context) => {
+  return useFormProvide(props, context)
+}
+
 // @vue/component
 export default {
   name: 'base-form',
   inheritAttrs: false,
   props,
-  setup(props, context) {
-
-    useFormProvide(props, context)
-
-    return
-  }
+  setup
 }
 </script>

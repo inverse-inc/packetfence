@@ -1,12 +1,12 @@
 import config from './config'
 import schema from './schema'
 
-import FormGroupIdentifier from './FormGroupIdentifier'
-import FormGroupMaxNodesPerPid from './FormGroupMaxNodesPerPid'
-import FormGroupNotes from './FormGroupNotes'
+import FormGroupIdentifier from './_components/FormGroupIdentifier'
+import FormGroupMaxNodesPerPid from './_components/FormGroupMaxNodesPerPid'
+import FormGroupNotes from './_components/FormGroupNotes'
 
-import TheForm from './TheForm'
-import TheList from './TheList'
+import TheForm from './_components/TheForm'
+import TheList from './_components/TheList'
 
 export {
   config,

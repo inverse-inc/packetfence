@@ -40,7 +40,7 @@ export const useInputValidator = (props, value) => {
 
   if (unref(namespace)) { // is :namespace
     // use namespace
-    const schema = inject('schema', {})
+    const schema = inject('schema')
 
     localValidator = computed(() => {
       /**
@@ -48,7 +48,8 @@ export const useInputValidator = (props, value) => {
        * https://github.com/jquense/yup/issues/599
       **/
       try {
-        return reach(schema, unref(namespace))
+        const namespaceSchema = reach(unref(schema), unref(namespace))
+        return unref(validator).concat(namespaceSchema) // merge schemas
       } catch (e) { // path not defined in schema
         if (unref(validator))
           return unref(validator) // fallback to prop
