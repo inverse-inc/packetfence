@@ -568,10 +568,6 @@ sub findScan {
 
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
-    unless(defined $os){
-        $logger->warn("Can't find scan engine for $mac since we don't have it's OS");
-        return;
-    }
 
     return first { $_->match($os,$node_attributes) } @scanners;
 }
@@ -594,11 +590,6 @@ sub findScans {
 
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
-    
-    unless(defined $os){
-        $logger->warn("Can't find scan engine for $mac since we don't have it's OS");
-        return;
-    }
 
     return grep { $_->match($os,$node_attributes) } @scanners;
 }

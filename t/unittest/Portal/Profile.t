@@ -35,21 +35,23 @@ my $profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", {
 
 lives_ok { $JSON->encode($profile) } "Profile can be serialized to json";;
 
+# scanners
 is($profile->findScan("00:00:00:00:00:00", {device_type => "Microsoft Windows Kernel 6.0", category => "guest"})->{_id}, "test1",
     "Matching scan properly when OS + category match");
 
 is($profile->findScan("00:00:00:00:00:00", {device_type => "Microsoft Windows Kernel 6.0", category => "dummy"})->{_id}, "test2",
     "Matching scan properly when scan defines only OS");
 
-is($profile->findScan("00:00:00:00:00:00", {device_type => "Playstation 4", category => "guest"})->{_id}, "test3",
+is($profile->findScan("00:00:00:00:00:00", {device_type => undef, category => "guest"})->{_id}, "test3",
     "Matching scan properly when scan defines only category");
 
-is($profile->findScan("00:00:00:00:00:00", {device_type => "Playstation 4", category => "dummy"})->{_id}, "test4",
+is($profile->findScan("00:00:00:00:00:00", {device_type => undef, category => "dummy"})->{_id}, "test4",
     "Matching scan properly when scan defines no OS nor category");
 
-is($profile->findScan("00:00:00:00:00:00", {device_type => undef, category => "guest"}), undef,
-    "Shouldn't find a scan when there is no OS defined.");
+isnt($profile->findScan("00:00:00:00:00:00", {device_type => undef, category => "guest"})->{_id}, "test1",
+    "Shouldn't match because OS is undef");
 
+# provisionners
 is($profile->findProvisioner("00:00:00:00:00:00", {device_type => "Microsoft Windows Kernel 6.0", category => "guest"})->id, "deny1",
     "Matching provisioner properly when OS + category match");
 
