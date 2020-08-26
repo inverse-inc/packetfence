@@ -9,7 +9,7 @@ type PfmonJob struct {
 }
 
 func (j *PfmonJob) Run() {
-	cmd := exec.Command("/usr/local/pf/bin/pfcmd", "pfmon", j.Type)
+	cmd := exec.Command("/usr/local/pf/bin/pfcmd", "pfcron", j.Type)
 	err := cmd.Run()
 	_ = err
 }
