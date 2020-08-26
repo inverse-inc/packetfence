@@ -3495,73 +3495,8 @@ You could also restrict your users to use only your DNS server where 192.168.5.2
 
 image::aruba-acl-default-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
-
-Huawei
-~~~~~~
-
-PacketFence supports the S5710 switch from Huawei.
-
-Basic configuration
-^^^^^^^^^^^^^^^^^^^
-
-----
-
-l2protocol-tunnel user-defined-protocol 802.1X protocol-mac 0180-c200-0003 group-mac 0100-0000-0002
-domain pf
-
-dot1x enable
-dot1x dhcp-trigger
-
-radius-server template packetfence
- radius-server shared-key cipher <yourSecret>
- radius-server authentication 192.168.1.5 1812
- radius-server accounting 192.168.1.5 1813
- radius-server retransmit 2
-radius-server authorization 192.168.1.5 shared-key cipher <yourSecret>
-
-aaa
- authentication-scheme abc
-  authentication-mode radius
- accounting-scheme abc
-  accounting-mode radius
- domain pf
-  authentication-scheme abc
-  accounting-scheme abc
-  radius-server packetfence
-
-snmp-agent
-snmp-agent local-engineid 800007DB0304F9389D2360
-snmp-agent community write cipher <privateKey>
-snmp-agent sys-info version v2c v3
-
-----
-
-MAC authentication
-^^^^^^^^^^^^^^^^^^
-
-----
-
-interface GigabitEthernet0/0/8
- dot1x mac-bypass mac-auth-first
- dot1x mac-bypass
- dot1x max-user 1
- dot1x reauthenticate
- dot1x authentication-method eap
-
-----
-
-802.1X
-^^^^^^
-
-----
-
-interface GigabitEthernet0/0/8
- dot1x mac-bypass
- dot1x max-user 1
- dot1x reauthenticate
- dot1x authentication-method eap
-
-----
+// Huawei switchs
+include::networkdevice/huawei_switchs.asciidoc[]
 
 IBM
 ~~
