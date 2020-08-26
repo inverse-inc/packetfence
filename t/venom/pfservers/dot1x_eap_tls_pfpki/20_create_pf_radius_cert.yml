@@ -9,7 +9,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "profile_id": "4",
+        "profile_id": "1",
         "cn": "PF_RADIUS",
         "mail": "pfradius@inverse.ca",
         "organisation": "Inverse",
