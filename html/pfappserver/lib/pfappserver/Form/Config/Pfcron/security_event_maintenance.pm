@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::security_event_maintenance;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::security_event_maintenance - Web form for security_event_maintenance pfmon task
+pfappserver::Form::Config::Pfcron::security_event_maintenance - Web form for security_event_maintenance pfcron task
 
 =head1 DESCRIPTION
 
-Web form for security_event_maintenance pfmon task
+Web form for security_event_maintenance pfcron task
 
 =cut
 

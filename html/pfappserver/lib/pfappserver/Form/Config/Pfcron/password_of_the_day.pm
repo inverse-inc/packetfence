@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::password_of_the_day;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::password_of_the_day - Web form for password_of_the_day pfmon task
+pfappserver::Form::Config::Pfcron::password_of_the_day - Web form for password_of_the_day pfcron task
 
 =head1 DESCRIPTION
 
-Web form for password_of_the_day pfmon task
+Web form for password_of_the_day pfcron task
 
 =cut
 

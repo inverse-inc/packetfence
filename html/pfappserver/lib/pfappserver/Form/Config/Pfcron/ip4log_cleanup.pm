@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::ip4log_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::ip4log_cleanup - Web form for ip4log_cleanup pfmon task
+pfappserver::Form::Config::Pfcron::ip4log_cleanup - Web form for ip4log_cleanup pfcron task
 
 =head1 DESCRIPTION
 
-Web form for ip4log_cleanup pfmon task
+Web form for ip4log_cleanup pfcron task
 
 =cut
 

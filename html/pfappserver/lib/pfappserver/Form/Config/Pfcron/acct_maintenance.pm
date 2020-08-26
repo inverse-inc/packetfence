@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::acct_maintenance;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::acct_maintenance - Web form for acct_maintenance pfmon task
+pfappserver::Form::Config::Pfcron::acct_maintenance - Web form for acct_maintenance pfcron task
 
 =head1 DESCRIPTION
 
-Web form for acct_maintenance pfmon task
+Web form for acct_maintenance pfcron task
 
 =cut
 

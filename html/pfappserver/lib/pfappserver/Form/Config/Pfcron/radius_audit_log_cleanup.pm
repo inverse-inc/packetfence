@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::radius_audit_log_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::radius_audit_log_cleanup - Web form for radius_audit_log_cleanup pfmon task
+pfappserver::Form::Config::Pfcron::radius_audit_log_cleanup - Web form for radius_audit_log_cleanup pfcron task
 
 =head1 DESCRIPTION
 
-Web form for radius_audit_log_cleanup pfmon task
+Web form for radius_audit_log_cleanup pfcron task
 
 =cut
 

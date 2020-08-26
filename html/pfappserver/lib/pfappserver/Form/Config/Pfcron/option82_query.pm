@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::option82_query;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::option82_query - Web form for option82_query pfmon task
+pfappserver::Form::Config::Pfcron::option82_query - Web form for option82_query pfcron task
 
 =head1 DESCRIPTION
 
-Web form for option82_query pfmon task
+Web form for option82_query pfcron task
 
 =cut
 

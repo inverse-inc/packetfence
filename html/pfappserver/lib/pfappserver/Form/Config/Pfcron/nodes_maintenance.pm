@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::nodes_maintenance;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::nodes_maintenance - Web form for nodes_maintenance pfmon task
+pfappserver::Form::Config::Pfcron::nodes_maintenance - Web form for nodes_maintenance pfcron task
 
 =head1 DESCRIPTION
 
-Web form for nodes_maintenance pfmon task
+Web form for nodes_maintenance pfcron task
 
 =cut
 

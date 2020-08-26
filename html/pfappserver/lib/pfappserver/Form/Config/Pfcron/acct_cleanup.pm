@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::acct_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::acct_cleanup - Web form for acct_cleanup pfmon task
+pfappserver::Form::Config::Pfcron::acct_cleanup - Web form for acct_cleanup pfcron task
 
 =head1 DESCRIPTION
 
-Web form for acct_cleanup pfmon task
+Web form for acct_cleanup pfcron task
 
 =cut
 

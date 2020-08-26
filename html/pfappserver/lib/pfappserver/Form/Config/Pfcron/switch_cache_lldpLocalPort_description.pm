@@ -6,7 +6,7 @@ pfappserver::Form::Config::Pfcron::switch_cache_lldpLocalPort_description
 
 =head1 DESCRIPTION
 
-Web form for switch_cache_lldpLocalPort_description pfmon task
+Web form for switch_cache_lldpLocalPort_description pfcron task
 
 =cut
 

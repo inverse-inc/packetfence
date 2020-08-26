@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::cluster_check;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::cluster_check - Web form for cluster_check pfmon task
+pfappserver::Form::Config::Pfcron::cluster_check - Web form for cluster_check pfcron task
 
 =head1 DESCRIPTION
 
-Web form for cluster_check pfmon task
+Web form for cluster_check pfcron task
 
 =cut
 

@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::fingerbank_data_update;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::fingerbank_data_update - Web form for fingerbank_data_update pfmon task
+pfappserver::Form::Config::Pfcron::fingerbank_data_update - Web form for fingerbank_data_update pfcron task
 
 =head1 DESCRIPTION
 
-Web form for fingerbank_data_update pfmon task
+Web form for fingerbank_data_update pfcron task
 
 =cut
 

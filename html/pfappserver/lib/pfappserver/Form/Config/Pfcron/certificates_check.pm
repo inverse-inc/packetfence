@@ -6,7 +6,7 @@ pfappserver::Form::Config::Pfcron::certificates_check
 
 =head1 DESCRIPTION
 
-Web form for certificates_check pfmon task
+Web form for certificates_check pfcron task
 
 =cut
 

@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::bandwidth_maintenance;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::bandwidth_maintenance - Web form for bandwidth_maintenance pfmon task
+pfappserver::Form::Config::Pfcron::bandwidth_maintenance - Web form for bandwidth_maintenance pfcron task
 
 =head1 DESCRIPTION
 
-Web form for bandwidth_maintenance pfmon task
+Web form for bandwidth_maintenance pfcron task
 
 =cut
 

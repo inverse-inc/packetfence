@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache - Web form for populate_ntlm_redis_cache pfmon task
+pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache - Web form for populate_ntlm_redis_cache pfcron task
 
 =head1 DESCRIPTION
 
-Web form for populate_ntlm_redis_cache pfmon task
+Web form for populate_ntlm_redis_cache pfcron task
 
 =cut
 

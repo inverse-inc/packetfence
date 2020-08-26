@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::inline_accounting_maintenance;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::inline_accounting_maintenance - Web form for inline_accounting_maintenance pfmon task
+pfappserver::Form::Config::Pfcron::inline_accounting_maintenance - Web form for inline_accounting_maintenance pfcron task
 
 =head1 DESCRIPTION
 
-Web form for inline_accounting_maintenance pfmon task
+Web form for inline_accounting_maintenance pfcron task
 
 =cut
 

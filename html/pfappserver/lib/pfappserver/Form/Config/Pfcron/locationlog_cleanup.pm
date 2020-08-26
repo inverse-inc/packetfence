@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::locationlog_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::locationlog_cleanup - Web form for locationlog_cleanup pfmon task
+pfappserver::Form::Config::Pfcron::locationlog_cleanup - Web form for locationlog_cleanup pfcron task
 
 =head1 DESCRIPTION
 
-Web form for locationlog_cleanup pfmon task
+Web form for locationlog_cleanup pfcron task
 
 =cut
 

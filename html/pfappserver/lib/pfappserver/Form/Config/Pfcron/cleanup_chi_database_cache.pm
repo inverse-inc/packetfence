@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache - Web form for cleanup_chi_database_cache pfmon task
+pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache - Web form for cleanup_chi_database_cache pfcron task
 
 =head1 DESCRIPTION
 
-Web form for cleanup_chi_database_cache pfmon task
+Web form for cleanup_chi_database_cache pfcron task
 
 =cut
 
