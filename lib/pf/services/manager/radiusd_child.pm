@@ -1310,7 +1310,7 @@ EOT
                         &MS-CHAP-Use-NTLM-Auth := No
                     }
                 }
-	    }
+            }
 EOT
             my $of = 'elsif';
         }
