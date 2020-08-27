@@ -40,6 +40,14 @@ has_field 'notes' =>
    label => 'Description',
    required => 0,
   );
+
+has_field 'parent' =>
+  (
+   type => 'Text',
+   label => 'Parent',
+   required => 0,
+  );
+
 has_field 'max_nodes_per_pid' =>
   (
    type => 'PosInteger',
