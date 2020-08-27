@@ -1,0 +1,122 @@
+name: Run configurator step 1
+version: 2
+testcases:
+# get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)
+- name: get_name_of_dhcp_listener_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.dhcp_listener.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      dhcp_listener_interface:
+        from: result.systemout
+
+- name: configure_dhcp_listener_int
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ipaddress": "{{.configurator.interfaces.dhcp_listener.ip}}",
+        "netmask": "{{.configurator.interfaces.dhcp_listener.netmask}}",
+        "type": "dhcp-listener"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: get_name_of_mgmt_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.mgmt.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      mgmt_interface:
+        from: result.systemout
+
+- name: configure_mgmt_int
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_mgmt_int.mgmt_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ipaddress": "{{.configurator.interfaces.mgmt.ip}}",
+        "netmask": "{{.configurator.interfaces.mgmt.netmask}}",
+        "type": "management",
+        "additional_listening_daemons": ["portal"]
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: get_name_of_reg_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.reg.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      reg_interface:
+        from: result.systemout
+
+- name: configure_registration_int
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_reg_int.reg_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ipaddress": "{{.configurator.interfaces.reg.ip}}",
+        "netmask": "{{.configurator.interfaces.reg.netmask}}",
+        "type": "vlan-registration",
+        "dhcpd_enabled": "{{.configurator.interfaces.reg.dhcpd_enabled}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: get_name_of_iso_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.iso.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      iso_interface:
+        from: result.systemout
+
+- name: configure_isolation_int
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_iso_int.iso_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ipaddress": "{{.configurator.interfaces.iso.ip}}",
+        "netmask": "{{.configurator.interfaces.iso.netmask}}",
+        "type": "vlan-isolation",
+        "dhcpd_enabled": "{{.configurator.interfaces.iso.dhcpd_enabled}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+
+- name: configure_dns_servers
+  steps:
+  - type: http
+    method: PUT
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/system/dns_servers'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "dns_servers": ["{{.configurator.dns.primary_ip}}", "{{.configurator.dns.secondary_ip}}"]
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

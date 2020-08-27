@@ -15,7 +15,7 @@ install:
 # a token to perform actions so there is no dependency to setup test suite
 .PHONY: configurator
 configurator:
-	./venom-wrapper.sh $(PFSERVERS_DIR)/pfservers/configurator
+	./venom-wrapper.sh $(PFSERVERS_DIR)/configurator
 
 # test is the entrypoint: all test suites should be referenced as target dependency
 # if setup is a dependency to test target, putting setup as a dependency to other

@@ -4,8 +4,13 @@
 ################################################################################
 # Variables assigned based on environment variables
 venom_result_dir: '{{.VENOM_RESULT_DIR}}'
+internet_int_ip: '{{.INTERNET_INT_IP}}'
+internet_int_netmask: '{{.INTERNET_INT_MASK}}'
 pfserver_token: '{{.TOKEN}}'
 pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
+pfserver_mgmt_netmask: '{{.PF_TEST_MGMT_MASK}}'
+smtp_server: '{{.MAILHOG_SMTP_SERVER_IP}}'
+smtp_port: '{{.MAILHOG_SMTP_PORT}}'
 
 # ssh executor variables
 ssh_user: vagrant
@@ -122,37 +127,33 @@ wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
 configurator.hostmame_machine: 
 
 # Interface dhcp-listener
-configurator.dhcp_listener.interface:
-configurator.dhcp_listener.mac:
-configurator.dhcp_listener.ip:
-configurator.dhcp_listener.mask:
+configurator.interfaces.dhcp_listener.index: 2
+configurator.interfaces.dhcp_listener.ip: '{{.internet_int_ip}}'
+configurator.interfaces.dhcp_listener.netmask: '{{.internet_int_netmask}}'
 
-# Interface management
-configurator.management.interface:  
-configurator.management.interface.ip.and.mask: 
-configurator.management.mac: 
-configurator.management.ip: 
-configurator.management.mask: 
-configurator.management.network.ip: 
+# Interface mgmt
+configurator.interfaces.mgmt.index: 3
+configurator.interfaces.mgmt.ip: '{{.pfserver_mgmt_ip}}'
+configurator.interfaces.mgmt.netmask: '{{.pfserver_mgmt_netmask}}'
 
 # Interface registration
-configurator.registration.interface: 
-configurator.registration.mac: 
-configurator.registration.ip: 
-configurator.registration.mask:
+configurator.interfaces.reg.index: 4
+configurator.interfaces.reg.ip: 172.17.2.2
+configurator.interfaces.reg.netmask: 255.255.255.0
+configurator.interfaces.reg.dhcpd_enabled: enabled
 
 # Interface isolation
-configurator.isolation.interface: 
-configurator.isolation.mac: 
-configurator.isolation.ip: 
-configurator.isolation.mask: 
+configurator.interfaces.iso.index: 5
+configurator.interfaces.iso.ip: 172.17.3.2
+configurator.interfaces.iso.netmask: 255.255.255.0
+configurator.interfaces.iso.dhcpd_enabled: enabled
 
 # Gateway
 configurator.gateway: 
 
 # Configurator dns
-configurator.dns.ip: 8.8.8.8
-configurator.dns_aux.ip: 172.17.17.100
+configurator.dns.primary_ip: 8.8.8.8
+configurator.dns.secondary_ip: '{{.ad_mgmt_ip}}'
 
 # Create root password
 configurator.root_password: 
