@@ -246,11 +246,11 @@ match=DESYNCED
 statsd_ns=source.packetfence.mariadb_error_log.desynced
 management=false
 
-[metric 'Events in pfmon.log']
+[metric 'Events in pfcron.log']
 type=tail_file
-file=/usr/local/pf/logs/pfmon.log
+file=/usr/local/pf/logs/pfcron.log
 match=ERROR,WARNING
-statsd_ns=source.packetfence.pfmon_log.error,source.packetfence.pfmon_log.warning
+statsd_ns=source.packetfence.pfcron_log.error,source.packetfence.pfcron_log.warning
 management=false
 
 [metric 'Events in fingerbank.log']
