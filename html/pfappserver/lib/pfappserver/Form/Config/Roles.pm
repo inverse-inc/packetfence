@@ -12,7 +12,10 @@ Form definition to create or update a role.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use HTTP::Status qw(:constants is_success);
 
@@ -43,7 +46,8 @@ has_field 'notes' =>
 
 has_field 'parent' =>
   (
-   type => 'Text',
+   type => 'Select',
+   options_method => \&options_parent,
    label => 'Parent',
    required => 0,
   );
@@ -74,6 +78,16 @@ sub validate {
     }
 }
 
+=head2 options_parent
+
+=cut
+
+sub options_parent {
+    my $self = shift;
+    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+    return @roles;
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2020 Inverse inc.
@@ -98,4 +112,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
