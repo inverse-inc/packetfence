@@ -1,13 +1,35 @@
-name: step2 database-general-and-alerting 
+name: Run configurator step 2
 version: 2
 testcases:
-- name: step2_check_mariadb_running
+- name: start_mariadb
   steps:
-  - script: 'systemctl status packetfence-mariadb'
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-mariadb/start'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
     assertions:
-      - result.code ShouldEqual 0  
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Service has been started"
 
-- name: step2_create_root_password_account
+- name: check_mariadb_connection
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/test'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "username": "{{.configurator.db.users.root.id}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Successfully connected to the database mysql with user {{.configurator.db.users.root.id}}"
+
+- name: secure_installation
   steps:
   - type: http
     method: POST
@@ -15,13 +37,16 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "password": "{{.configurator.root_password}}",
-        "username": "root"
+        "username": "{{.configurator.db.users.root.id}}",
+        "password": "{{.configurator.db.users.root.password}}"
       }
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Successfully secured mysql installation"
 
-- name: step2_create_db_pf
+- name: create_pf_db
   steps:
   - type: http
     method: POST
@@ -29,14 +54,17 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "database": "{{.configurator.database.name}}",
-        "password": "{{.configurator.pf_password}}",
-        "username": "root"
+        "database": "{{.configurator.db.name}}",
+        "username": "{{.configurator.db.users.root.id}}",
+        "password": "{{.configurator.db.users.root.password}}"
       }
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Created database and loaded the schema"
 
-- name: step2_create_db_user_pf
+- name: create_user_pf
   steps:
   - type: http
     method: POST
@@ -44,27 +72,50 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "database": "{{.configurator.database.name}}",
-        "pf_password": "{{.configurator.pf_password}}",
-        "pf_username": "pf",
-        "root_password": "{{.configurator.root_password}}",
-        "root_username": "root"
+        "database": "{{.configurator.db.name}}",
+        "pf_username": "{{.configurator.db.users.pf.id}}",
+        "pf_password": "{{.configurator.db.users.pf.password}}",
+        "root_username": "{{.configurator.db.users.root.id}}",
+        "root_password": "{{.configurator.db.users.root.password}}"
       }
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Granted rights to user and adjusted the configuration"
+
+- name: config_database
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "db": "{{.configurator.db.name}}",
+        "user": "{{.configurator.db.users.pf.id}}",
+        "pass": "{{.configurator.db.users.pf.password}}",
+        "root_username": "{{.configurator.db.users.root.id}}",
+        "root_pass": "{{.configurator.db.users.root.password}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
 
 - name: Check_entry
   steps:
     - type: sql
       driver: mysql
-      dsn: root:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
+      dsn: {{.configurator.db.users.root.id}}:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
       commands:
         - "SELECT * FROM password;"
       assertions:
-        - result.queries.queries0.rows.rows0.pid ShouldEqual root
+        - result.queries.queries0.rows.rows0.pid ShouldEqual {{.configurator.db.users.root.id}}
 
 
-- name: step2_alerting
+- name: config_alerting
   steps:
   - type: http
     method: PATCH
@@ -74,15 +125,17 @@ testcases:
       { 
         "emailaddr": "{{.configurator.email}}",
         "fromaddr": "{{.configurator.from_email}}",
-        "id": "alerting",
         "smtp_encryption": "none",
-        "smtp_port": "{{.configurator.smtp_port}}",
+        "smtp_port": "{{.smtp_port}}",
         "smtp_verifyssl": "enabled",
-        "smtpserver": "{{.configurator.smtp_server}}",
+        "smtpserver": "{{.smtp_server}}",
         "test_emailaddr": "{{.configurator.email}}"
       }
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
 
 - name: step2_testmail
   steps:
@@ -94,15 +147,18 @@ testcases:
       {
         "emailaddr": "{{.configurator.email}}",
         "fromaddr": "{{.configurator.from_email}}",
-        "id": "alerting",
         "smtp_encryption": "none",
         "smtp_port": "{{.configurator.smtp_port}}",
         "smtp_verifyssl": "enabled",
         "smtpserver": "{{.configurator.smtp_server}}",
         "test_emailaddr": "{{.configurator.email}}"
       }
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+
+# FIXME: MailHog API call
 
 - name: step2_general
   steps:
@@ -112,12 +168,12 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "dhcpservers": "127.0.0.1",
         "domain": "{{.configurator.domain}}",
-        "hostname": "{{.configurator.hostmame_machine}}",
-        "id": "general",
+        "hostname": "{{.configurator.hostname}}",
         "timezone": "UTC"
       }
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
       
@@ -127,6 +183,8 @@ testcases:
     method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-mariadb/restart'
     ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
 
@@ -142,6 +200,8 @@ testcases:
         "pid": "admin",
         "valid_from": "{{.configurator.admin.valid_from}}"
       }
+    headers:
+      "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
 
@@ -149,7 +209,7 @@ testcases:
   steps:
     - type: sql
       driver: mysql
-      dsn: root:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
+      dsn: {{.configurator.db.users.root.id}}:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
       commands:
         - "SELECT * FROM password;"
       assertions:

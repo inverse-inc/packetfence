@@ -123,9 +123,7 @@ wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
 ################################################################################
 # Configurator variables
 ################################################################################
-#Hostmame machine
-configurator.hostmame_machine: 
-
+### Step 1
 # Interface dhcp-listener
 configurator.interfaces.dhcp_listener.index: 2
 configurator.interfaces.dhcp_listener.ip: '{{.internet_int_ip}}'
@@ -148,34 +146,31 @@ configurator.interfaces.iso.ip: 172.17.3.2
 configurator.interfaces.iso.netmask: 255.255.255.0
 configurator.interfaces.iso.dhcpd_enabled: enabled
 
-# Gateway
-configurator.gateway: 
-
-# Configurator dns
+# DNS servers
 configurator.dns.primary_ip: 8.8.8.8
 configurator.dns.secondary_ip: '{{.ad_mgmt_ip}}'
 
-# Create root password
-configurator.root_password: 
-
-# Create pf account password
-configurator.pf_password: 
-
+### Step 2
 # Database
-configurator.database.name:
+configurator.db.users.root.id: root
+configurator.db.users.root.password: ebjiatKeygId
+configurator.db.users.pf.id: pf
+configurator.db.users.pf.password: AkuddIgTatzu
+configurator.db.name: pf
 
 # Alerting
-configurator.email: 
-configurator.from_email: 
-configurator.smtp_server:
-configurator.smtp_port:
+configurator.email: 'mailhog@{{.ad_dns_domain}}'
+configurator.from_email: 'packetfence@{{.ad_dns_domain}}'
+configurator.smtp.server: '{{.smtp_server}}'
+configurator.smtp.port: '{{.smtp_port}}'
 
 # General
-configurator.domain: example.lan
+configurator.domain: '{{.ad_dns_domain}}'
+configurator.hostname: packetfence
 
 # Admin account
-configurator.admin_password: 
-configurator.admin.valid_from: 2020-05-22 09:51:52
+configurator.admin.password: secret
+configurator.admin.valid_from: 1970-01-01 00:00:00
 
 # Fingerbank
 configurator.fingerbank.key: 
