@@ -5,24 +5,20 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <form-group-identifier
-      namespace="id"
+    <form-group-identifier namespace="id"
+      :column-label="$i18n.t('Name')"
       :disabled="!isNew && !isClone"
     />
 
-    <form-group-notes
-      namespace="notes"
+    <form-group-notes namespace="notes"
+      :column-label="$i18n.t('Description')"
     />
 
-    <form-group-max-nodes-per-pid
-      namespace="max_nodes_per_pid"
+    <form-group-max-nodes-per-pid namespace="max_nodes_per_pid"
+      type="number"
+      :column-label="$i18n.t('Max nodes per user')"
+      :text="$i18n.t('The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.')"
     />
-
-    <pre>{{ form }}</pre>
-    <pre>{{ meta }}</pre>
-    <!--
-    <pre>{{ schema }}</pre>
-    -->
 
   </base-form>
 </template>
@@ -30,12 +26,12 @@
 import {
   BaseForm
 } from '@/components/new/'
+import schema from '../schema'
 import {
-  schema,
   FormGroupIdentifier,
   FormGroupMaxNodesPerPid,
   FormGroupNotes
-} from '../'
+} from './'
 
 export const props = {
   form: {

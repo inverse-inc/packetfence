@@ -4,7 +4,7 @@ import yup from '@/utils/yup'
 export default yup.object().shape({
   id: yup.string()
     .nullable()
-    .required(i18n.t('Identifier required.')),
+    .required(i18n.t('Name required.')),
 
   notes: yup.string()
     .nullable(),

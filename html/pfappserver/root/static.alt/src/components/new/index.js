@@ -5,22 +5,7 @@ import BaseFormGroupInput, { props as BaseFormGroupInputProps } from '@/componen
 import BaseInput from './BaseInput'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputGroup from './BaseInputGroup'
-
-const mergeProps = (...collections) => {
-  return collections.reduce((props, collection) => {
-    Object.keys(collection).forEach(key => {
-      let prop = collection[key]
-      let normalized = (prop.constructor === String)
-        ? { default: prop }
-        : prop
-      if (key in props)
-        props[key] = { ...props[key], ...normalized }
-      else
-        props[key] = normalized
-    })
-    return props
-  }, {})
-}
+import { mergeProps } from './utils'
 
 export {
   // form
