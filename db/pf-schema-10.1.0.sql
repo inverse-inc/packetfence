@@ -145,6 +145,18 @@ INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to block access)");
 
 --
+-- Insert 'User' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("Users","Placeholder role/category, feel free to edit");
+
+--
+-- Insert 'Machine' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role/category, feel free to edit");
+
+--
 -- Table structure for table `node`
 --
 
