@@ -1,13 +1,17 @@
 ---
+# custom variables, not defined in mailhog role
+# to be used by Venom tests and in iptables.conf
+mailhog__smtp_port: 2525
+mailhog__api_port: 8025
 
 mailhog__env_vars:
 
   # Listen on port different than 1025 to avoid conflict with HAProxy
   - name: "MH_SMTP_BIND_ADDR"
-    value: "{{ packetfence_install__mgmt_interface['ip'] }}:2525"
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}:{{ mailhog__smtp_port }}"
 
   - name: "MH_API_BIND_ADDR"
-    value: "{{ packetfence_install__mgmt_interface['ip'] }}:8025"
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}:{{ mailhog__api_port }}"
 
   - name: "MH_UI_BIND_ADDR"
-    value: "{{ packetfence_install__mgmt_interface['ip'] }}:8025"
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}:{{ mailhog__api_port }}"

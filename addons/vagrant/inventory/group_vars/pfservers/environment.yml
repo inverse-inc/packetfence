@@ -21,3 +21,13 @@ environment__group_variables:
   - name: 'PSONO_CI_API_SECRET_KEY_HEX'
     value: '{{ lookup("env", "PSONO_CI_API_SECRET_KEY_HEX") }}'
 
+  # add some MailHog environment variables in /etc/environment to used it
+  # with Venom
+  - name: 'MAILHOG_SMTP_SERVER'
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}"
+
+  - name: 'MAILHOG_SMTP_PORT'
+    value: '{{ mailhog__smtp_port }}'
+
+  - name: 'MAILHOG_API_PORT'
+    value: '{{ mailhog__api_port }}'

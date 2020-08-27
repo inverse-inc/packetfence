@@ -35,8 +35,8 @@
         path: "{{ packetfence_install__conf_dir }}/iptables.conf"
         block: |
           # allow MailHog (SMTP and web interface) on management interface
-          -A input-management-if --protocol tcp --match tcp --dport 2525 --jump ACCEPT
-          -A input-management-if --protocol tcp --match tcp --dport 8025 --jump ACCEPT
+          -A input-management-if --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT
+          -A input-management-if --protocol tcp --match tcp --dport {{ mailhog__api_port }} --jump ACCEPT
         marker: "# {mark} ANSIBLE MANAGED BLOCK - mailhog"
         # insertafter Syslog rule
         insertafter: "-A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT"
