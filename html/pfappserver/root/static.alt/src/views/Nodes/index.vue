@@ -101,15 +101,18 @@ export default {
   created () {
     this.$store.dispatch('config/getRoles')
     if (this.$can('master', 'tenant')) {
-      this.$store.dispatch('config/getSwitchGroups').then(switchGroups => {
-        switchGroups.map((switchGroup, index) => {
-          let { id, description, members = [] } = switchGroup
-          members = members.map(member => {
-            const { id, description } = member
-            return { id, description }
-          })
-          this.$set(this.switchGroupsMembers, index, { id, description, members })
-        })
+      this.$store.dispatch('config/getSwitches').then(switches => {
+        this.$set(this, 'switchGroupsMembers', switches.reduce((groups, switche) => {
+          const { group = 'Default', id, description } = switche
+          const groupIndex = groups.findIndex(g => g.id === group)
+          if (groupIndex > -1) {
+            groups[groupIndex].members.push({ id, description })
+          }
+          else {
+            groups.push({ id: group, members: [{ id, description }] })
+          }
+          return groups
+        }, []))
       })
     }
   }
