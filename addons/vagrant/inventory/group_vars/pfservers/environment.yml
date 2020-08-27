@@ -23,7 +23,7 @@ environment__group_variables:
 
   # add some MailHog environment variables in /etc/environment to used it
   # with Venom
-  - name: 'MAILHOG_SMTP_SERVER'
+  - name: 'MAILHOG_SMTP_SERVER_IP'
     value: "{{ packetfence_install__mgmt_interface['ip'] }}"
 
   - name: 'MAILHOG_SMTP_PORT'
@@ -31,3 +31,11 @@ environment__group_variables:
 
   - name: 'MAILHOG_API_PORT'
     value: '{{ mailhog__api_port }}'
+
+  # to be used by Venom during configurator
+  - name: 'INTERNET_INT_IP'
+    value: "{{ ansible_default_ipv4['address'] }}"
+
+  - name: 'INTERNET_INT_MASK'
+    value: "{{ ansible_default_ipv4['netmask'] }}"
+  
