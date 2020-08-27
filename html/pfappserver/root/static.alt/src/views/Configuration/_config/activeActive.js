@@ -89,7 +89,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Conflict resolution threshold'),
-          text: i18n.t('Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.'),
+          text: i18n.t('Defines the amount of seconds after which pfcron attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.'),
           cols: [
             {
               namespace: 'conflict_resolution_threshold.interval',

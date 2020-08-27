@@ -18,7 +18,7 @@ export const view = (form = {}, meta = {}) => {
       rows: [
         {
           label: i18n.t('Accounting'),
-          text: i18n.t('Should we handle accouting data for inline clients? This controls inline accouting tasks in pfmon.'),
+          text: i18n.t('Should we handle accouting data for inline clients? This controls inline accouting tasks in pfcron.'),
           cols: [
             {
               namespace: 'accounting',
@@ -31,7 +31,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Accounting session timeout'),
-          text: i18n.t(`Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfmon runs Defaults to 300 - 5 minutes.`),
+          text: i18n.t(`Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfcron runs Defaults to 300 - 5 minutes.`),
           cols: [
             {
               namespace: 'layer3_accounting_session_timeout',
@@ -42,7 +42,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Accounting sync interval'),
-          text: i18n.t('Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds.'),
+          text: i18n.t('Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfcron runs. Defaults to 41 seconds.'),
           cols: [
             {
               namespace: 'layer3_accounting_sync_interval',

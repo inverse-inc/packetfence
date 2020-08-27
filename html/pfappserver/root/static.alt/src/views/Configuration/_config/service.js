@@ -335,11 +335,11 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: 'pfmon',
-          text: i18n.t(`Should pfmon be started? Keep enabled unless you know what you're doing.`),
+          label: 'pfcron',
+          text: i18n.t(`Should pfcron be started? Keep enabled unless you know what you're doing.`),
           cols: [
             {
-              namespace: 'pfmon',
+              namespace: 'pfcron',
               component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }

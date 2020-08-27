@@ -196,7 +196,7 @@ export const viewFields = {
   interval: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Interval'),
-      text: i18n.t('Interval (frequency) at which the task is executed.\nRequires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.'),
+      text: i18n.t('Interval (frequency) at which the task is executed.\nRequires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.'),
       cols: [
         {
           namespace: 'interval.interval',
@@ -293,7 +293,7 @@ export const viewFields = {
   status: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Enabled'),
-      text: i18n.t('Whether or not this task is enabled.\nRequires a restart of pfmon to be effective.'),
+      text: i18n.t('Whether or not this task is enabled.\nRequires a restart of pfcron to be effective.'),
       cols: [
         {
           namespace: 'status',
