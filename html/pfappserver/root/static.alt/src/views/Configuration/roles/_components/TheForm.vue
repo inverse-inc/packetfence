@@ -42,7 +42,7 @@ export const props = {
   },
   schema: {
     type: Object,
-    default: () => (schema)
+    default: () => schema
   },
   isNew: {
     type: Boolean,

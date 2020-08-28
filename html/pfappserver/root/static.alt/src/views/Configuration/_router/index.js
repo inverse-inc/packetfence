@@ -44,7 +44,7 @@ import WrixLocationsStore from '../_store/wrixLocations'
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
-const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoleView')
+const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../roles/_components/TheView')
 const DomainsTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
 const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainView')
 const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RealmView')

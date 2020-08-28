@@ -1,12 +1,10 @@
-import { onMounted, onBeforeDestroy, ref } from '@vue/composition-api'
-import { unwrap } from '@/composables/utils'
+import { onMounted, onBeforeUnmount, ref } from '@vue/composition-api'
 
-export default function useEvent(el = ref(document), name, handler) {
-  el = unwrap(el)
-  const remove = () => el && el.removeEventListener(name, handler)
+export default function useEvent(name, handler, el = ref(document)) {
+  const remove = () => el.value && el.value.removeEventListener(name, handler)
 
-  onMounted(() => el && el.addEventListener(name, handler))
-  onBeforeDestroy(remove)
+  onMounted(() => el.value && el.value.addEventListener(name, handler))
+  onBeforeUnmount(remove)
 
   return remove
 }

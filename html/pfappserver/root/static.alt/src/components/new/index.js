@@ -1,5 +1,6 @@
 import BaseArray from './BaseArray'
 import BaseForm from './BaseForm'
+import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup, { props as BaseFormGroupProps } from './BaseFormGroup'
 import BaseFormGroupInput, { props as BaseFormGroupInputProps } from '@/components/new/BaseFormGroupInput'
 import BaseInput from './BaseInput'
@@ -10,6 +11,7 @@ import { mergeProps } from './utils'
 export {
   // form
   BaseForm,
+  BaseFormButtonBar,
 
   // form group
   BaseFormGroup, BaseFormGroupProps,
