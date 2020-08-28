@@ -464,9 +464,9 @@ sub can_delete {
 
 sub remove {
     my ($self) = @_;
-    my ($status, $msg) = $self->can_delete();
+    my ($status, $msg, $errors) = $self->can_delete();
     if (is_error($status)) {
-        return $self->render_error($status, $msg);
+        return $self->render_error($status, $msg, $errors);
     }
 
     my $id = $self->id;

@@ -54,28 +54,29 @@ sub can_delete_from_config {
 }
 
 my $CAN_DELETE_FROM_DB_SQL = <<SQL;
-SELECT count(*) from node_category
-WHERE
-    name = ? AND
-    (
-        EXISTS (SELECT mac from node WHERE node.category_id = node_category.category_id) OR
-        EXISTS (SELECT mac from node WHERE node.bypass_role_id = node_category.category_id) OR
-        EXISTS (SELECT security_event_id from `class` WHERE `class`.target_category = node_category.name) OR
-        EXISTS (SELECT category from password WHERE password.category = node_category.category_id)
-    );
+SELECT
+    x.node_category_id && x.node_bypass_role_id && x.class_target_category && x.password_category AS `still_in_use`,
+    x.*
+    FROM (
+    SELECT
+        EXISTS (SELECT 1 FROM node, node_category WHERE (node.category_id = node_category.category_id ) AND node_category.name = ? LIMIT 1) as node_category_id,
+        EXISTS (SELECT 1 FROM node, node_category WHERE (node.bypass_role_id = node_category.category_id ) AND node_category.name = ? LIMIT 1) as node_bypass_role_id,
+        EXISTS (SELECT 1 FROM `class`, node_category WHERE `class`.target_category = ? LIMIT 1 ) as class_target_category,
+        EXISTS (SELECT 1 FROM password, node_category WHERE password.category = node_category.category_id AND node_category.name = ? LIMIT 1) as password_category
+) AS x;
 SQL
 
 sub can_delete_from_db {
     my ($self) = @_;
     my $id = $self->id;
-    my ($status, $sth) = pf::dal::node_category->db_execute($CAN_DELETE_FROM_DB_SQL, $id);
+    my ($status, $sth) = pf::dal::node_category->db_execute($CAN_DELETE_FROM_DB_SQL, $id, $id, $id, $id);
     if (is_error($status)) {
         return ($status, "Unable to check role in the database");
     }
 
-    my ($count) = $sth->fetchrow_array();
+    my $role_data = $sth->fetchrow_hashref;
     $sth->finish;
-    if ($count) {
+    if ($role_data->{still_in_use}) {
         return (422, 'Role still in use');
     }
 
