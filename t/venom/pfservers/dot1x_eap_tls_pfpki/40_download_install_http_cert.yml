@@ -1,20 +1,40 @@
-name: Download the RADIUS certificate
+name: Download and install the HTTP certificate for the portal + the web admin
 version: 2
 testcases:
-- name: download_radius_cert
+- name: create_temp_directory
   steps:
-  - type: http
-    method: GET
-    url: 'http://127.0.0.1:22225/api/v1/pki/cert/2/download/qwerty123'
-    ignore_verify_ssl: true
-    assertions:
-      - result.statuscode ShouldEqual 200
-    vars:
-      key:
-        from: result.bodyjson.key
+    - type: exec
+      script: "mktemp -d"
+      vars:
+        temp_dir:
+          from: result.systemout
 
+- name: download_p12_file
+  steps:
+  - type: exec
+    script: "curl -k --output {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.p12 http://127.0.0.1:22225/api/v1/pki/cert/4/download/secret"
 
-#- name: write-pfx-to-file
-#  steps:
-#    - type: exec
-#      script: "echo '{{.download_radius_cert.key}}' > {{.venom_result_dir}}/radius.pfx"
+- name: extract_certificates
+  steps:
+  - type: exec
+    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.p12 -nokeys -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.crt -passin pass:secret"
+
+- name: extract_private_key
+  steps:
+  - type: exec
+    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.p12 -nocerts -nodes -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.key -passin pass:secret"
+
+- name: install_http_cert_portal
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.crt {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.key > /usr/local/pf/conf/ssl/server.pem"
+
+- name: install_http_cert_webadmin
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.crt > /usr/local/pf/conf/ssl/server.crt"
+
+- name: install_http_key_webadmin
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.cert.http}}.key > /usr/local/pf/conf/ssl/server.key"
