@@ -91,10 +91,10 @@ sub nodecategory_populate_from_config {
 
 sub _nodecategory_bulk_delete {
     my ($keep) = @_;
-    pf::dal::nodecategory->remove_items(
+    pf::dal::node_category->remove_items(
         -where => {
             name => {
-                -not_in => \$keep,
+                -not_in => $keep,
             },
         }
     );
