@@ -31,14 +31,14 @@ tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLoo
 
 sub can_delete {
     my ($self) = @_;
-    my ($status, $msg, $errors) = $self->can_delete_from_db();
-    if (is_error($status)) {
-        return ($status, $msg, $errors);
+    my ($db_status, $db_msg, $db_errors) = $self->can_delete_from_db();
+    if (is_error($db_status) && !defined $db_errors) {
+        return ($db_status, $db_msg);
     }
 
-    ($status, $msg) = $self->can_delete_from_config();
-    if (is_error($status)) {
-        return ($status, $msg, $errors);
+    my ($config_status, $config_msg, $config_errors) = $self->can_delete_from_config();
+    if (is_error($config_status) || is_error($db_status)) {
+        return (422, 'Role still in use', [ @{$db_errors // []}, @{$config_errors // []} ]  );
     }
 
     return (200, '');
@@ -46,16 +46,24 @@ sub can_delete {
 
 sub can_delete_from_config {
     my ($self) = @_;
-    if (exists $RolesReverseLookup{$self->id}) {
-        return (422, 'Role still in use');
+    my $id = $self->id;
+    if (exists $RolesReverseLookup{$id}) {
+        my @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
+        return (422, 'Role still in use', \@errors);
     }
 
     return (200, '');
 }
 
+sub config_delete_error {
+    my ($name, $namespace) = @_;
+    my $reason = uc($namespace) . "_IN_USE";
+    return { name => $name, message => "Role still in use for $namespace", reason => $reason, status => 422 };
+}
+
 my $CAN_DELETE_FROM_DB_SQL = <<SQL;
 SELECT
-    x.node_category_id && x.node_bypass_role_id && x.password_category AS `still_in_use`,
+    x.node_category_id || x.node_bypass_role_id || x.password_category AS `still_in_use`,
     x.*
     FROM (
     SELECT
@@ -71,6 +79,12 @@ my %IN_USE_MESSAGE = (
     password_category => 'Role is still used by user(s)',
 );
 
+sub db_delete_error {
+    my ($name, $namespace) = @_;
+    my $reason = uc($namespace) . "_IN_USE";
+    return { message => $IN_USE_MESSAGE{$namespace} // "Role still in use", name => $name, reason => $reason, status => 422 };
+}
+
 sub can_delete_from_db {
     my ($self) = @_;
     my $id = $self->id;
@@ -85,7 +99,9 @@ sub can_delete_from_db {
     if ($role_data->{still_in_use}) {
         delete $role_data->{still_in_use};
         for my $key (sort keys %$role_data) {
-            push @errors, { message => $IN_USE_MESSAGE{$key} // "Role still in use", name => $id, reason =>  uc($key) . "_IN_USE", status => 422 };
+            if ($role_data->{$key}) {
+                push @errors, db_delete_error($id, $key);
+            }
         }
 
         return (422, "Role still in use", \@errors);
