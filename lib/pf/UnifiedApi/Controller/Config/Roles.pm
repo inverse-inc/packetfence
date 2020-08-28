@@ -31,14 +31,14 @@ tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLoo
 
 sub can_delete {
     my ($self) = @_;
-    my ($status, $msg) = $self->can_delete_from_db();
+    my ($status, $msg, $errors) = $self->can_delete_from_db();
     if (is_error($status)) {
-        return ($status, $msg);
+        return ($status, $msg, $errors);
     }
 
     ($status, $msg) = $self->can_delete_from_config();
     if (is_error($status)) {
-        return ($status, $msg);
+        return ($status, $msg, $errors);
     }
 
     return (200, '');
@@ -55,29 +55,40 @@ sub can_delete_from_config {
 
 my $CAN_DELETE_FROM_DB_SQL = <<SQL;
 SELECT
-    x.node_category_id && x.node_bypass_role_id && x.class_target_category && x.password_category AS `still_in_use`,
+    x.node_category_id && x.node_bypass_role_id && x.password_category AS `still_in_use`,
     x.*
     FROM (
     SELECT
         EXISTS (SELECT 1 FROM node, node_category WHERE (node.category_id = node_category.category_id ) AND node_category.name = ? LIMIT 1) as node_category_id,
         EXISTS (SELECT 1 FROM node, node_category WHERE (node.bypass_role_id = node_category.category_id ) AND node_category.name = ? LIMIT 1) as node_bypass_role_id,
-        EXISTS (SELECT 1 FROM `class`, node_category WHERE `class`.target_category = ? LIMIT 1 ) as class_target_category,
         EXISTS (SELECT 1 FROM password, node_category WHERE password.category = node_category.category_id AND node_category.name = ? LIMIT 1) as password_category
 ) AS x;
 SQL
 
+my %IN_USE_MESSAGE = (
+    node_category_id => 'Role is still used by node(s) as a role',
+    node_bypass_role_id => 'Role is still used by node(s) as a bypass role',
+    password_category => 'Role is still used by user(s)',
+);
+
 sub can_delete_from_db {
     my ($self) = @_;
     my $id = $self->id;
-    my ($status, $sth) = pf::dal::node_category->db_execute($CAN_DELETE_FROM_DB_SQL, $id, $id, $id, $id);
+    my ($status, $sth) = pf::dal::node_category->db_execute($CAN_DELETE_FROM_DB_SQL, $id, $id, $id);
     if (is_error($status)) {
         return ($status, "Unable to check role in the database");
     }
 
     my $role_data = $sth->fetchrow_hashref;
     $sth->finish;
+    my @errors;
     if ($role_data->{still_in_use}) {
-        return (422, 'Role still in use');
+        delete $role_data->{still_in_use};
+        for my $key (sort keys %$role_data) {
+            push @errors, { message => $IN_USE_MESSAGE{$key} // "Role still in use", name => $id, reason =>  uc($key) . "_IN_USE", status => 422 };
+        }
+
+        return (422, "Role still in use", \@errors);
     }
 
     return (200, '');
