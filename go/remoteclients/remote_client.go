@@ -21,7 +21,7 @@ type RemoteClient struct {
 	UpdatedAt  time.Time
 	TenantId   uint
 	PublicKey  string
-	BypassRole uint
+	CategoryId uint
 }
 
 func GetOrCreateRemoteClient(db *gorm.DB, publicKey string) (*RemoteClient, error) {

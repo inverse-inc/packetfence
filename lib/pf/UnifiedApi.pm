@@ -1931,6 +1931,7 @@ sub setup_api_v1_authentication_routes {
     my ($self, $root) = @_;
     my $route = $root->any("/authentication")->name("api.v1.Authentication");
     $route->any(['POST'] => "/admin_authentication")->to("Authentication#adminAuthentication")->name("api.v1.Authentication.admin_authentication");
+    $route->any(['POST'] => "/role_authentication")->to("Authentication#roleAuthentication")->name("api.v1.Authentication.role_authentication");
     return ;
 }
 

@@ -12,6 +12,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 func (h *WgorchestratorHandler) handleGetServerTime(c *gin.Context) {
@@ -52,6 +53,22 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 
 	db := dbFromContext(c)
 	rc, _ := remoteclients.GetOrCreateRemoteClient(db, c.Query("public_key"))
+
+	username := c.Request.Header.Get("X-PacketFence-Username")
+	categoryId, role, err := h.getRoleForUsername(c, username)
+	if err != nil {
+		log.LoggerWContext(c).Error("Error while communicating with API: " + err.Error())
+		renderError(c, http.StatusInternalServerError, errors.New("Unable to communicate with API to obtain role for your username"))
+		return
+	}
+	if role == "" {
+		renderError(c, http.StatusForbidden, errors.New("Access denied: No role matched for your username"))
+		return
+	} else {
+		log.LoggerWContext(c).Info("Matched role " + role + " for " + username)
+		rc.CategoryId = categoryId
+		db.Save(&rc)
+	}
 
 	c.JSON(http.StatusOK, remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),
@@ -174,4 +191,13 @@ func (h *WgorchestratorHandler) handleGetPrivEvents(c *gin.Context) {
 	} else {
 		renderError(c, http.StatusInternalServerError, errors.New("Unable to find events manager in context"))
 	}
+}
+
+func (h *WgorchestratorHandler) getRoleForUsername(c *gin.Context, username string) (uint, string, error) {
+	var resp struct {
+		CategoryId uint   `json:"category_id"`
+		Role       string `json:"role"`
+	}
+	err := unifiedapiclient.NewFromConfig(c).CallWithBody(c, "POST", "/api/v1/authentication/role_authentication", gin.H{"username": username}, &resp)
+	return resp.CategoryId, resp.Role, err
 }
