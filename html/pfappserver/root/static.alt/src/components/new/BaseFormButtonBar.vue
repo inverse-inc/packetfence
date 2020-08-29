@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootRef">
+  <div>
     <pf-button-save
       :isLoading="formIsLoading"
       class="mr-1"
@@ -40,7 +40,6 @@ export const props = {
 
 export const setup = (props, context) => {
   const {
-    rootRef,
     isClone,
     isNew,
     isLoading,
@@ -53,8 +52,6 @@ export const setup = (props, context) => {
   } = useFormButtonBar(props, context)
 
   return {
-    rootRef,
-
     formIsClone: isClone,
     formIsNew: isNew,
     formIsLoading: isLoading,

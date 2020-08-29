@@ -1,5 +1,5 @@
 <template>
-  <b-form @submit.prevent class="pf-config-view">
+  <b-form @submit.prevent="doSave" ref="rootRef">
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="doClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
@@ -18,6 +18,7 @@
           :isClone="viewIsClone"
           :isLoading="viewIsLoading"
           :isDeletable="isDeletable"
+          :formRef="rootRef"
           @clone="doClone"
           @remove="doRemove"
           @reset="doReset"
@@ -34,9 +35,6 @@ import {
   FormButtonBar,
   TheForm
 } from './'
-import {
-  defaultsFromMeta
-} from '../../_config/'
 import { useView, useViewProps } from '../_composables/useView'
 
 export const props = {  // from router
@@ -46,6 +44,8 @@ export const props = {  // from router
 export const setup = (props, context) => {
 
   const {
+    rootRef,
+
     isClone,
     isNew,
     isLoading,
@@ -63,6 +63,8 @@ export const setup = (props, context) => {
   } = useView(props, context)
 
   return {
+    rootRef,
+
     viewIsClone: isClone,
     viewIsNew: isNew,
     viewIsLoading: isLoading,
@@ -89,22 +91,6 @@ export default {
     TheForm
   },
   props,
-  setup,
-  computed: {
-  /*
-    isLoading () {
-      return this.$store.getters['$_roles/isLoading']
-    },
-*/
-
-    escapeKey () {
-      return this.$store.getters['events/escapeKey']
-    }
-  },
-  watch: {
-    escapeKey (pressed) {
-      if (pressed) this.doClose()
-    }
-  }
+  setup
 }
 </script>

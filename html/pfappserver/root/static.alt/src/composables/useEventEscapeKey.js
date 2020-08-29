@@ -1,14 +1,13 @@
 import { ref } from '@vue/composition-api'
 import useEvent from './useEvent'
 
-export default function useEventActionKey(el = ref(document)) {
-
-  let actionKey = ref(false)
+export default function useEventEscapeKey(el = ref(document)) {
+  let escapeKey = ref(false)
 
   useEvent('keydown', e => {
-    const { ctrlKey = false, metaKey = false, target } = e
-    actionKey.value = (
-      (ctrlKey || metaKey) &&
+    const { target, keyCode } = e
+    escapeKey.value = (
+      keyCode === 27 &&
       (
         !target ||
         document.body.isSameNode(target) ||
@@ -18,10 +17,10 @@ export default function useEventActionKey(el = ref(document)) {
   })
 
   useEvent('keyup', () => {
-    if (!actionKey.value)
+    if (!escapeKey.value)
       return
-    actionKey.value = false
+    escapeKey.value = false
   })
 
-  return actionKey
+  return escapeKey
 }

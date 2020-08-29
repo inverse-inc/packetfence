@@ -1,6 +1,5 @@
-import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { ref, toRefs, unref } from '@vue/composition-api'
 import useEventActionKey from './useEventActionKey'
-import useEvent from './useEvent'
 
 export const useFormButtonBarProps = {
   isClone: {
@@ -14,6 +13,9 @@ export const useFormButtonBarProps = {
   },
   isDeletable: {
     type: Boolean
+  },
+  formRef: {
+    type: HTMLFormElement
   }
 }
 
@@ -23,34 +25,30 @@ export const useFormButtonBar = (props, { emit }) => {
     isClone,
     isNew,
     isLoading,
-    isDeletable
+    isDeletable,
+    formRef
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
-  // template refs
-  const rootRef = ref(null)
-
   // state
-  const actionKey = useEventActionKey(rootRef)
+  const actionKey = useEventActionKey(formRef)
 
-  const onClone = value => emit('clone', unref(actionKey))
-  const onRemove = value => emit('remove', unref(actionKey))
-  const onReset = value => emit('reset', unref(actionKey))
+  const onClone = value => emit('clone', unref(actionKey), value)
+  const onRemove = value => emit('remove', unref(actionKey), value)
+  const onReset = value => emit('reset', unref(actionKey), value)
   const onSave = value => {
     switch (true) {
       case unref(isNew):
-        emit('create', unref(actionKey))
+        emit('create', unref(actionKey), value)
         break
       case unref(isClone):
-        emit('clone', unref(actionKey))
+        emit('clone', unref(actionKey), value)
         break
       default:
-        emit('save', unref(actionKey))
+        emit('save', unref(actionKey), value)
     }
   }
 
   return {
-    rootRef,
-
     isClone,
     isNew,
     isLoading,

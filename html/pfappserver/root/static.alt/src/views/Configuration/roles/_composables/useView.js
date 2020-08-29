@@ -1,5 +1,8 @@
 import { computed, reactive, ref, toRefs, unref, watch } from '@vue/composition-api'
+import useEventEscapeKey from '@/composables/useEventEscapeKey'
+import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
+
 import {
   defaultsFromMeta
 } from '../../_config/'
@@ -23,8 +26,20 @@ export const useView = (props, { root: { $router, $store } = {} } ) => {
     isNew
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
+  // template refs
+  const rootRef = ref(null)
+
+  // state
   let form = ref({})
   let meta = ref({})
+
+  useEventJail(rootRef)
+
+  const escapeKey = useEventEscapeKey(rootRef)
+  watch(escapeKey, escapeKey => {
+    if (escapeKey)
+      doClose()
+  })
 
   const isDeletable = computed(() => {
       if (unref(isNew) || unref(isClone))
@@ -103,6 +118,8 @@ export const useView = (props, { root: { $router, $store } = {} } ) => {
   watch(props, (props) => init(), { deep: true, immediate: true })
 
   return {
+    rootRef,
+
     isClone,
     isNew,
     isLoading,
