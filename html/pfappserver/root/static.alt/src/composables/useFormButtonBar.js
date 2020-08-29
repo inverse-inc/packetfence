@@ -1,4 +1,4 @@
-import { ref, toRefs, unref } from '@vue/composition-api'
+import { computed, ref, toRefs, unref, watchEffect } from '@vue/composition-api'
 import useEventActionKey from './useEventActionKey'
 
 export const useFormButtonBarProps = {
@@ -14,6 +14,9 @@ export const useFormButtonBarProps = {
   isDeletable: {
     type: Boolean
   },
+  isValid: {
+    type: Boolean
+  },
   formRef: {
     type: HTMLFormElement
   }
@@ -26,6 +29,7 @@ export const useFormButtonBar = (props, { emit }) => {
     isNew,
     isLoading,
     isDeletable,
+    isValid,
     formRef
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
@@ -53,6 +57,7 @@ export const useFormButtonBar = (props, { emit }) => {
     isNew,
     isLoading,
     isDeletable,
+    isValid,
     actionKey,
 
     onClone,

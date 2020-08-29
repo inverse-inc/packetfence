@@ -1,4 +1,5 @@
-import { computed, reactive, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { createDebouncer } from 'promised-debounce'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
@@ -52,6 +53,18 @@ export const useView = (props, { root: { $router, $store } = {} } ) => {
 
   const isLoading = $store.getters['$_roles/isLoading']
 
+  const isValid = ref(true)
+  let isValidDebouncer
+  watch([form, meta], () => {
+    isValid.value = false // temporary
+    if (!isValidDebouncer)
+      isValidDebouncer = createDebouncer()
+    isValidDebouncer({
+      handler: () => isValid.value = rootRef.value.querySelectorAll('.is-invalid').length === 0,
+      time: 300
+    })
+  }, { deep: true })
+
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
@@ -72,7 +85,7 @@ export const useView = (props, { root: { $router, $store } = {} } ) => {
     }).catch(() => {
       meta.value = {}
     })
-    if (unref(id)) { // exissting
+    if (unref(id)) { // existing
       $store.dispatch('$_roles/getRole', unref(id)).then(_form => {
         if (unref(isClone))
           _form.id = `${_form.id}-${i18n.t('copy')}`
@@ -115,7 +128,7 @@ export const useView = (props, { root: { $router, $store } = {} } ) => {
     }
   }
 
-  watch(props, (props) => init(), { deep: true, immediate: true })
+  watch(props, () => init(), { deep: true, immediate: true })
 
   return {
     rootRef,
@@ -124,6 +137,7 @@ export const useView = (props, { root: { $router, $store } = {} } ) => {
     isNew,
     isLoading,
     isDeletable,
+    isValid,
 
     titleLabel,
     form,

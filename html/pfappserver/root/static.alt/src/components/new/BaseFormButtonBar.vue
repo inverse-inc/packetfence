@@ -2,6 +2,7 @@
   <div>
     <pf-button-save
       :isLoading="formIsLoading"
+      :disabled="!formIsValid"
       class="mr-1"
       @click="onSave"
     >
@@ -43,6 +44,7 @@ export const setup = (props, context) => {
     isClone,
     isNew,
     isLoading,
+    isValid,
     actionKey,
 
     onClone,
@@ -55,6 +57,7 @@ export const setup = (props, context) => {
     formIsClone: isClone,
     formIsNew: isNew,
     formIsLoading: isLoading,
+    formIsValid: isValid,
     actionKey,
 
     onClone,

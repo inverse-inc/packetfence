@@ -18,6 +18,7 @@
           :isClone="viewIsClone"
           :isLoading="viewIsLoading"
           :isDeletable="isDeletable"
+          :isValid="isValid"
           :formRef="rootRef"
           @clone="doClone"
           @remove="doRemove"
@@ -50,6 +51,7 @@ export const setup = (props, context) => {
     isNew,
     isLoading,
     isDeletable,
+    isValid,
 
     titleLabel,
     form,
@@ -68,6 +70,7 @@ export const setup = (props, context) => {
     viewIsClone: isClone,
     viewIsNew: isNew,
     viewIsLoading: isLoading,
+    isValid,
     isDeletable,
 
     titleLabel,
