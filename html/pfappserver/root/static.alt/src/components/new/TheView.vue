@@ -32,17 +32,15 @@
   </b-form>
 </template>
 <script>
-import {
-  FormButtonBar,
-  TheForm
-} from './'
-import { useView, useViewProps } from '../_composables/useView'
+import { useView, useViewProps } from '@/composables/useView'
 
-export const props = {  // from router
+const components = {}
+
+export const props = {
   ...useViewProps
 }
 
-export const setup = (props, context) => {
+const setup = (props, context) => {
 
   const {
     rootRef,
@@ -89,10 +87,7 @@ export const setup = (props, context) => {
 export default {
   name: 'the-view',
   inheritAttrs: false,
-  components: {
-    FormButtonBar,
-    TheForm
-  },
+  components,
   props,
   setup
 }

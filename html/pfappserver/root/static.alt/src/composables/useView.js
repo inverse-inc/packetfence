@@ -4,9 +4,23 @@ import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
 
-import {
-  defaultsFromMeta
-} from '../../_config/'
+export const defaultsFromMeta = (meta = {}) => {
+  let defaults = {}
+  Object.keys(meta).forEach(key => {
+    if ('properties' in meta[key]) { // handle dot-notation keys ('.')
+      Object.keys(meta[key].properties).forEach(property => {
+        if (!(key in defaults)) {
+          defaults[key] = {}
+        }
+        // default w/ object
+        defaults[key][property] = meta[key].properties[property].default
+      })
+    } else {
+      defaults[key] = meta[key].default
+    }
+  })
+  return defaults
+}
 
 export const useViewProps = {
   id: {
@@ -17,22 +31,30 @@ export const useViewProps = {
   },
   isNew: {
     type: Boolean
+  },
+  titleLabelisNone: {
+    type: Function,
+    default: id => i18n.t('{id}', { id })
+  },
+  titleLabelisClone: {
+    type: Function,
+    default: id => i18n.t('Clone {id}', { id })
+  },
+  titleLabelisNew: {
+    type: Function,
+    default: () => i18n.t('New')
   }
 }
 
-export const useView = (props, { root: { $router, $store } = {} }, options) => {
-
-  const config = {
-    titleLabel: id => i18n.t('{id}', { id }),
-    titleLabelisClone: id => i18n.t('Clone {id}', { id }),
-    titleLabelisNew: () => i18n.t('New'),
-    ...options
-  }
+export const useView = (props, { root: { $router, $store } = {} }) => {
 
   const {
     id,
     isClone,
-    isNew
+    isNew,
+    titleLabelisNone,
+    titleLabelisClone,
+    titleLabelisNew
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // template refs
@@ -76,11 +98,11 @@ export const useView = (props, { root: { $router, $store } = {} }, options) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return config.titleLabel(unref(id))
+        return titleLabelisNone.value(unref(id))
       case unref(isClone):
-        return config.titleLabelisClone(unref(id))
+        return titleLabelisClone.value(unref(id))
       default:
-        return config.titleLabelisNew()
+        return titleLabelisNew.value()
     }
   })
 
