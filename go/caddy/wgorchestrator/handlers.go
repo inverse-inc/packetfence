@@ -52,11 +52,13 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	}
 
 	db := dbFromContext(c)
-	rc, _ := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"))
 
 	username := c.Request.Header.Get("X-PacketFence-Username")
+	var categoryId uint
 	if username != "" {
-		categoryId, role, err := h.getRoleForUsername(c, username)
+		var role string
+		var err error
+		categoryId, role, err = h.getRoleForUsername(c, username)
 		if err != nil {
 			log.LoggerWContext(c).Error("Error while communicating with API: " + err.Error())
 			renderError(c, http.StatusInternalServerError, errors.New("Unable to communicate with API to obtain role for your username"))
@@ -67,12 +69,12 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 			return
 		} else {
 			log.LoggerWContext(c).Info("Matched role " + role + " for " + username)
-			rc.CategoryId = categoryId
-			db.Save(&rc)
 		}
 	} else {
 		log.LoggerWContext(c).Warn("No X-PacketFence-Username in the request. Assuming we're running in test mode.")
 	}
+
+	rc, _ := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), categoryId)
 
 	c.JSON(http.StatusOK, remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),

@@ -26,15 +26,24 @@ type RemoteClient struct {
 	CategoryId uint
 }
 
-func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string) (*RemoteClient, error) {
+func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, categoryId uint) (*RemoteClient, error) {
 	rc := RemoteClient{}
 	db.Where("public_key = ?", publicKey).First(&rc)
 	if rc.PublicKey != publicKey {
 		rc.PublicKey = publicKey
+		rc.CategoryId = categoryId
+		log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has just been created. Publishing its presence.")
 		err := db.Create(&rc).Error
 		publishNewClient(ctx, db, rc)
 		return &rc, err
 	} else {
+		if categoryId != rc.CategoryId {
+			log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has changed role. Publishing its presence.")
+			rc.CategoryId = categoryId
+			db.Save(&rc)
+			publishNewClient(ctx, db, rc)
+		}
+
 		return &rc, nil
 	}
 }
@@ -70,6 +79,6 @@ func (rc *RemoteClient) Netmask() int {
 
 func (rc *RemoteClient) AllowedPeers(ctx context.Context, db *gorm.DB) []string {
 	keys := []string{}
-	db.Model(&RemoteClient{}).Where("public_key != ?", rc.PublicKey).Pluck("public_key", &keys)
+	db.Model(&RemoteClient{}).Where("public_key != ? AND category_id = ?", rc.PublicKey, rc.CategoryId).Pluck("public_key", &keys)
 	return keys
 }
