@@ -55,19 +55,23 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	rc, _ := remoteclients.GetOrCreateRemoteClient(db, c.Query("public_key"))
 
 	username := c.Request.Header.Get("X-PacketFence-Username")
-	categoryId, role, err := h.getRoleForUsername(c, username)
-	if err != nil {
-		log.LoggerWContext(c).Error("Error while communicating with API: " + err.Error())
-		renderError(c, http.StatusInternalServerError, errors.New("Unable to communicate with API to obtain role for your username"))
-		return
-	}
-	if role == "" {
-		renderError(c, http.StatusForbidden, errors.New("Access denied: No role matched for your username"))
-		return
+	if username != "" {
+		categoryId, role, err := h.getRoleForUsername(c, username)
+		if err != nil {
+			log.LoggerWContext(c).Error("Error while communicating with API: " + err.Error())
+			renderError(c, http.StatusInternalServerError, errors.New("Unable to communicate with API to obtain role for your username"))
+			return
+		}
+		if role == "" {
+			renderError(c, http.StatusForbidden, errors.New("Access denied: No role matched for your username"))
+			return
+		} else {
+			log.LoggerWContext(c).Info("Matched role " + role + " for " + username)
+			rc.CategoryId = categoryId
+			db.Save(&rc)
+		}
 	} else {
-		log.LoggerWContext(c).Info("Matched role " + role + " for " + username)
-		rc.CategoryId = categoryId
-		db.Save(&rc)
+		log.LoggerWContext(c).Warn("No X-PacketFence-Username in the request. Assuming we're running in test mode.")
 	}
 
 	c.JSON(http.StatusOK, remoteclients.Peer{
