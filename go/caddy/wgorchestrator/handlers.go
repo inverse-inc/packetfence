@@ -52,7 +52,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	}
 
 	db := dbFromContext(c)
-	rc, _ := remoteclients.GetOrCreateRemoteClient(db, c.Query("public_key"))
+	rc, _ := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"))
 
 	username := c.Request.Header.Get("X-PacketFence-Username")
 	if username != "" {
@@ -77,7 +77,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),
 		WireguardNetmask: rc.Netmask(),
-		AllowedPeers:     rc.AllowedPeers(db),
+		AllowedPeers:     rc.AllowedPeers(c, db),
 	})
 }
 

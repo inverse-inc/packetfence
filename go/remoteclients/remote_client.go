@@ -1,9 +1,11 @@
 package remoteclients
 
 import (
+	"context"
 	"net"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jcuga/golongpoll"
 	"github.com/jinzhu/gorm"
@@ -24,27 +26,29 @@ type RemoteClient struct {
 	CategoryId uint
 }
 
-func GetOrCreateRemoteClient(db *gorm.DB, publicKey string) (*RemoteClient, error) {
+func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string) (*RemoteClient, error) {
 	rc := RemoteClient{}
 	db.Where("public_key = ?", publicKey).First(&rc)
 	if rc.PublicKey != publicKey {
 		rc.PublicKey = publicKey
 		err := db.Create(&rc).Error
-		publishNewClient(db, rc)
+		publishNewClient(ctx, db, rc)
 		return &rc, err
 	} else {
 		return &rc, nil
 	}
 }
 
-func publishNewClient(db *gorm.DB, rc RemoteClient) {
+func publishNewClient(ctx context.Context, db *gorm.DB, rc RemoteClient) {
 	if PublishNewClientsTo != nil {
 		rcs := []RemoteClient{}
-		if err := db.Where("public_key != ?", rc.PublicKey).Find(&rcs).Error; err != nil {
+		peers := rc.AllowedPeers(ctx, db)
+		if err := db.Where("public_key IN (?)", peers).Find(&rcs).Error; err != nil {
 			// TODO: handle this differently like with retries
 			panic("Failed to get clients to publish new peer")
 		}
 		for _, publishTo := range rcs {
+			log.LoggerWContext(ctx).Info("Publishing new peer to " + publishTo.PublicKey)
 			PublishNewClientsTo.Publish(PRIVATE_EVENTS_SUFFIX+publishTo.PublicKey, Event{
 				Type: "new_peer",
 				Data: map[string]interface{}{
@@ -64,7 +68,7 @@ func (rc *RemoteClient) Netmask() int {
 	return netmask
 }
 
-func (rc *RemoteClient) AllowedPeers(db *gorm.DB) []string {
+func (rc *RemoteClient) AllowedPeers(ctx context.Context, db *gorm.DB) []string {
 	keys := []string{}
 	db.Model(&RemoteClient{}).Where("public_key != ?", rc.PublicKey).Pluck("public_key", &keys)
 	return keys

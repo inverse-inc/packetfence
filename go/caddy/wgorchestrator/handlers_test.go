@@ -27,6 +27,7 @@ func init() {
 }
 
 func TestHandleGetProfile(t *testing.T) {
+	ctx := context.Background()
 	e := httpexpect.New(t, testServer.URL)
 
 	priv, err := remoteclients.GeneratePrivateKey()
@@ -39,7 +40,7 @@ func TestHandleGetProfile(t *testing.T) {
 	gormdb.DB().Query("delete from remote_clients")
 	peers := []string{"testpub"}
 	for _, peer := range peers {
-		remoteclients.GetOrCreateRemoteClient(gormdb, peer)
+		remoteclients.GetOrCreateRemoteClient(ctx, gormdb, peer)
 	}
 
 	m := e.GET("/api/v1/remote_clients/server_challenge").WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
