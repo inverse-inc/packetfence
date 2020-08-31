@@ -8,7 +8,7 @@ export default function useEventJail(el = ref(document)) {
 
   useEvent('mouseover', e => {
     const { target } = e
-    if (!el.value.contains(target)) {
+    if (el.value && !el.value.contains(target)) {
       isJailed = false
       el.value.blur()
     }

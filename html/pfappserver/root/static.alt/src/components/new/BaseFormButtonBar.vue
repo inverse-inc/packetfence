@@ -1,23 +1,23 @@
 <template>
   <div>
     <pf-button-save
-      :isLoading="formIsLoading"
-      :disabled="!formIsValid"
+      :isLoading="isLoading"
+      :disabled="!isValid"
       class="mr-1"
       @click="onSave"
     >
-      <template v-if="formIsNew">{{ $t('Create') }}</template>
-      <template v-else-if="formIsClone">{{ $t('Clone') }}</template>
+      <template v-if="isNew">{{ $t('Create') }}</template>
+      <template v-else-if="isClone">{{ $t('Clone') }}</template>
       <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
       <template v-else>{{ $t('Save') }}</template>
     </pf-button-save>
     <b-button
-      :disabled="formIsLoading"
+      :disabled="isLoading"
       class="mr-1" variant="outline-secondary"
       @click="onReset"
     >{{ $t('Reset') }}</b-button>
-    <b-button v-if="!formIsNew && !formIsClone"
-      :disabled="formIsLoading"
+    <b-button v-if="!isNew && !isClone"
+      :disabled="isLoading"
       class="mr-1" variant="outline-primary"
       @click="onClone"
     >{{ $t('Clone') }}</b-button>
@@ -41,12 +41,6 @@ export const props = {
 
 export const setup = (props, context) => {
   const {
-    isClone,
-    isNew,
-    isLoading,
-    isValid,
-    actionKey,
-
     onClone,
     onRemove,
     onReset,
@@ -54,12 +48,6 @@ export const setup = (props, context) => {
   } = useFormButtonBar(props, context)
 
   return {
-    formIsClone: isClone,
-    formIsNew: isNew,
-    formIsLoading: isLoading,
-    formIsValid: isValid,
-    actionKey,
-
     onClone,
     onRemove,
     onReset,

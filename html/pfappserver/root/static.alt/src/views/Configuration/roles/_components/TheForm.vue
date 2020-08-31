@@ -23,10 +23,12 @@
   </base-form>
 </template>
 <script>
+import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
+
 import {
   BaseForm
 } from '@/components/new/'
-import schema from '../schema'
+import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
   FormGroupMaxNodesPerPid,
@@ -34,15 +36,14 @@ import {
 } from './'
 
 export const props = {
+  id: {
+    type: String
+  },
   form: {
     type: Object
   },
   meta: {
     type: Object
-  },
-  schema: {
-    type: Object,
-    default: () => schema
   },
   isNew: {
     type: Boolean,
@@ -58,8 +59,12 @@ export const props = {
   }
 }
 
-export const setup = (/*props, context*/) => {
-  return {}
+export const setup = (props) => {
+  const schema = computed(() => schemaFn(props))
+
+  return {
+    schema
+  }
 }
 
 // @vue/component

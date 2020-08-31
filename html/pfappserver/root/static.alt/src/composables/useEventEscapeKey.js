@@ -8,6 +8,7 @@ export default function useEventEscapeKey(el = ref(document)) {
     const { target, keyCode } = e
     escapeKey.value = (
       keyCode === 27 &&
+      el.value &&
       (
         !target ||
         document.body.isSameNode(target) ||

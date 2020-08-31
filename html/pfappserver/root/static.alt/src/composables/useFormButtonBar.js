@@ -1,7 +1,9 @@
-import { computed, ref, toRefs, unref, watchEffect } from '@vue/composition-api'
-import useEventActionKey from './useEventActionKey'
+import { toRefs, unref } from '@vue/composition-api'
 
 export const useFormButtonBarProps = {
+  actionKey: {
+    type: Boolean
+  },
   isClone: {
     type: Boolean
   },
@@ -26,40 +28,25 @@ export const useFormButtonBar = (props, { emit }) => {
 
   const {
     isClone,
-    isNew,
-    isLoading,
-    isDeletable,
-    isValid,
-    formRef
+    isNew
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
-  // state
-  const actionKey = useEventActionKey(formRef)
-
-  const onClone = value => emit('clone', unref(actionKey), value)
-  const onRemove = value => emit('remove', unref(actionKey), value)
-  const onReset = value => emit('reset', unref(actionKey), value)
+  const onClone = value => emit('clone', value)
+  const onRemove = value => emit('remove', value)
+  const onReset = value => emit('reset', value)
   const onSave = value => {
     switch (true) {
       case unref(isNew):
-        emit('create', unref(actionKey), value)
+        emit('create', value)
         break
       case unref(isClone):
-        emit('clone', unref(actionKey), value)
-        break
       default:
-        emit('save', unref(actionKey), value)
+        emit('save', value)
+        break
     }
   }
 
   return {
-    isClone,
-    isNew,
-    isLoading,
-    isDeletable,
-    isValid,
-    actionKey,
-
     onClone,
     onRemove,
     onReset,

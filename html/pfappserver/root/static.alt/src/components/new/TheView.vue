@@ -6,27 +6,28 @@
         <h4 class="mb-0" v-html="titleLabel"></h4>
       </b-card-header>
       <the-form class="card-body"
+        :id="id"
         :form="form"
         :meta="meta"
-        :isNew="viewIsNew"
-        :isClone="viewIsClone"
-        :isLoading="viewIsLoading"
+        :isNew="isNew"
+        :isClone="isClone"
+        :isLoading="isLoading"
       />
       <b-card-footer>
         <form-button-bar
-          :isNew="viewIsNew"
-          :isClone="viewIsClone"
-          :isLoading="viewIsLoading"
+          :actionKey="actionKey"
+          :isNew="isNew"
+          :isClone="isClone"
+          :isLoading="isLoading"
           :isDeletable="isDeletable"
           :isValid="isValid"
           :formRef="rootRef"
+          @create="doCreate"
           @clone="doClone"
           @remove="doRemove"
           @reset="doReset"
           @save="doSave"
-        >
-          <span>Extra Slot</span>
-        </form-button-bar>
+        />
       </b-card-footer>
     </b-card>
   </b-form>
@@ -41,46 +42,7 @@ export const props = {
 }
 
 const setup = (props, context) => {
-
-  const {
-    rootRef,
-
-    isClone,
-    isNew,
-    isLoading,
-    isDeletable,
-    isValid,
-
-    titleLabel,
-    form,
-    meta,
-
-    doClone,
-    doClose,
-    doRemove,
-    doReset,
-    doSave
-  } = useView(props, context)
-
-  return {
-    rootRef,
-
-    viewIsClone: isClone,
-    viewIsNew: isNew,
-    viewIsLoading: isLoading,
-    isValid,
-    isDeletable,
-
-    titleLabel,
-    form,
-    meta,
-
-    doClone,
-    doClose,
-    doRemove,
-    doReset,
-    doSave
-  }
+  return useView(props, context)
 }
 
 // @vue/component

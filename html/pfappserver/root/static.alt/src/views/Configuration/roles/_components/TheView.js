@@ -1,6 +1,6 @@
-import BaseView, { props as baseProps } from '@/components/new/TheView'
+import BaseView, { props } from '@/components/new/TheView'
 import { mergeProps } from '@/components/new/utils'
-import i18n from '@/utils/locale'
+import { useView } from '../_composables/useView'
 import {
   FormButtonBar,
   TheForm
@@ -11,19 +11,16 @@ const components = {
   TheForm
 }
 
-const props = mergeProps(
-  baseProps,
-  {
-    titleLabelisNone: id => i18n.t('Role {id}', { id }),
-    titleLabelisClone: id => i18n.t('Clone Role {id}', { id }),
-    titleLabelisNew: () => i18n.t('New Role')
-  }
-)
+const render = BaseView.render
+
+const setup = (props, context) => useView(props, context)
 
 // @vue/component
 export default {
   name: 'the-view',
-  extends: BaseView,
+  inheritAttrs: false,
   components,
-  props
+  props,
+  render,
+  setup
 }
