@@ -112,6 +112,41 @@ sub can_delete_from_db {
 
 sub reassign {
     my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my @errors;
+    my $old = $data->{old};
+    my $new = $data->{new};
+    $self->check_reassign_args($old, $new, \@errors);
+    if (@errors) {
+        return $self->render_error(422, "Unable to reassign role", \@errors);
+    }
+
+    return $self->render_error(422, "Unable to reassign role");
+}
+
+sub check_reassign_args {
+    my ($self, $old, $new, $errors) = @_;
+    if (!defined $old) {
+        push @$errors, { field => "old", message => "'old' field is missing"};
+    }
+
+    if (!defined $new) {
+        push @$errors, { field => "new", message => "'new' field is missing"};
+    }
+
+    my $cs = $self->config_store;
+    if (defined $old && !$cs->hasId($old)) {
+        push @$errors, { field => "old", message => "'$old' field is invalid"};
+    }
+
+    if (defined $new && !$cs->hasId($new)) {
+        push @$errors, { field => "new", message => "'$new' field is invalid"};
+    }
+
 }
  
 =head1 AUTHOR
