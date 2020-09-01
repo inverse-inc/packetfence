@@ -163,51 +163,43 @@ sub reassign {
         return $self->render_error(422, "Unable to reassign role", \@errors);
     }
 
-    my $status = $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new);
-    if (is_error($status)) {
-        return $self->render_error($status, "Unable to reassign roles for node category");
-    }
-
-    $status = $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new);
-    if (is_error($status)) {
-        return $self->render_error($status, "Unable to reassign roles for node bypass role");
-    }
-
-    $status = $self->reassign_role_with_sql("pf::dal::person", $REASSIGN_PASSWORD_CATEGORY, $old, $new);
-    if (is_error($status)) {
-        return $self->render_error($status, "Unable to reassign roles for person category");
+    $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new, "node category");
+    $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_BYPASS_ROLE_ID, $old, $new, "node bypass role");
+    $self->reassign_role_with_sql("pf::dal::person", $REASSIGN_PASSWORD_CATEGORY, $old, $new, "password category");
+    if (@errors) {
+        return $self->render_error(422, "Unable to reassign role", \@errors);
     }
 
     return $self->render_error(422, "Unable to reassign role");
 }
 
 sub reassign_role_with_sql {
-    my ($self, $dal, $sql, $old, $new) = @_;
+    my ($self, $dal, $sql, $old, $new, $errors, $scope) = @_;
     my ($status, $sth) = $dal->db_execute($sql, $old, $new);
-    if (is_success($status)) {
+    if (is_error($status)) {
+        push @$errors, { message => "Unable to reassign roles for $scope", status => $status};
+    } else {
         $sth->finish;
     }
-
-    return $status;
 }
 
 sub check_reassign_args {
     my ($self, $old, $new, $errors) = @_;
     if (!defined $old) {
-        push @$errors, { field => "old", message => "'old' field is missing"};
+        push @$errors, { field => "old", message => "'old' field is missing", status => 422};
     }
 
     if (!defined $new) {
-        push @$errors, { field => "new", message => "'new' field is missing"};
+        push @$errors, { field => "new", message => "'new' field is missing", status => 422};
     }
 
     my $cs = $self->config_store;
     if (defined $old && !$cs->hasId($old)) {
-        push @$errors, { field => "old", message => "'$old' field is invalid"};
+        push @$errors, { field => "old", message => "'$old' field is invalid", status => 422};
     }
 
     if (defined $new && !$cs->hasId($new)) {
-        push @$errors, { field => "new", message => "'$new' field is invalid"};
+        push @$errors, { field => "new", message => "'$new' field is invalid", status => 422};
     }
 
 }
