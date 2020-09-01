@@ -15,7 +15,7 @@ pf::UnifiedApi::Controller::Config::Roles
 use strict;
 use warnings;
 use pf::dal::node_category;
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
@@ -26,6 +26,8 @@ has 'primary_key' => 'role_id';
 use pf::ConfigStore::Roles;
 use pfappserver::Form::Config::Roles;
 use pfconfig::cached_hash;
+use pf::dal::node;
+use pf::dal::person;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
 
@@ -134,6 +136,18 @@ WHERE
     node.bypass_role_id = old_nc.category_id;
 SQL
 
+my $REASSIGN_PASSWORD_CATEGORY = <<SQL;
+UPDATE
+    password,
+    (SELECT category_id from node_category WHERE name = ?) as old_nc,
+    (SELECT category_id from node_category WHERE name = ?) as new_nc
+SET password.category = new_nc.category_id
+WHERE
+    old_nc.category_id IS NOT NULL AND
+    new_nc.category_id IS NOT NULL AND
+    password.category = old_nc.category_id;
+SQL
+
 sub reassign {
     my ($self) = @_;
     my ($error, $data) = $self->get_json;
@@ -149,20 +163,32 @@ sub reassign {
         return $self->render_error(422, "Unable to reassign role", \@errors);
     }
 
-    my ($status, $sth) = pf::dal::node->db_execute($REASSIGN_NODE_CATEGORY_ID, $old, $new);
+    my $status = $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new);
     if (is_error($status)) {
         return $self->render_error($status, "Unable to reassign roles for node category");
-    } else {
-        $sth->finish;
     }
-    ($status, $sth) = pf::dal::node->db_execute($REASSIGN_NODE_BYPASS_ROLE_ID, $old, $new);
+
+    $status = $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new);
     if (is_error($status)) {
         return $self->render_error($status, "Unable to reassign roles for node bypass role");
-    } else {
-        $sth->finish;
+    }
+
+    $status = $self->reassign_role_with_sql("pf::dal::person", $REASSIGN_PASSWORD_CATEGORY, $old, $new);
+    if (is_error($status)) {
+        return $self->render_error($status, "Unable to reassign roles for person category");
     }
 
     return $self->render_error(422, "Unable to reassign role");
+}
+
+sub reassign_role_with_sql {
+    my ($self, $dal, $sql, $old, $new) = @_;
+    my ($status, $sth) = $dal->db_execute($sql, $old, $new);
+    if (is_success($status)) {
+        $sth->finish;
+    }
+
+    return $status;
 }
 
 sub check_reassign_args {
