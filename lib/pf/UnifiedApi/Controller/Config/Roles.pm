@@ -109,6 +109,10 @@ sub can_delete_from_db {
 
     return (200, '');
 }
+
+sub reassign {
+    my ($self) = @_;
+}
  
 =head1 AUTHOR
 

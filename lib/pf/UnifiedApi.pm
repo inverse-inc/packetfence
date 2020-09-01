@@ -1228,6 +1228,7 @@ sub setup_api_v1_config_roles_routes {
         "api.v1.Config.Roles"
     );
 
+    $collection_route->register_sub_action({action => 'reassign', method => 'PATCH'});
     return ($collection_route, $resource_route);
 }
 
