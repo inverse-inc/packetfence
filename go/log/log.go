@@ -1,10 +1,8 @@
-// +build !windows
 
 package log
 
 import (
 	"context"
-	"log/syslog"
 	"os"
 	"strconv"
 	"strings"
@@ -109,15 +107,7 @@ func LoggerAddHandler(ctx context.Context, f func(*log.Record) error) context.Co
 func initContextLogger(ctx context.Context) context.Context {
 	logger := newLoggerStruct()
 
-	output := sharedutils.EnvOrDefault("LOG_OUTPUT", "syslog")
-	if output == "syslog" {
-		syslogBackend, err := log.SyslogHandler(syslog.LOG_INFO, ProcessName, log.LogfmtFormat())
-		sharedutils.CheckError(err)
-		logger.SetHandler(syslogBackend)
-	} else {
-		stdoutBackend := log.StreamHandler(os.Stdout, log.LogfmtFormat())
-		logger.SetHandler(stdoutBackend)
-	}
+	logger.SetHandler(getLogBackend())
 
 	logger.processPid = strconv.Itoa(os.Getpid())
 
