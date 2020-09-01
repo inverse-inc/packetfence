@@ -1,3 +1,5 @@
+// +build !windows
+
 package sharedutils
 
 import (
@@ -92,4 +94,3 @@ func csum(b []byte) uint16 {
 	s = s + s>>16
 	return uint16(^s)
 }
-
