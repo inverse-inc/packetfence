@@ -110,6 +110,30 @@ sub can_delete_from_db {
     return (200, '');
 }
 
+my $REASSIGN_NODE_CATEGORY_ID = <<SQL;
+UPDATE
+    node,
+    (SELECT category_id from node_category WHERE name = ?) as old_nc,
+    (SELECT category_id from node_category WHERE name = ?) as new_nc
+SET node.category_id = new_nc.category_id
+WHERE
+    old_nc.category_id IS NOT NULL AND
+    new_nc.category_id IS NOT NULL AND
+    node.category_id = old_nc.category_id;
+SQL
+
+my $REASSIGN_NODE_BYPASS_ROLE_ID = <<SQL;
+UPDATE
+    node,
+    (SELECT category_id from node_category WHERE name = ?) as old_nc,
+    (SELECT category_id from node_category WHERE name = ?) as new_nc
+SET node.bypass_role_id = new_nc.category_id
+WHERE
+    old_nc.category_id IS NOT NULL AND
+    new_nc.category_id IS NOT NULL AND
+    node.bypass_role_id = old_nc.category_id;
+SQL
+
 sub reassign {
     my ($self) = @_;
     my ($error, $data) = $self->get_json;
@@ -123,6 +147,19 @@ sub reassign {
     $self->check_reassign_args($old, $new, \@errors);
     if (@errors) {
         return $self->render_error(422, "Unable to reassign role", \@errors);
+    }
+
+    my ($status, $sth) = pf::dal::node->db_execute($REASSIGN_NODE_CATEGORY_ID, $old, $new);
+    if (is_error($status)) {
+        return $self->render_error($status, "Unable to reassign roles for node category");
+    } else {
+        $sth->finish;
+    }
+    ($status, $sth) = pf::dal::node->db_execute($REASSIGN_NODE_BYPASS_ROLE_ID, $old, $new);
+    if (is_error($status)) {
+        return $self->render_error($status, "Unable to reassign roles for node bypass role");
+    } else {
+        $sth->finish;
     }
 
     return $self->render_error(422, "Unable to reassign role");
