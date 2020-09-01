@@ -950,6 +950,7 @@ sub import_item {
         return { item => $item, errors => \@errors, message => 'Cannot save node', status => 422 };
     }
 
+    $item->{mac} = clean_mac($item->{mac});
     my $logger = get_logger();
     my $mac = $item->{mac};
     my $pid = $item->{pid} || $default_pid;
