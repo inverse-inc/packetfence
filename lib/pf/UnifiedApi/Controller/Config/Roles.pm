@@ -28,6 +28,12 @@ use pfappserver::Form::Config::Roles;
 use pfconfig::cached_hash;
 use pf::dal::node;
 use pf::dal::person;
+use pf::ConfigStore::AdminRoles;
+use pf::ConfigStore::Scan;
+use pf::ConfigStore::Provisioning;
+use pf::ConfigStore::SelfService;
+use pf::ConfigStore::BillingTiers;
+use pf::ConfigStore::Firewall_SSO;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
 
@@ -163,18 +169,48 @@ sub reassign {
         return $self->render_error(422, "Unable to reassign role", \@errors);
     }
 
-    $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new, "node category");
-    $self->reassign_role_with_sql("pf::dal::node", $REASSIGN_NODE_BYPASS_ROLE_ID, $old, $new, "node bypass role");
-    $self->reassign_role_with_sql("pf::dal::person", $REASSIGN_PASSWORD_CATEGORY, $old, $new, "password category");
+    $self->reassign_role_with_sql(\@errors, "pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new, "node category");
+    $self->reassign_role_with_sql(\@errors, "pf::dal::node", $REASSIGN_NODE_BYPASS_ROLE_ID, $old, $new, "node bypass role");
+    $self->reassign_role_with_sql(\@errors, "pf::dal::person", $REASSIGN_PASSWORD_CATEGORY, $old, $new, "password category");
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::AdminRoles", $old, $new, qw(allowed_roles allowed_node_roles));
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Scan", $old, $new, qw(categories));
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Provisioning", $old, $new, qw(category role_to_apply));
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::SelfService", $old, $new, qw(roles_allowed_to_unregister device_registration_roles));
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::BillingTiers", $old, $new, qw(roles_allowed_to_unregister device_registration_roles));
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Firewall_SSO", $old, $new, qw(categories));
     if (@errors) {
         return $self->render_error(422, "Unable to reassign role", \@errors);
     }
 
-    return $self->render_error(422, "Unable to reassign role");
+    return $self->render(200, json => {});
+}
+
+sub reassign_role_config_store {
+    my ($self, $errors, $class, $old, $new, @fields) = @_;
+    my $cs = $class->new;
+    my $i = 0;
+    my $cachedConfig = $cs->cachedConfig;
+    for my $sect ($cs->_Sections()) {
+        for my $f (@fields) {
+
+            next if !$cachedConfig->exists($sect, $f);
+            my $values = $cachedConfig->val($sect, $f);
+            my @roles = split(/\s*,\s*/, $values);
+            my @new_roles = map { $_ eq $old ? $new : $_ } @roles;
+            if (@new_roles) {
+                $cachedConfig->setval($sect, $f, join(",", @new_roles));
+                $i++;
+            }
+        }
+    }
+
+    if ($i) {
+        $cs->commit();
+    }
 }
 
 sub reassign_role_with_sql {
-    my ($self, $dal, $sql, $old, $new, $errors, $scope) = @_;
+    my ($self, $errors, $dal, $sql, $old, $new, $scope) = @_;
     my ($status, $sth) = $dal->db_execute($sql, $old, $new);
     if (is_error($status)) {
         push @$errors, { message => "Unable to reassign roles for $scope", status => $status};
