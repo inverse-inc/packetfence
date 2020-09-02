@@ -37,8 +37,8 @@ type PollEvent struct {
 }
 
 type Client struct {
-        // Flag that tracks the current run ID
-        runID uint64
+	// Flag that tracks the current run ID
+	runID    uint64
 	path     string
 	category string
 	// Timeout controls the timeout in all the requests, can be changed after instantiating the client
@@ -72,7 +72,7 @@ func NewClient(apiClient *unifiedapiclient.Client, path string, category string)
 	}
 }
 
-func (c *Client) Start() {
+func (c *Client) Start(ctx context.Context) {
 	if c.LoggingEnabled {
 		log.Println("Now observing changes on", c.path)
 	}
@@ -83,7 +83,7 @@ func (c *Client) Start() {
 	go func(runID uint64, path string) {
 		since := time.Now().Unix() * 1000
 		for {
-			pr, err := c.fetchEvents(since)
+			pr, err := c.fetchEvents(ctx, since)
 
 			if err != nil {
 				if c.LoggingEnabled {
@@ -127,14 +127,14 @@ func (c *Client) Stop() {
 }
 
 // Call the longpoll server to get the events since a specific timestamp
-func (c Client) fetchEvents(since int64) (PollResponse, error) {
+func (c Client) fetchEvents(ctx context.Context, since int64) (PollResponse, error) {
 	if c.LoggingEnabled {
 		log.Println("Checking for changes events since", since, "on URL", c.path)
 	}
 
 	query := url.Values{}
 	if c.PrivateMode {
-		serverNow, err := c.GetServerTimestamp()
+		serverNow, err := c.GetServerTimestamp(ctx)
 		if err != nil {
 			return PollResponse{}, errors.New("Failed to obtain server time: " + err.Error())
 		}
@@ -154,7 +154,7 @@ func (c Client) fetchEvents(since int64) (PollResponse, error) {
 	rawQuery := query.Encode()
 
 	var pr PollResponse
-	err := c.APIClient.Call(context.Background(), "GET", c.path+`?`+rawQuery, &pr)
+	err := c.APIClient.Call(ctx, "GET", c.path+`?`+rawQuery, &pr)
 	if err != nil {
 		msg := fmt.Sprintf("Error while connecting to %s to observe changes. Error was: %s", c.path, err)
 		return PollResponse{}, errors.New(msg)
@@ -174,8 +174,8 @@ type ServerTimestamp struct {
 	Timestamp int64 `json:"timestamp"`
 }
 
-func (c *Client) GetServerTimestamp() (int64, error) {
+func (c *Client) GetServerTimestamp(ctx context.Context) (int64, error) {
 	st := ServerTimestamp{}
-	err := c.APIClient.Call(context.Background(), "GET", "/api/v1/remote_clients/server_time", &st)
+	err := c.APIClient.Call(ctx, "GET", "/api/v1/remote_clients/server_time", &st)
 	return st.Timestamp, err
 }
