@@ -52,6 +52,9 @@ type Client struct {
 	Port     string
 	token    string
 	tenantId int
+
+	// When set to true, the URI log will be made in debug instead of info
+	URILogDebug bool
 }
 
 type DummyReply struct{}
@@ -203,7 +206,12 @@ func (c *Client) login(ctx context.Context) error {
 
 func (c *Client) buildRequest(ctx context.Context, method, path, body string) *http.Request {
 	uri := fmt.Sprintf("https://%s:%s%s", c.Host, c.Port, path)
-	log.LoggerWContext(ctx).Info("Calling Unified API on uri: " + uri)
+
+	logFunc := log.LoggerWContext(ctx).Info
+	if c.URILogDebug {
+		logFunc = log.LoggerWContext(ctx).Debug
+	}
+	logFunc("Calling Unified API on uri: " + uri)
 
 	bodyReader := strings.NewReader("")
 	if body != "" {
