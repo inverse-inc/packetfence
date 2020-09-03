@@ -1,7 +1,7 @@
 <template>
   <div class="w-100 input-range"> <!-- external style applied here -->
     <div
-      :disabled="disabled"
+      :disabled="isLocked"
       :min="parseFloat(inputValue) === parseFloat(min)"
       :max="parseFloat(inputValue) === parseFloat(max)"
       :index="inputValue"

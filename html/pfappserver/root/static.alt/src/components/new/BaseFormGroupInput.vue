@@ -58,7 +58,7 @@
   </b-form-group>
 </template>
 <script>
-import { useFormGroup, useFormGroupProps } from '@/composables/useFormGroup'
+import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
@@ -75,11 +75,6 @@ export const props = {
 export const setup = (props, context) => {
 
   const metaProps = useInputMeta(props, context)
-
-  const {
-    columnLabel,
-    labelCols
-  } = useFormGroup(metaProps, context)
 
   const {
     placeholder,
@@ -106,10 +101,6 @@ export const setup = (props, context) => {
   } = useInputValidator(metaProps, value)
 
   return {
-    // useFormGroup
-    formGroupLabel: columnLabel,
-    formGroupLabelCols: labelCols,
-
     // useInput
     inputPlaceholder: placeholder,
     inputReadonly: readonly,

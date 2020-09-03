@@ -1,0 +1,139 @@
+<template>
+  <base-form-group
+    :label-cols="labelCols"
+    :column-label="columnLabel"
+    :text="text"
+    :disabled="disabled"
+    :state="inputState"
+    :invalid-feedback="inputInvalidFeedback"
+    :valid-feedback="inputValidFeedback"
+  >
+    <base-input-range
+      class="base-form-group-toggle"
+      min="0"
+      max="1"
+      step="1"
+      :disabled="isLocked"
+      :state="inputState"
+      :tabIndex="inputTabIndex"
+      :value="inputValue"
+      @input="onInput"
+      @change="onChange"
+      @focus="onFocus"
+      @blur="onBlur"
+    />
+    <template v-slot:prepend v-if="$slots.prepend">
+      <slot name="prepend"></slot>
+    </template>
+    <template v-slot:append v-if="$slots.append">
+      <slot name="append"></slot>
+    </template>
+  </base-form-group>
+</template>
+<script>
+import { useFormGroupProps } from '@/composables/useFormGroup'
+import { useInput, useInputProps } from '@/composables/useInput'
+import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
+import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
+import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
+import {
+  BaseFormGroup,
+  BaseInputRange
+} from './'
+
+const components = {
+  BaseFormGroup,
+  BaseInputRange
+}
+
+export const props = {
+  ...useFormGroupProps,
+  ...useInputProps,
+  ...useInputMetaProps,
+  ...useInputValidatorProps,
+  ...useInputValueProps
+}
+
+export const setup = (props, context) => {
+
+  const metaProps = useInputMeta(props, context)
+
+  const {
+    placeholder,
+    tabIndex,
+    text,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur
+  } = useInput(metaProps, context)
+
+  const {
+    value,
+    onInput,
+    onChange
+  } = useInputValue(metaProps, context)
+
+  const {
+    state,
+    invalidFeedback,
+    validFeedback
+  } = useInputValidator(metaProps, value)
+
+  return {
+    // useInput
+    inputPlaceholder: placeholder,
+    inputTabIndex: tabIndex,
+    inputText: text,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur,
+
+    // useInputValue
+    inputValue: value,
+    onInput,
+    onChange,
+
+    // useInputValidator
+    inputState: state,
+    inputInvalidFeedback: invalidFeedback,
+    inputValidFeedback: validFeedback
+  }
+}
+
+export default {
+  name: 'base-form-group-toggle',
+  inheritAttrs: false,
+  components,
+  props,
+  setup
+}
+</script>
+<style lang="scss">
+.base-form-group-toggle {
+  /* match height of input element to vertically align w/ form-group label */
+  min-height: $input-height;
+  display: flex;
+  align-items: center;
+  .base-input-range {
+    &[index],
+    &[index="0"] {
+      --range-background-color: #adb5bd; /* default unchecked background-color */
+    }
+    &[index="1"] {
+      --range-background-color: var(--primary); /* default checked background-color */
+    }
+  }
+/*
+  .pf-form-range-toggle-label {
+    display: inline-flex;
+    align-items: center;
+    padding-top: calc(#{$input-padding-y} + #{$input-border-width});
+    vertical-align: middle;
+    margin: 0;
+    user-select: none;
+  }
+*/
+}
+</style>

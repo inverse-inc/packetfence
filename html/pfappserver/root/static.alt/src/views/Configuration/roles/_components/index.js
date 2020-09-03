@@ -4,7 +4,7 @@ import FormGroupMaxNodesPerPid from '@/components/new/BaseFormGroupInput'
 import FormGroupNotes from '@/components/new/BaseFormGroupInput'
 
 import TheForm from './TheForm'
-import TheList from './TheList'
+import TheView from './TheView'
 
 export {
   FormButtonBar,
@@ -13,5 +13,5 @@ export {
   FormGroupNotes,
 
   TheForm,
-  TheList
+  TheView
 }

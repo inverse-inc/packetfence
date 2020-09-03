@@ -30,10 +30,5 @@ export default (props) => {
       .required(i18n.t('Name required.'))
       .nameNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
 
-    notes: yup.string()
-      .nullable(),
-
-    max_nodes_per_pid: yup.string()
-      .nullable()
   })
 }

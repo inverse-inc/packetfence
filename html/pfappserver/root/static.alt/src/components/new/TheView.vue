@@ -5,7 +5,7 @@
         <b-button-close @click="doClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0" v-html="titleLabel"></h4>
       </b-card-header>
-      <the-form class="card-body"
+      <the-form class="card-body p-0 mt-3"
         :id="id"
         :form="form"
         :meta="meta"
@@ -22,7 +22,6 @@
           :isDeletable="isDeletable"
           :isValid="isValid"
           :formRef="rootRef"
-          @create="doCreate"
           @clone="doClone"
           @remove="doRemove"
           @reset="doReset"

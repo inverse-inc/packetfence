@@ -46,7 +46,7 @@ const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configur
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
 const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../roles/_components/TheView')
 const DomainsTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
-const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainView')
+const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../domains/_components/TheView')
 const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RealmView')
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
@@ -290,13 +290,7 @@ const route = {
       path: 'roles/new',
       name: 'newRole',
       component: RoleView,
-      props: () => ({ formStoreName: 'formRole', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formRole) { // Register store module only once
-          store.registerModule('formRole', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'role/:id',
@@ -336,13 +330,7 @@ const route = {
       path: 'domains/new',
       name: 'newDomain',
       component: DomainView,
-      props: () => ({ formStoreName: 'formDomain', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formDomain) { // Register store module only once
-          store.registerModule('formDomain', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'domain/:id',

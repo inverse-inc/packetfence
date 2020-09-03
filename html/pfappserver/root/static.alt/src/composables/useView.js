@@ -23,7 +23,6 @@ export const useView = () => {
     isDeletable: true,
     isValid: true,
 
-    doCreate: () => {},
     doClone: () => {},
     doClose: () => {},
     doRemove: () => {},

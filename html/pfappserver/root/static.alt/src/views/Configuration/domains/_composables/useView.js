@@ -48,15 +48,15 @@ export const useView = (props, context) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return i18n.t('Role {id}', { id: unref(id) })
+        return i18n.t('Domain {id}', { id: unref(id) })
       case unref(isClone):
-        return i18n.t('Clone Role {id}', { id: unref(id) })
+        return i18n.t('Clone Domain {id}', { id: unref(id) })
       default:
-        return i18n.t('New Role')
+        return i18n.t('New Domains')
     }
   })
 
-  const isLoading = $store.getters['$_roles/isLoading']
+  const isLoading = $store.getters['$_domains/isLoading']
 
   const isDeletable = computed(() => {
       if (unref(isNew) || unref(isClone))
@@ -80,7 +80,7 @@ export const useView = (props, context) => {
   }, { deep: true })
 
   const doInit = () => {
-    $store.dispatch('$_roles/options', id.value).then(options => {
+    $store.dispatch('$_domains/options', id.value).then(options => {
       const { meta: _meta = {} } = options
       meta.value = _meta
       if (isNew.value) // new
@@ -89,7 +89,7 @@ export const useView = (props, context) => {
       meta.value = {}
     })
     if (!isNew.value) { // existing
-      $store.dispatch('$_roles/getRole', id.value).then(_form => {
+      $store.dispatch('$_domains/getDomain', id.value).then(_form => {
         if (isClone.value) {
           _form.id = `${_form.id}-${i18n.t('copy')}`
           _form.not_deletable = false
@@ -101,13 +101,13 @@ export const useView = (props, context) => {
     }
   }
 
-  const doClone = () => $router.push({ name: 'cloneRole' })
+  const doClone = () => $router.push({ name: 'cloneDomain' })
 
-  const doClose = () => $router.push({ name: 'roles' })
+  const doClose = () => $router.push({ name: 'domains' })
 
   const doRemove = () => {
-    $store.dispatch('$_roles/deleteRole', id.value).then(() => {
-      $router.push({ name: 'roles' })
+    $store.dispatch('$_domains/deleteDomain', id.value).then(() => {
+      $router.push({ name: 'domains' })
     })
   }
 
@@ -118,17 +118,17 @@ export const useView = (props, context) => {
     switch (true) {
       case unref(isClone):
       case unref(isNew):
-        $store.dispatch('$_roles/createRole', form.value).then(() => {
+        $store.dispatch('$_domains/createDomain', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'roles' })
+            $router.push({ name: 'domains', params: { autoJoinDomain: form.value } })
           else
-            $router.push({ name: 'role', params: { id: form.value.id } })
+            $router.push({ name: 'domain', params: { id: form.value.id } })
         })
         break
       default:
-        $store.dispatch('$_roles/updateRole', form.value).then(() => {
+        $store.dispatch('$_domains/updateDomain', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'roles' })
+            $router.push({ name: 'domains', params: { autoJoinDomain: form.value } })
         })
         break
     }

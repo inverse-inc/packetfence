@@ -26,25 +26,10 @@ export const useFormButtonBarProps = {
 
 export const useFormButtonBar = (props, { emit }) => {
 
-  const {
-    isClone,
-    isNew
-  } = toRefs(props) // toRefs maintains reactivity w/ destructuring
-
   const onClone = value => emit('clone', value)
   const onRemove = value => emit('remove', value)
   const onReset = value => emit('reset', value)
-  const onSave = value => {
-    switch (true) {
-      case unref(isNew):
-        emit('create', value)
-        break
-      case unref(isClone):
-      default:
-        emit('save', value)
-        break
-    }
-  }
+  const onSave = value => emit('save', value)
 
   return {
     onClone,
