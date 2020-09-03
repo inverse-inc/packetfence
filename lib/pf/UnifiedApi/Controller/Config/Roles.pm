@@ -163,8 +163,8 @@ sub reassign {
     }
 
     my @errors;
-    my $old = $data->{old};
-    my $new = $data->{new};
+    my $old = $self->id;
+    my $new = $data->{id};
     $self->check_reassign_args($old, $new, \@errors);
     if (@errors) {
         return $self->render_error(422, "Unable to reassign role", \@errors);
