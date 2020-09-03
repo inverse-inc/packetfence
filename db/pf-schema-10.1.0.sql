@@ -148,13 +148,13 @@ INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to 
 -- Insert 'User' category
 --
 
-INSERT INTO `node_category` (name,notes) VALUES ("Users","Placeholder role/category, feel free to edit");
+INSERT INTO `node_category` (name,notes) VALUES ("User", "User role");
 
 --
 -- Insert 'Machine' category
 --
 
-INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role/category, feel free to edit");
+INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
 
 --
 -- Table structure for table `node`

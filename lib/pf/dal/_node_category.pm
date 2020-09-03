@@ -37,18 +37,21 @@ BEGIN {
         name
         max_nodes_per_pid
         notes
+        parent_id
     );
 
     %DEFAULTS = (
         name => '',
         max_nodes_per_pid => '0',
         notes => undef,
+        parent_id => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
         name
         max_nodes_per_pid
         notes
+        parent_id
     );
 
     %FIELDS_META = (
@@ -76,6 +79,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        parent_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -87,6 +96,7 @@ BEGIN {
         node_category.name
         node_category.max_nodes_per_pid
         node_category.notes
+        node_category.parent_id
     );
 
 }
