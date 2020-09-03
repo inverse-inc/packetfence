@@ -34,6 +34,7 @@ use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::SelfService;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Firewall_SSO;
+use pf::ConfigStore::Switch;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
 
@@ -178,6 +179,7 @@ sub reassign {
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::SelfService", $old, $new, qw(roles_allowed_to_unregister device_registration_roles));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::BillingTiers", $old, $new, qw(roles_allowed_to_unregister device_registration_roles));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Firewall_SSO", $old, $new, qw(categories));
+    $self->reassign_role_config_store_switch(\@errors, $old, $new);
     if (@errors) {
         return $self->render_error(422, "Unable to reassign role", \@errors);
     }
@@ -192,15 +194,32 @@ sub reassign_role_config_store {
     my $cachedConfig = $cs->cachedConfig;
     for my $sect ($cs->_Sections()) {
         for my $f (@fields) {
-
             next if !$cachedConfig->exists($sect, $f);
             my $values = $cachedConfig->val($sect, $f);
             my @roles = split(/\s*,\s*/, $values);
             my @new_roles = map { $_ eq $old ? $new : $_ } @roles;
             if (@new_roles) {
                 $cachedConfig->setval($sect, $f, join(",", @new_roles));
-                $i++;
+                $i |= 1;
             }
+        }
+    }
+
+    if ($i) {
+        $cs->commit();
+    }
+}
+
+sub reassign_role_config_store_switch {
+    my ($self, $errors, $old, $new) = @_;
+    my $cs = pf::ConfigStore::Switch->new;
+    my $i = 0;
+    my $cachedConfig = $cs->cachedConfig;
+    for my $sect ($cachedConfig->Sections()) {
+        for my $f (map { "${old}${_}" } qw(Role Url Vlan AccessList) ) {
+            next if !$cachedConfig->exists($sect, $f);
+            $cachedConfig->delval($sect, $f);
+            $i |= 1;
         }
     }
 
