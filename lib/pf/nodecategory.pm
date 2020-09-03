@@ -82,9 +82,10 @@ sub nodecategory_populate_from_config {
         return;
     }
     my @keep;
-    while(my ($id, $role) = each(%$config)) {
+    for my $args (_order_nodecategory_config($config)) {
+        my $id = $args->[0];
+        nodecategory_upsert($id, %{$args->[1]});
         push @keep, $id;
-        nodecategory_upsert($id, %$role);
     }
     _nodecategory_bulk_delete(\@keep);
 }
@@ -99,6 +100,24 @@ sub _nodecategory_bulk_delete {
             },
         }
     );
+}
+
+sub _order_nodecategory_config {
+    my ($config) = @_;
+    my %t;
+    while (my ($id, $role) = each(%$config)) {
+        my $parent = $role->{parent} // '';
+        push @{$t{$parent}}, [$id, $role];
+    }
+
+    return [_flatten_nodecategory($t{''}, \%t)];
+}
+
+sub _flatten_nodecategory {
+    my ( $parents, $h ) = @_;
+    return @$parents,
+      map { _flatten_nodecategory( $h->{$_}, $h ) }
+      grep { exists $h->{$_} } map { $_->[0] } @$parents;
 }
 
 =item nodecategory_upsert
