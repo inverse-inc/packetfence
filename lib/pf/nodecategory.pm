@@ -109,7 +109,7 @@ sub _order_nodecategory_config {
     my %t;
     while (my ($id, $role) = each(%$config)) {
         my $parent = $role->{parent} // '';
-        push @{$t{$parent}}, [$id, $role];
+        push @{$t{$parent}}, [$id, {%$role}];
     }
 
     return _flatten_nodecategory($t{''}, \%t);
