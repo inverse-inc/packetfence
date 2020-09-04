@@ -38,6 +38,7 @@ func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string,
 	rc.UpsertNode(ctx, rcn)
 
 	db.Where("public_key = ?", publicKey).First(&rc)
+	rc.MAC = mac
 	if rc.PublicKey != publicKey {
 		rc.PublicKey = publicKey
 		log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has just been created. Publishing its presence.")
@@ -114,12 +115,12 @@ func (rc *RemoteClient) GetNode(ctx context.Context) RemoteClientNode {
 func (rc *RemoteClient) UpsertNode(ctx context.Context, rcn RemoteClientNode) error {
 	client := unifiedapiclient.NewFromConfig(ctx)
 
-	err := client.CallWithBody(ctx, "PATCH", "/api/v1/node/"+rcn.MAC, rcn, unifiedapiclient.DummyReply{})
+	err := client.CallWithBody(ctx, "PATCH", "/api/v1/node/"+rcn.MAC, rcn, &unifiedapiclient.DummyReply{})
 	if err == nil {
 		return nil
 	}
 
-	log.LoggerWContext(ctx).Info("Got an error while updating node " + rcn.MAC + ". Will try to create it instead")
+	log.LoggerWContext(ctx).Info("Got an error while updating node " + rcn.MAC + ". Will try to create it instead. Error: " + err.Error())
 
 	err = client.CallWithBody(ctx, "POST", "/api/v1/nodes", rcn, unifiedapiclient.DummyReply{})
 	if err != nil {

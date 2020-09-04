@@ -1840,8 +1840,7 @@ create table `remote_clients` (
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY remote_clients_private_key (`public_key`),
-  KEY remote_clients_category_id (`category_id`)
+  UNIQUE KEY remote_clients_private_key (`public_key`)
 ) ENGINE=InnoDB;
 
 --
