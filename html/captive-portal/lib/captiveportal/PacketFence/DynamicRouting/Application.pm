@@ -32,6 +32,7 @@ use pf::api::queue;
 use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
 use pf::activation;
+use fingerbank::Config;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -135,6 +136,11 @@ Fingerbank processing
 
 sub process_fingerbank {
     my ( $self ) = @_;
+
+    unless(fingerbank::Config::is_api_key_configured()) {
+        get_logger->debug("Skipping Fingerbank processing because no API key is configured");
+        return $FALSE;
+    }
 
     my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
     if($attributes->{most_accurate_user_agent} ne $self->current_user_agent) {
