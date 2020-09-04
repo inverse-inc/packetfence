@@ -37,10 +37,11 @@ func TestHandleGetProfile(t *testing.T) {
 
 	// Delete existing clients + add a another client
 	gormdb, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
+	gormdb.DB().Query("delete from node")
 	gormdb.DB().Query("delete from remote_clients")
-	peers := []string{"testpub"}
+	peers := []string{"aa:bb:cc:dd:ee:ff"}
 	for _, peer := range peers {
-		remoteclients.GetOrCreateRemoteClient(ctx, gormdb, peer)
+		remoteclients.GetOrCreateRemoteClient(ctx, gormdb, peer, peer, 1)
 	}
 
 	m := e.GET("/api/v1/remote_clients/server_challenge").WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
@@ -87,6 +88,7 @@ func TestHandleGetProfile(t *testing.T) {
 	m = e.GET("/api/v1/remote_clients/profile").
 		WithQuery("auth", base64.URLEncoding.EncodeToString(encryptedChallengeRaw)).
 		WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).
+		WithQuery("mac", "00:11:22:33:44:55").
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -109,6 +111,7 @@ func TestHandleGetProfile(t *testing.T) {
 	}
 
 	gormdb.DB().Query("delete from remote_clients")
+	gormdb.DB().Query("delete from node")
 }
 
 func TestPrivEventsRestriction(t *testing.T) {

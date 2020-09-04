@@ -1831,11 +1831,12 @@ DELIMITER ;
 -- Table structure for remote clients
 --
 
+drop table if exists `remote_clients`;
 create table `remote_clients` (
   id int NOT NULL AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   public_key varchar(255) NOT NULL,
-  category_id int NOT NULL,
+  mac varchar(17) NOT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY (id),

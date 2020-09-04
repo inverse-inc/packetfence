@@ -72,9 +72,10 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		}
 	} else {
 		log.LoggerWContext(c).Warn("No X-PacketFence-Username in the request. Assuming we're running in test mode.")
+		categoryId = 1
 	}
 
-	rc, _ := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), categoryId)
+	rc, _ := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), c.Query("mac"), categoryId)
 
 	c.JSON(http.StatusOK, remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),

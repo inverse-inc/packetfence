@@ -7,6 +7,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/jcuga/golongpoll"
 	"github.com/jinzhu/gorm"
 )
@@ -18,28 +19,34 @@ var netmask = 24
 var PublishNewClientsTo *golongpoll.LongpollManager
 
 type RemoteClient struct {
-	ID         uint `gorm:"primary_key"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	TenantId   uint
-	PublicKey  string
-	CategoryId uint
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	TenantId  uint
+	PublicKey string
+	MAC       string
 }
 
-func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, categoryId uint) (*RemoteClient, error) {
-	rc := RemoteClient{}
+func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, mac string, categoryId uint) (*RemoteClient, error) {
+	rc := RemoteClient{MAC: mac}
+	rcn := rc.GetNode(ctx)
+
+	categoryIdChanged := categoryId != rcn.CategoryId
+
+	rcn.MAC = mac
+	rcn.CategoryId = categoryId
+	rc.UpsertNode(ctx, rcn)
+
 	db.Where("public_key = ?", publicKey).First(&rc)
 	if rc.PublicKey != publicKey {
 		rc.PublicKey = publicKey
-		rc.CategoryId = categoryId
 		log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has just been created. Publishing its presence.")
 		err := db.Create(&rc).Error
 		publishNewClient(ctx, db, rc)
 		return &rc, err
 	} else {
-		if categoryId != rc.CategoryId {
+		if categoryIdChanged {
 			log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has changed role. Publishing its presence.")
-			rc.CategoryId = categoryId
 			db.Save(&rc)
 			publishNewClient(ctx, db, rc)
 		}
@@ -79,6 +86,45 @@ func (rc *RemoteClient) Netmask() int {
 
 func (rc *RemoteClient) AllowedPeers(ctx context.Context, db *gorm.DB) []string {
 	keys := []string{}
-	db.Model(&RemoteClient{}).Where("public_key != ? AND category_id = ?", rc.PublicKey, rc.CategoryId).Pluck("public_key", &keys)
+	rows, err := db.Raw("select public_key from remote_clients join node on remote_clients.mac=node.mac where public_key != ? and node.category_id = (select category_id from node where mac=?)", rc.PublicKey, rc.MAC).Rows()
+	sharedutils.CheckError(err)
+	for rows.Next() {
+		var key string
+		rows.Scan(&key)
+		keys = append(keys, key)
+	}
 	return keys
+}
+
+type RemoteClientNode struct {
+	MAC        string `json:"mac,omitempty"`
+	CategoryId uint   `json:"category_id,omitempty"`
+}
+
+func (rc *RemoteClient) GetNode(ctx context.Context) RemoteClientNode {
+	client := unifiedapiclient.NewFromConfig(ctx)
+
+	resp := struct {
+		Item RemoteClientNode
+	}{}
+	client.Call(ctx, "GET", "/api/v1/node/"+rc.MAC, &resp)
+	return resp.Item
+}
+
+func (rc *RemoteClient) UpsertNode(ctx context.Context, rcn RemoteClientNode) error {
+	client := unifiedapiclient.NewFromConfig(ctx)
+
+	err := client.CallWithBody(ctx, "PATCH", "/api/v1/node/"+rcn.MAC, rcn, unifiedapiclient.DummyReply{})
+	if err == nil {
+		return nil
+	}
+
+	log.LoggerWContext(ctx).Info("Got an error while updating node " + rcn.MAC + ". Will try to create it instead")
+
+	err = client.CallWithBody(ctx, "POST", "/api/v1/nodes", rcn, unifiedapiclient.DummyReply{})
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Unable to upsert node " + rcn.MAC + ". Peer detection will have to rely on the previous role of the node. Error: " + err.Error())
+	}
+
+	return err
 }
