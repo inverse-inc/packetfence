@@ -31,19 +31,14 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-
     my %tmp_cfg = %{ $self->{cfg} };
     my %reverseLookup;
-    $self->{roleReverseLookup} = {};
-
     while ( my ($key, $provisioner) = each %tmp_cfg) {
         $self->cleanup_after_read($key, $provisioner);
-        $self->updateRoleReverseLookup($key, $provisioner, 'provisioning', qw(category role_to_apply));
         foreach my $field (qw(pki_provider)) {
             my $values = $provisioner->{$field};
             if (ref ($values) eq '') {
                 next if !defined $values || $values eq '';
-
                 $values = [$values];
             }
 
@@ -51,6 +46,7 @@ sub build_child {
                 push @{$reverseLookup{$field}{$val}}, $key;
             }
         }
+
         if (exists $provisioner->{security_type}) {
             my $value = $provisioner->{security_type};
             if (defined $value && $value eq 'WPA2') {
@@ -58,10 +54,10 @@ sub build_child {
             }
         }
     }
+
     $self->{reverseLookup} = \%reverseLookup;
-
+    $self->roleReverseLookup(\%tmp_cfg, 'provisioning', qw(category role_to_apply));
     return \%tmp_cfg;
-
 }
 
 sub cleanup_after_read {

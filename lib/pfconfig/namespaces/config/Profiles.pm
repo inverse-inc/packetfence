@@ -39,7 +39,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [ 'FilterEngine::Profile', 'resource::URI_Filters', 'resource::ProfileReverseLookup'];
+    $self->{child_resources} = [ 'FilterEngine::Profile', 'resource::URI_Filters', 'resource::ProfileReverseLookup', 'resource::RolesReverseLookup'];
     my $defaults = pf::IniFiles->new(-file => $profiles_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }

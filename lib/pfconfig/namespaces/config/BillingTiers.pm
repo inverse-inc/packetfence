@@ -36,9 +36,9 @@ sub build_child {
 
     while (my ($key, $val) = each %cfg) {
         $val->{id} = $key;
-        $self->updateRoleReverseLookup($key, $val, 'billing_tiers', qw(role));
     }
 
+    $self->roleReverseLookup(\%cfg, 'billing_tiers', qw(role));
     return \%cfg;
 }
 

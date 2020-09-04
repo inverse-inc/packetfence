@@ -49,11 +49,8 @@ $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
 $t->delete_ok("$base_url/default")
   ->status_is(422);
 
-$t->patch_ok("$collection_base_url/reassign" => json => {})
+$t->patch_ok("$base_url/gaming/reassign" => json => {})
   ->status_is(422);
-
-use Data::Dumper;
-print Dumper($t->tx->res->json);
 
 =head1 AUTHOR
 

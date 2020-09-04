@@ -38,9 +38,9 @@ sub build_child {
 
     while (my ($key, $item) = each %tmp_cfg ) {
         $self->cleanup_after_read( $key, $item );
-        $self->updateRoleReverseLookup($key, $item, 'selfservice', qw(roles_allowed_to_unregister device_registration_roles));
     }
 
+    $self->roleReverseLookup(\%tmp_cfg, 'selfservice', qw(roles_allowed_to_unregister device_registration_roles));
     return \%tmp_cfg;
 
 }

@@ -32,13 +32,12 @@ sub init {
 sub build_child {
     my ($self) = @_;
     my %tmp_cfg = %{ $self->{cfg} };
-
     while ( my ($key, $item) = each %tmp_cfg ) {
         $self->cleanup_after_read( $key, $item);
         $item->{networks} = [map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$item->{networks}}];
-        $self->updateRoleReverseLookup($key, $item, 'firewall_sso', qw(categories));
     }
 
+    $self->roleReverseLookup(\%tmp_cfg, 'firewall_sso', qw(categories));
     return \%tmp_cfg;
 
 }

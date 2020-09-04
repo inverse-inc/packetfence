@@ -34,12 +34,11 @@ sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{$self->{cfg}};
-    $self->{roleReverseLookup} = {};
     while ( my ($key, $val) = each %tmp_cfg) {
         $self->cleanup_after_read($key, $val);
-        $self->updateRoleReverseLookup($key, $val, 'scan', qw(categories));
     }
 
+    $self->roleReverseLookup(\%tmp_cfg, 'scan', qw(categories));
     return \%tmp_cfg;
 }
 
