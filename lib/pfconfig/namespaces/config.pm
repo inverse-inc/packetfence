@@ -147,6 +147,16 @@ sub GroupMembers {
     return @members;
 }
 
+
+sub roleReverseLookup {
+    my ($self, $cfg, $namespace, @fields) = @_;
+    $self->{roleReverseLookup} = {};
+    while (my ($id, $item) = each %$cfg) {
+        $self->updateRoleReverseLookup($id, $item, $namespace, @fields);
+    }
+
+}
+
 sub updateRoleReverseLookup {
     my ($self, $id, $item, $namespace, @fields) = @_;
     my @categories;
