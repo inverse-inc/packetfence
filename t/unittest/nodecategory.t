@@ -29,19 +29,23 @@ use Test::NoWarnings;
 use pf::nodecategory;
 
 is_deeply(
+    [
     pf::nodecategory::_order_nodecategory_config(
         {
-            v1 => {},
+            v1 => { max_nodes_per_pid => 0},
             v2 => { parent => "v1"},
-            v3 => { parent => "v2"},
+            v3 => { parent => "v2", max_nodes_per_pid => 1},
             v4 => { parent => "v3"},
+            v5 => { parent => "v4"},
         }
-    ),
+    )]
+    ,
     [
-        [v1 => {}],
-        [v2 => { parent => "v1"}],
-        [v3 => { parent => "v2"}],
-        [v4 => { parent => "v3"}],
+        [v1 => {max_nodes_per_pid => 0}],
+        [v2 => { parent => "v1", max_nodes_per_pid => 0 }],
+        [v3 => { parent => "v2", max_nodes_per_pid => 1 }],
+        [v4 => { parent => "v3", max_nodes_per_pid => 1 }],
+        [v5 => { parent => "v4", max_nodes_per_pid => 1 }]
     ],
 );
 

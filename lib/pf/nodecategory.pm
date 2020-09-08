@@ -117,6 +117,20 @@ sub _order_nodecategory_config {
 
 sub _flatten_nodecategory {
     my ( $parents, $h ) = @_;
+    for my $parent (@$parents) {
+        my $pname = $parent->[0];
+        next if !exists $h->{$pname};
+        my $data = $parent->[1];
+        for my $child (@{$h->{$pname} // []}) {
+            my $cdata = $child->[1];
+            while (my ($k, $v) = each %$data) {
+                next if $k eq 'parent';
+                if (!exists $cdata->{$k} || !defined $cdata->{$k}) {
+                    $cdata->{$k} = $v;
+                }
+            }
+        }
+    }
     return @$parents,
       map { _flatten_nodecategory( $h->{$_}, $h ) }
       grep { exists $h->{$_} } map { $_->[0] } @$parents;
