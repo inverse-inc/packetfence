@@ -11,6 +11,8 @@ pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
 pfserver_mgmt_netmask: '{{.PF_TEST_MGMT_MASK}}'
 smtp_server: '{{.MAILHOG_SMTP_SERVER_IP}}'
 smtp_port: '{{.MAILHOG_SMTP_PORT}}'
+mariadb_socket: '{{.MARIADB_SOCKET}}'
+timezone: '{{.TIMEZONE}}'
 
 # ssh executor variables
 ssh_user: vagrant
@@ -18,7 +20,7 @@ ssh_user: vagrant
 # pfserver variables
 pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
 pfserver_default_admin_user: admin
-pfserver_default_admin_password: admin
+pfserver_admin_password: secret
 
 # ad variables
 ad_mgmt_ip: 172.17.17.100
@@ -54,6 +56,10 @@ access_duration.default_choice: "5m"
 # Access level
 access_level_user_and_node.id: user_and_node_manager
 access_level_user_and_node.description: Users and Nodes management
+
+# Fingerbank
+fingerbank_api_key.email: support@inverse.ca
+fingerbank_api_key.secret_id: d2c4d4f8-c5b1-4281-a724-e4ade5c31fe1
 
 ### Maintenance tasks
 # Node cleanup
@@ -166,11 +172,13 @@ configurator.smtp.port: '{{.smtp_port}}'
 
 # General
 configurator.domain: '{{.ad_dns_domain}}'
-configurator.hostname: packetfence
+configurator.hostname: pf
+configurator.timezone: '{{.timezone}}'
 
 # Admin account
-configurator.admin.password: secret
+configurator.admin.password: '{{.pfserver_admin_password}}'
 configurator.admin.valid_from: 1970-01-01 00:00:00
 
+### Step 3
 # Fingerbank
-configurator.fingerbank.key: 
+configurator.fingerbank_api_key.secret_id: '{{.fingerbank_api_key.secret_id}}'

@@ -104,16 +104,16 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Settings updated"
 
-- name: Check_entry
+# to run unit tests without password later
+- name: generate_my_cnf
   steps:
-    - type: sql
-      driver: mysql
-      dsn: {{.configurator.db.users.root.id}}:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
-      commands:
-        - "SELECT * FROM password;"
-      assertions:
-        - result.queries.queries0.rows.rows0.pid ShouldEqual {{.configurator.db.users.root.id}}
-
+  - type: exec
+    script: |
+      cat > ~/.my.cnf << EOF
+      [client]
+      user = {{.configurator.db.users.root.id}}
+      password = {{.configurator.db.users.root.password}}
+      EOF
 
 - name: config_alerting
   steps:
@@ -137,7 +137,7 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Settings updated"
 
-- name: step2_testmail
+- name: send_testmail
   steps:
   - type: http
     method: POST
@@ -148,9 +148,9 @@ testcases:
         "emailaddr": "{{.configurator.email}}",
         "fromaddr": "{{.configurator.from_email}}",
         "smtp_encryption": "none",
-        "smtp_port": "{{.configurator.smtp_port}}",
+        "smtp_port": "{{.configurator.smtp.port}}",
         "smtp_verifyssl": "enabled",
-        "smtpserver": "{{.configurator.smtp_server}}",
+        "smtpserver": "{{.configurator.smtp.server}}",
         "test_emailaddr": "{{.configurator.email}}"
       }
     headers:
@@ -160,7 +160,7 @@ testcases:
 
 # FIXME: MailHog API call
 
-- name: step2_general
+- name: config_general_settings
   steps:
   - type: http
     method: PATCH
@@ -169,15 +169,15 @@ testcases:
     body: >-
       {
         "domain": "{{.configurator.domain}}",
-        "hostname": "{{.configurator.hostname}}",
-        "timezone": "UTC"
+        "timezone": "{{.configurator.timezone}}",
+        "hostname": "{{.configurator.hostname}}"
       }
     headers:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      
-- name: step2_restart_mariadb_service
+
+- name: restart_mariadb_service
   steps:
   - type: http
     method: POST
@@ -188,7 +188,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: step2_admin_account_password
+- name: set_admin_account_password
   steps:
   - type: http
     method: PATCH
@@ -196,7 +196,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "password": "{{.configurator.admin_password}}",
+        "password": "{{.configurator.admin.password}}",
         "pid": "admin",
         "valid_from": "{{.configurator.admin.valid_from}}"
       }
@@ -204,13 +204,3 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-
-- name: Check_entry_admin
-  steps:
-    - type: sql
-      driver: mysql
-      dsn: {{.configurator.db.users.root.id}}:{{.MYSQL_PWD}}@unix{{.MYSQL_UNIX_PORT}}/pf
-      commands:
-        - "SELECT * FROM password;"
-      assertions:
-        - result.queries.queries0.rows.rows0.pid ShouldEqual admin

@@ -39,3 +39,5 @@ environment__group_variables:
   - name: 'INTERNET_INT_MASK'
     value: "{{ ansible_default_ipv4['netmask'] }}"
   
+  - name: 'TIMEZONE'
+    value: "{{ ansible_date_time['tz'] }}"

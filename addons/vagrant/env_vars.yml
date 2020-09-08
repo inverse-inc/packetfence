@@ -10,6 +10,17 @@
     - debops.roles02
     - debops.roles03
 
+  pre_tasks:
+    - name: Get MariaDB socket
+      mysql_variables:
+        variable: socket
+      register: env_vars_register_mariadb_socket
+
   roles:
     - role: environment
+      # use this variable to avoid overwrite of environment__group_variables already defined
+      # in inventory
+      environment__variables:
+        - name: 'MARIADB_SOCKET'
+          value: "{{ env_vars_register_mariadb_socket['msg'] }}"
       tags: env
