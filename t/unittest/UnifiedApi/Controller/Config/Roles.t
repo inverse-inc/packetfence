@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Roles;
@@ -62,6 +62,12 @@ $t->patch_ok("$base_url/gaming/reassign" => json => {})
 
 $t->post_ok($collection_base_url => json => { id => 'bob' })
   ->status_is(201);
+
+$t->patch_ok("$base_url/r1" => json => { parent => 'r2' })
+  ->status_is(422);
+
+$t->patch_ok("$base_url/r1" => json => { parent => 'r3' })
+  ->status_is(422);
 
 =head1 AUTHOR
 

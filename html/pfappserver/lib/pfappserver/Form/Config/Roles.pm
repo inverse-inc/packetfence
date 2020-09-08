@@ -19,7 +19,7 @@ with qw(
 
 use HTTP::Status qw(:constants is_success);
 
-use pf::config;
+use pf::config qw(%ConfigRoles);
 use pf::constants::role qw(@ROLES);
 
 has_field 'id' =>
@@ -72,13 +72,25 @@ Make sure the role name is unique.
 sub validate {
     my $self = shift;
     my $value = $self->value;
-    if (grep { $_ eq ($value->{id} // '')  } @ROLES) {
+    my $id = $value->{id} // '';
+    if (grep { $_ eq $id  } @ROLES) {
         $self->field('id')->add_error('This is a reserved name.');
     }
 
     my $parent = $value->{parent};
-    if (defined $parent && $value->{id} eq $value->{parent}) {
-        $self->field('parent')->add_error('Cannot be your own parent.');
+    if (defined $parent) {
+        if ( $id eq $parent) {
+            $self->field('parent')->add_error('Cannot be your own parent.');
+        }
+        $parent = $ConfigRoles{$parent}{parent};
+        while (defined $parent) {
+            if ( $id eq $parent) {
+                $self->field('parent')->add_error('Cannot have a parent of your descendents.');
+                last;
+            }
+            $parent = $ConfigRoles{$parent}{parent};
+        }
+
     }
 
 }
