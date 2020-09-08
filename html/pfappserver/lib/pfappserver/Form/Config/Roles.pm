@@ -55,6 +55,18 @@ has_field 'max_nodes_per_pid' =>
              help => 'The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.' },
   );
 
+has_field 'include_parent_acl' => (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    label => 'Include parent ACLs',
+);
+
+has_field 'acls' => (
+    type => 'TextArea',
+    label => 'ACLs',
+);
+
 =head2 validate
 
 Make sure none of the reserved names is used.
