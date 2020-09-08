@@ -826,7 +826,8 @@ Create the resource options
 
 sub resource_options {
     my ($self) = @_;
-    my ($status, $form) = $self->form($self->item);
+    my $item = $self->item;
+    my ($status, $form) = $self->form($item);
     if (is_error($status)) {
         return $self->render_error($status, $form);
     }
@@ -839,6 +840,7 @@ sub resource_options {
     my $parent = {
         placeholder => $self->_cleanup_placeholder($inheritedValues)
     };
+    $form->process($self->form_process_parameters_for_cleanup($item));
     for my $field ($form->fields) {
         next if $field->inactive;
         my $name = $field->name;
