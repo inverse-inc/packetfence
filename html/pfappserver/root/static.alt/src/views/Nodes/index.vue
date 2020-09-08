@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import network from '@/utils/network'
 import pfSidebar from '@/components/pfSidebar'
 
 export default {
@@ -82,7 +81,7 @@ export default {
                   caption: switchGroupMember.description,
                   path: {
                     name: 'nodeSearch',
-                    query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: network.cidrToIpv4(switchGroupMember.id) }] }] }) }
+                    query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
                   }
                 }
               })
