@@ -51,7 +51,6 @@ has_field 'max_nodes_per_pid' =>
    type => 'PosInteger',
    label => 'Max nodes per user',
    default => 0,
-   required => 1,
    tags => { after_element => \&help,
              help => 'The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.' },
   );
@@ -71,7 +70,8 @@ sub validate {
         $self->field('id')->add_error('This is a reserved name.');
     }
 
-    if ($value->{id} eq $value->{parent}) {
+    my $parent = $value->{parent};
+    if (defined $parent && $value->{id} eq $value->{parent}) {
         $self->field('parent')->add_error('Cannot be your own parent.');
     }
 
