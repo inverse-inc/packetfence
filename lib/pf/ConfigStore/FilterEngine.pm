@@ -15,6 +15,7 @@ pf::ConfigStore::VlanFilters
 use strict;
 use warnings;
 use Moo;
+use List::MoreUtils qw(any);
 use namespace::autoclean;
 extends 'pf::ConfigStore';
 
@@ -53,6 +54,19 @@ sub cleanupAfterRead {
 
 sub _fields_expanded {
     return qw(scopes);
+}
+
+sub _update_section {
+    my ($self, $section, $assignments) = @_;
+    my $cachedConfig = $self->cachedConfig;
+    my @array_items = $self->ordered_arrays;
+    for my $p ($cachedConfig->Parameters($section)) {
+        if ( any { $p =~ /^\Q$_->[1]\E\./ } @array_items ) {
+            $cachedConfig->delval($section, $p);
+        }
+    }
+
+    $self->SUPER::_update_section($section, $assignments);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

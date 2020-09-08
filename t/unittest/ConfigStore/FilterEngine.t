@@ -22,12 +22,14 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::ConfigStore::VlanFilters;
+use Utils;
 
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::VlanFilters");
 my $cs = pf::ConfigStore::VlanFilters->new();
 my $item = {
     condition => '!(a == "b")',
@@ -108,6 +110,83 @@ is_deeply(
                 }
             ],
             'op' => 'not_and'
+        }
+    );
+}
+
+{
+    $item = $cs->read("registration2", "id");
+    is_deeply(
+        $item,
+        {
+            id => "registration2",
+            condition => {
+                op => 'and',
+                values => [
+                    { op => "equals", field => "ssid", value => 'TEST' },
+                    {
+                        op     => 'and',
+                        values => [
+                            {
+                                value => 'bob',
+                                op    => 'not_contains',
+                                field => "node_info.category"
+                            },
+                            {
+                                op    => "equals",
+                                field => "node_info.status",
+                                value => "unreg"
+                            }
+                        ]
+                    }
+                  ],
+            },
+            actions => [
+                'function0: mac, $mac',
+                'function1: mac, $mac',
+            ],
+            scopes => ['RegistrationRole'],
+            status => 'enabled',
+            role => 'registration2',
+        }
+    );
+
+    $item->{actions} = [
+        'function3: mac, $mac',
+    ];
+
+    $cs->update("registration2", $item);
+    is_deeply(
+        $cs->read("registration2", "id"),
+        {
+            id => "registration2",
+            condition => {
+                op => 'and',
+                values => [
+                    { op => "equals", field => "ssid", value => 'TEST' },
+                    {
+                        op     => 'and',
+                        values => [
+                            {
+                                value => 'bob',
+                                op    => 'not_contains',
+                                field => "node_info.category"
+                            },
+                            {
+                                op    => "equals",
+                                field => "node_info.status",
+                                value => "unreg"
+                            }
+                        ]
+                    }
+                  ],
+            },
+            actions => [
+                'function3: mac, $mac',
+            ],
+            scopes => ['RegistrationRole'],
+            status => 'enabled',
+            role => 'registration2',
         }
     );
 }
