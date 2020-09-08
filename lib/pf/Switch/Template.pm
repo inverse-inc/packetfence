@@ -529,6 +529,7 @@ sub _bouncePortCoa {
     my ($attrs, $vsa) = $self->makeRadiusAttributesWithVSA($radiusBounce, \%args);
     # Standard Attributes
     return perform_coa($connection_info, {@$attrs}, $vsa);
+}
 
 sub NasPortToIfIndex {
     my ($self, $nasPort) = @_;
