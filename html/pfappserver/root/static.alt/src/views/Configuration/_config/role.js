@@ -1,5 +1,6 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormChosen from '@/components/pfFormChosen'
 import {
   attributesFromMeta,
   validatorsFromMeta
@@ -33,6 +34,12 @@ export const columns = [
   {
     key: 'max_nodes_per_pid',
     label: i18n.t('Max nodes per user'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'parent',
+    label: i18n.t('Parent'),
     sortable: true,
     visible: true
   },
@@ -152,6 +159,17 @@ export const view = (_, meta = {}) => {
               namespace: 'max_nodes_per_pid',
               component: pfFormInput,
               attrs: attributesFromMeta(meta, 'max_nodes_per_pid')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Parent'),
+          text: i18n.t('Parent Role.'),
+          cols: [
+            {
+              namespace: 'parent',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'parent')
             }
           ]
         }
