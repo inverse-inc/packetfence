@@ -14,6 +14,7 @@
       max="1"
       step="1"
       :disabled="isLocked"
+      :size="size"
       :state="inputState"
       :tabIndex="inputTabIndex"
       :value="inputValue"
@@ -47,6 +48,11 @@ const components = {
 }
 
 export const props = {
+  size: {
+    type: String,
+    default: 'md',
+    validator: value => ['sm', 'md', 'lg'].includes(value)
+  },
   ...useFormGroupProps,
   ...useInputProps,
   ...useInputMetaProps,

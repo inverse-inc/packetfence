@@ -25,10 +25,6 @@ export const useInputRangeProps = {
     hints: { // dots/pills in range for hints (eg: [1, [1-2], 2])
       type: Array,
       default: () => ([])
-    },
-    size: {
-      type: String,
-      validator: value => ['sm', 'md', 'lg'].includes(value)
     }
 }
 
@@ -40,7 +36,6 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
     step,
     color,
     hints,
-    size,
     value
   } = toRefs(props)
 
@@ -92,36 +87,6 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
       return
     emit('change', e.target.value)
   }
-  const onClick = e => {
-    const _min = +unref(min)
-    const _max = +unref(max)
-    const _step = +unref(step)
-
-    let { target, offsetX } = e
-    const width = target.closest('[index]').offsetWidth
-
-    switch (true) {
-      case target.classList.contains('handle'):
-console.log('@handle >>>', {offsetX})
-        const _percent = unref(percent)
-        offsetX += width * _percent / 100
-        break
-      case target.classList.contains('range'):
-console.log('@range >>>', {offsetX})
-        offsetX += width / 2
-        break
-      default:
-console.log('@default >>>', {offsetX})
-        //...
-    }
-    const slice = width / (_max - _min)
-    const value = _min + Math.round(offsetX / slice)
-
-console.log('onClick', {width, offsetX, slice, value})
-
-    emit('change', value)
-    doFocus()
-  }
 
   return {
     // state
@@ -133,7 +98,6 @@ console.log('onClick', {width, offsetX, slice, value})
     // methods
     doFocus,
     doBlur,
-    onInput,
-    onClick
+    onInput
   }
 }

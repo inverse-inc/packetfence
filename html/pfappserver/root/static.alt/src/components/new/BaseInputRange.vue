@@ -4,15 +4,16 @@
       class="base-input-range"
       :class="{
         'is-focus': isFocus,
-        'is-blur': !isFocus
+        'is-blur': !isFocus,
+        'size-sm': size === 'sm',
+        'size-md': size === 'md',
+        'size-lg': size === 'lg'
       }"
       :disabled="isLocked"
       :index="inputValue"
-      :size="size"
       :style="rootStyle"
-      @click="onClick"
     >
-      <div>
+      <div style="pointer-events: none;">
         <div v-for="(hintStyle, index) in hintStyles" :key="index" class="hint" :style="hintStyle"></div>
         <span class="handle" :style="valueStyle">
           <slot/> <!-- Icon slot -->
@@ -32,7 +33,6 @@
         :min="min"
         :step="step"
         :disabled="isLocked"
-        @click.prevent
         @input="onInput"
         @focus="onFocus"
         @blur="onBlur"
@@ -56,6 +56,11 @@ export const props = {
   },
   tooltip: {
     type: String
+  },
+  size: {
+    type: String,
+    default: 'md',
+    validator: value => ['sm', 'md', 'lg'].includes(value)
   },
   ...useInputProps,
   ...useInputMetaProps,
@@ -88,9 +93,7 @@ export const setup = (props, context) => {
     hintStyles,
     labelStyle,
     valueStyle,
-    onInput,
-    onClick,
-    onKeyDown
+    onInput
   } = useInputRange(metaProps, context)
 
   return {
@@ -113,8 +116,7 @@ export const setup = (props, context) => {
     hintStyles,
     valueStyle,
     labelStyle,
-    onInput,
-    onClick
+    onInput
   }
 }
 
@@ -154,17 +156,17 @@ export default {
   transition: background-color var(--range-transition-delay) ease-out,
     box-shadow var(--range-transition-delay) ease-out,
     outline var(--range-transition-delay) ease-out;
-  &[size="sm"] {
+  &.size-sm {
     --handle-height: 8px;
     --range-height: 12px;
     width: 20px;
   }
-  /* &[size="md"] { */
+  /* &.size-md { */
     --handle-height: 16px;
     --range-height: 22px;
     width: 40px;
   /* } */
-  &[size="lg"] {
+  &.size-lg {
     --handle-height: 32px;
     --range-height: 44px;
     width: 80px;
@@ -281,13 +283,13 @@ export default {
   }
   > input[type=range] {
     position: absolute;
-    top: calc((var(--range-height) - var(--handle-height)) / 2);
-    right: calc(var(--range-height) / 2);
-    left: calc(var(--range-height) / 2);
-    width: calc(100% - var(--range-height));
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
     pointer-events: all;
     -webkit-appearance: none; /* disable track clicks */
-    height: var(--handle-height);
     opacity: 0;
     &::-ms-track {
       -webkit-appearance: none;
