@@ -72,10 +72,15 @@ Make sure the role name is unique.
 
 sub validate {
     my $self = shift;
-
-    if (grep { $_ eq ($self->value->{id} // '')  } @ROLES) {
+    my $value = $self->value;
+    if (grep { $_ eq ($value->{id} // '')  } @ROLES) {
         $self->field('id')->add_error('This is a reserved name.');
     }
+
+    if ($value->{id} eq $value->{parent}) {
+        $self->field('parent')->add_error('Cannot be your own parent.');
+    }
+
 }
 
 =head2 options_parent
@@ -84,7 +89,10 @@ sub validate {
 
 sub options_parent {
     my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+    my $form = $self->form;
+    my $id = $form->value->{id} // $form->fif->{id};
+    my $no_id = !defined $id || $id eq '';
+    my @roles = map { { value => $_->{name}, label => $_->{name} } } grep { $no_id || $_->{name} ne $id }  @{$form->roles} if ($form->roles);
     return @roles;
 }
 
