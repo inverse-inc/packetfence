@@ -60,6 +60,9 @@ $t->delete_ok("$base_url/default")
 $t->patch_ok("$base_url/gaming/reassign" => json => {})
   ->status_is(422);
 
+$t->post_ok($collection_base_url => json => { id => 'bob' })
+  ->status_is(201);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
