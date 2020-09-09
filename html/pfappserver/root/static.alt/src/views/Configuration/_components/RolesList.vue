@@ -111,6 +111,7 @@ export default {
     },
     remove (item) {
       this.$store.dispatch('$_roles/deleteRole', item.id).then(() => {
+console.log('refs', this.$refs)
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       }).catch(error => {
@@ -125,8 +126,8 @@ export default {
     reassign () {
       this.$store.dispatch('$_roles/reassignRole', { from: this.deleteId, to: this.reassignRole}).then(() => {
         this.showDeleteErrorsModal = false
-        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
-        refreshList() // soft reload
+        // cascade delete
+        this.remove({ id: this.deleteId })
       })
     },
     trafficShapingRoute (id) {
