@@ -12,6 +12,7 @@ server packetfence {
 	#  Make *sure* that 'preprocess' comes before any realm if you
 	#  need to setup hints for the remote radius server
 	authorize {
+		packetfence-nas-ip-address
 
 		# Add in PacketFence specific configuration
 		update {
@@ -273,6 +274,8 @@ server packetfence {
 	#  Accounting.  Log the accounting data.
 	#
 	accounting {
+		packetfence-nas-ip-address
+
 		# Add in PacketFence specific configuration
 		update {
 			&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
@@ -582,23 +585,7 @@ server pf.degraded {
 		-sql_degraded
 		pap
 
-<<<<<<< HEAD
-#
-#  Accounting.  Log the accounting data.
-#
-accounting {
-	packetfence-nas-ip-address
-
-	# Add in PacketFence specific configuration
-	update {
-		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-		&control:PacketFence-RPC-Server = ${rpc_host}
-		&control:PacketFence-RPC-Port = ${rpc_port}
-		&control:PacketFence-RPC-User = ${rpc_user}
-		&control:PacketFence-RPC-Pass = ${rpc_pass}
-		&control:PacketFence-RPC-Proto = ${rpc_proto}
 	}
-
 
 	authenticate {
 		Auth-Type PAP {
