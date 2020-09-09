@@ -121,16 +121,23 @@ sub _flatten_nodecategory {
         my $pname = $parent->[0];
         next if !exists $h->{$pname};
         my $data = $parent->[1];
+        my %inherited;
         for my $child (@{$h->{$pname} // []}) {
             my $cdata = $child->[1];
             while (my ($k, $v) = each %$data) {
                 next if $k eq 'parent';
                 if (!exists $cdata->{$k} || !defined $cdata->{$k}) {
                     $cdata->{$k} = $v;
+                    $inherited{$k} = undef;
                 }
+            }
+
+            if ($cdata->{parent} && isenabled($cdata->{include_parent_acls}) && !exists $inherited{acls}) {
+                push @{$cdata->{acls}}, @{$data->{acls} // []};
             }
         }
     }
+
     return @$parents,
       map { _flatten_nodecategory( $h->{$_}, $h ) }
       grep { exists $h->{$_} } map { $_->[0] } @$parents;
