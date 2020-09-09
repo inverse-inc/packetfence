@@ -305,12 +305,11 @@ EOT
 
     generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
 
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+    $tt->process("$conf_dir/radiusd/packetfence-tunnel", \%tags, "$install_dir/raddb/sites-enabled/packetfence-tunnel") or die $tt->error();
 
     %tags = ();
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
+    $tt->process("$conf_dir/radiusd/packetfence-cli", \%tags, "$install_dir/raddb/sites-enabled/packetfence-cli") or die $tt->error();
 
 }
 
@@ -659,7 +658,9 @@ EOT
 }
 
 =head2 generate_radiusd_eapconf
+
 Generates the eap.conf configuration file
+
 =cut
 
 sub generate_radiusd_eapconf {

@@ -109,7 +109,7 @@ authorize {
 
 [% authorize_eap_choice %]
 
-%%authorize_ldap_choice%%
+[% authorize_ldap_choice %]
 
 	#
 	#  Read the 'users' file
@@ -126,7 +126,7 @@ authorize {
 
 	#
 
-%%edir_configuration%%
+[% edir_configuration %]
 
 	#
 	#  If no other module has claimed responsibility for
@@ -214,7 +214,7 @@ authenticate {
 
 [% authentication_auth_type %]
 
-%%authentication_ldap_auth_type%%
+[% authentication_ldap_auth_type %]
 
 	# Uncomment it if you want to use ldap for authentication
 	#
