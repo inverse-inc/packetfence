@@ -72,6 +72,7 @@ use pf::dal;
 use pf::security_event;
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::Redis;
+use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION);
 
 our $VERSION = 1.03;
 
@@ -169,7 +170,6 @@ sub authorize {
         ifIndex => $port,
         ifDesc => $ifDesc,
         user_name => $user_name,
-        username => $user_name,
         nas_port_id => $nas_port_type // '',
         session_id => $session_id,
         connection_type => $connection_type,
@@ -916,7 +916,7 @@ sub switch_access {
     }
     my ( $return, $message, $source_id, $extra );
     $source_id = \@sources;
-    if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'})) {
+    if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION) {
         ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
                 'username' =>  $radius_request->{'User-Name'},
                 'password' =>  $radius_request->{'User-Password'},
