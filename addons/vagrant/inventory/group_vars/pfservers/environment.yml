@@ -12,7 +12,7 @@ environment__group_variables:
   - name: 'PSONO_CI_SERVER_URL'
     value: 'https://psono.inverse.ca/server'
 
-  # lookup masked variables available to GitLab runner
+  # lookup variables available to GitLab runner
   # defined in GitLab UI
   
   - name: 'PSONO_CI_API_KEY_ID'
@@ -41,3 +41,6 @@ environment__group_variables:
   
   - name: 'TIMEZONE'
     value: "{{ ansible_date_time['tz'] }}"
+
+  - name: 'PF_LOG_LEVEL'
+    value: 'TRACE'    

@@ -13,6 +13,7 @@ smtp_server: '{{.MAILHOG_SMTP_SERVER_IP}}'
 smtp_port: '{{.MAILHOG_SMTP_PORT}}'
 mariadb_socket: '{{.MARIADB_SOCKET}}'
 timezone: '{{.TIMEZONE}}'
+pf_log_level: '{{.PF_LOG_LEVEL}}'
 
 # ssh executor variables
 ssh_user: vagrant
@@ -21,6 +22,8 @@ ssh_user: vagrant
 pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
 pfserver_default_admin_user: admin
 pfserver_admin_password: secret
+pfserver_root_dir: /usr/local/pf
+pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
 
 # ad variables
 ad_mgmt_ip: 172.17.17.100
