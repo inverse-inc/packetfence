@@ -1,0 +1,33 @@
+name: Run custom step
+version: 2
+testcases:
+- name: config_custom_settings
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/advanced'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "api_inactivity_timeout": {
+          "interval": "{{.pfserver_api_inactivity_timeout.interval}}",
+          "unit": "{{.pfserver_api_inactivity_timeout.unit}}"
+        },
+        "pffilter_processes": "{{.pfserver_pffilter_processes}}",
+        "pfperl_api_processes": "{{.pfserver_pfperl_api_processes}}"
+      }
+    headers:
+      "Content-Type": "application/json"      
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
+
+- name: config_pfqueue_workers
+  steps:
+  - type: exec
+    script: |
+      cat >> {{.pfserver_conf_dir}}/pfqueue.conf << EOF
+      [pfqueue]
+      workers={{.pfserver_pfqueue_workers}}
+      EOF
+

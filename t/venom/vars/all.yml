@@ -24,6 +24,16 @@ pfserver_default_admin_user: admin
 pfserver_admin_password: secret
 pfserver_root_dir: /usr/local/pf
 pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
+pfserver_bin_dir: '{{.pfserver_root_dir}}/bin'
+pfserver_pfcmd: '{{.pfserver_bin_dir}}/pfcmd'
+
+# PacketFence general settings
+pfserver_api_inactivity_timeout.interval: 12
+pfserver_api_inactivity_timeout.unit: h
+pfserver_pffilter_processes: 1
+pfserver_pfperl_api_processes: 2
+pfserver_pfqueue_workers: 2
+
 
 # ad variables
 ad_mgmt_ip: 172.17.17.100
