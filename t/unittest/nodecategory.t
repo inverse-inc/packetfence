@@ -33,19 +33,19 @@ is_deeply(
     pf::nodecategory::_order_nodecategory_config(
         {
             v1 => { max_nodes_per_pid => 0},
-            v2 => { parent => "v1"},
+            v2 => { parent => "v1", acls => [qw(a b)]},
             v3 => { parent => "v2", max_nodes_per_pid => 1},
-            v4 => { parent => "v3"},
+            v4 => { parent => "v3", acls => [qw(c d)], include_parent_acls => "enabled"},
             v5 => { parent => "v4"},
         }
     )]
     ,
     [
         [v1 => {max_nodes_per_pid => 0}],
-        [v2 => { parent => "v1", max_nodes_per_pid => 0 }],
-        [v3 => { parent => "v2", max_nodes_per_pid => 1 }],
-        [v4 => { parent => "v3", max_nodes_per_pid => 1 }],
-        [v5 => { parent => "v4", max_nodes_per_pid => 1 }]
+        [v2 => { parent => "v1", max_nodes_per_pid => 0, acls => [qw(a b)] }],
+        [v3 => { parent => "v2", max_nodes_per_pid => 1, acls => [qw(a b)] }],
+        [v4 => { parent => "v3", max_nodes_per_pid => 1, acls => [qw(c d a b)], include_parent_acls => "enabled" }],
+        [v5 => { parent => "v4", max_nodes_per_pid => 1, acls => [qw(c d a b)], include_parent_acls => "enabled" }]
     ],
 );
 
