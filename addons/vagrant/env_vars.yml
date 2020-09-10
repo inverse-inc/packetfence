@@ -4,6 +4,7 @@
   # to hide secrets stored in environment variables into runners
   # when they are passed to virtual machines
   no_log: True
+  tags: env
   collections:
     - debops.debops
     - debops.roles01
@@ -11,10 +12,15 @@
     - debops.roles03
 
   pre_tasks:
-    - name: Get MariaDB socket
-      mysql_variables:
-        variable: socket
-      register: env_vars_register_mariadb_socket
+    - name: Set MariaDB socket for Debian
+      set_fact:
+        mariadb_socket: '/var/run/mysqld/mysqld.sock'
+      when: ansible_os_family == 'Debian'
+
+    - name: Set MariaDB socket for EL
+      set_fact:
+        mariadb_socket: '/var/lib/mysql/mysql.sock'
+      when: ansible_os_family == 'RedHat'
 
   roles:
     - role: environment
@@ -22,5 +28,4 @@
       # in inventory
       environment__variables:
         - name: 'MARIADB_SOCKET'
-          value: "{{ env_vars_register_mariadb_socket['msg'] }}"
-      tags: env
+          value: "{{ mariadb_socket }}"
