@@ -242,9 +242,9 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('The RADIUS Server(s) to proxy accounting.'),
           cols: [
             {
-              namespace: 'radius_acct_chosen',
+              namespace: 'radius_acct',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'radius_acct_chosen')
+              attrs: attributesFromMeta(meta, 'radius_acct')
             }
           ]
         },
@@ -313,9 +313,9 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('The RADIUS Server(s) to proxy accounting.'),
           cols: [
             {
-              namespace: 'eduroam_radius_acct_chosen',
+              namespace: 'eduroam_radius_acct',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'eduroam_radius_acct_chosen')
+              attrs: attributesFromMeta(meta, 'eduroam_radius_acct')
             }
           ]
         },
@@ -421,12 +421,12 @@ export const validators = (form = {}, meta = {}) => {
     options: validatorsFromMeta(meta, 'options', i18n.t('Options')),
     radius_auth: validatorsFromMeta(meta, 'radius_auth', i18n.t('Servers')),
     radius_auth_proxy_type: validatorsFromMeta(meta, 'radius_auth_proxy_type', i18n.t('Type')),
-    radius_acct_chosen: validatorsFromMeta(meta, 'radius_acct_chosen', i18n.t('Servers')),
+    radius_acct: validatorsFromMeta(meta, 'radius_acct', i18n.t('Servers')),
     radius_acct_proxy_type: validatorsFromMeta(meta, 'radius_acct_proxy_type', i18n.t('Type')),
     eduroam_options: validatorsFromMeta(meta, 'eduroam_options', 'Realm options'),
     eduroam_radius_auth: validatorsFromMeta(meta, 'eduroam_radius_auth', 'RADIUS AUTH'),
     eduroam_radius_auth_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_auth_proxy_type', 'Type'),
-    eduroam_radius_acct_chosen: validatorsFromMeta(meta, 'eduroam_radius_acct_chosen', 'RADIUS ACCT'),
+    eduroam_radius_acct: validatorsFromMeta(meta, 'eduroam_radius_acct', 'RADIUS ACCT'),
     eduroam_radius_acct_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_acct_proxy_type', 'Type'),
     ldap_source: {
       ...validatorsFromMeta(meta, 'ldap_source', i18n.t('Source')),
