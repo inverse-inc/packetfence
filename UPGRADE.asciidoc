@@ -1222,6 +1222,16 @@ This script will convert the old format to the new one:
 /usr/local/pf/addons/upgrade/to-10.0-filter_engines.pl
 ----
 
+=== httpd.admin daemon disabled by default
+
+Starting from now, `httpd.admin` daemon is disabled by default and web admin
+interface is managed by HAProxy using `haproxy-admin` daemon.
+
+It means that if you use a dedicated SSL certificate (different from captive
+portal certificate) for web admin interface, this one has been replaced by
+your captive portal certificate. You can find it at
+[filename]`/usr/local/pf/conf/ssl/server.pem`.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
