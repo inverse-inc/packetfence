@@ -299,6 +299,11 @@ sub _update_field_for_action {
     my @values = grep { $_->{type} eq $action } @{$actions};
     if ( scalar @values > 0 ) {
         $data->{$field} = $values[0]->{value};
+        if ($action eq $Actions::SET_ACCESS_LEVEL) {
+            if (ref($data->{$field}) eq 'ARRAY') {
+                $data->{$field} = join(",", $data->{$field});
+            }
+        }
     }
     else {
         $data->{$field} = $default;
