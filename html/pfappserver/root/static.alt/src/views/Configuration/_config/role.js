@@ -1,6 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   attributesFromMeta,
   validatorsFromMeta
@@ -170,6 +171,17 @@ export const view = (_, meta = {}) => {
               namespace: 'parent',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'parent')
+            }
+          ]
+        },
+        {
+          label: i18n.t('ACLs'),
+          text: i18n.t('Access Control Lists.'),
+          cols: [
+            {
+              namespace: 'acls',
+              component: pfFormTextarea,
+              attrs: attributesFromMeta(meta, 'acls')
             }
           ]
         }
