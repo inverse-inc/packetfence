@@ -37,6 +37,11 @@ sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{ $self->{cfg} };
+    while ( my ($name, $data) = each %tmp_cfg ) {
+        if (exists $data->{acls} && defined $data->{acls}) {
+            $data->{acls} = [split(/\n/, $data->{acls})];
+        }
+    }
 
     return \%tmp_cfg;
 }
