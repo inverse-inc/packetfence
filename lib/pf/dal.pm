@@ -133,6 +133,13 @@ sub db_execute {
             $logger->warn("database query failed with: $errstr (errno: $err), will try again");
             next;
         }
+        my $warnings = $sth->{mysql_warning_count};
+        if ($warnings) {
+            my $warnings = $dbh->selectall_arrayref('SHOW WARNINGS');
+            for my $w (@$warnings) {
+                $logger->warn(join(": ", @$w));
+            }
+        }
         return $STATUS::OK, $sth;
     } continue {
         $attempts--;
