@@ -301,7 +301,7 @@ sub _update_field_for_action {
         $data->{$field} = $values[0]->{value};
         if ($action eq $Actions::SET_ACCESS_LEVEL) {
             if (ref($data->{$field}) eq 'ARRAY') {
-                $data->{$field} = join(",", $data->{$field});
+                $data->{$field} = join(",", @{$data->{$field}});
             }
         }
     }
