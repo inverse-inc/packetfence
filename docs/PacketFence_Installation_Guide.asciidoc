@@ -78,7 +78,6 @@ The following provides a list of the minimum server hardware recommendations:
 ==== Recommendations
 
 * Use logical volume management (LVM) to allocate space
-* Create a dedicated partition for database files under `/var/lib/mysql` directory
 
 === Operating System Requirements
 
