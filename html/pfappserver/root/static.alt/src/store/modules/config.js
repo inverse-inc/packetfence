@@ -159,8 +159,8 @@ const api = {
   getRadiusTlss () {
     return apiCall({ url: 'config/radiusd/tls_profiles', method: 'get' })
   },
-  getRealms () {
-    return apiCall({ url: 'config/realms', method: 'get' })
+  getRealms (tenantId) {
+    return apiCall({ url: 'config/realms', method: 'get', headers: { 'X-PacketFence-Tenant-Id': tenantId } })
   },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
@@ -332,7 +332,7 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusSslsStatus: '',
     radiusTlss: false,
     radiusTlssStatus: '',
-    realms: false,
+    realms: {},
     realmsStatus: '',
     roles: false,
     rolesStatus: '',
@@ -1390,18 +1390,19 @@ const actions = {
       return Promise.resolve(state.radiusTlss)
     }
   },
-  getRealms: ({ state, getters, commit }) => {
+  getRealms: ({ state, getters, commit }, tenantId) => {
+    if (!tenantId) return state.realms
     if (getters.isLoadingRealms) {
-      return Promise.resolve(state.realms)
+      return Promise.resolve(state.realms[tenantId])
     }
-    if (!state.realms) {
-      commit('REALMS_REQUEST')
-      return api.getRealms().then(response => {
-        commit('REALMS_UPDATED', response.data.items)
-        return state.realms
+    if (!state.realms[tenantId]) {
+      commit('REALMS_REQUEST', tenantId)
+      return api.getRealms(tenantId).then(response => {
+        commit('REALMS_UPDATED', { tenantId, items: response.data.items })
+        return state.realms[tenantId]
       })
     } else {
-      return Promise.resolve(state.realms)
+      return Promise.resolve(state.realms[tenantId])
     }
   },
   getRoles: ({ state, getters, commit }) => {
@@ -2018,11 +2019,14 @@ const mutations = {
     state.radiusTlss = eaps
     state.radiusTlssStatus = types.SUCCESS
   },
-  REALMS_REQUEST: (state) => {
+  REALMS_REQUEST: (state, tenantId) => {
+    if (!state.realms[tenantId]) {
+      state.realms[tenantId] = {}
+    }
     state.realmsStatus = types.LOADING
   },
-  REALMS_UPDATED: (state, realms) => {
-    state.realms = realms
+  REALMS_UPDATED: (state, { tenantId, items }) => {
+    state.realms[tenantId] = items
     state.realmsStatus = types.SUCCESS
   },
   ROLES_REQUEST: (state) => {
