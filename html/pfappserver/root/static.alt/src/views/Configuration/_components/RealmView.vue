@@ -14,11 +14,12 @@
   >
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0">
+      <h4 class="d-inline mb-0">
         <span v-if="!isNew && !isClone" v-html="$t('Realm {id}', { id: $strong(id) })"></span>
         <span v-else-if="isClone" v-html="$t('Clone Realm {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Realm') }}</span>
       </h4>
+      <b-badge class="ml-2" variant="secondary">{{ $t('Tenant') }}: {{ tenant.name }}</b-badge>
     </template>
     <template v-slot:footer>
       <b-card-footer>
@@ -69,6 +70,9 @@ export default {
       type: Boolean,
       default: false
     },
+    tenantId: { // from router
+      type: String
+    },
     id: { // from router
       type: String,
       default: null
@@ -105,16 +109,20 @@ export default {
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
+    },
+    tenant () {
+      return this.$store.state.session.tenants.find(tenant => +tenant.id === +this.tenantId)
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_realms/options', this.id).then(options => {
+      this.$store.dispatch('$_realms/options', { tenantId: this.tenantId, id: this.id }).then(options => {
         const { meta = {} } = options
-        const { isNew, isClone } = this
-        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone } })
+        const { isNew, isClone, tenantId } = this
+        this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, tenantId } })
         if (this.id) { // existing
-          this.$store.dispatch('$_realms/getRealm', this.id).then(form => {
+          this.$store.dispatch('$_realms/getRealm', { tenantId: this.tenantId, id: this.id }).then(form => {
+            form = JSON.parse(JSON.stringify(form)) // dereference
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
@@ -128,28 +136,28 @@ export default {
       this.$router.push({ name: 'realms' })
     },
     clone () {
-      this.$router.push({ name: 'cloneRealm' })
+      this.$router.push({ name: 'cloneRealm', params: { tenantId: this.tenantId, id: this.id } })
     },
     create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_realms/createRealm', this.form).then(response => {
+      this.$store.dispatch('$_realms/createRealm', { tenantId: this.tenantId, item: this.form }).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'realm', params: { id: this.form.id } })
+          this.$router.push({ name: 'realm', params: { tenantId: this.tenantId, id: this.form.id } })
         }
       })
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_realms/updateRealm', this.form).then(response => {
+      this.$store.dispatch('$_realms/updateRealm', { tenantId: this.tenantId, item: this.form }).then(response => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_realms/deleteRealm', this.id).then(response => {
+      this.$store.dispatch('$_realms/deleteRealm', { tenantId: this.tenantId, id: this.id }).then(response => {
         this.close()
       })
     }

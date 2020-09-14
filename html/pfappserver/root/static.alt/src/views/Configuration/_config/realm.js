@@ -97,6 +97,9 @@ export const config = (context = {}) => {
     searchPlaceholder: i18n.t('Search by name'),
     searchableOptions: {
       searchApiEndpoint: 'config/realms',
+      searchApiHeaders: {
+        foo: 'bar'
+      },
       defaultSortKeys: [], // use natural ordering
       defaultSearchCondition: {
         op: 'and',
@@ -432,13 +435,14 @@ export const validators = (form = {}, meta = {}) => {
   } = form
   const {
     isNew = false,
-    isClone = false
+    isClone = false,
+    tenantId
   } = meta
   return {
     id: {
-      ...validatorsFromMeta(meta, 'id', 'ID'),
+      ...validatorsFromMeta(meta, 'id', 'Realm'),
       ...{
-        [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
+        [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), hasRealms(tenantId), realmExists(tenantId)))
       }
     },
     eap: validatorsFromMeta(meta, 'eap', i18n.t('EAP')),
