@@ -44,6 +44,7 @@ You can find a full working example
 * disconnect - Attributes for disconnect scope (required if radiusDisconnect is 'disconnect' or 'coaOrDisconnect')
 * coa        - Attributes for CoA scope (required if radiusDisconnect is 'coa' or 'coaOrDisconnect')
 * voip       - Attributes for VOIP scope (If VOIP is enabled)
+* bounce     - Attributes for bounce scope
 
 === Additional parameters
 
@@ -382,6 +383,11 @@ EOT
 coa = <<EOT
 Calling-Station-Id= ${macToEUI48($mac)}
 NAS-IP-Address = $disconnectIp
-Cisco:Cisco-AVPair = subscriber:command=bounce-host-port
+Filter-Id = $role
+EOT
+
+bounce= <<EOT
+Cisco-AVPair = subscriber:command=bounce-host-port
+Acct-Session-Id = $last_accounting.acctsessionid
 EOT
 ....
