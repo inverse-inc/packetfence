@@ -1362,25 +1362,27 @@ Then reload the file and reboot the server:
   # reboot
 
 
-IP addresses in a cluster environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== IP addresses in a cluster environment
 
-DHCP and DNS services
-^^^^^^^^^^^^^^^^^^^^^
+==== DHCP and DNS services
 
 In registration and isolation networks, each cluster member acts as a DHCP
 server.  DNS configuration sent through DHCP contains physical IP address of
 each cluster member unless you enabled the option 'pfdns on VIP only' in
 'System configuration -> Cluster'
 
-
-SNMP clients
-^^^^^^^^^^^^
+==== SNMP clients
 
 If you use SNMP in a cluster environment, you will need to allow physical IP
 addresses of **all** cluster members to query your network devices (switches,
-WiFi controllers, etc.)
+WiFi controllers, etc.).
 
+VIP address of the cluster doesn't need to be allowed in your network devices.
+
+==== Disconnect and Change-of-Authorization (CoA) packets
+
+Disconnect and Change-of-Authorization packets are sent from VIP address of RADIUS load-balancer.
+You only need to allow this IP address in your network devices.
 
 
 === Performing an upgrade on a cluster

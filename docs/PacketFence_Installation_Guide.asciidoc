@@ -43,16 +43,13 @@ The latest version of this guide is available at https://packetfence.org/documen
 
 These files are included in the package and release tarballs.
 
-Introduction
-------------
+= Introduction
 
 PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDS, vulnerability scanners and firewalls; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks. For a more detailed presentation on PacketFence please visit https://packetfence.org.
 
-System Requirements
--------------------
+== System Requirements
 
-Assumptions
-~~~~~~~~~~~
+=== Assumptions
 
 PacketFence reuses many components in an infrastructure. Nonetheless, it will install the following ones and manage them itself:
 
@@ -67,8 +64,8 @@ In this guide, we assume that all those components are running on the same serve
 
 Good understanding of those underlying components and GNU/Linux is required to install PacketFence. When installing PacketFence, all these components will be properly installed. Moreover, PacketFence will manage the services listed above. Make sure that all the other services are automatically started by your operating system.
 
-Minimum Hardware Requirements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Minimum Hardware Requirements
+
 
 The following provides a list of the minimum server hardware recommendations:
 
@@ -78,8 +75,11 @@ The following provides a list of the minimum server hardware recommendations:
 * 100 GB of disk space (RAID-1 recommended)
 * 1 network card (2 recommended)
 
-Operating System Requirements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+==== Recommendations
+
+* Use logical volume management (LVM) to allocate space
+
+=== Operating System Requirements
 
 PacketFence supports the following operating systems on the x86_64 architecture:
 
@@ -2008,9 +2008,9 @@ When you are happy with the structure of your surveys, it is recommended to remo
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
 
-Users have the possibility to register their devices right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against the Fingerbank database to match authorized devices list. The device will be registered with the user's id and can be assigned into a specific category for easier management.
+Users have the possibility to *register* their devices right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against the Fingerbank database to match authorized devices list. The device will be registered with the user's id and can be assigned into a specific category for easier management.
 
-In order to configure this, you can configure a self service portal policy in *Configuration->Advanced Access Configuration->Self Service Portal*. Either by modifying the default policy or creating a new one, you'll be able to define the behavior of the device registration page.
+In order to configure this, you can configure a self service portal policy in _Configuration->Advanced Access Configuration->Self Service Portal_. Either by modifying the default policy or creating a new one, you'll be able to define the behavior of the device registration page.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
 This URL is accessible from within the network, in any VLAN that can reach the PacketFence server on a 'portal' interface (see note below). 
 
@@ -2018,7 +2018,12 @@ First, you can decide which role to assign to the devices registered through thi
 
 You can also select which operating systems can be registered through this portal. This is useful for example, if you wish to only allow gaming devices to be registered through this portal.
 
-Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+Once you have configured your self service portal policy, you need to assign
+it to the appropriate connection profile in _Configuration->Policies and
+Access Control->Connection Profiles_.
+
+As long as your self service portal policy is not assigned to a connection profile, users will not be able to
+register their devices.
 
 After this, the page will be accessible at https://YOUR_PORTAL_HOSTNAME/device-registration.
 
@@ -2027,17 +2032,25 @@ WARNING: You may also have to add the 'portal' listening daemon on your manageme
 Status page
 ~~~~~~~~~~~
 
-Users can have access to a self service portal that allows them to manage their devices. Using this portal, they can unregister devices they own and report them as stolen (triggering the *Lost or Stolen* violation).
+Users can have access to a self service portal that allows them to *manage* their devices. Using this portal, they can unregister devices they own and report them as stolen (triggering the *Lost or Stolen* violation).
 
 Users of the local PacketFence database can also change their password through this portal.
 
-By default all users can manage their devices through this self service portal. You can specify which roles can manage their devices on this page by configuring a self service portal policy in *Configuration->Advanced Access Configuration->Self Service Portal*. Then, make sure you assign this policy to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+By default all users can manage their devices through this self service
+portal. You can specify which roles can manage their devices on this page by
+configuring a self service portal policy in _Configuration->Advanced Access Configuration->Self Service Portal_.
+Then, make sure you assign this policy to the appropriate connection profile
+in _Configuration->Policies and Access Control->Connection Profiles_.
 
-You can also prevent this page from being served in the PacketFence managed networks (registration, isolation, inline) by enabling the parameter *Status URI only on production network* in *Configuration->Advanced Access Configuration->Captive Portal*
+By default, this page is accessible in PacketFence managed networks
+(registration, isolation, inline) and on any interface which has the `portal`
+daemon enabled. You can prevent this page from being served in PacketFence
+managed networks by enabling the parameter *Status URI only on production network*
+in _Configuration->Advanced Access Configuration->Captive Portal_.
 
-After this, the page will be accessible at https://YOUR_PORTAL_HOSTNAME/status.
+Page will be accessible at https://YOUR_PORTAL_HOSTNAME/status.
 
-Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in _Configuration->Policies and Access Control->Connection Profiles_.
 
 WARNING: You may also have to add the 'portal' listening daemon on your management interface in order for this self service portal to be accessible to your users.
 
