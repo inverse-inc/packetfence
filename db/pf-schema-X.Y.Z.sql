@@ -1098,6 +1098,7 @@ CREATE TABLE activation (
   `activation_code` varchar(255) NOT NULL,
   `expiration` datetime NOT NULL,
   `unregdate` datetime default NULL,
+  `category_id` int default NULL,
   `status` varchar(60) default NULL,
   `type` varchar(60) NOT NULL,
   `portal` varchar(255) default NULL,

@@ -45,6 +45,7 @@ BEGIN {
         activation_code
         expiration
         unregdate
+        category_id
         status
         type
         portal
@@ -60,6 +61,7 @@ BEGIN {
         activation_code => '',
         expiration => '',
         unregdate => undef,
+        category_id => undef,
         status => undef,
         type => '',
         portal => undef,
@@ -75,6 +77,7 @@ BEGIN {
         activation_code
         expiration
         unregdate
+        category_id
         status
         type
         portal
@@ -136,6 +139,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        category_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         status => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -176,6 +185,7 @@ BEGIN {
         activation.activation_code
         activation.expiration
         activation.unregdate
+        activation.category_id
         activation.status
         activation.type
         activation.portal

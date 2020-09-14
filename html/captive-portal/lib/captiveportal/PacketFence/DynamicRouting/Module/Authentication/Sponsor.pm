@@ -25,6 +25,9 @@ use pf::web::guest;
 use pf::auth_log;
 use pf::util qw(normalize_time);
 use pf::constants::realm;
+use captiveportal::Base::Actions;
+use pf::nodecategory;
+use pf::util;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
@@ -206,6 +209,29 @@ sub do_sponsor_registration {
 
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid, $self->app->profile->name);
 
+    if($source->register_on_activation) {
+        my $unregdate = $AUTHENTICATION_ACTIONS{unregdate_from_source}($self) // undef;
+        
+        if($unregdate) {
+            pf::activation::set_unregdate($pf::activation::SPONSOR_ACTIVATION, $activation_code, $unregdate);
+        }
+        else {
+            $self->app->flash->{error} = "Unable to find access duration for user.";
+            $self->app->redirect("/logout");
+            $self->detach();
+        }
+
+        my $role = nodecategory_view_by_name($AUTHENTICATION_ACTIONS{role_from_source}($self));
+        if($role) {
+            pf::activation::set_category_id($pf::activation::SPONSOR_ACTIVATION, $activation_code, $role->{category_id});
+        }
+        else {
+            $self->app->flash->{error} = "Unable to find role for user.";
+            $self->app->redirect("/logout");
+            $self->detach();
+        }
+    }
+
     $self->session->{activation_code} = $activation_code;
     $self->app->session->{email} = $email;
     $self->username($pid);
@@ -229,7 +255,7 @@ Push the user in a waiting room where he will wait for the access to be activate
 
 sub waiting_room {
     my ($self) = @_;
-    $self->render("waiting.html", $self->_release_args());
+    $self->render("waiting.html", {register_on_activation => isenabled($self->source->register_on_activation), %{$self->_release_args()}});
 }
 
 =head2 _validate_sponsor

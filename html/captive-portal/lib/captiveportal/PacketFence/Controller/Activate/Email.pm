@@ -245,6 +245,24 @@ sub doSponsorRegistration : Private {
                 \%info );
         }
 
+        if(isenabled($source->register_on_activation)) {
+            $logger->info("Sponsor source is configured to register device when sponsor activates the access. Registering the device.");
+            my $unregdate = $activation_record->{unregdate};
+            my $category_id = $activation_record->{category_id};
+            if($category_id && $unregdate) {
+                get_logger->info("Extending duration to $unregdate and assigning role with ID $category_id");
+                my ($status, $status_msg) = node_register($node_mac, $activation_record->{pid}, unregdate => $unregdate, category_id => $category_id);
+                if(!$status) {
+                    $self->showError($c, "Unable to register the device: $status_msg");
+                    $c->detach();
+                }
+                pf::enforcement::reevaluate_access($node_mac, "manage_register")
+            }
+            else {
+                $self->showError($c, "Could not find unregistration date or role for this activation code.");
+            }
+        }
+
         pf::activation::set_status_verified($SPONSOR_ACTIVATION, $code);
         # send to a success page
         $c->stash(
