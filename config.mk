@@ -14,7 +14,7 @@ SBINDIR = $(PF_PREFIX)/sbin
 # Golang
 #
 GOVERSION = go1.13.1
-GOBINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager
+PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager
 
 # SRC HTML dirs
 SRC_HTMLDIR = html
