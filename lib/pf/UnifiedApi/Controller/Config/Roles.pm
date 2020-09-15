@@ -35,6 +35,7 @@ use pf::ConfigStore::SelfService;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Firewall_SSO;
 use pf::ConfigStore::Switch;
+use pf::ConfigStore::Source;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
 
@@ -180,6 +181,7 @@ sub reassign {
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::BillingTiers", $old, $new, qw(roles_allowed_to_unregister device_registration_roles));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Firewall_SSO", $old, $new, qw(categories));
     $self->reassign_role_config_store_switch(\@errors, $old, $new);
+    $self->reassign_role_config_store_source(\@errors, $old, $new);
     if (@errors) {
         return $self->render_error(422, "Unable to reassign role", \@errors);
     }
@@ -220,6 +222,26 @@ sub reassign_role_config_store_switch {
             next if !$cachedConfig->exists($sect, $f);
             $cachedConfig->delval($sect, $f);
             $i |= 1;
+        }
+    }
+
+    if ($i) {
+        $cs->commit();
+    }
+}
+
+sub reassign_role_config_store_source {
+    my ($self, $errors, $old, $new) = @_;
+    my $cs = pf::ConfigStore::Source->new;
+    my $i = 0;
+    my $cachedConfig = $cs->cachedConfig;
+    for my $sect ( grep { / rule / } $cachedConfig->Sections()) {
+        for my $p ( grep { /^action\d+/ } $cachedConfig->Parameters($sect) ) {
+            my $val = $cachedConfig->val($sect, $p);
+            if ($val =~ s/^set_role=\Q$old\E/set_role=$new/) {
+                $cachedConfig->setval($sect, $p, $val);
+                $i |= 1;
+            }
         }
     }
 
@@ -287,4 +309,3 @@ USA.
 =cut
 
 1;
-

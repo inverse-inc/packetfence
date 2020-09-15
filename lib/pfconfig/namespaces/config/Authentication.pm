@@ -44,6 +44,7 @@ sub init {
         'resource::guest_self_registration',
         'resource::authentication_sources_ldap',
         'resource::authentication_sources_radius',
+        'resource::RolesReverseLookup',
     ];
 }
 
@@ -59,6 +60,7 @@ sub build_child {
     my @authentication_sources = ();
     my %authentication_lookup  = ();
     my %authentication_config_hash = ();
+    my %roleReverseLookup;
     foreach my $source_id ( @{ $self->{ordered_sections} } ) {
 
         my $current_source_config = { %{$cfg{$source_id}} };
@@ -120,6 +122,10 @@ sub build_child {
                             },
                         )
                     );
+                    if ( $type eq 'set_role') {
+                        push @{$roleReverseLookup{$value}{authentication}}, $rule_id;
+                    }
+
                     $current_rule_config{'actions'}{$parameter} = $config_value;
                 } else {
                     $current_rule->{$parameter} = $current_rule_config{$parameter} = $config_value;
@@ -141,7 +147,7 @@ sub build_child {
     $resources{authentication_sources} = \@authentication_sources;
     $resources{authentication_lookup}  = \%authentication_lookup;
     $resources{authentication_config_hash}  = \%authentication_config_hash;
-
+    $self->{roleReverseLookup} = \%roleReverseLookup;
     return \%resources;
 
 }

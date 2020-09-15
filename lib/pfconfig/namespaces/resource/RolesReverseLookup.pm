@@ -21,6 +21,7 @@ use pfconfig::namespaces::config::Firewall_SSO;
 use pfconfig::namespaces::config::VlanFilters;
 use pfconfig::namespaces::config::SecurityEvents;
 use pfconfig::namespaces::config::Switch;
+use pfconfig::namespaces::config::Authentication;
 use Hash::Merge qw(merge);
 
 use base 'pfconfig::namespaces::resource';
@@ -49,6 +50,7 @@ sub lookups {
             pfconfig::namespaces::config::VlanFilters
             pfconfig::namespaces::config::SecurityEvents
             pfconfig::namespaces::config::Switch
+            pfconfig::namespaces::config::Authentication
             )
       )
     {
