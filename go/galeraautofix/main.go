@@ -14,12 +14,14 @@ import (
 )
 
 const (
-	startWait                    = time.Duration(10 * time.Minute)
+	startWait                    = time.Duration(5 * time.Minute)
 	decisionLoopInterval         = time.Duration(1 * time.Minute)
 	seqnoReportingTimeout        = time.Duration(1 * time.Minute)
 	seqnoReportingInterval       = time.Duration(10 * time.Second)
 	dbAvailableDetectionCooldown = time.Duration(1 * time.Minute)
 	bootAndRejoinClusterTimeout  = time.Duration(1 * time.Minute)
+	connectDBTries               = 10
+	connectDBTriesInterval       = time.Duration(30 * time.Second)
 
 	ChitChatPort = 4253
 )
@@ -130,9 +132,14 @@ func decisionLoop(ctx context.Context) {
 }
 
 func handle(ctx context.Context, nodes *NodeList) {
-	if mariadb.IsLocalDBAvailable(ctx) {
-		log.LoggerWContext(ctx).Info("Local DB is available, nothing to do")
-		return
+	for i := 1; i <= connectDBTries; i++ {
+		if mariadb.IsLocalDBAvailable(ctx) {
+			log.LoggerWContext(ctx).Info("Local DB is available, nothing to do")
+			return
+		} else {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Failed %d time to connect to the local DB."))
+			time.Sleep(connectDBTriesInterval)
+		}
 	}
 
 	if len(nodes.Nodes) <= 1 {
