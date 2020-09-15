@@ -148,7 +148,9 @@ func main() {
 			code = 1
 		} else {
 			code = runJobNow(jobName, additionalArgs)
-			fmt.Printf("task %s finished\n", jobName)
+			if code == 0 {
+				fmt.Printf("task %s finished\n", jobName)
+			}
 		}
 		os.Exit(code)
 	}
