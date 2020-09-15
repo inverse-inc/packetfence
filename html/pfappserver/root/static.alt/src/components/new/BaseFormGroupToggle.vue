@@ -10,15 +10,14 @@
   >
     <base-input-range
       class="base-form-group-toggle"
-      min="0"
-      max="1"
       step="1"
+      min="0"
+      :max="max"
       :disabled="isLocked"
       :size="size"
       :state="inputState"
       :tabIndex="inputTabIndex"
       :value="inputValue"
-      @input="onInput"
       @change="onChange"
       @focus="onFocus"
       @blur="onBlur"
@@ -37,10 +36,9 @@ import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-import {
-  BaseFormGroup,
-  BaseInputRange
-} from './'
+import { useInputValueToggle, useInputValueToggleProps } from '@/composables/useInputValueToggle'
+import BaseFormGroup from './BaseFormGroup'
+import BaseInputRange from './BaseInputRange'
 
 const components = {
   BaseFormGroup,
@@ -48,6 +46,10 @@ const components = {
 }
 
 export const props = {
+  max: {
+    type: [Number, String],
+    default: 1
+  },
   size: {
     type: String,
     default: 'md',
@@ -57,7 +59,8 @@ export const props = {
   ...useInputProps,
   ...useInputMetaProps,
   ...useInputValidatorProps,
-  ...useInputValueProps
+  ...useInputValueProps,
+  ...useInputValueToggleProps
 }
 
 export const setup = (props, context) => {
@@ -74,11 +77,12 @@ export const setup = (props, context) => {
     onBlur
   } = useInput(metaProps, context)
 
+  const valueProps = useInputValue(metaProps, context)
   const {
     value,
-    onInput,
-    onChange
-  } = useInputValue(metaProps, context)
+    onChange,
+    max
+  } = useInputValueToggle(valueProps, props, context)
 
   const {
     state,
@@ -98,8 +102,8 @@ export const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
-    onInput,
     onChange,
+    max,
 
     // useInputValidator
     inputState: state,
@@ -108,6 +112,7 @@ export const setup = (props, context) => {
   }
 }
 
+// @vue/component
 export default {
   name: 'base-form-group-toggle',
   inheritAttrs: false,

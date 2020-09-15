@@ -15,10 +15,6 @@ export const useInputRangeProps = {
       type: [String, Number],
       default: 100
     },
-    step: {
-      type: [String, Number],
-      default: 1
-    },
     color: {  // override default colors via JS
       type: String
     },
@@ -33,7 +29,6 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
     disabled,
     min,
     max,
-    step,
     color,
     hints,
     value
@@ -52,28 +47,28 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
   const percent = computed(() => getPercent(unref(value)))
 
   // state
+  const defaultValue = computed(() => unref(min))
+
   const rootStyle = computed(() => ((color.value)
     ? { '--range-background-color': unref(color) }
     : {}
   ))
 
-  const hintStyles = computed(() => unref(hints).map(hint => {
-    return (hint.constructor === Array)
-      ? { // range
-        left: `${getPercent(hint[0])}`,
-        width: `calc(${getPercent(hint[1] - hint[0])}% + var(--handle-height))`
-      }
-      : { // single
-        left: `${getPercent(hint)}%`,
-        width: 'var(--handle-height)'
-      }
-  }))
+  const hintStyles = computed(() => unref(hints).map(hint => ((hint.constructor === Array)
+    ? { // range
+      left: `${getPercent(hint[0])}`,
+      width: `calc(${getPercent(hint[1] - hint[0])}% + var(--handle-height))`
+    }
+    : { // single
+      left: `${getPercent(hint)}%`,
+      width: 'var(--handle-height)'
+    }
+  )))
 
-  const labelStyle = computed(() => {
-    return (unref(value) >= ((unref(max) - unref(min)) / 2))
+  const labelStyle = computed(() => ((unref(value) >= ((unref(max) - unref(min)) / 2))
       ? { 'justify-content': 'flex-start' }
       : { 'justify-content': 'flex-end' }
-  })
+  ))
 
   const valueStyle = computed(() => ({
     left: `${unref(percent)}%`
@@ -82,7 +77,7 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
   // methods
   const doFocus = () => refs[inputRef].focus()
   const doBlur = () => refs[inputRef].blur()
-  const onInput = e => {
+  const onChange = e => {
     if (disabled.value)
       return
     emit('change', e.target.value)
@@ -90,6 +85,7 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
 
   return {
     // state
+    defaultValue,
     rootStyle,
     hintStyles,
     labelStyle,
@@ -98,6 +94,6 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
     // methods
     doFocus,
     doBlur,
-    onInput
+    onChange
   }
 }

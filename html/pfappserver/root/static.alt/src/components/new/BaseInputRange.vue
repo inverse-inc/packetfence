@@ -28,12 +28,12 @@
       <input ref="input"
         type="range"
         :tabIndex="tabIndex"
-        :value="inputValue"
+        :value="inputValue || defaultValue"
         :max="max"
         :min="min"
         :step="step"
         :disabled="isLocked"
-        @input="onInput"
+        @change="onChange"
         @focus="onFocus"
         @blur="onBlur"
       />
@@ -89,11 +89,12 @@ export const setup = (props, context) => {
   } = useInputValue(metaProps, context)
 
   const {
+    defaultValue,
     rootStyle,
     hintStyles,
     labelStyle,
     valueStyle,
-    onInput
+    onChange
   } = useInputRange(metaProps, context)
 
   return {
@@ -112,11 +113,12 @@ export const setup = (props, context) => {
     inputValue: value,
 
     // useInputRange
+    defaultValue,
     rootStyle,
     hintStyles,
     valueStyle,
     labelStyle,
-    onInput
+    onChange
   }
 }
 
