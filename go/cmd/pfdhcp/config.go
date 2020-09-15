@@ -277,13 +277,7 @@ func (d *Interfaces) readConfig() {
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 							if portal.SecureRedirect == "enabled" {
-								if ConfNet.PortalFQDN != "" {
-									portalURL := "https://" + ConfNet.PortalFQDN + "/rfc7710"
-									options[dhcp.OptionCaptivePortal] = []byte(portalURL)
-								} else {
-									portalURL := "https://" + general.Hostname + "." + general.Domain + "/rfc7710"
-									options[dhcp.OptionCaptivePortal] = []byte(portalURL)
-								}
+								options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
 							}
 							DHCPScope.options = options
 							if len(ConfNet.NextHop) > 0 {
@@ -356,13 +350,7 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						if portal.SecureRedirect == "enabled" {
-							if ConfNet.PortalFQDN != "" {
-								portalURL := "https://" + ConfNet.PortalFQDN + "/rfc7710"
-								options[dhcp.OptionCaptivePortal] = []byte(portalURL)
-							} else {
-								portalURL := "https://" + general.Hostname + "." + general.Domain + "/rfc7710"
-								options[dhcp.OptionCaptivePortal] = []byte(portalURL)
-							}
+							options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
 						}
 						DHCPScope.options = options
 						if len(ConfNet.NextHop) > 0 {
@@ -381,4 +369,15 @@ func (d *Interfaces) readConfig() {
 		d.intsNet = append(d.intsNet, ethIf)
 
 	}
+}
+
+func detectPortalURL(ConfNet pfconfigdriver.RessourseNetworkConf, general pfconfigdriver.PfConfGeneral) string {
+	var portalURL string
+	if ConfNet.PortalFQDN != "" {
+		portalURL = "https://" + ConfNet.PortalFQDN + "/rfc7710"
+
+	} else {
+		portalURL = "https://" + general.Hostname + "." + general.Domain + "/rfc7710"
+	}
+	return portalURL
 }
