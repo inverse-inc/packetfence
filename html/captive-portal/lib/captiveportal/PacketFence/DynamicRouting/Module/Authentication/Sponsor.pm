@@ -144,6 +144,9 @@ sub check_activation {
     }
 }
 
+my @auto_included = qw(firstname lastname telephone company);
+my %auto_included = map { $_ => 1 } @auto_included;
+
 =head2 do_sponsor_registration
 
 Handle the signup and create the sponsor request
@@ -186,8 +189,13 @@ sub do_sponsor_registration {
     $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
     # fetch more info for the activation email
     # this is meant to be overridden in pf::web::custom with customer specific needs
-    foreach my $key (qw(firstname lastname telephone company)) {
-        $info{$key} = $self->request_fields->{$key};
+    my $request_fields = $self->request_fields;
+    foreach my $key (@auto_included) {
+        $info{$key} = $request_fields->{$key};
+    }
+
+    for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
+        $info{$key} = $request_fields->{$key};
     }
 
     $info{'sponsor'} = $sponsor;
