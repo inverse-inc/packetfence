@@ -13,4 +13,10 @@ BEGIN-VENDOR	Ruckus
 # Value Format:    group_attr1,group_attr2,...
 ATTRIBUTE	Ruckus-DPSK			142	octets
 
+ATTRIBUTE Ruckus-DPSK-Params                 153 tlv
+ATTRIBUTE Ruckus-DPSK-AKM-Suite              153.1   octets              
+ATTRIBUTE Ruckus-DPSK-Cipher                 153.2   byte                
+ATTRIBUTE Ruckus-DPSK-Anonce                 153.3   octets            
+ATTRIBUTE Ruckus-DPSK-EAPOL-Key-Frame        153.4   octets   
+
 END-VENDOR Ruckus

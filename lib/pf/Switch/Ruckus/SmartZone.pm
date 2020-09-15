@@ -36,6 +36,7 @@ use pf::SwitchSupports qw(
     -WebFormRegistration
 );
 
+use pf::util::wpa;
 use Crypt::PBKDF2;
 
 =over
@@ -284,6 +285,58 @@ sub generate_dpsk_attribute_value {
      
     my $hash = $pbkdf2->PBKDF2_hex($ssid, $dpsk);
     return "0x00".$hash;
+}
+
+
+sub parseRequest {
+    my ( $self, $radius_request ) = @_;
+
+    my ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
+    ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id) = $self->SUPER::parseRequest($radius_request);
+
+    use Data::Dumper; use pf::log ; get_logger->info(Dumper($radius_request));
+
+    if(exists($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})) {
+        $self->find_user_by_psk($radius_request);
+    }
+
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
+}
+
+sub find_user_by_psk {
+    my ($self, $radius_request) = @_;
+    my ($status, $iter) = pf::dal::person->search(
+        -where => {
+            psk => { '!=', '', '!=', undef },
+        },
+    );
+    my $people = $iter->all();
+
+    my $matched = 0;
+    for my $person (@$people) {
+        if($self->check_if_radius_request_psk_matches($radius_request, $person->{psk})) {
+            get_logger->info("PSK matches the one of ".$person->{pid});
+            $matched ++;
+        }
+    }
+
+    if($matched > 1) {
+        get_logger->error("Multiple users use the same PSK. This cannot work with unbound DPSK. Ignoring it.");
+    }
+}
+
+sub check_if_radius_request_psk_matches {
+    my ($self, $radius_request, $psk) = @_;
+    return pf::util::wpa::match_mic(
+      pf::util::wpa::calculate_ptk(
+        pf::util::wpa::calculate_pmk($radius_request->{"Ruckus-Wlan-Name"}, $psk),
+        pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-BSSID"})),
+        pack("H*", $radius_request->{"User-Name"}),
+        pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-Anonce"})),
+        pf::util::wpa::snonce_from_eapol_key_frame(pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"}))),
+      ),      
+      pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})),
+    );
 }
 
 =back
