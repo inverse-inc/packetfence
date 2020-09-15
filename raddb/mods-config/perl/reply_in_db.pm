@@ -37,9 +37,9 @@ sub post_proxy {
        delete @reply{@attributes};
        for (keys %reply) {
            next if ($_ =~ /^Proxy/);
-           push (@values , "('$RAD_REQUEST{'Calling-Station-Id'}','$_','$reply{$_}')");
+           push (@values , "('$RAD_CONFIG{'PacketFence-Tenant-Id'}','$RAD_REQUEST{'Calling-Station-Id'}','$_','$reply{$_}')");
        }
        my $values = join (", ", @values);
-       $RAD_CHECK{"PacketFence-reply-insert"} = "INSERT into radreply (username, attribute, value) values $values";
+       $RAD_CHECK{"PacketFence-reply-insert"} = "INSERT into radreply (tenant_id, username, attribute, value) values $values";
        return RLM_MODULE_OK;
 }

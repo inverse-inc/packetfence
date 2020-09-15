@@ -521,6 +521,7 @@ server pf-remote {
 		}
 		if (&proxy-reply:Packet-Type == Access-Accept) {
 			%{sql_degraded:DELETE FROM radreply where username="%{Calling-Station-Id}"}
+			packetfence-set-tenant-id
 			reply_in_db
 			%{sql_degraded:%{control:PacketFence-reply-insert}}
 		}
@@ -582,6 +583,7 @@ server pf.degraded {
 				&control:Auth-Type := Accept
 			}
 		}
+		packetfence-set-tenant-id
 		-sql_degraded
 		pap
 
@@ -693,6 +695,7 @@ server packetfence-degraded-tunnel {
 
 		# Uncomment the following line to enable local PEAP authentication
 		#packetfence-degraded-auth
+		packetfence-set-tenant-id
 		-sql_degraded
 
 
