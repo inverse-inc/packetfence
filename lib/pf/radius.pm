@@ -170,6 +170,7 @@ sub authorize {
         ifIndex => $port,
         ifDesc => $ifDesc,
         user_name => $user_name,
+        username => $user_name,
         nas_port_id => $nas_port_type // '',
         session_id => $session_id,
         connection_type => $connection_type,
