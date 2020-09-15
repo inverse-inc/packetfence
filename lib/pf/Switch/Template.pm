@@ -230,27 +230,24 @@ sub _mergeAttributes {
 
 sub canDoAcceptUrl {
     my ($self) = @_;
-    return defined ($self->{_template}{acceptUrl}) &&  isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement();
+    my $template = $self->{_template};
+    return exists $template->{acceptUrl} && defined ($template->{acceptUrl}) &&  isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement();
 }
 
 sub addAcceptUrlAttributes {
     my ($self, $reply, $args) = @_;
-    if (!exists $self->{_template}{acceptUrl}) {
-        return;
-    }
-
     if (!$self->canDoAcceptUrl) {
-        return undef;
+        return;
     }
 
     my $user_role = $args->{user_role};
     if (!defined $user_role || $user_role eq '') {
-        return undef;
+        return;
     }
 
     my $redirect_url = $self->getUrlByName($user_role);
     if (!defined $redirect_url) {
-        return undef;
+        return;
     }
 
     $args->{role} = $self->getRoleByName($user_role);
@@ -258,6 +255,8 @@ sub addAcceptUrlAttributes {
     $redirect_url .= '/' unless $redirect_url =~ m(\/$);
     $args->{redirect_url} = $redirect_url;
     $self->addTemplateAttributesToReply($reply, 'acceptUrl', $args);
+
+    return;
 }
 
 =item radiusDisconnect
