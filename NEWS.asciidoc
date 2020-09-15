@@ -34,6 +34,7 @@ Bug Fixes
 * Use the prebuilt freeradius perl dictionary.
 * Don't override user defined values in the interface file for centos.
 * haproxy-db can cause pfcmd service restart to failed (#5745)
+* Pass in the mandatory fields to the email templates.
 
 Version 10.1.0 released on 2020-06-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
