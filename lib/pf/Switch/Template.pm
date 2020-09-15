@@ -545,7 +545,7 @@ sub returnCliAuthorize {
     my ($self, $args, $accessType) = @_;
     my $logger = $self->logger;
     my %radius_reply;
-    my $template = $self->{_template}{"cliAuthorize${$accessType}"};
+    my $template = $self->{_template}{"cliAuthorize${accessType}"};
     my %tmp_args = %$args;
     if ($template) {
         $self->updateArgsVariablesForSet(\%tmp_args, $template);
