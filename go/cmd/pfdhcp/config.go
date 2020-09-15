@@ -278,10 +278,10 @@ func (d *Interfaces) readConfig() {
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 							if portal.SecureRedirect == "enabled" {
 								if ConfNet.PortalFQDN != "" {
-									portalURL := "https://" + ConfNet.PortalFQDN + "/api"
+									portalURL := "https://" + ConfNet.PortalFQDN + "/rfc7710"
 									options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 								} else {
-									portalURL := "https://" + general.Hostname + "." + general.Domain + "/api"
+									portalURL := "https://" + general.Hostname + "." + general.Domain + "/rfc7710"
 									options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 								}
 							}
@@ -357,10 +357,10 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						if portal.SecureRedirect == "enabled" {
 							if ConfNet.PortalFQDN != "" {
-								portalURL := "https://" + ConfNet.PortalFQDN + "/api"
+								portalURL := "https://" + ConfNet.PortalFQDN + "/rfc7710"
 								options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 							} else {
-								portalURL := "https://" + general.Hostname + "." + general.Domain + "/api"
+								portalURL := "https://" + general.Hostname + "." + general.Domain + "/rfc7710"
 								options[dhcp.OptionCaptivePortal] = []byte(portalURL)
 							}
 						}

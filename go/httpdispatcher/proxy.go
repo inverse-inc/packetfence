@@ -135,7 +135,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	parking := p.handleParking(ctx, w, r)
 
-	if r.URL.Path == "/api" {
+	if r.URL.Path == "/rfc7710" {
 		_, PortalURL := p.detectPortalURL(r)
 
 		answer := RFC7710bis{}

@@ -16,7 +16,7 @@ core.register_action("select", { "http-req" }, function(txn)
         -- nothing, we let it go through for the XML profiles
     elseif ( string.match(txn.sf:path(), '/%.well%-known/acme%-challenge') ) then
         txn:set_var("req.action","static")
-    elseif ( string.match(txn.sf:path(), '/api') ) then
+    elseif ( string.match(txn.sf:path(), '/rfc7710') ) then
         txn:set_var("req.action","proxy")
     elseif ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"):lower(), '^[% host FILTER lower %][0-9:]*$') or[% END %] false ) ) then
         txn:set_var("req.action","proxy")
