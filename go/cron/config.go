@@ -4,7 +4,10 @@ import (
 	"context"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
+	"reflect"
 )
+
+var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Cron{}))
 
 type JobSetupConfig interface {
 	cron.Job
@@ -38,11 +41,14 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	),
 }
 
-func GetMaintenanceConfig() map[string]interface{} {
-	var tasks pfconfigdriver.Cron
-	ctx := context.Background()
-	pfconfigdriver.FetchDecodeSocket(ctx, &tasks)
-	return tasks.Element
+func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
+	o, _ := CachedCronConfig.Value(ctx)
+	if o != nil {
+		tasks := o.(*pfconfigdriver.Cron)
+		return tasks.Element
+	}
+
+	return nil
 }
 
 func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/cron"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
 	"net"
@@ -101,7 +101,7 @@ func mergeArgs(config, args map[string]interface{}) map[string]interface{} {
 }
 
 func runJobNow(name string, additionalArgs map[string]interface{}) int {
-	jobsConfig := maint.GetMaintenanceConfig()
+	jobsConfig := maint.GetMaintenanceConfig(context.Background())
 	if config, found := jobsConfig[name]; found {
 		job := maint.GetJob(name, mergeArgs(config.(map[string]interface{}), additionalArgs))
 		if job != nil {
@@ -156,7 +156,7 @@ func main() {
 	ctx := context.Background()
 	logger := log.LoggerWContext(ctx)
 	c := cron.New(cron.WithSeconds())
-	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig()) {
+	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
 		id := c.Schedule(job.Schedule(), wrapJob(logger, job))
 		logger.Info(fmt.Sprintf("task '%s' created with id %d", job.Name(), int64(id)))
 	}
