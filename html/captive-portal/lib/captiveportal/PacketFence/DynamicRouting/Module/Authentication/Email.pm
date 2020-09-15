@@ -48,9 +48,6 @@ sub required_fields_child {['email_instructions']}
 my @auto_included = qw(firstname lastname telephone company);
 my %auto_included = map { $_ => 1 } @auto_included;
 
-my @auto_included = qw(firstname lastname telephone company);
-my %auto_included = map { $_ => 1 } @auto_included;
-
 =head2 do_email_registration
 
 Perform the e-mail registration using the provided info
@@ -63,8 +60,9 @@ sub do_email_registration {
 
     # fetch role for this user
     my $source = $self->source;
-    my $pid = $self->request_fields->{$self->pid_field};
-    my $email = $self->request_fields->{email};
+    my $request_fields = $self->request_fields;
+    my $pid = $request_fields->{$self->pid_field};
+    my $email = $request_fields->{email};
 
     my ( $status, $status_msg ) = $source->authenticate($pid);
     unless ( $status ) {
