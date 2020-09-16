@@ -29,15 +29,15 @@ use pf::config qw (
     %connection_type_to_str
 );
 use pf::util::radius qw(perform_disconnect);
+use pf::log;
+use pf::util::wpa;
+use Crypt::PBKDF2;
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
 use pf::SwitchSupports qw(
     WirelessMacAuth
     -WebFormRegistration
 );
-
-use pf::util::wpa;
-use Crypt::PBKDF2;
 
 =over
 
@@ -287,21 +287,6 @@ sub generate_dpsk_attribute_value {
     return "0x00".$hash;
 }
 
-
-sub parseRequest {
-    my ( $self, $radius_request ) = @_;
-
-    my ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
-    ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id) = $self->SUPER::parseRequest($radius_request);
-
-    use Data::Dumper; use pf::log ; get_logger->info(Dumper($radius_request));
-
-    if(exists($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})) {
-        $self->find_user_by_psk($radius_request);
-    }
-
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
-}
 
 sub find_user_by_psk {
     my ($self, $radius_request) = @_;

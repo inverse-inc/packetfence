@@ -72,7 +72,7 @@ use pf::dal;
 use pf::security_event;
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::Redis;
-use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION);
+use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
 
 our $VERSION = 1.03;
 
@@ -260,6 +260,8 @@ sub authorize {
     $args->{'profile'} = $profile;
     $args->{'portal'} = $profile->getName;
     
+    ($connection, $connection_type, $connection_sub_type, $args) = $self->handleUnboundDPSK($radius_request, $switch, $profile, $connection, $args);
+
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
     my ( $status, $status_msg );
@@ -1142,6 +1144,26 @@ sub check_lost_stolen {
     if($is_lost_stolen) {
         pf::action::action_execute( $mac, $LOST_OR_STOLEN, "Endpoint has just connected on the network" );
     }
+}
+
+sub handleUnboundDPSK {
+    my ($self, $radius_request, $switch, $profile, $connection, $args) = @_;
+    my $logger = get_logger;
+    if($profile->unboundDpskEnabled()) {
+        if(my $pid = $switch->find_user_by_psk($radius_request)) {
+            $logger->info("Unbound DPSK user found $pid. Changing this request to use the 802.1x logic");
+            $connection->isMacAuth($FALSE);
+            $connection->is8021X($TRUE);
+            $connection->isEAP($TRUE);
+            $connection->subType($EAP_PSK);
+            $connection->_attributesToString;
+            $args->{connection_type} = $connection->attributesToBackwardCompatible;
+            $args->{connection_sub_type} = $connection->subType;
+            $args->{username} = $args->{stripped_user_name} = $args->{user_name} = $pid;
+        }
+    }
+
+    return ($connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
 }
 
 =back
