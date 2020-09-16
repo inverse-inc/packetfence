@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/md5"
 	"crypto/tls"
 	"fmt"
 	"net"
@@ -13,10 +15,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/inverse-inc/go-radius/rfc2865"
+	"github.com/inverse-inc/go-radius/rfc2869"
+
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/hpcloud/tail"
 	radius "github.com/inverse-inc/go-radius"
-	. "github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -96,9 +100,14 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	radiusSource := source.(pfconfigdriver.AuthenticationSourceRadius)
 	sourceId := radiusSource.PfconfigHashNS
 	log.LoggerWContext(ctx).Info("Testing RADIUS source " + sourceId)
-	packet := radius.New(radius.CodeAccessRequest, []byte(radiusSource.Secret))
-	UserName_SetString(packet, "tim")
-	UserPassword_SetString(packet, "12345")
+	packet := radius.New(radius.CodeStatusServer, []byte(radiusSource.Secret))
+	rfc2865.NASIdentifier_Set(packet, []byte("Status Check"))
+	rfc2869.MessageAuthenticator_Set(packet, make([]byte, 16))
+	hash := hmac.New(md5.New, packet.Secret)
+	encode, _ := packet.Encode()
+	hash.Write(encode)
+	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
+
 	client := radius.DefaultClient
 	sources := strings.Split(radiusSource.Host, ",")
 	for num, src := range sources {
@@ -173,9 +182,15 @@ type eduroamtype struct{}
 func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 
 	t := StatsdClient.NewTiming()
-	packet := radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
-	UserName_SetString(packet, "tim")
-	UserPassword_SetString(packet, "12345")
+	packet := radius.New(radius.CodeStatusServer, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
+	rfc2865.NASIdentifier_Set(packet, []byte("Status Check"))
+	rfc2869.MessageAuthenticator_Set(packet, make([]byte, 16))
+	hash := hmac.New(md5.New, packet.Secret)
+	encode, _ := packet.Encode()
+	hash.Write(encode)
+
+	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
+
 	client := radius.DefaultClient
 	ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -194,9 +209,14 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
 
 	t = StatsdClient.NewTiming()
-	packet = radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
-	UserName_SetString(packet, "tim")
-	UserPassword_SetString(packet, "12345")
+	packet = radius.New(radius.CodeStatusServer, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
+	rfc2865.NASIdentifier_Set(packet, []byte("Status Check"))
+	rfc2869.MessageAuthenticator_Set(packet, make([]byte, 16))
+	hash = hmac.New(md5.New, packet.Secret)
+	encode, _ = packet.Encode()
+	hash.Write(encode)
+	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
+
 	response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":1812")
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
@@ -358,7 +378,7 @@ func main() {
 					go Source.SourceType.Test(source, ctx)
 				}
 			}
-			time.Sleep(time.Minute * 30)
+			time.Sleep(time.Second * 30)
 		}
 	}()
 
