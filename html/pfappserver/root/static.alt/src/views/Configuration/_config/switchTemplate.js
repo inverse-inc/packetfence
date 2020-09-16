@@ -345,6 +345,48 @@ export const view = (form, meta = {}) => {
             }
           ]
         },
+        {
+          label: i18n.t('CLI Authorize Read Scope'),
+          cols: [
+            {
+              namespace: 'cliAuthorizeRead',
+              component: pfFormFields,
+              attrs: {
+                buttonLabel: i18n.t('Add RADIUS Attribute'),
+                sortable: true,
+                field: {
+                  component: pfFieldTypeValue,
+                  attrs: {
+                    typeLabel: i18n.t('Type to filter RADIUS attributes'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: radiusFields
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('CLI Authorize Write Scope'),
+          cols: [
+            {
+              namespace: 'cliAuthorizeWrite',
+              component: pfFormFields,
+              attrs: {
+                buttonLabel: i18n.t('Add RADIUS Attribute'),
+                sortable: true,
+                field: {
+                  component: pfFieldTypeValue,
+                  attrs: {
+                    typeLabel: i18n.t('Type to filter RADIUS attributes'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: radiusFields
+                  }
+                }
+              }
+            }
+          ]
+        }
       ]
     }
   ]
@@ -358,7 +400,9 @@ export const validators = (form, meta = {}) => {
     coa = [],
     reject = [],
     voip = [],
-    bounce = []
+    bounce = [],
+    cliAuthorizeRead = [],
+    cliAuthorizeWrite = []
   } = form
   const {
     isNew = false,
@@ -447,6 +491,28 @@ export const validators = (form, meta = {}) => {
       ...(bounce || []).map(_bounce => { // index based validators
         if (_bounce) {
           const { type } = _bounce
+          if (type) {
+            return { value: { [i18n.t('Value required.')]: required } }
+          }
+        }
+        return { type: { [i18n.t('Attribute required')]: required } }
+      })
+    },
+    cliAuthorizeRead: {
+      ...(cliAuthorizeRead || []).map(_cliAuthorizeRead => { // index based validators
+        if (_cliAuthorizeRead) {
+          const { type } = _cliAuthorizeRead
+          if (type) {
+            return { value: { [i18n.t('Value required.')]: required } }
+          }
+        }
+        return { type: { [i18n.t('Attribute required')]: required } }
+      })
+    },
+    cliAuthorizeWrite: {
+      ...(cliAuthorizeWrite || []).map(_cliAuthorizeWrite => { // index based validators
+        if (_cliAuthorizeWrite) {
+          const { type } = _cliAuthorizeWrite
           if (type) {
             return { value: { [i18n.t('Value required.')]: required } }
           }

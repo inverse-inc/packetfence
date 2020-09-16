@@ -832,7 +832,7 @@ sub switch_access {
         );
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
-    if ( isdisabled($switch->{_cliAccess}) && !$switch->supportsVPN()) {
+    if ( !$switch->canDoCliAccess && !$switch->supportsVPN()) {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI or VPN Access is not allowed by PacketFence on this switch") ];
     }

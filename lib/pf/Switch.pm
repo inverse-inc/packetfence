@@ -3596,6 +3596,11 @@ sub generateACL {
     return $self->generateACLFromTemplate($self->aclTemplate, $args);
 }
 
+sub canDoCliAccess {
+    my ($self) = @_;
+    return isenabled($self->{_cliAccess});
+}
+
 =back
 
 =head1 AUTHOR
