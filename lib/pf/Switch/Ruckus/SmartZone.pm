@@ -310,18 +310,24 @@ sub find_user_by_psk {
             psk => { '!=', '', '!=', undef },
         },
     );
-    my $people = $iter->all();
 
     my $matched = 0;
-    for my $person (@$people) {
+    my $pid;
+    while(my $person = $iter->next) {
+        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
         if($self->check_if_radius_request_psk_matches($radius_request, $person->{psk})) {
             get_logger->info("PSK matches the one of ".$person->{pid});
             $matched ++;
+            $pid = $person->{pid};
         }
     }
 
     if($matched > 1) {
         get_logger->error("Multiple users use the same PSK. This cannot work with unbound DPSK. Ignoring it.");
+        return undef;
+    }
+    else {
+        return $pid;
     }
 }
 

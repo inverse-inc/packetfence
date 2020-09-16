@@ -53,13 +53,6 @@ sub calculate_pmk {
 
 sub calculate_ptk {
     my ($pmk, $mac_ap, $mac_cl, $anonce, $snonce) = @_;
-    use Data::Dumper ; get_logger->debug(Dumper(
-        unpack("H*", $pmk),
-        unpack("H*", $mac_ap),
-        unpack("H*", $mac_cl),
-        unpack("H*", $anonce),
-        unpack("H*", $snonce),
-        ));
     my $key_data = minstr($mac_ap, $mac_cl) . maxstr($mac_ap, $mac_cl) . minstr($anonce,$snonce) . maxstr($anonce,$snonce);
     my $ptk = prf512($pmk, $PKE, $key_data);
     get_logger->debug("PTK is ".unpack("H*", $ptk));
