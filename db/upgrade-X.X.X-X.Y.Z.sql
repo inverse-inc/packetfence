@@ -137,8 +137,16 @@ BEGIN
         `acctinterval` = timestampdiff( second, `Previous_AcctUpdate_Time`,  `p_timestamp`  )
     WHERE `acctuniqueid` = `p_acctuniqueid`
     AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
+
+    INSERT INTO `radacct_log`
+   (`acctsessionid`, `username`, `nasipaddress`,
+    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+  VALUES
+   (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+    `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
+    (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+
   ELSE
-    IF (`cnt` = 0) THEN
       # If there is no open session for this, open one.
       # Set values to 0 when no previous records
       SET `Previous_Session_Time` = 0;
@@ -161,24 +169,23 @@ BEGIN
           (
               `p_acctsessionid`,`p_acctuniqueid`,`p_username`,
               `p_realm`,`p_nasipaddress`,`p_nasportid`,
-              `p_nasporttype`,date_sub(`p_timestamp`, INTERVAL `p_acctsessiontime` SECOND ),
-              `p_timestamp`,`p_acctsessiontime`,`p_acctauthentic`,
-              `p_connectinfo_start`,`p_acctinputoctets`,
-              `p_acctoutputoctets`,`p_calledstationid`,`p_callingstationid`,
+              `p_nasporttype`,`p_timestamp`,
+              `p_timestamp`,0,`p_acctauthentic`,
+              `p_connectinfo_start`,0,
+              0,`p_calledstationid`,`p_callingstationid`,
               `p_servicetype`,`p_framedprotocol`,
               `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`, `p_tenant_id`
           );
-     END IF;
-   END IF;
 
-  # Create new record in the log table
-  INSERT INTO `radacct_log`
-   (`acctsessionid`, `username`, `nasipaddress`,
-    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
-  VALUES
-   (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
-    `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
-    (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+      INSERT INTO `radacct_log`
+       (`acctsessionid`, `username`, `nasipaddress`,
+        `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+      VALUES
+       (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+       `p_timestamp`, `p_acctstatustype`, 0, 0,
+       0, `p_acctuniqueid`, `p_tenant_id`);
+
+   END IF;
 END /
 DELIMITER ;
 
