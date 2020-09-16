@@ -536,11 +536,13 @@ Just performing the wait, no setAdminStatus
 
 sub bouncePort {
     my ($self, $ifIndex) = @_;
+    return $self->bouncePortSNMP($ifIndex);
+}
 
+sub bouncePortSNMP {
     #$self->setAdminStatus( $ifIndex, $SNMP::DOWN );
     sleep($Config{'snmp_traps'}{'bounce_duration'});
     #$self->setAdminStatus( $ifIndex, $SNMP::UP );
-
     return $TRUE;
 }
 

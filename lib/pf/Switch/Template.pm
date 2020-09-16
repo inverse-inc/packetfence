@@ -25,6 +25,7 @@ use pf::access_filter::radius;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::roles::custom;
 use pf::mini_template;
+use pf::locationlog;
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
@@ -280,7 +281,7 @@ sub disconnectAddress {
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # allowing client code to override where we connect with NAS-IP-Address
-    if ( defined($add_attributes_ref->{'NAS-IP-Address'}) && $add_attributes_ref->{'NAS-IP-Address'} ne '' ) {
+    if ( defined $add_attributes_ref && defined($add_attributes_ref->{'NAS-IP-Address'}) && $add_attributes_ref->{'NAS-IP-Address'} ne '' ) {
         $logger->info("'NAS-IP-Address' additionnal attribute is set. Using it '" . $add_attributes_ref->{'NAS-IP-Address'} . "' to perform deauth");
         $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'};
     }
@@ -463,6 +464,70 @@ Override the default ACL template if applicable
 sub aclTemplate {
     my ($self) = @_;
     return $self->{_template}{acl_template} || $DEFAULT_ACL_TEMPLATE
+}
+
+sub bouncePort {
+    my ($self, $ifindex) = @_;
+    my $logger = $self->logger;
+    if ( !$self->isProductionMode() ) {
+        $logger->info("Switch not in production mode... we won't perform port bounce");
+        return $TRUE;
+    }
+
+    my $radiusBounce = $self->{_template}{bounce};
+    if (!defined $radiusBounce) {
+        return $self->SUPER::bouncePort($ifindex);
+    }
+
+    return $self->_bouncePortCoa($ifindex, $radiusBounce);
+}
+
+sub handleReAssignVlanTrapForWiredMacAuth {
+    my ($self, $ifIndex, $mac) = @_;
+    return $self->bouncePortSNMP($ifIndex);
+}
+
+sub _bouncePortCoa {
+    my ($self, $ifIndex, $radiusBounce) = @_;
+    my $logger = $self->logger;
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
+    my $mac = $locationlog[0]->{'mac'};
+    if (!$mac) {
+        @locationlog = locationlog_view_open_switchport_only_VoIP( $self->{_ip}, $ifIndex );
+        $mac = $locationlog[0]->{'mac'};
+    }
+
+    if (!$mac) {
+        $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
+        return $TRUE;
+    }
+
+    my $send_disconnect_to = $self->disconnectAddress({});
+    my $connection_info = {
+        nas_ip => $send_disconnect_to,
+        secret => $self->{'_radiusSecret'},
+        LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+    };
+    my %args = (
+        disconnectIp => $send_disconnect_to,
+        mac => $mac,
+        ifIndex => $ifIndex,
+        switch => $self,
+    );
+
+    $self->updateArgsVariablesForSet(\%args, $radiusBounce);
+    my ($attrs, $vsa) = $self->makeRadiusAttributesWithVSA($radiusBounce, \%args);
+    # Standard Attributes
+    return perform_coa($connection_info, {@$attrs}, $vsa);
 }
 
 =head1 AUTHOR
