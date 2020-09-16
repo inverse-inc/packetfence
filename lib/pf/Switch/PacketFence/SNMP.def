@@ -1,0 +1,15 @@
+# Do not edit.
+# Any changes will be lost on upgrade.
+
+description=SNMP Switch
+snmpDisconnect=enabled
+acceptVlan = <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+voip=
+acceptRole=
+coa=
+disconnect=
+reject=Reply-Message = This node is not allowed to use this service
