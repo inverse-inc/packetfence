@@ -31,6 +31,7 @@ Enhancements
 * Create a PacketFence::SNMP switch to force reevaluate access using SNMP (#5742)
 * Add support for CLI Access for Switch::Template (#5708)
 * Use Status Check in pfstats to test radius/eduroam sources
+* Switch templates can define how to map a NasPort to an IfIndex (#5779)
 
 Bug Fixes
 +++++++++
@@ -40,6 +41,7 @@ Bug Fixes
 * Don't override user defined values in the interface file for centos.
 * haproxy-db can cause pfcmd service restart to failed (#5745)
 * Pass in the mandatory fields to the email templates.
+* Dell N1500.pm: LLDP detection doesn't work (#5758)
 
 Version 10.1.0 released on 2020-06-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
