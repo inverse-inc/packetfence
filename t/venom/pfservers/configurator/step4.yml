@@ -1,8 +1,0 @@
-name: Step 4
-version: 2
-testcases:
-- name: check_redirection
-  steps:
-  - script: "curl {{.pfserver_webadmin_url}}/api/v1/configurator/config/interfaces -k"
-    assertions:
-      - result.systemout ShouldContainSubstring 'The configurator is turned off'
