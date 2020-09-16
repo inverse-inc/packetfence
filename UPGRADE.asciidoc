@@ -1324,6 +1324,14 @@ The parameter device_registration_role has been renamed device_registration_role
 /usr/local/pf/addons/upgrade/to-10.2-selfservice-conf.pl
 ----
 
+=== Switch type needs to be defined
+
+If switch type was not defined, this script will set it to `Generic`:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.2-default-switch-packetfence-standard.pl
+----
 
 === Database schema
 
