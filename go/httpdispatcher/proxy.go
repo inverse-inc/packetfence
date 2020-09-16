@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -14,7 +15,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"html/template"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/db"
@@ -504,32 +504,30 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 
 	ipAddress = p.getIP(ctx, r)
 
-	if ipAddress != "" {
-		MAC, err := p.IP2Mac(ctx, ipAddress)
-		if err == nil {
-			if p.HasSecurityEvents(ctx, MAC) && p.ShowParkingPortal {
-				if found && (PortalURL.Host == r.Host) {
-					if r.RequestURI == "/release-parking" {
-						reqURL := r.URL
-						// Call the API
-						err = p.APIUnpark(ctx, MAC, ipAddress)
-						if err == nil {
-							reqURL.Path = "/back-on-network.html"
-						} else {
-							reqURL.Path = "/max-attempts.html"
-						}
-						r.URL = reqURL
+	MAC, err := p.IP2Mac(ctx, ipAddress)
+	if err == nil {
+		if p.HasSecurityEvents(ctx, MAC) && p.ShowParkingPortal {
+			if found && (PortalURL.Host == r.Host) {
+				if r.RequestURI == "/release-parking" {
+					reqURL := r.URL
+					// Call the API
+					err = p.APIUnpark(ctx, MAC, ipAddress)
+					if err == nil {
+						reqURL.Path = "/back-on-network.html"
+					} else {
+						reqURL.Path = "/max-attempts.html"
 					}
-					if rgx.MatchString(r.RequestURI) {
-						reverseHost = "127.0.0.1:8889"
-					}
-					log.LoggerWContext(ctx).Info("Parking detected for " + MAC)
-					p.reverse(ctx, w, r, reverseHost)
+					r.URL = reqURL
 				}
-				return true
+				if rgx.MatchString(r.RequestURI) {
+					reverseHost = "127.0.0.1:8889"
+				}
+				log.LoggerWContext(ctx).Info("Parking detected for " + MAC)
+				p.reverse(ctx, w, r, reverseHost)
 			}
-			return false
+			return true
 		}
+		return false
 	}
 	return false
 }
@@ -558,14 +556,12 @@ func (p *Proxy) handleDetectionMechanismRegister(ctx context.Context, w http.Res
 	var ipAddress string
 	ipAddress = p.getIP(ctx, r)
 
-	if ipAddress != "" {
-		MAC, err := p.IP2Mac(ctx, ipAddress)
+	MAC, err := p.IP2Mac(ctx, ipAddress)
 
-		if err == nil {
-			if p.nodeIsReg(ctx, MAC) && passThrough.checkDetectionMechanisms(ctx, fqdn) {
-				log.LoggerWContext(ctx).Info("Device register and match the portal detection mechanism for " + MAC)
-				p.reverse(ctx, w, r, r.Host)
-			}
+	if err == nil {
+		if p.nodeIsReg(ctx, MAC) && passThrough.checkDetectionMechanisms(ctx, fqdn) {
+			log.LoggerWContext(ctx).Info("Device register and match the portal detection mechanism for " + MAC)
+			p.reverse(ctx, w, r, r.Host)
 		}
 	}
 }
@@ -587,7 +583,7 @@ func (p *Proxy) nodeIsReg(ctx context.Context, mac string) bool {
 func (p *Proxy) getIP(ctx context.Context, r *http.Request) string {
 
 	var ipAddress string
-
+	ipAddress = "0.0.0.0"
 	fwdAddress := r.Header.Get("X-Forwarded-For")
 	if fwdAddress != "" {
 
