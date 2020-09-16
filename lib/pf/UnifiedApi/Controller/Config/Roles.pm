@@ -36,6 +36,7 @@ use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Firewall_SSO;
 use pf::ConfigStore::Switch;
 use pf::ConfigStore::Source;
+use pf::ConfigStore::PortalModule;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
 
@@ -182,6 +183,7 @@ sub reassign {
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Firewall_SSO", $old, $new, qw(categories));
     $self->reassign_role_config_store_switch(\@errors, $old, $new);
     $self->reassign_role_config_store_source(\@errors, $old, $new);
+    $self->reassign_role_config_store_portal_module(\@errors, $old, $new);
     if (@errors) {
         return $self->render_error(422, "Unable to reassign role", \@errors);
     }
@@ -242,6 +244,25 @@ sub reassign_role_config_store_source {
                 $cachedConfig->setval($sect, $p, $val);
                 $i |= 1;
             }
+        }
+    }
+
+    if ($i) {
+        $cs->commit();
+    }
+}
+
+sub reassign_role_config_store_portal_module {
+    my ($self, $errors, $old, $new) = @_;
+    my $cs = pf::ConfigStore::PortalModule->new;
+    my $i = 0;
+    my $cachedConfig = $cs->cachedConfig;
+    for my $sect ( $cachedConfig->Sections()) {
+        my $val = $cachedConfig->val($sect, 'actions');
+        next if !defined $val;
+        if ($val =~ s/set_role\(\Q$old\E\)/set_role($new)/) {
+            $cachedConfig->setval($sect, 'actions', $val);
+            $i |= 1;
         }
     }
 
