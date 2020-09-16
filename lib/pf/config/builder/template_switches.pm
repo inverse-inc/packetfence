@@ -48,6 +48,17 @@ sub buildEntry {
         }
     }
 
+    if ($entry->{nasPortToIfindex}) {
+        my $tmpl_text= $entry->{nasPortToIfindex};
+        my $tmpl = eval {
+            pf::mini_template->new($tmpl_text)
+        };
+        if ($@) {
+            push @{$buildData->{errors}}, { message => $@, text => $tmpl_text };
+        }
+        $entry->{nasPortToIfindex} = $tmpl;
+    }
+
     @supports = sort @supports;
     my ($vendor, undef) = split /::/, $type, 2;
     push @{ $buildData->{entries}{'::VENDORS'}{$vendor} },

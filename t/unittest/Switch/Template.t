@@ -29,7 +29,7 @@ BEGIN {
 }
 
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 3;
+use Test::More tests => (scalar @FILES) + 4;
 #This test will running last
 use Test::NoWarnings;
 for my $file (@FILES) {
@@ -64,6 +64,15 @@ for my $file (@FILES) {
 {
     my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
+}
+
+{
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.26');
+    is (
+        $switch->NasPortToIfIndex("500101"),
+        "101101",
+        "NasPortToIfIndex"
+    );
 }
 
 =head1 AUTHOR

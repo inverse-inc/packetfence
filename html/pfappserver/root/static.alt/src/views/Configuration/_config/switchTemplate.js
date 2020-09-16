@@ -386,6 +386,16 @@ export const view = (form, meta = {}) => {
               }
             }
           ]
+        },
+        {
+          label: i18n.t('NasPortToIfindex template'),
+          cols: [
+            {
+              namespace: 'nasPortToIfindex',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'nasPortToIfindex')
+            }
+          ]
         }
       ]
     }

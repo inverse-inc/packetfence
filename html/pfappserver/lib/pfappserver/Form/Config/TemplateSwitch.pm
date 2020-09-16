@@ -72,6 +72,11 @@ has_field 'radiusDisconnect' => (
     ],
 );
 
+has_field 'nasPortToIfindex' => (
+    type    => 'Text',
+    label   => 'NasPort To Ifindex template',
+);
+
 has_field 'acl_template' => (
     type     => 'TextArea',
     element_attr => { placeholder => $DEFAULT_ACL_TEMPLATE},

@@ -531,6 +531,18 @@ sub _bouncePortCoa {
     return perform_coa($connection_info, {@$attrs}, $vsa);
 }
 
+sub NasPortToIfIndex {
+    my ($self, $nasPort) = @_;
+    if ($self->{_template}{nasPortToIfindex}) {
+        my $ifindex = $self->{_template}{nasPortToIfindex}->process({ nasPort => $nasPort});
+        if ($ifindex) {
+            return $ifindex;
+        }
+    }
+
+    return $self->SUPER::NasPortToIfIndex($nasPort);
+}
+
 sub returnAuthorizeRead {
     my ($self, $args) = @_;
     return $self->returnCliAuthorize($args, 'Read');
