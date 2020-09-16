@@ -5522,6 +5522,11 @@ Bandwidth usage reports are available in _Reports_ menu under _Accounting_ secti
 NetFlow traffic can be handle by `pfacct` on inline L2/L3 networks. You need
 to enable _Netflow Accounting Enabled_ setting when defining an inline network.
 
+If you enable _NetFlow on all networks_ in _Configuration -> System
+configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage
+for all networks (not only inline networks) instead of the ones defined in
+networks.conf.
+
 In order to not conflict with the `fingerbank-collector` (which listens
 NetFlow traffic on all interfaces), `pfacct` listens NetFlow traffic on
 localhost, using `udp/2056` port. It received data using NetFlow kernel
