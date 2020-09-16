@@ -30,6 +30,7 @@ provisioners=
 access_registration_when_registered=disabled
 self_service=
 dpsk=disabled
+unbound_dpsk=disabled
 status=enabled
 unreg_on_acct_stop=disabled
 network_logoff=disabled

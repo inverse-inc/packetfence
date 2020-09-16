@@ -3550,6 +3550,17 @@ sub getCiscoAvPairAttribute {
     return ;
 }
 
+=head2 find_user_by_psk
+
+Attempts to find a local user by matching the PSK to the attributes in the RADIUS request
+
+=cut
+
+sub find_user_by_psk {
+    my ($self, $radius_request) = @_;
+    $self->logger->debug("Unbound DPSK not implemented for this switch module");
+}
+
 =back
 
 =head1 AUTHOR

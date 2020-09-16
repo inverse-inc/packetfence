@@ -1,2 +1,2 @@
-$INCLUDE /usr/local/pf/raddb/dictionary.inverse
+$INCLUDE /usr/local/pf/raddb/dictionary
 $INCLUDE /usr/share/freeradius/dictionary
