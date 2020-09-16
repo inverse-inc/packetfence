@@ -24,6 +24,7 @@
 
 .form-text {
     white-space: pre-line; /* allow \n to break */
+    outline: 0; /* hide border on click */
 }
 
 .input-group > .custom-range {

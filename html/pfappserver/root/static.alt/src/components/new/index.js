@@ -2,15 +2,17 @@ import BaseArray from './BaseArray'
 import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
-import BaseFormGroupInput from '@/components/new/BaseFormGroupInput'
-import BaseFormGroupToggle from '@/components/new/BaseFormGroupToggle'
-import BaseFormGroupToggleDisabledEnabled from '@/components/new/BaseFormGroupToggleDisabledEnabled'
-import BaseFormGroupToggleOffOn from '@/components/new/BaseFormGroupToggleOffOn'
+import BaseFormGroupInput from './BaseFormGroupInput'
+import BaseFormGroupSelectOne from './BaseFormGroupSelectOne'
+import BaseFormGroupToggle from './BaseFormGroupToggle'
+import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEnabled'
+import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputRange from './BaseInputRange'
+import BaseInputSelectOne from './BaseInputSelectOne'
 
 import { mergeProps } from './utils'
 
@@ -23,6 +25,7 @@ export {
   // form group
   BaseFormGroup,
   BaseFormGroupInput,
+  BaseFormGroupSelectOne,
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupToggleOffOn,
@@ -31,6 +34,7 @@ export {
   BaseInput,
   BaseInputPassword,
   BaseInputRange,
+  BaseInputSelectOne,
 
   // bootstrap wrappers
   BaseInputGroup,

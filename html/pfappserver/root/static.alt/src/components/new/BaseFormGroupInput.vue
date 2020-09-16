@@ -17,7 +17,7 @@
       }"
     >
       <b-form-input ref="input"
-        class="base-form-input"
+        class="base-form-group-input"
         :disabled="isLocked"
         :readonly="inputReadonly"
         :state="inputState"

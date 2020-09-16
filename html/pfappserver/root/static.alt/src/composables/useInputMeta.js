@@ -1,6 +1,5 @@
 import { computed, inject, reactive, ref, toRefs, unref, set, watch } from '@vue/composition-api'
 import yup from '@/utils/yup'
-import i18n from '@/utils/locale'
 
 export const getMetaNamespace = (ns, o) =>
   ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : {}, o)
@@ -22,12 +21,16 @@ export const useInputMeta = (props) => {
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
-  let localProps = reactive({ ...props })
-  watch(props, (props) => {
-    for(let prop in props) {
-      set(localProps, prop, props[prop])
-    }
-  })
+  let localProps = reactive({})
+  watch(
+    props,
+    props => {
+      for(let prop in props) {
+        set(localProps, prop, props[prop])
+      }
+    },
+    { immediate: true }
+  )
 
   if (unref(namespace)) {
     // use namespace
@@ -37,8 +40,9 @@ export const useInputMeta = (props) => {
 
     watch(
       namespaceMeta,
-      (namespaceMeta) => {
+      namespaceMeta => {
         const {
+          allowed: metaAllowed,
           min_length: metaMinLength = undefined,
           max_length: metaMaxLength = undefined,
           min_value: metaMinValue = undefined,
@@ -49,7 +53,11 @@ export const useInputMeta = (props) => {
           type: metaType
         } = unref(namespaceMeta)
 
-       // placeholder
+        // allowed
+        if (metaAllowed)
+          set(localProps, 'options', metaAllowed)
+
+        // placeholder
         if (metaPlaceholder)
           set(localProps, 'placeholder', metaPlaceholder)
 

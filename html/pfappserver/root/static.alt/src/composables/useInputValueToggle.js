@@ -10,7 +10,7 @@ export const useInputValueToggleProps = {
   }
 }
 
-export const useInputValueToggle = (valueProps, props, context) => {
+export const useInputValueToggle = (valueProps, props) => {
 
   const {
     value: rxValue,
@@ -29,7 +29,7 @@ export const useInputValueToggle = (valueProps, props, context) => {
   }
 
   // state
-  const max = computed(() => unref(options).length)
+  const max = computed(() => unref(options).length - 1)
 
   return {
     // middleware

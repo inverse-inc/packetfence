@@ -13,7 +13,7 @@ export const useInputRangeProps = {
     },
     max: {
       type: [String, Number],
-      default: 100
+      default: 1
     },
     color: {  // override default colors via JS
       type: String

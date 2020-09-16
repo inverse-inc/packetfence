@@ -9,15 +9,15 @@ import FormGroupAdServer from '@/components/new/BaseFormGroupInput'
 import FormGroupDnsServers from '@/components/new/BaseFormGroupInput'
 import FormGroupOu from '@/components/new/BaseFormGroupInput'
 import FormGroupNtlmv2Only from '@/components/new/BaseFormGroupToggle'
-//import FormGroupRegistration from '@/components/new/BaseFormGroupInput'
+import FormGroupRegistration from '@/components/new/BaseFormGroupToggle'
 
-//import FormGroupNtlmCache from '@/components/new/BaseFormGroupToggle'
-//import FormGroupNtlmCacheSource from '@/components/new/BaseFormGroupSelectOne'
+import FormGroupNtlmCache from '@/components/new/BaseFormGroupToggleDisabledEnabled'
+import FormGroupNtlmCacheSource from '@/components/new/BaseFormGroupSelectOne'
 import FormGroupNtlmCacheFilter from '@/components/new/BaseFormGroupTextarea'
 import FormGroupNtlmCacheExpiry from '@/components/new/BaseFormGroupInput'
-//import FormGroupNtlmCacheBatch from '@/components/new/BaseFormGroupToggle'
-//import FormGroupNtlmCacheBatchOneAtATime from '@/components/new/BaseFormGroupToggle'
-//import FormGroupNtlmCacheOnConnection from '@/components/new/BaseFormGroupToggle'
+import FormGroupNtlmCacheBatch from '@/components/new/BaseFormGroupToggleDisabledEnabled'
+import FormGroupNtlmCacheBatchOneAtATime from '@/components/new/BaseFormGroupToggleDisabledEnabled'
+import FormGroupNtlmCacheOnConnection from '@/components/new/BaseFormGroupToggleDisabledEnabled'
 
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -33,15 +33,15 @@ export {
   FormGroupDnsServers,
   FormGroupOu,
   FormGroupNtlmv2Only,
-  //FormGroupRegistration,
+  FormGroupRegistration,
 
-  //FormGroupNtlmCache,
-  //FormGroupNtlmCacheSource,
+  FormGroupNtlmCache,
+  FormGroupNtlmCacheSource,
   FormGroupNtlmCacheFilter,
   FormGroupNtlmCacheExpiry,
-  //FormGroupNtlmCacheBatch,
-  //FormGroupNtlmCacheBatchOneAtATime,
-  //FormGroupNtlmCacheOnConnection,
+  FormGroupNtlmCacheBatch,
+  FormGroupNtlmCacheBatchOneAtATime,
+  FormGroupNtlmCacheOnConnection,
 
   TheForm,
   TheView

@@ -12,7 +12,7 @@
       class="base-form-group-toggle"
       step="1"
       min="0"
-      :max="max"
+      :max="inputMax"
       :disabled="isLocked"
       :size="size"
       :state="inputState"
@@ -103,7 +103,7 @@ export const setup = (props, context) => {
     // useInputValue
     inputValue: value,
     onChange,
-    max,
+    inputMax: max,
 
     // useInputValidator
     inputState: state,
