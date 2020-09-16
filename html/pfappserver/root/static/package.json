@@ -4,7 +4,7 @@
   "homepage": "https://packetfence.org",
   "bugs": "https://github.com/inverse-inc/packetfence/issues",
   "devDependencies": {
-    "autoprefixer": ">=6.0.3",
+    "autoprefixer": "9.x",
     "bower": ">=1.8.4",
     "grunt": ">=0.4.1",
     "grunt-cli": "^1.2.0",
