@@ -30,6 +30,7 @@ Enhancements
 * Set the default switch type to Packetfence::Standard (#5742)
 * Create a PacketFence::SNMP switch to force reevaluate access using SNMP (#5742)
 * Add support for CLI Access for Switch::Template (#5708)
+* Use Status Check in pfstats to test radius/eduroam sources
 
 Bug Fixes
 +++++++++
