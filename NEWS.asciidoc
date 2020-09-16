@@ -26,6 +26,7 @@ Enhancements
 * Improved support for Extreme switches running EXOS
 * Added option to register device immediately after the sponsor activates the access during sponsor based registration (#5642)
 * Added support for EAP-PEAP MSCHAPv2 and EAP-TLS for CLI and VPN RADIUS authentication (#5784)
+* Template based bouncePort using CoA (#5735)
 
 Bug Fixes
 +++++++++
