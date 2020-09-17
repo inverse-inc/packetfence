@@ -51,10 +51,6 @@
               <icon class="position-absolute mt-1" name="project-diagram"></icon>
               <span class="ml-4">{{ $t('Apply Bypass VLAN') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyBulkDelete()">
-              <icon class="position-absolute mt-1" name="trash-alt"></icon>
-              <span class="ml-4">{{ $t('Delete') }}</span>
-            </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
             <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
@@ -1138,38 +1134,6 @@ export default {
           })
           this.$store.dispatch('notification/info', {
             message: this.$i18n.tc('Applied bypass VLAN on 1 node. | Applied bypass VLAN on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
-            success: successCount,
-            skipped: skippedCount,
-            failed: failedCount
-          })
-        }).catch(() => {
-          macs.forEach(mac => {
-            let index = this.tableValues.findIndex(value => value.mac === mac)
-            this.setRowVariant(index, 'danger')
-          })
-        })
-      }
-    },
-    applyBulkDelete () {
-      const macs = this.selectValues.map(item => item.mac)
-      if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkDelete`, { items: macs }).then(items => {
-          let successCount = 0
-          let skippedCount = 0
-          let failedCount = 0
-          items.forEach(item => {
-            let index = this.tableValues.findIndex(value => value.mac === item.mac)
-            switch (item.status) {
-              case 'success': successCount++
-                break
-              case 'skipped': skippedCount++
-                break
-              default: failedCount++
-            }
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-          })
-          this.$store.dispatch('notification/info', {
-            message: this.$i18n.tc('Deleted 1 node. | Deleted {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
