@@ -458,7 +458,7 @@ test_pkg_release_centos_7:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'no'
     INTEGRATION_TESTS: 'no'
-    # provision VM with vagrant provision
+    # provision VM and run configurator test
     RUN_TESTS: 'yes'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-${CI_COMMIT_TAG}
   extends:
@@ -497,7 +497,7 @@ test_pkg_release_debian_stretch:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'no'
     INTEGRATION_TESTS: 'no'
-    # provision VM with vagrant provision
+    # provision VM and run configurator test
     RUN_TESTS: 'yes'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-${CI_COMMIT_TAG}
   extends:

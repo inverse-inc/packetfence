@@ -7,8 +7,6 @@
 
 - import_playbook: install_pf.yml
     
-  # inject environment variables here to not conflict with install when we add
-  # MYSQL_* variables
 - import_playbook: env_vars.yml
   
 - import_playbook: go_env.yml
