@@ -32,6 +32,8 @@ Enhancements
 * Add support for CLI Access for Switch::Template (#5708)
 * Use Status Check in pfstats to test radius/eduroam sources
 * Switch templates can define how to map a NasPort to an IfIndex (#5779)
+* Syslog parsers are now tenant aware.
+
 
 Bug Fixes
 +++++++++
