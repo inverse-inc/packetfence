@@ -32,7 +32,6 @@ const actions = {
     if (!state.tenants[tenantId]) {
       commit('TENANT_REQUEST', tenantId)
       const params = {
-        sort: 'id',
         fields: ['id']
       }
       api.realms(tenantId, params).then(response => {
@@ -157,10 +156,18 @@ const mutations = {
       Vue.set(state.cache, tenantId, {})
     }
     Vue.set(state.cache[tenantId], id, item)
+    if (tenantId in state.tenants) {
+      Vue.set(state.tenants, tenantId, [ ...state.tenants[tenantId].filter(tenant => tenant.id !== id), item ])
+    }
   },
   ITEM_DESTROYED: (state, { tenantId, id }) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache[tenantId], id, null)
+    if (tenantId in state.cache) {
+      Vue.delete(state.cache[tenantId], id)
+    }
+    if (tenantId in state.tenants) {
+      Vue.set(state.tenants, tenantId, state.tenants[tenantId].filter(tenant => tenant.id !== id))
+    }
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR

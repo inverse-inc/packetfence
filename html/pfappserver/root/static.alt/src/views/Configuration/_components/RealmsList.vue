@@ -9,13 +9,13 @@
       <pf-button-service class="mr-1" service="radiusd-auth" restart start stop></pf-button-service>
     </b-card-header>
 
-    <b-card class="m-3" v-for="(tenant, index) in tenants" :key="index">
+    <b-card class="m-3" v-for="tenant in tenants" :key="tenant.id">
       <h4 class="mb-3">{{ tenant.name }}</h4>
 
       <b-button class="mb-3" variant="outline-primary" :to="{ name: 'newRealm', params: { tenantId: tenant.id } }">{{ $t('New Realm') }}</b-button>
 
       <pf-table-sortable
-        :items="realmsByTenant[index]"
+        :items="realmsByTenant[tenant.id]"
         :fields="config.columns"
         hover
         striped
@@ -81,7 +81,11 @@ export default {
   },
   computed: {
     tenants () {
-      return this.$store.state.session.tenants
+      const { id } = this.$store.state.session.tenant
+      if (id) // single-tenant mode
+        return this.$store.state.session.tenants.filter(tenant => +tenant.id === +id)
+      else // multi-tenant mode
+        return this.$store.state.session.tenants
     },
     isLoading () {
       return this.$store.getters['$_realms/isLoading']
