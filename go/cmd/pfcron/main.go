@@ -47,10 +47,10 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 
 		eth, _ := net.InterfaceByName(management.Int)
 		addresses, _ := eth.Addrs()
+		clusterIp := net.ParseIP(keyConfCluster.Ip)
 
 		for _, address := range addresses {
 			IP, _, _ := net.ParseCIDR(address.String())
-			clusterIp := net.ParseIP(keyConfCluster.Ip)
 			if IP.Equal(clusterIp) {
 				return true
 			}
