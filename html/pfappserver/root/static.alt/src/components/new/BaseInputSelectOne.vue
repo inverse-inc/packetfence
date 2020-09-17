@@ -362,29 +362,6 @@ export default {
   .input-group-text {
     border: none;
   }
-  &.is-focus {
-    .multiselect__tags {
-      border-color: $input-focus-border-color;
-    }
-  }
-  &.is-invalid {
-    .multiselect__tags {
-      border-color: $form-feedback-invalid-color;
-    }
-    .multiselect__select:before {
-      color: $form-feedback-invalid-color;
-      border-color: $form-feedback-invalid-color transparent transparent;
-    }
-  }
-  &.is-valid {
-    .multiselect__tags {
-      border-color: $form-feedback-valid-color;
-    }
-    .multiselect__select:before {
-      color: $form-feedback-valid-color;
-      border-color: $form-feedback-valid-color transparent transparent;
-    }
-  }
   &.size-sm {
     .multiselect,
     .multiselect__input,
@@ -473,4 +450,36 @@ export default {
     }
   }
 }
+
+.input-group.is-focus > .base-input-select-one,
+.base-input-select-one.is-focus {
+  .multiselect__tags {
+    border-color: $input-focus-border-color;
+  }
+  .multiselect__select:before {
+    color: $input-focus-border-color;
+    border-color: $input-focus-border-color transparent transparent;
+  }
+}
+.input-group.is-invalid > .base-input-select-one,
+.base-input-select-one.is-invalid {
+  .multiselect__tags {
+    border-color: $form-feedback-invalid-color;
+  }
+  .multiselect__select:before {
+    color: $form-feedback-invalid-color;
+    border-color: $form-feedback-invalid-color transparent transparent;
+  }
+}
+.input-group.is-valid > .base-input-select-one,
+.base-input-select-one.is-valid {
+  .multiselect__tags {
+    border-color: $form-feedback-valid-color;
+  }
+  .multiselect__select:before {
+    color: $form-feedback-valid-color;
+    border-color: $form-feedback-valid-color transparent transparent;
+  }
+}
+
 </style>

@@ -47,7 +47,7 @@ const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_comp
 const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../roles/_components/TheView')
 const DomainsTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
 const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../domains/_components/TheView')
-const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RealmView')
+const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../realms/_components/TheView')
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
 const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
@@ -296,11 +296,8 @@ const route = {
       path: 'role/:id',
       name: 'role',
       component: RoleView,
-      props: (route) => ({ formStoreName: 'formRole', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formRole) { // Register store module only once
-          store.registerModule('formRole', FormStore)
-        }
         store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
@@ -310,11 +307,8 @@ const route = {
       path: 'role/:id/clone',
       name: 'cloneRole',
       component: RoleView,
-      props: (route) => ({ formStoreName: 'formRole', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formRole) { // Register store module only once
-          store.registerModule('formRole', FormStore)
-        }
         store.dispatch('$_roles/getRole', to.params.id).then(() => {
           next()
         })
@@ -336,11 +330,8 @@ const route = {
       path: 'domain/:id',
       name: 'domain',
       component: DomainView,
-      props: (route) => ({ formStoreName: 'formDomain', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formDomain) { // Register store module only once
-          store.registerModule('formDomain', FormStore)
-        }
         store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })
@@ -350,11 +341,8 @@ const route = {
       path: 'domain/:id/clone',
       name: 'cloneDomain',
       component: DomainView,
-      props: (route) => ({ formStoreName: 'formDomain', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formDomain) { // Register store module only once
-          store.registerModule('formDomain', FormStore)
-        }
         store.dispatch('$_domains/getDomain', to.params.id).then(() => {
           next()
         })

@@ -23,8 +23,7 @@
   </base-form>
 </template>
 <script>
-import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
-
+import { computed } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -34,6 +33,14 @@ import {
   FormGroupMaxNodesPerPid,
   FormGroupNotes
 } from './'
+
+const components = {
+    BaseForm,
+
+    FormGroupIdentifier,
+    FormGroupMaxNodesPerPid,
+    FormGroupNotes
+}
 
 export const props = {
   id: {
@@ -71,12 +78,7 @@ export const setup = (props) => {
 export default {
   name: 'the-form',
   inheritAttrs: false,
-  components: {
-    BaseForm,
-    FormGroupIdentifier,
-    FormGroupMaxNodesPerPid,
-    FormGroupNotes
-  },
+  components,
   props,
   setup
 }

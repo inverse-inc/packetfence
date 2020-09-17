@@ -5,18 +5,19 @@
       :class="{
         'is-focus': isFocus,
         'is-blur': !isFocus,
+        'is-disabled': isLocked,
         'size-sm': size === 'sm',
         'size-md': size === 'md',
         'size-lg': size === 'lg'
       }"
-      :disabled="isLocked"
       :index="inputValue"
       :style="rootStyle"
     >
       <div style="pointer-events: none;">
         <div v-for="(hintStyle, index) in hintStyles" :key="index" class="hint" :style="hintStyle"></div>
         <span class="handle" :style="valueStyle">
-          <slot/> <!-- Icon slot -->
+          <icon v-if="isLocked" name="lock"/>
+          <slot v-else/> <!-- Icon slot -->
         </span>
         <div v-if="label" class="label" :style="labelStyle">
           {{ label }}
@@ -185,6 +186,12 @@ export default {
   }
   &.is-invalid {
     box-shadow: 0 0 0 1px $form-feedback-invalid-color;
+  }
+  &.is-disabled {
+    background-color: var(--range-background-color, $input-disabled-bg);
+    > .handle svg {
+      color: var(--range-background-color, $input-disabled-bg);
+    }
   }
   > div {
     position: absolute;

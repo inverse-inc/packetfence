@@ -14,7 +14,7 @@ export const useFormTab = () => {
   const isValid = ref(true)
   let isValidDebouncer
   watch([form, meta], () => {
-    isValid.value = false // temporary
+    isValid.value = true // temporary
     if (!isValidDebouncer)
       isValidDebouncer = createDebouncer()
     isValidDebouncer({

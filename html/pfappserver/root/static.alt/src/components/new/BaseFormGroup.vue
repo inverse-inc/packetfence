@@ -16,6 +16,7 @@
     </template>
     <b-input-group
       :class="{
+'foobar': true,
         'is-valid': inputState === true,
         'is-invalid': inputState === false
       }"

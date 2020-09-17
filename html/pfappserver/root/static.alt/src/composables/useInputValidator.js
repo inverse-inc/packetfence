@@ -1,5 +1,5 @@
-import { computed, inject, ref, toRefs, unref, watch, watchEffect } from '@vue/composition-api'
-import { object, nullable, reach } from 'yup'
+import { computed, inject, ref, toRefs, unref, watchEffect } from '@vue/composition-api'
+import { object, reach } from 'yup'
 
 export const useInputValidatorProps = {
   namespace: {
@@ -87,7 +87,7 @@ export const useInputValidator = (props, value) => {
     localInvalidFeedback = invalidFeedback
     localValidFeedback = validFeedback
     localState = computed(() => {
-      if (unref(state) === true)
+      if (unref(state) !== false)
         return (unref(validFeedback) !== undefined)
           ? true // is validFeedback
           : null // no validFeeback

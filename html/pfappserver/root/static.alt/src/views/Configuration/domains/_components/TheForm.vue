@@ -3,10 +3,7 @@
     :form="form"
     :meta="meta"
     :schema="schema"
-
-    :zzzisLoading="isLoading"
-
-    :isLoading="true"
+    :isLoading="isLoading"
   >
     <b-tabs>
       <base-form-tab :title="$i18n.t('Settings')" class="pt-3 px-3" active>
@@ -114,9 +111,6 @@
 
       </base-form-tab>
     </b-tabs>
-
-<pre>{{ form }}</pre>
-
   </base-form>
 </template>
 <script>
@@ -124,7 +118,7 @@ import { computed } from '@vue/composition-api'
 
 import {
   BaseForm,
-  BaseFormTab,
+  BaseFormTab
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
