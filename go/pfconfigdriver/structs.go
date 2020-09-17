@@ -556,3 +556,11 @@ type ClusterServer struct {
 	ManagementIp string `json:"management_ip"`
 	Host         string `json:"host"`
 }
+
+type AllClusterServersRaw struct {
+	StructConfig
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"resource::all_cluster_servers"`
+	PfconfigArray  string `val:"yes"`
+	Element        []interface{}
+}
