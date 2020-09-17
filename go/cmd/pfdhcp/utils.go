@@ -17,7 +17,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	dhcp "github.com/krolaw/dhcp4"
+	dhcp "github.com/inverse-inc/dhcp4"
 )
 
 // NodeInfo struct
