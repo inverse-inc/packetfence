@@ -44,6 +44,7 @@ Bug Fixes
 * haproxy-db can cause pfcmd service restart to failed (#5745)
 * Pass in the mandatory fields to the email templates.
 * Dell N1500.pm: LLDP detection doesn't work (#5758)
+* Ensure the gateway was only written once in /etc/sysconfig/network (#2845)
 
 Version 10.1.0 released on 2020-06-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
