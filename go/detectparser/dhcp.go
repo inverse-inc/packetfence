@@ -12,7 +12,7 @@ var dhcpRegexPattern2 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|
 
 type DhcpParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
-	RateLimitable
+	parser
 }
 
 func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
@@ -39,6 +39,7 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 						"mac", mac,
 						"ip", ip,
 					},
+					TenantID: s.TenantID,
 				},
 			}, nil
 		}
@@ -49,8 +50,8 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 
 func NewDhcpParser(config *PfdetectConfig) (Parser, error) {
 	return &DhcpParser{
-		Pattern1:      dhcpRegexPattern1.Copy(),
-		Pattern2:      dhcpRegexPattern2.Copy(),
-		RateLimitable: config.NewRateLimitable(),
+		Pattern1: dhcpRegexPattern1.Copy(),
+		Pattern2: dhcpRegexPattern2.Copy(),
+		parser:   setupParser(config),
 	}, nil
 }

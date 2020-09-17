@@ -30,6 +30,7 @@ func TestNexposeParse(t *testing.T) {
 							"nexpose_event": "OpenSSL SSL/TLS MITM vulnerability (CVE-2014-0224) (http-openssl-cve-2014-0224)",
 						},
 					},
+					TenantID: 1,
 				},
 			},
 		},
