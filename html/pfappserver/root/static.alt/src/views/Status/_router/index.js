@@ -34,9 +34,11 @@ const route = {
       beforeEnter: (to, from, next) => {
         if (acl.$can('read', 'users_sources'))
           store.dispatch('config/getSources')
-        store.dispatch('$_status/getCluster').then(() => {
-          store.dispatch('$_status/allCharts').finally(() => next())
-        }).catch(() => next())
+        if (acl.$can('read', 'system')) {
+          store.dispatch('$_status/getCluster').then(() => {
+            store.dispatch('$_status/allCharts').finally(() => next())
+          }).catch(() => next())
+        }
       },
       meta: {
         can: 'read reports',
