@@ -648,6 +648,11 @@ sub setup_api_v1_nodes_routes {
         action => 'network_graph',
     });
 
+    $collection_route->register_sub_action({
+        method => 'DELETE',
+        action => 'bulk_delete',
+    });
+
     return ( $collection_route, $resource_route );
 }
 
