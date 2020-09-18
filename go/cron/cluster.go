@@ -26,7 +26,7 @@ func (s *Server) IsDisabled() bool {
 func CallCluster(ctx context.Context, method string, args interface{}) {
 	servers, cluster_mode := enabledServers(ctx)
 	if cluster_mode {
-		clientApi := jsonrpc2.NewClientFromConfig(context.Background())
+		clientApi := jsonrpc2.NewClientFromConfig(ctx)
 		clientApi.Proto = "https"
 		for _, member := range servers {
 			clientApi.Host = member.ManagementIp
@@ -40,7 +40,7 @@ func CallCluster(ctx context.Context, method string, args interface{}) {
 func NotifyCluster(ctx context.Context, method string, args interface{}) {
 	servers, cluster_mode := enabledServers(ctx)
 	if cluster_mode {
-		clientApi := jsonrpc2.NewClientFromConfig(context.Background())
+		clientApi := jsonrpc2.NewClientFromConfig(ctx)
 		clientApi.Proto = "https"
 		for _, member := range servers {
 			clientApi.Host = member.ManagementIp
