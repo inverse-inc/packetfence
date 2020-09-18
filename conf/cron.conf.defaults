@@ -18,7 +18,7 @@ description=Task that controls the inline accounting maintenance (bandwidth chec
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 
 [auth_log_cleanup]
 # 
@@ -40,7 +40,7 @@ description=Controls the cleanup of the auth_log table. Entries older than the w
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -153,7 +153,7 @@ description=Task that controls the inline accounting maintenance (bandwidth chec
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 
 [ip4log_cleanup]
 # 
@@ -175,7 +175,7 @@ description=Controls the cleanup and rotation of IP entries in IPv4 tables.
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -232,7 +232,7 @@ description=Controls the cleanup and rotation of IP entries in IPv6 tables.
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -289,7 +289,7 @@ description=Controls the cleanup of the locationlog table. Entries older than th
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -326,7 +326,7 @@ description=Controls the actions made on inactive nodes (based on the last_seen 
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # window
 #
@@ -363,7 +363,7 @@ description=Task to unregister nodes that have an unregistration date older than
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 
 [option82_query]
 # 
@@ -407,7 +407,7 @@ description=Task to delete users that do not own any device. Locally created use
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 
 [populate_ntlm_redis_cache]
 # 
@@ -473,7 +473,7 @@ description=Controls the cleanup of the radius_audit_log table. Entries older th
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -510,7 +510,7 @@ description=Controls the cleanup of the dns_audit_log table. Entries older than 
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -547,7 +547,7 @@ description=Task that controls the execution of delayed security_event.
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -638,7 +638,7 @@ description=Task to generate password of the day.
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 
 [acct_cleanup]
 # 
@@ -660,7 +660,7 @@ description=Controls the cleanup of the accounting tables (radacct and radacct_l
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -734,7 +734,7 @@ description=Controls the aggregation of the bandwidth accounting records.
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
@@ -786,7 +786,7 @@ description=Controls the cleanup of the bandwidth accounting sessions.
 # schedule
 # 
 # The schedule of task
-schedule=@every 60s
+schedule=@every 1m
 #
 # batch
 #
