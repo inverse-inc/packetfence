@@ -585,7 +585,7 @@ export const connectionProfileExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getConnectionProfiles').then(response => {
     if (response.length === 0) return true
-    else return response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0
+    else return response.filter(connectionProfile => connectionProfile.id === value).length > 0
   }).catch(() => {
     return true
   })
