@@ -179,10 +179,5 @@ export default {
     return apiCall.put(['nodes', 'bulk_import'], body).then(response => {
       return response.data.items
     })
-  },
-  bulkDelete: body => {
-    return apiCall.delete(['nodes', 'bulk_delete'], body).then(response => {
-      return response.data.items
-    })
   }
 }
