@@ -1711,7 +1711,7 @@ sub _report_userbandwidth_with_range {
     my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
