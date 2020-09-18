@@ -776,17 +776,17 @@ type=bandwidth_maintenance_session
 # status
 # 
 # If the task is enabled
-status=enabled
+status=disabled
 # 
 # description
 # 
 # The description of task
-description=Controls the cleanup of the bandwidth accounting sessions. The task has an interval of 0 since it runs manually through a cronjob.
+description=Controls the cleanup of the bandwidth accounting sessions.
 # 
 # schedule
 # 
 # The schedule of task
-schedule=@every 0s
+schedule=@every 60s
 #
 # batch
 #
