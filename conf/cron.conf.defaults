@@ -451,7 +451,7 @@ description=Task that runs the polling enforcement on the provisioners.
 # schedule
 # 
 # The schedule of task
-schedule=@every 300s
+schedule=@every 5m
 
 [radius_audit_log_cleanup]
 # 
