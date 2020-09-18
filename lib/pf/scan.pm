@@ -341,12 +341,12 @@ Check if the category matches the configuration of the scanner
 
 sub matchCategory {
     my ($self, $node_attributes) = @_;
-    my $category = [split(/\s*,\s*/, $self->{_categories})];
+    my $categories = $self->{_categories} || [];
     my $node_cat = $node_attributes->{'category'};
 
-    get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$category) });
-    # validating that the node is under the proper category for scanner
-    return @$category == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$category;
+    get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$categories) });
+    # validating that the node is under the proper category for provisioner
+    return @$categories == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$categories;
 }
 
 =item matchOS

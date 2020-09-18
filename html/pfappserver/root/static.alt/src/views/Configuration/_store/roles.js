@@ -7,6 +7,7 @@ import api from '../_api'
 const types = {
   LOADING: 'loading',
   DELETING: 'deleting',
+  REASSIGNING: 'reassigning',
   SUCCESS: 'success',
   ERROR: 'error'
 }
@@ -21,7 +22,7 @@ const state = () => {
 }
 
 const getters = {
-  isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
+  isWaiting: state => [types.LOADING, types.DELETING, types.REASSIGNING].includes(state.itemStatus),
   isLoading: state => state.itemStatus === types.LOADING
 }
 
@@ -95,6 +96,17 @@ const actions = {
     commit('ITEM_REQUEST', types.DELETING)
     return api.deleteRole(data).then(response => {
       commit('ITEM_DESTROYED', data)
+      commit('config/ROLES_UPDATED', false, { root: true })
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  reassignRole: ({ commit }, data) => {
+    commit('ITEM_REQUEST', types.REASSIGNING)
+    return api.reassignRole(data).then(response => {
+      commit('ITEM_DESTROYED', data.from)
       commit('config/ROLES_UPDATED', false, { root: true })
       return response
     }).catch(err => {

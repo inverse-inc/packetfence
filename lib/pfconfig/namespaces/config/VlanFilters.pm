@@ -40,7 +40,7 @@ sub build_child {
     my %tmp_cfg = %{ $self->{cfg} };
 
     $self->cleanup_whitespaces( \%tmp_cfg );
-
+    $self->roleReverseLookup(\%tmp_cfg, 'vlan_filters', qw(role));
     return \%tmp_cfg;
 
 }

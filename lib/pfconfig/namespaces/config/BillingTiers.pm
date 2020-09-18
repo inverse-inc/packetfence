@@ -26,6 +26,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}            = $billing_tiers_config_file;
+    $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
 }
 
 sub build_child {
@@ -33,10 +34,11 @@ sub build_child {
 
     my %cfg = %{ $self->{cfg} };
 
-    foreach my $key (keys %cfg){
-        $cfg{$key}{id} = $key;
+    while (my ($key, $val) = each %cfg) {
+        $val->{id} = $key;
     }
 
+    $self->roleReverseLookup(\%cfg, 'billing_tiers', qw(role));
     return \%cfg;
 }
 

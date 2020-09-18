@@ -51,6 +51,15 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+ALTER TABLE node
+  ADD INDEX `node_bypass_role_id` (`bypass_role_id`);
+
+ALTER TABLE `password`
+  ADD INDEX password_category (category);
+
+ALTER TABLE `class`
+  ADD INDEX password_target_category (target_category);
+
 DROP PROCEDURE IF EXISTS `acct_update`;
 DELIMITER /
 CREATE PROCEDURE `acct_update`(

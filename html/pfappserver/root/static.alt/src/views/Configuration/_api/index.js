@@ -1374,6 +1374,9 @@ export default {
   deleteRole: id => {
     return apiCall.delete(['config', 'role', id])
   },
+  reassignRole: data => {
+    return apiCall.patch(['config', 'role', data.from, 'reassign'], { id: data.to })
+  },
 
   /**
    * Routed Networks
