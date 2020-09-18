@@ -16,8 +16,8 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* EAP_TTLS PAP Support on a ldap source
-* Edirectory source
+* EAP_TTLS PAP Support on a LDAP source
+* eDirectory source
 
 Enhancements
 ++++++++++++
@@ -33,6 +33,7 @@ Enhancements
 * Use Status Check in pfstats to test radius/eduroam sources
 * Switch templates can define how to map a NasPort to an IfIndex (#5779)
 * Syslog parsers are now tenant aware.
+* Add default MAC address randomization security event check
 
 
 Bug Fixes
