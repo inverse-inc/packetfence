@@ -106,10 +106,16 @@ sub _run {
     my $params = $self->{params};
     my $task = eval {pf::factory::pfcron::task->new($task_id, $params)};
     if ($@) {
-        exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
-    } else {
-        $task->run();
+        print STDERR "Error creating: $@\n";
+        return 1;
     }
+
+    if (defined $task) {
+        $task->run();
+    } else {
+        exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
+    }
+
     print "task $task_id finished\n"; 
     return $EXIT_SUCCESS;
 }
