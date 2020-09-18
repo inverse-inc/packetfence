@@ -13,6 +13,7 @@ func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, ar
 	for {
 		results, err := stmt.Exec(args...)
 		if err != nil {
+			log.LogError(ctx, "Database error: "+err.Error())
 			break
 		}
 
