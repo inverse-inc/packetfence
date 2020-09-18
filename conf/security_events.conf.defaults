@@ -400,3 +400,11 @@ window=dynamic
 desc=Check if antivirus.exe is running
 enabled=Y
 access_duration=12h
+
+[3000007]
+template=random_mac
+trigger=mac::^.[26ae].*
+actions=email_admin,log,reevaluate_access
+window=dynamic
+access_duration=12h
+enabled=N
