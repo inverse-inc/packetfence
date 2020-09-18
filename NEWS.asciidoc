@@ -35,6 +35,7 @@ Enhancements
 * Syslog parsers are now tenant aware.
 * Add default MAC address randomization security event check
 * Allow to delete a node from web admin with a locationlog opened (#5492)
+* Allow roles to be delete
 
 
 Bug Fixes
