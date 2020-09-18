@@ -16,11 +16,12 @@ use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
 use pf::constants::config;
 use pf::file_paths qw(
-    $pfmon_config_file
+    $conf_dir
     $cron_config_file
 );
 
 
+my $pfmon_config_file = catfile($conf_dir, "pfmon.conf");
 my $default_cronspec = '@every 1m';
 my $pfmon = pf::IniFiles->new( -file => $pfmon_config_file);
 my $maintenance = pf::IniFiles->new();
