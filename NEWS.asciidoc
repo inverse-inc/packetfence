@@ -34,6 +34,7 @@ Enhancements
 * Switch templates can define how to map a NasPort to an IfIndex (#5779)
 * Syslog parsers are now tenant aware.
 * Add default MAC address randomization security event check
+* Allow to delete a node from web admin with a locationlog opened (#5492)
 
 
 Bug Fixes
