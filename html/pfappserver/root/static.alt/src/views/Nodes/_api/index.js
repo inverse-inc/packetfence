@@ -58,7 +58,7 @@ export default {
   locationlogs: mac => {
     const search = {
       query: { op: 'and', values: [ { field: 'mac', op: 'equals', value: mac } ] },
-      limit: 100,
+      limit: 1000,
       cursor: '0'
     }
     return apiCall.post('locationlogs/search', search).then(response => {
@@ -68,8 +68,10 @@ export default {
   security_events: mac => {
     const search = {
       query: { op: 'and', values: [ { field: 'mac', op: 'equals', value: mac } ] },
-      limit: 100,
-      cursor: '0'
+      limit: 1000,
+      cursor: '0',
+      sortBy: 'start_date',
+      sortDesc: false
     }
     return apiCall.post('security_events/search', search).then(response => {
       return response.data.items

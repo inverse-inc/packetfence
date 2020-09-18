@@ -417,7 +417,7 @@ export default {
       locationSortDesc: true,
 
       securityEventFields, // ../_config/
-      securityEventSortBy: 'release_date',
+      securityEventSortBy: 'start_date',
       securityEventSortDesc: true,
 
       dhcpOption82Fields, // ../_config/
