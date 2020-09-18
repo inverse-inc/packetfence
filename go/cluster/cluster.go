@@ -1,10 +1,11 @@
-package maint
+package cluster
 
 import (
 	"context"
 	"os"
 
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -24,34 +25,34 @@ func (s *Server) IsDisabled() bool {
 }
 
 func CallCluster(ctx context.Context, method string, args interface{}) {
-	servers, cluster_mode := enabledServers(ctx)
+	servers, cluster_mode := EnabledServers(ctx)
 	if cluster_mode {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
 		clientApi.Proto = "https"
 		for _, member := range servers {
 			clientApi.Host = member.ManagementIp
 			if _, err := clientApi.Call(ctx, method, args, 1); err != nil {
-				logError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
+				log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 			}
 		}
 	}
 }
 
 func NotifyCluster(ctx context.Context, method string, args interface{}) {
-	servers, cluster_mode := enabledServers(ctx)
+	servers, cluster_mode := EnabledServers(ctx)
 	if cluster_mode {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
 		clientApi.Proto = "https"
 		for _, member := range servers {
 			clientApi.Host = member.ManagementIp
 			if err := clientApi.Notify(ctx, method, args, 1); err != nil {
-				logError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
+				log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 			}
 		}
 	}
 }
 
-func enabledServers(ctx context.Context) ([]Server, bool) {
+func EnabledServers(ctx context.Context) ([]Server, bool) {
 	servers := []Server{}
 	cluster_servers := pfconfigdriver.AllClusterServers{}
 	pfconfigdriver.FetchDecodeSocketCache(ctx, &cluster_servers)

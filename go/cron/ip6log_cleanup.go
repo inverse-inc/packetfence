@@ -3,6 +3,7 @@ package maint
 import (
 	"context"
 	"fmt"
+	"github.com/inverse-inc/packetfence/go/log"
 	"time"
 )
 
@@ -108,12 +109,12 @@ func (j *Ip6logCleanup) DoRotate(ctx context.Context) {
 		}
 
 		if err := tx.Commit(); err != nil {
-			logError(ctx, "Database error: "+err.Error())
+			log.LogError(ctx, "Database error: "+err.Error())
 			break
 		}
 
 		if rows_deleted != rows_inserted {
-			logWarn(ctx, fmt.Sprintf("When rotating ip6log the number of rows deleted (%d) does not match the number of row inserted (%d)", rows_deleted, rows_inserted))
+			log.LogWarn(ctx, fmt.Sprintf("When rotating ip6log the number of rows deleted (%d) does not match the number of row inserted (%d)", rows_deleted, rows_inserted))
 		}
 
 		rows_affected += rows_inserted

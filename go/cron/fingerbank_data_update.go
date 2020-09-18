@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+	"github.com/inverse-inc/packetfence/go/cluster"
 )
 
 func NewFingerbankDataUpdate(config map[string]interface{}) JobSetupConfig {
@@ -16,7 +17,7 @@ type FingerbankDataUpdate struct {
 
 func (j *FingerbankDataUpdate) Run() {
 	ctx := context.Background()
-	CallCluster(
+	cluster.CallCluster(
 		ctx,
 		"fingerbank_update_component",
 		[]interface{}{

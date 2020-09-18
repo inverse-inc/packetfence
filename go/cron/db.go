@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/tryableonce"
 )
 
@@ -34,7 +35,7 @@ func getDb() (*sql.DB, error) {
 
 func rollBackOnErr(ctx context.Context, tx *sql.Tx, err error) {
 	if rollbackErr := tx.Rollback(); rollbackErr != nil {
-		logError(ctx, "Database error: "+rollbackErr.Error())
+		log.LogError(ctx, "Database error: "+rollbackErr.Error())
 	}
-	logError(ctx, "Database error: "+err.Error())
+	log.LogError(ctx, "Database error: "+err.Error())
 }
