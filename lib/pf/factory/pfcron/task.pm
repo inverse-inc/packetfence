@@ -27,7 +27,7 @@ sub factory_for { 'pf::pfcron::task' }
 
 our @MODULES = __PACKAGE__->modules;
 
-our @TYPES = map { /^pf::pfcron::task::(.*)$/ ; $1 } @MODULES;
+our %TYPES = map { /^pf::pfcron::task::(.*)$/ ; $1 => 1 } @MODULES;
 
 =head2 new
 
@@ -38,6 +38,9 @@ If no task is found the return undef
 
 sub new {
     my ($class, $name, $additional) = @_;
+    if (!exists $TYPES{$name}) {
+        return undef;
+    }
     my $object;
     my $data = $ConfigCron{$name};
     if ($data) {
