@@ -18,7 +18,7 @@
       <template v-slot:cell(buttons)="{ item }">
         <div class="text-right text-nowrap" v-if="!childrenIf(item)">
           <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" reverse
-            v-if="!item.not_deletable" :confirm="$t('Delete?')" @on-delete="onNodeDelete(path + item.name)"/>
+            v-if="!item.not_deletable" :confirm="$t('Delete?')" @on-delete="onNodeDelete(path + '/' + item.name)"/>
           <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" reverse
             v-else-if="!item.not_revertible" @on-delete="onNodeDelete(path + item.name)">{{ $t('Revert') }}</pf-button-delete>
           <b-button size="sm" variant="outline-secondary"
