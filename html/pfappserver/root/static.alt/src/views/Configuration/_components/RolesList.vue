@@ -111,7 +111,6 @@ export default {
     },
     remove (item) {
       this.$store.dispatch('$_roles/deleteRole', item.id).then(() => {
-console.log('refs', this.$refs)
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       }).catch(error => {
