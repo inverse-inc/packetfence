@@ -25,8 +25,6 @@ has id => (is => 'ro', isa => 'Str', required => 1);
 
 has status => (is => 'ro', isa => 'Str', required => 1);
 
-has interval => (is => 'ro', isa => 'PfInterval', required => 1, coerce => 1);
-
 =head2 run
 
 The method for the sub classes to override
