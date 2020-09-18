@@ -697,13 +697,13 @@ CREATE TABLE radreply (
   tenant_id int NOT NULL DEFAULT 1,
   username varchar(64) NOT NULL default '',
   attribute varchar(64) NOT NULL default '',
-  op char(2) NOT NULL DEFAULT '=',
+  op char(2) NOT NULL DEFAULT ':=',
   value varchar(253) NOT NULL default '',
   PRIMARY KEY (id),
   KEY (`tenant_id`, `username`)
 );
 
-INSERT INTO radreply (username, attribute, value, op) values ('00:00:00:00:00:00','User-Name','*', '=*');
+INSERT INTO radreply (tenant_id, username, attribute, value, op) values ('1', '00:00:00:00:00:00','User-Name','*', '=*');
 
 -- Adding RADIUS Updates Stored Procedure
 

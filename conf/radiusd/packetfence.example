@@ -512,10 +512,10 @@ server pf-remote {
 		#  Insert pre-proxy rules here
 	}
 
-	rewrite_calling_station_id
-	rewrite_called_station_id
-
 	post-proxy {
+		rewrite_calling_station_id
+		rewrite_called_station_id
+		packetfence-set-tenant-id
 		update control {
 			PacketFence-Proxied-To := "%{home_server:ipaddr}"
 		}
