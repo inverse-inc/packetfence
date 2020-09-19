@@ -59,7 +59,7 @@ if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
         tar -czf $current_tgz --exclude=$PF_DIRECTORY'logs/*' --exclude=$PF_DIRECTORY'var/*' --exclude=$PF_DIRECTORY'.git/*' $PF_DIRECTORY
         BACKUPRC=$?
-        if (( $BACKUPRC > 0 )); then
+        if (( $BACKUPRC > 1 )); then
             echo "ERROR: PacketFence files backup was not successful" >&2
             echo "ERROR: PacketFence files backup was not successful" > /usr/local/pf/var/backup_files.status
         else
