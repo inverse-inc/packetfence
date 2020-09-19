@@ -68,6 +68,7 @@ sub populate_switch_cache {
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     unless ( ref($switch) ) {
         get_logger->error("Unable to instantiate switch object using switch_id '" . $switch_id . "'");
+        return;
     }
 
     $switch->getLldpLocPortDesc();
