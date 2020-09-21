@@ -492,3 +492,11 @@ type PfConfParking struct {
 	PlaceInDhcpParkingGroup string `json:"place_in_dhcp_parking_group"`
 	ShowParkingPortal       string `json:"show_parking_portal"`
 }
+
+type AllClusterServersRaw struct {
+	StructConfig
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"resource::all_cluster_servers"`
+	PfconfigArray  string `val:"yes"`
+	Element        []interface{}
+}
