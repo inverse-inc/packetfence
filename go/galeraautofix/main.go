@@ -137,7 +137,7 @@ func handle(ctx context.Context, nodes *NodeList) {
 			log.LoggerWContext(ctx).Info("Local DB is available, nothing to do")
 			return
 		} else {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Failed %d time to connect to the local DB."))
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Failed %d time to connect to the local DB.", connectDBTries))
 			time.Sleep(connectDBTriesInterval)
 		}
 	}
