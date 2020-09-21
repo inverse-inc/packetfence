@@ -73,6 +73,11 @@ has_field 'dpsk' =>
              help => 'Define if the PSK needs to be generated' },
   );
 
+has_field 'dpsk_use_local_password' =>
+  (
+   type => 'Checkbox',
+  );
+
 has_field 'psk_size' =>
   (
    type => 'PSKLength',
@@ -150,7 +155,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path apply_role role_to_apply autoregister) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk dpsk_use_local_password passcode pki_provider server_certificate_path apply_role role_to_apply autoregister) ],
   );
 
 has_block signing =>

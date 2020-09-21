@@ -259,7 +259,12 @@ sub authorize {
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
     $args->{'profile'} = $profile; 
     
-    ($connection, $connection_type, $connection_sub_type, $args) = $self->handleUnboundDPSK($radius_request, $switch, $profile, $connection, $args);
+    (my $dpsk_accept, $connection, $connection_type, $connection_sub_type, $args) = $self->handleUnboundDPSK($radius_request, $switch, $profile, $connection, $args);
+    if(!$dpsk_accept) {
+        $logger->error("Unable to find a valid PSK for this request. Rejecting user.");
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "Invalid PSK") ];
+        goto CLEANUP;
+    }
 
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
@@ -278,6 +283,7 @@ sub authorize {
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
             $do_auto_reg = 0;
+            $node_obj->{status} = "unreg";
             $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
             goto CLEANUP;
         }
@@ -1167,6 +1173,8 @@ sub update_user_in_redis_cache {
 sub handleUnboundDPSK {
     my ($self, $radius_request, $switch, $profile, $connection, $args) = @_;
     my $logger = get_logger;
+    
+    my $accept = $FALSE;
     if($profile->unboundDpskEnabled()) {
         if(my $pid = $switch->find_user_by_psk($radius_request)) {
             $logger->info("Unbound DPSK user found $pid. Changing this request to use the 802.1x logic");
@@ -1178,10 +1186,11 @@ sub handleUnboundDPSK {
             $args->{connection_type} = $connection->attributesToBackwardCompatible;
             $args->{connection_sub_type} = $connection->subType;
             $args->{username} = $args->{stripped_user_name} = $args->{user_name} = $pid;
+            $accept = $TRUE;
         }
     }
 
-    return ($connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
+    return ($accept, $connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
 }
 
 =back
