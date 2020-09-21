@@ -8,6 +8,13 @@ pf::Switch::Ruckus::SmartZone
 
 Implements methods to manage Ruckus SmartZone Wireless Controllers
 
+=head1 BUGS AND LIMITATIONS
+
+=head2 Unbound DPSK
+
+- Is currently only supported for WPA2 which uses AES along with HMAC-SHA1
+- Doesn't support 802.11r (Fast Transition). Make sure you disable this on your SmartZone.
+
 =cut
 
 use strict;
