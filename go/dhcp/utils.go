@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"encoding/binary"
+	"fmt"
 	"math/rand"
 	"net"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -195,7 +197,8 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 		if ConfNet.Dnsvip != "" {
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 		}
-		return Shuffle(ConfNet.ClusterIPs)
+		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ConfNet.ClusterIPs, excluded)
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
@@ -211,7 +214,9 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 		if ConfNet.Type == "inlinel2" && ConfNet.NatEnabled == "disabled" {
 			return []byte(net.ParseIP(ConfNet.Gateway).To4())
 		}
-		return Shuffle(ConfNet.ClusterIPs)
+
+		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ConfNet.ClusterIPs, excluded)
 
 	} else {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
@@ -219,9 +224,12 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 }
 
 // Shuffle addresses
-func Shuffle(addresses string) (r []byte) {
+func Shuffle(addresses string, excluded string) (r []byte) {
 	var array []net.IP
 	for _, adresse := range strings.Split(addresses, ",") {
+		if adresse == excluded {
+			continue
+		}
 		array = append(array, net.ParseIP(adresse).To4())
 	}
 
@@ -395,4 +403,38 @@ func IsIPv4(address net.IP) bool {
 // IsIPv6 test if the ip is v6
 func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
+}
+
+func DetectDisabledServer(addresses string, netint string) string {
+
+	var array []string
+	for _, adresse := range strings.Split(addresses, ",") {
+		array = append(array, adresse)
+	}
+
+	servers := pfconfigdriver.AllClusterServersRaw{}
+
+	pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
+	var ip string
+	ip = "0.0.0.0"
+	for _, key := range servers.Element {
+		if !(IsDisabled(key.(map[string]interface{})["host"].(string))) {
+			continue
+		}
+		for k, v := range key.(map[string]interface{}) {
+			if k == "interface "+netint {
+				for w, x := range v.(map[string]interface{}) {
+					if w == "ip" {
+						ip = x.(string)
+					}
+				}
+			}
+		}
+	}
+	return ip
+}
+
+func IsDisabled(hostname string) bool {
+	_, err := os.Stat(fmt.Sprintf("/usr/local/pf/var/run/%s-cluster-disabled", hostname))
+	return err == nil
 }
