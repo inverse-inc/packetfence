@@ -275,6 +275,7 @@ sub authorize {
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
             $do_auto_reg = 0;
+            $node_obj->{status} = "unreg";
             $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
             goto CLEANUP;
         }
