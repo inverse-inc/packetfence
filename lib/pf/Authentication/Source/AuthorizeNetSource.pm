@@ -21,6 +21,7 @@ use pf::config qw($default_pid $fqdn);
 use pf::constants qw($FALSE $TRUE);
 use pf::log;
 use pf::util;
+use Data::Dumper;
 
 use LWP::UserAgent;
 use XML::Simple;
