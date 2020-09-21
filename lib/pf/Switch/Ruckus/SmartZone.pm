@@ -325,6 +325,11 @@ sub find_user_by_psk {
 
 sub check_if_radius_request_psk_matches {
     my ($self, $radius_request, $psk) = @_;
+    if($radius_request->{"Ruckus-DPSK-Cipher"} != 4) {
+        get_logger->error("Ruckus-DPSK-Cipher isn't for WPA2 that uses AES and HMAC-SHA1. This isn't supported by this module.");
+        return $FALSE;
+    }
+
     return pf::util::wpa::match_mic(
       pf::util::wpa::calculate_ptk(
         pf::util::wpa::calculate_pmk($radius_request->{"Ruckus-Wlan-Name"}, $psk),
