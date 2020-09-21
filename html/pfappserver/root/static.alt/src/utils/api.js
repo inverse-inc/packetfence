@@ -1,7 +1,9 @@
 import axios from 'axios'
 import store from '@/store'
 
-const baseURL = '/api/v1/'
+const baseURL = (process.env.VUE_APP_API_BASEURL)
+  ? process.env.VUE_APP_API_BASEURL
+  : '/api/v1/'
 
 const apiCall = axios.create({
   baseURL
