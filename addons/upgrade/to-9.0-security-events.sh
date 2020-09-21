@@ -29,4 +29,9 @@ echo "Renaming violations related data in stats.conf"
 sed -i$SED_BAK_SUFFIX 's/source\.packetfence\.violations/source.packetfence.security_events/g' /usr/local/pf/conf/stats.conf
 sed -i$SED_BAK_SUFFIX 's/from violation/from security_event/g' /usr/local/pf/conf/stats.conf
 
+echo "Renaming violations connection profile templates directories"
+find /usr/local/pf/html/captive-portal/profile-templates/ -maxdepth 1 -type d \
+  | grep -v '^html/captive-portal/profile-templates/$' \
+  | xargs -I{} /bin/bash -c "[ -d {}/violations ] && mv {}/violations {}/security_events"
+
 echo "Completed renaming"
