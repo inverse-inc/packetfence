@@ -4,6 +4,7 @@ import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupSelectOne from './BaseFormGroupSelectOne'
+import BaseFormGroupTextarea from './BaseFormGroupTextarea'
 import BaseFormGroupToggle from './BaseFormGroupToggle'
 import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEnabled'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
@@ -26,6 +27,7 @@ export {
   BaseFormGroup,
   BaseFormGroupInput,
   BaseFormGroupSelectOne,
+  BaseFormGroupTextarea,
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupToggleOffOn,

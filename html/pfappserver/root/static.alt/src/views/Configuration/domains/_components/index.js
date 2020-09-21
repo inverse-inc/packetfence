@@ -1,47 +1,35 @@
-import FormButtonBar from '@/components/new/BaseFormButtonBar'
-
-import FormGroupIdentifier from '@/components/new/BaseFormGroupInput'
-import FormGroupWorkgroup from '@/components/new/BaseFormGroupInput'
-import FormGroupDnsName from '@/components/new/BaseFormGroupInput'
-import FormGroupServerName from '@/components/new/BaseFormGroupInput'
-import FormGroupStickyDc from '@/components/new/BaseFormGroupInput'
-import FormGroupAdServer from '@/components/new/BaseFormGroupInput'
-import FormGroupDnsServers from '@/components/new/BaseFormGroupInput'
-import FormGroupOu from '@/components/new/BaseFormGroupInput'
-import FormGroupNtlmv2Only from '@/components/new/BaseFormGroupToggle'
-import FormGroupRegistration from '@/components/new/BaseFormGroupToggle'
-
-import FormGroupNtlmCache from '@/components/new/BaseFormGroupToggleDisabledEnabled'
-import FormGroupNtlmCacheSource from '@/components/new/BaseFormGroupSelectOne'
-import FormGroupNtlmCacheFilter from '@/components/new/BaseFormGroupTextarea'
-import FormGroupNtlmCacheExpiry from '@/components/new/BaseFormGroupInput'
-import FormGroupNtlmCacheBatch from '@/components/new/BaseFormGroupToggleDisabledEnabled'
-import FormGroupNtlmCacheBatchOneAtATime from '@/components/new/BaseFormGroupToggleDisabledEnabled'
-import FormGroupNtlmCacheOnConnection from '@/components/new/BaseFormGroupToggleDisabledEnabled'
-
+import {
+  BaseFormButtonBar,
+  BaseFormGroupInput,
+  BaseFormGroupSelectOne,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggle,
+  BaseFormGroupToggleDisabledEnabled
+} from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  FormButtonBar,
-  FormGroupIdentifier,
-  FormGroupWorkgroup,
-  FormGroupDnsName,
-  FormGroupServerName,
-  FormGroupStickyDc,
-  FormGroupAdServer,
-  FormGroupDnsServers,
-  FormGroupOu,
-  FormGroupNtlmv2Only,
-  FormGroupRegistration,
+  BaseFormButtonBar                   as FormButtonBar,
 
-  FormGroupNtlmCache,
-  FormGroupNtlmCacheSource,
-  FormGroupNtlmCacheFilter,
-  FormGroupNtlmCacheExpiry,
-  FormGroupNtlmCacheBatch,
-  FormGroupNtlmCacheBatchOneAtATime,
-  FormGroupNtlmCacheOnConnection,
+  BaseFormGroupInput                  as FormGroupIdentifier,
+  BaseFormGroupInput                  as FormGroupWorkgroup,
+  BaseFormGroupInput                  as FormGroupDnsName,
+  BaseFormGroupInput                  as FormGroupServerName,
+  BaseFormGroupInput                  as FormGroupStickyDc,
+  BaseFormGroupInput                  as FormGroupAdServer,
+  BaseFormGroupInput                  as FormGroupDnsServers,
+  BaseFormGroupInput                  as FormGroupOu,
+  BaseFormGroupToggle                 as FormGroupNtlmv2Only,
+  BaseFormGroupToggle                 as FormGroupRegistration,
+
+  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCache,
+  BaseFormGroupSelectOne              as FormGroupNtlmCacheSource,
+  BaseFormGroupTextarea               as FormGroupNtlmCacheFilter,
+  BaseFormGroupInput                  as FormGroupNtlmCacheExpiry,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCacheBatch,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCacheBatchOneAtATime,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCacheOnConnection,
 
   TheForm,
   TheView

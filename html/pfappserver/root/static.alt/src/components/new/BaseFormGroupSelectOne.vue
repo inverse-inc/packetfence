@@ -177,7 +177,10 @@ export const setup = (props, context) => {
     value,
     onInput
   } = useInputValue(metaProps, context)
-  const onInputProxy = useEventFnProxy(onInput, ({ [unref(trackBy)]: trackedValue }) => trackedValue)
+  const onInputProxy = useEventFnProxy(onInput, value => {
+    const { [unref(trackBy)]: trackedValue } = value
+    return trackedValue
+  })
 
   const {
     state,

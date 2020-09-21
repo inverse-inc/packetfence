@@ -1,16 +1,16 @@
-import FormButtonBar from '@/components/new/BaseFormButtonBar'
-import FormGroupIdentifier from '@/components/new/BaseFormGroupInput'
-import FormGroupMaxNodesPerPid from '@/components/new/BaseFormGroupInput'
-import FormGroupNotes from '@/components/new/BaseFormGroupInput'
-
+import {
+  BaseFormButtonBar,
+  BaseFormGroupInput
+} from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  FormButtonBar,
-  FormGroupIdentifier,
-  FormGroupMaxNodesPerPid,
-  FormGroupNotes,
+  BaseFormButtonBar   as FormButtonBar,
+
+  BaseFormGroupInput  as FormGroupIdentifier,
+  BaseFormGroupInput  as FormGroupMaxNodesPerPid,
+  BaseFormGroupInput  as FormGroupNotes,
 
   TheForm,
   TheView
