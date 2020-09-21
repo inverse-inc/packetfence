@@ -14,12 +14,12 @@ import (
 
 	cache "github.com/fdurand/go-cache"
 	"github.com/go-errors/errors"
+	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	dhcp "github.com/inverse-inc/dhcp4"
 )
 
 // NodeInfo struct
@@ -363,6 +363,9 @@ func AddPffilterDevicesOptions(info interface{}, GlobalOptions map[dhcp.OptionCo
 			err = errors.New("Rejected from pffilter")
 			return err
 		}
+		if key == "continue" {
+			continue
+		}
 		if s, ok := value.(string); ok {
 			var opcode dhcp.OptionCode
 			intvalue, _ := strconv.Atoi(key)
@@ -376,6 +379,7 @@ func AddPffilterDevicesOptions(info interface{}, GlobalOptions map[dhcp.OptionCo
 // GetFromGlobalFilterCache retreive the global option from the cache
 func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]string) interface{} {
 	var info interface{}
+
 	var err error
 	pffilter := filter_client.NewClient()
 	Filter, found := GlobalFilterCache.Get(mac + "" + msgType)
@@ -388,6 +392,9 @@ func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]str
 		})
 		if err != nil {
 			GlobalFilterCache.Set(mac+""+msgType, "null", cache.DefaultExpiration)
+			info = map[string]interface{}{
+				"continue": "Not able to contact pffilter",
+			}
 		} else {
 			GlobalFilterCache.Set(mac+""+msgType, info, cache.DefaultExpiration)
 		}
