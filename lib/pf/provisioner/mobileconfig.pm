@@ -330,7 +330,6 @@ sub generate_dpsk {
     my ($self,$username) = @_;
     my $person = person_view($username);
     my $password = pf::password::view($username);
-    use Data::Dumper ; use pf::log ; get_logger->info(Dumper($password, $self, pf::password::password_get_hash_type($password->{password})));
     if (defined $person->{psk} && $person->{psk} ne '') {
         get_logger->debug("Returning psk key $person->{psk} for user $username");
         return $person->{psk};
