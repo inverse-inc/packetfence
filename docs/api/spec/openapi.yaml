@@ -2208,7 +2208,7 @@ components:
                 type: string
             type: object
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2246,7 +2246,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2273,7 +2273,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2314,7 +2314,7 @@ components:
                 type: string
             type: object
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2346,7 +2346,7 @@ components:
               until the timeout is reached.
             type: integer
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2399,7 +2399,7 @@ components:
               until the timeout is reached.
             type: integer
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2447,7 +2447,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2478,7 +2478,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2505,7 +2505,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2532,7 +2532,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2564,7 +2564,7 @@ components:
               until the timeout is reached.
             type: integer
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2648,7 +2648,7 @@ components:
               until the timeout is reached.
             type: integer
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2700,7 +2700,7 @@ components:
               until the timeout is reached.
             type: integer
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2742,7 +2742,7 @@ components:
               until the timeout is reached.
             type: integer
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2779,7 +2779,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2806,7 +2806,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2833,7 +2833,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2860,7 +2860,7 @@ components:
         type: object
       - properties:
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
@@ -2892,7 +2892,7 @@ components:
               until the timeout is reached.
             type: integer
           id:
-            description: Pfmon Name
+            description: Pfcron Name
             type: string
           interval:
             description: Interval (frequency) at which the task is executed.<br>Requires
