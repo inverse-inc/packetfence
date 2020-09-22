@@ -14,6 +14,7 @@ const route = {
   redirect: '/status/dashboard',
   component: StatusView,
   meta: {
+    can: () => acl.can('master tenant') || acl.$some('read', ['system', 'services']), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -22,7 +23,7 @@ const route = {
       store.registerModule('$_status', StatusStore)
     }
     if (acl.$can('read', 'system'))
-      store.dispatch('$_status/getCluster').then(() => next())
+      store.dispatch('$_status/getCluster').finally(() => next())
     else
       next()
   },
@@ -39,10 +40,12 @@ const route = {
             store.dispatch('$_status/allCharts').finally(() => next())
           }).catch(() => next())
         }
+        else
+          next()
       },
       meta: {
-        can: 'read reports',
-        fail: { path: '/auditing', replace: true }
+        can: 'master tenant',
+        isFailRoute: true
       }
     },
     {
@@ -52,7 +55,7 @@ const route = {
       props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read nodes',
-        fail: { path: '/status/dashboard', replace: true }
+        isFailRoute: true
       }
     },
     {
@@ -61,7 +64,7 @@ const route = {
       props: { storeName: '$_status' },
       meta: {
         can: 'read services',
-        fail: { path: '/status/dashboard', replace: true }
+        isFailRoute: true
       }
     },
     {
@@ -69,8 +72,8 @@ const route = {
       component: Queue,
       props: { storeName: 'pfqueue' },
       meta: {
-        can: 'read services',
-        fail: { path: '/status/dashboard', replace: true }
+        can: 'master tenant',
+        isFailRoute: true
       }
     },
     {
@@ -78,8 +81,7 @@ const route = {
       component: ClusterServices,
       props: { storeName: '$_status' },
       meta: {
-        can: 'read services',
-        fail: { path: '/status/dashboard', replace: true }
+        can: 'read services'
       }
     }
   ]

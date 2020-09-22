@@ -1,3 +1,4 @@
+import acl from '@/utils/acl'
 import store from '@/store'
 import RadiusLogsStore from '../_store/radiusLogs'
 import DhcpOption82LogsStore from '../_store/dhcpOption82Logs'
@@ -20,6 +21,7 @@ const route = {
   redirect: '/auditing/radiuslogs/search',
   component: AuditingView,
   meta: {
+    can: () => acl.$some('read', ['radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log', 'system']), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -45,7 +47,7 @@ const route = {
       props: (route) => ({ storeName: '$_radius_logs', query: route.query.query }),
       meta: {
         can: 'read radius_log',
-        fail: '/auditing/dhcpoption82s/search'
+        isFailRoute: true
       }
     },
     {
@@ -54,7 +56,7 @@ const route = {
       component: RadiusLogView,
       props: (route) => ({ storeName: '$_radius_logs', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_radius_logs/getItem', to.params.id).then(() => {
+        store.dispatch('$_radius_logs/getItem', to.params.id).finally(() => {
           next()
         })
       },
@@ -69,7 +71,7 @@ const route = {
       props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query }),
       meta: {
         can: 'read dhcp_option_82',
-        fail: '/nodes'
+        isFailRoute: true
       }
     },
     {
@@ -93,7 +95,7 @@ const route = {
       props: (route) => ({ storeName: '$_dns_logs', query: route.query.query }),
       meta: {
         can: 'read dns_log',
-        fail: '/auditing/dhcpoption82s/search'
+        isFailRoute: true
       }
     },
     {
@@ -117,7 +119,7 @@ const route = {
       props: (route) => ({ storeName: '$_admin_api_audit_logs', query: route.query.query }),
       meta: {
         can: 'read admin_api_audit_log',
-        fail: '/auditing/dnslogs/search'
+        isFailRoute: true
       }
     },
     {

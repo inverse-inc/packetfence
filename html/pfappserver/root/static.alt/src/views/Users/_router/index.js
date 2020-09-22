@@ -1,3 +1,4 @@
+import acl from '@/utils/acl'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import UsersView from '../'
@@ -14,8 +15,11 @@ const route = {
   name: 'users',
   redirect: '/users/search',
   component: UsersView,
+  meta: {
+    can: () => (acl.$can('read', 'users') || acl.$can('create', 'users')), // has ACL for 1+ children
+    transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
+  },
   props: { storeName: '$_users' },
-  meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   beforeEnter: (to, from, next) => {
     if (!store.state.$_users) {
       // Register store module only once
@@ -30,7 +34,7 @@ const route = {
       props: (route) => ({ storeName: '$_users', query: route.query.query }),
       meta: {
         can: 'read users',
-        fail: { path: '/configuration', replace: true }
+        isFailRoute: true
       }
     },
     {
