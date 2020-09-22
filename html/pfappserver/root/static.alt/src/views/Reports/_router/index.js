@@ -12,10 +12,8 @@ const route = {
   redirect: '/reports/standard/chart/os',
   component: ReportsIndex,
   meta: {
-    can: () => {
-      return acl.$some('read', ['reports']) // has ACL for 1+ children
-    },
-    fail: { path: '/auditing', replace: true }, // no ACL in this view, redirect to next sibling
+    can: () => acl.$some('read', ['reports']), // has ACL for 1+ children
+    isFailRoute: true,
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -36,8 +34,7 @@ const route = {
         end_datetime: route.params.end_datetime
       }),
       meta: {
-        can: 'read reports',
-        fail: { name: 'dynamicReportChart', replace: true } // redirect to next sibling
+        can: 'read reports'
       }
     },
     {
@@ -51,8 +48,7 @@ const route = {
         })
       },
       meta: {
-        can: 'read reports',
-        fail: { name: 'standardReportChart', replace: true } // redirect to first sibling
+        can: 'read reports'
       }
     }
   ]

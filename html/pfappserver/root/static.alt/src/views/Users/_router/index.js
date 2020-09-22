@@ -17,10 +17,7 @@ const route = {
   redirect: '/users/search',
   component: UsersView,
   meta: {
-    can: () => {
-      return acl.$can('read', 'users') || acl.$can('create', 'users') // has ACL for 1+ children
-    },
-    fail: { path: '/configuration', replace: true }, // no ACL in this view, redirect to next sibling
+    can: () => (acl.$can('read', 'users') || acl.$can('create', 'users')), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   props: { storeName: '$_users' },
@@ -39,7 +36,7 @@ const route = {
       props: (route) => ({ storeName: '$_users', query: route.query.query }),
       meta: {
         can: 'read users',
-        fail: { name: 'userCreate', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -54,8 +51,7 @@ const route = {
         next()
       },
       meta: {
-        can: 'create users',
-        fail: { name: 'userImport', replace: true } // redirect to next sibling
+        can: 'create users'
       }
     },
     {
@@ -70,8 +66,7 @@ const route = {
         next()
       },
       meta: {
-        can: 'create users',
-        fail: { name: 'userSearch', replace: true } // redirect to next sibling
+        can: 'create users'
       }
     },
     {
@@ -80,8 +75,7 @@ const route = {
       component: UsersPreview,
       props: { storeName: '$_users' },
       meta: {
-        can: 'create users',
-        fail: { name: 'users', replace: true } // redirect to first sibling
+        can: 'create users'
       }
     },
     {
@@ -101,8 +95,7 @@ const route = {
         })
       },
       meta: {
-        can: 'read users',
-        fail: { name: 'users', replace: true } // redirect to first sibling
+        can: 'read users'
       }
     }
   ]

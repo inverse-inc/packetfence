@@ -14,10 +14,7 @@ const route = {
   redirect: '/status/dashboard',
   component: StatusView,
   meta: {
-    can: () => {
-      return acl.can('master tenant') || acl.$some('read', ['system', 'services']) // has ACL for 1+ children
-    },
-    fail: { path: '/reports', replace: true }, // no ACL in this view, redirect to next sibling
+    can: () => acl.can('master tenant') || acl.$some('read', ['system', 'services']), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -26,7 +23,7 @@ const route = {
       store.registerModule('$_status', StatusStore)
     }
     if (acl.$can('read', 'system'))
-      store.dispatch('$_status/getCluster').then(() => next())
+      store.dispatch('$_status/getCluster').finally(() => next())
     else
       next()
   },
@@ -44,10 +41,12 @@ const route = {
             store.dispatch('$_status/allCharts').finally(() => next())
           }).catch(() => next())
         }
+        else
+          next()
       },
       meta: {
         can: 'master tenant',
-        fail: { name: 'statusNetwork', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -57,7 +56,7 @@ const route = {
       props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read nodes',
-        fail: { name: 'statusServices', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -67,7 +66,7 @@ const route = {
       props: { storeName: '$_status' },
       meta: {
         can: 'read services',
-        fail: { name: 'statusQueue', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -77,7 +76,7 @@ const route = {
       props: { storeName: 'pfqueue' },
       meta: {
         can: 'master tenant',
-        fail: { name: 'statusCluster', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -86,8 +85,7 @@ const route = {
       component: ClusterServices,
       props: { storeName: '$_status' },
       meta: {
-        can: 'read services',
-        fail: { name: 'statusDashboard', replace: true } // redirect to first sibling
+        can: 'read services'
       }
     }
   ]

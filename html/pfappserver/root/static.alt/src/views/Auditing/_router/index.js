@@ -26,10 +26,7 @@ const route = {
   redirect: '/auditing/radiuslogs/search',
   component: AuditingView,
   meta: {
-    can: () => {
-      return acl.$some('read', ['radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log']) // has ACL for 1+ children
-    },
-    fail: { path: '/nodes', replace: true }, // no ACL in this view, redirect to next sibling
+    can: () => acl.$some('read', ['radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log', 'system']), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -58,7 +55,7 @@ const route = {
       props: (route) => ({ storeName: '$_radius_logs', query: route.query.query }),
       meta: {
         can: 'read radius_log',
-        fail: { name: 'dhcpoption82s', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -67,13 +64,12 @@ const route = {
       component: RadiusLogView,
       props: (route) => ({ storeName: '$_radius_logs', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_radius_logs/getItem', to.params.id).then(() => {
+        store.dispatch('$_radius_logs/getItem', to.params.id).finally(() => {
           next()
         })
       },
       meta: {
-        can: 'read radius_log',
-        fail: { name: 'dhcpoption82s', replace: true } // redirect to next sibling
+        can: 'read radius_log'
       }
     },
     {
@@ -83,7 +79,7 @@ const route = {
       props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query }),
       meta: {
         can: 'read dhcp_option_82',
-        fail: { name: 'dnslogs', replace: true } // redirect to next sibling,
+        isFailRoute: true
       }
     },
     {
@@ -97,8 +93,7 @@ const route = {
         })
       },
       meta: {
-        can: 'read dhcp_option_82',
-        fail: { name: 'dnslogs', replace: true } // redirect to next sibling
+        can: 'read dhcp_option_82'
       }
     },
     {
@@ -108,7 +103,7 @@ const route = {
       props: (route) => ({ storeName: '$_dns_logs', query: route.query.query }),
       meta: {
         can: 'read dns_log',
-        fail: { name: 'admin_api_audit_logs', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -122,8 +117,7 @@ const route = {
         })
       },
       meta: {
-        can: 'read dns_log',
-        fail: { name: 'admin_api_audit_logs', replace: true } // redirect to next sibling
+        can: 'read dns_log'
       }
     },
     {
@@ -133,7 +127,7 @@ const route = {
       props: (route) => ({ storeName: '$_admin_api_audit_logs', query: route.query.query }),
       meta: {
         can: 'read admin_api_audit_log',
-        fail: { name: 'radiuslogs', replace: true } // redirect to first sibling
+        isFailRoute: true
       }
     },
     {
@@ -150,8 +144,7 @@ const route = {
         })
       },
       meta: {
-        can: 'read admin_api_audit_log',
-        fail: { name: 'radiuslogs', replace: true } // redirect to first sibling
+        can: 'read admin_api_audit_log'
       }
     },
     {
@@ -161,7 +154,7 @@ const route = {
       props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read system',
-        fail: '/auditing'
+        isFailRoute: true
       }
     },
     {
