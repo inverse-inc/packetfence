@@ -76,7 +76,7 @@ has_block definition =>
 sub options_tenant {
     my $self = shift;
 
-    my @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{pf::dal::tenant->search->all};
+    my @tenants = map { $_->{id} != 0 ? ( { value => $_->{id}, label => $_->{name} }) : () } @{pf::dal::tenant->search->all};
 
     return @tenants;
 }
