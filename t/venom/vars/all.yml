@@ -33,7 +33,7 @@ pfserver_api_inactivity_timeout.unit: h
 pfserver_pffilter_processes: 1
 pfserver_pfperl_api_processes: 2
 pfserver_pfqueue_workers: 2
-
+pfserver_haproxy_admin_server_timeout: 120s
 
 # ad variables
 ad_mgmt_ip: 172.17.17.100
