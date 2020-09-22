@@ -70,7 +70,7 @@ export default acl
 /**
  * Centralize router ACL failover:
  *
- * vue-broswer-acl has performance issues when cascading/recursing through multiple routes due to ACL failures.
+ * vue-broswer-acl is slow and sometimes fails when redirecting/recursing through multiple routes due to ACL failures.
  *
  * eg: routeA (can > fail > redirect) => routeB (can > fail > redirect) => and so on...
 **/
@@ -84,7 +84,7 @@ const failRoute = (to, from) => {
       })
     return routes
   }, [])
-  let failIndex = failRoutes.findIndex(route => route.name === to.name)
+  const failIndex = failRoutes.findIndex(route => route.name === to.name)
   if (failIndex >= 0) // reorder routes
     failRoutes = [...failRoutes.slice(failIndex), ...failRoutes.slice(0, failIndex)] // split and rejoin starting with next
   for (let r = 0; r < failRoutes.length; r++) { // iterate through ordered routes
@@ -100,6 +100,7 @@ const failRoute = (to, from) => {
     }
   }
   // panic, no acceptable failover found
+  // eslint-disable-next-line
   console.error('Unable to find a permissible route for this users ACL.')
   return { path: '/logout' }
 }
