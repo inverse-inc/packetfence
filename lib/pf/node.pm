@@ -281,6 +281,7 @@ sub node_add_simple {
         'detect_date' => $date,
         'status'      => 'unreg',
         'voip'        => 'no',
+        -ignore       => 1,
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
