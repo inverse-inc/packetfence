@@ -48,7 +48,7 @@ END
 
 DELIMITER ;
 \! echo "Checking PacketFence schema version...";
---call ValidateVersion;
+call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "Adding node_bypass_role_id index to node table"
