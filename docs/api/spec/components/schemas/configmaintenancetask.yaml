@@ -19,7 +19,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -31,7 +31,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -57,7 +57,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -69,7 +69,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -84,7 +84,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -96,7 +96,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -125,7 +125,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -137,7 +137,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -157,7 +157,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -169,7 +169,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       timeout:
         description: Maximum amount of time this task can run.
@@ -210,7 +210,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -222,7 +222,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       timeout:
         description: Maximum amount of time this task can run.
@@ -258,7 +258,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -274,7 +274,7 @@ ConfigMaintenanceTask:
         type: string
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -289,7 +289,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -301,7 +301,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -316,7 +316,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -328,7 +328,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -343,7 +343,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -355,7 +355,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -375,7 +375,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -418,7 +418,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       timeout:
         description: Maximum amount of time this task can run.
@@ -459,7 +459,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -471,7 +471,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       timeout:
         description: Maximum amount of time this task can run.
@@ -511,7 +511,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -523,7 +523,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       timeout:
         description: Maximum amount of time this task can run.
@@ -553,7 +553,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -565,7 +565,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       timeout:
         description: Maximum amount of time this task can run.
@@ -590,7 +590,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -602,7 +602,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -617,7 +617,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -629,7 +629,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -644,7 +644,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -656,7 +656,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -671,7 +671,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -683,7 +683,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       type:
         description: Type
@@ -703,7 +703,7 @@ ConfigMaintenanceTask:
         type: string
       interval:
         description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
+          a restart of pfcron to be fully effective. Otherwise, it will be taken in
           consideration next time the tasks runs.
         properties:
           interval:
@@ -746,7 +746,7 @@ ConfigMaintenanceTask:
         type: object
       status:
         description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
+          pfcron to be effective.
         type: string
       timeout:
         description: Maximum amount of time this task can run.

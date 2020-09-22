@@ -23,7 +23,7 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("PFMON_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% IF can_access("PFCRON_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>

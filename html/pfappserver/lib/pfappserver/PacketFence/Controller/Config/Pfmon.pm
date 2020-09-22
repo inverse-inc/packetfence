@@ -25,13 +25,13 @@ __PACKAGE__->config(
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'config/pfmon', CaptureArgs => 1 },
         # Configure access rights
-        view   => { AdminRole => 'PFMON_READ' },
-        list   => { AdminRole => 'PFMON_READ' },
-        update => { AdminRole => 'PFMON_UPDATE' },
+        view   => { AdminRole => 'PFCRON_READ' },
+        list   => { AdminRole => 'PFCRON_READ' },
+        update => { AdminRole => 'PFCRON_UPDATE' },
         # The following are noops it will fail
-        create => { AdminRole => 'PFMON_READ' },
-        clone  => { AdminRole => 'PFMON_READ' },
-        remove => { AdminRole => 'PFMON_READ' },
+        create => { AdminRole => 'PFCRON_READ' },
+        clone  => { AdminRole => 'PFCRON_READ' },
+        remove => { AdminRole => 'PFCRON_READ' },
     },
     action_args => {
         # Setting the global model and form for all actions
