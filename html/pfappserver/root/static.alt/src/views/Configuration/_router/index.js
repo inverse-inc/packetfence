@@ -154,10 +154,7 @@ const route = {
   redirect: '/configuration/policies_access_control',
   component: ConfigurationView,
   meta: {
-    can: () => {
-      return acl.$can('read', 'configuration_main') // has ACL for 1+ children
-    },
-    fail: { path: '/status', replace: true }, // no ACL in this view, redirect to first sibling
+    can: () => acl.$can('read', 'configuration_main'), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {

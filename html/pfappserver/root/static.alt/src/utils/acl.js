@@ -67,4 +67,41 @@ export const setupAcl = () => {
 
 export default acl
 
-Vue.use(VueAcl, aclContext, acl, { caseMode: false, router })
+/**
+ * Centralize router ACL failover:
+ *
+ * vue-broswer-acl has performance issues when cascading/recursing through multiple routes due to ACL failures.
+ *
+ * eg: routeA (can > fail > redirect) => routeB (can > fail > redirect) => and so on...
+**/
+const failRoute = (to, from) => {
+  let failRoutes = router.options.routes.reduce((routes, section) => {
+    if (section.children) // only use sections that have child route(s)
+      section.children.map(child => {
+        const { meta: { isFailRoute = false } = {} } = child
+        if (isFailRoute) // only use route(s) that have isFailRoute set
+          routes.push(child)
+      })
+    return routes
+  }, [])
+  let failIndex = failRoutes.findIndex(route => route.name === to.name)
+  if (failIndex >= 0) // reorder routes
+    failRoutes = [...failRoutes.slice(failIndex), ...failRoutes.slice(0, failIndex)] // split and rejoin starting with next
+  for (let r = 0; r < failRoutes.length; r++) { // iterate through ordered routes
+    const { name, can = () => true } = failRoutes[r]
+    if (name !== to.name) { // ignore current routes
+      if (can.constructor === Function && can(to, from))
+        return { name }
+      else {
+        const { 0: verb, 1: action } = can.split(' ')
+        if (acl.$can(verb, action))
+          return { name }
+      }
+    }
+  }
+  // panic, no acceptable failover found
+  console.error('Unable to find a permissible route for this users ACL.')
+  return { path: '/logout' }
+}
+
+Vue.use(VueAcl, aclContext, acl, { caseMode: false, failRoute, router })
