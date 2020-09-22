@@ -25,7 +25,7 @@ export default {
           return report.type === 'builtin'
         }).map(report => {
           return {
-            name: report.description,
+            name: this.$i18n.t(report.description),
             path: `/reports/dynamic/chart/${report.id}`,
             saveSearchNamespace: `dymamicReports::${report.id}`
           }
@@ -38,7 +38,7 @@ export default {
           return !report.type || report.type !== 'builtin'
         }).map(report => {
           return {
-            name: report.description,
+            name: this.$i18n.t(report.description),
             path: `/reports/dynamic/chart/${report.id}`,
             saveSearchNamespace: `dymamicReports::${report.id}`
           }
@@ -50,10 +50,10 @@ export default {
     standardReports () {
       return reportCategories().map(reportCategory => {
         return {
-          name: reportCategory.name,
+          name: this.$i18n.t(reportCategory.name),
           items: reportCategory.reports.map(report => {
             return {
-              name: report.name,
+              name: this.$i18n.t(report.name),
               path: `/reports/standard/chart/${report.tabs[0].path}`,
               icon: report.chart ? 'chart-pie' : null
             }
