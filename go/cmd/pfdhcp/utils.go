@@ -203,7 +203,8 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	}
-	return []byte(net.ParseIP(ConfNet.Dns).To4())
+	excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+	return Shuffle(ConfNet.Dns, excluded)
 }
 
 // ShuffleGateway return the gateway list
