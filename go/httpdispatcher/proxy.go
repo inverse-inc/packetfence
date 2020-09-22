@@ -73,12 +73,12 @@ var successDBConnect = false
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
 func NewProxy(ctx context.Context) *Proxy {
-	var p Proxy
+	p := &Proxy{}
 
 	passThrough = newProxyPassthrough(ctx)
 	passThrough.readConfig(ctx)
 	p.Configure(ctx)
-	return &p
+	return p
 }
 
 // Refresh the configuration
