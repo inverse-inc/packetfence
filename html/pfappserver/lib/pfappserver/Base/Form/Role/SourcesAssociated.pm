@@ -44,7 +44,7 @@ Returns the list of sources to be displayed
 =cut
 
 sub options_sources {
-    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } grep { $_->{'type'} eq "AD" or $_->{'type'} eq "LDAP" or $_->{'type'} eq "SQL" } @{getInternalAuthenticationSources()};
+    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } grep { $_->{'type'} eq "AD" or $_->{'type'} eq "LDAP" or $_->{'type'} eq "SQL" or $_->{'type'} eq "Htpasswd" or $_->{'type'} eq "RADIUS" } @{getInternalAuthenticationSources()};
 }
 
 =head1 AUTHOR
