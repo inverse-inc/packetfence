@@ -8,7 +8,7 @@
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>
-    [% IF item %]<i>[% l('Pfmon Task') %]</i> [% item.id | html %][% ELSE %][% l('New Pfmon Entry') %][% END %]
+    [% IF item %]<i>[% l('Pfcron Task') %]</i> [% item.id | html %][% ELSE %][% l('New Pfcron Entry') %][% END %]
 
     [% IF item.description %]
     <p class="p3 p-info">[% item.description %]</p>

@@ -1580,7 +1580,7 @@ msgstr "Cloner"
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
@@ -2615,7 +2615,7 @@ msgstr "Décrit le type de l’interface nommée. <ul> <li>Interne<i> </i> décr
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/deviceregistration/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
-# html/pfappserver/root/config/pfmon/list.tt
+# html/pfappserver/root/config/pfcron/list.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
@@ -3044,7 +3044,7 @@ msgid ""
 "details.Applying this requires a restart of radiusd."
 msgstr "Active le cache REDIS pour les authentifications NTLM. Pour que cela fonctionne vous devez configurer le synchronisation des hash NTLM entre PacketFence et votre Active Directory. Référez vous au guide d’administration pour plus de détails. Activer cette fonction requiert un redémarrage de radius."
 
-# html/pfappserver/root/config/pfmon/index.tt
+# html/pfappserver/root/config/pfcron/index.tt
 msgid ""
 "Enabling or disabling a task as well as modifying its interval requires a "
 "restart of pfcron to be fully effective"
@@ -3916,7 +3916,7 @@ msgstr "Interfaces & Réseaux"
 msgid "Internal"
 msgstr "Interne"
 
-# html/pfappserver/root/config/pfmon/list.tt
+# html/pfappserver/root/config/pfcron/list.tt
 msgid "Interval"
 msgstr "Intervalle"
 
@@ -4507,7 +4507,7 @@ msgstr "Configuration générale:"
 msgid "Main reference attribute that contain the username"
 msgstr "Attribut principal qui contient l'identifiant"
 
-# html/pfappserver/root/config/pfmon/index.tt
+# html/pfappserver/root/config/pfcron/index.tt
 msgid "Maintenance Tasks"
 msgstr "Tâches de Maintenance"
 
@@ -4886,7 +4886,7 @@ msgstr "Nouveau fournisseur de certificats"
 msgid "New Password"
 msgstr "Nouveau mot de passe"
 
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 msgid "New Pfcron Entry"
 msgstr "Nouvelle entrée Pfcron"
 
@@ -5789,7 +5789,7 @@ msgstr "Période de temps après laquelle le mot de passe doit être remplacé."
 msgid "Pfcron Name"
 msgstr "Nom Pfcron"
 
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 msgid "Pfcron Task"
 msgstr "Tâche Pfcron"
 
@@ -7226,7 +7226,7 @@ msgstr "Système - Mise à jour"
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/pfdetect/view.tt
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/portal_module/view.tt
 # html/pfappserver/root/config/profile/create.tt
@@ -7303,7 +7303,7 @@ msgstr "Recherches sauvegardées"
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/pfdetect/view.tt
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/portal_module/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
@@ -8432,7 +8432,7 @@ msgstr "VLANs taggé"
 msgid "Target Role"
 msgstr "Rôle cible"
 
-# html/pfappserver/root/config/pfmon/list.tt
+# html/pfappserver/root/config/pfcron/list.tt
 msgid "Task Name"
 msgstr "Nom de tâche"
 
@@ -11233,7 +11233,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
-# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsso options)
@@ -11388,7 +11388,7 @@ msgstr "en_US"
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
-# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsso options)

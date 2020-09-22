@@ -1,18 +1,18 @@
-package pfappserver::Controller::Config::Pfmon;
+package pfappserver::Controller::Config::Pfcron;
 
 =head1 NAME
 
-pfappserver::Controller::Config::Pfmon
+pfappserver::Controller::Config::Pfcron
 
 =head1 DESCRIPTION
 
-Place all customization for Controller::Config::Pfmon here
+Place all customization for Controller::Config::Pfcron here
 
 =cut
 
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Pfmon'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Pfcron'; }
 
 =head1 AUTHOR
 

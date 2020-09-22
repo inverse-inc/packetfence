@@ -10,6 +10,6 @@
   <div class="card-block">
     <p class="p3 p-warning">[% l('Enabling or disabling a task as well as modifying its interval requires a restart of pfcron to be fully effective') %]</p>
 
-    [% INCLUDE config/pfmon/list.tt %]
+    [% INCLUDE config/pfcron/list.tt %]
   </div>
 </div>

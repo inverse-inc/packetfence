@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::Config::Pfmon;
+package pfappserver::PacketFence::Controller::Config::Pfcron;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::Config::Pfmon - Catalyst Controller
+pfappserver::PacketFence::Controller::Config::Pfcron - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -23,7 +23,7 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/pfmon', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'config/pfcron', CaptureArgs => 1 },
         # Configure access rights
         view   => { AdminRole => 'PFCRON_READ' },
         list   => { AdminRole => 'PFCRON_READ' },
@@ -35,7 +35,7 @@ __PACKAGE__->config(
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "Config::Pfmon", form => "Config::Pfmon" },
+        '*' => { model => "Config::Pfcron", form => "Config::Pfcron" },
     },
 );
 
@@ -43,7 +43,7 @@ __PACKAGE__->config(
 
 =head2 index
 
-Usage: /config/pfmon
+Usage: /config/pfcron
 
 =cut
 
@@ -56,7 +56,7 @@ sub index :Path :Args(0) {
 before [qw(create clone remove)] => sub {
     my ($self, $c) = @_;
     my $name = $c->action->name;
-    $c->log->error("cannot perform the following action on a pfmon task $name");
+    $c->log->error("cannot perform the following action on a pfcron task $name");
     $c->detach();
 };
 
