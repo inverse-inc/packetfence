@@ -2,15 +2,13 @@
 
 =head1 NAME
 
-to-9.1-selfservice-conf.pl
+to-10.2-adminroles-conf.pl
 
 =cut
 
 =head1 DESCRIPTION
 
-Remove references to DEVICE_REGISTRATION_READ in adminroles.conf if there are any
-Rename device_registration.conf to self_service.conf
-Rename parameters of previous device registration policies into their new self service parameter name
+Rename PFMON -> PFCRON
 
 =cut
 
