@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 * EAP_TTLS PAP Support on a LDAP source
 * eDirectory source
+* Master/Slave radius proxy and degraded workflow
 
 Enhancements
 ++++++++++++
