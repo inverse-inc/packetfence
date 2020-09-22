@@ -693,6 +693,21 @@ CREATE TABLE radacct_log (
   KEY acctuniqueid (acctuniqueid)
 ) ENGINE=InnoDB;
 
+-- Adding RADIUS radreply table
+
+CREATE TABLE radreply (
+  id int(11) unsigned NOT NULL auto_increment,
+  tenant_id int NOT NULL DEFAULT 1,
+  username varchar(64) NOT NULL default '',
+  attribute varchar(64) NOT NULL default '',
+  op char(2) NOT NULL DEFAULT ':=',
+  value varchar(253) NOT NULL default '',
+  PRIMARY KEY (id),
+  KEY (`tenant_id`, `username`)
+);
+
+INSERT INTO radreply (tenant_id, username, attribute, value, op) values ('1', '00:00:00:00:00:00','User-Name','*', '=*');
+
 -- Adding RADIUS Updates Stored Procedure
 
 DROP PROCEDURE IF EXISTS `acct_start`;

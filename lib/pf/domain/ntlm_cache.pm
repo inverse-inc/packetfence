@@ -370,14 +370,8 @@ Insert a user/NT hash combination inside redis for a given domain
 sub insert_user_in_redis_cache {
     my ($domain, $user, $nthash) = @_;
     my $logger = get_logger;
-    my $config = $ConfigDomain{$domain};
-
-    # pf::Redis has a cache for the connection
-    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
-
-    my $key = "NTHASH:$domain:$user";
-    $logger->info("Inserting '$key' => '$nthash'");
-    $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+    my $client = pf::api::queue_cluster->new(queue => "general");
+    $client->cluster_notify_all("insert_user_in_redis_cache", $domain, $user, $nthash);
 }
 
 =head2 get_from_cache
@@ -403,7 +397,6 @@ sub set_to_cache {
 
     $CHI_CACHE->set($key,$value);
 }
-
 
 =head1 AUTHOR
 

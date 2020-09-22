@@ -76,6 +76,8 @@ use Hash::Merge qw (merge);
 use pf::constants::api;
 use pf::constants::realm;
 use DateTime::Format::MySQL;
+use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
+use pf::Redis;
 
 my $logger = pf::log::get_logger();
 
@@ -1835,6 +1837,51 @@ sub queue_submit_delayed :Public {
     my $producer = pf::pfqueue::producer::redis->new;
     my $id = $producer->submit_delayed($queue, $queue, $task_type, $delay, $task_data, $expire_in);
     return $id;
+}
+
+=head2 insert_user_in_redis_cache
+
+insert_user_in_redis_cache
+
+=cut
+
+sub insert_user_in_redis_cache :Public {
+    my ($class ,$domain, $user, $nthash) = @_;
+
+    my $logger = pf::log::get_logger();
+    my $config = $pf::config::ConfigDomain{$domain};
+
+    my $expire = (pf::cluster::isSlaveMode()) ? 86400 : $config->{ntlm_cache_expiry};
+    # pf::Redis has a cache for the connection
+    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
+
+    my $key = "NTHASH:$domain:$user";
+    $logger->info("Inserting '$key' => '$nthash'");
+    $redis->set($key, $nthash, 'EX', $expire);
+}
+
+=head2 update_user_in_redis_cache
+
+Update a user/NT hash combination inside redis for a given domain
+
+=cut
+
+sub update_user_in_redis_cache {
+    my ($class, $domain, $username) = @_;
+    my $logger = pf::log::get_logger();
+    my $config = $pf::config::ConfigDomain{$domain};
+
+    my $expire = (pf::cluster::isSlaveMode()) ? 86400 : $config->{ntlm_cache_expiry};
+    # pf::Redis has a cache for the connection
+    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
+
+
+    my $key = "NTHASH:$domain:$username";
+    my $nthash = $redis->get($key);
+    if (defined($nthash)) {
+        $redis->set($key, $nthash, 'EX', $expire);
+        $logger->info("Updating '$key' => '$nthash'");
+    }
 }
 
 =head1 AUTHOR

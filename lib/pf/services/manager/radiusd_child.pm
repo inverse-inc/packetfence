@@ -109,7 +109,7 @@ sub _generateConfig {
     $self->generate_radiusd_eapconf($tt);
     $self->generate_radiusd_restconf();
     $self->generate_radiusd_sqlconf();
-    $self->generate_radiusd_sitesconf();
+    $self->generate_radiusd_sitesconf($tt);
     $self->generate_radiusd_proxy();
     $self->generate_radiusd_cluster($tt);
     $self->generate_radiusd_cliconf($tt);
@@ -124,12 +124,18 @@ Generates the packetfence and packetfence-tunnel configuration file
 =cut
 
 sub generate_radiusd_sitesconf {
+    my ($self, $tt) = @_;
     my %tags;
 
+    $tags{'remote'} = "";
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
+    $tags{'authorize_eap_choice_degraded'} = "";
+    $tags{'authentication_auth_type_degraded'} = "";
 
     generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
+
+    generate_eap_choice(\$tags{'authorize_eap_choice_degraded'}, \$tags{'authentication_auth_type_degraded'}, "eap-degraded");
 
     if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
@@ -186,8 +192,38 @@ EOT
 EOT
     }
 
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
+    # Remote config
+
+    if (pf::cluster::isSlaveMode()) {
+
+        $tags{'remote'} = "YES";
+        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+
+        $tags{'members'} = '';
+        $tags{'config'} ='';
+        my $i = 0;
+        my $radius_remote = pf::cluster::getDBMaster();
+
+        $tags{'members'} .= <<"EOT";
+home_server pf.remote {
+        type = auth+acct
+        ipaddr = $radius_remote
+        src_ipaddr = $tags{'management_ip'}
+        port = 1812
+        secret = $local_secret
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
+EOT
+            $tags{'home_server'} .= <<"EOT";
+        home_server =  pf.remote
+EOT
+    }
+
+    $tt->process("$conf_dir/radiusd/packetfence", \%tags, "$install_dir/raddb/sites-enabled/packetfence") or die $tt->error();
 
     %tags = ();
 
@@ -269,12 +305,11 @@ EOT
 
     generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
 
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+    $tt->process("$conf_dir/radiusd/packetfence-tunnel", \%tags, "$install_dir/raddb/sites-enabled/packetfence-tunnel") or die $tt->error();
 
     %tags = ();
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
+    $tt->process("$conf_dir/radiusd/packetfence-cli", \%tags, "$install_dir/raddb/sites-enabled/packetfence-cli") or die $tt->error();
 
 }
 
@@ -329,6 +364,11 @@ sub generate_radiusd_authconf {
             my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
             push @listen_ips, $ip;
         }
+    }
+
+    $tags{'virtual_server'} = "packetfence";
+    if (pf::cluster::isSlaveMode()) {
+        $tags{'virtual_server'} = "pf-remote";
     }
 
     $tags{'listen_ips'} = [uniq @listen_ips];
@@ -618,7 +658,9 @@ EOT
 }
 
 =head2 generate_radiusd_eapconf
+
 Generates the eap.conf configuration file
+
 =cut
 
 sub generate_radiusd_eapconf {
@@ -1189,8 +1231,10 @@ EOT
 
         
         push @radius_backend, $cluster_ip;
-        foreach my $radius_back (@radius_backend) {
-            $tags{'config'} .= <<"EOT";
+        push @radius_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+
+        foreach my $radius_back (uniq(@radius_backend)) {
+        $tags{'config'} .= <<"EOT";
 client $radius_back {
         ipaddr = $radius_back
         secret = $local_secret
@@ -1233,14 +1277,18 @@ Generate the configuration for eap choice
 =cut
 
 sub generate_eap_choice {
-    my ($authorize_eap_choice, $authentication_auth_type) = @_;
-        my $if = 'if';
-        foreach my $key ( @pf::config::ConfigOrderedRealm ) {
-            next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
-            my $choice = $key;
-            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-            my $eap = ( defined($pf::config::ConfigRealm{$key}->{'eap'}) && $pf::config::ConfigRealm{$key}->{'eap'} ne '') ? $pf::config::ConfigRealm{$key}->{'eap'} : 'eap';
-            $$authorize_eap_choice .= <<"EOT";
+    my ($authorize_eap_choice, $authentication_auth_type, $suffix) = @_;
+    if (!(defined($suffix) && $suffix ne "" )) {
+        $suffix = "";
+    }
+    my $if = 'if';
+    foreach my $key ( @pf::config::ConfigOrderedRealm ) {
+        next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
+        my $choice = $key;
+        $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+        my $eap = ( defined($pf::config::ConfigRealm{$key}->{'eap'}) && $pf::config::ConfigRealm{$key}->{'eap'} ne '') ? $pf::config::ConfigRealm{$key}->{'eap'} : 'eap';
+        $eap = $eap."-".$suffix if ($suffix ne "");
+        $$authorize_eap_choice .= <<"EOT";
             $if (Realm =~ /$choice/) {
                 $eap {
                     ok = return
@@ -1248,31 +1296,38 @@ sub generate_eap_choice {
             }
 EOT
             $if = 'elsif';
-        }
-        if ($if eq 'elsif') {
-            $$authorize_eap_choice .= <<"EOT";
+    }
+    if ($if eq 'elsif') {
+        $$authorize_eap_choice .= <<"EOT";
             else {
                 eap {
                     ok = return
                 }
             }
 EOT
-        } else {
-            $$authorize_eap_choice .= <<"EOT";
-            eap {
+    } else {
+        my $eap = (defined($suffix) && $suffix ne "" ) ? $suffix : "eap";
+        $$authorize_eap_choice .= <<"EOT";
+            $eap {
                 ok = return
             }
 EOT
-        }
-        foreach my $key (keys %ConfigEAP) {
-            next if $key eq 'default';
-            $$authentication_auth_type .= <<"EOT";
+    }
+    foreach my $key (keys %ConfigEAP) {
+        next if $key eq 'default';
+        $$authentication_auth_type .= <<"EOT";
         Auth-Type $key {
             $key
         }
 EOT
+    }
+    if ($suffix ne "") {
+    $$authentication_auth_type .= <<"EOT";
+        Auth-Type $suffix {
+            $suffix
         }
-
+EOT
+    }
 }
 
 sub generate_ldap_choice {

@@ -258,7 +258,7 @@ sql {
 	# This entry should be used for the default instance (sql {})
 	# of the SQL module.
 	group_attribute = "SQL-Group"
-
+	safe_characters = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_: /(),'"
 	# Read database-specific queries
 	$INCLUDE ${modconfdir}/${.:name}/main/${dialect}/queries.conf
 }
@@ -471,3 +471,37 @@ sql sql_reject {
         $INCLUDE ${modconfdir}/${.:name}/main/mysql/reject.conf
 }
 
+sql sql_degraded {
+        database = "mysql"
+        driver = "rlm_sql_${database}"
+
+        server = "%%db_host%%"
+        port = %%db_port%%
+        login = "%%db_username%%"
+        password = "%%db_password%%"
+
+
+        read_groups = no
+        radius_db = "%%db_database%%"
+        acct_table1 = "radacct"
+        acct_table2 = "radacct"
+        postauth_table = "radpostauth"
+        authcheck_table = "radreply"
+        authreply_table = "radreply"
+        groupcheck_table = "radgroupcheck"
+        groupreply_table = "radgroupreply"
+        usergroup_table = "radusergroup"
+
+        delete_stale_sessions = yes
+        sqltrace = no
+        sqltracefile = ${logdir}/sqltrace.sql
+
+        sql_user_name = "%{User-Name}"
+
+        postauth_query = ""
+        group_membership_query = ""
+        pool = sql
+        client_table = "radius_nas"
+        # Read database-specific queries
+        $INCLUDE ${modconfdir}/${.:name}/main/mysql/reject.conf
+}
