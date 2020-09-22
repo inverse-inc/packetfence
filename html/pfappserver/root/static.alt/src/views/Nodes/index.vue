@@ -11,6 +11,7 @@
 
 <script>
 import pfSidebar from '@/components/pfSidebar'
+import network from '@/utils/network'
 
 export default {
   name: 'Nodes',
@@ -76,12 +77,23 @@ export default {
               name: switchGroup.id || this.$i18n.t('Default'),
               collapsable: true,
               items: switchGroup.members.map(switchGroupMember => {
+                let query
+                if (switchGroupMember.id.indexOf('/') === -1) {
+                  query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
+                }
+                else {
+                  const [start, end] = network.cidrToRange(switchGroupMember.id)
+                  query = { query: JSON.stringify({ op: 'and', values: [
+                    { op: 'or', values: [{ field: 'locationlog.switch', op: 'greater_than_equals', value: start }] },
+                    { op: 'or', values: [{ field: 'locationlog.switch', op: 'less_than_equals', value: end }] }
+                  ] }) }
+                }
                 return {
                   name: switchGroupMember.id,
                   caption: switchGroupMember.description,
                   path: {
                     name: 'nodeSearch',
-                    query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
+                    query
                   }
                 }
               })

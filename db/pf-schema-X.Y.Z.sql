@@ -374,6 +374,7 @@ CREATE TABLE `locationlog` (
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `switch_ip` varchar(17) DEFAULT NULL,
+  `switch_ip_int` int(10) unsigned AS (INET_ATON(switch_ip)) VIRTUAL,
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
