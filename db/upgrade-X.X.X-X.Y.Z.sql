@@ -48,18 +48,22 @@ END
 
 DELIMITER ;
 \! echo "Checking PacketFence schema version...";
-call ValidateVersion;
+--call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Adding node_bypass_role_id index to node table"
 ALTER TABLE node
-  ADD INDEX `node_bypass_role_id` (`bypass_role_id`);
+  ADD INDEX IF NOT EXISTS `node_bypass_role_id` (`bypass_role_id`);
 
+\! echo "Adding password_category index to password table"
 ALTER TABLE `password`
-  ADD INDEX password_category (category);
+  ADD INDEX IF NOT EXISTS password_category (category);
 
+\! echo "Adding password_target_category index to class table"
 ALTER TABLE `class`
-  ADD INDEX password_target_category (target_category);
+  ADD INDEX IF NOT EXISTS password_target_category (target_category);
 
+\! echo "Updating acct_update procedure"
 DROP PROCEDURE IF EXISTS `acct_update`;
 DELIMITER /
 CREATE PROCEDURE `acct_update`(
@@ -199,23 +203,26 @@ END /
 DELIMITER ;
 
 \! echo "Adding category_id column to activation table"
-ALTER TABLE activation ADD COLUMN `category_id` int AFTER `unregdate`;
+ALTER TABLE `activation`
+  ADD COLUMN IF NOT EXISTS `category_id` INT AFTER `unregdate`;
 
-
--- Adding RADIUS radreply table
-
-CREATE TABLE radreply (
-  id int(11) unsigned NOT NULL auto_increment,
-  tenant_id int NOT NULL DEFAULT 1,
-  username varchar(64) NOT NULL default '',
-  attribute varchar(64) NOT NULL default '',
-  op char(2) NOT NULL DEFAULT ':=',
-  value varchar(253) NOT NULL default '',
-  PRIMARY KEY (id),
+\! echo "Adding radreply table";
+CREATE TABLE IF NOT EXISTS `radreply` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `tenant_id` int NOT NULL DEFAULT 1,
+  `username` varchar(64) NOT NULL default '',
+  `attribute` varchar(64) NOT NULL default '',
+  `op` char(2) NOT NULL DEFAULT ':=',
+  `value` varchar(253) NOT NULL default '',
+  PRIMARY KEY (`id`),
   KEY (`tenant_id`, `username`)
 );
 
-INSERT INTO radreply (tenant_id, username, attribute, value, op) values ('1', '00:00:00:00:00:00','User-Name','*', '=*');
+\! echo "Adding default radreply row";
+INSERT INTO `radreply` (`tenant_id`, `username`, `attribute`, `value`, `op`)
+SELECT '1', '00:00:00:00:00:00','User-Name','*', '=*'
+WHERE NOT EXISTS (SELECT * FROM `radreply`
+      WHERE `tenant_id`='1' AND `username`='00:00:00:00:00:00' AND `attribute`='User-Name' AND `value`='*' AND `op`='=*' LIMIT 1);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
