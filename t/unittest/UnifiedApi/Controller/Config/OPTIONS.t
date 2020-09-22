@@ -486,7 +486,7 @@ meta => {
         type        => "string",
         allow_custom => $false,
         allowed => [
-            map { $_->{id} != 0 ? ( { value => $_->{id}, text => $_->{name} }) : () } @{pf::dal::tenant->search->all};
+            map { $_->{id} != 0 ? ( { value => $_->{id}, text => $_->{name} }) : () } @{pf::dal::tenant->search->all}
         ],
     }
   },
