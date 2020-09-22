@@ -29,9 +29,9 @@ type Proxy struct {
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
 func NewProxy(ctx context.Context) *Proxy {
-	var p Proxy
+	p := &Proxy{}
 
-	return &p
+	return p
 }
 
 // ServeHTTP satisfy HandlerFunc interface and
