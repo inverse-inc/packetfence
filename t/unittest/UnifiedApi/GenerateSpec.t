@@ -434,6 +434,10 @@ cmp_deeply(
                         type => 'string',
                         description => 'Alert pipe',
                     },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
                 },
             },
             {
@@ -455,6 +459,90 @@ cmp_deeply(
                     path => {
                         type => 'string',
                         description => 'Alert pipe',
+                    },
+                    'rate_limit' => {
+                        type => 'object',
+                        description => 'Rate limit requests.',
+                        properties => {
+                            unit => {
+                                type => 'string',
+                                description => 'Unit',
+                            },
+                            interval => {
+                                type => 'integer',
+                                description => 'Interval',
+                            }
+                        }
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
+                    'rate_limit' => {
+                        type => 'object',
+                        description => 'Rate limit requests.',
+                        properties => {
+                            unit => {
+                                type => 'string',
+                                description => 'Unit',
+                            },
+                            interval => {
+                                type => 'integer',
+                                description => 'Interval',
+                            }
+                        }
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
                     },
                     'rate_limit' => {
                         type => 'object',
@@ -506,77 +594,9 @@ cmp_deeply(
                             }
                         }
                     },
-                },
-            },
-            {
-                type => 'object',
-                required => ['id', 'path', 'type'],
-                properties => {
-                    id => {
+                    tenant_id => {
                         type => 'string',
-                        description => 'Detector',
-                    },
-                    status => {
-                        type => 'string',
-                        description => 'Enabled',
-                    },
-                    type => {
-                        type => 'string',
-                        description => 'Type',
-                    },
-                    path => {
-                        type => 'string',
-                        description => 'Alert pipe',
-                    },
-                    'rate_limit' => {
-                        type => 'object',
-                        description => 'Rate limit requests.',
-                        properties => {
-                            unit => {
-                                type => 'string',
-                                description => 'Unit',
-                            },
-                            interval => {
-                                type => 'integer',
-                                description => 'Interval',
-                            }
-                        }
-                    },
-                },
-            },
-            {
-                type => 'object',
-                required => ['id', 'path', 'type'],
-                properties => {
-                    id => {
-                        type => 'string',
-                        description => 'Detector',
-                    },
-                    status => {
-                        type => 'string',
-                        description => 'Enabled',
-                    },
-                    type => {
-                        type => 'string',
-                        description => 'Type',
-                    },
-                    path => {
-                        type => 'string',
-                        description => 'Alert pipe',
-                    },
-                    'rate_limit' => {
-                        type => 'object',
-                        description => 'Rate limit requests.',
-                        properties => {
-                            unit => {
-                                type => 'string',
-                                description => 'Unit',
-                            },
-                            interval => {
-                                type => 'integer',
-                                description => 'Interval',
-                            }
-                        }
+                        description => 'Tenant ID',
                     },
                 },
             },
@@ -614,6 +634,10 @@ cmp_deeply(
                             }
                         }
                     },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
                 },
             },
             {
@@ -635,6 +659,10 @@ cmp_deeply(
                     path => {
                         type => 'string',
                         description => 'Alert pipe',
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
                     },
                     rules => {
                         type => 'array',
