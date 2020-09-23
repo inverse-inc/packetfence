@@ -844,7 +844,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
-%exclude                /usr/local/pf/ci
 %dir %attr(0770, pf pf) /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
