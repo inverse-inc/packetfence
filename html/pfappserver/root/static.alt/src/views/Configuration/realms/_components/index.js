@@ -14,6 +14,7 @@ export {
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupRegex,
   BaseFormGroupSelectOne              as FormGroupDomain,
+  BaseFormGroupSelectOne              as FormGroupEdirSource,
   BaseFormGroupSelectOne              as FormGroupEap,
   BaseFormGroupTextarea               as FormGroupOptions,
   BaseFormGroupSelectOne              as FormGroupRadiusAuth,
@@ -32,6 +33,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupRadiusStripUsername,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPermitCustomAttributes,
   BaseFormGroupSelectOne              as FormGroupLdapSource,
+  BaseFormGroupSelectOne              as FormGroupLdapSourceTtlsPap,
 
   TheForm,
   TheView

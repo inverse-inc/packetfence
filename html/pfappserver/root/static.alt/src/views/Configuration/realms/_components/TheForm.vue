@@ -26,6 +26,11 @@
           :text="$i18n.t('The domain to use for the authentication in that realm.')"
         />
 
+        <form-group-edir-source namespace="edir_source"
+          :column-label="$i18n.t('eDirectory')"
+          :text="$i18n.t('The eDirectory server to use for the authentication in that realm.')"
+        />
+
       </base-form-tab>
       <base-form-tab :title="$i18n.t('EAP Configuration')" class="pt-3 px-3">
 
@@ -128,6 +133,11 @@
           :text="$i18n.t('The LDAP Server to query the custom attributes.')"
         />
 
+        <form-group-ldap-source-ttls-pap namespace="ldap_source_ttls_pap"
+          :column-label="$i18n.t('LDAP Source for TTLS PAP')"
+          :text="$i18n.t('The LDAP Server to use for EAP TTLS PAP authorization and authentication.')"
+        />
+
       </base-form-tab>
     </b-tabs>
   </base-form>
@@ -143,6 +153,7 @@ import {
   FormGroupIdentifier,
   FormGroupRegex,
   FormGroupDomain,
+  FormGroupEdirSource,
   FormGroupEap,
   FormGroupOptions,
   FormGroupRadiusAuth,
@@ -160,7 +171,8 @@ import {
   FormGroupAdminStripUsername,
   FormGroupRadiusStripUsername,
   FormGroupPermitCustomAttributes,
-  FormGroupLdapSource
+  FormGroupLdapSource,
+  FormGroupLdapSourceTtlsPap
 } from './'
 
 const components = {
@@ -170,6 +182,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupRegex,
   FormGroupDomain,
+  FormGroupEdirSource,
   FormGroupEap,
   FormGroupOptions,
   FormGroupRadiusAuth,
@@ -187,7 +200,8 @@ const components = {
   FormGroupAdminStripUsername,
   FormGroupRadiusStripUsername,
   FormGroupPermitCustomAttributes,
-  FormGroupLdapSource
+  FormGroupLdapSource,
+  FormGroupLdapSourceTtlsPap
 }
 
 export const props = {
