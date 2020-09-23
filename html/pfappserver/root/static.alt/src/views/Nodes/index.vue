@@ -79,7 +79,7 @@ export default {
               items: switchGroup.members.map(switchGroupMember => {
                 let query
                 if (switchGroupMember.id.indexOf('/') === -1) {
-                  query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
+                  query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'equals', value: switchGroupMember.id }] }] }) }
                 }
                 else {
                   const [start, end] = network.cidrToRange(switchGroupMember.id)

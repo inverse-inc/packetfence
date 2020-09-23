@@ -401,7 +401,7 @@ export default {
         {
           value: 'locationlog.switch_ip',
           text: 'Source Switch IP', // i18n defer
-          types: [conditionType.SUBSTRING],
+          types: [conditionType.SWITCH_IP],
           icon: 'sitemap'
         },
         {
