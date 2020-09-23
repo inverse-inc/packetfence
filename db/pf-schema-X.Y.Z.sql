@@ -374,7 +374,7 @@ CREATE TABLE `locationlog` (
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `switch_ip` varchar(17) DEFAULT NULL,
-  `switch_ip_int` int(10) unsigned AS (INET_ATON(switch_ip)) VIRTUAL,
+  `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) PERSISTENT,
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
@@ -386,6 +386,7 @@ CREATE TABLE `locationlog` (
   KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
+  KEY `locationlog_switch_ip_int` (`switch_ip_int`),
   CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
