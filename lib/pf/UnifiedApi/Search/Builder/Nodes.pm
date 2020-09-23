@@ -135,12 +135,12 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace   => 'node_category_bypass_role',
         column_spec => \"IFNULL(node_category_bypass_role.name, '') as `node_category_bypass_role.name`",
     },
-    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, undef, {switch_ip_int => 1}),
-    'locationlog.switch_ip_int' => {
+    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, undef, {switch_ip => 1}),
+    'locationlog.switch_ip' => {
         join_spec     => \@LOCATION_LOG_JOIN,
         namespace     => 'locationlog',
-        rewrite_query => \&rewrite_switch_ip_int,
-        column_spec   => make_join_column_spec( 'locationlog', 'switch_ip_int' ),
+        rewrite_query => \&rewrite_switch_ip,
+        column_spec   => make_join_column_spec( 'locationlog', 'switch_ip' ),
     },
     'security_event.open_count' => {
         namespace => 'security_event_open',
@@ -289,11 +289,11 @@ sub allowed_join_fields {
     \%ALLOWED_JOIN_FIELDS
 }
 
-
-sub rewrite_switch_ip_int {
+sub rewrite_switch_ip {
     my ($self, $s, $q) = @_;
     if (valid_ip($q->{value})) {
         $q->{value} = ip2int($q->{value});
+        $q->{field} = 'locationlog.switch_ip_int';
     }
 
     return (200, $q);

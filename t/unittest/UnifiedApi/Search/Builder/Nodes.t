@@ -490,12 +490,12 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             values => [
                 {
                     op => 'greater_than_equals',
-                    field => 'locationlog.switch_ip_int',
+                    field => 'locationlog.switch_ip',
                     value => '1.2.3.1',
                 },
                 {
                     op => 'less_than_equals',
-                    field => 'locationlog.switch_ip_int',
+                    field => 'locationlog.switch_ip',
                     value => '1.2.3.254',
                 },
             ]
