@@ -5,6 +5,7 @@
 /usr/local/pf/conf/billing_tiers.conf
 /usr/local/pf/conf/chi.conf
 /usr/local/pf/conf/cluster.conf
+/usr/local/pf/conf/pfcron.conf
 /usr/local/pf/conf/dhcp_filters.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/dns_filters.conf
