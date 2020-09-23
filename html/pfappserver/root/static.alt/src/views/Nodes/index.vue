@@ -84,8 +84,8 @@ export default {
                 else {
                   const [start, end] = network.cidrToRange(switchGroupMember.id)
                   query = { query: JSON.stringify({ op: 'and', values: [
-                    { op: 'or', values: [{ field: 'locationlog.switch_ip_int', op: 'greater_than_equals', value: start }] },
-                    { op: 'or', values: [{ field: 'locationlog.switch_ip_int', op: 'less_than_equals', value: end }] }
+                    { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'greater_than_equals', value: start }] },
+                    { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'less_than_equals', value: end }] }
                   ] }) }
                 }
                 return {
