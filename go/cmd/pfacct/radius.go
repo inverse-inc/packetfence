@@ -258,9 +258,9 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 		Handler:      h,
 		SecretSource: h,
 	}
-	w.Add(1)
 
 	for _, pc := range intRADIUS {
+		w.Add(1)
 		go func() {
 			if err := server.Serve(pc); err != radius.ErrServerShutdown {
 				panic(err)
