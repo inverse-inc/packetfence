@@ -44,6 +44,7 @@ sbin/pfdhcp
 sbin/pfdns
 sbin/pfstats
 sbin/pfacct
+sbin/pfcron
 sbin/galera-autofix
 src/pfcmd
 !conf/nessus/remotescan.nessus
