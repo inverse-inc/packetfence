@@ -89,6 +89,7 @@ const failRoute = (to, from) => {
     }
   }
   // panic, no acceptable failover found
+  // eslint-disable-next-line
   console.error('Unable to find a permissible route for this users ACL.')
   return { path: '/logout' }
 }
