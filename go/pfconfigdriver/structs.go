@@ -53,6 +53,7 @@ type configStruct struct {
 		ManagementNetwork ManagementNetwork
 		DHCPInts          DHCPInts
 		DNSInts           DNSInts
+		RADIUSInts        RADIUSInts
 	}
 	PfConf struct {
 		Advanced      PfConfAdvanced
@@ -258,6 +259,14 @@ type DNSInts struct {
 	Element                 []interface{}
 }
 
+type RADIUSInts struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"interfaces::radius_ints"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 []interface{}
+}
 type PfClusterIp struct {
 	StructConfig
 	PfconfigMethod             string `val:"hash_element"`
