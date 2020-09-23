@@ -19,7 +19,7 @@ extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::node;
 use pf::dal::locationlog;
 use pf::dal::radacct;
-use pf::util qw(clean_mac);
+use pf::util qw(clean_mac ip2int valid_ip);
 use pf::constants qw($ZERO_DATE);
 
 our @LOCATION_LOG_JOIN = (
@@ -135,7 +135,13 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace   => 'node_category_bypass_role',
         column_spec => \"IFNULL(node_category_bypass_role.name, '') as `node_category_bypass_role.name`",
     },
-    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN),
+    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, undef, {switch_ip_int => 1}),
+    'locationlog.switch_ip_int' => {
+        join_spec     => \@LOCATION_LOG_JOIN,
+        namespace     => 'locationlog',
+        rewrite_query => \&rewrite_switch_ip_int,
+        column_spec   => make_join_column_spec( 'locationlog', 'switch_ip_int' ),
+    },
     'security_event.open_count' => {
         namespace => 'security_event_open',
         join_spec => \@SECURITY_EVENT_OPEN_JOIN,
@@ -281,6 +287,16 @@ sub make_join_column_spec {
 
 sub allowed_join_fields {
     \%ALLOWED_JOIN_FIELDS
+}
+
+
+sub rewrite_switch_ip_int {
+    my ($self, $s, $q) = @_;
+    if (valid_ip($q->{value})) {
+        $q->{value} = ip2int($q->{value});
+    }
+
+    return (200, $q);
 }
 
 =head1 AUTHOR

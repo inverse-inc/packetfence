@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 28;
+use Test::More tests => 30;
 
 #This test will running last
 use Test::NoWarnings;
@@ -478,6 +478,63 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         ],
         "with count",
     )
+}
+
+{
+    my @f = qw(mac);
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        query => {
+            op => 'and',
+            values => [
+                {
+                    op => 'greater_than_equals',
+                    field => 'locationlog.switch_ip_int',
+                    value => '1.2.3.1',
+                },
+                {
+                    op => 'less_than_equals',
+                    field => 'locationlog.switch_ip_int',
+                    value => '1.2.3.254',
+                },
+            ]
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            200,
+            {
+                '-and' => [
+                    {
+                        'locationlog.switch_ip_int' => {
+                            '>=' => 16909057,
+                        }
+                    },
+                    {
+                        'locationlog.switch_ip_int' => {
+                            '<=' => 16909310,
+                        }
+                    }
+                ]
+            }
+        ],
+        'Return the joined tables'
+    );
+
 }
 
 =head1 AUTHOR
