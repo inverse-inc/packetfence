@@ -27,7 +27,7 @@ use pf::ConfigStore::SelfService;
 use pf::ConfigStore::PortalModule;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
-use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN );
+use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN $POOL_PER_USER_VLAN);
 use pfappserver::Form::Field::Duration;
 use pfappserver::Base::Form;
 use pf::config qw(%Profiles_Config);
@@ -655,7 +655,7 @@ Returns the list of the vlan pool technique
 
 sub options_vlan_pool {
 
-    return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH );
+    return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH, $POOL_PER_USER_VLAN );
 }
 
 
