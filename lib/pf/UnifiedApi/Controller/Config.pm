@@ -359,8 +359,9 @@ sub cleanup_item {
 
 sub is_sortable {
     my ($self, $cs, $id, $item) = @_;
+    my $section = $cs->_formatSectionName($id);
     my $default_section = $cs->default_section;
-    return (defined($cs->default_section) && $id eq $default_section) ? $self->json_true : $self->json_false;
+    return ((defined($cs->default_section) && $id eq $default_section) || $cs->is_section_in_import($section)) ? $self->json_true : $self->json_false;
 }
 
 sub create {
