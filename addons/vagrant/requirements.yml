@@ -1,7 +1,6 @@
 ---
 roles:
   - src: geerlingguy.nodejs
-  - src: geerlingguy.mailhog
   - src: inverse_inc.gitlab_buildpkg_tools
 
 collections:
@@ -9,5 +8,6 @@ collections:
   - name: debops.debops
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
+  - name: inverse_inc.utils
 
 

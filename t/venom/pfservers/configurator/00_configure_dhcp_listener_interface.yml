@@ -1,0 +1,62 @@
+name: Configure DHCP listener interface
+version: 2
+testcases:
+# get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)
+- name: get_name_of_dhcp_listener_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.dhcp_listener.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      dhcp_listener_interface:
+        from: result.systemout
+
+- name: configure_dhcp_listener_int
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ipaddress": "{{.configurator.interfaces.dhcp_listener.ip}}",
+        "netmask": "{{.configurator.interfaces.dhcp_listener.netmask}}",
+        "type": "dhcp-listener"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+# switch interface to static state
+- name: bounce_dhcp_listener_int
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}/down'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}} disabled"
+
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}/up'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}} enabled"
+
+# start dhclient without any action on /etc/resolv.conf
+- name: start_dhclient_on_dhcp_listener_int
+  steps:
+  - type: exec
+    script: "echo 'make_resolv_conf() { :; }' > /etc/dhcp/dhclient-enter-hooks"
+
+  - type: exec
+    script: "dhclient -nw {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
+    
+

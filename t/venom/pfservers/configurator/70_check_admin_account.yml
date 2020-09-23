@@ -1,7 +1,7 @@
+name: Check admin account
 version: 2
-name: Setup
 testcases:
-- name: get_login_token
+- name: check_admin_account
   steps:
     - type: http
       method: POST
@@ -16,12 +16,3 @@ testcases:
         "Content-Type": "application/json"
       assertions:
         - result.statuscode ShouldEqual 200
-      vars:
-        token:
-          from: result.bodyjson.token
-
-
-- name: write-token-to-file
-  steps:
-    - type: exec
-      script: "echo 'export TOKEN={{.get_login_token.token}}' > {{.venom_result_dir}}/env"

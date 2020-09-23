@@ -4,8 +4,16 @@
 ################################################################################
 # Variables assigned based on environment variables
 venom_result_dir: '{{.VENOM_RESULT_DIR}}'
+internet_int_ip: '{{.INTERNET_INT_IP}}'
+internet_int_netmask: '{{.INTERNET_INT_MASK}}'
 pfserver_token: '{{.TOKEN}}'
 pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
+pfserver_mgmt_netmask: '{{.PF_TEST_MGMT_MASK}}'
+smtp_server: '{{.MAILHOG_SMTP_SERVER_IP}}'
+smtp_port: '{{.MAILHOG_SMTP_PORT}}'
+mariadb_socket: '{{.MARIADB_SOCKET}}'
+timezone: '{{.TIMEZONE}}'
+pf_log_level: '{{.PF_LOG_LEVEL}}'
 
 # ssh executor variables
 ssh_user: vagrant
@@ -13,7 +21,19 @@ ssh_user: vagrant
 # pfserver variables
 pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
 pfserver_default_admin_user: admin
-pfserver_default_admin_password: admin
+pfserver_admin_password: secret
+pfserver_root_dir: /usr/local/pf
+pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
+pfserver_bin_dir: '{{.pfserver_root_dir}}/bin'
+pfserver_pfcmd: '{{.pfserver_bin_dir}}/pfcmd'
+
+# PacketFence general settings
+pfserver_api_inactivity_timeout.interval: 12
+pfserver_api_inactivity_timeout.unit: h
+pfserver_pffilter_processes: 1
+pfserver_pfperl_api_processes: 2
+pfserver_pfqueue_workers: 2
+pfserver_haproxy_admin_server_timeout: 120s
 
 # ad variables
 ad_mgmt_ip: 172.17.17.100
@@ -49,6 +69,10 @@ access_duration.default_choice: "5m"
 # Access level
 access_level_user_and_node.id: user_and_node_manager
 access_level_user_and_node.description: Users and Nodes management
+
+# Fingerbank
+fingerbank_api_key.email: support@inverse.ca
+fingerbank_api_key.secret_id: d2c4d4f8-c5b1-4281-a724-e4ade5c31fe1
 
 ### Maintenance tasks
 # Node cleanup
@@ -114,3 +138,60 @@ wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
 wired_mac_auth.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
 wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
 wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
+
+################################################################################
+# Configurator variables
+################################################################################
+### Step 1
+# Interface dhcp-listener
+configurator.interfaces.dhcp_listener.index: 2
+configurator.interfaces.dhcp_listener.ip: '{{.internet_int_ip}}'
+configurator.interfaces.dhcp_listener.netmask: '{{.internet_int_netmask}}'
+
+# Interface mgmt
+configurator.interfaces.mgmt.index: 3
+configurator.interfaces.mgmt.ip: '{{.pfserver_mgmt_ip}}'
+configurator.interfaces.mgmt.netmask: '{{.pfserver_mgmt_netmask}}'
+
+# Interface registration
+configurator.interfaces.reg.index: 4
+configurator.interfaces.reg.ip: 172.17.2.2
+configurator.interfaces.reg.netmask: 255.255.255.0
+configurator.interfaces.reg.dhcpd_enabled: enabled
+
+# Interface isolation
+configurator.interfaces.iso.index: 5
+configurator.interfaces.iso.ip: 172.17.3.2
+configurator.interfaces.iso.netmask: 255.255.255.0
+configurator.interfaces.iso.dhcpd_enabled: enabled
+
+# DNS servers
+configurator.dns.primary_ip: 8.8.8.8
+configurator.dns.secondary_ip: '{{.ad_mgmt_ip}}'
+
+### Step 2
+# Database
+configurator.db.users.root.id: root
+configurator.db.users.root.password: ebjiatKeygId
+configurator.db.users.pf.id: pf
+configurator.db.users.pf.password: AkuddIgTatzu
+configurator.db.name: pf
+
+# Alerting
+configurator.email: 'mailhog@{{.ad_dns_domain}}'
+configurator.from_email: 'packetfence@{{.ad_dns_domain}}'
+configurator.smtp.server: '{{.smtp_server}}'
+configurator.smtp.port: '{{.smtp_port}}'
+
+# General
+configurator.domain: '{{.ad_dns_domain}}'
+configurator.hostname: pf
+configurator.timezone: '{{.timezone}}'
+
+# Admin account
+configurator.admin.password: '{{.pfserver_admin_password}}'
+configurator.admin.valid_from: 1970-01-01 00:00:00
+
+### Step 3
+# Fingerbank
+configurator.fingerbank_api_key.secret_id: '{{.fingerbank_api_key.secret_id}}'

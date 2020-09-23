@@ -258,13 +258,21 @@ variables:
   script:
     - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
+.test_centos_7_vars:
+  variables:
+    PF_VM_NAME: pfcen7dev
+
+.test_debian_9_vars:
+  variables:
+    PF_VM_NAME: pfdeb9dev
+
 .test_script:
   variables:
     INT_TEST_VM_NAMES: ad switch01 node01
   script:
     - make -e -C ${TESTDIR} test
   after_script:
-    - make -e -C ${TESTDIR} clean
+    - make -e -C ${TESTDIR} halt
     
 
 ################################################################################
@@ -434,73 +442,79 @@ pages:
 ########################################
 test_pkg_devel_centos_7:
   variables:
-    PF_VM_NAME: pfcen7dev
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-dev
   extends:
     - .test_job
+    - .test_centos_7_vars
     - .test_script
     - .job_dev_triggers
   when: manual
 
 test_pkg_release_centos_7:
   variables:
-    PF_VM_NAME: pfcen7dev
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'no'
     INTEGRATION_TESTS: 'no'
-    # only install packages, don't run tests
+    # provision VM and run configurator test
     RUN_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-${CI_COMMIT_TAG}
   extends:
     - .test_job
+    - .test_centos_7_vars
     - .test_script
     - .job_release_triggers
 
 test_pkg_nigthly_centos_7:
   variables:
-    PF_VM_NAME: pfcen7dev
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-dev
   extends:
     - .test_job
+    - .test_centos_7_vars
     - .test_script
     - .job_nightly_triggers
 
 test_pkg_devel_debian_stretch:
   variables:
-    PF_VM_NAME: pfdeb9dev
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-dev
   extends:
     - .test_job
+    - .test_debian_9_vars
     - .test_script
     - .job_dev_triggers
   when: manual
 
 test_pkg_release_debian_stretch:
   variables:
-    PF_VM_NAME: pfdeb9dev
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'no'
     INTEGRATION_TESTS: 'no'
-    # only install packages, don't run tests
+    # provision VM and run configurator test
     RUN_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-${CI_COMMIT_TAG}
   extends:
     - .test_job
+    - .test_debian_9_vars
     - .test_script
     - .job_release_triggers
 
 test_pkg_nightly_debian_stretch:
   variables:
-    PF_VM_NAME: pfdeb9dev
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-dev
   extends:
     - .test_job
+    - .test_debian_9_vars
     - .test_script
     - .job_nightly_triggers
     

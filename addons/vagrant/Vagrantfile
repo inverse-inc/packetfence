@@ -11,6 +11,7 @@ networks = inventory['all']['vars']['networks']
 Vagrant.configure("2") do |config|
 
   ### Global settings for all VMS
+  config.vagrant.sensitive = [ ENV['PSONO_CI_API_KEY_ID'], ENV['PSONO_CI_API_SECRET_KEY_HEX'] ]
 
   # disable synced folders
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -148,6 +149,11 @@ Vagrant.configure("2") do |config|
       # reset communicator to make /etc/environment variables available for next scripts
       srv.vm.provision "reset", type: "shell" do |config|
         config.reset = true
+      end
+
+      # shell provisioner to run configurator
+      srv.vm.provision "run-configurator", type: "shell" do |config|
+        config.inline = "make -C /src/t/venom configurator"
       end
 
       # shell provisioner to run by hand
