@@ -472,11 +472,17 @@ export const hasRadiusTlss = () => {
   })
 }
 
-export const hasRealms = () => {
-  return store.dispatch('config/getRealms').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
+export const hasRealms = (tenantId) => {
+  return (0, _common.withParams)({
+    type: 'hasRealms',
+    tenantId
+  }, function (value) {
+    if (!(0, _common.req)(tenantId) || !(0, _common.req)(value)) return true
+    return store.dispatch('config/getRealms', tenantId).then(response => {
+      return (response.length > 0)
+    }).catch(() => {
+      return true
+    })
   })
 }
 
@@ -878,13 +884,18 @@ export const radiusTlsExists = (value) => {
   })
 }
 
-export const realmExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRealms').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
+export const realmExists = (tenantId) => {
+  return (0, _common.withParams)({
+    type: 'realmExists',
+    tenantId
+  }, function (value) {
+    if (!(0, _common.req)(tenantId) || !(0, _common.req)(value)) return true
+    return store.dispatch('config/getRealms', tenantId).then(response => {
+      if (response.length === 0) return true
+      return response.map(item => item.id.toLowerCase()).includes(value.toLowerCase())
+    }).catch(() => {
+      return true
+    })
   })
 }
 

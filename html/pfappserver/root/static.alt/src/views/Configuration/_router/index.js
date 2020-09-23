@@ -385,10 +385,10 @@ const route = {
       props: (route) => ({ tab: 'realms', query: route.query.query })
     },
     {
-      path: 'realms/new',
+      path: 'realms/:tenantId/new',
       name: 'newRealm',
       component: RealmView,
-      props: () => ({ formStoreName: 'formRealm', isNew: true }),
+      props: (route) => ({ formStoreName: 'formRealm', isNew: true, tenantId: route.params.tenantId }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formRealm) { // Register store module only once
           store.registerModule('formRealm', FormStore)
@@ -397,29 +397,29 @@ const route = {
       }
     },
     {
-      path: 'realm/:id',
+      path: 'realm/:tenantId/:id',
       name: 'realm',
       component: RealmView,
-      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRealm', tenantId: route.params.tenantId, id: route.params.id }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formRealm) { // Register store module only once
           store.registerModule('formRealm', FormStore)
         }
-        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
+        store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
           next()
         })
       }
     },
     {
-      path: 'realm/:id/clone',
+      path: 'realm/:tenantId/:id/clone',
       name: 'cloneRealm',
       component: RealmView,
-      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRealm', tenantId: route.params.tenantId, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formRealm) { // Register store module only once
           store.registerModule('formRealm', FormStore)
         }
-        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
+        store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
           next()
         })
       }
