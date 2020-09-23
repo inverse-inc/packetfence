@@ -1501,18 +1501,24 @@ const actions = {
     if (getters.isLoadingSwitches) {
       return Promise.resolve(state.switches)
     }
-    if (!state.switches) {
-      commit('SWITCHES_REQUEST')
-      return api.getSwitches().then(response => {
-        // group can be undefined
-        response.data.items.forEach(function (item, index) {
-          response.data.items[index] = Object.assign({ group: item.group || 'Default' }, item)
+    if (acl.$can('read', 'switches')) {
+      if (!state.switches) {
+        commit('SWITCHES_REQUEST')
+        return api.getSwitches().then(response => {
+          // group can be undefined
+          response.data.items.forEach(function (item, index) {
+            response.data.items[index] = Object.assign({ group: item.group || 'Default' }, item)
+          })
+          commit('SWITCHES_UPDATED', response.data.items)
+          return state.switches
         })
-        commit('SWITCHES_UPDATED', response.data.items)
-        return state.switches
-      })
-    } else {
-      return Promise.resolve(state.switches)
+      } else {
+        return Promise.resolve(state.switches)
+      }
+    }
+    else {
+      commit('SWITCHES_UPDATED', [])
+      return state.switches
     }
   },
   getSwitchGroups: ({ state, getters, commit }) => {
