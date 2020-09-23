@@ -3559,6 +3559,7 @@ Attempts to find a local user by matching the PSK to the attributes in the RADIU
 sub find_user_by_psk {
     my ($self, $radius_request) = @_;
     $self->logger->debug("Unbound DPSK not implemented for this switch module");
+    return undef;
 }
 
 =back

@@ -29,6 +29,7 @@ our @EXPORT_OK = qw(
     $GUEST_ROLE
     $GAMING_ROLE
     $REJECT_ROLE
+    $POOL_PER_USER_VLAN
     $POOL_USERNAMEHASH
     $POOL_RANDOM
     $POOL_ROUND_ROBBIN
@@ -76,6 +77,7 @@ Constant used in the pool code
 Readonly::Scalar our $POOL_USERNAMEHASH  => 'username_hash';
 Readonly::Scalar our $POOL_RANDOM  => 'random';
 Readonly::Scalar our $POOL_ROUND_ROBBIN => 'round_robbin';
+Readonly::Scalar our $POOL_PER_USER_VLAN => 'per_user_vlan';
 
 =head1 AUTHOR
 

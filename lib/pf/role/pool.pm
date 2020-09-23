@@ -21,6 +21,7 @@ use pf::log();
 use pf::constants::role qw(:all);
 
 use pf::node;
+use pf::dal;
 
 use Number::Range;
 
@@ -59,6 +60,9 @@ sub getVlanFromPool {
     } elsif ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_RANDOM) {
         $logger->trace("Use $POOL_RANDOM algorithm for VLAN pool");
         $vlan = $self->getRandomVlanInPool($args, $range);
+    } elsif ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_PER_USER_VLAN) {
+        $logger->trace("Use $POOL_PER_USER_VLAN algorithm for VLAN pool");
+        $vlan = $self->getPerUserVlan($args, $range);
     } else {
         $logger->trace("Use round robin algorithm for VLAN pool");
         $vlan = $self->getRoundRobin($args, $range);
@@ -178,6 +182,60 @@ sub getVlanByUsername {
     $logger->trace("Return VLAN ID: ".$array[$new_vlan]);
     return ($array[$new_vlan]);
 
+}
+
+sub getPerUserVlan {
+    my ($self, $args, $range) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $pid = $args->{user_name};
+    my @vlans = $range->range;
+    my $sql_vlans = join(",", map { pf::dal->get_dbh->quote($_) } @vlans);
+
+    my ($status, $res) = pf::dal->db_execute("
+    SELECT vlan 
+    FROM   locationlog 
+           JOIN node 
+             ON node.tenant_id = locationlog.tenant_id 
+                AND node.mac = locationlog.mac 
+    WHERE  vlan IN ( $sql_vlans ) 
+           AND node.status = 'reg' 
+           AND pid = ? 
+    ", $pid);
+
+    if(defined(my $row = $res->fetchrow_hashref)) {
+        my $vlan = $row->{vlan};
+        $logger->info("Found VLAN $vlan for $pid with registered devices in it.");
+        return $vlan;
+    }
+    else {
+        $logger->debug("Unable to find a VLAN in the pool that $pid has devices in. Finding an available VLAN for this user.");
+        ($status, $res) = pf::dal->db_execute("
+        SELECT vlan 
+        FROM   locationlog 
+               JOIN node 
+                 ON node.tenant_id = locationlog.tenant_id 
+                    AND node.mac = locationlog.mac 
+        WHERE  vlan IN ( $sql_vlans ) 
+               AND node.status != 'unreg' 
+        ");
+        my %used_vlans = map{$_->[0] => 1} @{$res->fetchall_arrayref};
+        my $available_vlan;
+        for my $vlan (@vlans) {
+            if(!exists($used_vlans{$vlan})) {
+                $available_vlan = $vlan;
+                last;
+            }
+        }
+        if($available_vlan) {
+            $logger->info("Found available VLAN $available_vlan in the pool for $pid");
+            return $available_vlan;
+        }
+        else {
+            $logger->error("No available VLAN in the pool");
+            return;
+        }
+    }
 }
 
 =head1 AUTHOR
