@@ -69,7 +69,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.connectionProfile(id).then(item => {
       commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(item))
+      return state.cache[id]
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
