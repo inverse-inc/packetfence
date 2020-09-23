@@ -271,7 +271,7 @@ sub node_add {
 }
 
 #
-# simple wrapper for pfmon/pfdhcplistener-detected and auto-generated nodes
+# simple wrapper for pfcron/pfdhcplistener-detected and auto-generated nodes
 #
 sub node_add_simple {
     my ($mac) = @_;
@@ -757,7 +757,7 @@ sub node_deregister {
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace
 
-called by pfmon daemon for the configured interval
+called by pfcron daemon for the configured interval
 
 =cut
 

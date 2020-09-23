@@ -6453,9 +6453,9 @@ By IP address:
 
 If you decide to define the AP by ip then you will need to define the controller as a switch and define the Controller IP and Webservices information (Transport/Username/Password) in his configuration.
 
-Then once done, restart pfmon service and run that to fill the PacketFence cache:
+Then once done, restart pfcron service and run that to fill the PacketFence cache:
 
- /usr/local/pf/bin/pfcmd pfmon ubiquiti_ap_mac_to_ip
+ /usr/local/pf/bin/pfcmd pfcron ubiquiti_ap_mac_to_ip
 
 And verify that you have an entry for each AP
 

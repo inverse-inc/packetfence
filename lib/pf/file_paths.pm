@@ -100,7 +100,6 @@ our (
     $pffilter_socket_path,
     $control_dir,
     $switch_control_dir,
-    $pfmon_config_file, $pfmon_default_config_file,
     $switch_filters_config_file,
     $stats_config_file,
     $stats_config_default_file,
@@ -120,7 +119,8 @@ our (
     $tls_config_file, $tls_default_config_file,
     $ocsp_config_file, $ocsp_default_config_file,
     $eap_config_file, $eap_default_config_file,
-    $fast_config_file, $fast_default_config_file
+    $fast_config_file, $fast_default_config_file,
+    $cron_config_file, $cron_default_config_file,
 );
 
 BEGIN {
@@ -196,7 +196,6 @@ BEGIN {
         $pffilter_socket_path
         $control_dir
         $switch_control_dir
-        $pfmon_config_file $pfmon_default_config_file
         $switch_filters_config_file
         $stats_config_file
         $stats_config_default_file
@@ -217,6 +216,7 @@ BEGIN {
         $ocsp_config_file $ocsp_default_config_file
         $eap_config_file $eap_default_config_file
         $fast_config_file $fast_default_config_file
+        $cron_config_file $cron_default_config_file
     );
 }
 
@@ -328,8 +328,8 @@ $admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
 $security_event_log = catfile($log_dir, "security_event.log");
 $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
 $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
-$pfmon_config_file = catfile($conf_dir,"pfmon.conf");
-$pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
+$cron_config_file = catfile($conf_dir,"cron.conf");
+$cron_default_config_file = catfile($conf_dir,"cron.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
@@ -362,7 +362,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
   httpd.proxy.reverse.access httpd.proxy.reverse.error
   httpd.webservices.access httpd.webservices.error
   packetfence.log pfdetect.log pfqueue.log
-  pfdhcplistener.log pfdns.log pfmon.log pfconfig.log httpd.admin.audit.log
+  pfdhcplistener.log pfdns.log pfcron.log pfconfig.log httpd.admin.audit.log
 );
 
 @stored_config_files = (
@@ -383,7 +383,6 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $dhcp_filters_config_file,
     $roles_config_file,
     $dns_filters_config_file,
-    $pfmon_config_file,
     $switch_filters_config_file,
     $stats_config_file,
     $traffic_shaping_config_file,
@@ -392,7 +391,8 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $fingerbank_collector_env_defaults_file,
     $portal_modules_config_file,
     $template_switches_config_file,
-    $ssl_config_file
+    $ssl_config_file,
+    $cron_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");

@@ -1,26 +1,25 @@
-package pfappserver::Model::Config::Pfmon;
+package pfappserver::Model::Config::Pfcron;
 
 =head1 NAME
 
-pfappserver::Model::Config::Pfmon add documentation
+pfappserver::Model::Config::Pfcron add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Pfmon
+pfappserver::Model::Config::Pfcron
 
 =cut
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use pf::ConfigStore::Pfmon;
+use pf::ConfigStore::Cron;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Pfmon->new }
+sub _buildConfigStore { pf::ConfigStore::Cron->new }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

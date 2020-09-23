@@ -118,10 +118,10 @@ CHECK PROCESS packetfence-pfipset MATCHING "pfipset"
     stop program  = "/usr/local/pf/bin/pfcmd service pfipset stop"
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-pfmon MATCHING "pfmon"
+CHECK PROCESS packetfence-pfcron MATCHING "pfcron"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service pfmon restart" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service pfmon stop"
+    start program = "/usr/local/pf/bin/pfcmd service pfcron restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfcron stop"
     if 3 restarts within 10 cycles then alert
 
 CHECK PROCESS packetfence-pffilter MATCHING "pffilter"

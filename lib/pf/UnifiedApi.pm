@@ -2209,6 +2209,7 @@ sub setup_api_v1_emails_route {
     my $resource_route = $root->any("email")->to(controller => "Emails" )->name("api.v1.Emails");
     $resource_route->register_sub_action({ method => 'POST', action => 'preview', path => 'preview'});
     $resource_route->register_sub_action({ method => 'POST', action => 'send_email', path => 'send'});
+    $resource_route->register_sub_action({ method => 'POST', action => 'pfmailer', path => 'pfmailer'});
     return ;
 }
 

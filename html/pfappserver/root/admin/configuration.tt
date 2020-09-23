@@ -208,7 +208,7 @@
             </ul>
             <ul class="nav nav-list">
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [%- IF can_access("PFMON_READ") %]
+              [%- IF can_access("PFCRON_READ") %]
               [% pf_section_entry( 'main', 'Main Configuration', subsections.main) | none %]
               [%- END %]
               [% pf_section_entry( 'database', 'Database', subsections.database) | none %]

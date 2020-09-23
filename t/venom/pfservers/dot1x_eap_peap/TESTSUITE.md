@@ -11,7 +11,7 @@ AD server running
 ## Scenario steps
 1. Enable node_cleanup task with following parameters:
 - delete_windows=1m
-1. Restart `pfmon` to take change into account
+1. Restart `pfcron` to take change into account
 1. Join domain
 1. Configure REALMS
 1. Restart RADIUS services (common test suite)
@@ -41,10 +41,10 @@ AD server running
 1. Check online status of node01: should be offline due to accounting stop
 1. Check node status for node01
 1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
-1. Delete node by running `pfmon's node_cleanup` task
+1. Delete node by running `pfcron's node_cleanup` task
 1. Check node has been deleted
 1. Disable `node_cleanup` task
-1. Restart `pfmon` to take change into account
+1. Restart `pfcron` to take change into account
 1. Unconfigure and delete REALMS
 1. Delete domain
 1. Delete connection profile
@@ -55,4 +55,4 @@ AD server running
 
 Reauthentication is done by switch based on `eap_reauth_period` setting to
 avoid node been unregistered when it reach unregdate and automatically deleted
-by `pfmon` without running teardown steps.
+by `pfcron` without running teardown steps.

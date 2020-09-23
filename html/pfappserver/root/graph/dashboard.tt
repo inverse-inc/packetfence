@@ -623,11 +623,11 @@ END;
           </div>
           <div class="card">
             <div class="card-title">
-              <h2>[% l('pfmon.log') %]</h2>
+              <h2>[% l('pfcron.log') %]</h2>
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.pfmon_log", "Number of events") | none %]
+                    [% graph("packetfence.logs.pfcron_log", "Number of events") | none %]
                 </div>
               </div>
           </div>

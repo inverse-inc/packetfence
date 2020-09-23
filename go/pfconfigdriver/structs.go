@@ -661,3 +661,11 @@ type EAPConfiguration struct {
 	PfconfigHostnameOverlay string `val:"yes"`
 	Element                 map[string]EAP
 }
+
+type Cron struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Cron"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
+}

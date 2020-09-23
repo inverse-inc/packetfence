@@ -1024,7 +1024,7 @@
                {
                   "properties" : {
                      "accounting" : {
-                        "description" : "Should we handle accouting data for inline clients? This controls inline accouting tasks in pfmon.",
+                        "description" : "Should we handle accouting data for inline clients? This controls inline accouting tasks in pfcron.",
                         "type" : "string"
                      },
                      "interfaceSNAT" : {
@@ -1032,11 +1032,11 @@
                         "type" : "string"
                      },
                      "layer3_accounting_session_timeout" : {
-                        "description" : "Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfmon runs Defaults to 300 - 5 minutes",
+                        "description" : "Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfcron runs Defaults to 300 - 5 minutes",
                         "type" : "string"
                      },
                      "layer3_accounting_sync_interval" : {
-                        "description" : "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds",
+                        "description" : "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfcron runs. Defaults to 41 seconds",
                         "type" : "string"
                      },
                      "ports_redirect" : {
@@ -1161,8 +1161,8 @@
                         "description" : "Should pfipset be managed by PacketFence?",
                         "type" : "string"
                      },
-                     "pfmon" : {
-                        "description" : "Should pfmon be started? Keep enabled unless you know what you're doing.",
+                     "pfcron" : {
+                        "description" : "Should pfcron be started? Keep enabled unless you know what you're doing.",
                         "type" : "string"
                      },
                      "pfperl-api" : {
@@ -1290,7 +1290,7 @@
                         "type" : "string"
                      },
                      "conflict_resolution_threshold" : {
-                        "description" : "Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members.For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.",
+                        "description" : "Defines the amount of seconds after which pfcron attempts to resolve a configuration version conflict between cluster members.For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2636,11 +2636,11 @@
                         "type" : "object"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2654,7 +2654,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -2685,11 +2685,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2703,7 +2703,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -2720,11 +2720,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2738,7 +2738,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -2773,11 +2773,11 @@
                         "type" : "object"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2791,7 +2791,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -2812,11 +2812,11 @@
                         "type" : "integer"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2830,7 +2830,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "timeout" : {
@@ -2879,11 +2879,11 @@
                         "type" : "integer"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2897,7 +2897,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "timeout" : {
@@ -2942,11 +2942,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2964,7 +2964,7 @@
                         "type" : "string"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -2981,11 +2981,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -2999,7 +2999,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -3016,11 +3016,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3034,7 +3034,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -3051,11 +3051,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3069,7 +3069,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -3090,11 +3090,11 @@
                         "type" : "integer"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3144,7 +3144,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "timeout" : {
@@ -3193,11 +3193,11 @@
                         "type" : "integer"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3211,7 +3211,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "timeout" : {
@@ -3260,11 +3260,11 @@
                         "type" : "integer"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3278,7 +3278,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "timeout" : {
@@ -3313,11 +3313,11 @@
                         "type" : "integer"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3331,7 +3331,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "timeout" : {
@@ -3362,11 +3362,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3380,7 +3380,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -3397,11 +3397,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3415,7 +3415,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -3432,11 +3432,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3450,7 +3450,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -3467,11 +3467,11 @@
                {
                   "properties" : {
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3485,7 +3485,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "type" : {
@@ -3506,11 +3506,11 @@
                         "type" : "integer"
                      },
                      "id" : {
-                        "description" : "Pfmon Name",
+                        "description" : "Pfcron Name",
                         "type" : "string"
                      },
                      "interval" : {
-                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
+                        "description" : "Interval (frequency) at which the task is executed.<br>Requires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -3560,7 +3560,7 @@
                         "type" : "object"
                      },
                      "status" : {
-                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.",
+                        "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                         "type" : "string"
                      },
                      "timeout" : {

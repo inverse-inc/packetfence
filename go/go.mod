@@ -89,6 +89,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190115171406-56726106282f
 	github.com/prometheus/common v0.2.0
 	github.com/prometheus/procfs v0.0.5 // indirect
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/russross/blackfriday v1.5.2
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/soheilhy/cmux v0.1.4 // indirect

@@ -1,0 +1,17 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence pfcron Service
+Wants=packetfence-base.target packetfence-config.service
+After=packetfence-base.target packetfence-config.service
+
+[Service]
+Type=notify
+StartLimitBurst=3
+StartLimitInterval=10
+ExecStart=/usr/local/pf/sbin/pfcron
+User=pf
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

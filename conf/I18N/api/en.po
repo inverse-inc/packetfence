@@ -380,7 +380,7 @@ msgid "Accounting session timeout"
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:34
-msgid "Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfmon runs Defaults to 300 - 5 minutes."
+msgid "Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfcron runs Defaults to 300 - 5 minutes."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:44
@@ -1662,7 +1662,7 @@ msgstr ""
 msgid "Cache"
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[ubiquiti_ap_mac_to_ip]/description
+#: conf/pfcron.conf.defaults:[ubiquiti_ap_mac_to_ip]/description
 msgid "Cache MAC/IP couple for Ubiquiti AP"
 msgstr ""
 
@@ -1670,7 +1670,7 @@ msgstr ""
 msgid "Cache match"
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[switch_cache_lldpLocalPort_description]/description
+#: conf/pfcron.conf.defaults:[switch_cache_lldpLocalPort_description]/description
 msgid "Cache switches LLDP local port descriptions"
 msgstr ""
 
@@ -1897,7 +1897,7 @@ msgstr ""
 msgid "Change the session timeout, idle timeout and terminate action"
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[certificates_check]/description
+#: conf/pfcron.conf.defaults:[certificates_check]/description
 msgid "Check for SSL certificates validity"
 msgstr ""
 
@@ -2957,51 +2957,51 @@ msgstr ""
 msgid "Controller IP Address"
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[node_cleanup]/description
+#: conf/pfcron.conf.defaults:[node_cleanup]/description
 msgid "Controls the actions made on inactive nodes (based on the last_seen attribute of the node)."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[bandwidth_maintenance]/description
+#: conf/pfcron.conf.defaults:[bandwidth_maintenance]/description
 msgid "Controls the aggregation of the bandwidth accounting records."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[ip4log_cleanup]/description
+#: conf/pfcron.conf.defaults:[ip4log_cleanup]/description
 msgid "Controls the cleanup and rotation of IP entries in IPv4 tables."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[ip6log_cleanup]/description
+#: conf/pfcron.conf.defaults:[ip6log_cleanup]/description
 msgid "Controls the cleanup and rotation of IP entries in IPv6 tables."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[cleanup_chi_database_cache]/description
+#: conf/pfcron.conf.defaults:[cleanup_chi_database_cache]/description
 msgid "Controls the cleanup of the CHI cache database storage."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[acct_cleanup]/description
+#: conf/pfcron.conf.defaults:[acct_cleanup]/description
 msgid "Controls the cleanup of the accounting tables (radacct and radacct_log). Entries older than the window will be removed from the table."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[admin_api_audit_log_cleanup]/description
+#: conf/pfcron.conf.defaults:[admin_api_audit_log_cleanup]/description
 msgid "Controls the cleanup of the admin_api_audit_log table. Entries older than the window will be removed from the table."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[auth_log_cleanup]/description
+#: conf/pfcron.conf.defaults:[auth_log_cleanup]/description
 msgid "Controls the cleanup of the auth_log table. Entries older than the window will be removed from the table."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[bandwidth_maintenance_session]/description
+#: conf/pfcron.conf.defaults:[bandwidth_maintenance_session]/description
 msgid "Controls the cleanup of the bandwidth accounting sessions. The task has an interval of 0 since it runs manually through a cronjob."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[dns_audit_log_cleanup]/description
+#: conf/pfcron.conf.defaults:[dns_audit_log_cleanup]/description
 msgid "Controls the cleanup of the dns_audit_log table. Entries older than the window will be removed from the table."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[locationlog_cleanup]/description
+#: conf/pfcron.conf.defaults:[locationlog_cleanup]/description
 msgid "Controls the cleanup of the locationlog table. Entries older than the window will be removed from the table."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[radius_audit_log_cleanup]/description
+#: conf/pfcron.conf.defaults:[radius_audit_log_cleanup]/description
 msgid "Controls the cleanup of the radius_audit_log table. Entries older than the window will be removed from the table."
 msgstr ""
 
@@ -3888,7 +3888,7 @@ msgid "Defines how to format the username that is sent to your firewall. $userna
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:92
-msgid "Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes."
+msgid "Defines the amount of seconds after which pfcron attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/networkBehaviorPolicy.js:238
@@ -5068,7 +5068,7 @@ msgid "Enabling PacketFence"
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/MaintenanceTasksList.vue:9
-msgid "Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective."
+msgid "Enabling or disabling a task as well as modifying its interval requires a restart of pfcron to be fully effective."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:469
@@ -6546,11 +6546,11 @@ msgid "Interval"
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:199
-msgid "Interval (frequency) at which the task is executed.\\nRequires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs."
+msgid "Interval (frequency) at which the task is executed.\\nRequires a restart of pfcron to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:45
-msgid "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds."
+msgid "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfcron runs. Defaults to 41 seconds."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/index.js:178
@@ -12383,7 +12383,7 @@ msgid "Should pfipset be managed by PacketFence?"
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/service.js:339
-msgid "Should pfmon be started? Keep enabled unless you know what you're doing."
+msgid "Should pfcron be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/service.js:352
@@ -12468,7 +12468,7 @@ msgid "Should we forward the request to PacketFence to have a dynamic answer or 
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:21
-msgid "Should we handle accouting data for inline clients? This controls inline accouting tasks in pfmon."
+msgid "Should we handle accouting data for inline clients? This controls inline accouting tasks in pfcron."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/service.js:547
@@ -13321,44 +13321,44 @@ msgstr ""
 msgid "Task Name"
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[cluster_check]/description
+#: conf/pfcron.conf.defaults:[cluster_check]/description
 msgid "Task that checks the health state of the cluster and attempts to resolve any detected conflicts."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[security_event_maintenance]/description
+#: conf/pfcron.conf.defaults:[security_event_maintenance]/description
 msgid "Task that controls the execution of delayed security_event."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[acct_maintenance]/description
-#: conf/pfmon.conf.defaults:[inline_accounting_maintenance]/description
+#: conf/pfcron.conf.defaults:[acct_maintenance]/description
+#: conf/pfcron.conf.defaults:[inline_accounting_maintenance]/description
 msgid "Task that controls the inline accounting maintenance (bandwidth checks)."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[fingerbank_data_update]/description
+#: conf/pfcron.conf.defaults:[fingerbank_data_update]/description
 msgid "Task that controls updates of the local Fingerbank data from the cloud API."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[provisioning_compliance_poll]/description
+#: conf/pfcron.conf.defaults:[provisioning_compliance_poll]/description
 msgid "Task that runs the polling enforcement on the provisioners."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[populate_ntlm_redis_cache]/description
+#: conf/pfcron.conf.defaults:[populate_ntlm_redis_cache]/description
 msgid "Task to control the population of the Active Directory NTLM cache."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[person_cleanup]/description
+#: conf/pfcron.conf.defaults:[person_cleanup]/description
 msgid "Task to delete users that do not own any device. Locally created users will only be deleted when their account expires."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[password_of_the_day]/description
+#: conf/pfcron.conf.defaults:[password_of_the_day]/description
 msgid "Task to generate password of the day."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[option82_query]/description
+#: conf/pfcron.conf.defaults:[option82_query]/description
 msgid "Task to query compatible switches for DHCP Option 82 switch MAC address."
 msgstr ""
 
-#: conf/pfmon.conf.defaults:[nodes_maintenance]/description
+#: conf/pfcron.conf.defaults:[nodes_maintenance]/description
 msgid "Task to unregister nodes that have an unregistration date older than the current date and time."
 msgstr ""
 
@@ -15429,7 +15429,7 @@ msgid "Whether or not the provisioner should be enforced. This will trigger chec
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:296
-msgid "Whether or not this task is enabled.\\nRequires a restart of pfmon to be effective."
+msgid "Whether or not this task is enabled.\\nRequires a restart of pfcron to be effective."
 msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:108

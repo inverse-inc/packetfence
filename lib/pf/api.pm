@@ -52,6 +52,7 @@ use pf::firewallsso();
 use pf::pfqueue::stats();
 use pf::pfqueue::producer::redis();
 use pf::util qw(mysql_date);
+use pf::bandwidth_accounting qw();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap any);
@@ -1882,6 +1883,18 @@ sub update_user_in_redis_cache {
         $redis->set($key, $nthash, 'EX', $expire);
         $logger->info("Updating '$key' => '$nthash'");
     }
+}
+
+=head2 bandwidth_trigger
+
+bandwidth_trigger
+
+=cut
+
+sub bandwidth_trigger :Public {
+    my ($class, $args) = @_;
+    pf::bandwidth_accounting::trigger_bandwidth();
+    return $pf::config::TRUE;
 }
 
 =head1 AUTHOR
