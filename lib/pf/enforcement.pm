@@ -47,6 +47,7 @@ use pf::config qw(
     $VIRTUAL
     %ConfigNetworks
 );
+use pf::api::jsonrpcclient;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
 use pf::locationlog;
@@ -91,10 +92,11 @@ sub reevaluate_access {
         my $node = node_attributes($mac);
         if ($ip) {
             my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
-            my $client = pf::client::getClient();
             if ($sync) {
+                my $client = pf::api::jsonrpcclient->new;
                 $client->call( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
             } else {
+                my $client = pf::client::getClient();
                 $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
             }
         } else {
@@ -114,7 +116,6 @@ sub reevaluate_access {
         return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
     }
 
-    my $client = pf::client::getClient();
     my $inline = new pf::inline::custom();
     my %data = (
         'switch' => '127.0.0.1',
@@ -122,8 +123,10 @@ sub reevaluate_access {
     );
     if ( $inline->isInlineEnforcementRequired($mac) ) {
         if ($sync) {
+            my $client = pf::api::jsonrpcclient->new;
             $client->call( 'firewall', %data );
         } else {
+            my $client = pf::client::getClient();
             $client->notify( 'firewall', %data );
         }
         $ip = new NetAddr::IP::Lite clean_ip($ip);
