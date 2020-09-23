@@ -222,19 +222,13 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 }
 
 func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
-	var connStr string
-	if h.Management.Vip != "" {
-		connStr = h.Management.Vip + ":1813"
-	} else {
-		connStr = h.Management.Ip + ":1813"
-	}
-
-	addr, err := net.ResolveUDPAddr("udp", connStr)
+	connStr := "0.0.0.0:1813"
+	addr, err := net.ResolveUDPAddr("udp4", connStr)
 	if err != nil {
 		panic(err)
 	}
 
-	pc, err := net.ListenUDP("udp", addr)
+	pc, err := net.ListenUDP("udp4", addr)
 	if err != nil {
 		panic(err)
 	}
