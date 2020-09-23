@@ -22,6 +22,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/mac"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 const TRIGGER_TYPE_ACCOUNTING = "accounting"
@@ -222,15 +223,37 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 }
 
 func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
-	connStr := "0.0.0.0:1813"
-	addr, err := net.ResolveUDPAddr("udp4", connStr)
-	if err != nil {
-		panic(err)
-	}
 
-	pc, err := net.ListenUDP("udp4", addr)
-	if err != nil {
-		panic(err)
+	var ctx = context.Background()
+
+	var RADIUSinterfaces pfconfigdriver.RADIUSInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &RADIUSinterfaces)
+
+	var intRADIUS []*net.UDPConn
+
+	for _, vi := range RADIUSinterfaces.Element {
+		for key, radiusint := range vi.(map[string]interface{}) {
+			if key == "Tint" {
+				eth, err := net.InterfaceByName(radiusint.(string))
+				if err != nil {
+					panic(err)
+				}
+				adresses, _ := eth.Addrs()
+
+				for _, adresse := range adresses {
+
+					addr, err := net.ResolveUDPAddr("udp4", adresse.String()+":1813")
+					if err != nil {
+						panic(err)
+					}
+					pc, err := net.ListenUDP("udp4", addr)
+					if err != nil {
+						panic(err)
+					}
+					intRADIUS = append(intRADIUS, pc)
+				}
+			}
+		}
 	}
 
 	server := &radius.PacketServer{
@@ -238,13 +261,16 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 		SecretSource: h,
 	}
 	w.Add(1)
-	go func() {
-		if err := server.Serve(pc); err != radius.ErrServerShutdown {
-			panic(err)
-		}
 
-		w.Done()
-	}()
+	for _, pc := range intRADIUS {
+		go func() {
+			if err := server.Serve(pc); err != radius.ErrServerShutdown {
+				panic(err)
+			}
+
+			w.Done()
+		}()
+	}
 
 	return server
 }
