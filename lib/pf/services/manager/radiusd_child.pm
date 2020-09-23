@@ -1315,7 +1315,7 @@ EOT
     }
     foreach my $key (keys %ConfigEAP) {
         next if $key eq 'default';
-	$key = $key."-".$suffix if ($suffix ne "");
+        $key = $key."-".$suffix if ($suffix ne "");
         $$authentication_auth_type .= <<"EOT";
         Auth-Type $key {
             $key
