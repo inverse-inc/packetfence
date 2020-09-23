@@ -1,9 +1,11 @@
 <template>
   <b-tab ref="rootRef"
     :active="active"
-    :title="title"
     :title-link-class="{ 'has-invalid': !isValid }"
   >
+    <template v-slot:title>
+      {{ title }} <b-badge pill variant="danger" class="num-invalid ml-1" :data-num-invalid="numInvalid">{{ numInvalid }}</b-badge>
+    </template>
     <slot/>
   </b-tab>
 </template>
@@ -21,7 +23,17 @@ export const props = {
 }
 
 export const setup = (props, context) => {
-  return useFormTab(props, context)
+  const {
+    rootRef,
+    isValid,
+    numInvalid
+  } = useFormTab(props, context)
+
+  return {
+    rootRef,
+    isValid,
+    numInvalid
+  }
 }
 
 // @vue/component
@@ -36,12 +48,21 @@ export default {
 .nav-tabs {
   .nav-link {
     transition: 300ms ease all;
-
+    position: relative;
     &.has-invalid {
       color: $form-feedback-invalid-color;
     }
     &.active.has-invalid {
       border-color: $form-feedback-invalid-color;
+    }
+    > .num-invalid {
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translate(+50%, -50%);
+      &[data-num-invalid="0"] {
+        display: none;
+      }
     }
   }
 }

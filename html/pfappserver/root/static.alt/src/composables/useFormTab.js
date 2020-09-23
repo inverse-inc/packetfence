@@ -12,19 +12,26 @@ export const useFormTab = () => {
 
   // state
   const isValid = ref(true)
+  const numInvalid = ref(0)
+
   let isValidDebouncer
   watch([form, meta], () => {
     isValid.value = true // temporary
     if (!isValidDebouncer)
       isValidDebouncer = createDebouncer()
     isValidDebouncer({
-      handler: () => isValid.value = rootRef.value && rootRef.value.$el.querySelectorAll('.is-invalid').length === 0,
+      handler: () => {
+        const length = rootRef.value.$el.querySelectorAll('.form-group.is-invalid').length
+        isValid.value = rootRef.value && length === 0
+        numInvalid.value = (isValid.value) ? 0 : length
+      },
       time: 300
     })
   }, { deep: true })
 
   return {
     rootRef,
-    isValid
+    isValid,
+    numInvalid
   }
 }
