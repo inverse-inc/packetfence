@@ -20,6 +20,7 @@ New Features
 * eDirectory source
 * Master/Slave radius proxy and degraded workflow
 * go based pfmon (#5613)
+* Integration tests: configurator scenario added (#5484)
 
 Enhancements
 ++++++++++++
