@@ -1172,7 +1172,7 @@ sub handleUnboundDPSK {
         return ($accept, $connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
     }
     else {
-        return $TRUE;
+        return ($TRUE, $connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
     }
 }
 
