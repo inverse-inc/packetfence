@@ -1066,6 +1066,7 @@ sub setup_api_v1_config_maintenance_tasks_routes {
         "api.v1.Config.MaintenanceTasks"
       );
 
+    $resource_route->register_sub_action({ action => 'run', method => 'POST' });
     return ($collection_route, $resource_route);
 }
 

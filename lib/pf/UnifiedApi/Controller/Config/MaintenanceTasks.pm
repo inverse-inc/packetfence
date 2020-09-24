@@ -16,6 +16,8 @@ use strict;
 use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
+use Mojo::IOLoop;
+use pf::factory::pfcron::task;
 
 has 'config_store_class' => 'pf::ConfigStore::Cron';
 has 'form_class' => 'pfappserver::Form::Config::Pfcron';
@@ -100,6 +102,28 @@ sub form_process_parameters_for_cleanup {
     );
 }
 
+sub run {
+    my ($self) = @_;
+    my $id = $self->id;
+    Mojo::IOLoop->subprocess(
+        sub {
+            my ($subprocess) = @_;
+            my $task = pf::factory::pfcron::task->new($id, {});
+            if (defined $task) {
+                $task->run();
+            } else {
+                exec('/usr/local/pf/sbin/pfcron', $id);
+            }
+
+            return {};
+        },
+        sub {
+            my ($subprocess, $err, $results) = @_;
+            return $self->render(200, json => $results);
+        }
+    )
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -128,4 +152,3 @@ USA.
 =cut
 
 1;
-
