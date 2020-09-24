@@ -54,6 +54,7 @@ Bug Fixes
 * Remove the ip address of a server in the dhcp reply when the server has been disabled (#5677)
 * Allow to set multiples ca certificates.
 * Listen to all interfaces for radius accounting (#5821)
+* Searching by 'Source Switch Identifier' for a switch range doesn't work (#5792)
 
 Version 10.1.0 released on 2020-06-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
