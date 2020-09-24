@@ -22,6 +22,12 @@ all:
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
+        node02:
+          box: debian/buster64
+          box_version: 10.20210228.1
+          # IP used by helper_scripts and Ansible, not Vagrant
+          mgmt_ip: 172.17.17.252
+          ansible_host: "{{ mgmt_ip }}"
 
     winservers:
       hosts:
@@ -173,5 +179,10 @@ all:
 
       - name: 'inline'
         subnet: '172.17.6.0/24'
+        forward_mode: 'route'
+        netmask: 255.255.255.0
+
+      - name: 'inline-l3'
+        subnet: '172.17.18.0/24'
         forward_mode: 'route'
         netmask: 255.255.255.0
