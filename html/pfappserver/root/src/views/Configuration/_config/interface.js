@@ -285,6 +285,15 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Description'),
+          cols: [
+            {
+              namespace: 'description',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
           if: (isNew || isClone || isVlan),
           label: i18n.t('Virtual LAN ID'),
           cols: [
