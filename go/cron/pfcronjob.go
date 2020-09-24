@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/inverse-inc/packetfence/go/log"
-	"os/exec"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 type PfcronJob struct {
@@ -12,10 +12,22 @@ type PfcronJob struct {
 }
 
 func (j *PfcronJob) Run() {
-	cmd := exec.Command("/usr/local/pf/bin/pfcmd", "pfcron", j.Type)
-	err := cmd.Run()
+	ctx := context.Background()
+	client := unifiedapiclient.NewFromConfig(ctx)
+	url := "/api/v1/config/maintenance_task/" + j.Type + "/run"
+	response := map[string]interface{}{}
+	err := client.CallWithBody(
+		ctx,
+		"POST",
+		url,
+		map[string]interface{}{},
+		&response,
+	)
+
 	if err != nil {
-		log.LoggerWContext(context.Background()).Error(fmt.Sprintf("pfcmd pfcron: %s", err.Error()))
+		log.LogError(ctx, fmt.Sprintf("pfcmd pfcron: %s", err.Error()))
+	} else {
+		log.LogInfo(ctx, fmt.Sprintf("API call %s", url))
 	}
 }
 
