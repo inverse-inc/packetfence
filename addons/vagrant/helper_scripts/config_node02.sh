@@ -2,7 +2,7 @@
 set -o nounset -o pipefail -o errexit
 
 echo "#################################"
-echo "  Running config_node02.sh"
+echo "  Running config_node.sh"
 echo "#################################"
 sudo su
 
@@ -42,15 +42,11 @@ iface lo inet loopback
 auto eth0
 iface eth0 inet static
     alias VLAN 17
-    address 172.17.17.251/24
+    address 172.17.17.252/24
 
 allow-hotplug eth1
 iface eth1 inet dhcp
-    alias dot1x port
-
-allow-hotplug eth2
-iface eth2 inet dhcp
-    alias inline port
+    alias inline-l3 port
 
 EOT
 

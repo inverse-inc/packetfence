@@ -19,8 +19,8 @@ iface lo inet loopback
 auto bridge
 iface bridge
     bridge-vlan-aware yes
-    bridge-ports swp48 swp1 swp2 swp3 swp6 swp11 swp12 swp13
-    bridge-vids 2 3 6 17 100
+    bridge-ports swp48 swp1 swp2 swp3 swp6 swp11 swp12 swp13 swp14 swp15
+    bridge-vids 2 3 6 17 18 100
     bridge-pvid 1
 
 auto swp1
@@ -47,14 +47,32 @@ auto swp13
 iface swp13
     bridge-access 6
 
+auto swp14
+iface swp14
+    bridge-access 17
+
+auto swp15
+iface swp15
+    bridge-access 18
+
 auto swp48
 iface swp48
     bridge-access 100
+
+auto bridge.6
+iface bridge.6
+    alias Inline-L2
+    address 172.17.6.3/24
 
 auto bridge.17
 iface bridge.17
     alias Management
     address 172.17.17.201/24
+
+auto bridge.18
+iface bridge.18
+    alias Inline-L3
+    address 172.17.18.254/24
 
 auto bridge.100
 iface bridge.100 inet dhcp
