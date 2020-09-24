@@ -1137,6 +1137,10 @@
                         "description" : "Should pfbandwidthd be managed by PacketFence?",
                         "type" : "string"
                      },
+                     "pfcron" : {
+                        "description" : "Should pfcron be started? Keep enabled unless you know what you're doing.",
+                        "type" : "string"
+                     },
                      "pfdhcp" : {
                         "description" : "Should pfdhcp be managed by PacketFence?",
                         "type" : "string"
@@ -1159,10 +1163,6 @@
                      },
                      "pfipset" : {
                         "description" : "Should pfipset be managed by PacketFence?",
-                        "type" : "string"
-                     },
-                     "pfcron" : {
-                        "description" : "Should pfcron be started? Keep enabled unless you know what you're doing.",
                         "type" : "string"
                      },
                      "pfperl-api" : {
