@@ -1508,7 +1508,7 @@ const actions = {
         return api.getSwitches().then(response => {
           // group can be undefined
           response.data.items.forEach(function (item, index) {
-            response.data.items[index] = Object.assign({ group: item.group || 'Default' }, item)
+            response.data.items[index] = Object.assign({ group: item.group || 'default' }, item)
           })
           commit('SWITCHES_UPDATED', response.data.items)
           return state.switches
