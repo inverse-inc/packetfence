@@ -11,7 +11,7 @@
       <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New Template')" variant="outline-primary" :disabled="cas.length === 0">
           <b-dropdown-header>{{ $t('Choose Certificate Authority') }}</b-dropdown-header>
-          <b-dropdown-item v-for="ca in cas" :key="ca.ID" :to="{ name: 'newPkiProfile', params: { ca_id: ca.ID } }">{{ ca.cn }}</b-dropdown-item>
+          <b-dropdown-item v-for="ca in sortedCas" :key="ca.ID" :to="{ name: 'newPkiProfile', params: { ca_id: ca.ID } }">{{ ca.cn }}</b-dropdown-item>
         </b-dropdown>
         <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
       </template>
@@ -48,17 +48,20 @@ export default {
   },
   data () {
     return {
-      config: config(this),
-      cas: []
+      config: config(this)
+    }
+  },
+  computed: {
+    cas () {
+      return this.$store.getters['$_pkis/cas'] || []
+    },
+    sortedCas () {
+      return Array.prototype.slice.call(this.cas).sort((a, b) => a.cn.localeCompare(b.cn)) // sort cas by 'cn'
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_pkis/allCas').then(cas => {
-        this.cas = (cas || []).sort((a, b) => { // sort cas
-          return a.cn.localeCompare(b.cn)
-        })
-      })
+      this.$store.dispatch('$_pkis/allCas')
     },
     clone (item) {
       this.$router.push({ name: 'clonePkiProfile', params: { id: item.ID } })
