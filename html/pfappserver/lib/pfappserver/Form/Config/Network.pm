@@ -22,6 +22,12 @@ has_field 'type' =>
   (
    type => 'Hidden',
   );
+
+has_field 'description' =>
+  (
+    type => 'Text',
+  );
+
 has_field 'dhcp_start' =>
   (
    type => 'IPAddress',
