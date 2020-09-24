@@ -5,13 +5,14 @@
         <b-button-close @click="doClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0" v-html="titleLabel"></h4>
       </b-card-header>
-      <the-form class="card-body p-0 mt-3"
+      <the-form class="card-body the-form"
         :id="id"
         :form="form"
         :meta="meta"
         :isNew="isNew"
         :isClone="isClone"
         :isLoading="isLoading"
+        v-bind="customProps"
       />
       <b-card-footer>
         <form-button-bar
@@ -53,3 +54,21 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.the-form {
+  padding-top: 1rem !important;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+
+  & > .form-group {
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+  & > .tabs > .tab-content > .tab-pane {
+    padding-top: 1rem !important;
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+  }
+}
+</style>

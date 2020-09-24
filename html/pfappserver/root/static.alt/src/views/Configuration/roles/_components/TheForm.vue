@@ -35,11 +35,11 @@ import {
 } from './'
 
 const components = {
-    BaseForm,
+  BaseForm,
 
-    FormGroupIdentifier,
-    FormGroupMaxNodesPerPid,
-    FormGroupNotes
+  FormGroupIdentifier,
+  FormGroupMaxNodesPerPid,
+  FormGroupNotes
 }
 
 export const props = {

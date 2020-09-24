@@ -6,7 +6,7 @@
     :isLoading="isLoading"
   >
     <b-tabs>
-      <base-form-tab :title="$i18n.t('General')" class="pt-3 px-3" active>
+      <base-form-tab :title="$i18n.t('General')" active>
 
         <form-group-identifier namespace="id"
           :column-label="$i18n.t('Realm')"
@@ -19,7 +19,7 @@
         />
 
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('NTLM Auth')" class="pt-3 px-3">
+      <base-form-tab :title="$i18n.t('NTLM Auth')">
 
         <form-group-domain namespace="domain"
           :column-label="$i18n.t('Domain')"
@@ -32,7 +32,7 @@
         />
 
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('EAP Configuration')" class="pt-3 px-3">
+      <base-form-tab :title="$i18n.t('EAP Configuration')">
 
         <form-group-eap namespace="eap"
           :column-label="$i18n.t('EAP')"
@@ -40,7 +40,7 @@
         />
 
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Freeradius Proxy')" class="pt-3 px-3">
+      <base-form-tab :title="$i18n.t('Freeradius Proxy')">
 
         <form-group-options namespace="options"
           :column-label="$i18n.t('Realm Options')"
@@ -73,7 +73,7 @@
         />
 
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Freeradius Eduroam Proxy')" class="pt-3 px-3">
+      <base-form-tab :title="$i18n.t('Freeradius Eduroam Proxy')">
 
         <form-group-eduroam-options namespace="eduroam_options"
           :column-label="$i18n.t('Eduroam Realm Options')"
@@ -106,7 +106,7 @@
         />
 
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Stripping')" class="pt-3 px-3">
+      <base-form-tab :title="$i18n.t('Stripping')">
 
         <form-group-portal-strip-username namespace="portal_strip_username"
           :column-label="$i18n.t('Strip on the portal')"

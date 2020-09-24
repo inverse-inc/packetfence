@@ -1,26 +1,19 @@
-import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
-import { createDebouncer } from 'promised-debounce'
-import useEventActionKey from '@/composables/useEventActionKey'
-import useEventEscapeKey from '@/composables/useEventEscapeKey'
-import useEventJail from '@/composables/useEventJail'
+import { computed, toRefs, unref, watch } from '@vue/composition-api'
+import { useView as useBaseView, useViewProps as useBaseViewProps } from '@/composables/useView'
 import i18n from '@/utils/locale'
 import {
   defaultsFromMeta
 } from '../../_config/'
 
-export const useViewProps = {
+const useViewProps = {
+  ...useBaseViewProps,
+
   id: {
     type: String
-  },
-  isClone: {
-    type: Boolean
-  },
-  isNew: {
-    type: Boolean
   }
 }
 
-export const useView = (props, context) => {
+const useView = (props, context) => {
 
   const {
     id,
@@ -29,21 +22,16 @@ export const useView = (props, context) => {
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
   const { root: { $store, $router } = {} } = context
 
-  // template refs
-  const rootRef = ref(null)
-
-  // state
-  let form = ref({})
-  let meta = ref({})
-
-  useEventJail(rootRef)
-
-  const actionKey = useEventActionKey(rootRef)
-  const escapeKey = useEventEscapeKey(rootRef)
-  watch(escapeKey, escapeKey => {
-    if (escapeKey)
-      doClose()
-  })
+  const {
+    rootRef,
+    form,
+    meta,
+    customProps,
+    actionKey,
+    escapeKey,
+    isDeletable,
+    isValid
+  } = useBaseView(props, context)
 
   const titleLabel = computed(() => {
     switch (true) {
@@ -56,28 +44,7 @@ export const useView = (props, context) => {
     }
   })
 
-  const isLoading = $store.getters['$_domains/isLoading']
-
-  const isDeletable = computed(() => {
-      if (unref(isNew) || unref(isClone))
-        return false
-      const { not_deletable: notDeletable = false } = unref(form) || {}
-      if (notDeletable)
-        return false
-      return true
-  })
-
-  const isValid = ref(true)
-  let isValidDebouncer
-  watch([form, meta], () => {
-    isValid.value = false // temporary
-    if (!isValidDebouncer)
-      isValidDebouncer = createDebouncer()
-    isValidDebouncer({
-      handler: () => isValid.value = rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0,
-      time: 300
-    })
-  }, { deep: true })
+  const isLoading =  computed(() => $store.getters['$_domains/isLoading'])
 
   const doInit = () => {
     $store.dispatch('$_domains/options', id.value).then(options => {
@@ -111,7 +78,7 @@ export const useView = (props, context) => {
     })
   }
 
-  const doReset = () => doInit()
+  const doReset = doInit
 
   const doSave = () => {
     const closeAfter = actionKey.value
@@ -134,6 +101,8 @@ export const useView = (props, context) => {
     }
   }
 
+  watch(escapeKey, () => doClose())
+
   watch(props, () => doInit(), { deep: true, immediate: true })
 
   return {
@@ -141,6 +110,7 @@ export const useView = (props, context) => {
 
     form,
     meta,
+    customProps,
     titleLabel,
 
     actionKey,
@@ -155,4 +125,9 @@ export const useView = (props, context) => {
     doReset,
     doSave
   }
+}
+
+export {
+  useViewProps,
+  useView
 }

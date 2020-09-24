@@ -1,6 +1,5 @@
-import BaseView, { props } from '@/components/new/TheView'
-import { mergeProps } from '@/components/new/utils'
-import { useView } from '../_composables/useView'
+import BaseView from '@/components/new/TheView'
+import { useView, useViewProps } from '../_composables/useView'
 import {
   FormButtonBar,
   TheForm
@@ -10,6 +9,8 @@ const components = {
   FormButtonBar,
   TheForm
 }
+
+const props = useViewProps
 
 const render = BaseView.render
 

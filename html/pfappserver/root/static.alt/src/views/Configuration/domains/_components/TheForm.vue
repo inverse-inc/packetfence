@@ -6,7 +6,7 @@
     :isLoading="isLoading"
   >
     <b-tabs>
-      <base-form-tab :title="$i18n.t('Settings')" class="pt-3 px-3" active>
+      <base-form-tab :title="$i18n.t('Settings')" active>
 
         <form-group-identifier namespace="id"
           :column-label="$i18n.t('Identifier')"
@@ -71,7 +71,7 @@
         </b-form-group>
 
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('NTLM cache')" class="pt-3 px-3">
+      <base-form-tab :title="$i18n.t('NTLM cache')">
 
         <form-group-ntlm-cache namespace="ntlm_cache"
           :column-label="$i18n.t('NTLM cache')"

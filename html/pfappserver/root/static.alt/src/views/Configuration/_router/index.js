@@ -49,7 +49,7 @@ const DomainsTabs = () => import(/* webpackChunkName: "Configuration" */ '../_co
 const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../domains/_components/TheView')
 const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../realms/_components/TheView')
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
-const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
+const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../sources/_components/TheView')
 const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
 const SwitchesImport = () => import(/* webpackChunkName: "Editor" */ '../_components/SwitchesImport')
 const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchView')
@@ -358,23 +358,14 @@ const route = {
       path: 'realms/:tenantId/new',
       name: 'newRealm',
       component: RealmView,
-      props: (route) => ({ formStoreName: 'formRealm', isNew: true, tenantId: route.params.tenantId }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formRealm) { // Register store module only once
-          store.registerModule('formRealm', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ isNew: true, tenantId: route.params.tenantId })
     },
     {
       path: 'realm/:tenantId/:id',
       name: 'realm',
       component: RealmView,
-      props: (route) => ({ formStoreName: 'formRealm', tenantId: route.params.tenantId, id: route.params.id }),
+      props: (route) => ({ tenantId: route.params.tenantId, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formRealm) { // Register store module only once
-          store.registerModule('formRealm', FormStore)
-        }
         store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
           next()
         })
@@ -384,11 +375,8 @@ const route = {
       path: 'realm/:tenantId/:id/clone',
       name: 'cloneRealm',
       component: RealmView,
-      props: (route) => ({ formStoreName: 'formRealm', tenantId: route.params.tenantId, id: route.params.id, isClone: true }),
+      props: (route) => ({ tenantId: route.params.tenantId, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formRealm) { // Register store module only once
-          store.registerModule('formRealm', FormStore)
-        }
         store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
           next()
         })
@@ -404,23 +392,14 @@ const route = {
       path: 'sources/new/:sourceType',
       name: 'newAuthenticationSource',
       component: AuthenticationSourceView,
-      props: (route) => ({ formStoreName: 'formAuthenticationSource', isNew: true, sourceType: route.params.sourceType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formAuthenticationSource) { // Register store module only once
-          store.registerModule('formAuthenticationSource', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ isNew: true, sourceType: route.params.sourceType })
     },
     {
       path: 'source/:id',
       name: 'source',
       component: AuthenticationSourceView,
-      props: (route) => ({ formStoreName: 'formAuthenticationSource', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formAuthenticationSource) { // Register store module only once
-          store.registerModule('formAuthenticationSource', FormStore)
-        }
         store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
           next()
         })
@@ -430,11 +409,8 @@ const route = {
       path: 'source/:id/clone',
       name: 'cloneAuthenticationSource',
       component: AuthenticationSourceView,
-      props: (route) => ({ formStoreName: 'formAuthenticationSource', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formAuthenticationSource) { // Register store module only once
-          store.registerModule('formAuthenticationSource', FormStore)
-        }
         store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
           next()
         })
