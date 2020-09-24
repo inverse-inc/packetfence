@@ -9,6 +9,7 @@ Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStart=/usr/local/pf/sbin/pfcron
+Environment=LOG_LEVEL=INFO
 User=pf
 Restart=on-failure
 Slice=packetfence.slice
