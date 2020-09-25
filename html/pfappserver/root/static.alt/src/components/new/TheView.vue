@@ -2,8 +2,9 @@
   <b-form @submit.prevent="doSave" ref="rootRef">
     <b-card no-body>
       <b-card-header>
-        <b-button-close @click="doClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-        <h4 class="mb-0" v-html="titleLabel"></h4>
+        <b-button-close @click="doClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
+        <h4 class="d-inline mb-0" v-html="titleLabel"/>
+        <b-badge v-if="titleBadge" class="ml-2" variant="secondary" v-t="titleBadge"/>
       </b-card-header>
       <the-form class="card-body the-form"
         :id="id"

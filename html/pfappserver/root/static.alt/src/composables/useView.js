@@ -1,4 +1,4 @@
-import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, reactive, ref, set, toRefs, unref, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
@@ -13,7 +13,7 @@ export const useViewProps = {
   }
 }
 
-export const useView = (props, { attrs }) => {
+export const useView = (props, context) => {
 
   const {
     isClone,
@@ -29,7 +29,7 @@ export const useView = (props, { attrs }) => {
   const meta = ref({})
 
   // unhandled custom props
-  const customProps = ref(attrs)
+  const customProps = ref(context.attrs)
 
   // state
   const actionKey = useEventActionKey(rootRef)

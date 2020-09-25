@@ -14,10 +14,14 @@ import BaseInputPassword from './BaseInputPassword'
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputRange from './BaseInputRange'
 import BaseInputSelectOne from './BaseInputSelectOne'
+import BaseView from './BaseView'
 
 import { mergeProps } from './utils'
 
 export {
+  // view
+  BaseView,
+
   // form
   BaseForm,
   BaseFormButtonBar,

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="base-form">
     <slot/>
   </div>
 </template>
@@ -22,3 +22,21 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.base-form {
+  padding-top: 1rem !important;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+
+  & > .form-group {
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+  & > .tabs > .tab-content > .tab-pane {
+    padding-top: 1rem !important;
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+  }
+}
+</style>
