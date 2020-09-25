@@ -16,9 +16,6 @@
  *            type: Object,
  *            default: {
  *              searchApiEndpoint: 'users',
- *              searchApiHeaders: {
- *                foo: 'bar'
- *              },
  *              searchApiEndpointOnly: false,
  *              defaultSortKeys: ['pid'],
  *              defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
@@ -50,7 +47,6 @@ export default {
     searchableOptions: {
       type: Object,
       default: {
-        searchApiHeaders: {},
         searchApiEndpointOnly: false,
         defaultSearchCondition: () => {
           return { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
@@ -133,7 +129,6 @@ export default {
         // Register store module only once
         const searchableStore = new SearchableStore(
           this.searchableOptions.searchApiEndpoint,
-          this.searchableOptions.searchApiHeaders,
           this.searchableOptions.defaultSortKeys,
           this.searchableOptions.defaultSortDesc || false,
           this.pageSizeLimit

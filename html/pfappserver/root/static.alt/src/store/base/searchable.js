@@ -12,10 +12,8 @@ const types = {
 }
 
 class SearchableApi {
-  constructor (config, defaultSortKeys) {
-    const { url = '/', headers = {} } = config
-    this.url = url
-    this.headers = headers
+  constructor (endpoint, defaultSortKeys) {
+    this.endpoint = endpoint
     this.defaultSortKeys = defaultSortKeys
   }
   all (params) {
@@ -27,30 +25,30 @@ class SearchableApi {
     if (params.fields) {
       params.fields = params.fields.join(',')
     }
-    return apiCall.get(this.url, { headers: this.headers, ...params }).then(response => {
+    return apiCall.get(this.endpoint, { params }).then(response => {
       return response.data
     })
   }
   search (body) {
-    return apiCall.post(`${this.url}/search`, body).then(response => {
+    return apiCall.post(`${this.endpoint}/search`, body).then(response => {
       return response.data
     })
   }
   item (id) {
-    return apiCall.get([ ...this.url.split('/'), id ]).then(response => {
+    return apiCall.get([ ...this.endpoint.split('/'), id ]).then(response => {
       return response.data.item
     })
   }
 }
 
 export default class SearchableStore {
-  constructor (url, headers, defaultSortKeys, defaultSortDesc = false, pageSizeLimit = 25) {
-    this.storage_search_limit_key = url + '-search-limit'
-    this.storage_visible_columns_key = url + '-visible-columns'
+  constructor (apiEndpoint, defaultSortKeys, defaultSortDesc = false, pageSizeLimit = 25) {
+    this.storage_search_limit_key = apiEndpoint + '-search-limit'
+    this.storage_visible_columns_key = apiEndpoint + '-visible-columns'
     this.defaultSortKeys = defaultSortKeys
     this.defaultSortDesc = defaultSortDesc
     this.pageSizeLimit = ~~pageSizeLimit
-    this.api = new SearchableApi({ url, headers }, defaultSortKeys)
+    this.api = new SearchableApi(apiEndpoint, defaultSortKeys)
   }
 
   module () {
