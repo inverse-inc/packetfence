@@ -36,7 +36,8 @@ export const columns = [
     key: 'description',
     label: 'Description', // i18n defer
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: value => i18n.t(value) // i18n defer
   },
   {
     key: 'interval',
