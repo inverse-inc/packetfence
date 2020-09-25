@@ -226,11 +226,11 @@ WHERE NOT EXISTS (SELECT * FROM `radreply`
 
 \! echo "Adding integer column to locationlog switch_ip"
 ALTER table `locationlog` ADD COLUMN IF NOT EXISTS `switch_ip_int` INT UNSIGNED AS (INET_ATON(`switch_ip`)) PERSISTENT AFTER `switch_ip`,
-    ADD KEY `locationlog_switch_ip_int` (`switch_ip_int`);
+    ADD KEY IF NOT EXISTS `locationlog_switch_ip_int` (`switch_ip_int`);
 
 \! echo "Adding integer column to locationlog_history switch_ip"
 ALTER table `locationlog_history` ADD COLUMN IF NOT EXISTS `switch_ip_int` INT UNSIGNED AS (INET_ATON(`switch_ip`)) PERSISTENT AFTER `switch_ip`,
-    ADD KEY `locationlog_switch_ip_int` (`switch_ip_int`);
+    ADD KEY IF NOT EXISTS `locationlog_switch_ip_int` (`switch_ip_int`);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
