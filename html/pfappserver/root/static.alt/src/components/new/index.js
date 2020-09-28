@@ -3,6 +3,7 @@ import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
 import BaseFormGroupInput from './BaseFormGroupInput'
+import BaseFormGroupSelectMultiple from './BaseFormGroupSelectMultiple'
 import BaseFormGroupSelectOne from './BaseFormGroupSelectOne'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
 import BaseFormGroupToggle from './BaseFormGroupToggle'
@@ -30,6 +31,7 @@ export {
   // form group
   BaseFormGroup,
   BaseFormGroupInput,
+  BaseFormGroupSelectMultiple,
   BaseFormGroupSelectOne,
   BaseFormGroupTextarea,
   BaseFormGroupToggle,

@@ -1,4 +1,4 @@
-import { computed, set, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, toRefs, unref, watch } from '@vue/composition-api'
 import { useView as useBaseView, useViewProps as useBaseViewProps } from '@/composables/useView'
 import i18n from '@/utils/locale'
 import {

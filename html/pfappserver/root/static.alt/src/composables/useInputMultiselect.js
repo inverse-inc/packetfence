@@ -59,12 +59,10 @@ export const useInputMultiselectProps = {
     type: String,
     default: 'top'
   },
-/*
   max: {
     type: [Number, String],
-    default: 1
+    default: 1000
   },
-*/
   optionsLimit: {
     type: [Number, String],
     default: 1000
@@ -81,7 +79,7 @@ export const useInputMultiselectProps = {
   },
   internalSearch: {
     type: Boolean,
-    default: true
+    default: false
   },
   preserveSearch: {
     type: Boolean,

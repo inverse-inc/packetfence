@@ -15,15 +15,27 @@
         :disabled="!isNew && !isClone"
       />
 
-      <form-group-notes namespace="notes"
+      <form-group-description namespace="description"
         :column-label="$i18n.t('Description')"
       />
 
-      <form-group-max-nodes-per-pid namespace="max_nodes_per_pid"
-        type="number"
-        :column-label="$i18n.t('Max nodes per user')"
-        :text="$i18n.t('The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.')"
+      <form-group-path namespace="path"
+        :column-label="$i18n.t('File Path')"
       />
+
+      <form-group-realms namespace="realms"
+        :column-label="$i18n.t('Associated Realms')"
+        :text="$i18n.t('Realms that will be associated with this source.')"
+      />
+<!--
+      <form-group-authentication-rules namespace="authentication_rules"
+        :column-label="$i18n.t('Authentication Rules')"
+      />
+
+      <form-group-administration-rules namespace="administration_rules"
+        :column-label="$i18n.t('Administration Rules')"
+      />
+-->
     </template>
 
     <b-container class="my-5" v-else>
@@ -52,16 +64,22 @@ import {
 import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
-  FormGroupMaxNodesPerPid,
-  FormGroupNotes
+  FormGroupDescription,
+  FormGroupPath,
+  FormGroupRealms,
+  FormGroupAuthenticationRules,
+  FormGroupAdministrationRules,
 } from './'
 
 const components = {
   BaseForm,
 
   FormGroupIdentifier,
-  FormGroupMaxNodesPerPid,
-  FormGroupNotes
+  FormGroupDescription,
+  FormGroupPath,
+  FormGroupRealms,
+  FormGroupAuthenticationRules,
+  FormGroupAdministrationRules,
 }
 
 export const props = {

@@ -41,6 +41,10 @@ export const useInputMeta = (props) => {
     watch(
       namespaceMeta,
       namespaceMeta => {
+        let _namespaceMeta = unref(namespaceMeta)
+        let { type, item } = _namespaceMeta
+        if (type === 'array')
+          _namespaceMeta = item
         const {
           allowed: metaAllowed,
           min_length: metaMinLength = undefined,
@@ -51,11 +55,12 @@ export const useInputMeta = (props) => {
           placeholder: metaPlaceholder,
           required: metaRequired,
           type: metaType
-        } = unref(namespaceMeta)
+        } = _namespaceMeta
 
         // allowed
-        if (metaAllowed)
+        if (metaAllowed) {
           set(localProps, 'options', metaAllowed)
+        }
 
         // placeholder
         if (metaPlaceholder)

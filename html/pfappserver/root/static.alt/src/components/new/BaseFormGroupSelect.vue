@@ -16,7 +16,7 @@
         'is-invalid': inputState === false
       }"
     >
-      <multiselect ref="input"
+      <multiselect ref="inputRef"
         class="base-input-select-one"
         :class="{
           'is-empty': !inputValue,
@@ -27,7 +27,7 @@
 
         :value="inputValue"
         :placeholder="inputPlaceholder"
-:zzzloading="false"
+        :loading="false"
         :disabled="isLocked"
         :show-no-results="true"
         :tab-index="inputTabIndex"
@@ -50,7 +50,7 @@
         :taggable="taggable"
         :tag-placeholder="tagPlaceholder"
         :tag-position="tagPosition"
-zzzmax=""
+        :max="max"
         :options-limit="optionsLimit"
         :group-values="groupValues"
         :group-label="groupLabel"
@@ -70,9 +70,16 @@ zzzmax=""
         :open-direction="openDirection"
         :show-pointer="showPointer"
         @select="onInput"
+        @remove="onRemove"
       >
         <template v-slot:singleLabel="{ option }">
-          {{ option }}
+          {{ option[label] }}
+        </template>
+        <template v-slot:tag="{ option }">
+          <span class="multiselect__tag bg-secondary">
+            <span>{{ option[label] }}</span>
+            <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="onRemove(option)"></i>
+          </span>
         </template>
         <template v-slot:beforeList>
           <li class="multiselect__element">
@@ -94,8 +101,6 @@ zzzmax=""
           </b-media>
         </template>
       </multiselect>
-
-
       <template v-slot:prepend>
         <slot name="prepend"></slot>
       </template>
@@ -124,9 +129,8 @@ zzzmax=""
   </b-form-group>
 </template>
 <script>
-import { toRefs, unref } from '@vue/composition-api'
+import { onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
-import useEventFnProxy from '@/composables/useEventFnProxy'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
@@ -139,26 +143,45 @@ const components = {
 }
 
 export const props = {
-  size: {
-    type: String,
-    default: 'md',
-    validator: value => ['sm', 'md', 'lg'].includes(value)
-  },
-
   ...useFormGroupProps,
   ...useInputProps,
   ...useInputMetaProps,
   ...useInputValidatorProps,
   ...useInputValueProps,
-  ...useInputMultiselectProps
+  ...useInputMultiselectProps,
+
+  size: {
+    type: String,
+    default: 'md',
+    validator: value => ['sm', 'md', 'lg'].includes(value)
+  },
 }
 
 export const setup = (props, context) => {
 
+  // template refs
+  const inputRef = ref(null)
+
+  // stopPropagation w/ Escape
+  const inputKeyDownHandler = e => {
+    const { keyCode } = e
+    switch (keyCode) {
+      case 27: // Escape
+        e.stopPropagation()
+        break
+    }
+  }
+  onMounted(() => {
+    for (let input of inputRef.value.$el.querySelectorAll('input')) {
+      const removeKeyDownEvent = () => input && input.removeEventListener('keydown', inputKeyDownHandler)
+      input.addEventListener('keydown', inputKeyDownHandler)
+      onBeforeUnmount(removeKeyDownEvent)
+    }
+  })
+
   const metaProps = useInputMeta(props, context)
   const {
-    options,
-    trackBy
+    options
   } = toRefs(metaProps)
 
   const {
@@ -177,10 +200,6 @@ export const setup = (props, context) => {
     value,
     onInput
   } = useInputValue(metaProps, context)
-  const onInputProxy = useEventFnProxy(onInput, value => {
-    const { [unref(trackBy)]: trackedValue } = value
-    return trackedValue
-  })
 
   const {
     state,
@@ -189,6 +208,8 @@ export const setup = (props, context) => {
   } = useInputValidator(metaProps, value)
 
   return {
+    inputRef,
+
     // useInputMeta
     inputOptions: options,
 
@@ -205,20 +226,24 @@ export const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
-
-    // useEventFnProxy
-    onInput: onInputProxy,
+    onInput,
 
     // useInputValidator
     inputState: state,
     inputInvalidFeedback: invalidFeedback,
-    inputValidFeedback: validFeedback
+    inputValidFeedback: validFeedback,
+
+    onRemove: () => {},
+
+    onKeyDown: () => { console.log('onKeyDown') },
+    onKeyUp: () => { console.log('onKeyUp') },
+    onKeyPress: () => { console.log('onKeyPress') }
   }
 }
 
 // @vue/component
 export default {
-  name: 'base-form-group-select-one',
+  name: 'base-form-group-select',
   inheritAttrs: false,
   components,
   props,

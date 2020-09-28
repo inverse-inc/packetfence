@@ -98,7 +98,7 @@ zzzmax=""
 <script>
 import { toRefs, unref } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
-import useEventFnProxy from '@/composables/useEventFnProxy'
+import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
@@ -147,7 +147,7 @@ export const setup = (props, context) => {
     value,
     onInput
   } = useInputValue(metaProps, context)
-  const onInputProxy = useEventFnProxy(onInput, value => {
+  const onInputWrapper = useEventFnWrapper(onInput, value => {
     const { [unref(trackBy)]: trackedValue } = value
     return trackedValue
   })
@@ -176,8 +176,8 @@ export const setup = (props, context) => {
     // useInputValue
     inputValue: value,
 
-    // useEventFnProxy
-    onInput: onInputProxy,
+    // useEventFnWrapper
+    onInput: onInputWrapper,
 
     // useInputValidator
     inputState: state,
@@ -267,8 +267,9 @@ export default {
   }
   .multiselect__tag-icon {
     line-height: 1;
+    background-color: inherit;
+    color: inherit;
     &:hover {
-      background-color: inherit;
       color: lighten($secondary, 15%);
     }
     &:after {
