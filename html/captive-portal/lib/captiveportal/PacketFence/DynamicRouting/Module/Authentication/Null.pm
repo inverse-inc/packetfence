@@ -71,7 +71,7 @@ sub authenticate {
             pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
         }
         else {
-            pf::auth_log::record_auth($self->source, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
+            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
