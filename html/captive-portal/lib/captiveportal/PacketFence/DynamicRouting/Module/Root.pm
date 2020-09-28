@@ -287,7 +287,11 @@ sub apply_new_node_info {
         return $TRUE;
     }
     else {
-        $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        if (defined($status_msg) && $status_msg ne '') {
+            $self->app->error($status_msg);
+        } else {
+            $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        }
         $self->detach();
     }
 }
