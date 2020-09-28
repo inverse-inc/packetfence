@@ -12,7 +12,6 @@ import (
 	"syscall"
 
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/detectparser"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -245,7 +244,6 @@ LOOP:
 }
 
 func (r *ParseRunner) ParseLine(s *Server, data string) (err error) {
-	spew.Dump(data)
 	defer func() {
 		if rv := recover(); rv != nil {
 			err = fmt.Errorf("Panic while processing %s: %v ", r.PipePath, rv)
