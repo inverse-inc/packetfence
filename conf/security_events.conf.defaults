@@ -402,6 +402,7 @@ enabled=Y
 access_duration=12h
 
 [3000007]
+desc=MAC Address randomization detection
 template=random_mac
 trigger=mac::^.[26ae].*
 actions=email_admin,log,reevaluate_access
