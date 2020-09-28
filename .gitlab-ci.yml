@@ -132,6 +132,7 @@ variables:
       - result/*
   tags:
     - docker
+    - managed-by-debops
 
 .maintenance_build_job:
   stage: build_maintenance
