@@ -3,8 +3,9 @@ package maint
 import (
 	"context"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/log"
 )
 
 type Ip6logCleanup struct {
@@ -33,7 +34,7 @@ func NewIp6logCleanup(config map[string]interface{}) JobSetupConfig {
 
 func (j *Ip6logCleanup) Run() {
 	ctx := context.Background()
-	if j.Rotate == "enabled" {
+	if j.Rotate == "Y" {
 		j.DoRotate(ctx)
 		BatchSql(
 			ctx,
