@@ -625,7 +625,7 @@ if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print
     echo "Starting packetfence-config service early to avoid failures when running next commands"
     /bin/systemctl start packetfence-config
 else
-    echo "packetfence-config service will be started by packetfence-httpd.admin service later"
+    echo "packetfence-config service will be started later"
 fi
 
 echo "Disabling emergency error logging to the console"
