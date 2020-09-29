@@ -216,12 +216,14 @@ sub _vlan_reevaluation {
             $logger->debug("Calling API with ReAssign request on switch (".$args->{'switch'}.")");
             if ($cluster_deauth) {
                 if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
                     $client->call( 'ReAssignVlan', $args );
                 } else {
                     $client->notify( 'ReAssignVlan_in_queue', $args );
                 }
             } else {
                 if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
                     $client->notify( 'ReAssignVlan', $args );
                 } else {
                     $client->call( 'ReAssignVlan', $args );
@@ -231,12 +233,14 @@ sub _vlan_reevaluation {
             $logger->debug("Calling API with desAssociate request on switch (".$args->{'switch'}.")");
             if ($cluster_deauth) {
                 if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
                     $client->call( 'desAssociate', $args );
                 } else {
                     $client->notify( 'desAssociate_in_queue', $args );
                 }
             } else {
                 if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
                     $client->call( 'desAssociate', $args );
                 } else {
                     $client->notify( 'desAssociate', $args );
