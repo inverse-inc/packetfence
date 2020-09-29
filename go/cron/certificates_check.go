@@ -112,7 +112,7 @@ func (j *CertificatesCheck) SendEmails(messages []error) {
 	for _, msg := range messages {
 		payload["message"] = msg.Error()
 		data, err := json.Marshal(payload)
-		err = apiClient.CallWithStringBody(ctx, "POST", "/api/v1/emails/pfmailer", string(data), &empty)
+		err = apiClient.CallWithStringBody(ctx, "POST", "/api/v1/email/pfmailer", string(data), &empty)
 		if err != nil {
 			log.LoggerWContext(ctx).Error("API error: " + err.Error())
 		}
