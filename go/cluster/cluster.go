@@ -24,7 +24,7 @@ func (s *Server) IsDisabled() bool {
 	return !info.IsDir()
 }
 
-func CallCluster(ctx context.Context, method string, args interface{}) {
+func CallCluster(ctx context.Context, method string, args interface{}) bool {
 	servers, cluster_mode := EnabledServers(ctx)
 	if cluster_mode {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
@@ -36,9 +36,11 @@ func CallCluster(ctx context.Context, method string, args interface{}) {
 			}
 		}
 	}
+
+	return cluster_mode
 }
 
-func NotifyCluster(ctx context.Context, method string, args interface{}) {
+func NotifyCluster(ctx context.Context, method string, args interface{}) bool {
 	servers, cluster_mode := EnabledServers(ctx)
 	if cluster_mode {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
@@ -50,6 +52,7 @@ func NotifyCluster(ctx context.Context, method string, args interface{}) {
 			}
 		}
 	}
+	return cluster_mode
 }
 
 func EnabledServers(ctx context.Context) ([]Server, bool) {
