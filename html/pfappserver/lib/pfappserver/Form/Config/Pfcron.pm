@@ -62,7 +62,7 @@ has_field 'schedule' =>
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval)],
+    render_list => [qw(type status schedule)],
   );
 
 sub default_field_method {

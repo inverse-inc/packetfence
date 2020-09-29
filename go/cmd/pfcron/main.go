@@ -63,7 +63,7 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 
 var processJobs uint32 = 1
 
-func wrapJob(logger log.PfLogger, j maint.JobSetupConfig) cron.Job {
+func wrapJob(logger log.PfLogger, j string) cron.Job {
 	var ch = make(chan struct{}, 1)
 	ch <- struct{}{}
 	return cron.FuncJob(func() {
@@ -73,16 +73,19 @@ func wrapJob(logger log.PfLogger, j maint.JobSetupConfig) cron.Job {
 
 		defer func() {
 			if r := recover(); r != nil {
-				logger.Error(fmt.Sprintf("Job %s panic: %s", j.Name(), r))
+				logger.Error(fmt.Sprintf("Job %s panic: %s", j, r))
 			}
 		}()
 
 		select {
 		case v := <-ch:
-			j.Run()
+			if job := maint.GetJob(j, maint.GetMaintenanceConfig(context.Background())); job != nil {
+				logger.Info("Running " + j)
+				job.Run()
+			}
 			ch <- v
 		default:
-			logger.Info(j.Name() + " Skipped")
+			logger.Info(j + " Skipped")
 		}
 	})
 }
@@ -103,7 +106,7 @@ func mergeArgs(config, args map[string]interface{}) map[string]interface{} {
 func runJobNow(name string, additionalArgs map[string]interface{}) int {
 	jobsConfig := maint.GetMaintenanceConfig(context.Background())
 	if config, found := jobsConfig[name]; found {
-		job := maint.GetJob(name, mergeArgs(config.(map[string]interface{}), additionalArgs))
+		job := maint.BuildJob(name, mergeArgs(config.(map[string]interface{}), additionalArgs))
 		if job != nil {
 			job.Run()
 			return 0
@@ -159,8 +162,8 @@ func main() {
 	logger := log.LoggerWContext(ctx)
 	c := cron.New(cron.WithSeconds())
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
-		id := c.Schedule(job.Schedule(), wrapJob(logger, job))
-		logger.Info(fmt.Sprintf("task '%s' created with id %d", job.Name(), int64(id)))
+		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name()))
+		logger.Info(fmt.Sprintf("task '%s' created with id %d with schedule of %s", job.Name(), int64(id), job.ScheduleSpec()))
 	}
 
 	w := sync.WaitGroup{}

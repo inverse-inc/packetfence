@@ -12,6 +12,7 @@ var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriv
 type JobSetupConfig interface {
 	cron.Job
 	Schedule() cron.Schedule
+	ScheduleSpec() string
 	Name() string
 }
 
@@ -56,7 +57,7 @@ func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {
 	for name, config := range maintConfig {
 		data := config.(map[string]interface{})
 		if data["status"].(string) == "enabled" {
-			if job := GetJob(name, data); job != nil {
+			if job := BuildJob(name, data); job != nil {
 				jobs = append(jobs, job)
 			}
 		}
@@ -65,7 +66,15 @@ func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {
 	return jobs
 }
 
-func GetJob(name string, config map[string]interface{}) JobSetupConfig {
+func GetJob(name string, jobsConfig map[string]interface{}) JobSetupConfig {
+	if config, found := jobsConfig[name]; found {
+		return BuildJob(name, config.(map[string]interface{}))
+	}
+
+	return nil
+}
+
+func BuildJob(name string, config map[string]interface{}) JobSetupConfig {
 	var constructor func(map[string]interface{}) JobSetupConfig
 	var found bool
 	if constructor, found = builders[name]; !found {
@@ -75,24 +84,28 @@ func GetJob(name string, config map[string]interface{}) JobSetupConfig {
 }
 
 type Task struct {
-	Type         string `json:"type"`
-	Status       string `json:"status"`
-	Description  string `json:"description"`
-	ScheduleSpec string `json:"schedule"`
+	Type            string `json:"type"`
+	Status          string `json:"status"`
+	Description     string `json:"description"`
+	ScheduleSpecStr string `json:"schedule"`
 }
 
 func SetupTask(config map[string]interface{}) Task {
 	return Task{
-		Type:         config["type"].(string),
-		Status:       config["status"].(string),
-		Description:  config["description"].(string),
-		ScheduleSpec: config["schedule"].(string),
+		Type:            config["type"].(string),
+		Status:          config["status"].(string),
+		Description:     config["description"].(string),
+		ScheduleSpecStr: config["schedule"].(string),
 	}
 }
 
 func (t *Task) Schedule() cron.Schedule {
-	s, _ := cron.ParseStandard(t.ScheduleSpec)
+	s, _ := cron.ParseStandard(t.ScheduleSpecStr)
 	return s
+}
+
+func (t *Task) ScheduleSpec() string {
+	return t.ScheduleSpecStr
 }
 
 func (t *Task) Name() string {
