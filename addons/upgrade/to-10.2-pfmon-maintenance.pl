@@ -19,7 +19,7 @@ use pf::file_paths qw(
     $conf_dir
     $cron_config_file
 );
-
+use File::Spec::Functions;
 
 my $pfmon_config_file = catfile($conf_dir, "pfmon.conf");
 my $default_cronspec = '@every 1m';

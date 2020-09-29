@@ -19,6 +19,7 @@ use pf::IniFiles;
 use pf::file_paths qw($conf_dir $pf_config_file);
 use Data::Dumper;
 use pf::ConfigStore;
+use File::Spec::Functions;
 
 use pf::util;
 
