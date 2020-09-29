@@ -15,6 +15,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Data::Dumper;
 use MIME::Base64;
+use pf::error qw(is_error);
 use pf::config::util qw();
 
 sub handle_email_payload {
