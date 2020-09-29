@@ -1,8 +1,19 @@
 import { computed, inject, reactive, ref, toRefs, unref, set, watch } from '@vue/composition-api'
 import yup from '@/utils/yup'
 
-export const getMetaNamespace = (ns, o) =>
-  ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : {}, o)
+export const getMetaNamespace = (ns, o) => ns.reduce((xs, x) => {
+  if (xs) {
+    if (x in xs)
+      return xs[x]
+    else if ('type' in xs) {
+      if (xs.type === 'array' && 'item' in xs && `${+x}` === `${x}`)
+        return xs.item
+      else if (xs.type === 'object' && 'properties' in xs && x in xs.properties)
+        return xs.properties[x]
+    }
+  }
+  return {}
+}, o)
 
 export const useInputMetaProps = {
   namespace: {

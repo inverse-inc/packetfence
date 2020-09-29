@@ -1,4 +1,4 @@
-import { computed, ref, toRefs, unref } from '@vue/composition-api'
+import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useInputMeta'
 import { useInputValue } from '@/composables/useInputValue'
@@ -35,7 +35,7 @@ export const setup = (props, context) => {
   } = useInputValue(metaProps, context)
 
   const inputValueWrapper = computed(() => {
-    return unref(value).map(item => ({ [unref(label)]: item, [unref(trackBy)]: item }))
+    return (unref(value) || []).map(item => ({ [unref(label)]: item, [unref(trackBy)]: item }))
   })
 
   const onInputWrapper = useEventFnWrapper(onInput, _value => {

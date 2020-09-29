@@ -62,7 +62,7 @@
           :text="$i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?')"
         />
 
-        <form-group-radius-acct-chosen namespace="radius_acct_chosen"
+        <form-group-radius-acct namespace="radius_acct"
           :column-label="$i18n.t('RADIUS ACCT')"
           :text="$i18n.t('The RADIUS Server(s) to proxy accounting.')"
         />
@@ -95,7 +95,7 @@
           :text="$i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?')"
         />
 
-        <form-group-eduroam-radius-acct-chosen namespace="eduroam_radius_acct_chosen"
+        <form-group-eduroam-radius-acct namespace="eduroam_radius_acct"
           :column-label="$i18n.t('Eduroam RADIUS ACCT')"
           :text="$i18n.t('The RADIUS Server(s) to proxy accounting.')"
         />
@@ -159,13 +159,13 @@ import {
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
   FormGroupRadiusAuthComputeInPf,
-  FormGroupRadiusAcctChosen,
+  FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
   FormGroupEduroamRadiusAuthComputeInPf,
-  FormGroupEduroamRadiusAcctChosen,
+  FormGroupEduroamRadiusAcct,
   FormGroupEduroamRadiusAcctProxyType,
   FormGroupPortalStripUsername,
   FormGroupAdminStripUsername,
@@ -188,13 +188,13 @@ const components = {
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
   FormGroupRadiusAuthComputeInPf,
-  FormGroupRadiusAcctChosen,
+  FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
   FormGroupEduroamRadiusAuthComputeInPf,
-  FormGroupEduroamRadiusAcctChosen,
+  FormGroupEduroamRadiusAcct,
   FormGroupEduroamRadiusAcctProxyType,
   FormGroupPortalStripUsername,
   FormGroupAdminStripUsername,

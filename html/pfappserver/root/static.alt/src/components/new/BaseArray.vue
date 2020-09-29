@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-100">
     <template v-for="(_, index) in inputValue">
       <template v-for="slotName in slotsList">
         <slot :name="slotName" v-bind="{ index }"></slot>

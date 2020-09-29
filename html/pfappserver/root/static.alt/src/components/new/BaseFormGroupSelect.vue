@@ -72,8 +72,8 @@
         @select="onInput"
         @remove="onRemove"
       >
-        <template v-slot:singleLabel="{ option }">
-          {{ option[label] }}
+        <template v-slot:singleLabel>
+          {{ singleLabel }}
         </template>
         <template v-slot:tag="{ option }">
           <span class="multiselect__tag bg-secondary">
@@ -129,7 +129,7 @@
   </b-form-group>
 </template>
 <script>
-import { onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
@@ -162,7 +162,7 @@ export const setup = (props, context) => {
   // template refs
   const inputRef = ref(null)
 
-  // stopPropagation w/ Escape
+  // stopPropagation w/ Escape keydown
   const inputKeyDownHandler = e => {
     const { keyCode } = e
     switch (keyCode) {
@@ -181,6 +181,8 @@ export const setup = (props, context) => {
 
   const metaProps = useInputMeta(props, context)
   const {
+    label,
+    trackBy,
     options
   } = toRefs(metaProps)
 
@@ -206,6 +208,18 @@ export const setup = (props, context) => {
     invalidFeedback,
     validFeedback
   } = useInputValidator(metaProps, value)
+
+  const singleLabel = computed(() => {
+    const _options = unref(options)
+    const optionsIndex = _options.findIndex(option => {
+      const { [unref(trackBy)]: trackedValue } = option
+      return trackedValue === unref(value)
+    })
+    if (optionsIndex > -1)
+      return _options[optionsIndex][unref(label)]
+    else
+      return unref(value)
+  })
 
   return {
     inputRef,
@@ -234,10 +248,7 @@ export const setup = (props, context) => {
     inputValidFeedback: validFeedback,
 
     onRemove: () => {},
-
-    onKeyDown: () => { console.log('onKeyDown') },
-    onKeyUp: () => { console.log('onKeyUp') },
-    onKeyPress: () => { console.log('onKeyPress') }
+    singleLabel
   }
 }
 

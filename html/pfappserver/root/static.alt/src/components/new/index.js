@@ -1,4 +1,5 @@
 import BaseArray from './BaseArray'
+import BaseDraggable from './BaseDraggable'
 import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
@@ -49,6 +50,7 @@ export {
 
   // array wrapper
   BaseArray,
+  BaseDraggable,
 
   // utils
   mergeProps

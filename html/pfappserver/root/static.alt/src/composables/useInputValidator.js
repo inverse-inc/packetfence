@@ -42,13 +42,20 @@ export const useInputValidator = (props, value) => {
     // use namespace
     const schema = inject('schema')
 
+    // recompose namespace into yup path (eg: array.1 => array[1])
+    const path = computed(() => unref(namespace).split('.').reduce((path, part) => {
+      return (`${+part}` === `${part}`)
+        ? [ ...path.slice(0, path.length -1), `${path[path.length - 1]}[${part}]` ]
+        : [ ...path, part ]
+    }, []).join('.'))
+
     localValidator = computed(() => {
       /**
        * reach throws an exception when a path is not defined in the schema
        * https://github.com/jquense/yup/issues/599
       **/
       try {
-        const namespaceSchema = reach(unref(schema), unref(namespace))
+        const namespaceSchema = reach(unref(schema), unref(path))
         return unref(validator).concat(namespaceSchema) // merge schemas
       } catch (e) { // path not defined in schema
         if (unref(validator))
