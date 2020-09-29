@@ -131,7 +131,7 @@ variables:
     paths:
       - result/*
   tags:
-    - docker
+    - docker-inverse
 
 .maintenance_build_job:
   stage: build_maintenance
