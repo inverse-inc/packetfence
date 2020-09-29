@@ -74,7 +74,7 @@ func (j *Ip4logCleanup) DoRotate(ctx context.Context) {
 		sql := `
             INSERT INTO ip4log_archive (tenant_id, mac, ip, start_time, end_time)
               SELECT tenant_id, mac, ip, start_time, end_time FROM ip4log_history
-              WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ORDER BY end_time
+              WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) ORDER BY end_time LIMIT ?
         `
 		results, err := tx.Exec(sql, start, j.RotateWindow, j.RotateBatch)
 		if err != nil {
@@ -95,7 +95,7 @@ func (j *Ip4logCleanup) DoRotate(ctx context.Context) {
 
 		sql = `
             DELETE FROM ip4log_history
-              WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ORDER BY end_time
+              WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) ORDER BY end_time LIMIT ?
         `
 		results, err = tx.Exec(sql, start, j.RotateWindow, j.RotateBatch)
 		if err != nil {
