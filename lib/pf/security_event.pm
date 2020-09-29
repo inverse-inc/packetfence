@@ -638,7 +638,7 @@ sub security_event_trigger {
             next;
         }
         # Compute the release date
-        my $date = 0;
+        my $date = $ZERO_DATE;
         my %data;
 
         my $class = class_view($security_event_id);
