@@ -224,9 +224,9 @@ sub _vlan_reevaluation {
             } else {
                 if ($sync) {
                     my $client = pf::api::jsonrpcclient->new;
-                    $client->notify( 'ReAssignVlan', $args );
-                } else {
                     $client->call( 'ReAssignVlan', $args );
+                } else {
+                    $client->notify( 'ReAssignVlan', $args );
                 }
             }
         } elsif ( $conn_type & ($WIRELESS | $WEBAUTH | $VIRTUAL) ) {
