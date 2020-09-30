@@ -20,11 +20,25 @@ use pf::file_paths qw(
     $cron_config_file
 );
 use File::Spec::Functions;
+use File::Copy;
 
+my $pfmon_config_file_rpmsave = catfile($conf_dir, "pfmon.conf.rpmsave");
 my $pfmon_config_file = catfile($conf_dir, "pfmon.conf");
 my $default_cronspec = '@every 1m';
-my $pfmon = pf::IniFiles->new( -file => $pfmon_config_file);
 my $maintenance = pf::IniFiles->new();
+
+if( ! -f $pfmon_config_file ) {
+    if(-f $pfmon_config_file_rpmsave) {
+        print "Copying pfmon.conf.rpmsave to pfmon.conf\n";
+        copy($pfmon_config_file_rpmsave, $pfmon_config_file) or die "Copy failed: $!";
+    }
+    else {
+        print "No settings to migrate from pfmon.conf or pfmon.conf.rpmsave\n";
+        exit;
+    }
+}
+
+my $pfmon = pf::IniFiles->new( -file => $pfmon_config_file);
 
 for my $section ($pfmon->Sections) {
     for my $p ($pfmon->Parameters($section)) {
@@ -99,6 +113,8 @@ sub addNew {
 }
 
 $maintenance->WriteConfig($cron_config_file);
+
+print "Done migrating configuration\n";
 
 =head1 AUTHOR
 
