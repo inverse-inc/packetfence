@@ -203,6 +203,7 @@ export const viewFields = {
           namespace: 'schedule',
           component: pfFormChosen,
           attrs: {
+            taggable: true,
             options: schedulesList
           }
         }
