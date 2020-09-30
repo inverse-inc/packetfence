@@ -298,7 +298,7 @@ Now, you will need to integrate your *two other nodes* in your cluster.
 Webservices configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-On the *first server*, configure your webservices username and password by adding the following in `/usr/local/pf/pf.conf`:
+On the *first server*, configure your webservices username and password by adding the following in `/usr/local/pf/conf/pf.conf`:
 
   [webservices]
   user=packet
