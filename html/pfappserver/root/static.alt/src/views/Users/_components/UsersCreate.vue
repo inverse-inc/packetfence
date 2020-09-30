@@ -138,70 +138,72 @@
             </b-form-row>
           </b-form>
         </b-tab>
-        <b-tab :title="$t('Multiple')" v-can:create-multiple="'users'">
-          <pf-form-row>
-            <b-alert show variant="info" v-html="$t('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created.')"></b-alert>
-          </pf-form-row>
-          <b-form @submit.prevent="create()">
-            <b-form-row align-v="center">
-              <b-col sm="12">
-                <pf-form-range-toggle :column-label="$t('Username (PID) overwrite')"
-                  :form-store-name="formStoreName" form-namespace="multiple.pid_overwrite"
-                  :values="{checked: 1, unchecked: 0}"
-                  :rightLabels="{checked: $t('Overwrite'), unchecked: $t('Ignore')}"
-                  :text="$t('Overwrite the username (PID) if it already exists.')"
-                />
-                <pf-form-input :column-label="$t('Username Prefix')"
-                  :form-store-name="formStoreName" form-namespace="multiple.prefix"
-                />
-                <pf-form-input :column-label="$t('Username Suffix')"
-                  v-model="domainName" disabled
-                />
-                <pf-form-input :column-label="$t('Quantity')"
-                  :form-store-name="formStoreName" form-namespace="multiple.quantity"
-                  type="number"
-                />
-                <pf-form-row :column-label="$t('Password')" align-v="start">
-                  <b-row>
-                    <b-col lg="9">
-                      <b-row>
-                        <b-col><b-form-input v-model="passwordOptions.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
-                        <b-col>{{ $t('{count} characters', { count: passwordOptions.pwlength }) }}</b-col>
-                      </b-row>
-                      <b-row>
-                        <b-col><b-form-checkbox v-model="passwordOptions.upper">ABC</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordOptions.lower">abc</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordOptions.digits">123</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordOptions.special">!@#</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordOptions.brackets">({&lt;</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordOptions.high">äæ±</b-form-checkbox></b-col>
-                        <b-col><b-form-checkbox v-model="passwordOptions.ambiguous">0Oo</b-form-checkbox></b-col>
-                      </b-row>
-                    </b-col>
-                  </b-row>
-                </pf-form-row>
-                <pf-form-input :column-label="$t('Login remaining')"
-                  :form-store-name="formStoreName" form-namespace="multiple.login_remaining"
-                  type="number"
-                  :text="$t('Leave empty to allow unlimited logins.')"
-                />
-                <pf-form-input :column-label="$t('Firstname')"
-                  :form-store-name="formStoreName" form-namespace="multiple.firstname"
-                />
-                <pf-form-input :column-label="$t('Lastname')"
-                  :form-store-name="formStoreName" form-namespace="multiple.lastname"
-                />
-                <pf-form-input :column-label="$t('Company')"
-                  :form-store-name="formStoreName" form-namespace="multiple.company"
-                />
-                <pf-form-textarea :column-label="$t('Notes')"
-                  :form-store-name="formStoreName" form-namespace="multiple.notes"
-                  rows="3" max-rows="3"
-                />
-              </b-col>
-            </b-form-row>
-          </b-form>
-        </b-tab>
+        <template v-can:create-multiple="'users'">
+          <b-tab :title="$t('Multiple')">
+            <pf-form-row>
+              <b-alert show variant="info" v-html="$t('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created.')"></b-alert>
+            </pf-form-row>
+            <b-form @submit.prevent="create()">
+              <b-form-row align-v="center">
+                <b-col sm="12">
+                  <pf-form-range-toggle :column-label="$t('Username (PID) overwrite')"
+                    :form-store-name="formStoreName" form-namespace="multiple.pid_overwrite"
+                    :values="{checked: 1, unchecked: 0}"
+                    :rightLabels="{checked: $t('Overwrite'), unchecked: $t('Ignore')}"
+                    :text="$t('Overwrite the username (PID) if it already exists.')"
+                  />
+                  <pf-form-input :column-label="$t('Username Prefix')"
+                    :form-store-name="formStoreName" form-namespace="multiple.prefix"
+                  />
+                  <pf-form-input :column-label="$t('Username Suffix')"
+                    v-model="domainName" disabled
+                  />
+                  <pf-form-input :column-label="$t('Quantity')"
+                    :form-store-name="formStoreName" form-namespace="multiple.quantity"
+                    type="number"
+                  />
+                  <pf-form-row :column-label="$t('Password')" align-v="start">
+                    <b-row>
+                      <b-col lg="9">
+                        <b-row>
+                          <b-col><b-form-input v-model="passwordOptions.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
+                          <b-col>{{ $t('{count} characters', { count: passwordOptions.pwlength }) }}</b-col>
+                        </b-row>
+                        <b-row>
+                          <b-col><b-form-checkbox v-model="passwordOptions.upper">ABC</b-form-checkbox></b-col>
+                          <b-col><b-form-checkbox v-model="passwordOptions.lower">abc</b-form-checkbox></b-col>
+                          <b-col><b-form-checkbox v-model="passwordOptions.digits">123</b-form-checkbox></b-col>
+                          <b-col><b-form-checkbox v-model="passwordOptions.special">!@#</b-form-checkbox></b-col>
+                          <b-col><b-form-checkbox v-model="passwordOptions.brackets">({&lt;</b-form-checkbox></b-col>
+                          <b-col><b-form-checkbox v-model="passwordOptions.high">äæ±</b-form-checkbox></b-col>
+                          <b-col><b-form-checkbox v-model="passwordOptions.ambiguous">0Oo</b-form-checkbox></b-col>
+                        </b-row>
+                      </b-col>
+                    </b-row>
+                  </pf-form-row>
+                  <pf-form-input :column-label="$t('Login remaining')"
+                    :form-store-name="formStoreName" form-namespace="multiple.login_remaining"
+                    type="number"
+                    :text="$t('Leave empty to allow unlimited logins.')"
+                  />
+                  <pf-form-input :column-label="$t('Firstname')"
+                    :form-store-name="formStoreName" form-namespace="multiple.firstname"
+                  />
+                  <pf-form-input :column-label="$t('Lastname')"
+                    :form-store-name="formStoreName" form-namespace="multiple.lastname"
+                  />
+                  <pf-form-input :column-label="$t('Company')"
+                    :form-store-name="formStoreName" form-namespace="multiple.company"
+                  />
+                  <pf-form-textarea :column-label="$t('Notes')"
+                    :form-store-name="formStoreName" form-namespace="multiple.notes"
+                    rows="3" max-rows="3"
+                  />
+                </b-col>
+              </b-form-row>
+            </b-form>
+          </b-tab>
+        </template>
       </b-tabs>
 
       <b-container class="card-body" fluid>
