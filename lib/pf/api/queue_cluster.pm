@@ -82,8 +82,8 @@ sub _build_local_client {
 =cut
 
 sub call {
-    my ($self) = @_;
-    die "call not implemented\n";
+    my ($self, $method) = @_;
+    die "call not implemented $method failed\n";
 }
 
 sub notify {

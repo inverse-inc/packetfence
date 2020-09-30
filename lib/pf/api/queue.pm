@@ -56,8 +56,8 @@ sub _build_client {
 =cut
 
 sub call {
-    my ($self) = @_;
-    die "call not implemented\n";
+    my ($self, $method) = @_;
+    die "call not implemented $method failed\n";
 }
 
 =head2 notify
