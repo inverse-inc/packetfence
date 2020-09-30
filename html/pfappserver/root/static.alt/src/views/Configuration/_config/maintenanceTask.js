@@ -1,3 +1,4 @@
+import { pfSchedulesList as schedulesList } from '@/globals/pfSchedules'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -200,7 +201,10 @@ export const viewFields = {
       cols: [
         {
           namespace: 'schedule',
-          component: pfFormInput,
+          component: pfFormChosen,
+          attrs: {
+            options: schedulesList
+          }
         }
       ]
     }
