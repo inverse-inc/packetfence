@@ -38,7 +38,7 @@ The latest version of this guide is available at https://packetfence.org/documen
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
-`NEWS.asciidoc`::
+<<PacketFence_News.asciidoc#,NEWS>>::
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
@@ -78,6 +78,11 @@ The following provides a list of the minimum server hardware recommendations:
 * 100 GB of disk space (RAID-1 recommended)
 * 1 network card (2 recommended)
 
+Recommendations
+^^^^^^^^^^^^^^^
+
+* Use logical volume management (LVM) to allocate space
+
 Operating System Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -91,6 +96,7 @@ PacketFence supports the following operating systems on the x86_64 architecture:
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
 Other distributions such as Fedora, Gentoo and Ubuntu are known to work but this document does not cover them.
+
 
 
 Installation
