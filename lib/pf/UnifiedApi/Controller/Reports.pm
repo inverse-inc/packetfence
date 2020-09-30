@@ -299,6 +299,20 @@ sub _get_datetime {
     return $self->escape_url_param($datetime);
 }
 
+sub search_info {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+
+    return 200, {
+        (
+            map {
+                exists $params->{$_}
+                  ? ( $_ => $params->{$_} )
+                  : ()
+            } qw(limit cursor)
+        ),
+    };
+}
 
 =head1 AUTHOR
 
