@@ -165,8 +165,6 @@ sub handle {
         return $FALSE;
     }
 
-    $switch->setCurrentTenant();
-
     if(isenabled($Config{advanced}{update_iplog_with_external_portal_requests})) {
         pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
     }
