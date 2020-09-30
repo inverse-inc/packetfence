@@ -1125,6 +1125,9 @@ Install following softwares:
 * Virtualbox if you wan to use Virtualbox as a provider for Vagrant (only `pf*` and `ad` machines)
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
 * pywinrm > 0.3.0 if you want to use `ad` virtual machine
+* ansible >= 2.9.x
+* jinja2 >= 2.8.x
+* selinux installed
 
 ==== Virtual environment: initial setup
 
