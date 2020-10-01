@@ -1,3 +1,5 @@
+import Vue from 'vue'
+import store from '@/store'
 import i18n from '@/utils/locale'
 import pfField from '@/components/pfField'
 import pfFormChosen from '@/components/pfFormChosen'
@@ -8,6 +10,7 @@ import {
   attributesFromMeta,
   validatorsFromMeta
 } from './'
+import { pfActions } from '@/globals/pfActions'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -450,6 +453,16 @@ export const view = (form = {}, meta = {}) => {
     isNew = false,
     isClone = false
   } = meta
+
+  const allowedUserActions = Vue.observable([])
+  store.dispatch('session/getAllowedUserActions').then(actions => {
+    actions.map((_action, index) => {
+      const { action } = _action
+      const { [action]: { text = action } = {} } = pfActions
+      Vue.set(allowedUserActions, index, { text, value: action })
+    })
+  })
+
   return [
     {
       tab: i18n.t('General'),
@@ -575,7 +588,10 @@ export const view = (form = {}, meta = {}) => {
             {
               namespace: 'allowed_actions',
               component: pfFormChosen,
-              attrs: attributesFromMeta(meta, 'allowed_actions')
+              attrs: {
+                ...attributesFromMeta(meta, 'allowed_actions'),
+                options: allowedUserActions
+              }
             }
           ]
         }
