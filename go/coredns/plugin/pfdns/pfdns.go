@@ -130,6 +130,10 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 // ServeDNS implements the middleware.Handler interface.
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
+	id, _ := GlobalTransactionLock.Lock()
+
+	defer GlobalTransactionLock.Unlock(id)
+
 	pf.RefreshPfconfig(ctx)
 
 	state := request.Request{W: w, Req: r}
