@@ -818,14 +818,19 @@ const actions = {
     if (getters.isLoadingBaseGuestsAdminRegistration) {
       return Promise.resolve(state.baseGuestsAdminRegistration)
     }
-    if (!state.baseGuestsAdminRegistration) {
-      commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
-      return api.getBaseGuestsAdminRegistration().then(response => {
-        commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
-        return state.baseGuestsAdminRegistration
-      })
+    if (acl.$can('read', 'configuration_main')) {
+      if (!state.baseGuestsAdminRegistration) {
+        commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
+        return api.getBaseGuestsAdminRegistration().then(response => {
+          commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
+          return state.baseGuestsAdminRegistration
+        })
+      } else {
+        return Promise.resolve(state.baseGuestsAdminRegistration)
+      }
     } else {
-      return Promise.resolve(state.baseGuestsAdminRegistration)
+      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', [])
+      return state.baseGuestsAdminRegistration
     }
   },
   getBaseInline: ({ state, getters, commit }) => {
