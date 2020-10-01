@@ -160,7 +160,10 @@ func main() {
 
 	ctx := context.Background()
 	logger := log.LoggerWContext(ctx)
-	c := cron.New(cron.WithSeconds())
+	c := cron.New(cron.WithParser(cron.NewParser(
+		cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor,
+	)))
+
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
 		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name()))
 		logger.Info(fmt.Sprintf("task '%s' created with id %d with schedule of %s", job.Name(), int64(id), job.ScheduleSpec()))

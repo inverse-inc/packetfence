@@ -65,6 +65,18 @@ has_block  definition =>
     render_list => [qw(type status schedule)],
   );
 
+my $desc_rx = qr/(@(?:annually|yearly|monthly|weekly|daily|hourly))|(\@every (?:\d+(?:ns|us|µs|ms|s|m|h))+)/;
+my $single_spec = qr/^(?:(?:\d+(-\d+)?(\/\d+)?))|((\/\d+))$/;
+my $monthly_spec = qr/^
+    (?:(?:\d+|(?i:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))(-(\d+|(?i:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)))?(\/\d+))?|
+    (\/\d+)
+$/x;
+
+my $dow_spec = qr/^
+    (?:(?:\d+|(?i:sun|mon|tue|wed|thu|fri|sat))(-(\d+|(?i:sun|mon|tue|wed|thu|fri|sat)))?(\/\d+))?|
+    (\/\d+)
+$/x;
+
 sub default_field_method {
     my ($field) = @_;
     my $name = $field->name;
@@ -76,6 +88,51 @@ sub default_field_method {
     }
 
     return $value;
+}
+
+sub validate_schedule {
+    my ($form, $field) = @_;
+    my $schedule = $field->value;
+    if (!check_cron_spec($schedule)) {
+        $field->add_error("Cron spec is invalid");
+    }
+}
+
+sub check_cron_spec {
+    my ($spec) = @_;
+    if ($spec =~ $desc_rx) {
+        return 1;
+    }
+
+    my @parts = split /\s+/, $spec;
+    if (@parts < 5 || @parts > 6) {
+        return 0;
+    }
+
+    for my $p (@parts[0 .. ($#parts - 2)]) {
+        if (!check_cron_spec_part($p, $single_spec)) {
+            return 0;
+        }
+    }
+
+    if (!check_cron_spec_part($parts[-2], $monthly_spec)) {
+        return 0;
+    }
+
+    if (!check_cron_spec_part($parts[-1], $dow_spec)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+sub check_cron_spec_part {
+    my ($part, $rx) = @_;
+    if ($part eq '*' || $part eq '?') {
+       return 1;
+    }
+
+    return all {$_ =~ $rx} split (',', $part);
 }
 
 sub batch_help_text { "Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached." }
