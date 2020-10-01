@@ -141,10 +141,10 @@ import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
 import UsersPreviewModal from './UsersPreviewModal'
+import { pfActions } from '@/globals/pfActions'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import password from '@/utils/password'
 import {
-  userActions,
   passwordOptions,
   importFields,
   importForm, importValidators
@@ -181,7 +181,7 @@ export default {
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
-          fields: userActions // ../_config/
+          fields: []
         }
       },
       isLoading: false,
@@ -256,8 +256,13 @@ export default {
       })
     }
   },
-  mounted () {
+  created () {
+    this.$store.dispatch('session/getAllowedUserActions').then(actions => {
+      this.actionField.attrs.fields = actions.map(({action}) => pfActions[action])
+    })
     this.$store.dispatch('config/getSources')
+  },
+  mounted () {
     this.init()
   }
 }

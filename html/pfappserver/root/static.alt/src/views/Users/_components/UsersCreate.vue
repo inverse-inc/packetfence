@@ -263,6 +263,7 @@ import pfFormRow from '@/components/pfFormRow'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import password from '@/utils/password'
 import UsersPreviewModal from './UsersPreviewModal'
+import { pfActions } from '@/globals/pfActions'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import {
   pfFieldType,
@@ -270,7 +271,6 @@ import {
 } from '@/globals/pfField'
 import {
   createForm, createValidators,
-  userActions,
   passwordOptions
 } from '../_config/'
 
@@ -302,7 +302,7 @@ export default {
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
-          fields: userActions // ../_config/
+          fields: []
         }
       },
       passwordOptions, // ../_config/
@@ -424,11 +424,16 @@ export default {
       }
     }
   },
-  mounted () {
+  created () {
+    this.$store.dispatch('session/getAllowedUserActions').then(actions => {
+      this.actionField.attrs.fields = actions.map(({action}) => pfActions[action])
+    })
     this.$store.dispatch('config/getAdminRoles')
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getTenants')
     this.$store.dispatch('config/getBaseGuestsAdminRegistration') // for access durations
+  },
+  mounted () {
     this.init()
   }
 }
