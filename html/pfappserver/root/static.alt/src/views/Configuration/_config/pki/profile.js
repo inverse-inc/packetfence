@@ -366,6 +366,15 @@ export const validators = (form = {}, meta = {}) => {
       [i18n.t('Maximum 255 characters.')]: maxLength(255),
       [i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).')]: isPkiCn
     },
+    key_type: {
+      [i18n.t('Key type required.')]: required
+    },
+    key_size: {
+      [i18n.t('Key size required.')]: required
+    },
+    digest: {
+      [i18n.t('Digest required.')]: required
+    },
     validity: {
       [i18n.t('Validity required.')]: required,
       [i18n.t('Minimum 1 day(s).')]: minValue(1)
