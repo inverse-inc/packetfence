@@ -19,6 +19,7 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
 use pf::log;
+use pf::constants::filters qw(@SWITCH_FIELDS);
 
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
@@ -26,12 +27,12 @@ has '+widget_wrapper' => (default => 'Bootstrap');
 has '+do_label' => (default => 1 );
 
 has_field type => (
-    type => 'Text',
+    type => 'Select',
     do_label => 0,
+    options_method => \&options_type,
     required => 1,
     widget_wrapper => 'None',
     element_class => ['input-medium'],
-    localize_labels => 1,
 );
 
 has_field value => (
@@ -74,6 +75,10 @@ deflate the api method spec hash to a string
 sub deflate {
     my ($self, $value) = @_;
     return join("=", $value->{type}, $value->{value});
+}
+
+sub options_type {
+    return map { my $f = $_;$f =~ s/^switch\._//; { value => $f, label => $f } } @SWITCH_FIELDS;
 }
 
 =head1 AUTHOR
