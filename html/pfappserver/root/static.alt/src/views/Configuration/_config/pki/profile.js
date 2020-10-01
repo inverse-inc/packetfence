@@ -16,6 +16,7 @@ import {
 import {
   email,
   required,
+  maxValue,
   minValue,
   maxLength
 } from 'vuelidate/lib/validators'
@@ -377,7 +378,8 @@ export const validators = (form = {}, meta = {}) => {
     },
     validity: {
       [i18n.t('Validity required.')]: required,
-      [i18n.t('Minimum 1 day(s).')]: minValue(1)
+      [i18n.t('Minimum 1 day(s).')]: minValue(1),
+      [i18n.t('Maximum 825 day(s).')]: maxValue(825)
     },
     p12_mail_password: {
       [i18n.t('Maximum 255 characters.')]: maxLength(255)
