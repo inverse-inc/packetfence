@@ -166,9 +166,9 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "pffilter"' ]
     },
     {
-        'description' => 'pfmon general log',
-        'name'       => 'pfmon.log',
-        'conditions' => [ '$programname == "pfmon"' ]
+        'description' => 'pfcron general log',
+        'name'       => 'pfcron.log',
+        'conditions' => [ '$programname == "pfcron"' ]
     },
     {
         'description' => 'pfsso general log',

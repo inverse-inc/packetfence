@@ -53,6 +53,15 @@ type fqdn struct {
 	FQDN map[*net.IPNet]*url.URL
 }
 
+type RFC7710bis struct {
+	Captive          bool   `json:"captive"`
+	UserPortalURL    string `json:"user-portal-url"`
+	VenueInfoURL     string `json:"venue-info-url,omitempty"`
+	CanExtendSession bool   `json:"can-extend-session,omitempty"`
+	SecondsRemaining int    `json:"seconds-remaining,omitempty"`
+	BytesRemaining   int    `json:"bytes-remaining,omitempty"`
+}
+
 var passThrough *passthrough
 
 // TenantID constant
@@ -64,12 +73,12 @@ var successDBConnect = false
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
 func NewProxy(ctx context.Context) *Proxy {
-	var p Proxy
+	p := &Proxy{}
 
 	passThrough = newProxyPassthrough(ctx)
 	passThrough.readConfig(ctx)
 	p.Configure(ctx)
-	return &p
+	return p
 }
 
 // Refresh the configuration
@@ -125,6 +134,25 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parking := p.handleParking(ctx, w, r)
+
+	if r.URL.Path == "/rfc7710" {
+		_, PortalURL := p.detectPortalURL(r)
+
+		answer := RFC7710bis{}
+
+		answer.Captive = true
+		if p.DetectRegistrationStatus(ctx, w, r) {
+			answer.Captive = false
+		}
+		answer.UserPortalURL = PortalURL.String()
+		w.Header().Set("Cache-Control", "private")
+		w.Header().Set("Content-Type", "application/captive+json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(&answer); err != nil {
+			fmt.Println(err)
+		}
+		return
+	}
 
 	if r.URL.Path == "/kindle-wifi/wifistub.html" {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "KINDLE WIFI PROBE HANDLING"))
@@ -647,4 +675,22 @@ func (p *Proxy) APIUnpark(ctx context.Context, mac string, ip string) error {
 		return errors.New("Empty response  from " + "POST" + " /api/v1/" + mac + "/unpark")
 	}
 	return nil
+}
+
+func (p *Proxy) DetectRegistrationStatus(ctx context.Context, w http.ResponseWriter, r *http.Request) bool {
+	var ipAddress string
+	ipAddress = p.getIP(ctx, r)
+
+	if ipAddress != "" {
+		MAC, err := p.IP2Mac(ctx, ipAddress)
+
+		if err == nil {
+			if p.nodeIsReg(ctx, MAC) {
+				return true
+			}
+			return false
+		}
+		return false
+	}
+	return false
 }

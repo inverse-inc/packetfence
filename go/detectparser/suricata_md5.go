@@ -19,7 +19,7 @@ type IPToMacResolver interface {
 type SuricataMD5Parser struct {
 	RemovePrefix   *regexp.Regexp
 	ResolverIp2Mac IPToMacResolver
-	RateLimitable
+	parser
 }
 
 func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
@@ -82,6 +82,7 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 				"tid", tid,
 				"type", "suricata_md5",
 			},
+			TenantID: s.TenantID,
 		},
 	}, nil
 }
@@ -101,8 +102,8 @@ func (*SuricataMD5Parser) IpToMac(ip string) (string, error) {
 
 func NewSuricataMD5Parser(config *PfdetectConfig) (Parser, error) {
 	p := &SuricataMD5Parser{
-		RemovePrefix:  suricataMD5RegexRemovePrefix.Copy(),
-		RateLimitable: config.NewRateLimitable(),
+		RemovePrefix: suricataMD5RegexRemovePrefix.Copy(),
+		parser:       setupParser(config),
 	}
 	p.ResolverIp2Mac = p
 	return p, nil

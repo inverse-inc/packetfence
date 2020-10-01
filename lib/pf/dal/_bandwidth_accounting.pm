@@ -69,7 +69,6 @@ BEGIN {
         out_bytes
         mac
         tenant_id
-        total_bytes
     );
 
     %FIELDS_META = (

@@ -122,7 +122,7 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 			"pffilter":                      &log4perlMetaExtractor,
 			"pfhttpd":                       &golangMetaExtractor,
 			"pfipset":                       &golangMetaExtractor,
-			"pfmon":                         &log4perlMetaExtractor,
+			"pfcron":                        &golangMetaExtractor,
 			"pfqueue":                       &log4perlMetaExtractor,
 			"pfsso":                         &golangMetaExtractor,
 			"pfstats":                       &golangMetaExtractor,

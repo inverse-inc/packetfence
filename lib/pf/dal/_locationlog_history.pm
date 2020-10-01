@@ -50,6 +50,7 @@ BEGIN {
         start_time
         end_time
         switch_ip
+        switch_ip_int
         switch_mac
         stripped_user_name
         realm
@@ -72,6 +73,7 @@ BEGIN {
         start_time => '0000-00-00 00:00:00',
         end_time => '0000-00-00 00:00:00',
         switch_ip => undef,
+        switch_ip_int => undef,
         switch_mac => undef,
         stripped_user_name => undef,
         realm => undef,
@@ -187,6 +189,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        switch_ip_int => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         switch_mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -248,6 +256,7 @@ BEGIN {
         locationlog_history.start_time
         locationlog_history.end_time
         locationlog_history.switch_ip
+        locationlog_history.switch_ip_int
         locationlog_history.switch_mac
         locationlog_history.stripped_user_name
         locationlog_history.realm

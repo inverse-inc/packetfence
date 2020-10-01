@@ -341,6 +341,16 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Tenant'),
+          cols: [
+            {
+              namespace: 'tenant_id',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'tenant_id')
+            }
+          ]
+        },
+        {
           if: syslogParserType !== 'regex', // all but 'regex'
           label: i18n.t('Rate limit'),
           cols: [

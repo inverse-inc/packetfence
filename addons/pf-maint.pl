@@ -41,6 +41,7 @@ use IO::Handle;
 use Term::ReadKey;
 use IO::Interactive qw(is_interactive);
 use LWP::Protocol::connect;
+use LWP::Protocol::https;
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';

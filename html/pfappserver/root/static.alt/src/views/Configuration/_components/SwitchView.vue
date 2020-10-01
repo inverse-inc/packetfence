@@ -135,38 +135,38 @@ export default {
   },
   methods: {
     init () {
-      if (this.id) { // existing
-        this.$store.dispatch('$_switches/optionsById', this.id).then(options => {
-          this.$store.dispatch('$_switches/getSwitch', this.id).then(form => {
-            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.switchGroup = form.group
-            const { meta = {} } = options
-            const { isNew, isClone, switchGroup, roles, switchTemplates } = this
-            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, switchGroup, roles, switchTemplates } })
-            this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-          })
-        })
-      } else { // new
-        this.$store.dispatch('$_switches/optionsBySwitchGroup', this.switchGroup).then(options => {
-          const { meta = {} } = options
-          const { isNew, isClone, switchGroup, roles } = this
-          this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, switchGroup, roles } })
-          this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), ...{ group: this.switchGroup } }) // set defaults
-        })
-      }
-      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
-      this.$store.dispatch('$_roles/all').then(roles => {
+      this.$store.dispatch('$_roles/all').then(roles => { // roles first to avoid race-condition
         this.roles = roles
-      })
-      this.$store.dispatch('$_switches/optionsBySwitchGroup').then(switchGroupOptions => {
-        const { meta: { type: { allowed: switchGroups = [] } = {} } = {} } = switchGroupOptions
-        switchGroups.map(switchGroup => {
-          const { options: switchGroupMembers } = switchGroup
-          switchGroupMembers.map(switchGroupMember => {
-              const { is_template, value } = switchGroupMember
-              if (is_template) {
-                this.switchTemplates.push(value)
-              }
+        if (this.id) { // existing
+          this.$store.dispatch('$_switches/optionsById', this.id).then(options => {
+            this.$store.dispatch('$_switches/getSwitch', this.id).then(form => {
+              if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+              this.switchGroup = form.group
+              const { meta = {} } = options
+              const { isNew, isClone, switchGroup, roles, switchTemplates } = this
+              this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, switchGroup, roles, switchTemplates } })
+              this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+            })
+          })
+        } else { // new
+          this.$store.dispatch('$_switches/optionsBySwitchGroup', this.switchGroup).then(options => {
+            const { meta = {} } = options
+            const { isNew, isClone, switchGroup, roles } = this
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, switchGroup, roles } })
+            this.$store.dispatch(`${this.formStoreName}/setForm`, { ...defaults(meta), ...{ group: this.switchGroup } }) // set defaults
+          })
+        }
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
+        this.$store.dispatch('$_switches/optionsBySwitchGroup').then(switchGroupOptions => {
+          const { meta: { type: { allowed: switchGroups = [] } = {} } = {} } = switchGroupOptions
+          switchGroups.map(switchGroup => {
+            const { options: switchGroupMembers } = switchGroup
+            switchGroupMembers.map(switchGroupMember => {
+                const { is_template, value } = switchGroupMember
+                if (is_template) {
+                  this.switchTemplates.push(value)
+                }
+            })
           })
         })
       })

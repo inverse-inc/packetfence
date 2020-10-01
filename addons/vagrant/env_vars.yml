@@ -1,0 +1,31 @@
+- hosts: pfservers
+  name: configure environment variables used for tests
+  become: True
+  # to hide secrets stored in environment variables into runners
+  # when they are passed to virtual machines
+  no_log: True
+  tags: env
+  collections:
+    - debops.debops
+    - debops.roles01
+    - debops.roles02
+    - debops.roles03
+
+  pre_tasks:
+    - name: Set MariaDB socket for Debian
+      set_fact:
+        mariadb_socket: '/var/run/mysqld/mysqld.sock'
+      when: ansible_os_family == 'Debian'
+
+    - name: Set MariaDB socket for EL
+      set_fact:
+        mariadb_socket: '/var/lib/mysql/mysql.sock'
+      when: ansible_os_family == 'RedHat'
+
+  roles:
+    - role: environment
+      # use this variable to avoid overwrite of environment__group_variables already defined
+      # in inventory
+      environment__variables:
+        - name: 'MARIADB_SOCKET'
+          value: "{{ mariadb_socket }}"

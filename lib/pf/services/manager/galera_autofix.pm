@@ -25,7 +25,6 @@ sub isManaged {
     return $self->SUPER::isManaged() && $cluster_enabled && !pf::cluster::isSlaveMode();
 }
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

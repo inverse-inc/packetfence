@@ -25,9 +25,9 @@
             <pf-form-range-toggle
               v-model="service.item.enabled"
               :values="{ checked: true, unchecked: false }"
-              :icons="{ checked: 'check', unchecked: 'times' }"
+              :icons="{ checked: 'lock', unchecked: 'lock' }"
               :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-              :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)"
+              :disabled="true"
               @input="toggleEnabled(service.item, $event)"
               @click.stop.prevent
             />

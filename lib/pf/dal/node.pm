@@ -38,6 +38,7 @@ our @LOCATION_LOG_GETTERS = qw(
   realm
   last_switch_mac
   last_start_time
+  last_end_time
   last_role
   last_start_timestamp
 );
@@ -204,6 +205,7 @@ sub _load_locationlog {
             "locationlog.realm|realm",
             "locationlog.switch_mac|last_switch_mac",
             "locationlog.start_time|last_start_time",
+            "locationlog.end_time|last_end_time",
             "locationlog.role|last_role",
             "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
           ],

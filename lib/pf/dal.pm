@@ -133,6 +133,13 @@ sub db_execute {
             $logger->warn("database query failed with: $errstr (errno: $err), will try again");
             next;
         }
+        my $warnings = $sth->{mysql_warning_count};
+        if ($warnings) {
+            my $warnings = $dbh->selectall_arrayref('SHOW WARNINGS');
+            for my $w (@$warnings) {
+                $logger->warn(join(": ", @$w));
+            }
+        }
         return $STATUS::OK, $sth;
     } continue {
         $attempts--;
@@ -756,10 +763,10 @@ Wrap new and insert
 
 sub create {
     my ($self, $args) = @_;
-    my $obj = $self->new($args);
     my %insert_args = (
         -ignore => delete $args->{-ignore},
     );
+    my $obj = $self->new($args);
 
     return $obj->insert(%insert_args);
 }
@@ -1164,10 +1171,16 @@ Wrap call to pf::SQL::Abstract->delete and db_execute
 =cut
 
 sub do_delete {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $sqla          = $proto->get_sql_abstract;
-    @args = $proto->update_params_for_delete(@args);
+    my $ignore        = delete $args{'-ignore'};
+    my @args = $proto->update_params_for_delete(%args);
     my ($stmt, @bind) = $sqla->delete(@args);
+    if ($ignore) {
+        my $s = $sqla->_sqlcase('delete ignore ');
+        $stmt =~ s/delete /$s/ie;
+    }
+
     return $proto->db_execute($stmt, @bind);
 }
 

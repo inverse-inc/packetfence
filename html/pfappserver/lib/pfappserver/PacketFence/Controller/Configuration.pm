@@ -407,7 +407,7 @@ sub all_subsections : Private {
                     name => 'Advanced', 
                 },
                 maintenance => {
-                    controller => 'Controller::Config::Pfmon',
+                    controller => 'Controller::Config::Pfcron',
                     name => 'Maintenance', 
                 },
                 services => {

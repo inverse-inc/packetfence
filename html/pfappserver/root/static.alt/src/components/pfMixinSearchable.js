@@ -201,9 +201,8 @@ export default {
         this.requestPage = this.currentPage
       })
       const { searchableOptions: { defaultRoute } = {} } = this
-      if (defaultRoute) {
+      if (defaultRoute && defaultRoute.name !== this.$router.currentRoute.name)
         this.$router.push(defaultRoute)
-      }
     },
     onImport (condition) {
       this.$set(this, 'condition', condition)
@@ -320,5 +319,8 @@ export default {
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, this.condition)
     }
     this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
+  },
+  beforeDestroy () {
+    this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
   }
 }

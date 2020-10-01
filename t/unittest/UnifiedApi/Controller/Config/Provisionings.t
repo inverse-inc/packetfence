@@ -56,7 +56,7 @@ my $item = {
     type        => 'accept'
 };
 
-$t->post_ok($collection_base_url => json => { id => 'test', description => 'v1', type => 'accept'})
+$t->post_ok($collection_base_url => json => $item)
   ->status_is(201);
 
 $t->post_ok($collection_base_url => json => $item)

@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"encoding/binary"
+	"fmt"
 	"math/rand"
 	"net"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -12,12 +14,12 @@ import (
 
 	cache "github.com/fdurand/go-cache"
 	"github.com/go-errors/errors"
+	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	dhcp "github.com/krolaw/dhcp4"
 )
 
 // NodeInfo struct
@@ -195,12 +197,14 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 		if ConfNet.Dnsvip != "" {
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 		}
-		return Shuffle(ConfNet.ClusterIPs)
+		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ConfNet.ClusterIPs, excluded)
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	}
-	return []byte(net.ParseIP(ConfNet.Dns).To4())
+	excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+	return Shuffle(ConfNet.Dns, excluded)
 }
 
 // ShuffleGateway return the gateway list
@@ -211,7 +215,9 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 		if ConfNet.Type == "inlinel2" && ConfNet.NatEnabled == "disabled" {
 			return []byte(net.ParseIP(ConfNet.Gateway).To4())
 		}
-		return Shuffle(ConfNet.ClusterIPs)
+
+		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ConfNet.ClusterIPs, excluded)
 
 	} else {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
@@ -219,9 +225,12 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 }
 
 // Shuffle addresses
-func Shuffle(addresses string) (r []byte) {
+func Shuffle(addresses string, excluded string) (r []byte) {
 	var array []net.IP
 	for _, adresse := range strings.Split(addresses, ",") {
+		if adresse == excluded {
+			continue
+		}
 		array = append(array, net.ParseIP(adresse).To4())
 	}
 
@@ -355,6 +364,9 @@ func AddPffilterDevicesOptions(info interface{}, GlobalOptions map[dhcp.OptionCo
 			err = errors.New("Rejected from pffilter")
 			return err
 		}
+		if key == "continue" {
+			continue
+		}
 		if s, ok := value.(string); ok {
 			var opcode dhcp.OptionCode
 			intvalue, _ := strconv.Atoi(key)
@@ -368,6 +380,7 @@ func AddPffilterDevicesOptions(info interface{}, GlobalOptions map[dhcp.OptionCo
 // GetFromGlobalFilterCache retreive the global option from the cache
 func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]string) interface{} {
 	var info interface{}
+
 	var err error
 	pffilter := filter_client.NewClient()
 	Filter, found := GlobalFilterCache.Get(mac + "" + msgType)
@@ -380,6 +393,9 @@ func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]str
 		})
 		if err != nil {
 			GlobalFilterCache.Set(mac+""+msgType, "null", cache.DefaultExpiration)
+			info = map[string]interface{}{
+				"continue": "Not able to contact pffilter",
+			}
 		} else {
 			GlobalFilterCache.Set(mac+""+msgType, info, cache.DefaultExpiration)
 		}
@@ -467,4 +483,38 @@ func setOptionServerIdentifier(srvIP net.IP, handlerIP net.IP) net.IP {
 		return handlerIP
 	}
 	return srvIP
+}
+
+func DetectDisabledServer(addresses string, netint string) string {
+
+	var array []string
+	for _, adresse := range strings.Split(addresses, ",") {
+		array = append(array, adresse)
+	}
+
+	servers := pfconfigdriver.AllClusterServersRaw{}
+
+	pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
+	var ip string
+	ip = "0.0.0.0"
+	for _, key := range servers.Element {
+		if !(IsDisabled(key.(map[string]interface{})["host"].(string))) {
+			continue
+		}
+		for k, v := range key.(map[string]interface{}) {
+			if k == "interface "+netint {
+				for w, x := range v.(map[string]interface{}) {
+					if w == "ip" {
+						ip = x.(string)
+					}
+				}
+			}
+		}
+	}
+	return ip
+}
+
+func IsDisabled(hostname string) bool {
+	_, err := os.Stat(fmt.Sprintf("/usr/local/pf/var/run/%s-cluster-disabled", hostname))
+	return err == nil
 }

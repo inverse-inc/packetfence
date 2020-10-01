@@ -16,6 +16,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
 use pf::util;
+use pf::dal::tenant;
 
 ## Definition
 has_field 'id' =>
@@ -58,10 +59,27 @@ has_field 'type' =>
    required => 1,
   );
 
+has_field 'tenant_id' =>
+  (
+   type => 'Select',
+   label => 'Tenant ID',
+   default => 1,
+   options_method => \&options_tenant,
+   element_class => ['chzn-deselect'],
+  );
+
 has_block definition =>
   (
    render_list => [ qw(id type status path) ],
   );
+
+sub options_tenant {
+    my $self = shift;
+
+    my @tenants = map { $_->{id} != 0 ? ( { value => $_->{id}, label => $_->{name} }) : () } @{pf::dal::tenant->search->all};
+
+    return @tenants;
+}
 
 =over
 

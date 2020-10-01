@@ -11,6 +11,7 @@
 
 <script>
 import pfSidebar from '@/components/pfSidebar'
+import network from '@/utils/network'
 
 export default {
   name: 'Nodes',
@@ -76,12 +77,26 @@ export default {
               name: switchGroup.id || this.$i18n.t('Default'),
               collapsable: true,
               items: switchGroup.members.map(switchGroupMember => {
+                let query
+                if ((/^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2})$/.exec(switchGroupMember.id))) { // CIDR
+                  const [start, end] = network.cidrToRange(switchGroupMember.id)
+                  query = { query: JSON.stringify({ op: 'and', values: [
+                    { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'greater_than_equals', value: start }] },
+                    { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'less_than_equals', value: end }] }
+                  ] }) }
+                }
+                else if ((/^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/.exec(switchGroupMember.id))) { // IPv4
+                  query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'equals', value: switchGroupMember.id }] }] }) }
+                }
+                else { // non-CIDR
+                  query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
+                }
                 return {
                   name: switchGroupMember.id,
                   caption: switchGroupMember.description,
                   path: {
                     name: 'nodeSearch',
-                    query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
+                    query
                   }
                 }
               })

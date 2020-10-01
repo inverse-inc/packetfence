@@ -11,7 +11,7 @@ Register a node with RADIUS in order to test MAC Authentication on Wired
 ## Scenario steps
 1. Enable node_cleanup task with following parameters:
 - delete_windows=1m
-1. Restart `pfmon` to take change into account
+1. Restart `pfcron` to take change into account
 1. Create a node with MAC address of node01 (eth1) : 00:03:00:11:11:01
 - assign the role headless_device without unreg date
 - add a note
@@ -38,8 +38,8 @@ Register a node with RADIUS in order to test MAC Authentication on Wired
    1. Generate a RADIUS Accounting stop message (sent by switch01) which update
       `last_seen` attribute of node01
 1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
-1. Delete node by running `pfmon's node_cleanup` task
+1. Delete node by running `pfcron's node_cleanup` task
 1. Check node has been deleted
 1. Disable `node_cleanup` task
-1. Restart `pfmon` to take change into account
+1. Restart `pfcron` to take change into account
 1. Delete connection profile

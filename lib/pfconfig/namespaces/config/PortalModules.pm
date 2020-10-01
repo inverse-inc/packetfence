@@ -32,7 +32,10 @@ sub init {
 
     my $defaults = pf::IniFiles->new( -file => $portal_modules_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
-    $self->{child_resources} = ['resource::PortalModuleReverseLookup'];
+    $self->{child_resources} = [
+        'resource::PortalModuleReverseLookup',
+        'resource::RolesReverseLookup',
+    ];
 }
 
 sub build_child {
@@ -40,6 +43,7 @@ sub build_child {
 
     my %tmp_cfg = %{$self->{cfg}};
     my %reverseLookup;
+    my %roleReverseLookup;
     while ( my ($key, $module) = each %tmp_cfg) {
         $self->expand_list($module, qw(modules fields_to_save custom_fields multi_source_types multi_source_auth_classes multi_source_object_classes));
         foreach my $field (qw(modules source_id)) {
@@ -59,6 +63,12 @@ sub build_child {
             if ($actions) {
                 $self->expand_list($module, qw(actions));
                 $module->{actions} = inflate_actions($module->{actions});
+                if (exists $module->{actions}{set_role}) {
+                    my $role = $module->{actions}{set_role};
+                    if (defined $role) {
+                        push @{$roleReverseLookup{$role->[0]}{portal_module}}, $key;
+                    }
+                }
             }
             else {
                 delete $module->{actions};
@@ -67,7 +77,7 @@ sub build_child {
     }
 
     $self->{reverseLookup} = \%reverseLookup;
-
+    $self->{roleReverseLookup} = \%roleReverseLookup;
     return \%tmp_cfg;
 }
 

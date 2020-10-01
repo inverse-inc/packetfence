@@ -34,13 +34,13 @@ Services managed by PacketFence:
   pfacct                 | Netflow and Radius Accounting service
   pf                     | all services that should be running based on your config
   pfcertmanager          | Certificate Manager Service
+  pfcron                 | PF Cron daemon
   pfdetect               | PF snort alert parser
   pfdhcp                 | dhcpd daemon
   pfdhcplistener         | PF DHCP monitoring daemon
   pfdns                  | DNS daemon
   pfipset                | IPSET daemon
   pffilter               | PF conditions filtering daemon
-  pfmon                  | PF monitoring daemon
   pfperl-api             | Perl daemon providing API
   pfpki                  | PKI daemon
   pfqueue                | PF queueing service

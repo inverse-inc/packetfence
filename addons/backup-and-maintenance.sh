@@ -57,7 +57,7 @@ if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     # Backup complete PacketFence installation except logs
     current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
-        tar -czf $current_tgz --exclude=$PF_DIRECTORY'logs/*' --exclude=$PF_DIRECTORY'var/*' --exclude=$PF_DIRECTORY'.git/*' $PF_DIRECTORY
+        tar -czf $current_tgz --exclude=$PF_DIRECTORY'logs/*' --exclude=$PF_DIRECTORY'var/*' --exclude=$PF_DIRECTORY'.git/*' --exclude=$PF_DIRECTORY'conf/certmanager/*' $PF_DIRECTORY
         BACKUPRC=$?
         if (( $BACKUPRC > 0 )); then
             echo "ERROR: PacketFence files backup was not successful" >&2
@@ -130,7 +130,7 @@ backup_db(){
             echo "Not a Galera cluster, nothing to stop"
         fi
 
-        /usr/local/pf/bin/pfcmd pfmon bandwidth_maintenance_session
+        /usr/local/pf/bin/pfcmd pfcron bandwidth_maintenance_session
 
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete

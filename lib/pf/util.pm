@@ -111,6 +111,7 @@ BEGIN {
         random_from_range
         extract
         ends_with
+        split_pem
     );
 }
 
@@ -1703,6 +1704,18 @@ sub extract {
 
 sub ends_with {
     return $_[1] eq substr($_[0], -length($_[1]));
+}
+
+sub split_pem {
+    my ($s) = @_;
+    my @parts;
+    while ($s =~ /-----BEGIN (.*?)-----/g ) {
+        my $type = $1;
+        if ( $s =~ /(.*?)-----END \Q$type\E-----/gs) {
+            push @parts, "-----BEGIN $type-----\n$1-----END $type-----\n";
+        }
+    }
+    return @parts;
 }
 
 =back

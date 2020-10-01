@@ -31,7 +31,8 @@ const actions = {
   all: ({ commit }) => {
     const params = {
       sort: null, // use natural ordering
-      fields: ['id', 'description', 'type', 'class'].join(',')
+      fields: ['id', 'description', 'type', 'class'].join(','),
+      limit: 1000
     }
     commit('ITEM_REQUEST')
     return api.authenticationSources(params).then(response => {
@@ -66,7 +67,8 @@ const actions = {
     const params = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(','),
-      type: type
+      type: type,
+      limit: 1000
     }
     return api.authenticationSources(params).then(response => {
       return response.items

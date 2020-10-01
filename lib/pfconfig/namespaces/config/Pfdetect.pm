@@ -47,7 +47,9 @@ sub build {
         get_logger->error($error_msg);
         warn($error_msg);
     }
-
+    foreach my $key (keys %{$data}) {
+        $data->{$key}->{'tenant_id'} = $data->{$key}->{'tenant_id'} + 0;
+    }
     return $data;
 }
 

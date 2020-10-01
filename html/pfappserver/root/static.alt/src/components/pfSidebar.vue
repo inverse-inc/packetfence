@@ -45,7 +45,7 @@
                     <template v-else-if="item.collapsable">
                       <div class="pf-sidenav-group" :key="`${item.name}_btn`" v-b-toggle="$sanitizedClass(`${section.name}_${item.name}`)">
                         <text-highlight class="ml-5" :queries="[filter]">{{ item.name }}</text-highlight>
-                        <icon class="mx-1" scale="1.5" name="angle-double-down"></icon>
+                        <icon class="mx-1" name="angle-double-down"></icon>
                       </div>
                       <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.name" :visible="isActive(item.name)">
                         <pf-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent></pf-sidebar-item>

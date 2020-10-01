@@ -9,6 +9,7 @@
 *.local
 *.lockone
 .#*
+node_modules
 
 # Configuration not in git
 addons/stress-tester/plan.conf
@@ -33,6 +34,7 @@ conf/radiusd/eap_profiles.conf
 conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
 conf/radiusd/tls.conf
+conf/pfcron.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
 sbin/pfcertmanager
@@ -42,6 +44,7 @@ sbin/pfdhcp
 sbin/pfdns
 sbin/pfstats
 sbin/pfacct
+sbin/pfcron
 sbin/galera-autofix
 src/pfcmd
 !conf/nessus/remotescan.nessus

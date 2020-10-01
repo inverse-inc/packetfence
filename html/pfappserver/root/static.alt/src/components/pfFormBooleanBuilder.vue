@@ -150,12 +150,12 @@ export default {
     form () {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
-    basicCondition:{
+    basicCondition: {
       get () {
-        return this.form.condition
+        return this.form[this.formNamespace]
       },
       set (newValue) {
-        this.form.condition = newValue
+        this.$set(this.form, this.formNamespace, newValue)
       }
     },
     requiresFieldsAssociated () {

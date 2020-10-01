@@ -1,0 +1,206 @@
+name: Run configurator step 2
+version: 2
+testcases:
+- name: start_mariadb
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-mariadb/start'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Service has been started"
+
+- name: check_mariadb_connection
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/test'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "username": "{{.configurator.db.users.root.id}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Successfully connected to the database mysql with user {{.configurator.db.users.root.id}}"
+
+- name: secure_installation
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/secure_installation'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "username": "{{.configurator.db.users.root.id}}",
+        "password": "{{.configurator.db.users.root.password}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Successfully secured mysql installation"
+
+- name: create_pf_db
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/create'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "database": "{{.configurator.db.name}}",
+        "username": "{{.configurator.db.users.root.id}}",
+        "password": "{{.configurator.db.users.root.password}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Created database and loaded the schema"
+
+- name: create_user_pf
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database/assign'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "database": "{{.configurator.db.name}}",
+        "pf_username": "{{.configurator.db.users.pf.id}}",
+        "pf_password": "{{.configurator.db.users.pf.password}}",
+        "root_username": "{{.configurator.db.users.root.id}}",
+        "root_password": "{{.configurator.db.users.root.password}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Granted rights to user and adjusted the configuration"
+
+- name: config_database
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/database'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "db": "{{.configurator.db.name}}",
+        "user": "{{.configurator.db.users.pf.id}}",
+        "pass": "{{.configurator.db.users.pf.password}}",
+        "root_username": "{{.configurator.db.users.root.id}}",
+        "root_pass": "{{.configurator.db.users.root.password}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
+
+# to run unit tests without password later
+- name: generate_my_cnf
+  steps:
+  - type: exec
+    script: |
+      cat > ~/.my.cnf << EOF
+      [client]
+      user = {{.configurator.db.users.root.id}}
+      password = {{.configurator.db.users.root.password}}
+      EOF
+
+- name: config_alerting
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/alerting'
+    ignore_verify_ssl: true
+    body: >-
+      { 
+        "emailaddr": "{{.configurator.email}}",
+        "fromaddr": "{{.configurator.from_email}}",
+        "smtp_encryption": "none",
+        "smtp_port": "{{.smtp_port}}",
+        "smtp_verifyssl": "enabled",
+        "smtpserver": "{{.smtp_server}}",
+        "test_emailaddr": "{{.configurator.email}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
+
+- name: send_testmail
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/bases/test_smtp'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "emailaddr": "{{.configurator.email}}",
+        "fromaddr": "{{.configurator.from_email}}",
+        "smtp_encryption": "none",
+        "smtp_port": "{{.configurator.smtp.port}}",
+        "smtp_verifyssl": "enabled",
+        "smtpserver": "{{.configurator.smtp.server}}",
+        "test_emailaddr": "{{.configurator.email}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+# FIXME: MailHog API call
+
+- name: config_general_settings
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/general'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "domain": "{{.configurator.domain}}",
+        "timezone": "{{.configurator.timezone}}",
+        "hostname": "{{.configurator.hostname}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: restart_mariadb_service
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-mariadb/restart'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: set_admin_account_password
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/user/admin/password'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "password": "{{.configurator.admin.password}}",
+        "pid": "admin",
+        "valid_from": "{{.configurator.admin.valid_from}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

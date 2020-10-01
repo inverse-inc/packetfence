@@ -21,11 +21,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
+	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/timedlock"
-	dhcp "github.com/krolaw/dhcp4"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 

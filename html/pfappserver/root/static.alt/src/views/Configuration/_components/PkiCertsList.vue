@@ -11,7 +11,7 @@
       <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New Certificate')" variant="outline-primary" :disabled="profiles.length === 0">
           <b-dropdown-header>{{ $t('Choose Certificate Authority - Template') }}</b-dropdown-header>
-          <b-dropdown-item v-for="profile in profiles" :key="profile.ID" :to="{ name: 'newPkiCert', params: { profile_id: profile.ID } }">{{ profile.ca_name }} - {{ profile.name }}</b-dropdown-item>
+          <b-dropdown-item v-for="profile in sortedProfiles" :key="profile.ID" :to="{ name: 'newPkiCert', params: { profile_id: profile.ID } }">{{ profile.ca_name }} - {{ profile.name }}</b-dropdown-item>
         </b-dropdown>
         <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
       </template>
@@ -65,24 +65,27 @@ export default {
     return {
       config: config(this),
       revoke, // ../_config/pki/cert
-      download, // ../_config/pki/cert
-      profiles: []
+      download // ../_config/pki/cert
     }
   },
   computed: {
     isLoading () {
       return this.$store.getters['$_pkis/isCertLoading']
+    },
+    profiles () {
+      return this.$store.getters['$_pkis/profiles'] || []
+    },
+    sortedProfiles () {
+      return Array.prototype.slice.call(this.profiles).sort((a, b) => {
+        return (a.ca_name === b.ca_name)
+          ? a.name.localeCompare(b.name)
+          : a.ca_name.localeCompare(b.ca_name)
+      }) // sort profiles by 'name'
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_pkis/allProfiles').then(profiles => {
-        this.profiles = (profiles || []).sort((a, b) => { // sort profiles
-          return (a.ca_name === b.ca_name)
-            ? a.name.localeCompare(b.name)
-            : a.ca_name.localeCompare(b.ca_name)
-        })
-      })
+      this.$store.dispatch('$_pkis/allProfiles')
     },
     clone (item) {
       this.$router.push({ name: 'clonePkiCert', params: { id: item.ID } })

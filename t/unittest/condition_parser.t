@@ -277,14 +277,9 @@ BEGIN {
             '!(a == "b")',
             ['NOT', [ '==', 'a', 'b' ], ],
             {
-                op => "not_and",
-                values => [
-                    {
-                        op => "equals",
-                        field => "a",
-                        value => "b"
-                    },
-                ]
+                op => "not_equals",
+                field => "a",
+                value => "b"
             }
         ],
         [ 'a == ""', [ '==', 'a', '' ] ],
@@ -379,6 +374,17 @@ BEGIN {
             },
         ],
         [
+            'a == "b" && !(b =~ "j")',
+            ['AND', ['==', 'a', 'b'], ['NOT', ['=~', 'b', 'j']]],
+            {
+                op => 'and',
+                values => [
+                    { op => 'equals', field => 'a', value => 'b'},
+                    { op => 'not_regex', field => 'b', value => 'j'},
+                ],
+            },
+        ],
+        [
             'connection_type == "Ethernet-EAP" && user_name =~ "^host\\\\/.*\\\\.bh\\\\.local$" && !(user_name =~ "^host\\\\/(BradEhlert|BEhlert).*") && !(user_name =~ "^host\\\\/(dahlstrom|LMMSETUP|wied1419|lmmpunch).*")',
             [
                 'AND',
@@ -392,18 +398,8 @@ BEGIN {
                 values => [
                     { op => 'equals', field => 'connection_type', value => 'Ethernet-EAP'},
                     { op => 'regex', field => 'user_name', value => '^host\\/.*\\.bh\\.local$'},
-                    {
-                        op => 'not_and', 
-                        values => [
-                            { op => 'regex', field => 'user_name', value => '^host\\/(BradEhlert|BEhlert).*'},
-                        ],
-                    },
-                    {
-                        op => 'not_and', 
-                        values => [
-                            { op => 'regex', field => 'user_name', value => '^host\\/(dahlstrom|LMMSETUP|wied1419|lmmpunch).*'},
-                        ],
-                    }
+                    { op => 'not_regex', field => 'user_name', value => '^host\\/(BradEhlert|BEhlert).*'},
+                    { op => 'not_regex', field => 'user_name', value => '^host\\/(dahlstrom|LMMSETUP|wied1419|lmmpunch).*'},
                 ],
             },
         ]

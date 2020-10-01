@@ -18,6 +18,7 @@ func TestFortiAnalyserParse(t *testing.T) {
 							"detect": "0316013057",
 						},
 					},
+					TenantID: 1,
 				},
 			},
 		},

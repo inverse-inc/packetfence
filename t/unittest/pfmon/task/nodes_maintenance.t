@@ -29,7 +29,7 @@ use Test::More tests => 17;
 #This test will running last
 use Test::NoWarnings;
 
-use pf::pfmon::task::nodes_maintenance;
+use pf::pfcron::task::nodes_maintenance;
 use pf::dal::node;
 use pf::dal::person;
 use pf::dal::password;
@@ -111,7 +111,7 @@ sub test_status {
 }
 
 sub run_task {
-    my $task = pf::pfmon::task::nodes_maintenance->new(
+    my $task = pf::pfcron::task::nodes_maintenance->new(
         {
             status   => "enabled",
             id       => 'test',

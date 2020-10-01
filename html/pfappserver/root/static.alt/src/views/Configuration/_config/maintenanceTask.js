@@ -1,3 +1,4 @@
+import { pfSchedulesList as schedulesList } from '@/globals/pfSchedules'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -36,11 +37,12 @@ export const columns = [
     key: 'description',
     label: 'Description', // i18n defer
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: value => i18n.t(value) // i18n defer
   },
   {
-    key: 'interval',
-    label: 'Interval', // i18n defer
+    key: 'schedule',
+    label: 'Schedule', // i18n defer
     sortable: true,
     visible: true
   }
@@ -193,20 +195,17 @@ export const viewFields = {
       ]
     }
   },
-  interval: (form = {}, meta = {}) => {
+  schedule: (form = {}, meta = {}) => {
     return {
-      label: i18n.t('Interval'),
-      text: i18n.t('Interval (frequency) at which the task is executed.\nRequires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.'),
+      label: i18n.t('Schedule'),
       cols: [
         {
-          namespace: 'interval.interval',
-          component: pfFormInput,
-          attrs: attributesFromMeta(meta, 'interval.interval')
-        },
-        {
-          namespace: 'interval.unit',
+          namespace: 'schedule',
           component: pfFormChosen,
-          attrs: attributesFromMeta(meta, 'interval.unit')
+          attrs: {
+            taggable: true,
+            options: schedulesList
+          }
         }
       ]
     }
@@ -293,7 +292,7 @@ export const viewFields = {
   status: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Enabled'),
-      text: i18n.t('Whether or not this task is enabled.\nRequires a restart of pfmon to be effective.'),
+      text: i18n.t('Whether or not this task is enabled.\nRequires a restart of pfcron to be effective.'),
       cols: [
         {
           namespace: 'status',
@@ -487,7 +486,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
@@ -502,7 +501,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -514,7 +513,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
@@ -529,7 +528,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
@@ -544,7 +543,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.window(form, meta),
             viewFields.timeout(form, meta),
@@ -562,7 +561,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
@@ -577,7 +576,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.delay(form, meta),
             viewFields.certificates(form, meta)
           ]
@@ -591,7 +590,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta)
           ]
@@ -605,7 +604,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -617,7 +616,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
@@ -632,7 +631,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -644,7 +643,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -656,7 +655,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta),
@@ -675,7 +674,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta),
@@ -694,7 +693,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
@@ -709,7 +708,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.unreg_window(form, meta),
             viewFields.delete_window(form, meta),
             viewFields.voip(form, meta)
@@ -724,7 +723,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -736,7 +735,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -748,7 +747,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -760,7 +759,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -772,7 +771,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -784,7 +783,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta)
+            viewFields.schedule(form, meta)
           ]
         }
       ]
@@ -796,7 +795,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta),
             viewFields.window(form, meta)
@@ -811,7 +810,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.batch(form, meta),
             viewFields.timeout(form, meta)
           ]
@@ -825,7 +824,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.id(form, meta),
             viewFields.description(form, meta),
             viewFields.status(form, meta),
-            viewFields.interval(form, meta),
+            viewFields.schedule(form, meta),
             viewFields.process_switchranges(form, meta)
           ]
         }

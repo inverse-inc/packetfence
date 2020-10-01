@@ -1,0 +1,10 @@
+name: Increase log level
+version: 2
+testcases:
+- name: increase_log_level
+  steps:
+  - type: exec
+    script: "sed -i 's/INFO/{{.pf_log_level}}/' {{.pfserver_conf_dir}}/log.conf"
+
+  - type: exec
+    script: "sed -i 's/INFO/{{.pf_log_level}}/' {{.pfserver_conf_dir}}/log.conf.d/*.conf"
