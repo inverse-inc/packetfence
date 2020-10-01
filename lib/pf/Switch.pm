@@ -3590,7 +3590,8 @@ Set the current tenant in the DAL based on the tenant ID configured in the switc
 =cut
 
 sub setCurrentTenant {
-    my ($self) = @_;
+    my ($self, $radius_request) = @_;
+    my $tenant_id = $radius_request->{"PacketFence-Tenant-Id"} // $self->{_TenantId};
     pf::dal->set_tenant($self->{_TenantId});
 }
 

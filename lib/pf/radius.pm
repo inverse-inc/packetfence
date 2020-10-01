@@ -130,7 +130,7 @@ sub authorize {
         goto AUDIT;
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
@@ -400,7 +400,7 @@ sub accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     # update last_seen of MAC address as some activity from it has been seen
@@ -542,7 +542,7 @@ sub update_locationlog_accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     if ($switch->supportsRoamingAccounting()) {
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
         my $locationlog_mac = locationlog_last_entry_mac($mac);
@@ -1087,7 +1087,7 @@ sub radius_filter {
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
