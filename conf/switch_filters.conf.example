@@ -203,9 +203,9 @@
 #
 #[1:SSID]
 #scope = radius_authorize
-#param1 = ExternalPortalEnforcement => N
-#param2 = VlanMap => Y
-#param3 = vlans => gaming => 40;registration => 10
+#param.0 = ExternalPortalEnforcement => N
+#param.1 = VlanMap => Y
+#param.2 = vlans => gaming => 40;registration => 10
 #
 #[status]
 #filter = node_info.status
@@ -214,7 +214,7 @@
 #
 #[2:!SSID&status]
 #scope = radius_authorize
-#param1 = ExternalPortalEnforcement => N
+#param.0 = ExternalPortalEnforcement => N
 #
 # - If the device hit the portal with theses parameters in the uri then use the Fortinet::FortiGate switch module
 #
