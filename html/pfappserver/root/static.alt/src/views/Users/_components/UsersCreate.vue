@@ -426,7 +426,18 @@ export default {
   },
   created () {
     this.$store.dispatch('session/getAllowedUserActions').then(actions => {
-      this.actionField.attrs.fields = actions.map(({action}) => pfActions[action])
+      this.actionField.attrs.fields = actions.map(({action}) => {
+        switch (action) {
+          case 'set_access_duration':
+          case 'set_access_level':
+          case 'set_role':
+          case 'set_unreg_date':
+            return pfActions[`${action}_by_acl_user`] // remap action to user ACL
+            // break
+          default:
+            return pfActions[action]
+        }
+      })
     })
     this.$store.dispatch('config/getAdminRoles')
     this.$store.dispatch('config/getRoles')
