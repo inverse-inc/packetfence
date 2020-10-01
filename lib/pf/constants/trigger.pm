@@ -51,6 +51,7 @@ Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
 Readonly::Scalar our $TRIGGER_TYPE_SWITCH_GROUP => 'switch_group';
 Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
+Readonly::Scalar our $TRIGGER_TYPE_TENABLEIO => 'tenableio';
 
 Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
 

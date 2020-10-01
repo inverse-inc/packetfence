@@ -34,6 +34,7 @@ use pf::config;
 use pf::dal::scan;
 use pf::error qw(is_error is_success);
 use pf::ip4log;
+use pf::node;
 use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::scan::wmi;
@@ -199,6 +200,7 @@ sub run_scan {
 
     $host_ip =~ s/\//\\/g;          # escape slashes
     $host_ip = clean_ip($host_ip);  # untainting ip
+    my $node_info = node_view($mac);
 
     # Resolve mac address
     my $host_mac = $mac || pf::ip4log::ip2mac($host_ip);
@@ -234,6 +236,7 @@ sub run_scan {
             scanIp     => $host_ip,
             scanMac    => $host_mac,
             type       => $type,
+            hostname   => $node_info->{'computername'},
     );
     while(my ($key, $val) = each(%scan_attributes)) {
         $scanner->{"_".$key}=$val;

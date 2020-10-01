@@ -31,23 +31,6 @@ has_field 'id' =>
    apply => [ pfappserver::Base::Form::id_validator('name') ]
   );
 
-has_field 'username' =>
-  (
-   type => 'Text',
-   label => 'Username',
-   required => 1,
-   messages => { required => 'Please specify the username for the Scan Engine' },
-  );
-
-has_field 'password' =>
-  (
-   type => 'ObfuscatedText',
-   label => 'Password',
-   required => 1,
-   messages => { required => 'You must specify the password' },
-  );
-
-
 has_field 'type' =>
   (
    type => 'Select',

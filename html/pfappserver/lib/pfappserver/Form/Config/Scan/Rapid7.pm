@@ -44,6 +44,23 @@ has_field 'port' =>
    default => 3780,
   );
 
+has_field 'username' =>
+  (
+   type => 'Text',
+   label => 'Username',
+   required => 1,
+   messages => { required => 'Please specify the username for the Scan Engine' },
+  );
+
+has_field 'password' =>
+  (
+   type => 'ObfuscatedText',
+   label => 'Password',
+   required => 1,
+   messages => { required => 'You must specify the password' },
+  );
+
+
 has_field 'template_id' =>
   (
    type => 'Select',

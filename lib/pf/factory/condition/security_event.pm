@@ -53,6 +53,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'switch_group'              => {type => 'switch_group',             key  => 'last_switch'},
     'nexpose_event_contains'    => {type => 'matches',                  key  => 'last_nexpose_event',      event => $TRUE},
     'nexpose_event_starts_with' => {type => 'starts_with',              key  => 'last_nexpose_event',      event => $TRUE},
+    'tenableio'                 => {type => 'equals',                   key  => 'last_tenable_io',         event => $TRUE},
 );
 
 sub modules {

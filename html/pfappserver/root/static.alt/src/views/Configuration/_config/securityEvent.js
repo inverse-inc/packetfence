@@ -534,7 +534,11 @@ export const triggerFields = {
   switch_group: {
     text: i18n.t('Switch Group'),
     category: triggerCategories.ENDPOINT
-  }
+  },
+  tenableio: {
+    text: i18n.t('Tenable.io'),
+    category: triggerCategories.EVENT
+  },
 }
 
 export const triggerDirections = {
@@ -917,6 +921,11 @@ export const triggerEventView = (form, meta = {}) => {
                   {
                     value: 'suricata_md5',
                     text: triggerFields.suricata_md5.text,
+                    types: [fieldType.SUBSTRING]
+                  },
+                  {
+                    value: 'tenableio',
+                    text: triggerFields.tenableio.text,
                     types: [fieldType.SUBSTRING]
                   }
                 ]
