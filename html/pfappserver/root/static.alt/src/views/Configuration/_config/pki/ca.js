@@ -15,6 +15,7 @@ import {
 } from '@/globals/pfValidators'
 import {
   required,
+  maxValue,
   minValue,
   email,
   maxLength
@@ -433,7 +434,8 @@ export const validators = (form = {}, meta = {}) => {
     },
     days: {
       [i18n.t('Days required.')]: required,
-      [i18n.t('Minimum 1 day(s).')]: minValue(1)
+      [i18n.t('Minimum 1 day(s).')]: minValue(1),
+      [i18n.t('Maximum 825 day(s).')]: maxValue(825)
     }
   }
 }
