@@ -108,6 +108,7 @@ func (pf *pfdns) detectVIP() error {
 		}
 	}
 	id, _ := GlobalTransactionLock.Lock()
+	defer GlobalTransactionLock.Unlock(id)
 	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
@@ -149,6 +150,5 @@ func (pf *pfdns) detectVIP() error {
 			}
 		}
 	}
-	GlobalTransactionLock.Unlock(id)
 	return nil
 }
