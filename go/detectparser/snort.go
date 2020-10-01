@@ -13,7 +13,7 @@ var snortRegexPattern3 = regexp.MustCompile(`^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+
 
 type SnortParser struct {
 	Pattern1, Pattern2, Pattern3 *regexp.Regexp
-	RateLimitable
+	parser
 }
 
 func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
@@ -39,6 +39,7 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 							"detect":         matches[2],
 						},
 					},
+					TenantID: s.TenantID,
 				},
 			}, nil
 		}
@@ -60,6 +61,7 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 							"detect": "PORTSCAN",
 						},
 					},
+					TenantID: s.TenantID,
 				},
 			}, nil
 		}
@@ -82,6 +84,7 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 							"detect": "PORTSCAN",
 						},
 					},
+					TenantID: s.TenantID,
 				},
 			}, nil
 		}
@@ -92,9 +95,9 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 
 func NewSnortParser(config *PfdetectConfig) (Parser, error) {
 	return &SnortParser{
-		Pattern1:      snortRegexPattern1.Copy(),
-		Pattern2:      snortRegexPattern2.Copy(),
-		Pattern3:      snortRegexPattern3.Copy(),
-		RateLimitable: config.NewRateLimitable(),
+		Pattern1: snortRegexPattern1.Copy(),
+		Pattern2: snortRegexPattern2.Copy(),
+		Pattern3: snortRegexPattern3.Copy(),
+		parser:   setupParser(config),
 	}, nil
 }

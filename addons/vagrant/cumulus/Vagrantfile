@@ -252,7 +252,7 @@ vagrant_interface_rule
 
     device.vm.provider :libvirt do |v|
       v.nic_model_type = 'e1000' 
-      v.memory = 512
+      v.memory = 1024
 
     end
     #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders

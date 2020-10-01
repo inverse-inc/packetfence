@@ -246,10 +246,10 @@ export const actions = [
     ]
   },
   {
-    group: 'PFMON',
+    group: 'PFCRON',
     items: [
-      { text: 'PFMON - Read', value: 'PFMON_READ' },
-      { text: 'PFMON - Update', value: 'PFMON_UPDATE' }
+      { text: 'PFCRON - Read', value: 'PFCRON_READ' },
+      { text: 'PFCRON - Update', value: 'PFCRON_UPDATE' }
     ]
   },
   {

@@ -129,11 +129,14 @@ const administrationRuleActions = (form, meta = {}) => {
   return [
     ...[
       pfActions.set_access_level,
-      pfActions.mark_as_sponsor,
       pfActions.set_tenant_id
     ],
     ...((['AD', 'LDAP', 'EDIR'].includes(sourceType))
       ? [pfActions.set_access_durations]
+      : []
+    ),
+    ...((['AD', 'LDAP', 'EDIR'].includes(sourceType))
+      ? [pfActions.mark_as_sponsor]
       : []
     )
   ].map(action => {
@@ -1619,7 +1622,7 @@ export const viewFields = {
   sources: (form, meta = {}) => {
     return {
       label: i18n.t('Associated Sources'),
-      text: i18n.t('Sources that will be associated with this source (For the Sponsor).\nWith no source specified, all internal and external sources will be used.'),
+      text: i18n.t('Sources that will be associated with this source (For the Sponsor).\nOnly sources able to find an email address can be selected.'),
       cols: [
         {
           namespace: 'sources',

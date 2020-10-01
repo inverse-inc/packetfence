@@ -51,6 +51,19 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Adding node_bypass_role_id index to node table"
+ALTER TABLE node
+  ADD INDEX IF NOT EXISTS `node_bypass_role_id` (`bypass_role_id`);
+
+\! echo "Adding password_category index to password table"
+ALTER TABLE `password`
+  ADD INDEX IF NOT EXISTS password_category (category);
+
+\! echo "Adding password_target_category index to class table"
+ALTER TABLE `class`
+  ADD INDEX IF NOT EXISTS password_target_category (target_category);
+
+\! echo "Updating acct_update procedure"
 DROP PROCEDURE IF EXISTS `acct_update`;
 DELIMITER /
 CREATE PROCEDURE `acct_update`(
@@ -137,8 +150,16 @@ BEGIN
         `acctinterval` = timestampdiff( second, `Previous_AcctUpdate_Time`,  `p_timestamp`  )
     WHERE `acctuniqueid` = `p_acctuniqueid`
     AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
+
+    INSERT INTO `radacct_log`
+   (`acctsessionid`, `username`, `nasipaddress`,
+    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+  VALUES
+   (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+    `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
+    (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+
   ELSE
-    IF (`cnt` = 0) THEN
       # If there is no open session for this, open one.
       # Set values to 0 when no previous records
       SET `Previous_Session_Time` = 0;
@@ -161,29 +182,55 @@ BEGIN
           (
               `p_acctsessionid`,`p_acctuniqueid`,`p_username`,
               `p_realm`,`p_nasipaddress`,`p_nasportid`,
-              `p_nasporttype`,date_sub(`p_timestamp`, INTERVAL `p_acctsessiontime` SECOND ),
-              `p_timestamp`,`p_acctsessiontime`,`p_acctauthentic`,
-              `p_connectinfo_start`,`p_acctinputoctets`,
-              `p_acctoutputoctets`,`p_calledstationid`,`p_callingstationid`,
+              `p_nasporttype`,`p_timestamp`,
+              `p_timestamp`,0,`p_acctauthentic`,
+              `p_connectinfo_start`,0,
+              0,`p_calledstationid`,`p_callingstationid`,
               `p_servicetype`,`p_framedprotocol`,
               `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`, `p_tenant_id`
           );
-     END IF;
-   END IF;
 
-  # Create new record in the log table
-  INSERT INTO `radacct_log`
-   (`acctsessionid`, `username`, `nasipaddress`,
-    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
-  VALUES
-   (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
-    `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
-    (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+      INSERT INTO `radacct_log`
+       (`acctsessionid`, `username`, `nasipaddress`,
+        `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+      VALUES
+       (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+       `p_timestamp`, `p_acctstatustype`, 0, 0,
+       0, `p_acctuniqueid`, `p_tenant_id`);
+
+   END IF;
 END /
 DELIMITER ;
 
 \! echo "Adding category_id column to activation table"
-ALTER TABLE activation ADD COLUMN `category_id` int AFTER `unregdate`;
+ALTER TABLE `activation`
+  ADD COLUMN IF NOT EXISTS `category_id` INT AFTER `unregdate`;
+
+\! echo "Adding radreply table";
+CREATE TABLE IF NOT EXISTS `radreply` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `tenant_id` int NOT NULL DEFAULT 1,
+  `username` varchar(64) NOT NULL default '',
+  `attribute` varchar(64) NOT NULL default '',
+  `op` char(2) NOT NULL DEFAULT ':=',
+  `value` varchar(253) NOT NULL default '',
+  PRIMARY KEY (`id`),
+  KEY (`tenant_id`, `username`)
+);
+
+\! echo "Adding default radreply row";
+INSERT INTO `radreply` (`tenant_id`, `username`, `attribute`, `value`, `op`)
+SELECT '1', '00:00:00:00:00:00','User-Name','*', '=*'
+WHERE NOT EXISTS (SELECT * FROM `radreply`
+      WHERE `tenant_id`='1' AND `username`='00:00:00:00:00:00' AND `attribute`='User-Name' AND `value`='*' AND `op`='=*' LIMIT 1);
+
+\! echo "Adding integer column to locationlog switch_ip"
+ALTER table `locationlog` ADD COLUMN IF NOT EXISTS `switch_ip_int` INT UNSIGNED AS (INET_ATON(`switch_ip`)) PERSISTENT AFTER `switch_ip`,
+    ADD KEY IF NOT EXISTS `locationlog_switch_ip_int` (`switch_ip_int`);
+
+\! echo "Adding integer column to locationlog_history switch_ip"
+ALTER table `locationlog_history` ADD COLUMN IF NOT EXISTS `switch_ip_int` INT UNSIGNED AS (INET_ATON(`switch_ip`)) PERSISTENT AFTER `switch_ip`,
+    ADD KEY IF NOT EXISTS `locationlog_switch_ip_int` (`switch_ip_int`);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));

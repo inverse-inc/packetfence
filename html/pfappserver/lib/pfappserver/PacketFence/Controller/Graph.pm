@@ -573,8 +573,8 @@ sub logstate :Local :AdminRole('REPORTS_READ') {
                 'columns' => 2
                },
                {
-                'description' => $c->loc('Logs Tracking pfmon.log'),
-                'target' => '*.tail-pfmon.counter*',
+                'description' => $c->loc('Logs Tracking pfcron.log'),
+                'target' => '*.tail-pfcron.counter*',
                 'columns' => 2
                },
                {

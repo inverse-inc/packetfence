@@ -17,10 +17,7 @@ const route = {
   redirect: '/nodes/search',
   component: NodesView,
   meta: {
-    can: () => {
-      return acl.$can('read', 'nodes') || acl.$can('create', 'nodes') // has ACL for 1+ children
-    },
-    fail: { path: '/users', replace: true }, // no ACL in this view, redirect to next sibling
+    can: () => (acl.$can('read', 'nodes') || acl.$can('create', 'nodes')), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   props: { storeName: '$_nodes' },
@@ -43,7 +40,7 @@ const route = {
       props: (route) => ({ storeName: '$_nodes', query: route.query.query }),
       meta: {
         can: 'read nodes',
-        fail: { name: 'nodeCreate', replace: true } // redirect to next sibling
+        isFailRoute: true
       }
     },
     {
@@ -58,8 +55,7 @@ const route = {
         next()
       },
       meta: {
-        can: 'create nodes',
-        fail: { name: 'nodeImport', replace: true } // redirect to next sibling
+        can: 'create nodes'
       }
     },
     {
@@ -67,8 +63,7 @@ const route = {
       name: 'nodeImport',
       component: NodesImport,
       meta: {
-        can: 'create nodes',
-        fail: { name: 'nodeSearch', replace: true } // redirect to first sibling
+        can: 'create nodes'
       }
     },
     {
@@ -88,8 +83,7 @@ const route = {
         })
       },
       meta: {
-        can: 'read nodes',
-        fail: { name: 'nodeSearch', replace: true } // redirect to first sibling
+        can: 'read nodes'
       }
     }
   ]

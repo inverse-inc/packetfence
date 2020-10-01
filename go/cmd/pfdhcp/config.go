@@ -9,11 +9,11 @@ import (
 	"time"
 
 	cache "github.com/fdurand/go-cache"
+	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/packetfence/go/dhcp/pool"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	dhcp "github.com/krolaw/dhcp4"
 	netadv "github.com/simon/go-netadv"
 )
 
@@ -80,6 +80,12 @@ func (d *Interfaces) readConfig() {
 	keyConfNet.PfconfigHostnameOverlay = "yes"
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
+	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
+	general := pfconfigdriver.Config.PfConf.General
 
 	var intDhcp []string
 
@@ -270,6 +276,9 @@ func (d *Interfaces) readConfig() {
 							options[dhcp.OptionDomainNameServer] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
+							if portal.SecureRedirect == "enabled" {
+								options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
+							}
 							DHCPScope.options = options
 							if len(ConfNet.NextHop) > 0 {
 								DHCPScope.layer2 = false
@@ -340,6 +349,9 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
+						if portal.SecureRedirect == "enabled" {
+							options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
+						}
 						DHCPScope.options = options
 						if len(ConfNet.NextHop) > 0 {
 							DHCPScope.layer2 = false
@@ -357,4 +369,15 @@ func (d *Interfaces) readConfig() {
 		d.intsNet = append(d.intsNet, ethIf)
 
 	}
+}
+
+func detectPortalURL(ConfNet pfconfigdriver.RessourseNetworkConf, general pfconfigdriver.PfConfGeneral) string {
+	var portalURL string
+	if ConfNet.PortalFQDN != "" {
+		portalURL = "https://" + ConfNet.PortalFQDN + "/rfc7710"
+
+	} else {
+		portalURL = "https://" + general.Hostname + "." + general.Domain + "/rfc7710"
+	}
+	return portalURL
 }

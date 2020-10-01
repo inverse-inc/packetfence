@@ -422,6 +422,17 @@ our %OP_BINARY = (
     "<=" => 'lower_equals',
 );
 
+our %OP_BINARY_INVERSE = (
+    "==" => 'not_equals',
+    "!=" => 'equals',
+    "=~" => 'not_regex',
+    "!~" => 'regex',
+    ">"  => 'lower_equals',
+    ">=" => 'lower',
+    "<"  => 'greater_equals',
+    "<=" => 'greater',
+);
+
 
 our %ROP_BINARY = map { $OP_BINARY{$_} => $_ } keys %OP_BINARY;
 
@@ -455,6 +466,10 @@ sub _ast_to_object {
             my $sub_op = $sub->[0];
             if (exists $OPS_WITH_VALUES{$sub_op}) {
                 return { op => "not_$OPS_WITH_VALUES{$sub_op}", values => [map { _ast_to_object($_) } @{$sub}[1..(@{$sub} - 1)] ] };
+            }
+
+            if (exists $OP_BINARY_INVERSE{$sub_op}) {
+                return { op => $OP_BINARY_INVERSE{$sub_op}, field => $sub->[1], value => $sub->[2] };
             }
 
             return { op => "not_and", values => [ _ast_to_object($sub) ]};

@@ -11,7 +11,7 @@ var securityOnionRegexPattern2 = regexp.MustCompile(` `)
 
 type SecurityOnionParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
-	RateLimitable
+	parser
 }
 
 func (s *SecurityOnionParser) Parse(line string) ([]ApiCall, error) {
@@ -42,6 +42,7 @@ func (s *SecurityOnionParser) Parse(line string) ([]ApiCall, error) {
 					"detect":         matches2[6],
 				},
 			},
+			TenantID: s.TenantID,
 		},
 	}, nil
 }
@@ -49,8 +50,8 @@ func (s *SecurityOnionParser) Parse(line string) ([]ApiCall, error) {
 func NewSecurityOnionParser(config *PfdetectConfig) (Parser, error) {
 
 	return &SecurityOnionParser{
-		Pattern1:      securityOnionRegexPattern1.Copy(),
-		Pattern2:      securityOnionRegexPattern2.Copy(),
-		RateLimitable: config.NewRateLimitable(),
+		Pattern1: securityOnionRegexPattern1.Copy(),
+		Pattern2: securityOnionRegexPattern2.Copy(),
+		parser:   setupParser(config),
 	}, nil
 }

@@ -451,11 +451,11 @@ msgstr "Délai d'expiration de la session de comptabilisation"
 msgid ""
 "Accounting sessions created by pfbandwidthd that haven't been updated for "
 "more than this amount of seconds will be considered inactive. This should be"
-" higher than the interval at which pfmon runs Defaults to 300 - 5 minutes."
+" higher than the interval at which pfcron runs Defaults to 300 - 5 minutes."
 msgstr ""
 "Les sessions de comptabilisation créés par pfbandwidthd qui n’ont pas été "
 "mises à jour depuis plus que cette valeur en secondes seront considérées "
-"comme inactives. Devrait être plus élevé que l’intervalle que pfmon utilise "
+"comme inactives. Devrait être plus élevé que l’intervalle que pfcron utilise "
 "par défaut 300 - 5 minutes."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:44
@@ -1872,7 +1872,7 @@ msgstr "En-têtes CSP pour le portail captif"
 msgid "Cache"
 msgstr "Cache"
 
-#: conf/pfmon.conf.defaults[ubiquiti_ap_mac_to_ip]/description
+#: conf/pfcron.conf.defaults[ubiquiti_ap_mac_to_ip]/description
 msgid "Cache MAC/IP couple for Ubiquiti AP"
 msgstr "Cacher la paire MAC/IP pour les AP Ubiquiti"
 
@@ -1880,7 +1880,7 @@ msgstr "Cacher la paire MAC/IP pour les AP Ubiquiti"
 msgid "Cache match"
 msgstr "Présent dans le cache"
 
-#: conf/pfmon.conf.defaults[switch_cache_lldpLocalPort_description]/description
+#: conf/pfcron.conf.defaults[switch_cache_lldpLocalPort_description]/description
 msgid "Cache switches LLDP local port descriptions"
 msgstr "Description des ports locaux LLDP"
 
@@ -2111,7 +2111,7 @@ msgstr ""
 "Modifier le délai d'expiration de la session, le délai d'inactivité et "
 "terminer l'action"
 
-#: conf/pfmon.conf.defaults[certificates_check]/description
+#: conf/pfcron.conf.defaults[certificates_check]/description
 msgid "Check for SSL certificates validity"
 msgstr "Vérifier la date de validité des certificats SSL"
 
@@ -3277,7 +3277,7 @@ msgstr "Continuer"
 msgid "Controller IP Address"
 msgstr "Adresse IP du contrôleur"
 
-#: conf/pfmon.conf.defaults[node_cleanup]/description
+#: conf/pfcron.conf.defaults[node_cleanup]/description
 msgid ""
 "Controls the actions made on inactive nodes (based on the last_seen "
 "attribute of the node)."
@@ -3285,25 +3285,25 @@ msgstr ""
 "Contrôle les actions effectuées sur les nœuds inactifs (en fonction de "
 "l'attribut last_seen du nœud)."
 
-#: conf/pfmon.conf.defaults[bandwidth_maintenance]/description
+#: conf/pfcron.conf.defaults[bandwidth_maintenance]/description
 msgid "Controls the aggregation of the bandwidth accounting records."
 msgstr ""
 "Contrôle l'agrégation des enregistrements de comptabilisation de bande "
 "passante. "
 
-#: conf/pfmon.conf.defaults[ip4log_cleanup]/description
+#: conf/pfcron.conf.defaults[ip4log_cleanup]/description
 msgid "Controls the cleanup and rotation of IP entries in IPv4 tables."
 msgstr "Active la rotation et le nettoyage de la table des entrées IPv4."
 
-#: conf/pfmon.conf.defaults[ip6log_cleanup]/description
+#: conf/pfcron.conf.defaults[ip6log_cleanup]/description
 msgid "Controls the cleanup and rotation of IP entries in IPv6 tables."
 msgstr "Active la rotation et le nettoyage de la table des entrées IPv6."
 
-#: conf/pfmon.conf.defaults[cleanup_chi_database_cache]/description
+#: conf/pfcron.conf.defaults[cleanup_chi_database_cache]/description
 msgid "Controls the cleanup of the CHI cache database storage."
 msgstr "Active le nettoyage de la base cache CHI."
 
-#: conf/pfmon.conf.defaults[acct_cleanup]/description
+#: conf/pfcron.conf.defaults[acct_cleanup]/description
 msgid ""
 "Controls the cleanup of the accounting tables (radacct and radacct_log). "
 "Entries older than the window will be removed from the table."
@@ -3311,7 +3311,7 @@ msgstr ""
 "Contrôle le nettoyage des tables comptables (radacct et radacct_log). Les "
 "entrées antérieures à la fenêtre seront supprimées du tables."
 
-#: conf/pfmon.conf.defaults[admin_api_audit_log_cleanup]/description
+#: conf/pfcron.conf.defaults[admin_api_audit_log_cleanup]/description
 msgid ""
 "Controls the cleanup of the admin_api_audit_log table. Entries older than "
 "the window will be removed from the table."
@@ -3319,7 +3319,7 @@ msgstr ""
 "Contrôle le nettoyage de la table admin_api_audit_log. Les entrées "
 "antérieures à la fenêtre seront supprimées de le table."
 
-#: conf/pfmon.conf.defaults[auth_log_cleanup]/description
+#: conf/pfcron.conf.defaults[auth_log_cleanup]/description
 msgid ""
 "Controls the cleanup of the auth_log table. Entries older than the window "
 "will be removed from the table."
@@ -3327,7 +3327,7 @@ msgstr ""
 "Contrôle le nettoyage de la table auth_log. Les entrées antérieures à la "
 "fenêtre seront supprimées de la table."
 
-#: conf/pfmon.conf.defaults[bandwidth_maintenance_session]/description
+#: conf/pfcron.conf.defaults[bandwidth_maintenance_session]/description
 msgid ""
 "Controls the cleanup of the bandwidth accounting sessions. The task has an "
 "interval of 0 since it runs manually through a cronjob."
@@ -3335,7 +3335,7 @@ msgstr ""
 "Contrôle le nettoyage des sessions de comptabilité de bande passante. La "
 "tâche a un intervalle de 0 car elle s'exécute manuellement via un cronjob."
 
-#: conf/pfmon.conf.defaults[dns_audit_log_cleanup]/description
+#: conf/pfcron.conf.defaults[dns_audit_log_cleanup]/description
 msgid ""
 "Controls the cleanup of the dns_audit_log table. Entries older than the "
 "window will be removed from the table."
@@ -3343,7 +3343,7 @@ msgstr ""
 "Contrôle le nettoyage de la table dns_audit_log. Les entrées antérieures à "
 "la fenêtre seront supprimées de la table."
 
-#: conf/pfmon.conf.defaults[locationlog_cleanup]/description
+#: conf/pfcron.conf.defaults[locationlog_cleanup]/description
 msgid ""
 "Controls the cleanup of the locationlog table. Entries older than the window"
 " will be removed from the table."
@@ -3351,7 +3351,7 @@ msgstr ""
 "Contrôle le nettoyage de la table locationlog. Les entrées antérieures à la "
 "fenêtre seront supprimées de la table."
 
-#: conf/pfmon.conf.defaults[radius_audit_log_cleanup]/description
+#: conf/pfcron.conf.defaults[radius_audit_log_cleanup]/description
 msgid ""
 "Controls the cleanup of the radius_audit_log table. Entries older than the "
 "window will be removed from the table."
@@ -4305,12 +4305,12 @@ msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:92
 msgid ""
-"Defines the amount of seconds after which pfmon attempts to resolve a "
+"Defines the amount of seconds after which pfcron attempts to resolve a "
 "configuration version conflict between cluster members. For example, if this"
 " is set to 5 minutes, then a resolution will be attempted when the members "
 "will be detected running a different version for more than 5 minutes."
 msgstr ""
-"Définit le nombre de secondes avant que pfmon essaye de résoudre un conflit "
+"Définit le nombre de secondes avant que pfcron essaye de résoudre un conflit "
 "de versions  sur les membres d’un cluster. Par exemple si cette valeur est "
 "définie à 5 minutes alors la résolutions se fera quand les membres "
 "détecteront qu’ils utilisent une version différente depuis plus de 5 "
@@ -5597,10 +5597,10 @@ msgstr "Activer PacketFence"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_components/MaintenanceTasksList.vue:9
 msgid ""
 "Enabling or disabling a task as well as modifying its interval requires a "
-"restart of pfmon to be fully effective."
+"restart of pfcron to be fully effective."
 msgstr ""
 "Activer ou désactiver une tâche ainsi que modifier son intervalle requiert "
-"un redémarrage de pfmon pour être effectif."
+"un redémarrage de pfcron pour être effectif."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/interface.js:469
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/routedNetwork.js:184
@@ -7272,22 +7272,22 @@ msgstr "Intervalle"
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:199
 msgid ""
 "Interval (frequency) at which the task is executed.\\nRequires a restart of "
-"pfmon to be fully effective. Otherwise, it will be taken in consideration "
+"pfcron to be fully effective. Otherwise, it will be taken in consideration "
 "next time the tasks runs."
 msgstr ""
 "Intervalle (fréquence) à laquelle la tâche est exécutée.\\nNécessite un "
-"redémarrage de pfmon pour être actif. Autrement cela sera pris en compte la "
+"redémarrage de pfcron pour être actif. Autrement cela sera pris en compte la "
 "prochaine fois que la tâche sera exécutée."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:45
 msgid ""
 "Interval at which pfbandwidthd should dump collected information into the "
-"database. This should be lower than the interval at which pfmon runs. "
+"database. This should be lower than the interval at which pfcron runs. "
 "Defaults to 41 seconds."
 msgstr ""
 "Fréquence pour laquelle pfbandwidthd devra vider les informations collectées"
 " dans la base de données. Cela devrait être inférieur à la fréquence à "
-"laquelle pfmon fonctionne. La valeur par défaut est 41 secondes."
+"laquelle pfcron fonctionne. La valeur par défaut est 41 secondes."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/fingerbank/index.js:178
 msgid ""
@@ -13552,9 +13552,9 @@ msgstr "Est-ce pfipset doit être géré par PacketFence ?"
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/service.js:339
 msgid ""
-"Should pfmon be started? Keep enabled unless you know what you're doing."
+"Should pfcron be started? Keep enabled unless you know what you're doing."
 msgstr ""
-"Est-ce que pfmon doit être démarré ? Gardez le activé sauf si vous savez ce "
+"Est-ce que pfcron doit être démarré ? Gardez le activé sauf si vous savez ce "
 "que vous faites."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/service.js:352
@@ -13690,10 +13690,10 @@ msgstr ""
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/inline.js:21
 msgid ""
 "Should we handle accouting data for inline clients? This controls inline "
-"accouting tasks in pfmon."
+"accouting tasks in pfcron."
 msgstr ""
 "Faut-il traiter les données comptables pour les clients inline ? Ce contrôle"
-" des tâches de comptabilité en inline se fait dans pfmon."
+" des tâches de comptabilité en inline se fait dans pfcron."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/service.js:547
 msgid ""
@@ -14592,7 +14592,7 @@ msgstr "Rôle cible"
 msgid "Task Name"
 msgstr "Nom de tâche"
 
-#: conf/pfmon.conf.defaults[cluster_check]/description
+#: conf/pfcron.conf.defaults[cluster_check]/description
 msgid ""
 "Task that checks the health state of the cluster and attempts to resolve any"
 " detected conflicts."
@@ -14600,35 +14600,35 @@ msgstr ""
 "Tâche qui vérifie l'état de santé du Cluster et tente de résoudre les "
 "conflits détectés."
 
-#: conf/pfmon.conf.defaults[security_event_maintenance]/description
+#: conf/pfcron.conf.defaults[security_event_maintenance]/description
 msgid "Task that controls the execution of delayed security_event."
 msgstr "Tâche qui contrôle l'exécution de security_event retardé."
 
-#: conf/pfmon.conf.defaults[acct_maintenance]/description
-#: conf/pfmon.conf.defaults[inline_accounting_maintenance]/description
+#: conf/pfcron.conf.defaults[acct_maintenance]/description
+#: conf/pfcron.conf.defaults[inline_accounting_maintenance]/description
 msgid ""
 "Task that controls the inline accounting maintenance (bandwidth checks)."
 msgstr ""
 "Tâche qui contrôle la maintenance de l'accounting Inline (vérifications de "
 "la bande passante)."
 
-#: conf/pfmon.conf.defaults[fingerbank_data_update]/description
+#: conf/pfcron.conf.defaults[fingerbank_data_update]/description
 msgid ""
 "Task that controls updates of the local Fingerbank data from the cloud API."
 msgstr ""
 "Tâche qui contrôle les mises à jour des données locales de Fingerbank à "
 "partir de l'API cloud."
 
-#: conf/pfmon.conf.defaults[provisioning_compliance_poll]/description
+#: conf/pfcron.conf.defaults[provisioning_compliance_poll]/description
 msgid "Task that runs the polling enforcement on the provisioners."
 msgstr ""
 "Tâche qui exécute l'application d'interrogation sur les provisionneurs."
 
-#: conf/pfmon.conf.defaults[populate_ntlm_redis_cache]/description
+#: conf/pfcron.conf.defaults[populate_ntlm_redis_cache]/description
 msgid "Task to control the population of the Active Directory NTLM cache."
 msgstr "Tâche pour contrôler la population du cache NTLM Active Directory."
 
-#: conf/pfmon.conf.defaults[person_cleanup]/description
+#: conf/pfcron.conf.defaults[person_cleanup]/description
 msgid ""
 "Task to delete users that do not own any device. Locally created users will "
 "only be deleted when their account expires."
@@ -14637,18 +14637,18 @@ msgstr ""
 "utilisateurs créés localement ne seront supprimés qu'à l'expiration de leur "
 "compte."
 
-#: conf/pfmon.conf.defaults[password_of_the_day]/description
+#: conf/pfcron.conf.defaults[password_of_the_day]/description
 msgid "Task to generate password of the day."
 msgstr "Tâche qui génère le mot de passe du jour."
 
-#: conf/pfmon.conf.defaults[option82_query]/description
+#: conf/pfcron.conf.defaults[option82_query]/description
 msgid ""
 "Task to query compatible switches for DHCP Option 82 switch MAC address."
 msgstr ""
 "Tâche pour récupérer la MAC adresse DHCP Option 82 des commutateurs "
 "compatibles."
 
-#: conf/pfmon.conf.defaults[nodes_maintenance]/description
+#: conf/pfcron.conf.defaults[nodes_maintenance]/description
 msgid ""
 "Task to unregister nodes that have an unregistration date older than the "
 "current date and time."
@@ -17400,10 +17400,10 @@ msgstr ""
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/maintenanceTask.js:296
 msgid ""
-"Whether or not this task is enabled.\\nRequires a restart of pfmon to be "
+"Whether or not this task is enabled.\\nRequires a restart of pfcron to be "
 "effective."
 msgstr ""
-"Indique si cette tâche est activée ou non.\\nLe redémarrage de pfmon est "
+"Indique si cette tâche est activée ou non.\\nLe redémarrage de pfcron est "
 "requis."
 
 #: html/pfappserver/root/static.alt/src/views/Configuration/_config/activeActive.js:108

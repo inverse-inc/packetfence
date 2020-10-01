@@ -30,14 +30,16 @@
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
 </template>
 
 <script>
-import pfConfigView from '@/components/pfConfigView'
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonSave from '@/components/pfButtonSave'
+import pfConfigView from '@/components/pfConfigView'
 import {
   defaultsFromMeta as defaults
 } from '../_config/'
@@ -49,8 +51,9 @@ import {
 export default {
   name: 'role-view',
   components: {
-    pfConfigView,
-    pfButtonSave
+    pfButtonDelete,
+    pfButtonSave,
+    pfConfigView
   },
   props: {
     formStoreName: { // from router

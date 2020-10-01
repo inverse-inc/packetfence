@@ -28,6 +28,7 @@ configure_and_check() {
     VAGRANT_FORCE_COLOR=${VAGRANT_FORCE_COLOR:-true}
     VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
     VAGRANT_DIR=${VAGRANT_DIR:-'../../../addons/vagrant'}
+    VAGRANT_DOTFILE_PATH="${VAGRANT_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--destroy-on-error --no-parallel'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     # set to yes when testing new features on collections
@@ -51,7 +52,7 @@ configure_and_check() {
         RUN_TESTS=${INTEGRATION_TESTS}
     fi
     
-    declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE
+    declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_DOTFILE_PATH
     declare -p CI_COMMIT_TAG
     declare -p LOCAL_COLLECTIONS
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
@@ -79,7 +80,7 @@ start_and_provision() {
 teardown() {
     log_section "Teardown"
     delete_ansible_files
-    halt_and_destroy ${PF_VM_NAME} ${INT_TEST_VM_NAMES}
+    destroy ${PF_VM_NAME} ${INT_TEST_VM_NAMES}
 }
 
 delete_ansible_files() {
@@ -88,24 +89,38 @@ delete_ansible_files() {
     delete_dir_if_exists ${VAGRANT_DIR}/collections
 }
 
-halt_and_destroy() {
-    log_subsection "Halt and destroy virtual machine(s)"
+halt() {
+    log_subsection "Halt virtual machine(s)"
     local vm_names=${@:-}
 
     # using "|| true" as a workaround to unusual behavior
     # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
     if [ -z "${vm_names}" ]; then
-        echo "Shutdown and destroy all VM"
+        echo "Shutdown all VM"
         ( cd $VAGRANT_DIR ; \
-          vagrant halt ; \
-          vagrant destroy -f || true )
-        delete_dir_if_exists ${VAGRANT_DIR}/.vagrant
+          vagrant halt -f )
     else
         ( cd $VAGRANT_DIR ; \
-          vagrant halt ${vm_names} ; \
+          vagrant halt -f ${vm_names} )
+    fi
+}
+
+destroy() {
+    log_subsection "Destroy virtual machine(s)"
+    local vm_names=${@:-}
+
+    # using "|| true" as a workaround to unusual behavior
+    # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
+    if [ -z "${vm_names}" ]; then
+        echo "Destroy all VM"
+        ( cd $VAGRANT_DIR ; \
+          vagrant destroy -f || true )
+        delete_dir_if_exists ${VAGRANT_DOTFILE_PATH}
+    else
+        ( cd $VAGRANT_DIR ; \
           vagrant destroy -f ${vm_names} || true )
         for vm in ${vm_names}; do
-            delete_dir_if_exists ${VAGRANT_DIR}/.vagrant/machines/${vm}
+            delete_dir_if_exists ${VAGRANT_DOTFILE_PATH}/machines/${vm}
         done
     fi
 }
@@ -142,6 +157,7 @@ configure_and_check
 
 case $1 in
     run) run ;;
+    halt) halt ${PF_VM_NAME} ${INT_TEST_VM_NAMES} ;;
     teardown) teardown ;;
     *)   die "Wrong argument"
 esac

@@ -23,10 +23,6 @@ usage() {
 
 
 configure_and_check() {
-    # to distinguish if test is running in CI or not
-    # in CI, value is set to "yes"
-    INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
-
     # paths
     VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
     VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${VENOM_ROOT_DIR}/results}"
@@ -50,13 +46,7 @@ configure_and_check() {
     echo ""
 }
 
-display_dumps_on_error() {
-    # only display dump if we run in a CI
-    if [ "$INTEGRATION_TESTS" = "yes" ]; then
-        for dump_file in $(find ${VENOM_RESULT_DIR} -name "*.dump"); do
-            cat $dump_file
-        done
-    fi
+die_on_error() {
     die "Error in Venom tests"
 }
 
@@ -64,7 +54,7 @@ run_test_suites() {
     local test_suites=$(readlink -e ${@:-.})
     log_section "Running ${test_suites} test suite(s)"
     CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites} ${VENOM_EXCLUDE_FLAGS}"
-    ${CMD} || display_dumps_on_error
+    ${CMD} || die_on_error
 }
 
 # Arguments are mandatory

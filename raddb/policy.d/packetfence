@@ -233,3 +233,18 @@ packetfence-nas-ip-address {
             }
     }
 }
+
+packetfence-degraded-auth {
+    packetfence-set-tenant-id
+    # Disable ntlm_auth
+    update control {
+        &MS-CHAP-Use-NTLM-Auth := No
+    }
+    # Check password table for local user
+    sql_degraded
+    if (fail || notfound || noop) {
+        update control {
+            &MS-CHAP-Use-NTLM-Auth := Yes
+        }
+    }
+}

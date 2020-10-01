@@ -60,7 +60,6 @@ BEGIN {
         time_bucket
         in_bytes
         out_bytes
-        total_bytes
         mac
         tenant_id
     );

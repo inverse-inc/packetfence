@@ -47,6 +47,7 @@ use pf::config qw(
     $VIRTUAL
     %ConfigNetworks
 );
+use pf::api::jsonrpcclient;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
 use pf::locationlog;
@@ -86,12 +87,18 @@ sub reevaluate_access {
     $logger->info("re-evaluating access ($function called)");
     $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $ip = pf::ip4log::mac2ip($mac);
+    my $sync = $opts{sync};
     if (isenabled($Config{advanced}{sso_on_access_reevaluation})) {
         my $node = node_attributes($mac);
         if ($ip) {
             my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
-            my $client = pf::client::getClient();
-            $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
+            if ($sync) {
+                my $client = pf::api::jsonrpcclient->new;
+                $client->call( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
+            } else {
+                my $client = pf::client::getClient();
+                $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
+            }
         } else {
             $logger->error("Can't do SSO for $mac because can't find its IP address");
         }
@@ -105,41 +112,47 @@ sub reevaluate_access {
     }
 
     my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
-    if ( $conn_type == $INLINE ) {
-        my $client = pf::client::getClient();
-        my $inline = new pf::inline::custom();
-        my %data = (
-            'switch' => '127.0.0.1',
-            'mac'    => $mac,
-        );
-        if ( $inline->isInlineEnforcementRequired($mac) ) {
-            $client->notify( 'firewall', %data );
-            $ip = new NetAddr::IP::Lite clean_ip($ip);
-            foreach my $network ( keys %ConfigNetworks ) {
+    if ( defined $conn_type && $conn_type != $INLINE ) {
+        return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
+    }
 
-                next if ( !pf::config::is_network_type_inline($network) );
-                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                my $reg_net = NetAddr::IP->new('127.0.0.1','255.0.0.0');
-                if (exists($ConfigNetworks{$network}{'reg_network'})) {
-                    my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
-                    $reg_net = NetAddr::IP->new($reg_ip->network());
-                }
-                if ($net_addr->contains($ip) || $reg_net->contains($ip)) {
-                    if (isenabled($ConfigNetworks{$network}{'coa'})) {
-                        my $locationlog = locationlog_last_entry_non_inline_mac($mac);
-                        if ( $locationlog ) {
-                            return _vlan_reevaluation($mac, $locationlog);
-                        }
+    my $inline = new pf::inline::custom();
+    my %data = (
+        'switch' => '127.0.0.1',
+        'mac'    => $mac,
+    );
+    if ( $inline->isInlineEnforcementRequired($mac) ) {
+        if ($sync) {
+            my $client = pf::api::jsonrpcclient->new;
+            $client->call( 'firewall', %data );
+        } else {
+            my $client = pf::client::getClient();
+            $client->notify( 'firewall', %data );
+        }
+        $ip = new NetAddr::IP::Lite clean_ip($ip);
+        foreach my $network ( keys %ConfigNetworks ) {
+
+            next if ( !pf::config::is_network_type_inline($network) );
+            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+            my $reg_net = NetAddr::IP->new('127.0.0.1','255.0.0.0');
+            if (exists($ConfigNetworks{$network}{'reg_network'})) {
+                my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                $reg_net = NetAddr::IP->new($reg_ip->network());
+            }
+            if ($net_addr->contains($ip) || $reg_net->contains($ip)) {
+                if (isenabled($ConfigNetworks{$network}{'coa'})) {
+                    my $locationlog = locationlog_last_entry_non_inline_mac($mac);
+                    if ( $locationlog ) {
+                        return _vlan_reevaluation($mac, $locationlog,  %opts);
                     }
                 }
             }
-        } else {
-            $logger->debug("is already properly enforced in firewall, no change required");
         }
-        return 1;
+    } else {
+        $logger->debug("is already properly enforced in firewall, no change required");
     }
 
-    return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
+    return 1;
 }
 
 =item _vlan_reevaluation
@@ -158,6 +171,7 @@ sub _vlan_reevaluation {
         return $FALSE;
     }
 
+    my $sync = $opts{sync};
     my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'} );
 
     my $args = {
@@ -192,7 +206,7 @@ sub _vlan_reevaluation {
             $client = pf::client::getManagementClient();
             $cluster_deauth = 1;
         } else {
-            $client = pf::api::queue->new(queue => 'priority');
+            $client = $sync ? pf::client::getClient() : pf::api::queue->new(queue => 'priority');
             $cluster_deauth = 0;
         }
 
@@ -201,16 +215,36 @@ sub _vlan_reevaluation {
         if ( ( $conn_type & $WIRED ) == $WIRED ) {
             $logger->debug("Calling API with ReAssign request on switch (".$args->{'switch'}.")");
             if ($cluster_deauth) {
-                $client->notify( 'ReAssignVlan_in_queue', $args );
+                if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
+                    $client->call( 'ReAssignVlan', $args );
+                } else {
+                    $client->notify( 'ReAssignVlan_in_queue', $args );
+                }
             } else {
-                $client->notify( 'ReAssignVlan', $args );
+                if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
+                    $client->call( 'ReAssignVlan', $args );
+                } else {
+                    $client->notify( 'ReAssignVlan', $args );
+                }
             }
         } elsif ( $conn_type & ($WIRELESS | $WEBAUTH | $VIRTUAL) ) {
             $logger->debug("Calling API with desAssociate request on switch (".$args->{'switch'}.")");
             if ($cluster_deauth) {
-                $client->notify( 'desAssociate_in_queue', $args );
+                if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
+                    $client->call( 'desAssociate', $args );
+                } else {
+                    $client->notify( 'desAssociate_in_queue', $args );
+                }
             } else {
-                $client->notify( 'desAssociate', $args );
+                if ($sync) {
+                    my $client = pf::api::jsonrpcclient->new;
+                    $client->call( 'desAssociate', $args );
+                } else {
+                    $client->notify( 'desAssociate', $args );
+                }
             }
         } else {
             $logger->error("Connection type is neither wired nor wireless. Cannot reevaluate VLAN");
@@ -218,6 +252,7 @@ sub _vlan_reevaluation {
         }
 
     }
+
     return 1;
 }
 

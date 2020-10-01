@@ -271,7 +271,7 @@ sub node_add {
 }
 
 #
-# simple wrapper for pfmon/pfdhcplistener-detected and auto-generated nodes
+# simple wrapper for pfcron/pfdhcplistener-detected and auto-generated nodes
 #
 sub node_add_simple {
     my ($mac) = @_;
@@ -281,6 +281,7 @@ sub node_add_simple {
         'detect_date' => $date,
         'status'      => 'unreg',
         'voip'        => 'no',
+        -ignore       => 1,
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
@@ -728,9 +729,9 @@ sub node_deregister {
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    if(my $provisioner = $profile->findProvisioner($mac)){
-        if(my $pki_provider = $provisioner->getPkiProvider() ){
-            if(isenabled($pki_provider->revoke_on_unregistration)){
+    if (my $provisioner = $profile->findProvisioner($mac)) {
+        if (my $pki_provider = $provisioner->getPkiProvider() ) {
+            if (isenabled($pki_provider->revoke_on_unregistration)) {
                 my $node_info = node_view($mac);
                 my $cn = $pki_provider->user_cn($node_info);
                 $pki_provider->revoke($cn);
@@ -756,7 +757,7 @@ sub node_deregister {
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace
 
-called by pfmon daemon for the configured interval
+called by pfcron daemon for the configured interval
 
 =cut
 

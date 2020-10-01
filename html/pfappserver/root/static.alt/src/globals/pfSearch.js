@@ -21,6 +21,7 @@ export const pfSearchConditionType = {
   ONLINE:                  'online',
   YESNO:                   'yesno',
   NAS_PORT_TYPE:           'nas_port_type',
+  SWITCH_IP:               'switch_ip',
 
   /**
    * Promise fields
@@ -105,6 +106,17 @@ pfConditionOperators[pfSearchConditionType.YESNO] = {
 pfConditionOperators[pfSearchConditionType.NAS_PORT_TYPE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.SWITCH_IP] = {
+  'equals':                pfSearchConditionValue.TEXT,
+  'not_equals':            pfSearchConditionValue.TEXT,
+  'starts_with':           pfSearchConditionValue.TEXT,
+  'ends_with':             pfSearchConditionValue.TEXT,
+  'contains':              pfSearchConditionValue.TEXT,
+  'greater_than':          pfSearchConditionValue.TEXT,
+  'less_than':             pfSearchConditionValue.TEXT,
+  'greater_than_equals':   pfSearchConditionValue.TEXT,
+  'less_than_equals':      pfSearchConditionValue.TEXT
 }
 
 /**

@@ -6,11 +6,11 @@
     <template v-slot:pageHeader>
       <b-card-header>
         <h4 class="mb-3" v-t="'Maintenance Tasks'"></h4>
-        <p class="mb-0" v-t="'Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective.'"></p>
+        <p class="mb-0" v-t="'Enabling or disabling a task as well as modifying its interval requires a restart of pfcron to be fully effective.'"></p>
       </b-card-header>
     </template>
     <template v-slot:buttonAdd>
-      <pf-button-service service="pfmon" class="mr-1" restart start stop :disabled="isLoading"></pf-button-service>
+      <pf-button-service service="pfcron" class="mr-1" restart start stop :disabled="isLoading"></pf-button-service>
     </template>
     <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>

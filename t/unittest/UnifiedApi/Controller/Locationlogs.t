@@ -33,6 +33,7 @@ my %values = (
     mac                 => '00:01:02:03:04:05',
     switch              => '0.0.0.1',
     switch_ip           => '0.0.0.2',
+    switch_ip_int       => 2,
     switch_mac          => '06:07:08:09:0a:0b',
     port                => '1234',
     vlan                => '99',

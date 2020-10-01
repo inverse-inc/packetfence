@@ -148,6 +148,7 @@ export default {
         this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, files, sortFiles, createDirectory, deleteFile } })
         if (this.id) { // existing
           this.$store.dispatch('$_connection_profiles/getConnectionProfile', this.id).then(form => {
+            form = JSON.parse(JSON.stringify(form)) // dereference
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })

@@ -1,6 +1,6 @@
 First install php on your server
 
-Then add the following in /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
+Then add the following in /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt
 ```
 Listen 10000
 LoadModule php5_module modules/libphp5.so
@@ -14,7 +14,7 @@ LoadModule php5_module modules/libphp5.so
 </VirtualHost>
 ```
 
-Then restart the httpd.webservices process and this will be available on port 10000
+Then restart the httpd.aaa process and this will be available on port 10000
 
 Make sure you also open the necessary ports in iptables (`/usr/local/pf/conf/iptables.conf`)
 

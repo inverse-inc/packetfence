@@ -115,6 +115,8 @@ export default {
       return new Proxy(state.$form, {
         has: () => true, // always satisfy
         get: (target, namespace) => {
+          if (namespace.constructor === Symbol) return
+          if (namespace === 'toJSON') return () => target
           while (namespace) { // handle namespace
             let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
             if ([null, undefined].includes(target)) target = {}

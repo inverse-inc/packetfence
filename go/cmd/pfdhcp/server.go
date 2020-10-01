@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	dhcp "github.com/krolaw/dhcp4"
+	dhcp "github.com/inverse-inc/dhcp4"
 	"golang.org/x/net/ipv4"
 )
 

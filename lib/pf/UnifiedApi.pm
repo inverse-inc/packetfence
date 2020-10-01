@@ -648,6 +648,11 @@ sub setup_api_v1_nodes_routes {
         action => 'network_graph',
     });
 
+    $collection_route->register_sub_action({
+        method => 'DELETE',
+        action => 'bulk_delete',
+    });
+
     return ( $collection_route, $resource_route );
 }
 
@@ -1061,6 +1066,7 @@ sub setup_api_v1_config_maintenance_tasks_routes {
         "api.v1.Config.MaintenanceTasks"
       );
 
+    $resource_route->register_sub_action({ action => 'run', method => 'POST' });
     return ($collection_route, $resource_route);
 }
 
@@ -1228,6 +1234,7 @@ sub setup_api_v1_config_roles_routes {
         "api.v1.Config.Roles"
     );
 
+    $resource_route->register_sub_action({action => 'reassign', method => 'PATCH'});
     return ($collection_route, $resource_route);
 }
 
@@ -2203,6 +2210,7 @@ sub setup_api_v1_emails_route {
     my $resource_route = $root->any("email")->to(controller => "Emails" )->name("api.v1.Emails");
     $resource_route->register_sub_action({ method => 'POST', action => 'preview', path => 'preview'});
     $resource_route->register_sub_action({ method => 'POST', action => 'send_email', path => 'send'});
+    $resource_route->register_sub_action({ method => 'POST', action => 'pfmailer', path => 'pfmailer'});
     return ;
 }
 

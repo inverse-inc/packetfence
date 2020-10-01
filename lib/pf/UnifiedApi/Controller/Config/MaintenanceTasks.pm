@@ -16,40 +16,43 @@ use strict;
 use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
+use Mojo::IOLoop;
+use pf::factory::pfcron::task;
 
-has 'config_store_class' => 'pf::ConfigStore::Pfmon';
-has 'form_class' => 'pfappserver::Form::Config::Pfmon';
+has 'config_store_class' => 'pf::ConfigStore::Cron';
+has 'form_class' => 'pfappserver::Form::Config::Pfcron';
 has 'primary_key' => 'maintenance_task_id';
 
-use pf::ConfigStore::Pfmon;
-use pfappserver::Form::Config::Pfmon::acct_maintenance;
-use pfappserver::Form::Config::Pfmon::auth_log_cleanup;
-use pfappserver::Form::Config::Pfmon::certificates_check;
-use pfappserver::Form::Config::Pfmon::cleanup_chi_database_cache;
-use pfappserver::Form::Config::Pfmon::cluster_check;
-use pfappserver::Form::Config::Pfmon::fingerbank_data_update;
-use pfappserver::Form::Config::Pfmon::inline_accounting_maintenance;
-use pfappserver::Form::Config::Pfmon::ip4log_cleanup;
-use pfappserver::Form::Config::Pfmon::ip6log_cleanup;
-use pfappserver::Form::Config::Pfmon::locationlog_cleanup;
-use pfappserver::Form::Config::Pfmon::node_cleanup;
-use pfappserver::Form::Config::Pfmon::nodes_maintenance;
-use pfappserver::Form::Config::Pfmon::option82_query;
-use pfappserver::Form::Config::Pfmon::person_cleanup;
-use pfappserver::Form::Config::Pfmon::populate_ntlm_redis_cache;
-use pfappserver::Form::Config::Pfmon::provisioning_compliance_poll;
-use pfappserver::Form::Config::Pfmon::radius_audit_log_cleanup;
-use pfappserver::Form::Config::Pfmon::switch_cache_lldpLocalPort_description;
-use pfappserver::Form::Config::Pfmon::security_event_maintenance;
-use pfappserver::Form::Config::Pfmon::password_of_the_day;
-use pfappserver::Form::Config::Pfmon::acct_cleanup;
-use pfappserver::Form::Config::Pfmon::dns_audit_log_cleanup;
-use pfappserver::Form::Config::Pfmon::admin_api_audit_log_cleanup;
-use pfappserver::Form::Config::Pfmon::bandwidth_maintenance;
-use pfappserver::Form::Config::Pfmon::bandwidth_maintenance_session;
+use pf::ConfigStore::Cron;
+use pfappserver::Form::Config::Pfcron::acct_maintenance;
+use pfappserver::Form::Config::Pfcron::auth_log_cleanup;
+use pfappserver::Form::Config::Pfcron::certificates_check;
+use pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache;
+use pfappserver::Form::Config::Pfcron::cluster_check;
+use pfappserver::Form::Config::Pfcron::fingerbank_data_update;
+use pfappserver::Form::Config::Pfcron::inline_accounting_maintenance;
+use pfappserver::Form::Config::Pfcron::ip4log_cleanup;
+use pfappserver::Form::Config::Pfcron::ip6log_cleanup;
+use pfappserver::Form::Config::Pfcron::locationlog_cleanup;
+use pfappserver::Form::Config::Pfcron::node_cleanup;
+use pfappserver::Form::Config::Pfcron::nodes_maintenance;
+use pfappserver::Form::Config::Pfcron::option82_query;
+use pfappserver::Form::Config::Pfcron::person_cleanup;
+use pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache;
+use pfappserver::Form::Config::Pfcron::provisioning_compliance_poll;
+use pfappserver::Form::Config::Pfcron::radius_audit_log_cleanup;
+use pfappserver::Form::Config::Pfcron::switch_cache_lldpLocalPort_description;
+use pfappserver::Form::Config::Pfcron::security_event_maintenance;
+use pfappserver::Form::Config::Pfcron::password_of_the_day;
+use pfappserver::Form::Config::Pfcron::acct_cleanup;
+use pfappserver::Form::Config::Pfcron::dns_audit_log_cleanup;
+use pfappserver::Form::Config::Pfcron::admin_api_audit_log_cleanup;
+use pfappserver::Form::Config::Pfcron::bandwidth_maintenance;
+use pfappserver::Form::Config::Pfcron::bandwidth_maintenance_session;
+use pfappserver::Form::Config::Pfcron::ubiquiti_ap_mac_to_ip;
 
 our %TYPES_TO_FORMS = (
-    map { $_ => "pfappserver::Form::Config::Pfmon::$_" } qw(
+    map { $_ => "pfappserver::Form::Config::Pfcron::$_" } qw(
       acct_maintenance
       auth_log_cleanup
       certificates_check
@@ -75,6 +78,7 @@ our %TYPES_TO_FORMS = (
       admin_api_audit_log_cleanup
       bandwidth_maintenance
       bandwidth_maintenance_session
+      ubiquiti_ap_mac_to_ip
     )
 );
 
@@ -96,6 +100,28 @@ sub form_process_parameters_for_cleanup {
             qw(description)
         ],
     );
+}
+
+sub run {
+    my ($self) = @_;
+    my $id = $self->id;
+    Mojo::IOLoop->subprocess(
+        sub {
+            my ($subprocess) = @_;
+            my $task = pf::factory::pfcron::task->new($id, {});
+            if (defined $task) {
+                $task->run();
+            } else {
+                exec('/usr/local/pf/sbin/pfcron', $id);
+            }
+
+            return {};
+        },
+        sub {
+            my ($subprocess, $err, $results) = @_;
+            return $self->render(200, json => $results);
+        }
+    )
 }
 
 =head1 AUTHOR
@@ -126,4 +152,3 @@ USA.
 =cut
 
 1;
-

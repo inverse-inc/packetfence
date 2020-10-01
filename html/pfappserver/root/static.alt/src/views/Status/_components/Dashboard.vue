@@ -684,11 +684,11 @@ export default {
               ]
             },
             {
-              name: 'pfmon.log',
+              name: 'pfcron.log',
               items: [
                 {
                   title: this.$i18n.t('Number of events'),
-                  metric: 'packetfence.logs.pfmon_log',
+                  metric: 'packetfence.logs.pfcron_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
                   cols: 12

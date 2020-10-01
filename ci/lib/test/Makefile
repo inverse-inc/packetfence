@@ -21,6 +21,10 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 test: clean
 	./vagrant-wrapper.sh run
 
+.PHONY: halt
+halt:
+	./vagrant-wrapper.sh halt
+
 .PHONY: clean
 clean:
 	./vagrant-wrapper.sh teardown

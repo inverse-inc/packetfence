@@ -16,11 +16,12 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
-use pf::file_paths qw($pfmon_config_file);
+use File::Spec::Functions;
+use pf::file_paths qw($conf_dir);
 use pf::util;
 
 run_as_pf();
-
+my $pfmon_config_file = catfile($conf_dir, "pfmon.conf");
 my $ini = pf::IniFiles->new(-file => $pfmon_config_file, -allowempty => 1);
 
 $ini->DeleteSection("queue_stats");

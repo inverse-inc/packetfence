@@ -26,6 +26,7 @@ use Test::More tests => 18;
 
 #This test will running last
 use Test::Mojo;
+use pf::dal::tenant;
 
 #This test will running last
 use Test::NoWarnings;
@@ -477,6 +478,16 @@ meta => {
         placeholder => undef,
         required    => $true,
         type        => "string"
+    },
+    tenant_id => {
+        default     => 1,
+        placeholder => undef,
+        required    => $false,
+        type        => "string",
+        allow_custom => $false,
+        allowed => [
+            map { $_->{id} != 0 ? ( { value => $_->{id}, text => $_->{name} }) : () } @{pf::dal::tenant->search->all}
+        ],
     }
   },
         status => 200

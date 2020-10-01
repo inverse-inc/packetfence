@@ -11,6 +11,12 @@ PFSERVERS_DIR=pfservers
 install:
 	./install-venom.sh
 
+# configurator is different: it runs **before** all test suites. It doesn't need
+# a token to perform actions so there is no dependency to setup test suite
+.PHONY: configurator
+configurator:
+	./venom-wrapper.sh $(PFSERVERS_DIR)/configurator
+
 # test is the entrypoint: all test suites should be referenced as target dependency
 # if setup is a dependency to test target, putting setup as a dependency to other
 # targets doesn't cause a recall

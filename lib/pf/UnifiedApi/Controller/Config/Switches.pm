@@ -59,7 +59,7 @@ standardPlaceholder
 sub standardPlaceholder {
     my ($self) = @_;
     my $params = $self->req->query_params->to_hash;
-    my $group = $params->{group};
+    my $group = $params->{group} || $params->{type};
     if (!defined $group || $group eq 'default' ) {
         return $self->SUPER::standardPlaceholder();
     }

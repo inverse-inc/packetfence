@@ -1,0 +1,14 @@
+name: Check configurator disabled
+version: 2
+testcases:
+- name: check_configurator_disabled
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interfaces'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 401
+      - result.bodyjson.message ShouldContainSubstring 'The configurator is turned off'

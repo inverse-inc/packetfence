@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::Mojo;
 
 #This test will running last
@@ -47,6 +47,9 @@ $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
 
 $t->delete_ok("$base_url/default")
+  ->status_is(422);
+
+$t->patch_ok("$base_url/gaming/reassign" => json => {})
   ->status_is(422);
 
 =head1 AUTHOR

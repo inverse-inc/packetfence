@@ -53,7 +53,8 @@ CREATE TABLE class (
   target_category varchar(255),
   delay_by int(11) NOT NULL default 0,
   external_command varchar(255) DEFAULT NULL,
-  PRIMARY KEY (security_event_id)
+  PRIMARY KEY (security_event_id),
+  KEY password_target_category (target_category)
 ) ENGINE=InnoDB;
 
 --
@@ -186,6 +187,7 @@ CREATE TABLE node (
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   KEY `node_last_seen` (`last_seen`),
+  KEY `node_bypass_role_id` (`bypass_role_id`),
   CONSTRAINT `0_57` FOREIGN KEY (`tenant_id`, `pid`) REFERENCES `person` (`tenant_id`, `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`),
   CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
@@ -372,6 +374,7 @@ CREATE TABLE `locationlog` (
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `switch_ip` varchar(17) DEFAULT NULL,
+  `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) PERSISTENT,
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
@@ -383,6 +386,7 @@ CREATE TABLE `locationlog` (
   KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
+  KEY `locationlog_switch_ip_int` (`switch_ip_int`),
   CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
@@ -401,6 +405,7 @@ CREATE TABLE `locationlog_history` (
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `switch_ip` varchar(17) DEFAULT NULL,
+  `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) PERSISTENT,
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
@@ -411,7 +416,8 @@ CREATE TABLE `locationlog_history` (
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
-  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`)
+  KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
+  KEY `locationlog_switch_ip_int` (`switch_ip_int`)
 ) ENGINE=InnoDB;
 
 DELIMITER /
@@ -477,6 +483,7 @@ CREATE TABLE `password` (
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
   PRIMARY KEY (tenant_id, pid),
+  KEY password_category (category),
   UNIQUE KEY pid_password_unique (pid)
 ) ENGINE=InnoDB;
 
@@ -689,6 +696,21 @@ CREATE TABLE radacct_log (
   KEY timestamp (timestamp),
   KEY acctuniqueid (acctuniqueid)
 ) ENGINE=InnoDB;
+
+-- Adding RADIUS radreply table
+
+CREATE TABLE radreply (
+  id int(11) unsigned NOT NULL auto_increment,
+  tenant_id int NOT NULL DEFAULT 1,
+  username varchar(64) NOT NULL default '',
+  attribute varchar(64) NOT NULL default '',
+  op char(2) NOT NULL DEFAULT ':=',
+  value varchar(253) NOT NULL default '',
+  PRIMARY KEY (id),
+  KEY (`tenant_id`, `username`)
+);
+
+INSERT INTO radreply (tenant_id, username, attribute, value, op) values ('1', '00:00:00:00:00:00','User-Name','*', '=*');
 
 -- Adding RADIUS Updates Stored Procedure
 
@@ -930,8 +952,16 @@ BEGIN
         `acctinterval` = timestampdiff( second, `Previous_AcctUpdate_Time`,  `p_timestamp`  )
     WHERE `acctuniqueid` = `p_acctuniqueid`
     AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
+
+    INSERT INTO `radacct_log`
+     (`acctsessionid`, `username`, `nasipaddress`,
+      `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+    VALUES
+     (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+      `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
+      (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+
   ELSE
-    IF (`cnt` = 0) THEN
       # If there is no open session for this, open one.
       # Set values to 0 when no previous records
       SET `Previous_Session_Time` = 0;
@@ -954,24 +984,23 @@ BEGIN
           (
               `p_acctsessionid`,`p_acctuniqueid`,`p_username`,
               `p_realm`,`p_nasipaddress`,`p_nasportid`,
-              `p_nasporttype`,date_sub(`p_timestamp`, INTERVAL `p_acctsessiontime` SECOND ),
-              `p_timestamp`,`p_acctsessiontime`,`p_acctauthentic`,
-              `p_connectinfo_start`,`p_acctinputoctets`,
-              `p_acctoutputoctets`,`p_calledstationid`,`p_callingstationid`,
+              `p_nasporttype`,`p_timestamp`,
+              `p_timestamp`,0,`p_acctauthentic`,
+              `p_connectinfo_start`,0,
+              0,`p_calledstationid`,`p_callingstationid`,
               `p_servicetype`,`p_framedprotocol`,
               `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`, `p_tenant_id`
           );
-     END IF;
-   END IF;
 
-  # Create new record in the log table
-  INSERT INTO `radacct_log`
-   (`acctsessionid`, `username`, `nasipaddress`,
-    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
-  VALUES
-   (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
-    `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
-    (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+      INSERT INTO `radacct_log`
+       (`acctsessionid`, `username`, `nasipaddress`,
+        `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+      VALUES
+       (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+       `p_timestamp`, `p_acctstatustype`, 0, 0,
+       0, `p_acctuniqueid`, `p_tenant_id`);
+
+   END IF;
 END /
 DELIMITER ;
 

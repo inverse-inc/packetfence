@@ -210,7 +210,10 @@ export default {
       return this.$store.getters[`$_interfaces/isWaiting`]
     },
     fieldsInterface () {
-      return columnsInterface
+      return columnsInterface.map(column => {
+        const { label } = column
+        return { ...column, label: this.$i18n.t(label) }
+      })
     },
     isLayer2NetworksLoading () {
       return this.$store.getters[`$_layer2_networks/isLoading`]
@@ -219,7 +222,10 @@ export default {
       return this.$store.getters[`$_layer2_networks/isWaiting`]
     },
     fieldsLayer2Network () {
-      return columnsLayer2Network
+      return columnsLayer2Network.map(column => {
+        const { label } = column
+        return { ...column, label: this.$i18n.t(label) }
+      })
     },
     layer2NetworkIds () {
       return this.layer2Networks.map(network => network.id)
@@ -231,7 +237,10 @@ export default {
       return this.$store.getters[`$_routed_networks/isWaiting`]
     },
     fieldsRoutedNetwork () {
-      return columnsRoutedNetwork
+      return columnsRoutedNetwork.map(column => {
+        const { label } = column
+        return { ...column, label: this.$i18n.t(label) }
+      })
     }
   },
   methods: {

@@ -328,8 +328,8 @@ msgstr "Identifiant de compte"
 msgid ""
 "Accounting sessions created by pfbandwidthd that haven't been updated for "
 "more than this amount of seconds will be considered inactive. This should be"
-" higher than the interval at which pfmon runs Defaults to 300 - 5 minutes"
-msgstr "Les sessions de comptabilisation créés par pfbandwidthd qui n’ont pas été mise à jour depuis plus que cette valeur en secondes seront considérées comme inactives. Devrait être plus élevé que l’intervalle que pfmon utilise par défaut 300 (5 minutes)."
+" higher than the interval at which pfcron runs Defaults to 300 - 5 minutes"
+msgstr "Les sessions de comptabilisation créés par pfbandwidthd qui n’ont pas été mise à jour depuis plus que cette valeur en secondes seront considérées comme inactives. Devrait être plus élevé que l’intervalle que pfcron utilise par défaut 300 (5 minutes)."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
@@ -1580,7 +1580,7 @@ msgstr "Cloner"
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
@@ -2327,11 +2327,11 @@ msgstr "Définit comment formater le nom d'utilisateur qui est envoyé à votre 
 
 # conf/documentation.conf (active_active.conflict_resolution_threshold)
 msgid ""
-"Defines the amount of seconds after which pfmon attempts to resolve a "
+"Defines the amount of seconds after which pfcron attempts to resolve a "
 "configuration version conflict between cluster members.For example, if this "
 "is set to 5 minutes, then a resolution will be attempted when the members "
 "will be detected running a different version for more than 5 minutes."
-msgstr "Définit le nombre de secondes avant que pfmon essaye de résoudre un conflit de versions  sur les membres d’un cluster. Par exemple si cette valeur est définie à 5 minutes alors la résolutions se fera quand les membres détecterons qu’ils utilisent une version différente depuis plus de 5 minutes."
+msgstr "Définit le nombre de secondes avant que pfcron essaye de résoudre un conflit de versions  sur les membres d’un cluster. Par exemple si cette valeur est définie à 5 minutes alors la résolutions se fera quand les membres détecterons qu’ils utilisent une version différente depuis plus de 5 minutes."
 
 # conf/documentation.conf (active_active.galera_replication_password)
 msgid ""
@@ -2615,7 +2615,7 @@ msgstr "Décrit le type de l’interface nommée. <ul> <li>Interne<i> </i> décr
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/deviceregistration/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
-# html/pfappserver/root/config/pfmon/list.tt
+# html/pfappserver/root/config/pfcron/list.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
@@ -2999,14 +2999,14 @@ msgstr "Activer ou désactiver la génération d’un profil de configuration XM
 msgid "Enable or disable WISPr redirection capabilities on the captive-portal"
 msgstr "Activer ou désactiver la redirection WISPr sur le portail captif"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip4log_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/ip4log_cleanup.pm
 msgid ""
 "Enable or disable ip4log rotation (moving ip4log_history records to "
 "ip4log_archive)<br>If disabled, this task will delete from the "
 "ip4log_history table rather than the ip4log_archive."
 msgstr "Activer ou désactiver la rotation de l’ip4log (déplacer les enregistrements de ip4log_history vers ip4log_archive).<br/> Si désactivé alors la tâche supprimera les entrées de ip4log_history au lieu de les archiver dans ip4log_archive."
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip6log_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/ip6log_cleanup.pm
 msgid ""
 "Enable or disable ip6log rotation (moving ip6log_history records to "
 "ip6log_archive)<br>If disabled, this task will delete from the "
@@ -3044,11 +3044,11 @@ msgid ""
 "details.Applying this requires a restart of radiusd."
 msgstr "Active le cache REDIS pour les authentifications NTLM. Pour que cela fonctionne vous devez configurer le synchronisation des hash NTLM entre PacketFence et votre Active Directory. Référez vous au guide d’administration pour plus de détails. Activer cette fonction requiert un redémarrage de radius."
 
-# html/pfappserver/root/config/pfmon/index.tt
+# html/pfappserver/root/config/pfcron/index.tt
 msgid ""
 "Enabling or disabling a task as well as modifying its interval requires a "
-"restart of pfmon to be fully effective"
-msgstr "Activer ou désactiver une tache ainsi que modifier son intervalle requiert un redémarrage de pfmon pour être effectif."
+"restart of pfcron to be fully effective"
+msgstr "Activer ou désactiver une tache ainsi que modifier son intervalle requiert un redémarrage de pfcron pour être effectif."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
@@ -3532,13 +3532,13 @@ msgstr "Nom d’hôte ou Adresse IP"
 msgid "Hours"
 msgstr "Heures"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/node_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/node_cleanup.pm
 msgid ""
 "How long can a registered node be inactive on the network before it becomes "
 "unregistered"
 msgstr "Combien de temps un périphérique enregistré peut être inactif sur le réseau avant d’être désenregistré "
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/node_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/node_cleanup.pm
 msgid ""
 "How long can an unregistered node be inactive on the network before being "
 "deleted.<br>This shouldn't be used if you are using port-security"
@@ -3551,24 +3551,24 @@ msgid ""
 "lower the value."
 msgstr "Durée d’affichage de la barre de progression lors de la redirection. La valeur par défaut est basée sur des techniques d’application de VLAN. Seuls les utilisateurs du mode Inline peuvent réduire cette valeur."
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip4log_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/ip4log_cleanup.pm
 msgid ""
 "How long to keep a ip4log archive entry before deleting it (or ip4log "
 "history if rotation is disabled)"
 msgstr "Combien de temps garder une entrée d’ip4log archive avant de la supprimer (ou ip4log si la rotation est désactivée)"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip6log_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/ip6log_cleanup.pm
 msgid ""
 "How long to keep a ip6log archive entry before deleting it (or ip6log "
 "history if rotation is disabled)"
 msgstr "Combien de temps garder une entrée d’ip6log archive avant de la supprimer (ou ip6log si la rotation est désactivée)"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip4log_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/ip4log_cleanup.pm
 msgid ""
 "How long to keep ip4log history entry before rotating it to ip4log archive."
 msgstr "Combien de temps garder une entrée d’ip4log history avant de la déplacer dans l’ip4log archive."
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip6log_cleanup.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/ip6log_cleanup.pm
 msgid ""
 "How long to keep ip6log history entry before rotating it to ip6log archive."
 msgstr "Combien de temps garder une entrée d’ip6log history avant de la déplacer dans l’ip6log archive."
@@ -3916,23 +3916,23 @@ msgstr "Interfaces & Réseaux"
 msgid "Internal"
 msgstr "Interne"
 
-# html/pfappserver/root/config/pfmon/list.tt
+# html/pfappserver/root/config/pfcron/list.tt
 msgid "Interval"
 msgstr "Intervalle"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron.pm
 msgid ""
 "Interval (frequency) at which the task is executed.<br>Requires a restart of"
-" pfmon to be fully effective. Otherwise, it will be taken in consideration "
+" pfcron to be fully effective. Otherwise, it will be taken in consideration "
 "next time the tasks runs."
-msgstr "Intervalle (frequence) à laquelle la tâche est exécutée.<br> Nécessite un redémarrage de pfmon pour être actif. Autrement cela sera pris en compte la prochaine fois que la tâche roule."
+msgstr "Intervalle (frequence) à laquelle la tâche est exécutée.<br> Nécessite un redémarrage de pfcron pour être actif. Autrement cela sera pris en compte la prochaine fois que la tâche roule."
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
 msgid ""
 "Interval at which pfbandwidthd should dump collected information into the "
-"database. This should be lower than the interval at which pfmon runs. "
+"database. This should be lower than the interval at which pfcron runs. "
 "Defaults to 41 seconds"
-msgstr "Fréquence pour laquelle pfbandwidthd devra vider les informations collectées dans la base de données. Cela devrait être inférieur à la fréquence à laquelle pfmon fonctionne, par défaut c’est à 41 secondes"
+msgstr "Fréquence pour laquelle pfbandwidthd devra vider les informations collectées dans la base de données. Cela devrait être inférieur à la fréquence à laquelle pfcron fonctionne, par défaut c’est à 41 secondes"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 # (collector.cluster_resync_interval)
@@ -4402,8 +4402,8 @@ msgid "Logs Tracking pfdhcplistener.log"
 msgstr "Suivi de pfdhcplistener.log"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
-msgid "Logs Tracking pfmon.log"
-msgstr "Suivi de pfmon.log"
+msgid "Logs Tracking pfcron.log"
+msgstr "Suivi de pfcron.log"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Logs Tracking radius-load_balancer.log"
@@ -4507,7 +4507,7 @@ msgstr "Configuration générale:"
 msgid "Main reference attribute that contain the username"
 msgstr "Attribut principal qui contient l'identifiant"
 
-# html/pfappserver/root/config/pfmon/index.tt
+# html/pfappserver/root/config/pfcron/index.tt
 msgid "Maintenance Tasks"
 msgstr "Tâches de Maintenance"
 
@@ -4587,7 +4587,7 @@ msgstr "ID du marchant"
 msgid "Message"
 msgstr "Message"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/certificates_check.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/certificates_check.pm
 msgid ""
 "Minimum gap before certificate expiration date (will the certificate expires"
 " in ...)"
@@ -4620,9 +4620,9 @@ msgstr "Modifier le mot de passe"
 
 # html/pfappserver/root/configuration/section.tt
 msgid ""
-"Modifying any of theses values requires to restart 'pfmon' service to be "
+"Modifying any of theses values requires to restart 'pfcron' service to be "
 "effective."
-msgstr "Une modification de ces valeurs requiert un redémarrage de pfmon."
+msgstr "Une modification de ces valeurs requiert un redémarrage de pfcron."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Eduroam.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
@@ -4886,9 +4886,9 @@ msgstr "Nouveau fournisseur de certificats"
 msgid "New Password"
 msgstr "Nouveau mot de passe"
 
-# html/pfappserver/root/config/pfmon/view.tt
-msgid "New Pfmon Entry"
-msgstr "Nouvelle entrée Pfmon"
+# html/pfappserver/root/config/pfcron/view.tt
+msgid "New Pfcron Entry"
+msgstr "Nouvelle entrée Pfcron"
 
 # html/pfappserver/root/config/provisioning/view.tt
 msgid "New Provisioning Entry"
@@ -5410,16 +5410,16 @@ msgid "PFDETECT_UPDATE"
 msgstr "Parser Syslog - Mise à jour"
 
 # pf::admin_roles (Actions groups)
-msgid "PFMON"
-msgstr "PFMON"
+msgid "PFCRON"
+msgstr "PFCRON"
 
 # pf::admin_roles (Actions)
-msgid "PFMON_READ"
-msgstr "PFMON_READ"
+msgid "PFCRON_READ"
+msgstr "PFCRON_READ"
 
 # pf::admin_roles (Actions)
-msgid "PFMON_UPDATE"
-msgstr "PFMON_UPDATE"
+msgid "PFCRON_UPDATE"
+msgstr "PFCRON_UPDATE"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "PID"
@@ -5785,13 +5785,13 @@ msgstr "Effectuer les tâches"
 msgid "Period of time after the password must be rotated."
 msgstr "Période de temps après laquelle le mot de passe doit être remplacé."
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
-msgid "Pfmon Name"
-msgstr "Nom Pfmon"
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron.pm
+msgid "Pfcron Name"
+msgstr "Nom Pfcron"
 
-# html/pfappserver/root/config/pfmon/view.tt
-msgid "Pfmon Task"
-msgstr "Tâche Pfmon"
+# html/pfappserver/root/config/pfcron/view.tt
+msgid "Pfcron Task"
+msgstr "Tâche Pfcron"
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Phone"
@@ -5988,9 +5988,9 @@ msgstr "Veuillez spécifier un nom à l'entrée Syslog"
 msgid "Please specify the name of the admin role."
 msgstr "Veuillez spécifier le nom du rôle admin."
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
-msgid "Please specify the name of the pfmon entry"
-msgstr "Veuillez spécifier le nom de l’entrée Pfmon"
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron.pm
+msgid "Please specify the name of the pfcron entry"
+msgstr "Veuillez spécifier le nom de l’entrée Pfcron"
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 msgid "Please specify the name of the rule"
@@ -7125,7 +7125,7 @@ msgstr "SSL"
 msgid "SSL Certificate URL"
 msgstr "URL du certificat SSL"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/certificates_check.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/certificates_check.pm
 msgid "SSL certificate(s) to monitor. Comma-delimited list"
 msgstr "Certificat(s) SSL à surveiller. Liste séparée par des virgules."
 
@@ -7226,7 +7226,7 @@ msgstr "Système - Mise à jour"
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/pfdetect/view.tt
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/portal_module/view.tt
 # html/pfappserver/root/config/profile/create.tt
@@ -7303,7 +7303,7 @@ msgstr "Recherches sauvegardées"
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/pfdetect/view.tt
-# html/pfappserver/root/config/pfmon/view.tt
+# html/pfappserver/root/config/pfcron/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/portal_module/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
@@ -7758,10 +7758,10 @@ msgstr "Est-ce que pffilter doit être géré par PacketFence ?"
 msgid "Should pfipset be managed by PacketFence?"
 msgstr "Est-ce pfipset doit être géré par PacketFence ?"
 
-# conf/documentation.conf (services.pfmon)
+# conf/documentation.conf (services.pfcron)
 msgid ""
-"Should pfmon be started? Keep enabled unless you know what you're doing."
-msgstr "Est-ce que pfmon doit être démarré ? Gardez le activé sauf si vous savez ce que vous faites."
+"Should pfcron be started? Keep enabled unless you know what you're doing."
+msgstr "Est-ce que pfcron doit être démarré ? Gardez le activé sauf si vous savez ce que vous faites."
 
 # conf/documentation.conf (services.pfperl-api)
 msgid ""
@@ -7863,8 +7863,8 @@ msgstr "Doit on transférer la requête à PacketFence pour avoir une réponse d
 # conf/documentation.conf (inline.accounting)
 msgid ""
 "Should we handle accouting data for inline clients? This controls inline "
-"accouting tasks in pfmon."
-msgstr "Faut-il traiter les données comptables pour les clients inline ? Ce contrôle des tâches de comptabilité en inline se fait dans pfmon."
+"accouting tasks in pfcron."
+msgstr "Faut-il traiter les données comptables pour les clients inline ? Ce contrôle des tâches de comptabilité en inline se fait dans pfcron."
 
 # conf/documentation.conf (services.winbindd)
 msgid ""
@@ -8432,7 +8432,7 @@ msgstr "VLANs taggé"
 msgid "Target Role"
 msgstr "Rôle cible"
 
-# html/pfappserver/root/config/pfmon/list.tt
+# html/pfappserver/root/config/pfcron/list.tt
 msgid "Task Name"
 msgstr "Nom de tâche"
 
@@ -10253,7 +10253,7 @@ msgstr "Utilisez ou non la communication HTTPS avec l'API Fingerbank"
 msgid "Whether or not HTTPS should be used to communicate with the collector"
 msgstr "Utilisez ou non la communication HTTPS avec le collecteur"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon/switch_cache_lldpLocalPort_description.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/switch_cache_lldpLocalPort_description.pm
 msgid ""
 "Whether or not a switch range should be expanded to process each of its IPs"
 msgstr "Est ce qu'une gamme de commutateurs doit être étendu pour procéder tous ses IPs."
@@ -10275,11 +10275,11 @@ msgid ""
 "doesn't have DHCP information."
 msgstr "Effectuez ou non une requête ARP si le collecteur n'a pas l'information DHCP"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron.pm
 msgid ""
-"Whether or not this task is enabled.<br>Requires a restart of pfmon to be "
+"Whether or not this task is enabled.<br>Requires a restart of pfcron to be "
 "effective."
-msgstr "Que cette tâche soit ou non activée. <br> Nécessite un redémarrage de pfmon pour être appliquer."
+msgstr "Que cette tâche soit ou non activée. <br> Nécessite un redémarrage de pfcron pour être appliquer."
 
 # conf/documentation.conf (active_active.galera_replication)
 msgid "Whether or not to activate galera cluster when using a cluster"
@@ -11233,7 +11233,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
-# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsso options)
@@ -11388,7 +11388,7 @@ msgstr "en_US"
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
-# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsso options)
@@ -12644,8 +12644,8 @@ msgid "services.pfipset_binary"
 msgstr "Emplacement du binaire pfipset."
 
 # conf/documentation.conf
-msgid "services.pfmon"
-msgstr "pfmon"
+msgid "services.pfcron"
+msgstr "pfcron"
 
 # conf/documentation.conf
 msgid "services.pfperl-api"

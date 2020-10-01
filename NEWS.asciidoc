@@ -16,8 +16,11 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* EAP_TTLS PAP Support on a ldap source
-* Edirectory source
+* EAP_TTLS PAP Support on a LDAP source
+* eDirectory source
+* Master/Slave radius proxy and degraded workflow
+* go based pfmon (#5613)
+* Integration tests: configurator scenario added (#5484)
 
 Enhancements
 ++++++++++++
@@ -32,6 +35,11 @@ Enhancements
 * Add support for CLI Access for Switch::Template (#5708)
 * Use Status Check in pfstats to test radius/eduroam sources
 * Switch templates can define how to map a NasPort to an IfIndex (#5779)
+* Syslog parsers are now tenant aware.
+* Add default MAC address randomization security event check
+* Allow to delete a node from web admin with a locationlog opened (#5492)
+* Allow roles to be delete
+
 
 Bug Fixes
 +++++++++
@@ -42,6 +50,11 @@ Bug Fixes
 * haproxy-db can cause pfcmd service restart to failed (#5745)
 * Pass in the mandatory fields to the email templates.
 * Dell N1500.pm: LLDP detection doesn't work (#5758)
+* Ensure the gateway was only written once in /etc/sysconfig/network (#2845)
+* Remove the ip address of a server in the dhcp reply when the server has been disabled (#5677)
+* Allow to set multiples ca certificates.
+* Listen to all interfaces for radius accounting (#5821)
+* Searching by 'Source Switch Identifier' for a switch range doesn't work (#5792)
 
 Version 10.1.0 released on 2020-06-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

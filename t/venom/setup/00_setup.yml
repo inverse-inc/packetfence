@@ -10,7 +10,7 @@ testcases:
       body: >-
         {
         "username": "{{.pfserver_default_admin_user}}",
-        "password": "{{.pfserver_default_admin_password}}"
+        "password": "{{.pfserver_admin_password}}"
         }      
       headers:
         "Content-Type": "application/json"

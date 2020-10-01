@@ -147,12 +147,13 @@ sub unknown_state {
                 # set the cache, incrementing before on purpose (otherwise it's not hitting the cache)
                 $self->app->user_cache->set("unknown_state_hits", ++$cached_lost_device, "5 minutes");
 
-                get_logger->info("Reevaluating access of device.");
+                get_logger->info("Device is registered and still on the portal, attempting to release it again.");
 
-                reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
+                $self->release();
+            } else {
+                get_logger->warn("Too many attempts to release the device.");
+                return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
             }
-
-            return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
         }
     }
 }
@@ -287,7 +288,11 @@ sub apply_new_node_info {
         return $TRUE;
     }
     else {
-        $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        if (defined($status_msg) && $status_msg ne '') {
+            $self->app->error($status_msg);
+        } else {
+            $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        }
         $self->detach();
     }
 }

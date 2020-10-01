@@ -1,7 +1,9 @@
 import axios from 'axios'
 import store from '@/store'
 
-const baseURL = '/api/v1/'
+const baseURL = (process.env.VUE_APP_API_BASEURL)
+  ? process.env.VUE_APP_API_BASEURL
+  : '/api/v1/'
 
 const apiCall = axios.create({
   baseURL
@@ -19,14 +21,14 @@ function _encodeURL (url) {
   return url
 }
 
-const methodsWithoutData = ['delete', 'get', 'head', 'options']
+const methodsWithoutData = ['get', 'head', 'options']
 methodsWithoutData.forEach((method) => {
   apiCall[method] = (url, config = {}) => {
     return apiCall.request({ ...config, method, url: _encodeURL(url) })
   }
 })
 
-const methodsWithData = ['post', 'put', 'patch']
+const methodsWithData = ['post', 'put', 'patch', 'delete']
 methodsWithData.forEach((method) => {
   apiCall[method] = (url, data, config = {}) => {
     return apiCall.request({ ...config, method, url: _encodeURL(url), data })
@@ -134,15 +136,17 @@ Object.assign(apiCall, {
   if (apiServer) {
     request.headers['X-PacketFence-Server'] = apiServer
   }
-  const apiTenant = localStorage.getItem('X-PacketFence-Tenant-Id')
-  if (apiTenant) {
-    request.headers['X-PacketFence-Tenant-Id'] = apiTenant
-  }
-  else {
-    const { state: { session: { tenant } = {} } = {} } = store
-    if (tenant) {
-      const { id } = tenant
-      request.headers['X-PacketFence-Tenant-Id'] = id
+  if (!('X-PacketFence-Tenant-Id' in request.headers)) {
+    const apiTenant = localStorage.getItem('X-PacketFence-Tenant-Id')
+    if (apiTenant) {
+      request.headers['X-PacketFence-Tenant-Id'] = apiTenant
+    }
+    else {
+      const { state: { session: { tenant } = {} } = {} } = store
+      if (tenant) {
+        const { id } = tenant
+        request.headers['X-PacketFence-Tenant-Id'] = id
+      }
     }
   }
   return request

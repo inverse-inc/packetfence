@@ -26,7 +26,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $self_service_config_file;
-
+    $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
     my $defaults = Config::IniFiles->new( -file => $self_service_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
@@ -36,10 +36,11 @@ sub build_child {
 
     my %tmp_cfg = %{ $self->{cfg} };
 
-    foreach my $key ( keys %tmp_cfg ) {
-        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+    while (my ($key, $item) = each %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $item );
     }
 
+    $self->roleReverseLookup(\%tmp_cfg, 'selfservice', qw(roles_allowed_to_unregister device_registration_roles));
     return \%tmp_cfg;
 
 }

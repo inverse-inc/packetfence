@@ -104,7 +104,7 @@
                 <b-form-select class="mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3 my-0" align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
+              <b-pagination class="mr-3 my-0" align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :last-number="true" :disabled="isLoading"
                 @change="onPageChange" />
               <pf-button-export-to-csv filename="nodes.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
@@ -159,6 +159,11 @@
         <template v-slot:cell(locationlog.switch_ip)="item">
           <b-button variant="link" :to="{ name: 'switch', params: { id: item.value } }">{{ item.value }}</b-button>
         </template>
+        <template v-slot:cell(buttons)="item">
+          <span class="float-right text-nowrap text-right">
+            <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="remove(item.item)" reverse/>
+          </span>
+        </template>
         <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No node found') }}</pf-empty-table>
         </template>
@@ -178,6 +183,7 @@
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
@@ -199,6 +205,7 @@ export default {
   ],
   components: {
     pfProgress,
+    pfButtonDelete,
     pfButtonExportToCsv,
     pfEmptyTable,
     pfFingerbankScore,
@@ -394,7 +401,7 @@ export default {
         {
           value: 'locationlog.switch_ip',
           text: 'Source Switch IP', // i18n defer
-          types: [conditionType.SUBSTRING],
+          types: [conditionType.SWITCH_IP],
           icon: 'sitemap'
         },
         {
@@ -751,7 +758,7 @@ export default {
           formatter: (this.$can.apply(null, ['read', 'security_events']))
             ? formatter.securityEventIdsToDescCsv
             : formatter.noAdminRolePermission
-        }
+        },
         /* TODO - #4166
         {
           key: 'security_event.close_count',
@@ -760,6 +767,11 @@ export default {
           class: 'text-nowrap'
         }
         */
+        {
+          key: 'buttons',
+          label: '',
+          locked: true
+        }
       ]
     }
   },
@@ -1133,6 +1145,11 @@ export default {
           })
         })
       }
+    },
+    remove (item) {
+      this.$store.dispatch(`${this.storeName}/deleteNode`, item.mac).then(() => {
+        this.onSearch()
+      })
     }
   }
 }

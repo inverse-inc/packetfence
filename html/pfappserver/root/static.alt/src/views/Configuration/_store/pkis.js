@@ -51,7 +51,12 @@ const getters = {
   isCertLoading: state => state.certStatus === types.LOADING,
 
   isRevokedCertWaiting: state => [types.LOADING, types.DELETING].includes(state.revokedCertStatus),
-  isRevokedCertLoading: state => state.revokedCertStatus === types.LOADING
+  isRevokedCertLoading: state => state.revokedCertStatus === types.LOADING,
+
+  cas: state => state.caListCache,
+  profiles: state => state.profileListCache,
+  certs: state => state.certListCache,
+  revokedCerts: state => state.revokedCertListCache
 }
 
 const actions = {
@@ -81,9 +86,13 @@ const actions = {
       throw err
     })
   },
-  createCa: ({ commit }, data) => {
+  createCa: ({ commit, dispatch }, data) => {
     commit('CA_REQUEST')
     return api.createPkiCa(data).then(item => {
+      // reset list
+      commit('CA_LIST_RESET')
+      dispatch('allCas')
+      // update item
       commit('CA_ITEM_REPLACED', item)
       return item
     }).catch(err => {
@@ -118,9 +127,13 @@ const actions = {
       throw err
     })
   },
-  createProfile: ({ commit }, data) => {
+  createProfile: ({ commit, dispatch }, data) => {
     commit('PROFILE_REQUEST')
     return api.createPkiProfile(data).then(item => {
+      // reset list
+      commit('PROFILE_LIST_RESET')
+      dispatch('allProfiles')
+      // update item
       commit('PROFILE_ITEM_REPLACED', item)
       return item
     }).catch(err => {
@@ -128,9 +141,13 @@ const actions = {
       throw err
     })
   },
-  updateProfile: ({ commit }, data) => {
+  updateProfile: ({ commit, dispatch }, data) => {
     commit('PROFILE_REQUEST')
     return api.updatePkiProfile(data).then(item => {
+      // reset list
+      commit('PROFILE_LIST_RESET')
+      dispatch('allProfiles')
+      // update item
       commit('PROFILE_ITEM_REPLACED', item)
       return item
     }).catch(err => {
@@ -172,9 +189,13 @@ const actions = {
       return binary
     })
   },
-  createCert: ({ commit }, data) => {
+  createCert: ({ commit, dispatch }, data) => {
     commit('CERT_REQUEST')
     return api.createPkiCert(data).then(item => {
+      // reset list
+      commit('CERT_LIST_RESET')
+      dispatch('allCerts')
+      // update item
       commit('CERT_ITEM_REPLACED', item)
       return item
     }).catch(err => {
@@ -192,9 +213,15 @@ const actions = {
       throw err
     })
   },
-  revokeCert: ({ commit }, data) => {
+  revokeCert: ({ commit, dispatch }, data) => {
     commit('CERT_REQUEST')
     return api.revokePkiCert(data).then(response => {
+      // reset list(s)
+      commit('CERT_LIST_RESET')
+      dispatch('allCerts')
+      commit('REVOKED_CERT_LIST_RESET')
+      dispatch('allRevokedCerts')
+      // update item
       commit('CERT_ITEM_REVOKED', data.id)
       return response
     }).catch(err => {
@@ -236,6 +263,9 @@ const mutations = {
     state.caStatus = type || types.LOADING
     state.caMessage = ''
   },
+  CA_LIST_RESET: (state) => {
+    state.caListCache = false
+  },
   CA_LIST_REPLACED: (state, items) => {
     state.caStatus = types.SUCCESS
     state.caListCache = items
@@ -255,6 +285,9 @@ const mutations = {
   PROFILE_REQUEST: (state, type) => {
     state.profileStatus = type || types.LOADING
     state.profileMessage = ''
+  },
+  PROFILE_LIST_RESET: (state) => {
+    state.profileListCache = false
   },
   PROFILE_LIST_REPLACED: (state, items) => {
     state.profileStatus = types.SUCCESS
@@ -280,6 +313,9 @@ const mutations = {
     state.certStatus = types.SUCCESS
     state.certMessage = ''
   },
+  CERT_LIST_RESET: (state) => {
+    state.certListCache = false
+  },
   CERT_LIST_REPLACED: (state, items) => {
     state.certStatus = types.SUCCESS
     state.certListCache = items
@@ -292,7 +328,7 @@ const mutations = {
   CERT_ITEM_EMAILED: (state) => {
     state.certStatus = types.SUCCESS
   },
-  CERT_ITEM_REVOKED: (state, id) => {
+  CERT_ITEM_REVOKED: (state) => {
     state.certStatus = types.SUCCESS
     store.dispatch('config/resetPkiCerts')
   },
@@ -306,6 +342,9 @@ const mutations = {
   REVOKED_CERT_REQUEST: (state, type) => {
     state.revokedCertStatus = type || types.LOADING
     state.revokedCertMessage = ''
+  },
+  REVOKED_CERT_LIST_RESET: (state) => {
+    state.revokedCertListCache = false
   },
   REVOKED_CERT_LIST_REPLACED: (state, items) => {
     state.revokedCertStatus = types.SUCCESS

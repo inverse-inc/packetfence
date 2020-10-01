@@ -53,7 +53,7 @@
                 </pf-form-upload>
               </pf-form-row>
               <template v-if="'ca' in certs[id]">
-                <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Certificate Authority')"
+                <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Certification Authority certificate(s)')"
                   v-model.trim="certs[id].ca"></pf-form-textarea>
                 <pf-form-row row-class="mt-0 mb-3">
                   <pf-form-upload class="btn-outline-secondary btn-sm" @files="certs[id].ca = $event[0].result" :multiple="false" accept="text/*" read-as-text>
@@ -134,9 +134,9 @@
                 </pf-form-row>
               </b-container>
             </b-form-group>
-            <b-form-group label-cols-md="3" label-size="lg" :label="$t('Certificate Authority')" v-if="info[id].ca">
-              <b-container fluid>
-                <pf-form-row align-v="baseline" v-for="(value, key) in info[id].ca" :key="key" :column-label="$t(key)">
+            <b-form-group label-cols-md="3" label-size="lg" :label="$t('Certification Authority certificate(s)')" v-if="info[id].ca">
+              <b-container class="mb-3" fluid v-for="(ca, index) in info[id].ca" :key="index">
+                <pf-form-row align-v="baseline" v-for="(value, key) in ca" :key="key" :column-label="$t(key)">
                   {{ value }}
                 </pf-form-row>
               </b-container>

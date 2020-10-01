@@ -81,9 +81,24 @@ sub nodecategory_populate_from_config {
         $logger->error($msg);
         return;
     }
+    my @keep;
     while(my ($id, $role) = each(%$config)) {
+        push @keep, $id;
         nodecategory_upsert($id, %$role);
     }
+    _nodecategory_bulk_delete(\@keep);
+}
+
+sub _nodecategory_bulk_delete {
+    my ($keep) = @_;
+    pf::dal::node_category->remove_items(
+        -ignore => 1,
+        -where => {
+            name => {
+                -not_in => $keep,
+            },
+        }
+    );
 }
 
 =item nodecategory_upsert

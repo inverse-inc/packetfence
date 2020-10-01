@@ -12,11 +12,16 @@
 #  common side effect of setting 'Auth-Type := EAP' is that the
 #  users then cannot use ANY other authentication method.
 #
+[% FOREACH section IN [ '' "eap-degraded" ] %]
 [% FOREACH key IN eap.keys %]
 [% IF key == 'default' %]
-eap {
+eap [% section %] {
+[% ELSE %]
+[% IF section == 'eap-degraded' %]
+eap [% key -%]-[% section %] {
 [% ELSE %]
 eap [% key -%] {
+[% END %]
 [% END %]
 	#  Invoke the default supported EAP type when
 	#  EAP-Identity response is received.
@@ -662,7 +667,11 @@ eap [% key -%] {
 		#  the virtual server that processed the
 		#  outer requests.
 		#
+[% IF section == 'eap-degraded' %]
+		virtual_server = "packetfence-degraded-tunnel"
+[% ELSE %]
 		virtual_server = "packetfence-tunnel"
+[% END %]
 
 		#  This has the same meaning, and overwrites, the
 		#  same field in the "tls" configuration, above.
@@ -783,8 +792,11 @@ eap [% key -%] {
 		#  the virtual server that processed the
 		#  outer requests.
 		#
+[% IF section == 'eap-degraded' %]
+		virtual_server = "packetfence-degraded-tunnel"
+[% ELSE %]
 		virtual_server = "packetfence-tunnel"
-
+[% END %]
 		#
 		# Unlike EAP-TLS, PEAP does not require a client certificate.
 		# However, you can require one by setting the following
@@ -928,4 +940,4 @@ eap [% key -%] {
 		use_tunneled_reply = yes
 
 	}[% END %][% END %]
-}[% END -%]
+}[% END -%][% END %]

@@ -361,7 +361,8 @@ sub action_autoregister {
         my $node_info = node_view($mac);
         my $pid = $node_info->{'pid'} || 'default';
         my %info = (
-            auto_registered => 1
+            auto_registered => 1,
+            unregdate => $unregdate,
         );
         ( $status, $status_msg ) = pf::node::node_register($mac, $pid, %info);
 

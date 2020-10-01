@@ -154,10 +154,7 @@ const route = {
   redirect: '/configuration/policies_access_control',
   component: ConfigurationView,
   meta: {
-    can: () => {
-      return acl.$can('read', 'configuration_main') // has ACL for 1+ children
-    },
-    fail: { path: '/status', replace: true }, // no ACL in this view, redirect to first sibling
+    can: () => acl.$can('read', 'configuration_main'), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -388,10 +385,10 @@ const route = {
       props: (route) => ({ tab: 'realms', query: route.query.query })
     },
     {
-      path: 'realms/new',
+      path: 'realms/:tenantId/new',
       name: 'newRealm',
       component: RealmView,
-      props: () => ({ formStoreName: 'formRealm', isNew: true }),
+      props: (route) => ({ formStoreName: 'formRealm', isNew: true, tenantId: route.params.tenantId }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formRealm) { // Register store module only once
           store.registerModule('formRealm', FormStore)
@@ -400,29 +397,29 @@ const route = {
       }
     },
     {
-      path: 'realm/:id',
+      path: 'realm/:tenantId/:id',
       name: 'realm',
       component: RealmView,
-      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id }),
+      props: (route) => ({ formStoreName: 'formRealm', tenantId: route.params.tenantId, id: route.params.id }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formRealm) { // Register store module only once
           store.registerModule('formRealm', FormStore)
         }
-        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
+        store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
           next()
         })
       }
     },
     {
-      path: 'realm/:id/clone',
+      path: 'realm/:tenantId/:id/clone',
       name: 'cloneRealm',
       component: RealmView,
-      props: (route) => ({ formStoreName: 'formRealm', id: route.params.id, isClone: true }),
+      props: (route) => ({ formStoreName: 'formRealm', tenantId: route.params.tenantId, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         if (!store.state.formRealm) { // Register store module only once
           store.registerModule('formRealm', FormStore)
         }
-        store.dispatch('$_realms/getRealm', to.params.id).then(() => {
+        store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
           next()
         })
       }
