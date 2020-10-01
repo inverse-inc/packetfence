@@ -33,6 +33,7 @@ use pf::ip4log;
 use JSON::MaybeXS qw(encode_json);
 use pf::config qw (
     $WEBAUTH_WIRELESS
+    $WIRELESS_MAC_AUTH
     %connection_type_to_str
 );
 use pf::util::radius qw(perform_disconnect);
@@ -106,8 +107,10 @@ Deauthenticate a client using HTTP or RADIUS depending on the connection type
 sub deauth {
     my ($self, $mac) = @_;
     my $node_info = node_view($mac);
-    if ($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS}) {
-        $self->deauthenticateMacWebservices($mac);
+    if (isenabled($self->{_ExternalPortalEnforcement})) {
+        if($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS} || $node_info->{last_connection_type} eq $connection_type_to_str{$WIRELESS_MAC_AUTH}) {
+            $self->deauthenticateMacWebservices($mac);
+        }
     }
     else {
         $self->deauthenticateMacDefault($mac);
