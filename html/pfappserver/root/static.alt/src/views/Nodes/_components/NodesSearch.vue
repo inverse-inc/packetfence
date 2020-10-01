@@ -423,12 +423,6 @@ export default {
           icon: 'sitemap'
         },
         {
-          value: 'locationlog.ifDesc',
-          text: 'Source Switch Description', // i18n defer
-          types: [conditionType.SUBSTRING],
-          icon: 'sitemap'
-        },
-        {
           value: 'locationlog.ssid',
           text: 'SSID', // i18n defer
           types: [conditionType.SUBSTRING],
@@ -646,11 +640,6 @@ export default {
         {
           key: 'locationlog.ifDesc',
           label: 'Switch Port Description', // i18n defer
-          sortable: true
-        },
-        {
-          key: 'locationlog.ifDesc',
-          label: 'Switch Description', // i18n defer
           sortable: true
         },
         {
