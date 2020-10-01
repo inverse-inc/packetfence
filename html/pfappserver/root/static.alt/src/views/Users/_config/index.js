@@ -58,7 +58,7 @@ export const createForm = {
     pid_overwrite: 0,
     pid: '',
     email: '',
-    sponsor: store.state['session'].username, // TODO - #4395, remove when backend implements default sponsor
+    sponsor: '',
     password: '',
     login_remaining: null,
     gender: '',

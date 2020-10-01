@@ -45,6 +45,7 @@
                 <pf-form-input :column-label="$t('Sponsor')"
                   :form-store-name="formStoreName" form-namespace="single.sponsor"
                   :text="$t('If no sponsor is defined the current user will be used.')"
+                  :placeholder="$store.state['session'].username"
                 />
                 <pf-form-input :column-label="$t('Language')"
                   :form-store-name="formStoreName" form-namespace="single.lang"
