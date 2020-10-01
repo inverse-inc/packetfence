@@ -118,6 +118,7 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 			go func(ctx context.Context) {
 				for {
 					pfconfigdriver.PfconfigPool.Refresh(ctx)
+					pf.detectVIP()
 					time.Sleep(1 * time.Second)
 				}
 			}(ctx)
@@ -130,9 +131,9 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 // ServeDNS implements the middleware.Handler interface.
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
-	id, _ := GlobalTransactionLock.Lock()
+	id, _ := GlobalTransactionLock.RLock()
 
-	defer GlobalTransactionLock.Unlock(id)
+	defer GlobalTransactionLock.RUnlock(id)
 
 	pf.RefreshPfconfig(ctx)
 
@@ -410,9 +411,6 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.A).A = pf.RedirectIP.To4()
 			}
 		}
-		if rr.(*dns.A).A == nil {
-			pf.detectVIP()
-		}
 	case 2:
 		rr = new(dns.AAAA)
 		var found bool
@@ -446,9 +444,6 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			} else {
 				rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
 			}
-		}
-		if rr.(*dns.AAAA).AAAA == nil {
-			pf.detectVIP()
 		}
 	}
 
