@@ -15,7 +15,7 @@ func (c *ChiCleanup) Run() {
 	BatchSql(
 		context.Background(),
 		c.Timeout,
-		`DELETE FROM chi_cache WHERE expires_at > ? LIMIT ?`,
+		`DELETE FROM chi_cache WHERE expires_at < ? LIMIT ?`,
 		float64(time.Now().UnixNano())/float64(time.Second),
 		c.Batch,
 	)
