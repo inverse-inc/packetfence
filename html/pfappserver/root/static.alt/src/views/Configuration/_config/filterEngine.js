@@ -102,6 +102,14 @@ const fieldOperatorsFromMeta = (meta = {}) => {
   })
 }
 
+const paramsFieldsFromMeta = (meta = {}) => {
+  const { params: { item: { properties: { type:  { allowed = [] } = {} } = {} } = {} } = {} } = meta
+  return allowed.map(allowed => {
+    const { text, value } = allowed
+    return { text, value, types: [fieldType.SUBSTRING] }
+  })
+}
+
 const valueOperatorsFromMeta = (meta = {}) => {
   const { condition: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
   return allowed.filter(allowed => {
@@ -142,7 +150,7 @@ export const viewFields = {
   actions: (form, meta = {}) => {
     return {
       label: i18n.t('Actions'),
-      text: i18n.t('Specify actions when condition is met.'),
+      text: i18n.t('Specify actions to perform when condition is met.'),
       cols: [
         {
           namespace: 'actions',
@@ -246,7 +254,45 @@ export const viewFields = {
       ]
     }
   },
-  merge_answer: (form, meta = {}) => {
+  log: (form, meta = {}) => {
+    return {
+      label: i18n.t('Log Entry'),
+      text: i18n.t('Specify the message to write to packetfence.log'),
+      cols: [
+        {
+          namespace: 'log',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'log')
+        }
+      ]
+    }
+  },
+  params: (form, meta = {}) => {
+    return {
+      label: i18n.t('Parameters'),
+      text: i18n.t('Specify parameters to apply when condition is met.'),
+      cols: [
+        {
+          namespace: 'params',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: i18n.t('Add Parameter'),
+            sortable: false,
+            field: {
+              component: pfFieldTypeValue,
+              attrs: {
+                typeLabel: i18n.t('Type'),
+                valueLabel: i18n.t('Value'),
+                fields: paramsFieldsFromMeta(meta)
+              }
+            },
+            invalidFeedback: i18n.t('Parameters contain one or more errors.')
+          }
+        }
+      ]
+    }
+  },
+  merge_answer: () => {
     return {
       label: i18n.t('Merge Answer'),
       text: i18n.t('Enable to merge the following answers with the original RADIUS answers.'),
@@ -339,6 +385,25 @@ export const viewFields = {
         }
       ]
     }
+  },
+  switch: (form, meta = {}) => {
+    return {
+      label: i18n.t('Switch'),
+      text: i18n.t('Specify which switch module to use.'),
+      cols: [
+        {
+          namespace: 'switch',
+          component: pfFormChosen,
+          attrs: {
+            ...attributesFromMeta(meta, 'switch'),
+            groupLabel: 'group',
+            groupValues: 'options',
+            optionsLimit: 1000,
+            allowEmpty: true
+          }
+        }
+      ]
+    }
   }
 }
 
@@ -346,9 +411,12 @@ const formKeyOrder = [
   'id',
   'description',
   'status',
+  'log',
+  'switch',
   'condition',
   'run_actions',
   'actions',
+  'params',
   'merge_answer',
   'answers',
   'role',
@@ -487,6 +555,16 @@ export const validatorFields = {
     return {
       description: {
         [i18n.t('Description required.')]: required
+      }
+    }
+  },
+  params: (form, meta = {}) => {
+    return {
+      params: {
+        $each: {
+          type: validatorsFromMeta(meta, 'params.type', i18n.t('Type')),
+          value: validatorsFromMeta(meta, 'params.value', i18n.t('Value'))
+        }
       }
     }
   },
