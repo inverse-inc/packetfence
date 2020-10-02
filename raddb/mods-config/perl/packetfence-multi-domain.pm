@@ -23,6 +23,7 @@ use warnings;
 
 
 use lib '/usr/local/pf/lib/';
+use lib '/usr/local/pf/raddb/mods-config/perl/';
 
 use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
@@ -34,9 +35,7 @@ use pfconfig::cached_array;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::config::tenant;
-tie our %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
-tie our @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
-tie our %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain', tenant_id_scoped => 1;
+use multi_domain_constants;
 
 require 5.8.8;
 
@@ -55,9 +54,13 @@ RADIUS calls this method to authorize clients.
 
 sub authorize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, 'stat' => "freeradius::" . called() });
-    pf::config::tenant::set_tenant($RAD_CONFIG{'PacketFence-Tenant-Id'});
     # For debugging purposes only
     #&log_request_attributes;
+    
+    my $tenant_data = $multi_domain_constants::DATA->{$RAD_CONFIG{'PacketFence-Tenant-Id'}};
+    my %ConfigRealm = %{$tenant_data->{ConfigRealm}};
+    my @ConfigOrderedRealm = @{$tenant_data->{ConfigOrderedRealm}};
+    my %ConfigDomain = %{$tenant_data->{ConfigDomain}};
 
     # We try to find the realm that's configured in PacketFence
     my $realm_config;

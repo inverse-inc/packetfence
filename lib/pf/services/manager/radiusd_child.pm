@@ -22,6 +22,8 @@ use List::MoreUtils qw(any uniq);
 use Moo;
 use NetAddr::IP;
 use Template;
+use Data::Dumper;
+use File::Slurp qw(write_file);
 
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
@@ -32,6 +34,7 @@ use pf::util;
 use Socket;
 
 use pf::constants qw($TRUE $FALSE);
+use pf::error qw(is_error);
 
 use pf::file_paths qw(
     $conf_dir
@@ -43,6 +46,8 @@ use pf::config qw(
     %Config
     $management_network
     %ConfigDomain
+    %ConfigRealm
+    @ConfigOrderedRealm
     $local_secret
     @radius_ints
     %ConfigAuthenticationLdap
@@ -116,6 +121,7 @@ sub _generateConfig {
     $self->generate_radiusd_eduroamconf($tt);
     $self->generate_radiusd_ldap($tt);
     $self->generate_radiusd_mschap($tt);
+    $self->generate_multi_domain_constants();
 }
 
 
@@ -1388,6 +1394,29 @@ $edir_config
         cache_password
 EOT
     }
+}
+
+sub generate_multi_domain_constants {
+    my $data = {};
+    my ($status, $iter) = pf::dal::tenant->search();
+    if (is_error($status)) {
+        die "Unable to fetch tenants to generate the multi-domain constants";
+    }
+    for my $tenant (@{$iter->all}) {
+        my $tenant_id = $tenant->id;
+        pf::config::tenant::set_tenant($tenant_id);
+        $data->{$tenant_id} = {
+            ConfigRealm => { %ConfigRealm }, 
+            ConfigOrderedRealm => [ @ConfigOrderedRealm ],
+            ConfigDomain => { %ConfigDomain }, 
+        };
+    }
+    $Data::Dumper::Purity = 1;
+    my $content = "package multi_domain_constants;\n\n";
+    $content .= "our " . Dumper($data);
+    $content .= "our \$DATA = \$VAR1;\n";
+    $content .= "1;\n";
+    write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
 }
 
 =head1 AUTHOR
