@@ -40,14 +40,9 @@ $cs->expandCondition($item, 'condition');
 is_deeply(
     $item->{condition},
     {
-        'values' => [
-            {
-                'value' => 'b',
-                'field' => 'a',
-                'op'    => 'equals'
-            }
-        ],
-        'op' => 'not_and'
+        'value' => 'b',
+        'field' => 'a',
+        'op'    => 'not_equals'
     }
 );
 
@@ -85,10 +80,10 @@ is_deeply(
                 {
                     'value' => 'b',
                     'field' => 'a',
-                    'op'    => 'equals'
+                    'op'    => 'not_equals'
                 }
             ],
-            'op' => 'not_and'
+            'op' => 'and'
         }
     );
 }
@@ -106,10 +101,10 @@ is_deeply(
                 {
                     'value' => 'b',
                     'field' => 'a',
-                    'op'    => 'equals'
+                    'op'    => 'not_equals'
                 }
             ],
-            'op' => 'not_and'
+            'op' => 'and'
         }
     );
 }
