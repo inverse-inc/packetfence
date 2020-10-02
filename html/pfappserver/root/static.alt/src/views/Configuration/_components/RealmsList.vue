@@ -5,7 +5,7 @@
         {{ $t('Realms') }}
         <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_default_domain_configuration" />
       </h4>
-      <pf-button-service class="mr-1" service="radiusd-acct" restart start stop></pf-button-service>
+      <div class="alert alert-warning">{{ $t(`Any changes to the realms requires to restart radiusd-auth`) }}</div>
       <pf-button-service class="mr-1" service="radiusd-auth" restart start stop></pf-button-service>
     </b-card-header>
 
