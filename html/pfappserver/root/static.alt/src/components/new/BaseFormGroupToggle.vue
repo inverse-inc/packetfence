@@ -18,6 +18,9 @@
       :state="inputState"
       :tabIndex="inputTabIndex"
       :value="inputValue"
+      :label="inputLabel"
+      :label-left="labelLeft"
+      :label-right="labelRight"
       @change="onChange"
       @focus="onFocus"
       @blur="onBlur"
@@ -46,6 +49,12 @@ const components = {
 }
 
 export const props = {
+  labelLeft: {
+    type: Boolean
+  },
+  labelRight: {
+    type: Boolean
+  },
   max: {
     type: [Number, String],
     default: 1
@@ -81,7 +90,8 @@ export const setup = (props, context) => {
   const {
     value,
     onChange,
-    max
+    max,
+    label
   } = useInputValueToggle(valueProps, props, context)
 
   const {
@@ -104,6 +114,7 @@ export const setup = (props, context) => {
     inputValue: value,
     onChange,
     inputMax: max,
+    inputLabel: label,
 
     // useInputValidator
     inputState: state,
@@ -136,15 +147,5 @@ export default {
       --range-background-color: var(--primary); /* default checked background-color */
     }
   }
-/*
-  .pf-form-range-toggle-label {
-    display: inline-flex;
-    align-items: center;
-    padding-top: calc(#{$input-padding-y} + #{$input-border-width});
-    vertical-align: middle;
-    margin: 0;
-    user-select: none;
-  }
-*/
 }
 </style>

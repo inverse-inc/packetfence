@@ -28,7 +28,7 @@ export default function useEventJail(el = ref(document)) {
       return
     const { target } = e
     if (el.value.contains(target)) {
-       el.value.focus()
+       el.value.focus({preventScroll: true})
     }
   }, el)
 

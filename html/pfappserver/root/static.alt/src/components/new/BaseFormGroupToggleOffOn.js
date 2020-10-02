@@ -1,4 +1,5 @@
 import BaseFormGroupToggle, { props as BaseFormGroupToggleProps } from './BaseFormGroupToggle'
+import i18n from '@/utils/locale'
 
 export const props = {
   ...BaseFormGroupToggleProps,
@@ -7,9 +8,13 @@ export const props = {
   options: {
     type: Array,
     default: () => ([
-      { value: 'off' },
-      { value: 'on' }
+      { value: 'off', label: i18n.t('Off') },
+      { value: 'on', label: i18n.t('On') }
     ])
+  },
+  labelRight: {
+    type: Boolean,
+    default: true
   }
 }
 

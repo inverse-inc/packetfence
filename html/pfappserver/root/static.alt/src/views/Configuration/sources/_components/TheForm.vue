@@ -5,7 +5,6 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-<pre>{{ form }}</pre>
 
     <!--
     @type: Htpasswd

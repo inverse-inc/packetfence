@@ -1,6 +1,6 @@
 <template>
   <b-form-group ref="form-group"
-    class="base-form-group"
+    class="base-form-group base-form-group-rules"
     :class="{
       'mb-0': !columnLabel
     }"
@@ -14,31 +14,61 @@
         'is-invalid': inputState === false
       }"
     >
-      <base-draggable
-        :namespace="namespace"
+      <b-button v-if="!inputValue.length" @click="itemAdd()"
+        :variant="(inputState === false) ? 'outline-danger' : 'outline-secondary'"
+        :disabled="isLocked"
+      >{{ $t('Add Rule') }}</b-button>
+
+      <draggable v-else ref="draggable"
+        class="w-100"
+        handle=".draggable-handle"
+        ghost-class="draggable-copy"
+        v-model="inputValue"
+
+        @start="onDragStart"
+        @end="onDragEnd"
       >
-        <b-row v-for="(item, index) in inputValue" :key="index"
-          align-v="top"
-        >
-          <b-col class="col-form-label text-center" :class="{
+        <b-row v-for="(item, index) in inputValue" :key="index">
+          <b-col class="col-form-label text-center py-2" :class="{
             'draggable-on': isSortable,
             'draggable-off': !isSortable
           }">
             <icon v-if="isSortable"
-              class="draggable-handle" name="th" scale="1.5" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+              class="draggable-handle" name="th" scale="1.5"
+              v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"
+            />
             <span class="draggable-index">{{ index + 1 }}</span>
           </b-col>
-          <b-col cols="10">
-            <base-rule
+          <b-col cols="10" class="py-2">
+            <base-rule ref="base-rule"
               :key="index"
               :namespace="`${namespace}.${index}`"
             />
           </b-col>
-          <b-col>
-            Post
+          <b-col class="py-2">
+            <b-link @click="itemDelete(index)"
+              :class="{
+                'text-primary': actionKey,
+                'text-secondary': !actionKey
+              }"
+              :disabled="isLocked"
+              v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Delete All') : $t('Delete Row')"
+            >
+              <icon name="minus-circle" class="cursor-pointer mx-1"/>
+            </b-link>
+            <b-link @click="itemAdd(index + 1)"
+              :class="{
+                'text-primary': actionKey,
+                'text-secondary': !actionKey
+              }"
+              :disabled="isLocked"
+              v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
+            >
+              <icon name="plus-circle" class="cursor-pointer mx-1"/>
+            </b-link>
           </b-col>
         </b-row>
-      </base-draggable>
+      </draggable>
     </b-input-group>
     <template v-slot:description v-if="inputText">
       <div v-html="inputText"/>
@@ -52,12 +82,11 @@
   </b-form-group>
 </template>
 <script>
-import { unref, computed } from '@vue/composition-api'
+import { computed, nextTick, unref, watch } from '@vue/composition-api'
+import draggable from 'vuedraggable'
 
-import {
-  BaseDraggable
-} from '@/components/new/'
 import BaseRule from './BaseRule'
+import useEventActionKey from '@/composables/useEventActionKey'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
@@ -65,7 +94,7 @@ import { useInputValidator, useInputValidatorProps } from '@/composables/useInpu
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 const components = {
-  BaseDraggable,
+  draggable,
   BaseRule
 }
 
@@ -98,13 +127,67 @@ const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
+  const actionKey = useEventActionKey(/* document */)
+
   const isSortable = computed(() => {
     return !unref(isLocked) && unref(value).length > 1
   })
 
+  const itemAdd = (index) => {
+    const _value = unref(value)
+    const isCopy = unref(actionKey)
+    const newRow = (isCopy)
+      ? JSON.parse(JSON.stringify(_value[index - 1])) // dereferenced copy
+      : {/* noop, use default */}
+    onChange([..._value.slice(0, index), newRow, ..._value.slice(index)])
+  }
+
+  const itemDelete = (index) => {
+    const _value = unref(value)
+    const isAll = unref(actionKey)
+    if (isAll)
+      onChange([])
+    else
+      onChange([..._value.slice(0, index), ..._value.slice(index + 1, _value.length)])
+  }
+
+  /**
+    * vue-draggable cross-contaminates child components after dragend, where each
+    *   child component maintains its DOM order and private state after being
+    *   re-indexed, but receives new props from their namespace, thus cross-contaminating
+    *   the component with the private state from the previous component at a given index.
+    *
+    * Any non-prop state (eg: isCollapsed) must be reset manually after an index change.
+    */
+  let isCollapseArray = []
+  const onDragStart = () => { // store draggable::children::isCollapse
+    const { refs: { draggable: { $children = [] } = {} } = {} } = context
+    isCollapseArray = $children
+      .filter(child => ('isCollapse' in child))
+      .map(child => child.isCollapse)
+  }
+
+  const onDragEnd = ({newIndex, oldIndex}) => { // restore draggable::children::isCollapse
+    if (newIndex >= isCollapseArray.length) {
+      var k = newIndex - isCollapseArray.length + 1
+      while (k--) {
+        isCollapseArray.push(undefined)
+      }
+    }
+    isCollapseArray.splice(newIndex, 0, isCollapseArray.splice(oldIndex, 1)[0])
+    const { refs: { draggable: { $children } = {} } = {} } = context
+    $children
+      .filter(child => ('isCollapse' in child))
+      .map(({isCollapse, onCollapse, onExpand}, index) => {
+        if(isCollapse !== isCollapseArray[index])
+          ((isCollapse) ? onExpand : onCollapse)()
+      })
+  }
+
   return {
     // useInput
     inputText: text,
+    isLocked,
 
     // useInputValue
     inputValue: value,
@@ -116,7 +199,12 @@ const setup = (props, context) => {
     inputInvalidFeedback: invalidFeedback,
     inputValidFeedback: validFeedback,
 
-    isSortable
+    isSortable,
+    actionKey,
+    itemAdd,
+    itemDelete,
+    onDragStart,
+    onDragEnd
   }
 }
 
@@ -131,13 +219,6 @@ export default {
 </script>
 <style lang="scss">
 .draggable-copy {
-/*
-  @include border-radius($border-radius);
-  @include transition($custom-forms-transition);
-  outline: 0;
-*/
-  padding-top: .25rem !important;
-  padding-bottom: .0625rem !important;
   background-color: $primary !important;
   path, /* svg icons */
   * {
@@ -159,8 +240,10 @@ export default {
   .base-input-range {
     background-color: $white !important;
     .handle {
+      color: $white !important;
       background-color: $primary !important;
     }
+
   }
 
 }
@@ -169,6 +252,13 @@ export default {
   .draggable-on:not(:hover) > .draggable-handle,
   .draggable-on:hover > .draggable-index {
     display: none;
+  }
+}
+.base-form-group-rules {
+  .input-group > div > .row {
+    &:nth-child(even) {
+      background-color: $table-border-color;
+    }
   }
 }
 </style>

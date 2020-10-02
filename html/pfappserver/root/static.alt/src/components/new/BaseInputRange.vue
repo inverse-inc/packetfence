@@ -1,5 +1,6 @@
 <template>
   <div style="flex-grow: 100;">
+    <div v-if="labelLeft" class="col-form-label mr-2" v-t="label"/>
     <div
       class="base-input-range"
       :class="{
@@ -19,9 +20,6 @@
           <icon v-if="isLocked" name="lock"/>
           <slot v-else/> <!-- Icon slot -->
         </span>
-        <div v-if="label" class="label" :style="labelStyle">
-          {{ label }}
-        </div>
         <div v-if="tooltip" class="tooltip" :style="valueStyle">
           <span id="value">{{ $t(tooltipFunction(inputValue)) }}</span>
         </div>
@@ -39,6 +37,7 @@
         @blur="onBlur"
       />
     </div>
+    <div v-if="labelRight" class="col-form-label ml-2" v-t="label"/>
   </div>
 </template>
 <script>
@@ -48,8 +47,14 @@ import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useInputRange, useInputRangeProps } from '@/composables/useInputRange'
 
 export const props = {
-  label: { // inner label, flips left/right @ +/- 50%
+  label: {
     type: String
+  },
+  labelLeft: {
+    type: Boolean
+  },
+  labelRight: {
+    type: Boolean
   },
   step: {
     type: [String, Number],
@@ -229,16 +234,6 @@ export default {
       border-bottom-right-radius: var(--handle-height) 100%;
       animation: animateHint var(--handle-transition-delay);
       transition: background-color var(--range-transition-delay) ease-out;
-    }
-    > .label {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      display: flex;
-      align-items: center;
-      color: var(--hint-background-color);
     }
     > .tooltip {
       position: absolute;
