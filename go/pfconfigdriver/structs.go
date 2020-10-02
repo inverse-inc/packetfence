@@ -564,3 +564,25 @@ type AllClusterServersRaw struct {
 	PfconfigArray  string `val:"yes"`
 	Element        []interface{}
 }
+
+type PfConfRadiusConfiguration struct {
+       StructConfig
+       PfconfigMethod                     string   `val:"hash_element"`
+       PfconfigNS                         string   `val:"config::Pf"`
+       PfconfigHashNS                     string   `val:"radius_configuration"`
+       RecordAccountingInSQL              string   `json:"record_accounting_in_sql"`
+       FilterInPacketfenceAuthorize       string   `json:"filter_in_packetfence_authorize"`
+       FilterInPacketfencePreProxy        string   `json:"filter_in_packetfence_pre_proxy"`
+       FilterInPacketfencePostProxy       string   `json:"filter_in_packetfence_post_proxy"`
+       FilterInPacketfencePreAcct         string   `json:"filter_in_packetfence_preacct"`
+       FilterInPacketfenceAccounting      string   `json:"filter_in_packetfence_accounting"`
+       FilterInPacketfenceTunnelAuthorize string   `json:"filter_in_packetfence-tunnel_authorize"`
+       FilterInEduroamAuthorize           string   `json:"filter_in_eduroam_authorize"`
+       FilterInEduroamPreProxy            string   `json:"filter_in_eduroam_pre_proxy"`
+       FilterInEduroamPostProxy           string   `json:"filter_in_eduroam_post_proxy"`
+       FilterInEduroamPreAcct             string   `json:"filter_in_eduroam_preacct"`
+       NTLMRedisCache                     string   `json:"ntlm_redis_cache"`
+       RadiusAttributes                   []string `json:"radius_attributes"`
+       UsernameAttributes                 []string `json:"username_attributes"`
+       ForwardKeyBalanced                 string   `json:"forward_key_balanced"`
+}
