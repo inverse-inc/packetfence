@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -63,6 +64,11 @@ func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
 }
 
 func ReturnURI(ctx context.Context, user, pass, host, dbName string) string {
+	user = strings.TrimSpace(user)
+	pass = strings.TrimSpace(pass)
+	host = strings.TrimSpace(host)
+	dbName = strings.TrimSpace(dbName)
+
 	proto := "tcp"
 	if host == "localhost" {
 		proto = "unix"

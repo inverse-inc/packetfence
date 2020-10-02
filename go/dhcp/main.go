@@ -103,7 +103,12 @@ func main() {
 	// Keep the db alive
 	go func() {
 		for {
-			MySQLdatabase.Ping()
+			err := MySQLdatabase.Ping()
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Unable to ping DB: " + err.Error())
+			} else {
+				log.LoggerWContext(ctx).Debug("Pinged DB")
+			}
 			time.Sleep(5 * time.Second)
 		}
 	}()
