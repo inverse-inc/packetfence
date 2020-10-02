@@ -99,7 +99,7 @@ export default {
       set (newTabIndex) {
         let { collections: { [newTabIndex]: { collection } = {} } = {} } = this
         if (collection) {
-          this.$router.push({ params: { collection } })
+          this.$router.push({ name: 'filterEnginesCollection', params: { collection } })
         }
       }
     },
