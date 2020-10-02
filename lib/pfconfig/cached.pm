@@ -99,15 +99,18 @@ It will return undef if it's not there or invalid
 
 sub get_from_subcache {
     my ( $self, $key ) = @_;
-    if ( defined( $self->{_subcache}{$key} ) ) {
+    my $res;
+    if ($self->{_scoped_by_tenant_id}) {
+	my $tenant_id = pf::config::tenant::get_tenant();
+	$res = $self->{_subcache}{$tenant_id}{$key};
+    } else {
+	$res = $self->{_subcache}{$key};
+    }
+
+    if ( defined( $res ) ) {
         my $valid = $self->is_valid();
         if ($valid) {
-            if ($self->{_scoped_by_tenant_id}) {
-                my $tenant_id = pf::config::tenant::get_tenant();
-                return $self->{_subcache}{$tenant_id}{$key};
-            } else {
-                return $self->{_subcache}{$key};
-            }
+            return $res;
         }
         else {
             $self->{_subcache}    = {};
