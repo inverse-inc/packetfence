@@ -19,16 +19,13 @@
         :disabled="isLocked"
       >{{ $t('Add Rule') }}</b-button>
 
-      <draggable v-else ref="draggable"
-        class="w-100"
+      <draggable v-else ref="draggableRef"
+        class="w-100 mx-3"
         handle=".draggable-handle"
         ghost-class="draggable-copy"
-        v-model="inputValue"
-
-        @start="onDragStart"
-        @end="onDragEnd"
+        v-on="draggableListeners"
       >
-        <b-row v-for="(item, index) in inputValue" :key="index">
+        <b-row v-for="(item, index) in inputValue" :key="draggableHints[index]">
           <b-col class="col-form-label text-center py-2" :class="{
             'draggable-on': isSortable,
             'draggable-off': !isSortable
@@ -41,7 +38,6 @@
           </b-col>
           <b-col cols="10" class="py-2">
             <base-rule ref="base-rule"
-              :key="index"
               :namespace="`${namespace}.${index}`"
             />
           </b-col>
@@ -82,11 +78,12 @@
   </b-form-group>
 </template>
 <script>
-import { computed, nextTick, unref, watch } from '@vue/composition-api'
+import { computed, unref } from '@vue/composition-api'
 import draggable from 'vuedraggable'
 
 import BaseRule from './BaseRule'
 import useEventActionKey from '@/composables/useEventActionKey'
+import { useArrayDraggable } from '@/composables/useArrayDraggable'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
@@ -122,6 +119,18 @@ const setup = (props, context) => {
   } = useInputValue(metaProps, context)
 
   const {
+    draggableRef,
+    draggableHints,
+
+    add: draggableAdd,
+    copy: draggableCopy,
+    remove: draggableRemove,
+    truncate: draggableTruncate,
+
+    draggableListeners
+  } = useArrayDraggable(value, onChange)
+
+  const {
     state,
     invalidFeedback,
     validFeedback
@@ -133,55 +142,37 @@ const setup = (props, context) => {
     return !unref(isLocked) && unref(value).length > 1
   })
 
-  const itemAdd = (index) => {
+  const getDraggableChildFn = (fn = () => {}) => {
+    const { $children = [] } = unref(draggableRef)
+    return $children.filter(child => fn(child))
+  }
+
+  const itemAdd = (index = 0) => {
     const _value = unref(value)
-    const isCopy = unref(actionKey)
-    const newRow = (isCopy)
-      ? JSON.parse(JSON.stringify(_value[index - 1])) // dereferenced copy
-      : {/* noop, use default */}
-    onChange([..._value.slice(0, index), newRow, ..._value.slice(index)])
+    const isCopy = unref(actionKey) && index - 1 in _value
+    if (isCopy) {
+      const { [index - 1]: { isCollapse } = {} } = getDraggableChildFn(child => 'isCollapse' in child)
+      draggableCopy(index - 1, index).then(() => {
+        if (!isCollapse) {
+          const { [index - 1]: { onExpand = () => {} } = {} } = getDraggableChildFn(child => 'isCollapse' in child)
+          onExpand()
+        }
+      })
+    }
+    else {
+      draggableAdd(index, {}).then(() => {
+        const { [index]: { onExpand = () => {} } = {}  } = getDraggableChildFn(child => 'isCollapse' in child)
+        onExpand()
+      })
+    }
   }
 
   const itemDelete = (index) => {
-    const _value = unref(value)
     const isAll = unref(actionKey)
     if (isAll)
-      onChange([])
+      draggableTruncate()
     else
-      onChange([..._value.slice(0, index), ..._value.slice(index + 1, _value.length)])
-  }
-
-  /**
-    * vue-draggable cross-contaminates child components after dragend, where each
-    *   child component maintains its DOM order and private state after being
-    *   re-indexed, but receives new props from their namespace, thus cross-contaminating
-    *   the component with the private state from the previous component at a given index.
-    *
-    * Any non-prop state (eg: isCollapsed) must be reset manually after an index change.
-    */
-  let isCollapseArray = []
-  const onDragStart = () => { // store draggable::children::isCollapse
-    const { refs: { draggable: { $children = [] } = {} } = {} } = context
-    isCollapseArray = $children
-      .filter(child => ('isCollapse' in child))
-      .map(child => child.isCollapse)
-  }
-
-  const onDragEnd = ({newIndex, oldIndex}) => { // restore draggable::children::isCollapse
-    if (newIndex >= isCollapseArray.length) {
-      var k = newIndex - isCollapseArray.length + 1
-      while (k--) {
-        isCollapseArray.push(undefined)
-      }
-    }
-    isCollapseArray.splice(newIndex, 0, isCollapseArray.splice(oldIndex, 1)[0])
-    const { refs: { draggable: { $children } = {} } = {} } = context
-    $children
-      .filter(child => ('isCollapse' in child))
-      .map(({isCollapse, onCollapse, onExpand}, index) => {
-        if(isCollapse !== isCollapseArray[index])
-          ((isCollapse) ? onExpand : onCollapse)()
-      })
+      draggableRemove(index)
   }
 
   return {
@@ -194,6 +185,11 @@ const setup = (props, context) => {
     onInput,
     onChange,
 
+    // useArrayDraggable
+    draggableRef,
+    draggableHints,
+    draggableListeners,
+
     // useInputValidator
     inputState: state,
     inputInvalidFeedback: invalidFeedback,
@@ -202,9 +198,7 @@ const setup = (props, context) => {
     isSortable,
     actionKey,
     itemAdd,
-    itemDelete,
-    onDragStart,
-    onDragEnd
+    itemDelete
   }
 }
 

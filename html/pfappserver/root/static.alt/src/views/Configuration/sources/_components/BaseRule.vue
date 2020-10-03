@@ -38,7 +38,7 @@
   </div>
 </template>
 <script>
-import { ref, computed, unref } from '@vue/composition-api'
+import { ref, computed, onBeforeUpdate, unref } from '@vue/composition-api'
 import {
   BaseFormGroupInput,
   BaseFormGroupSelectOne,
@@ -96,6 +96,7 @@ const setup = (props, context) => {
     if (toggleAll) {
       const { parent: { $children = [] } = {} } = context
       if (unref(isCollapse))
+
         $children.map(({ onExpand = () => {} }) => onExpand())
       else
         $children.map(({ onCollapse = () => {} }) => onCollapse())
