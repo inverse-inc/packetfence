@@ -10,9 +10,9 @@ export default function useEventEscapeKey(el = ref(document)) {
       keyCode === 27 &&
       el.value &&
       (
-        !target ||
-        document.body.isSameNode(target) ||
-        el.value.contains(target)
+        !target
+        || document.body.isSameNode(target)
+        || el.value.contains(target)
       )
     )
   })

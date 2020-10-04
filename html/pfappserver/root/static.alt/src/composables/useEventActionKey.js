@@ -10,9 +10,9 @@ export default function useEventActionKey(el = ref(document)) {
     actionKey.value = (
       (ctrlKey || metaKey) &&
       (
-        !target ||
-        document.body.isSameNode(target) ||
-        el.value.contains(target)
+        !target
+        || document.body.isSameNode(target)
+        || el.value.contains(target)
       )
     )
   })
@@ -22,6 +22,12 @@ export default function useEventActionKey(el = ref(document)) {
       return
     actionKey.value = false
   })
+
+  useEvent('blur', () => {
+    if (!actionKey.value)
+      return
+    actionKey.value = false
+  }, ref(window))
 
   return actionKey
 }

@@ -1,15 +1,16 @@
 <template>
   <div>
     <b-link @click="onToggle"
-      class="text-primary"
+      :class="{
+        'text-primary': actionKey,
+        'text-secondary': !actionKey
+      }"
     >
-      <icon v-if="!isCollapse" name="chevron-circle-down"
-        class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"/>
-      <icon v-else name="chevron-circle-right"
-        class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"/>
+      <icon v-if="!isCollapse" name="chevron-circle-down" class="mr-2"/>
+      <icon v-else name="chevron-circle-right" class="mr-2"/>
       {{ ruleName }}
     </b-link>
-    <b-collapse :visible="!isCollapse" tabIndex="-1">
+    <b-collapse :visible="!isCollapse" tabIndex="-1" ref="rootRef">
       <form-group-status :namespace="`${namespace}.status`"
         :column-label="$i18n.t('Status')"
         :label-cols="2" class="mb-0"
@@ -38,7 +39,7 @@
   </div>
 </template>
 <script>
-import { ref, computed, onBeforeUpdate, unref } from '@vue/composition-api'
+import { ref, computed, unref, watch } from '@vue/composition-api'
 import {
   BaseFormGroupInput,
   BaseFormGroupSelectOne,
@@ -57,9 +58,9 @@ const components = {
 }
 
 import useEventActionKey from '@/composables/useEventActionKey'
-import { useInput, useInputProps } from '@/composables/useInput'
+import { useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
-import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
+import { useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 const props = {
@@ -96,7 +97,6 @@ const setup = (props, context) => {
     if (toggleAll) {
       const { parent: { $children = [] } = {} } = context
       if (unref(isCollapse))
-
         $children.map(({ onExpand = () => {} }) => onExpand())
       else
         $children.map(({ onCollapse = () => {} }) => onCollapse())

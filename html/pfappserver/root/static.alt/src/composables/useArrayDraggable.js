@@ -1,19 +1,16 @@
-import { computed, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
 import uuidv4 from 'uuid/v4'
 
 export const useArrayDraggable = (value, onChange = () => {}) => {
 
   const draggableRef = ref(null)
-
-  const length = unref(value).length
-  const draggableHints = ref([...Array(length).keys()].map(hint => uuidv4()))
+  const draggableHints = ref([...Array(unref(value).length).keys()].map(hint => uuidv4()))
 
   watch(
     () => unref(value).length,
     (lengthAfter, lengthBefore) => {
-      if (!lengthBefore || !lengthAfter) {
+      if (!lengthBefore || !lengthAfter)
         draggableHints.value = [...Array(lengthAfter).keys()].map(hint => uuidv4())
-      }
     },
     { immediate: true }
   )
@@ -26,7 +23,7 @@ export const useArrayDraggable = (value, onChange = () => {}) => {
       const _hints = unref(draggableHints)
       draggableHints.value = [..._hints.slice(0, index), uuidv4(), ..._hints.slice(index)]
 
-      nextTick(() => resolve())
+      resolve()
     })
   }
 
@@ -39,7 +36,7 @@ export const useArrayDraggable = (value, onChange = () => {}) => {
       const _hints = unref(draggableHints)
       draggableHints.value = [..._hints.slice(0, toIndex), uuidv4(), ..._hints.slice(toIndex)]
 
-      nextTick(() => resolve())
+      resolve()
     })
   }
 
@@ -59,7 +56,7 @@ export const useArrayDraggable = (value, onChange = () => {}) => {
 
       draggableHints.value.splice(toIndex, 0, draggableHints.value.splice(fromIndex, 1)[0])
 
-      nextTick(() => resolve())
+      resolve()
     })
   }
 
@@ -71,7 +68,7 @@ export const useArrayDraggable = (value, onChange = () => {}) => {
       const _hints = unref(draggableHints)
       draggableHints.value = [..._hints.slice(0, index), ..._hints.slice(index + 1, _hints.length)]
 
-      nextTick(() => resolve())
+      resolve()
     })
   }
 
@@ -80,7 +77,7 @@ export const useArrayDraggable = (value, onChange = () => {}) => {
       onChange([])
       draggableHints.value = []
 
-      nextTick(() => resolve())
+      resolve()
     })
   }
 

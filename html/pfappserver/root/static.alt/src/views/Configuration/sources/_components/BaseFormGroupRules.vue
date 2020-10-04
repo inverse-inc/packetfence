@@ -78,10 +78,15 @@
   </b-form-group>
 </template>
 <script>
-import { computed, unref } from '@vue/composition-api'
+import { computed, nextTick, unref } from '@vue/composition-api'
 import draggable from 'vuedraggable'
-
 import BaseRule from './BaseRule'
+
+const components = {
+  draggable,
+  BaseRule
+}
+
 import useEventActionKey from '@/composables/useEventActionKey'
 import { useArrayDraggable } from '@/composables/useArrayDraggable'
 import { useFormGroupProps } from '@/composables/useFormGroup'
@@ -89,11 +94,6 @@ import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-
-const components = {
-  draggable,
-  BaseRule
-}
 
 export const props = {
   ...useFormGroupProps,
@@ -154,15 +154,19 @@ const setup = (props, context) => {
       const { [index - 1]: { isCollapse } = {} } = getDraggableChildFn(child => 'isCollapse' in child)
       draggableCopy(index - 1, index).then(() => {
         if (!isCollapse) {
-          const { [index - 1]: { onExpand = () => {} } = {} } = getDraggableChildFn(child => 'isCollapse' in child)
-          onExpand()
+          nextTick(() => {
+            const { [index - 1]: { onExpand = () => {} } = {} } = getDraggableChildFn(child => 'isCollapse' in child)
+            onExpand()
+          })
         }
       })
     }
     else {
       draggableAdd(index, {}).then(() => {
-        const { [index]: { onExpand = () => {} } = {}  } = getDraggableChildFn(child => 'isCollapse' in child)
-        onExpand()
+        nextTick(() => {
+          const { [index]: { onExpand = () => {} } = {}  } = getDraggableChildFn(child => 'isCollapse' in child)
+          onExpand()
+        })
       })
     }
   }
