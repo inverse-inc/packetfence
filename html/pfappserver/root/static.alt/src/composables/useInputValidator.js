@@ -56,7 +56,10 @@ export const useInputValidator = (props, value) => {
       **/
       try {
         const namespaceSchema = reach(unref(schema), unref(path))
-        return unref(validator).concat(namespaceSchema) // merge schemas
+        if (unref(validator))
+          return unref(validator).concat(namespaceSchema) // merge schemas
+        else
+          return namespaceSchema
       } catch (e) { // path not defined in schema
         if (unref(validator))
           return unref(validator) // fallback to prop
@@ -66,31 +69,29 @@ export const useInputValidator = (props, value) => {
   }
 
   if (unref(localValidator)) { // is :validator
-
+    let lastPromise = 0 // only use latest of 1+ promises
+    const setState = (thisPromise, state, validFeedback, invalidFeedback) => {
+      if (thisPromise === lastPromise) {
+        localState.value = state
+        localValidFeedback.value = validFeedback
+        localInvalidFeedback.value = invalidFeedback
+      }
+    }
     watchEffect(() => {
       const schema = unref(localValidator)
-
+      const thisPromise = ++lastPromise
       // yup | https://github.com/jquense/yup
       schema.validate(unref(value)).then(() => { // valid
-        if (unref(validFeedback) !== undefined) {
-          localState.value = true
-          localValidFeedback.value = unref(validFeedback)
-          localInvalidFeedback.value = null
-        }
-        else {
-          localState.value = null
-          localValidFeedback.value = null
-          localInvalidFeedback.value = null
-        }
+        if (unref(validFeedback) !== undefined)
+          setState(thisPromise, true, unref(validFeedback), null)
+        else
+          setState(thisPromise, null, null, null)
       }).catch(({ message }) => { // invalid
-        localState.value = false
-        localValidFeedback.value = null
-        localInvalidFeedback.value = message
+        setState(thisPromise, false, null, message)
       })
     })
   }
   else { // no :validator
-
     localInvalidFeedback = invalidFeedback
     localValidFeedback = validFeedback
     localState = computed(() => {
