@@ -26,9 +26,12 @@ func init() {
 func setuppfdns(c *caddy.Controller) error {
 	var pf = &pfdns{}
 	var ip net.IP
+	pf.Network = make(map[*net.IPNet]net.IP)
 	ctx := context.Background()
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
 
 	pfconfigdriver.PfconfigPool.Refresh(ctx)
 

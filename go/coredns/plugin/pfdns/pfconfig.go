@@ -85,7 +85,6 @@ func (pf *pfdns) DNSRecord() error {
 func (pf *pfdns) detectVIP() error {
 	var ctx = context.Background()
 	var NetIndex net.IPNet
-	pf.Network = make(map[*net.IPNet]net.IP)
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
