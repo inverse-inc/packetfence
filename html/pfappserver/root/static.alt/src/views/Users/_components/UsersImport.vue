@@ -193,6 +193,10 @@ export default {
     form () { // common form across all files[]
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
+    domainName () {
+      const { domain_name = null } = this.$store.getters['session/tenantMask'] || {}
+      return domain_name
+    },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     }
@@ -225,6 +229,9 @@ export default {
             }
             if (!('password' in merged)) { // generate a unique password
               merged.password = password.generate(passwordOptions)
+            }
+            if (this.domainName) { // append domainName to pid when available (tenant)
+              merged.pid = `${merged.pid}@${this.domainName}`
             }
             return merged
           })

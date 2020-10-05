@@ -316,8 +316,8 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     domainName () {
-      const { domain_name } = this.$store.getters['session/tenantMask'] || {}
-      return (domain_name) ? `@${domain_name}` : null
+      const { domain_name = null } = this.$store.getters['session/tenantMask'] || {}
+      return domain_name
     },
     invalidSingleForm () {
       const { $invalid = false } = this.$store.getters[`${this.formStoreName}/$stateNS`]('single')
@@ -363,7 +363,7 @@ export default {
             ...this.form.common
           }
           if (this.domainName) { // append domainName to pid when available (tenant)
-            data.pid = `${data.pid}${this.domainName}`
+            data.pid = `${data.pid}@${this.domainName}`
           }
           this.$store.dispatch('$_users/createUser', data).then(() => {
             this.$store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, data)).then(() => {
@@ -384,7 +384,7 @@ export default {
           for (let i = 0; i < this.form.multiple.quantity; i++) {
             let pid = this.form.multiple.prefix + (i + 1)
             if (this.domainName) { // append domainName to pid when available (tenant)
-              pid = `${pid}${this.domainName}`
+              pid = `${pid}@${this.domainName}`
             }
             const pwd = password.generate(this.passwordOptions)
             const currentData = {
