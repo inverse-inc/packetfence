@@ -1706,19 +1706,6 @@ Once this is done, restart `pfcron` on all nodes using:
 /usr/local/pf/bin/pfcmd service pfcron restart
 ----
 
-===== Restart the galera-autofix service
-
-
-You now need to restart the galera-autofix service so that its aware that all the members of the cluster are online again.
-
-In order to do so:
-
-[source,bash]
-----
-systemctl restart packetfence-galera-autofix
-----
-
-
 MariaDB Galera cluster troubleshooting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
