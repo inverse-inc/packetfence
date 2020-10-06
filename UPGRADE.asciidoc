@@ -69,7 +69,7 @@ You can take a backup of the pf directory with the following command:
 
 [source,bash]
 ----
-tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
+tar -C /usr/local -czf /root/packetfence.tar.gz --exclude='pf/logs' --exclude='pf/var' --exclude='pf/.git' pf
 ----
 
 == Upgrade procedure
