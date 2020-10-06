@@ -14,12 +14,36 @@ use strict;
 use warnings;
 use diagnostics;
 
+our @methods;
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
+    @methods = qw(
+        report_os_all
+        report_os_active
+        report_osclass_all
+        report_osclass_active
+        report_active_all
+        report_inactive_all
+        report_unregistered_active
+        report_active_reg
+        report_registered_active
+        report_opensecurity_events_all
+        report_opensecurity_events_active
+        report_statics_all
+        report_statics_active
+        report_unknownprints_all
+        report_unknownprints_active
+        report_connectiontype_all
+        report_connectiontype_active
+        report_connectiontypereg_all
+        report_connectiontypereg_active
+        report_ssid_all
+        report_ssid_active
+    );
 }
 
-use Test::More tests => 27;
+use Test::More tests => scalar @methods + 2;
 use Test::NoWarnings;
 
 use Log::Log4perl;
@@ -36,32 +60,6 @@ use TestUtils;
 TestUtils::use_test_db();
 
 BEGIN { use_ok('pf::pfcmd::report') }
-
-my @methods = qw(
-    report_os_all
-    report_os_active
-    report_osclass_all
-    report_osclass_active
-    report_active_all
-    report_inactive_all
-    report_unregistered_active
-    report_unregistered_all
-    report_active_reg
-    report_registered_all
-    report_registered_active
-    report_opensecurity_events_all
-    report_opensecurity_events_active
-    report_statics_all
-    report_statics_active
-    report_unknownprints_all
-    report_unknownprints_active
-    report_connectiontype_all
-    report_connectiontype_active
-    report_connectiontypereg_all
-    report_connectiontypereg_active
-    report_ssid_all
-    report_ssid_active
-);
 
 # Test each method, assume no warnings and results
 {
