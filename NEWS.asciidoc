@@ -16,16 +16,16 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* EAP_TTLS PAP Support on a LDAP source
+* EAP_TTLS PAP support on a LDAP source
 * eDirectory source
-* Master/Slave radius proxy and degraded workflow
+* Master/slave RADIUS proxy and degraded workflow
 * go based pfmon (#5613)
 * Integration tests: configurator scenario added (#5484)
 
 Enhancements
 ++++++++++++
 * Adjust the settings in the admin for the SAML and OAuth portal modules (#5479)
-* Select the role of the device when register via self-service portal.
+* Select the role of the device when register via self-service portal
 * Improved support for Extreme switches running EXOS
 * Added option to register device immediately after the sponsor activates the access during sponsor based registration (#5642)
 * Added support for EAP-PEAP MSCHAPv2 and EAP-TLS for CLI and VPN RADIUS authentication (#5784)
@@ -33,9 +33,9 @@ Enhancements
 * Set the default switch type to Packetfence::Standard (#5742)
 * Create a PacketFence::SNMP switch to force reevaluate access using SNMP (#5742)
 * Add support for CLI Access for Switch::Template (#5708)
-* Use Status Check in pfstats to test radius/eduroam sources
+* Use Status Check in pfstats to test RADIUS/eduroam sources
 * Switch templates can define how to map a NasPort to an IfIndex (#5779)
-* Syslog parsers are now tenant aware.
+* Syslog parsers are now tenant aware
 * Add default MAC address randomization security event check
 * Allow to delete a node from web admin with a locationlog opened (#5492)
 * Allow roles to be delete
@@ -45,15 +45,15 @@ Bug Fixes
 +++++++++
 * Fixed CoA for Meraki web-authentication so that it doesn't disconnect the user from the SSID
 * Honor the AUP setting of the SAML portal module (#5476)
-* Use the prebuilt freeradius perl dictionary.
-* Don't override user defined values in the interface file for centos.
+* Use the prebuilt FreeRADIUS Perl dictionary
+* Don't override user defined values in the interface file for CentOS
 * haproxy-db can cause pfcmd service restart to failed (#5745)
-* Pass in the mandatory fields to the email templates.
+* Pass in the mandatory fields to the email templates
 * Dell N1500.pm: LLDP detection doesn't work (#5758)
 * Ensure the gateway was only written once in /etc/sysconfig/network (#2845)
 * Remove the ip address of a server in the dhcp reply when the server has been disabled (#5677)
-* Allow to set multiples ca certificates.
-* Listen to all interfaces for radius accounting (#5821)
+* Allow to set multiples ca certificates
+* Listen to all interfaces for RADIUS accounting (#5821)
 * Searching by 'Source Switch Identifier' for a switch range doesn't work (#5792)
 
 Version 10.1.0 released on 2020-06-17
