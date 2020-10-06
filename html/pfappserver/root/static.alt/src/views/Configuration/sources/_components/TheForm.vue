@@ -5,7 +5,6 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-
     <!--
     @type: Htpasswd
     -->
@@ -57,10 +56,9 @@
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
-import {
-  BaseForm
-} from '@/components/new/'
+import { computed, ref, toRefs, unref } from '@vue/composition-api'
+import { BaseForm } from '@/components/new/'
+import { useFormMetaSchema } from '@/composables/useMeta'
 import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
@@ -111,10 +109,17 @@ export const props = {
 }
 
 export const setup = (props) => {
+
+  const {
+    meta
+  } = toRefs(props)
+
   const schema = computed(() => schemaFn(props))
 
+  const metaSchema = computed(() => useFormMetaSchema(meta, schema))
+
   return {
-    schema
+    schema: metaSchema
   }
 }
 
@@ -127,4 +132,3 @@ export default {
   setup
 }
 </script>
-

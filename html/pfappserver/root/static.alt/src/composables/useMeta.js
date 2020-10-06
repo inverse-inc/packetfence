@@ -1,4 +1,5 @@
 import { computed, inject, reactive, ref, toRefs, unref, set, watch } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
 export const getMetaNamespace = (ns, o) => ns.reduce((xs, x) => {
@@ -18,17 +19,13 @@ export const getMetaNamespace = (ns, o) => ns.reduce((xs, x) => {
 export const useInputMetaProps = {
   namespace: {
     type: String
-  },
-  validator: {
-    type: Object
   }
 }
 
 export const useInputMeta = (props) => {
 
   const {
-    namespace,
-    validator
+    namespace
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
@@ -77,34 +74,6 @@ export const useInputMeta = (props) => {
         if (metaPlaceholder)
           set(localProps, 'placeholder', metaPlaceholder)
 
-        // validator
-        if (!unref(validator)) {
-          let schema = yup.string().nullable()
-
-          if (metaRequired)
-            schema = schema.required()
-
-          if (metaPattern) {
-            const { regex, message } = metaPattern
-            const re = new RegExp(`^${regex}$`)
-            schema = schema.matches(re, message)
-          }
-
-          if (metaMinLength !== undefined)
-            schema = schema.min(metaMinLength)
-
-          if (metaMaxLength !== undefined)
-            schema = schema.max(metaMaxLength)
-
-          if (metaMinValue !== undefined)
-            schema = schema.minAsInt(metaMinValue)
-
-          if (metaMaxValue !== undefined)
-            schema = schema.maxAsInt(metaMaxValue)
-
-          set(localProps, 'validator', schema)
-        }
-
         // type
         switch(metaType) {
           case 'integer':
@@ -119,4 +88,68 @@ export const useInputMeta = (props) => {
   }
 
   return localProps
+}
+
+export const useFormMetaSchema = (meta, schema) => {
+
+  const getSchemaFromMeta = (meta, type = 'object') => {
+    const { item: { type: itemType, properties = {} } = {} } = meta
+    let schema
+    let object = {}
+
+    switch (type) {
+      case 'object':
+        for (let property in meta) {
+          const { type } = meta[property]
+          object[property] = getSchemaFromMeta(meta[property], type)
+        }
+        schema = yup.object(object)
+        break
+
+      case 'array':
+        object = getSchemaFromMeta(properties, itemType)
+        schema = yup.array().of(object)
+        break
+
+      case 'string':
+        schema = yup.string().nullable()
+        break
+    }
+
+    const {
+      min_length = undefined,
+      max_length = undefined,
+      min_value = undefined,
+      max_value = undefined,
+      pattern,
+      required
+    } = meta
+
+    if (required)
+      schema = schema.required()
+
+    if (pattern) {
+      const { regex, message } = pattern
+      const re = new RegExp(`^${regex}$`)
+      schema = schema.matches(re, message)
+    }
+
+    if (min_length !== undefined)
+      schema = schema.min(min_length)
+
+    if (max_length !== undefined)
+      schema = schema.max(max_length)
+
+    if (min_value !== undefined)
+      schema = schema.minAsInt(min_value)
+
+    if (max_value !== undefined)
+      schema = schema.maxAsInt(max_value)
+
+    return schema
+  }
+
+  return computed(() => unref(schema).concat(
+    getSchemaFromMeta(meta.value)
+  ))
 }

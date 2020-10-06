@@ -1,4 +1,5 @@
 import BaseFormGroupRules, { props as BaseFormGroupRulesProps } from './BaseFormGroupRules'
+import i18n from '@/utils/locale'
 
 export const props = {
   ...BaseFormGroupRulesProps,
@@ -9,6 +10,10 @@ export const props = {
     default: () => ([
       'authentication'
     ])
+  },
+  invalidFeedback: {
+    type: String,
+    default: i18n.t('Authentication Rules contains error(s).')
   }
 }
 

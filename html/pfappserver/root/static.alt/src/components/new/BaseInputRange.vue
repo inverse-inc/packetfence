@@ -42,7 +42,7 @@
 </template>
 <script>
 import { useInput, useInputProps } from '@/composables/useInput'
-import { useInputMeta, useInputMetaProps } from '@/composables/useInputMeta'
+import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useInputRange, useInputRangeProps } from '@/composables/useInputRange'
 

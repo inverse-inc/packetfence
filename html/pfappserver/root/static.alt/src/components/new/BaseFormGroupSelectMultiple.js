@@ -1,6 +1,6 @@
 import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
-import { useInputMeta } from '@/composables/useInputMeta'
+import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
 import BaseFormGroupSelect, { props as BaseFormGroupSelectProps } from './BaseFormGroupSelect'
 

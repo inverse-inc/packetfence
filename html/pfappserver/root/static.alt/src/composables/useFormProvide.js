@@ -32,11 +32,10 @@ export const useFormProvide = (props) => {
     if (!lastTickDebouncer)
       lastTickDebouncer = createDebouncer()
     lastTickDebouncer({
-      handler: () => {
-console.log('tick')
+      handler: () => nextTick(() => {
         lastTick.value = (new Date()).getTime()
-      },
-      time: 300
+      }),
+      time: 100
     })
   }, { deep: true, immediate: true })
 
