@@ -1660,10 +1660,15 @@ systemctl start packetfence-mariadb
 
 Should there be any issues during the sync, make sure you look into the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
-Once both nodes have completely synced (try connecting to it using the MariaDB
-command line), then you can break the cluster election command you have
-running on node C and start node C normally (using `systemctl start
-packetfence-mariadb`).
+Once both nodes have completely synced, you should be able to connect to it using the MariaDB command line:
+
+[source,bash]
+----
+mysql -u root -p pf -h localhost
+----
+
+Then you can break the cluster election command you have running on node C and
+start node C normally (using `systemctl start packetfence-mariadb`).
 
 ===== Start nodes A and B
 
