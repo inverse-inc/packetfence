@@ -67,7 +67,17 @@ sub unregistered_active {
 
 sub registered_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_registered_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_registered_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub registered_active {
@@ -299,19 +309,38 @@ sub _get_datetime {
     return $self->escape_url_param($datetime);
 }
 
-sub search_info {
-    my ($self) = @_;
-    my $params = $self->req->query_params->to_hash;
+sub nextCursor {
+    my ($self, $search_info, $items) = @_;
+    my $nextCursor = undef;
+    my $limit = $search_info->{limit};
+    if ( @$items == $limit ) {
+        pop @$items;
+        $nextCursor = ($search_info->{cursor} // 0) + $limit - 1;
+    }
 
-    return 200, {
-        (
-            map {
-                exists $params->{$_}
-                  ? ( $_ => $params->{$_} )
-                  : ()
-            } qw(limit cursor)
-        ),
-    };
+    return $nextCursor;
+}
+
+sub nextCursorFromItems {
+    my ($self, $search_info, $items, $key) = @_;
+    my $nextCursor = undef;
+    my $limit = $search_info->{limit};
+    if ( @$items && @$items == $limit ) {
+        my $item = pop @$items;
+        $nextCursor = $item->{$key};
+    }
+
+    return $nextCursor;
+}
+
+sub search_info {
+    my ($self, $defaults) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my %info = map { exists $params->{$_} ? ( $_ => $params->{$_} ) : () } qw(limit cursor);
+    $info{limit} ||= $defaults->{limit};
+    $info{cursor} //= $defaults->{cursor};
+    $info{limit}++;
+    return \%info;
 }
 
 =head1 AUTHOR
