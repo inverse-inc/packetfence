@@ -188,7 +188,7 @@ sub getPerUserVlan {
     my ($self, $args, $range) = @_;
     my $logger = pf::log::get_logger();
 
-    my $pid = $args->{user_name};
+    my $pid = $args->{node_info}->{pid};
     my @vlans = $range->range;
     my $sql_vlans = join(",", map { pf::dal->get_dbh->quote($_) } @vlans);
 
