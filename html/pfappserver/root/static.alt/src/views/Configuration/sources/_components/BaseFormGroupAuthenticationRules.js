@@ -10,10 +10,6 @@ export const props = {
     default: () => ([
       'authentication'
     ])
-  },
-  invalidFeedback: {
-    type: String,
-    default: i18n.t('Authentication Rules contains error(s).')
   }
 }
 

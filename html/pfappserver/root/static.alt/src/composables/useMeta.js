@@ -93,8 +93,16 @@ export const useInputMeta = (props) => {
 export const useFormMetaSchema = (meta, schema) => {
 
   const getSchemaFromMeta = (meta, type = 'object') => {
-    const { item: { type: itemType, properties = {} } = {} } = meta
     let schema
+    const {
+      item: { type: itemType, properties = {} } = {},
+      min_length = undefined,
+      max_length = undefined,
+      min_value = undefined,
+      max_value = undefined,
+      pattern,
+      required
+    } = meta
     let object = {}
 
     switch (type) {
@@ -109,29 +117,31 @@ export const useFormMetaSchema = (meta, schema) => {
       case 'array':
         object = getSchemaFromMeta(properties, itemType)
         schema = yup.array().of(object)
+
+        if (required)
+          schema = schema.required()
+
         break
 
       case 'string':
         schema = yup.string().nullable()
+
+        if (required)
+          schema = schema.required()
+
+        if (pattern) {
+          const { regex, message } = pattern
+          const re = new RegExp(`^${regex}$`)
+          schema = schema.matches(re, message)
+        }
+
+        if (min_value !== undefined)
+          schema = schema.minAsInt(min_value)
+
+        if (max_value !== undefined)
+          schema = schema.maxAsInt(max_value)
+
         break
-    }
-
-    const {
-      min_length = undefined,
-      max_length = undefined,
-      min_value = undefined,
-      max_value = undefined,
-      pattern,
-      required
-    } = meta
-
-    if (required)
-      schema = schema.required()
-
-    if (pattern) {
-      const { regex, message } = pattern
-      const re = new RegExp(`^${regex}$`)
-      schema = schema.matches(re, message)
     }
 
     if (min_length !== undefined)
@@ -139,12 +149,6 @@ export const useFormMetaSchema = (meta, schema) => {
 
     if (max_length !== undefined)
       schema = schema.max(max_length)
-
-    if (min_value !== undefined)
-      schema = schema.minAsInt(min_value)
-
-    if (max_value !== undefined)
-      schema = schema.maxAsInt(max_value)
 
     return schema
   }

@@ -1,7 +1,7 @@
 import * as yup from 'yup'
 import i18n from '@/utils/locale'
 
-yup.setLocale({
+yup.setLocale({ // default validators
   mixed: {
     required: ({ message }) => (message || i18n.t('Value required.'))
   },
@@ -25,6 +25,14 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
     name: 'minAsInt',
     message: message || i18n.t('Minimum {minValue}.', { minValue: ref }),
     test: (value) => (+value >= +ref)
+  })
+})
+
+yup.addMethod(yup.array, 'required', function (ref, message) {
+  return this.test({
+    name: 'required',
+    message: message || i18n.t('Item required.'),
+    test: (value) => (value.length > 0)
   })
 })
 

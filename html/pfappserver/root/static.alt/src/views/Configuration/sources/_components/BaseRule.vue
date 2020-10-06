@@ -2,8 +2,9 @@
   <div>
     <b-link @click="onToggle"
       :class="{
-        'text-primary': actionKey,
-        'text-secondary': !actionKey
+        'text-danger': inputState === false,
+        'text-primary': inputState !== false && actionKey,
+        'text-secondary': inputState !== false && !actionKey
       }"
     >
       <icon v-if="!isCollapse" name="chevron-circle-down" class="mr-2"/>
@@ -11,6 +12,9 @@
       {{ ruleName }}
     </b-link>
     <b-collapse :visible="!isCollapse" tabIndex="-1" ref="rootRef">
+
+<pre>{{ {inputValue} }}</pre>
+
       <form-group-status :namespace="`${namespace}.status`"
         :column-label="$i18n.t('Status')"
         :label-cols="2" class="mb-0"
@@ -39,7 +43,7 @@
   </div>
 </template>
 <script>
-import { ref, computed, unref, watch } from '@vue/composition-api'
+import { ref, computed, unref } from '@vue/composition-api'
 import {
   BaseFormGroupInput,
   BaseFormGroupSelectOne,
@@ -60,7 +64,7 @@ const components = {
 import useEventActionKey from '@/composables/useEventActionKey'
 import { useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
-import { useInputValidatorProps } from '@/composables/useInputValidator'
+import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 const props = {
@@ -82,10 +86,14 @@ const setup = (props, context) => {
     value
   } = useInputValue(metaProps, context)
 
+  const {
+    state
+  } = useInputValidator(metaProps, value)
+
   const actionKey = useEventActionKey()
   const isCollapse = ref(true)
   const ruleName = computed(() => {
-    const { id, description } = unref(value)
+    const { id, description } = unref(value) || {}
     let ruleName = id || 'unknown'
     if (description)
       ruleName += ` (${description})`
@@ -108,6 +116,9 @@ const setup = (props, context) => {
   const onExpand = () => (isCollapse.value = false)
 
   return {
+    inputState: state,
+    inputValue: value,
+
     actionKey,
     isCollapse,
     ruleName,

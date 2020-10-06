@@ -10,8 +10,8 @@
   >
     <b-input-group
       :class="{
-        'is-valid': inputState === true,
-        'is-invalid': inputState === false
+        'has-valid': inputState === true,
+        'has-invalid': inputState === false
       }"
     >
       <b-button v-if="!inputValue.length" @click="itemAdd()"
@@ -162,7 +162,14 @@ const setup = (props, context) => {
       })
     }
     else {
-      draggableAdd(index, {}).then(() => {
+      draggableAdd(index, {
+        actions: [],
+        conditions: [],
+        description: null,
+        id: null,
+        match: 'any',
+        status: 'enabled'
+      }).then(() => {
         nextTick(() => {
           const { [index]: { onExpand = () => {} } = {}  } = getDraggableChildFn(child => 'isCollapse' in child)
           onExpand()
@@ -253,9 +260,23 @@ export default {
   }
 }
 .base-form-group-rules {
-  .input-group > div > .row {
-    &:nth-child(even) {
-      background-color: $table-border-color;
+  .form-row > [role="group"] > .input-group {
+    border: 1px solid transparent;
+    @include border-radius($border-radius);
+    @include transition($custom-forms-transition);
+
+    & > div > .row {
+      &:nth-child(even) {
+        background-color: $table-border-color;
+      }
+    }
+    &.has-invalid {
+      border-color: $form-feedback-invalid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+    }
+    &.has-valid {
+      border-color: $form-feedback-valid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-valid-color, .25);
     }
   }
 }

@@ -1,7 +1,7 @@
 import { computed, customRef, inject, ref, set, toRefs, unref } from '@vue/composition-api'
 
 export const getFormNamespace = (ns, o) =>
-  ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : setFormNamespace(ns, o, null), o)
+  ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : undefined, o)
 
 export const setFormNamespace = (ns, o, v) => {
   const [ nsf, ...nsr ] = ns
