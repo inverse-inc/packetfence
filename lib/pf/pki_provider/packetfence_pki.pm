@@ -73,7 +73,7 @@ sub get_bundle {
         $logger->warn("Certificate already exist");
     }
 
-    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$cn/download/$certpwd");
+    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile_id/$cn/download/$certpwd");
 
     return $return;
 }
@@ -88,7 +88,7 @@ sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
 
-    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$cn/1");
+    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$profile_id/$cn/1");
     
 }
 

@@ -620,6 +620,20 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	Information := Info{}
 	// Find the Cert
 	var cert Cert
+	if profile, ok := params["profile"]; ok {
+		if val, ok := params["cn"]; ok {
+			if CertDB := pfpki.DB.Where("Cn = ? AND ProfileID", val, profile).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New("A database error occured. See log for details.")
+			}
+		}
+		if val, ok := params["id"]; ok {
+			if CertDB := pfpki.DB.Where("Id = ? AND ProfileID", val, profile).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New("A database error occured. See log for details.")
+			}
+		}
+	}
 	if val, ok := params["cn"]; ok {
 		if CertDB := pfpki.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
 			Information.Error = CertDB.Error.Error()
