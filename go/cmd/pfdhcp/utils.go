@@ -225,13 +225,20 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 }
 
 // Shuffle addresses
-func Shuffle(addresses string, excluded string) (r []byte) {
+func Shuffle(addresses string, excluded []string) (r []byte) {
 	var array []net.IP
+	var found bool
+
 	for _, adresse := range strings.Split(addresses, ",") {
-		if adresse == excluded {
-			continue
+		found = false
+		for _, exclude := range excluded {
+			if adresse == exclude {
+				found = true
+			}
 		}
-		array = append(array, net.ParseIP(adresse).To4())
+		if !found {
+			array = append(array, net.ParseIP(adresse).To4())
+		}
 	}
 
 	slice := make([]byte, 0, len(array))
@@ -485,7 +492,7 @@ func setOptionServerIdentifier(srvIP net.IP, handlerIP net.IP) net.IP {
 	return srvIP
 }
 
-func DetectDisabledServer(addresses string, netint string) string {
+func DetectDisabledServer(addresses string, netint string) []string {
 
 	var array []string
 	for _, adresse := range strings.Split(addresses, ",") {
@@ -495,8 +502,9 @@ func DetectDisabledServer(addresses string, netint string) string {
 	servers := pfconfigdriver.AllClusterServersRaw{}
 
 	pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
-	var ip string
-	ip = "0.0.0.0"
+
+	var ips []string
+
 	for _, key := range servers.Element {
 		if !(IsDisabled(key.(map[string]interface{})["host"].(string))) {
 			continue
@@ -505,13 +513,13 @@ func DetectDisabledServer(addresses string, netint string) string {
 			if k == "interface "+netint {
 				for w, x := range v.(map[string]interface{}) {
 					if w == "ip" {
-						ip = x.(string)
+						ips = append(ips, x.(string))
 					}
 				}
 			}
 		}
 	}
-	return ip
+	return ips
 }
 
 func IsDisabled(hostname string) bool {
