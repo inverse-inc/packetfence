@@ -175,6 +175,9 @@ sub report_db_prepare {
       FROM node
       WHERE tenant_id = ?
         AND status = 'unreg'
+        AND mac >= ?
+      ORDER BY mac
+      LIMIT ?
     ]);
 
     $report_statements->{'report_unregistered_active_sql'} = get_db_handle()->prepare(qq[
@@ -1154,8 +1157,16 @@ sub report_unregistered_active {
 }
 
 sub report_unregistered_all {
+    my ($search_info) = @_;
     my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_unregistered_all_sql', $tenant);
+    return db_data(
+        REPORT,
+        $report_statements,
+        'report_unregistered_all_sql',
+        $tenant,
+        $search_info->{cursor},
+        $search_info->{limit},
+    );
 }
 
 sub report_active_reg {

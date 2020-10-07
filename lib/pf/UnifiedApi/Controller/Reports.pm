@@ -57,7 +57,17 @@ sub active_all {
 
 sub unregistered_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_unregistered_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_unregistered_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub unregistered_active {
