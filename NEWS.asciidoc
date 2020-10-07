@@ -55,6 +55,7 @@ Bug Fixes
 * Allow to set multiples ca certificates
 * Listen to all interfaces for RADIUS accounting (#5821)
 * Searching by 'Source Switch Identifier' for a switch range doesn't work (#5792)
+* Validity of the local accounts created on the portal is tied to the access duration of the user.
 
 Version 10.1.0 released on 2020-06-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
