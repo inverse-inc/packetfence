@@ -1226,6 +1226,7 @@ fi
                         /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig
                         /usr/local/pf/lib/pfconfig/*
+%config(noreplace)      /usr/local/pf/lib/pf/billing/custom_hook.pm
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
