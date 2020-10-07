@@ -129,6 +129,9 @@ sub verify {
 
     $data = $self->session->{verify_data};
 
+    $self->session->{email} = $self->username;
+    $self->session->{billed_mac} = $self->current_mac;
+
     unless ($data) {
         eval {
             $data = $billing->verify($self->session, $request->parameters, $request->uri);
@@ -141,10 +144,6 @@ sub verify {
         $self->redirect_root();
         return 0;
     }
-
-
-    $self->session->{email} = $self->username;
-    $self->session->{billed_mac} = $self->current_mac;
 
     $self->process_transaction();
 }
