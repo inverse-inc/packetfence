@@ -1,4 +1,4 @@
-import { computed, inject, ref, toRefs, unref, watchEffect } from '@vue/composition-api'
+import { computed, inject, ref, toRefs, unref, watch, watchEffect } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import { object, reach } from 'yup'
 
@@ -81,26 +81,30 @@ export const useInputValidator = (props, value) => {
     }
 
     let validateDebouncer
-    watchEffect(() => {
-      const schema = unref(localValidator)
-      const thisPromise = ++lastPromise
-      if (!validateDebouncer)
-        validateDebouncer = createDebouncer()
-      validateDebouncer({
-        handler: () => {
-          // yup | https://github.com/jquense/yup
-          schema.validate(unref(value)).then(() => { // valid
-            if (unref(validFeedback) !== undefined)
-              setState(thisPromise, true, unref(validFeedback), null)
-            else
-              setState(thisPromise, null, null, null)
-          }).catch(({ message }) => { // invalid
-            setState(thisPromise, false, null, message)
-          })
-        },
-        time: 300
-      })
-    })
+    watch(
+      [value, localValidator],
+      () => {
+        const schema = unref(localValidator)
+        const thisPromise = ++lastPromise
+        if (!validateDebouncer)
+          validateDebouncer = createDebouncer()
+        validateDebouncer({
+          handler: () => {
+            // yup | https://github.com/jquense/yup
+            schema.validate(unref(value)).then(() => { // valid
+              if (unref(validFeedback) !== undefined)
+                setState(thisPromise, true, unref(validFeedback), null)
+              else
+                setState(thisPromise, null, null, null)
+            }).catch(({ message }) => { // invalid
+              setState(thisPromise, false, null, message)
+            })
+          },
+          time: 300
+        })
+      },
+      { deep: true }
+    )
   }
   else { // no :validator
     localInvalidFeedback = invalidFeedback
