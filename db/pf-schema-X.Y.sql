@@ -244,6 +244,7 @@ CREATE TABLE ip4log (
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
   PRIMARY KEY (`tenant_id`, `ip`),
+  KEY ip4log_tenant_id_mac_end_time (tenant_id,mac,end_time),
   KEY ip4log_mac_end_time (mac,end_time),
   KEY ip4log_end_time (end_time),
   CONSTRAINT `ip4log_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
