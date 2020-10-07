@@ -47,6 +47,10 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Adding index to ip4log"
+ALTER TABLE `ip4log`
+  DROP INDEX IF EXISTS ip4log_mac_end_time,
+  ADD INDEX IF NOT EXISTS ip4log_tenant_id_mac_end_time (tenant_id,mac,end_time);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
