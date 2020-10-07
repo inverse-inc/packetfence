@@ -1,0 +1,864 @@
+diff --git a/conf/profiles.conf.defaults b/conf/profiles.conf.defaults
+index 849de0d..1aa71be 100644
+--- a/conf/profiles.conf.defaults
++++ b/conf/profiles.conf.defaults
+@@ -30,6 +30,7 @@ provisioners=
+ access_registration_when_registered=disabled
+ self_service=
+ dpsk=disabled
++unbound_dpsk=disabled
+ status=enabled
+ unreg_on_acct_stop=disabled
+ network_logoff=disabled
+diff --git a/html/pfappserver/lib/pfappserver/Form/Config/Profile.pm b/html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
+index dc17587..c3d63e5 100644
+--- a/html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
++++ b/html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
+@@ -169,7 +169,7 @@ The main definition block
+ 
+ has_block 'definition' =>
+   (
+-    render_list => [qw(id description status root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop)],
++    render_list => [qw(id description status root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk unbound_dpsk default_psk_key unreg_on_acct_stop)],
+   );
+ 
+ my %ADDITIONAL_FIELD_OPTIONS = (
+diff --git a/html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm b/html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+index cc94d37..c37050e 100644
+--- a/html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
++++ b/html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+@@ -27,7 +27,7 @@ use pf::ConfigStore::SelfService;
+ use pf::ConfigStore::PortalModule;
+ use pf::web::constants;
+ use pf::constants::Connection::Profile;
+-use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN );
++use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN $POOL_PER_USER_VLAN);
+ use pfappserver::Form::Field::Duration;
+ use pfappserver::Base::Form;
+ use pf::config qw(%Profiles_Config);
+@@ -43,7 +43,7 @@ The main definition block
+ 
+ has_block 'definition' =>
+   (
+-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop vlan_pool_technique)],
++    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk dpsk_sso default_psk_key unreg_on_acct_stop vlan_pool_technique)],
+   );
+ 
+ =head2 captive_portal
+@@ -204,6 +204,20 @@ has_field 'autoregister' =>
+              help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
+   );
+ 
++=head2 unbound_dpsk
++
++Controls whether or not this connection profile to enabled Dynamic Unbound PSK
++
++=cut
++
++has_field 'unbound_dpsk' =>
++  (
++   type => 'Toggle',
++   checkbox_value => 'enabled',
++   unchecked_value => 'disabled',
++   default => 'disabled',
++  );
++
+ =head2 dpsk
+ 
+ Controls whether or not this connection profile to enabled Dynamic PSK
+@@ -641,7 +655,7 @@ Returns the list of the vlan pool technique
+ 
+ sub options_vlan_pool {
+ 
+-    return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH );
++    return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH, $POOL_PER_USER_VLAN );
+ }
+ 
+ 
+diff --git a/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/dpsk.pm b/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/dpsk.pm
+index 234d4a5..438f2e1 100644
+--- a/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/dpsk.pm
++++ b/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/dpsk.pm
+@@ -27,9 +27,14 @@ has_field 'psk_size' =>
+              help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
+   );
+ 
++has_field 'dpsk_use_local_password' =>
++  (
++   type => 'Checkbox',
++  );
++
+ has_block definition =>
+   (
+-   render_list => [ qw(id description type category ssid oses psk_size apply_role role_to_apply autoregister) ],
++   render_list => [ qw(id description type category ssid oses psk_size apply_role role_to_apply autoregister dpsk_use_local_password) ],
+   );
+ 
+ 
+diff --git a/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm b/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+index 0d85a9d..89152dc 100644
+--- a/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
++++ b/html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+@@ -73,6 +73,11 @@ has_field 'dpsk' =>
+              help => 'Define if the PSK needs to be generated' },
+   );
+ 
++has_field 'dpsk_use_local_password' =>
++  (
++   type => 'Checkbox',
++  );
++
+ has_field 'psk_size' =>
+   (
+    type => 'PSKLength',
+@@ -150,7 +155,7 @@ sub filter_deflate {
+ 
+ has_block definition =>
+   (
+-   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path apply_role role_to_apply autoregister) ],
++   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk dpsk_use_local_password passcode pki_provider server_certificate_path apply_role role_to_apply autoregister) ],
+   );
+ 
+ has_block signing =>
+diff --git a/html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js b/html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js
+index 8f10f67..81ea713 100644
+--- a/html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js
++++ b/html/pfappserver/root/static.alt/src/views/Configuration/_config/connectionProfile.js
+@@ -423,6 +423,19 @@ export const view = (form = {}, meta = {}) => {
+           ]
+         },
+         {
++          label: i18n.t('Enable Unbound DPSK'),
++          text: i18n.t('This enable Dynamic Unbound PSK. If the network equipment supports sending attributes that allow to identify the PSK using the Access-Request attributes, then the user attached to the PSK can be found and used in the same manner as in 802.1x.'),
++          cols: [
++            {
++              namespace: 'unbound_dpsk',
++              component: pfFormRangeToggle,
++              attrs: {
++                values: { checked: 'enabled', unchecked: 'disabled' }
++              }
++            }
++          ]
++        },
++        {
+           label: i18n.t('Default PSK key'),
+           text: i18n.t('This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.'),
+           cols: [
+diff --git a/html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js b/html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js
+index 628564c..d5be056 100644
+--- a/html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js
++++ b/html/pfappserver/root/static.alt/src/views/Configuration/_config/provisioning.js
+@@ -573,6 +573,21 @@ export const viewFields = {
+       ]
+     }
+   },
++  dpsk_use_local_password: (form = {}, meta = {}) => {
++    return {
++      label: i18n.t('Reuse the local password for DPSK'),
++      text: i18n.t('When DPSK is enabled and a local account with a plaintext password exists for the user, then it will reuse this password instead of generating a new PSK. This feature will only work with local users that have a plaintext password entry.'),
++      cols: [
++        {
++          namespace: 'dpsk_use_local_password',
++          component: pfFormRangeToggle,
++          attrs: {
++            values: { checked: '1', unchecked: '0' }
++          }
++        }
++      ]
++    }
++  },
+   eap_type: (form = {}, meta = {}) => {
+     return {
+       label: i18n.t('EAP type'),
+@@ -989,6 +1004,7 @@ export const view = (form = {}, meta = {}) => {
+             ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
+               ? [
+                 viewFields.dpsk(form, meta),
++                viewFields.dpsk_use_local_password(form, meta),
+                 viewFields.passcode(form, meta)
+               ]
+               : [] // ignore
+@@ -1034,7 +1050,8 @@ export const view = (form = {}, meta = {}) => {
+             viewFields.category(form, meta),
+             viewFields.ssid(form, meta),
+             viewFields.oses(form, meta),
+-            viewFields.psk_size(form, meta)
++            viewFields.psk_size(form, meta),
++            viewFields.dpsk_use_local_password(form, meta)
+           ]
+         }
+       ]
+@@ -1110,6 +1127,7 @@ export const view = (form = {}, meta = {}) => {
+             ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
+               ? [
+                 viewFields.dpsk(form, meta),
++                viewFields.dpsk_use_local_password(form, meta),
+                 viewFields.passcode(form, meta)
+               ]
+               : [] // ignore
+@@ -1306,6 +1324,7 @@ export const view = (form = {}, meta = {}) => {
+             ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
+               ? [
+                 viewFields.dpsk(form, meta),
++                viewFields.dpsk_use_local_password(form, meta),
+                 viewFields.passcode(form, meta)
+               ]
+               : [] // ignore
+@@ -1485,6 +1504,7 @@ export const validatorFields = {
+     return { domains: validatorsFromMeta(meta, 'domains', i18n.t('Domains')) }
+   },
+   dpsk: (form = {}, meta = {}) => {},
++  dpsk_use_local_password: (form = {}, meta = {}) => {},
+   eap_type: (form = {}, meta = {}) => {
+     return { eap_type: validatorsFromMeta(meta, 'eap_type', i18n.t('Type')) }
+   },
+@@ -1600,6 +1620,7 @@ export const validators = (form = {}, meta = {}) => {
+         ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
+           ? {
+             ...validatorFields.dpsk(form, meta),
++            ...validatorFields.dpsk_use_local_password(form, meta),
+             ...validatorFields.passcode(form, meta)
+           }
+           : {} // ignore
+@@ -1635,7 +1656,8 @@ export const validators = (form = {}, meta = {}) => {
+         ...validatorFields.category(form, meta),
+         ...validatorFields.ssid(form, meta),
+         ...validatorFields.oses(form, meta),
+-        ...validatorFields.psk_size(form, meta)
++        ...validatorFields.psk_size(form, meta),
++        ...validatorFields.dpsk_use_local_password(form, meta)
+       }
+     case 'ibm':
+       return {
+@@ -1694,6 +1716,7 @@ export const validators = (form = {}, meta = {}) => {
+         ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
+           ? {
+             ...validatorFields.dpsk(form, meta),
++            ...validatorFields.dpsk_use_local_password(form, meta),
+             ...validatorFields.passcode(form, meta)
+           }
+           : {} // ignore
+@@ -1843,6 +1866,7 @@ export const validators = (form = {}, meta = {}) => {
+         ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
+           ? {
+             ...validatorFields.dpsk(form, meta),
++            ...validatorFields.dpsk_use_local_password(form, meta),
+             ...validatorFields.passcode(form, meta)
+           }
+           : {} // ignore
+diff --git a/lib/pf/Connection/Profile.pm b/lib/pf/Connection/Profile.pm
+index 0e37724..c4da630 100644
+--- a/lib/pf/Connection/Profile.pm
++++ b/lib/pf/Connection/Profile.pm
+@@ -652,12 +652,24 @@ sub canAccessRegistrationWhenRegistered {
+ =item dpskEnabled
+ 
+ Is DPSK is enable or not on this connection profile
++This is implicitely enabled if unbound DPSK is enabled
+ 
+ =cut
+ 
+ sub dpskEnabled {
+     my ($self) = @_;
+-    return isenabled($self->{'_dpsk'});
++    return isenabled($self->{'_dpsk'}) || isenabled($self->{'_unbound_dpsk'});
++};
++
++=item unboundDpskEnabled
++
++Is Unbound DPSK is enable or not on this connection profile
++
++=cut
++
++sub unboundDpskEnabled {
++    my ($self) = @_;
++    return isenabled($self->{'_unbound_dpsk'});
+ };
+ 
+ =item unregOnAcctStop
+diff --git a/lib/pf/Switch.pm b/lib/pf/Switch.pm
+index aec409e..5ff1418 100644
+--- a/lib/pf/Switch.pm
++++ b/lib/pf/Switch.pm
+@@ -3532,8 +3532,9 @@ Set the current tenant in the DAL based on the tenant ID configured in the switc
+ =cut
+ 
+ sub setCurrentTenant {
+-    my ($self) = @_;
+-    pf::dal->set_tenant($self->{_TenantId});
++    my ($self, $radius_request) = @_;
++    my $tenant_id = $radius_request->{"PacketFence-Tenant-Id"} // $self->{_TenantId};
++    pf::dal->set_tenant($tenant_id);
+ }
+ 
+ =head2 getCiscoAvPairAttribute
+@@ -3601,6 +3602,18 @@ sub canDoCliAccess {
+     return isenabled($self->{_cliAccess});
+ }
+ 
++=head2 find_user_by_psk
++
++Attempts to find a local user by matching the PSK to the attributes in the RADIUS request
++
++=cut
++
++sub find_user_by_psk {
++    my ($self, $radius_request) = @_;
++    $self->logger->debug("Unbound DPSK not implemented for this switch module");
++    return undef;
++}
++
+ =back
+ 
+ =head1 AUTHOR
+diff --git a/lib/pf/Switch/Ruckus/SmartZone.pm b/lib/pf/Switch/Ruckus/SmartZone.pm
+index 3bae016..bfbbde6 100644
+--- a/lib/pf/Switch/Ruckus/SmartZone.pm
++++ b/lib/pf/Switch/Ruckus/SmartZone.pm
+@@ -8,6 +8,13 @@ pf::Switch::Ruckus::SmartZone
+ 
+ Implements methods to manage Ruckus SmartZone Wireless Controllers
+ 
++=head1 BUGS AND LIMITATIONS
++
++=head2 Unbound DPSK
++
++- Is currently only supported for WPA2 which uses AES along with HMAC-SHA1
++- Doesn't support 802.11r (Fast Transition). Make sure you disable this on your SmartZone.
++
+ =cut
+ 
+ use strict;
+@@ -26,9 +33,13 @@ use pf::ip4log;
+ use JSON::MaybeXS qw(encode_json);
+ use pf::config qw (
+     $WEBAUTH_WIRELESS
++    $WIRELESS_MAC_AUTH
+     %connection_type_to_str
+ );
+ use pf::util::radius qw(perform_disconnect);
++use pf::log;
++use pf::util::wpa;
++use Crypt::PBKDF2;
+ 
+ sub description { 'Ruckus SmartZone Wireless Controllers' }
+ use pf::SwitchSupports qw(
+@@ -96,8 +107,10 @@ Deauthenticate a client using HTTP or RADIUS depending on the connection type
+ sub deauth {
+     my ($self, $mac) = @_;
+     my $node_info = node_view($mac);
+-    if ($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS}) {
+-        $self->deauthenticateMacWebservices($mac);
++    if (isenabled($self->{_ExternalPortalEnforcement})) {
++        if($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS} || $node_info->{last_connection_type} eq $connection_type_to_str{$WIRELESS_MAC_AUTH}) {
++            $self->deauthenticateMacWebservices($mac);
++        }
+     }
+     else {
+         $self->deauthenticateMacDefault($mac);
+@@ -233,6 +246,105 @@ sub deauthenticateMacWebservices {
+     }
+ }
+ 
++=item returnRadiusAccessAccept
++
++Prepares the RADIUS Access-Accept reponse for the network device.
++
++Overrides the default implementation to add the dynamic PSK
++
++=cut
++
++sub returnRadiusAccessAccept {
++    my ($self, $args) = @_;
++    my $logger = $self->logger;
++
++    $args->{'unfiltered'} = $TRUE;
++    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
++    my $status = shift @super_reply;
++    my %radius_reply = @super_reply;
++    my $radius_reply_ref = \%radius_reply;
++    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
++
++    if ($args->{profile}->dpskEnabled()) {
++        if (defined($args->{owner}->{psk})) {
++            $radius_reply_ref->{"Ruckus-DPSK"} = $self->generate_dpsk_attribute_value($args->{ssid}, $args->{owner}->{psk});
++        } else {
++            $radius_reply_ref->{"Ruckus-DPSK"} = $self->generate_dpsk_attribute_value($args->{ssid}, $args->{profile}->{_default_psk_key});
++        }
++    }
++    
++    my $filter = pf::access_filter::radius->new;
++    my $rule = $filter->test('returnRadiusAccessAccept', $args);
++    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
++    return [$status, %$radius_reply_ref];
++}
++
++=head2 generate_dpsk_attribute_value
++
++Generates the RADIUS attribute value for Ruckus-DPSK given an SSID name and the passphrase
++
++=cut
++
++sub generate_dpsk_attribute_value {
++    my ($self, $ssid, $dpsk) = @_;
++
++    my $pbkdf2 = Crypt::PBKDF2->new(
++        iterations => 4096,
++        output_len => 32,
++    );
++     
++    my $hash = $pbkdf2->PBKDF2_hex($ssid, $dpsk);
++    return "0x00".$hash;
++}
++
++
++sub find_user_by_psk {
++    my ($self, $radius_request) = @_;
++    my ($status, $iter) = pf::dal::person->search(
++        -where => {
++            psk => { '!=', '', '!=', undef },
++        },
++    );
++
++    my $matched = 0;
++    my $pid;
++    while(my $person = $iter->next) {
++        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
++        if($self->check_if_radius_request_psk_matches($radius_request, $person->{psk})) {
++            get_logger->info("PSK matches the one of ".$person->{pid});
++            $matched ++;
++            $pid = $person->{pid};
++        }
++    }
++
++    if($matched > 1) {
++        get_logger->error("Multiple users use the same PSK. This cannot work with unbound DPSK. Ignoring it.");
++        return undef;
++    }
++    else {
++        return $pid;
++    }
++}
++
++sub check_if_radius_request_psk_matches {
++    my ($self, $radius_request, $psk) = @_;
++    if($radius_request->{"Ruckus-DPSK-Cipher"} != 4) {
++        get_logger->error("Ruckus-DPSK-Cipher isn't for WPA2 that uses AES and HMAC-SHA1. This isn't supported by this module.");
++        return $FALSE;
++    }
++
++    return pf::util::wpa::match_mic(
++      pf::util::wpa::calculate_ptk(
++        pf::util::wpa::calculate_pmk($radius_request->{"Ruckus-Wlan-Name"}, $psk),
++        pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-BSSID"})),
++        pack("H*", $radius_request->{"User-Name"}),
++        pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-Anonce"})),
++        pf::util::wpa::snonce_from_eapol_key_frame(pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"}))),
++      ),      
++      pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})),
++    );
++}
++
+ =back
+ 
+ =head1 AUTHOR
+diff --git a/lib/pf/constants/role.pm b/lib/pf/constants/role.pm
+index df0b438..688ec01 100644
+--- a/lib/pf/constants/role.pm
++++ b/lib/pf/constants/role.pm
+@@ -29,6 +29,7 @@ our @EXPORT_OK = qw(
+     $GUEST_ROLE
+     $GAMING_ROLE
+     $REJECT_ROLE
++    $POOL_PER_USER_VLAN
+     $POOL_USERNAMEHASH
+     $POOL_RANDOM
+     $POOL_ROUND_ROBBIN
+@@ -76,6 +77,7 @@ Constant used in the pool code
+ Readonly::Scalar our $POOL_USERNAMEHASH  => 'username_hash';
+ Readonly::Scalar our $POOL_RANDOM  => 'random';
+ Readonly::Scalar our $POOL_ROUND_ROBBIN => 'round_robbin';
++Readonly::Scalar our $POOL_PER_USER_VLAN => 'per_user_vlan';
+ 
+ =head1 AUTHOR
+ 
+diff --git a/lib/pf/provisioner/mobileconfig.pm b/lib/pf/provisioner/mobileconfig.pm
+index 732e8f0..2da2028 100644
+--- a/lib/pf/provisioner/mobileconfig.pm
++++ b/lib/pf/provisioner/mobileconfig.pm
+@@ -20,7 +20,9 @@ use pf::log;
+ use pf::constants;
+ use fingerbank::Constant;
+ 
++use pf::util;
+ use pf::person;
++use pf::password;
+ 
+ use Crypt::GeneratePassword qw(word);
+ 
+@@ -78,6 +80,14 @@ Does DPSK need to be activated
+ 
+ has dpsk => (is => 'rw');
+ 
++=head2 dpsk_use_local_password
++
++Should the dpsk be the same as the password of a local user if it exists
++
++=cut
++
++has dpsk_use_local_password => (is => 'rw');
++
+ =head2 psk_size
+ 
+ psk key length
+@@ -268,10 +278,20 @@ sub _build_profile_template {
+ sub generate_dpsk {
+     my ($self,$username) = @_;
+     my $person = person_view($username);
++    my $password = pf::password::view($username);
+     if (defined $person->{psk} && $person->{psk} ne '') {
+         get_logger->debug("Returning psk key $person->{psk} for user $username");
+         return $person->{psk};
+     }
++    elsif (
++            isenabled($self->dpsk_use_local_password) 
++            && defined($password) && pf::password::password_get_hash_type($password->{password}) eq 'plaintext' 
++            && length($password->{password}) >= 8
++        ) {
++        get_logger->info("Using password of local user $username for PSK");
++        person_modify($username,psk => $password->{password});
++        return $password->{password};
++    }
+     else {
+         my $psk_size;
+         if ($self->psk_size >= 8) {
+diff --git a/lib/pf/radius.pm b/lib/pf/radius.pm
+index f207d23..709bfc9 100644
+--- a/lib/pf/radius.pm
++++ b/lib/pf/radius.pm
+@@ -72,7 +72,7 @@ use pf::dal;
+ use pf::security_event;
+ use pf::constants::security_event qw($LOST_OR_STOLEN);
+ use pf::Redis;
+-use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION);
++use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
+ 
+ our $VERSION = 1.03;
+ 
+@@ -130,7 +130,7 @@ sub authorize {
+         goto AUDIT;
+     }
+ 
+-    $switch->setCurrentTenant();
++    $switch->setCurrentTenant($radius_request);
+     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
+ 
+     if (!$mac) {
+@@ -259,6 +259,13 @@ sub authorize {
+     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
+     $args->{'profile'} = $profile; 
+     
++    (my $dpsk_accept, $connection, $connection_type, $connection_sub_type, $args) = $self->handleUnboundDPSK($radius_request, $switch, $profile, $connection, $args);
++    if(!$dpsk_accept) {
++        $logger->error("Unable to find a valid PSK for this request. Rejecting user.");
++        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "Invalid PSK") ];
++        goto CLEANUP;
++    }
++
+     $args->{'autoreg'} = 0;
+     # should we auto-register? let's ask the VLAN object
+     my ( $status, $status_msg );
+@@ -392,7 +399,7 @@ sub accounting {
+         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
+     }
+ 
+-    $switch->setCurrentTenant();
++    $switch->setCurrentTenant($radius_request);
+     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
+ 
+     # update last_seen of MAC address as some activity from it has been seen
+@@ -534,7 +541,7 @@ sub update_locationlog_accounting {
+         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
+     }
+ 
+-    $switch->setCurrentTenant();
++    $switch->setCurrentTenant($radius_request);
+     if ($switch->supportsRoamingAccounting()) {
+         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
+         my $locationlog_mac = locationlog_last_entry_mac($mac);
+@@ -1078,7 +1085,7 @@ sub radius_filter {
+         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+     }
+ 
+-    $switch->setCurrentTenant();
++    $switch->setCurrentTenant($radius_request);
+     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
+ 
+     if (!$mac) {
+@@ -1142,6 +1149,31 @@ sub check_lost_stolen {
+     }
+ }
+ 
++sub handleUnboundDPSK {
++    my ($self, $radius_request, $switch, $profile, $connection, $args) = @_;
++    my $logger = get_logger;
++    
++    if($profile->unboundDpskEnabled()) {
++        my $accept = $FALSE;
++        if(my $pid = $switch->find_user_by_psk($radius_request)) {
++            $logger->info("Unbound DPSK user found $pid. Changing this request to use the 802.1x logic");
++            $connection->isMacAuth($FALSE);
++            $connection->is8021X($TRUE);
++            $connection->isEAP($TRUE);
++            $connection->subType($EAP_PSK);
++            $connection->_attributesToString;
++            $args->{connection_type} = $connection->attributesToBackwardCompatible;
++            $args->{connection_sub_type} = $connection->subType;
++            $args->{username} = $args->{stripped_user_name} = $args->{user_name} = $pid;
++            $accept = $TRUE;
++        }
++        return ($accept, $connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
++    }
++    else {
++        return ($TRUE, $connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
++    }
++}
++
+ =back
+ 
+ =head1 AUTHOR
+diff --git a/lib/pf/role/pool.pm b/lib/pf/role/pool.pm
+index 982032c..ebe3f1e 100644
+--- a/lib/pf/role/pool.pm
++++ b/lib/pf/role/pool.pm
+@@ -21,6 +21,7 @@ use pf::log();
+ use pf::constants::role qw(:all);
+ 
+ use pf::node;
++use pf::dal;
+ 
+ use Number::Range;
+ 
+@@ -59,6 +60,9 @@ sub getVlanFromPool {
+     } elsif ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_RANDOM) {
+         $logger->trace("Use $POOL_RANDOM algorithm for VLAN pool");
+         $vlan = $self->getRandomVlanInPool($args, $range);
++    } elsif ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_PER_USER_VLAN) {
++        $logger->trace("Use $POOL_PER_USER_VLAN algorithm for VLAN pool");
++        $vlan = $self->getPerUserVlan($args, $range);
+     } else {
+         $logger->trace("Use round robin algorithm for VLAN pool");
+         $vlan = $self->getRoundRobin($args, $range);
+@@ -180,6 +184,60 @@ sub getVlanByUsername {
+ 
+ }
+ 
++sub getPerUserVlan {
++    my ($self, $args, $range) = @_;
++    my $logger = pf::log::get_logger();
++
++    my $pid = $args->{node_info}->{pid};
++    my @vlans = $range->range;
++    my $sql_vlans = join(",", map { pf::dal->get_dbh->quote($_) } @vlans);
++
++    my ($status, $res) = pf::dal->db_execute("
++    SELECT vlan 
++    FROM   locationlog 
++           JOIN node 
++             ON node.tenant_id = locationlog.tenant_id 
++                AND node.mac = locationlog.mac 
++    WHERE  vlan IN ( $sql_vlans ) 
++           AND node.status = 'reg' 
++           AND pid = ? 
++    ", $pid);
++
++    if(defined(my $row = $res->fetchrow_hashref)) {
++        my $vlan = $row->{vlan};
++        $logger->info("Found VLAN $vlan for $pid with registered devices in it.");
++        return $vlan;
++    }
++    else {
++        $logger->debug("Unable to find a VLAN in the pool that $pid has devices in. Finding an available VLAN for this user.");
++        ($status, $res) = pf::dal->db_execute("
++        SELECT vlan 
++        FROM   locationlog 
++               JOIN node 
++                 ON node.tenant_id = locationlog.tenant_id 
++                    AND node.mac = locationlog.mac 
++        WHERE  vlan IN ( $sql_vlans ) 
++               AND node.status != 'unreg' 
++        ");
++        my %used_vlans = map{$_->[0] => 1} @{$res->fetchall_arrayref};
++        my $available_vlan;
++        for my $vlan (@vlans) {
++            if(!exists($used_vlans{$vlan})) {
++                $available_vlan = $vlan;
++                last;
++            }
++        }
++        if($available_vlan) {
++            $logger->info("Found available VLAN $available_vlan in the pool for $pid");
++            return $available_vlan;
++        }
++        else {
++            $logger->error("No available VLAN in the pool");
++            return;
++        }
++    }
++}
++
+ =head1 AUTHOR
+ 
+ Inverse inc. <info@inverse.ca>
+diff --git a/lib/pf/util/combined_dictionary b/lib/pf/util/combined_dictionary
+index e35a324..98a7c6a 100644
+--- a/lib/pf/util/combined_dictionary
++++ b/lib/pf/util/combined_dictionary
+@@ -1,2 +1,2 @@
+-$INCLUDE /usr/local/pf/raddb/dictionary.inverse
++$INCLUDE /usr/local/pf/raddb/dictionary
+ $INCLUDE /usr/share/freeradius/dictionary
+diff --git a/lib/pf/util/wpa.pm b/lib/pf/util/wpa.pm
+new file mode 100644
+index 0000000..b78f0c0
+--- /dev/null
++++ b/lib/pf/util/wpa.pm
+@@ -0,0 +1,86 @@
++package pf::util::wpa;
++
++use strict;
++use warnings;
++
++use List::Util qw(minstr maxstr);
++use pf::log;
++use Digest::SHA qw(hmac_sha1);
++use bytes;
++
++my $PKE = "Pairwise key expansion";
++
++sub strip_hex_prefix {
++    my ($s) = @_;
++    $s =~ s/^0x//g;
++    return $s;
++}
++
++sub prf512 {
++    my ($key,$A,$B) = @_;
++    my $blen = 64;
++    my $i    = 0;
++    my $R    = '';
++    while($i<=(($blen*8+159)/160)) {
++        my $hmacsha1 = hmac_sha1($A.chr(0x00).$B.chr($i), $key);
++        $i+=1;
++        $R = $R.$hmacsha1;
++    }
++    return bytes_range($R, 0, $blen);
++}
++
++sub bytes_range {
++    my ($str, $start, $end) = @_;
++    if(!defined $end) {
++        $end = length($str);
++    }
++    my $size = $end - $start;
++    return substr($str, $start, $size);
++}
++
++sub calculate_pmk {
++    my ($ssid, $psk) = @_;
++    my $pbkdf2 = Crypt::PBKDF2->new(
++        iterations => 4096,
++        output_len => 32,
++    );
++     
++    my $pmk = bytes_range($pbkdf2->PBKDF2($ssid, $psk), 0, 32);
++
++    get_logger->debug("PTK is ".unpack("H*", $pmk));
++    return $pmk;
++}
++
++sub calculate_ptk {
++    my ($pmk, $mac_ap, $mac_cl, $anonce, $snonce) = @_;
++    my $key_data = minstr($mac_ap, $mac_cl) . maxstr($mac_ap, $mac_cl) . minstr($anonce,$snonce) . maxstr($anonce,$snonce);
++    my $ptk = prf512($pmk, $PKE, $key_data);
++    get_logger->debug("PTK is ".unpack("H*", $ptk));
++    return $ptk;
++}
++
++sub snonce_from_eapol_key_frame {
++    my ($eapol_key_frame) = @_;
++    return bytes_range($eapol_key_frame, 17, 49);
++}
++
++sub match_mic {
++    my ($ptk, $eapol_key_frame) = @_; 
++
++    # extract the MIC from the packet and zero it out to calculate the MIC based on the PTK
++    my $packet_mic = bytes_range($eapol_key_frame, 81, 97);
++    $eapol_key_frame = bytes_range($eapol_key_frame, 0, 81) . chr(0x0) x 16 . bytes_range($eapol_key_frame, 97);
++
++    my $kck = bytes_range($ptk, 0, 16);
++    get_logger->debug("KCK is ".unpack("H*", $kck));
++
++    my $mic = bytes_range(hmac_sha1($eapol_key_frame, $kck), 0, 16);
++
++    my $packet_mic_hex = unpack("H*", $packet_mic);
++    my $mic_hex = unpack("H*", $mic);
++    get_logger->debug("Computed MIC of packet is $mic_hex and MIC inside the packet is $packet_mic_hex");
++
++    return $packet_mic_hex eq $mic_hex;
++}
++
++1;
+diff --git a/raddb/dictionary b/raddb/dictionary
+index b9b5016..06a49fc 100644
+--- a/raddb/dictionary
++++ b/raddb/dictionary
+@@ -45,6 +45,7 @@
+ #	These attributes are examples
+ #
+ $INCLUDE    /usr/local/pf/raddb/dictionary.inverse
++$INCLUDE    /usr/local/pf/raddb/dictionary.ruckus
+ #ATTRIBUTE	My-Local-String		3000	string
+ #ATTRIBUTE	My-Local-IPAddr		3001	ipaddr
+ #ATTRIBUTE	My-Local-Integer	3002	integer
+diff --git a/raddb/dictionary.ruckus b/raddb/dictionary.ruckus
+new file mode 100644
+index 0000000..5cad9a6
+--- /dev/null
++++ b/raddb/dictionary.ruckus
+@@ -0,0 +1,22 @@
++# -*- text -*-
++# Copyright (C) 2019 The FreeRADIUS Server project and contributors
++# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
++#
++#	Ruckus Wireless, Inc. dictionary
++#
++#
++
++VENDOR		Ruckus				25053
++
++BEGIN-VENDOR	Ruckus
++
++# Value Format:    group_attr1,group_attr2,...
++ATTRIBUTE	Ruckus-DPSK			142	octets
++
++ATTRIBUTE Ruckus-DPSK-Params                 153 tlv
++ATTRIBUTE Ruckus-DPSK-AKM-Suite              153.1   octets              
++ATTRIBUTE Ruckus-DPSK-Cipher                 153.2   byte                
++ATTRIBUTE Ruckus-DPSK-Anonce                 153.3   octets            
++ATTRIBUTE Ruckus-DPSK-EAPOL-Key-Frame        153.4   octets   
++
++END-VENDOR Ruckus
+diff --git a/rpm/packetfence.spec b/rpm/packetfence.spec
+index a87c57f..b27108f 100644
+--- a/rpm/packetfence.spec
++++ b/rpm/packetfence.spec
+@@ -95,6 +95,7 @@ Requires: perl(Crypt::OpenSSL::X509)
+ Requires: perl(Crypt::OpenSSL::RSA)
+ Requires: perl(Crypt::OpenSSL::PKCS10)
+ Requires: perl(Crypt::LE)
++Requires: perl(Crypt::PBKDF2), perl(Digest::SHA3)
+ Requires: perl(Const::Fast)
+ # Perl core modules but still explicitly defined just in case distro's core perl get stripped
+ Requires: perl(Time::HiRes)

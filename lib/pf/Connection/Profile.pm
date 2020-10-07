@@ -652,12 +652,24 @@ sub canAccessRegistrationWhenRegistered {
 =item dpskEnabled
 
 Is DPSK is enable or not on this connection profile
+This is implicitely enabled if unbound DPSK is enabled
 
 =cut
 
 sub dpskEnabled {
     my ($self) = @_;
-    return isenabled($self->{'_dpsk'});
+    return isenabled($self->{'_dpsk'}) || isenabled($self->{'_unbound_dpsk'});
+};
+
+=item unboundDpskEnabled
+
+Is Unbound DPSK is enable or not on this connection profile
+
+=cut
+
+sub unboundDpskEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_unbound_dpsk'});
 };
 
 =item unregOnAcctStop

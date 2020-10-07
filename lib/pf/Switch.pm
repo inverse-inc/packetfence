@@ -3532,8 +3532,9 @@ Set the current tenant in the DAL based on the tenant ID configured in the switc
 =cut
 
 sub setCurrentTenant {
-    my ($self) = @_;
-    pf::dal->set_tenant($self->{_TenantId});
+    my ($self, $radius_request) = @_;
+    my $tenant_id = $radius_request->{"PacketFence-Tenant-Id"} // $self->{_TenantId};
+    pf::dal->set_tenant($tenant_id);
 }
 
 =head2 getCiscoAvPairAttribute
@@ -3599,6 +3600,18 @@ sub generateACL {
 sub canDoCliAccess {
     my ($self) = @_;
     return isenabled($self->{_cliAccess});
+}
+
+=head2 find_user_by_psk
+
+Attempts to find a local user by matching the PSK to the attributes in the RADIUS request
+
+=cut
+
+sub find_user_by_psk {
+    my ($self, $radius_request) = @_;
+    $self->logger->debug("Unbound DPSK not implemented for this switch module");
+    return undef;
 }
 
 =back

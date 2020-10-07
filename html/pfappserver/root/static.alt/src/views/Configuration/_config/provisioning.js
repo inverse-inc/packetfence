@@ -573,6 +573,21 @@ export const viewFields = {
       ]
     }
   },
+  dpsk_use_local_password: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('Reuse the local password for DPSK'),
+      text: i18n.t('When DPSK is enabled and a local account with a plaintext password exists for the user, then it will reuse this password instead of generating a new PSK. This feature will only work with local users that have a plaintext password entry.'),
+      cols: [
+        {
+          namespace: 'dpsk_use_local_password',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: '1', unchecked: '0' }
+          }
+        }
+      ]
+    }
+  },
   eap_type: (form = {}, meta = {}) => {
     return {
       label: i18n.t('EAP type'),
@@ -989,6 +1004,7 @@ export const view = (form = {}, meta = {}) => {
             ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
               ? [
                 viewFields.dpsk(form, meta),
+                viewFields.dpsk_use_local_password(form, meta),
                 viewFields.passcode(form, meta)
               ]
               : [] // ignore
@@ -1034,7 +1050,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.category(form, meta),
             viewFields.ssid(form, meta),
             viewFields.oses(form, meta),
-            viewFields.psk_size(form, meta)
+            viewFields.psk_size(form, meta),
+            viewFields.dpsk_use_local_password(form, meta)
           ]
         }
       ]
@@ -1110,6 +1127,7 @@ export const view = (form = {}, meta = {}) => {
             ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
               ? [
                 viewFields.dpsk(form, meta),
+                viewFields.dpsk_use_local_password(form, meta),
                 viewFields.passcode(form, meta)
               ]
               : [] // ignore
@@ -1306,6 +1324,7 @@ export const view = (form = {}, meta = {}) => {
             ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
               ? [
                 viewFields.dpsk(form, meta),
+                viewFields.dpsk_use_local_password(form, meta),
                 viewFields.passcode(form, meta)
               ]
               : [] // ignore
@@ -1485,6 +1504,7 @@ export const validatorFields = {
     return { domains: validatorsFromMeta(meta, 'domains', i18n.t('Domains')) }
   },
   dpsk: (form = {}, meta = {}) => {},
+  dpsk_use_local_password: (form = {}, meta = {}) => {},
   eap_type: (form = {}, meta = {}) => {
     return { eap_type: validatorsFromMeta(meta, 'eap_type', i18n.t('Type')) }
   },
@@ -1600,6 +1620,7 @@ export const validators = (form = {}, meta = {}) => {
         ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
           ? {
             ...validatorFields.dpsk(form, meta),
+            ...validatorFields.dpsk_use_local_password(form, meta),
             ...validatorFields.passcode(form, meta)
           }
           : {} // ignore
@@ -1635,7 +1656,8 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.category(form, meta),
         ...validatorFields.ssid(form, meta),
         ...validatorFields.oses(form, meta),
-        ...validatorFields.psk_size(form, meta)
+        ...validatorFields.psk_size(form, meta),
+        ...validatorFields.dpsk_use_local_password(form, meta)
       }
     case 'ibm':
       return {
@@ -1694,6 +1716,7 @@ export const validators = (form = {}, meta = {}) => {
         ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
           ? {
             ...validatorFields.dpsk(form, meta),
+            ...validatorFields.dpsk_use_local_password(form, meta),
             ...validatorFields.passcode(form, meta)
           }
           : {} // ignore
@@ -1843,6 +1866,7 @@ export const validators = (form = {}, meta = {}) => {
         ...((['WEP', 'WPA'].includes(security_type) || (security_type === 'WPA2' && !eap_type))
           ? {
             ...validatorFields.dpsk(form, meta),
+            ...validatorFields.dpsk_use_local_password(form, meta),
             ...validatorFields.passcode(form, meta)
           }
           : {} // ignore
