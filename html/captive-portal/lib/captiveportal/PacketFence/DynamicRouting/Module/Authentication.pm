@@ -165,7 +165,12 @@ sub execute_actions {
 
     $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
-        $self->create_local_account();
+        if(!$self->create_local_account()) {
+            $self->app->flash->{error} = "Unable to create the local account with this username. Please try registering using a different email or phone number.";
+            # Make sure the current source is not remembered since it failed...
+            $self->session->{source_id} = undef;
+            return $FALSE;
+        }
     }
 
     get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
@@ -283,7 +288,7 @@ sub create_local_account {
     my $email = $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
     unless($email){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
-        return;
+        return $FALSE;
     }
 
     get_logger->debug("External source local account creation is enabled for this source. We proceed");
@@ -294,6 +299,11 @@ sub create_local_account {
 
     my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
     $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount, $self->source);
+
+    if(!defined($password)) {
+        get_logger->error("Unable to create local account");
+        return $FALSE;
+    }
 
     # We send the guest and email with the info of the local account
     my %info = (
@@ -316,6 +326,8 @@ sub create_local_account {
     );
 
     get_logger->info("Local account for external source " . $self->source->id . " created with PID " . $self->app->session->{username});
+    
+    return $TRUE;
 }
 
 =head2 prompt_fields
