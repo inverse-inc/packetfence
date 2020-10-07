@@ -67,9 +67,15 @@ export const useInputValue = (props, { emit }) => {
     onChange = value => emit('change', value)
   }
 
+  const inputLength = computed(() => {
+    const { length = 0 } = unref(inputValue)
+    return length
+  })
+
   return {
     // props
     value: inputValue,
+    length: inputLength,
 
     //events
     onInput,

@@ -1,4 +1,4 @@
-import { computed, inject, nextTick, onMounted, onBeforeUnmount, ref, watch } from '@vue/composition-api'
+import { computed, onMounted, onBeforeUnmount, ref } from '@vue/composition-api'
 
 export const useMutationObserver = (el, callback, config = { attributes: false, childList: true, subtree: true }) => {
   const observer = new MutationObserver(callback)
@@ -10,7 +10,7 @@ export const useMutationObserver = (el, callback, config = { attributes: false, 
   return removeObserver
 }
 
-export const useQuerySelector = (el, selector, triggers) => {
+export const useQuerySelector = (el, selector) => {
   const $el = computed(() => ('$el' in el.value) ? el.value.$el : el)
   const result = ref(null)
 

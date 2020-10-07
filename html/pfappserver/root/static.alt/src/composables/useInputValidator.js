@@ -103,7 +103,7 @@ export const useInputValidator = (props, value) => {
           time: 300
         })
       },
-      { deep: true }
+      { deep: true, immediate: true }
     )
   }
   else { // no :validator

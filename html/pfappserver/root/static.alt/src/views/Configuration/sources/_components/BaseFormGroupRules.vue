@@ -13,8 +13,9 @@
         'has-valid': inputState === true,
         'has-invalid': inputState === false
       }"
+      :data-num="inputLength"
     >
-      <b-button v-if="!inputValue.length" @click="itemAdd()"
+      <b-button v-if="!inputLength" @click="itemAdd()"
         :variant="(inputState === false) ? 'outline-danger' : 'outline-secondary'"
         :disabled="isLocked"
       >{{ $t('Add Rule') }}</b-button>
@@ -41,7 +42,7 @@
               :namespace="`${namespace}.${index}`"
             />
           </b-col>
-          <b-col class="py-2">
+          <b-col class="py-2 text-nowrap">
             <b-link @click="itemDelete(index)"
               :class="{
                 'text-primary': actionKey,
@@ -114,6 +115,7 @@ const setup = (props, context) => {
 
   const {
     value,
+    length,
     onInput,
     onChange
   } = useInputValue(metaProps, context)
@@ -167,7 +169,7 @@ const setup = (props, context) => {
         conditions: [],
         description: null,
         id: null,
-        match: 'any',
+        match: 'all',
         status: 'enabled'
       }).then(() => {
         nextTick(() => {
@@ -193,6 +195,7 @@ const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
+    inputLength: length,
     onInput,
     onChange,
 
@@ -260,7 +263,7 @@ export default {
   }
 }
 .base-form-group-rules {
-  .form-row > [role="group"] > .input-group {
+  & > .form-row > [role="group"] > .input-group {
     border: 1px solid transparent;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
@@ -270,11 +273,11 @@ export default {
         background-color: $table-border-color;
       }
     }
-    &.has-invalid {
+    &.has-invalid:not([data-num="0"]) {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
-    &.has-valid {
+    &.has-valid:not([data-num="0"]) {
       border-color: $form-feedback-valid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-valid-color, .25);
     }

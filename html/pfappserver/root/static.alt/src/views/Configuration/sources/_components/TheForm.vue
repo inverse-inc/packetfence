@@ -35,6 +35,8 @@
         :column-label="$i18n.t('Administration Rules')"
       />
 
+<pre>{{ {form} }}</pre>
+
     </template>
 
     <b-container class="my-5" v-else>
