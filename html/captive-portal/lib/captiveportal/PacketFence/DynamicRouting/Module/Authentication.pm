@@ -297,6 +297,15 @@ sub create_local_account {
     # with different parameters coming from the authentication source (ie.: expiration date)
     $actions = $actions // pf::authentication::match( $self->source->id, $auth_params, undef, $self->session->{extra} );
 
+    for my $action (@$actions) {
+        if($action->type eq "set_access_duration") {
+            push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($action->value));
+        }
+        if($action->type eq "set_unreg_date") {
+            push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => $action->value);
+        }
+    }
+    
     my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
     $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount, $self->source);
 
