@@ -26,7 +26,7 @@
         ghost-class="draggable-copy"
         v-on="draggableListeners"
       >
-        <b-row v-for="(item, index) in inputValue" :key="draggableHints[index]">
+        <b-row v-for="(item, index) in inputValue" :key="draggableKeys[index]">
           <b-col class="col-form-label text-center py-2" :class="{
             'draggable-on': isSortable,
             'draggable-off': !isSortable
@@ -38,9 +38,11 @@
             <span class="draggable-index">{{ index + 1 }}</span>
           </b-col>
           <b-col cols="10" class="py-2">
-            <base-rule ref="base-rule"
+
+            <base-rule :ref="draggableKeys[index]"
               :namespace="`${namespace}.${index}`"
             />
+
           </b-col>
           <b-col class="py-2 text-nowrap">
             <b-link @click="itemDelete(index)"
@@ -122,7 +124,8 @@ const setup = (props, context) => {
 
   const {
     draggableRef,
-    draggableHints,
+    draggableKeys,
+    draggableRefs,
 
     add: draggableAdd,
     copy: draggableCopy,
@@ -130,7 +133,7 @@ const setup = (props, context) => {
     truncate: draggableTruncate,
 
     draggableListeners
-  } = useArrayDraggable(value, onChange)
+  } = useArrayDraggable(value, onChange, context)
 
   const {
     state,
@@ -144,22 +147,15 @@ const setup = (props, context) => {
     return !unref(isLocked) && unref(value).length > 1
   })
 
-  const getDraggableChildFn = (fn = () => {}) => {
-    const { $children = [] } = unref(draggableRef)
-    return $children.filter(child => fn(child))
-  }
-
   const itemAdd = (index = 0) => {
     const _value = unref(value)
     const isCopy = unref(actionKey) && index - 1 in _value
     if (isCopy) {
-      const { [index - 1]: { isCollapse } = {} } = getDraggableChildFn(child => 'isCollapse' in child)
-      draggableCopy(index - 1, index).then(() => {
+      draggableCopy(index - 1, index).then(([fromComponent, toComponent]) => {
+        const { isCollapse } = fromComponent
         if (!isCollapse) {
-          nextTick(() => {
-            const { [index - 1]: { onExpand = () => {} } = {} } = getDraggableChildFn(child => 'isCollapse' in child)
-            onExpand()
-          })
+          const { onExpand = () => {} } = toComponent
+          onExpand()
         }
       })
     }
@@ -171,11 +167,9 @@ const setup = (props, context) => {
         id: null,
         match: 'all',
         status: 'enabled'
-      }).then(() => {
-        nextTick(() => {
-          const { [index]: { onExpand = () => {} } = {}  } = getDraggableChildFn(child => 'isCollapse' in child)
-          onExpand()
-        })
+      }).then(newComponent => {
+        const { onExpand = () => {} } = newComponent
+        onExpand()
       })
     }
   }
@@ -201,7 +195,7 @@ const setup = (props, context) => {
 
     // useArrayDraggable
     draggableRef,
-    draggableHints,
+    draggableKeys,
     draggableListeners,
 
     // useInputValidator
@@ -271,6 +265,9 @@ export default {
     & > div > .row {
       &:nth-child(even) {
         background-color: $table-border-color;
+      }
+      &:nth-child(odd) {
+        background-color: $white;
       }
     }
     &.has-invalid:not([data-num="0"]) {

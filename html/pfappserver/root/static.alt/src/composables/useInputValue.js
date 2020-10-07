@@ -68,7 +68,7 @@ export const useInputValue = (props, { emit }) => {
   }
 
   const inputLength = computed(() => {
-    const { length = 0 } = unref(inputValue)
+    const { length = 0 } = unref(inputValue) || {}
     return length
   })
 
