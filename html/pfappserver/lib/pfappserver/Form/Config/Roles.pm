@@ -68,6 +68,13 @@ has_field 'include_parent_acls' => (
     label => 'Include parent ACLs',
 );
 
+has_field 'fingerbank_dynamic_access_list' => (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    label => 'Enabled Fingerbank Dynamic AccessList',
+);
+
 has_field 'acls' => (
     type => 'TextArea',
     label => 'ACLs',
