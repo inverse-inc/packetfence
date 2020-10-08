@@ -124,15 +124,16 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM node
-      WHERE tenant_id = ?
-        AND mac NOT IN (
-          SELECT
-            mac
-          FROM ip4log
-          WHERE end_time = 0
-            OR end_time > NOW()
-        )
+      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
+      WHERE
+        n.tenant_id = ? AND
+          (
+            (end_time != 0 AND end_time <= NOW()) OR
+            i.ip IS NULL
+          ) AND
+          n.mac >= ?
+        ORDER BY n.mac
+        LIMIT ?;
       ]);
 
     $report_statements->{'report_active_all_sql'} = get_db_handle()->prepare(qq [
@@ -151,11 +152,13 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM (node n, ip4log i)
-      WHERE i.mac = n.mac
-        AND i.tenant_id = n.tenant_id
-        AND n.tenant_id = ?
-        AND (i.end_time = 0 OR i.end_time > NOW())
+      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
+      WHERE
+        n.tenant_id = ? AND
+      (i.end_time = 0 OR i.end_time > NOW()) AND
+        n.mac >= ?
+        ORDER BY n.mac
+        LIMIT ?
     ]);
 
     $report_statements->{'report_unregistered_all_sql'} = get_db_handle()->prepare(qq[
@@ -194,12 +197,13 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM (node n, ip4log i)
+      FROM node n LEFT JOIN ip4log i USING(tenant_id, mac)
       WHERE n.tenant_id = ?
         AND n.status = 'unreg'
-        AND i.mac = n.mac
-        AND i.tenant_id = n.tenant_id
         AND (i.end_time = 0 OR i.end_time > NOW())
+        AND mac >= ?
+      ORDER BY mac
+      LIMIT ?
     ]);
 
     $report_statements->{'report_registered_all_sql'} = get_db_handle()->prepare(qq[
@@ -238,12 +242,13 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM (node n, ip4log i)
+      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
       WHERE n.tenant_id = ?
         AND n.status = 'reg'
-        AND i.mac = n.mac
-        AND i.tenant_id = n.tenant_id
         AND (i.end_time = 0 or i.end_time > NOW())
+        AND mac >= ?
+      ORDER BY mac
+      LIMIT ?
     ]);
 
     $report_statements->{'report_os_sql'} = get_db_handle()->prepare(qq[
@@ -1142,18 +1147,42 @@ sub report_osclass_active {
 }
 
 sub report_active_all {
+    my ($search_info) = @_;
     my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_active_all_sql', $tenant);
+    return db_data(
+        REPORT,
+        $report_statements,
+        'report_active_all_sql',
+        $tenant,
+        $search_info->{cursor} || "00:00:00:00:00:00",
+        $search_info->{limit} || 100,
+    );
 }
 
 sub report_inactive_all {
+    my ($search_info) = @_;
     my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_inactive_all_sql', $tenant);
+    return db_data(
+        REPORT,
+        $report_statements,
+        'report_inactive_all_sql',
+        $tenant,
+        $search_info->{cursor} || "00:00:00:00:00:00",
+        $search_info->{limit} || 100,
+    );
 }
 
 sub report_unregistered_active {
+    my ($search_info) = @_;
     my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_unregistered_active_sql', $tenant);
+    return db_data(
+        REPORT,
+        $report_statements,
+        'report_unregistered_active_sql',
+        $tenant,
+        $search_info->{cursor} || "00:00:00:00:00:00",
+        $search_info->{limit} || 100,
+    );
 }
 
 sub report_unregistered_all {
@@ -1164,8 +1193,8 @@ sub report_unregistered_all {
         $report_statements,
         'report_unregistered_all_sql',
         $tenant,
-        $search_info->{cursor},
-        $search_info->{limit},
+        $search_info->{cursor} || "00:00:00:00:00:00",
+        $search_info->{limit} || 100,
     );
 }
 
@@ -1188,8 +1217,16 @@ sub report_registered_all {
 }
 
 sub report_registered_active {
+    my ($search_info) = @_;
     my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_registered_active_sql', $tenant);
+    return db_data(
+        REPORT,
+        $report_statements,
+        'report_registered_active_sql',
+        $tenant,
+        $search_info->{cursor} || "00:00:00:00:00:00",
+        $search_info->{limit} || 100,
+    );
 }
 
 sub report_opensecurity_events_all {
