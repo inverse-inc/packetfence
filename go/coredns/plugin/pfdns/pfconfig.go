@@ -138,12 +138,12 @@ func (pf *pfdns) detectVIP() error {
 					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 					NetIndex.IP = net.ParseIP(key)
 					Index := NetIndex
-					pf.Network[&Index] = VIP
+					pf.Network[Index.String()] = VIP
 				}
 				if ConfNet.RegNetwork != "" {
 					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
 					if NetIP.Contains(IP2) {
-						pf.Network[NetIP2] = VIP
+						pf.Network[NetIP2.String()] = VIP
 					}
 				}
 			}
