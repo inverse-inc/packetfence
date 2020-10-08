@@ -47,12 +47,32 @@ sub osclass_active {
 
 sub inactive_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_inactive_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_inactive_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub active_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_active_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_active_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub unregistered_all {
@@ -72,7 +92,17 @@ sub unregistered_all {
 
 sub unregistered_active {
     my ($self) = @_;
-    $self->render(json => { items => [report_unregistered_active()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_unregistered_active($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub registered_all {
@@ -92,7 +122,17 @@ sub registered_all {
 
 sub registered_active {
     my ($self) = @_;
-    $self->render(json => { items => [report_registered_active()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_registered_active($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub unknownprints_all {
