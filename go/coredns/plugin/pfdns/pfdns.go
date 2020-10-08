@@ -50,7 +50,7 @@ type pfdns struct {
 	FqdnPort            map[*regexp.Regexp][]string
 	FqdnIsolationPort   map[*regexp.Regexp][]string
 	FqdnDomainPort      map[*regexp.Regexp][]string
-	Network             map[*net.IPNet]net.IP
+	Network             map[string]net.IP
 	NetworkType         map[*net.IPNet]*pfconfigdriver.NetworkConf
 	DNSFilter           *cache.Cache
 	IpsetCache          *cache.Cache
@@ -149,12 +149,12 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	var ipVersion int
 	srcIP := state.IP()
 	bIP := net.ParseIP(srcIP)
+
 	if bIP.To4() == nil {
 		ipVersion = 6
 	} else {
 		ipVersion = 4
 	}
-
 	mac, err := pf.IP2Mac(ctx, srcIP, ipVersion)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("ERROR cannot find mac for ip %s\n", srcIP))
@@ -390,7 +390,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 		var returnedIP []byte
 		found = false
-		for k, v := range pf.Network {
+		for n, v := range pf.Network {
+			_, k, _ := net.ParseCIDR(n)
 			if k.Contains(bIP) {
 				for w, x := range pf.NetworkType {
 					if k.String() == w.String() {
@@ -436,7 +437,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 			}
 		}
-		for k, v := range pf.Network {
+		for n, v := range pf.Network {
+			_, k, _ := net.ParseCIDR(n)
 			if k.Contains(bIP) {
 				returnedIP := append([]byte(nil), v.To16()...)
 				rr.(*dns.AAAA).AAAA = returnedIP
@@ -526,8 +528,8 @@ func (pf *pfdns) detectType() error {
 	var NetIndex net.IPNet
 	pf.NetworkType = make(map[*net.IPNet]*pfconfigdriver.NetworkConf)
 
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -537,7 +539,16 @@ func (pf *pfdns) detectType() error {
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces.Element {
+	var intDNS []string
+
+	for _, vi := range pfconfigdriver.Config.Interfaces.DNSInts.Element {
+		for key, DNSint := range vi.(map[string]interface{}) {
+			if key == "int" {
+				intDNS = append(intDNS, DNSint.(string))
+			}
+		}
+	}
+	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
