@@ -1345,6 +1345,20 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.1.0-10.2.0.sql
 ----
 
+== Upgrading from a version prior to X.Y.Z
+
+=== Database schema
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the X.X.X schema to X.Y.Z.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+----
+
 == Archived upgrade notes
 
 include::{extra_path}upgrade-notes/archived_upgrade_notes.asciidoc[]
