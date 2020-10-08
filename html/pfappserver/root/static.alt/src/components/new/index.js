@@ -2,6 +2,7 @@ import BaseArray from './BaseArray'
 import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
+import BaseFormGroupArrayDraggable, { props as BaseFormGroupArrayDraggableProps } from './BaseFormGroupArrayDraggable'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupSelectMultiple from './BaseFormGroupSelectMultiple'
 import BaseFormGroupSelectOne from './BaseFormGroupSelectOne'
@@ -30,6 +31,7 @@ export {
 
   // form group
   BaseFormGroup,
+  BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps,
   BaseFormGroupInput,
   BaseFormGroupSelectMultiple,
   BaseFormGroupSelectOne,

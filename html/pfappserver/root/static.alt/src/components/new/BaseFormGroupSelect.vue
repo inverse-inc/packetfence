@@ -50,7 +50,6 @@
         :taggable="taggable"
         :tag-placeholder="tagPlaceholder"
         :tag-position="tagPosition"
-        :max="max"
         :options-limit="optionsLimit"
         :group-values="groupValues"
         :group-label="groupLabel"
@@ -71,6 +70,8 @@
         :show-pointer="showPointer"
         @select="onInput"
         @remove="onRemove"
+
+        v-bind="bind"
       >
         <template v-slot:singleLabel>
           {{ singleLabel }}
@@ -183,7 +184,9 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
-    options
+    options,
+    max,
+    multiple
   } = toRefs(metaProps)
 
   const {
@@ -221,6 +224,15 @@ export const setup = (props, context) => {
       return unref(value)
   })
 
+  // supress warning:
+  //  [Vue-Multiselect warn]: Max prop should not be used when prop Multiple equals false.
+  const bind = computed(() => {
+    return (unref(multiple))
+      ? { max: max.value }
+      : {}
+  })
+
+
   return {
     inputRef,
 
@@ -248,7 +260,8 @@ export const setup = (props, context) => {
     inputValidFeedback: validFeedback,
 
     onRemove: () => {},
-    singleLabel
+    singleLabel,
+    bind
   }
 }
 

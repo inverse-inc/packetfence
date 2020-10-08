@@ -141,6 +141,7 @@ const setup = (props, context) => {
   const actionKey = useEventActionKey(/* document */)
 
   const isSortable = computed(() => {
+console.log('...', unref(value))
     return !unref(isLocked) && unref(value).length > 1
   })
 
@@ -148,20 +149,11 @@ const setup = (props, context) => {
     const _value = unref(value)
     const isCopy = unref(actionKey) && index - 1 in _value
     if (isCopy) {
-      draggableCopy(index - 1, index).then(([fromComponent, toComponent]) => {
-        const { isCollapse } = fromComponent
-        if (!isCollapse) {
-          const { onExpand = () => {} } = toComponent
-          onExpand()
-        }
-      })
+      draggableCopy(index - 1, index)
     }
     else {
       draggableAdd(index, {
         foo: 'bar'
-      }).then(newComponent => {
-        const { onExpand = () => {} } = newComponent
-        onExpand()
       })
     }
   }

@@ -105,6 +105,7 @@ export const useInputValidator = (props, value) => {
                   case 'object':
                     message = formatter.interpolate(message, { fieldName: i18n.t('Item'), ...meta })[0]
                     break
+                  case 'mixed':
                   case 'string':
                   default:
                     message = formatter.interpolate(message, { fieldName: i18n.t('Value'), ...meta })[0]

@@ -43,8 +43,10 @@
       <b-row class="justify-content-md-center text-secondary">
         <b-col cols="12" md="auto">
           <b-media v-if="isLoading">
-            <template v-slot:aside><icon v-if="isLoading" name="circle-notch" scale="2" spin></icon></template>
-            <h4>{{ $t('Loading Form') }}</h4>
+            <template v-slot:aside>
+              <icon name="circle-notch" scale="2" spin></icon>
+            </template>
+            <h4>{{ $t('Building Form') }}</h4>
             <p class="font-weight-light">{{ $t('Hold on a moment while we render it...') }}</p>
           </b-media>
           <b-media v-else>

@@ -1,6 +1,7 @@
 <template>
   <div class="w-100">
     <b-link @click="onToggle"
+      class="d-block"
       :class="{
         'text-danger': inputState === false,
         'text-primary': inputState !== false && actionKey,

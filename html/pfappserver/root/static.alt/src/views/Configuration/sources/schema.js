@@ -19,7 +19,7 @@ yup.addMethod(yup.string, 'sourceIdNotExistsExcept', function (exceptId = '', me
 
 export const schemaRule = yup.object({
   status: yup.string(),
-  id: yup.string().meta({ fieldName: i18n.t('Identifier') }),
+  id: yup.string().meta({ fieldName: i18n.t('Name') }),
   description: yup.string(),
   match: yup.string(),
   actions: yup.array().meta({ fieldName: i18n.t('Action') }),

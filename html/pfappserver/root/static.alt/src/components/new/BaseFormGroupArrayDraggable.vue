@@ -1,6 +1,6 @@
 <template>
   <b-form-group ref="form-group"
-    class="base-form-group base-form-group-rules"
+    class="base-form-group-array-draggable"
     :class="{
       'mb-0': !columnLabel
     }"
@@ -39,7 +39,7 @@
           </b-col>
           <b-col cols="10" class="py-2">
 
-            <base-rule :ref="draggableKeys[index]"
+            <component :is="draggableComponent" :ref="draggableKeys[index]"
               :namespace="`${namespace}.${index}`"
             />
 
@@ -81,17 +81,15 @@
   </b-form-group>
 </template>
 <script>
-import { computed, nextTick, unref } from '@vue/composition-api'
+import { computed, toRefs, unref } from '@vue/composition-api'
 import draggable from 'vuedraggable'
-import BaseRule from './BaseRule'
 
 const components = {
-  draggable,
-  BaseRule
+  draggable
 }
 
 import useEventActionKey from '@/composables/useEventActionKey'
-import { useArrayDraggable } from '@/composables/useArrayDraggable'
+import { useArrayDraggable, useArrayDraggableProps } from '@/composables/useArrayDraggable'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -103,12 +101,17 @@ export const props = {
   ...useInputProps,
   ...useInputMetaProps,
   ...useInputValidatorProps,
-  ...useInputValueProps
+  ...useInputValueProps,
+  ...useArrayDraggableProps
 }
 
 const setup = (props, context) => {
 
   const metaProps = useInputMeta(props, context)
+
+  const {
+    defaultItem
+  } = toRefs(metaProps)
 
   const {
     text,
@@ -125,7 +128,6 @@ const setup = (props, context) => {
   const {
     draggableRef,
     draggableKeys,
-    draggableRefs,
 
     add: draggableAdd,
     copy: draggableCopy,
@@ -133,7 +135,7 @@ const setup = (props, context) => {
     truncate: draggableTruncate,
 
     draggableListeners
-  } = useArrayDraggable(value, onChange, context)
+  } = useArrayDraggable(props, context, value, onChange)
 
   const {
     state,
@@ -143,35 +145,15 @@ const setup = (props, context) => {
 
   const actionKey = useEventActionKey(/* document */)
 
-  const isSortable = computed(() => {
-    return !unref(isLocked) && unref(value).length > 1
-  })
+  const isSortable = computed(() => !unref(isLocked) && unref(value).length > 1)
 
   const itemAdd = (index = 0) => {
     const _value = unref(value)
     const isCopy = unref(actionKey) && index - 1 in _value
-    if (isCopy) {
-      draggableCopy(index - 1, index).then(([fromComponent, toComponent]) => {
-        const { isCollapse } = fromComponent
-        if (!isCollapse) {
-          const { onExpand = () => {} } = toComponent
-          onExpand()
-        }
-      })
-    }
-    else {
-      draggableAdd(index, {
-        actions: [],
-        conditions: [],
-        description: null,
-        id: null,
-        match: 'all',
-        status: 'enabled'
-      }).then(newComponent => {
-        const { onExpand = () => {} } = newComponent
-        onExpand()
-      })
-    }
+    if (isCopy)
+      draggableCopy(index - 1, index)
+    else
+      draggableAdd(index, unref(defaultItem))
   }
 
   const itemDelete = (index) => {
@@ -212,7 +194,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-rules',
+  name: 'base-form-group-array-draggable',
   inheritAttrs: false,
   components,
   props,
@@ -249,14 +231,12 @@ export default {
   }
 
 }
-.base-form-group {
+.base-form-group-array-draggable {
   .draggable-off > .draggable-handle,
   .draggable-on:not(:hover) > .draggable-handle,
   .draggable-on:hover > .draggable-index {
     display: none;
   }
-}
-.base-form-group-rules {
   & > .form-row > [role="group"] > .input-group {
     border: 1px solid transparent;
     @include border-radius($border-radius);

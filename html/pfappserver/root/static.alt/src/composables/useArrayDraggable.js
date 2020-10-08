@@ -1,14 +1,67 @@
-import { computed, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { nextTick, ref, unref, watch } from '@vue/composition-api'
 import uuidv4 from 'uuid/v4'
 
-export const useArrayDraggable = (value, onChange, context) => {
+export const useArrayDraggableProps = {
+  draggableComponent: {
+    type: Object
+  },
+  defaultItem: {
+    type: Object,
+    default: () => ({})
+  },
+  onAdd: {
+    type: Function,
+    default: (context, index, newComponent) => {
+      const { emit } = context
+      emit('add', index, newComponent)
+    }
+  },
+  onCopy: {
+    type: Function,
+    default: (context, fromIndex, toIndex, fromComponent, toComponent) => {
+      const { emit } = context
+      emit('copy', fromIndex, toIndex, fromComponent, toComponent)
+    }
+  },
+  onMove: {
+    type: Function,
+    default: (context, fromIndex, toIndex, fromComponent, toComponent) => {
+      const { emit } = context
+      emit('move', fromIndex, toIndex, fromComponent, toComponent)
+    }
+  },
+  onRemove: {
+    type: Function,
+    default: (context, index, oldComponent) => {
+      const { emit } = context
+      emit('remove', index, oldComponent)
+    }
+  },
+  onTruncate: {
+    type: Function,
+    default: (context) => {
+      const { emit } = context
+      emit('truncate')
+    }
+  }
+}
+
+export const useArrayDraggable = (props, context, value, onChange) => {
+
+  const {
+    onAdd,
+    onCopy,
+    onMove,
+    onRemove,
+    onTruncate
+  } = props
 
   const draggableRef = ref(null)
-  const draggableKeys = ref([...Array(unref(value).length).keys()].map(() => uuidv4()))
+  const draggableKeys = ref([...Array((unref(value) || []).length).keys()].map(() => uuidv4()))
   let isLoading = false
 
   watch(
-    () => (unref(value) || '').length,
+    () => (unref(value) || []).length,
     (lengthAfter, lengthBefore) => {
       if (isLoading) return // internal mutation
       if ((!lengthBefore || !lengthAfter) && ~~lengthBefore !== ~~lengthAfter) { // external mutation
@@ -31,7 +84,8 @@ export const useArrayDraggable = (value, onChange, context) => {
       nextTick(() => {
         isLoading = false
         const { refs: { [newKey]: { 0: newComponent = {} } = {} } = {} } = context
-        resolve(newComponent)
+        unref(onAdd)(context, index, newComponent)
+        resolve()
       })
     })
   }
@@ -51,7 +105,8 @@ export const useArrayDraggable = (value, onChange, context) => {
       nextTick(() => {
         isLoading = false
         const { refs: { [newKey]: { 0: toComponent = {} } = {} } = {} } = context
-        resolve([fromComponent, toComponent])
+        unref(onCopy)(context, fromIndex, toIndex, fromComponent, toComponent)
+        resolve()
       })
     })
   }
@@ -71,10 +126,16 @@ export const useArrayDraggable = (value, onChange, context) => {
       newValue.splice(toIndex, 0, newValue.splice(fromIndex, 1)[0])
       onChange(newValue)
 
+      const _keys = unref(draggableKeys)
+      const { refs: { [_keys[fromIndex]]: { 0: fromComponent = {} } = {} } = {} } = context
       draggableKeys.value.splice(toIndex, 0, draggableKeys.value.splice(fromIndex, 1)[0])
 
-      isLoading = false
-      resolve()
+      nextTick(() => {
+        isLoading = false
+        const { refs: { [_keys[toIndex]]: { 0: toComponent = {} } = {} } = {}  } = context
+        unref(onMove)(context, fromIndex, toIndex, fromComponent, toComponent)
+        resolve()
+      })
     })
   }
 
@@ -85,10 +146,14 @@ export const useArrayDraggable = (value, onChange, context) => {
       onChange([..._value.slice(0, index), ..._value.slice(index + 1, _value.length)])
 
       const _keys = unref(draggableKeys)
+      const { refs: { [_keys[index]]: { 0: oldComponent = {} } = {} } = {} } = context
       draggableKeys.value = [..._keys.slice(0, index), ..._keys.slice(index + 1, _keys.length)]
 
-      isLoading = false
-      resolve()
+      nextTick(() => {
+        isLoading = false
+        unref(onRemove)(context, index, oldComponent)
+        resolve()
+      })
     })
   }
 
@@ -96,10 +161,14 @@ export const useArrayDraggable = (value, onChange, context) => {
     isLoading = true
     return new Promise(resolve => {
       onChange([])
+
       draggableKeys.value = []
 
-      isLoading = false
-      resolve()
+      nextTick(() => {
+        isLoading = false
+        onTruncate(context)
+        resolve()
+      })
     })
   }
 

@@ -3,7 +3,7 @@ import i18n from '@/utils/locale'
 
 yup.setLocale({ // default validators
   mixed: {
-    required: ({ message }) => (message || i18n.t('Value required.'))
+    required: ({ message }) => (message || i18n.t('{fieldName} required.'))
   },
   string: {
     email: ({ message }) => (message || i18n.t('Invalid Email.')),
