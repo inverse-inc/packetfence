@@ -501,7 +501,7 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	var newcertdb []Cert
 	var SerialNumber *big.Int
 
-	if CertDB := pfpki.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
+	if CertDB := pfpki.DB.Last(&certdb); CertDB.Error != nil {
 		SerialNumber = big.NewInt(1)
 	} else {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
@@ -552,8 +552,9 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
+	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ? AND ProfileName = ?", c.Cn, prof.Name).First(&newcertdb)
 	Information.Entries = newcertdb
+	Information.Serial = SerialNumber.String()
 
 	return Information, nil
 }
@@ -622,31 +623,32 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	var cert Cert
 	if profile, ok := params["profile"]; ok {
 		if val, ok := params["cn"]; ok {
-			if CertDB := pfpki.DB.Where("Cn = ? AND ProfileID", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := pfpki.DB.Where("Cn = ? AND ProfileID = ?", val, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New("A database error occured. See log for details.")
 			}
 		}
 		if val, ok := params["id"]; ok {
-			if CertDB := pfpki.DB.Where("Id = ? AND ProfileID", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := pfpki.DB.Where("Id = ? AND ProfileID = ?", val, profile).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New("A database error occured. See log for details.")
+			}
+		}
+	} else {
+		if val, ok := params["cn"]; ok {
+			if CertDB := pfpki.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New("A database error occured. See log for details.")
+			}
+		}
+		if val, ok := params["id"]; ok {
+			if CertDB := pfpki.DB.First(&cert, val); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New("A database error occured. See log for details.")
 			}
 		}
 	}
-	if val, ok := params["cn"]; ok {
-		if CertDB := pfpki.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
-			Information.Error = CertDB.Error.Error()
-			return Information, errors.New("A database error occured. See log for details.")
-		}
-	}
-	if val, ok := params["id"]; ok {
-		if CertDB := pfpki.DB.First(&cert, val); CertDB.Error != nil {
-			Information.Error = CertDB.Error.Error()
-			return Information, errors.New("A database error occured. See log for details.")
-		}
-	}
-
+	Information.Serial = cert.SerialNumber
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
@@ -718,12 +720,18 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 
 	id := params["id"]
 	reason := params["reason"]
+	if serial, ok := params["serial"]; ok {
+		if CertDB := pfpki.DB.Where("id = ? AND serial_number = ?", id, serial).Find(&cert); CertDB.Error != nil {
+			Information.Error = CertDB.Error.Error()
+			return Information, CertDB.Error
+		}
+	} else {
+		if CertDB := pfpki.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
+			Information.Error = CertDB.Error.Error()
+			return Information, CertDB.Error
+		}
 
-	if CertDB := pfpki.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
-		Information.Error = CertDB.Error.Error()
-		return Information, CertDB.Error
 	}
-
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {

@@ -18,6 +18,7 @@ use Moo;
 use pf::constants;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use pf::api::unifiedapiclient;
+use pf::dal::key_value_storage;
 
 extends 'pf::pki_provider';
 
@@ -75,6 +76,15 @@ sub get_bundle {
 
     $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
 
+    my %data;
+    $data{id} = "/pki/$cn";
+    $data{value} = $return->{serial};
+
+    pf::dal::key_value_storage->find_or_create({
+        %data,
+        id => "/pki/$cn"
+    });
+
     return $return;
 }
 
@@ -87,9 +97,17 @@ Revoke the certificate for a user
 sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
-
-    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$profile_id/$cn/1");
-    
+    my ($status, $iter) = pf::dal::key_value_storage->search(
+        -where => {
+	    id => "/pki/$cn",
+	}
+    );
+    if (is_success($status)) {
+        my $key_value = $iter->next(undef);
+	if ($key_value) {
+	    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
+        }
+    }
 }
 
 =head1 AUTHOR
