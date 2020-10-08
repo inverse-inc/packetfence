@@ -73,7 +73,7 @@ sub get_bundle {
         $logger->warn("Certificate already exist");
     }
 
-    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile_id/$cn/download/$certpwd");
+    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
 
     return $return;
 }
