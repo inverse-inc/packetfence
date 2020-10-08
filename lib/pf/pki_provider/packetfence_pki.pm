@@ -19,6 +19,7 @@ use pf::constants;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use pf::api::unifiedapiclient;
 use pf::dal::key_value_storage;
+use pf::error qw(is_success is_error);
 
 extends 'pf::pki_provider';
 
@@ -74,16 +75,18 @@ sub get_bundle {
         $logger->warn("Certificate already exist");
     }
 
-    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
-
     my %data;
     $data{id} = "/pki/$cn";
     $data{value} = $return->{serial};
 
-    pf::dal::key_value_storage->find_or_create({
+    my ($status, $obj) =pf::dal::key_value_storage->find_or_create({
         %data,
         id => "/pki/$cn"
     });
+
+    $obj->merge(\%data);
+
+    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
 
     return $return;
 }

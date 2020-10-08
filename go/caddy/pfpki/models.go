@@ -623,13 +623,13 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	var cert Cert
 	if profile, ok := params["profile"]; ok {
 		if val, ok := params["cn"]; ok {
-			if CertDB := pfpki.DB.Where("Cn = ? AND ProfileID = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := pfpki.DB.Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New("A database error occured. See log for details.")
 			}
 		}
 		if val, ok := params["id"]; ok {
-			if CertDB := pfpki.DB.Where("Id = ? AND ProfileID = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := pfpki.DB.Where("Id = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New("A database error occured. See log for details.")
 			}
@@ -648,7 +648,7 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 			}
 		}
 	}
-	Information.Serial = cert.SerialNumber
+
 	// Find the CA
 	var ca CA
 	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
@@ -718,19 +718,33 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	// Find the Cert
 	var cert Cert
 
-	id := params["id"]
 	reason := params["reason"]
 	if serial, ok := params["serial"]; ok {
-		if CertDB := pfpki.DB.Where("id = ? AND serial_number = ?", id, serial).Find(&cert); CertDB.Error != nil {
-			Information.Error = CertDB.Error.Error()
-			return Information, CertDB.Error
+		if id, ok := params["id"]; ok {
+			if CertDB := pfpki.DB.Where("id = ? AND serial_number = ?", id, serial).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
+		}
+		if cn, ok := params["cn"]; ok {
+			if CertDB := pfpki.DB.Where("cn = ? AND serial_number = ?", cn, serial).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
 		}
 	} else {
-		if CertDB := pfpki.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
-			Information.Error = CertDB.Error.Error()
-			return Information, CertDB.Error
+		if id, ok := params["id"]; ok {
+			if CertDB := pfpki.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
 		}
-
+		if cn, ok := params["cn"]; ok {
+			if CertDB := pfpki.DB.Where("cn = ?", cn).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
+		}
 	}
 	// Find the CA
 	var ca CA
