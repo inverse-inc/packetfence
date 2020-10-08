@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
+	"github.com/davecgh/go-spew/spew"
 	cache "github.com/fdurand/go-cache"
 
 	"github.com/inverse-inc/go-radius"
@@ -230,16 +231,25 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	var RADIUSinterfaces pfconfigdriver.RADIUSInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &RADIUSinterfaces)
 
-	var intRADIUS []*net.UDPConn
+	var servicesConf pfconfigdriver.PfConfServices
+	pfconfigdriver.FetchDecodeSocket(ctx, &servicesConf)
+
+	spew.Dump(servicesConf)
+
 	var ipRADIUS []string
-	for _, vi := range RADIUSinterfaces.Element {
-		for key, radiusint := range vi.(map[string]interface{}) {
-			if key == "ip" {
-				ipRADIUS = append(ipRADIUS, radiusint.(string))
+	if sharedutils.IsEnabled(servicesConf.RadiusdAcct) {
+		ipRADIUS = []string{"127.0.0.1"}
+	} else {
+		for _, vi := range RADIUSinterfaces.Element {
+			for key, radiusint := range vi.(map[string]interface{}) {
+				if key == "ip" {
+					ipRADIUS = append(ipRADIUS, radiusint.(string))
+				}
 			}
 		}
-
 	}
+
+	var intRADIUS []*net.UDPConn
 
 	for _, adresse := range sharedutils.RemoveDuplicates(ipRADIUS) {
 
