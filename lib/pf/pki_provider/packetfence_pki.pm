@@ -100,16 +100,24 @@ Revoke the certificate for a user
 sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
-    my ($status, $iter) = pf::dal::key_value_storage->search(
+    my %options = (
         -where => {
-	    id => "/pki/$cn",
-	}
+            id => "/pki/$cn",
+        }
     );
+
+    my ($status, $iter) = pf::dal::key_value_storage->search(%options);
     if (is_success($status)) {
         my $key_value = $iter->next(undef);
-	if ($key_value) {
-	    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
+        if ($key_value) {
+            my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
         }
+    }
+
+    my ($status, $count) = pf::dal::ikey_value_storage->remove_items(%options);
+
+    if (is_error($status)) {
+        $logger->error("Unable to delete the key value '$cn'");
     }
 }
 
