@@ -5,7 +5,7 @@ import Formatter from './formatter'
 Vue.use(VueI18n)
 
 const locale = 'en-US' // default locale
-const formatter = new Formatter({ locale })
+export const formatter = new Formatter({ locale })
 
 const i18n = new VueI18n({
   locale,

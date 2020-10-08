@@ -18,12 +18,12 @@ yup.addMethod(yup.string, 'sourceIdNotExistsExcept', function (exceptId = '', me
 })
 
 export const schemaRule = yup.object({
-  status: yup.string().meta({ fieldName: i18n.t('Status') }),
+  status: yup.string(),
   id: yup.string().meta({ fieldName: i18n.t('Identifier') }),
-  description: yup.string().meta({ fieldName: i18n.t('Description') }),
-  match: yup.string().meta({ fieldName: i18n.t('Match') }),
-  actions: yup.array().meta({ fieldName: i18n.t('Actions') }),
-  conditions: yup.array().meta({ fieldName: i18n.t('Conditions') })
+  description: yup.string(),
+  match: yup.string(),
+  actions: yup.array().meta({ fieldName: i18n.t('Action') }),
+  conditions: yup.array().meta({ fieldName: i18n.t('Condition') })
 })
 
 export const schemaRules = yup.array().of(schemaRule)

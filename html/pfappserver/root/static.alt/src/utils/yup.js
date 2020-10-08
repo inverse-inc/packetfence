@@ -16,7 +16,7 @@ yup.addMethod(yup.string, 'maxAsInt', function (ref, message) {
   return this.test({
     name: 'maxAsInt',
     message: message || i18n.t('Maximum {maxValue}.', { maxValue: ref }),
-    test: (value) => (+value <= +ref)
+    test: value => (+value <= +ref)
   })
 })
 
@@ -24,15 +24,15 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
   return this.test({
     name: 'minAsInt',
     message: message || i18n.t('Minimum {minValue}.', { minValue: ref }),
-    test: (value) => (+value >= +ref)
+    test: value => (+value >= +ref)
   })
 })
 
-yup.addMethod(yup.array, 'required', function (ref, message) {
+yup.addMethod(yup.array, 'required', function (message) {
   return this.test({
     name: 'required',
-    message: message || i18n.t('Item required.'),
-    test: (value) => (value.length > 0)
+    message: message || i18n.t('{fieldName} required.'),
+    test: value => (value.length > 0)
   })
 })
 

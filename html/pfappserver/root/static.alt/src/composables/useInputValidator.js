@@ -1,6 +1,7 @@
 import { computed, inject, ref, toRefs, unref, watch, watchEffect } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import { object, reach } from 'yup'
+import i18n, { formatter } from '@/utils/locale'
 
 export const useInputValidatorProps = {
   namespace: {
@@ -97,6 +98,19 @@ export const useInputValidator = (props, value) => {
               else
                 setState(thisPromise, null, null, null)
             }).catch(({ message }) => { // invalid
+              const { type = 'string', meta } = schema.describe()
+              if (meta) { // interpolate meta to message
+                switch (type) {
+                  case 'array':
+                  case 'object':
+                    message = formatter.interpolate(message, { fieldName: i18n.t('Item'), ...meta })[0]
+                    break
+                  case 'string':
+                  default:
+                    message = formatter.interpolate(message, { fieldName: i18n.t('Value'), ...meta })[0]
+                    break
+                }
+              }
               setState(thisPromise, false, null, message)
             })
           },
