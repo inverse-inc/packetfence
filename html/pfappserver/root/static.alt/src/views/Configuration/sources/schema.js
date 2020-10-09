@@ -17,16 +17,23 @@ yup.addMethod(yup.string, 'sourceIdNotExistsExcept', function (exceptId = '', me
   })
 })
 
-export const schemaRule = yup.object({
+const schemaRuleAction = yup.object({
+  type: yup.string().required(i18n.t('Type required.')),
+  value: yup.string().required(i18n.t('Value required'))
+})
+
+const schemaRuleActions = yup.array().defined().of(schemaRuleAction)
+
+const schemaRule = yup.object({
   status: yup.string(),
   id: yup.string().meta({ fieldName: i18n.t('Name') }),
   description: yup.string(),
   match: yup.string(),
-  actions: yup.array().meta({ fieldName: i18n.t('Action') }),
+  actions: schemaRuleActions.meta({ fieldName: i18n.t('Action'), zzzinvalidFeedback: i18n.t('Action contains one or more errors.') }),
   conditions: yup.array().meta({ fieldName: i18n.t('Condition') })
 })
 
-export const schemaRules = yup.array().of(schemaRule)
+const schemaRules = yup.array().of(schemaRule)
 
 export const schema = (props) => {
   const {
@@ -41,8 +48,8 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .sourceIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
 
-    administration_rules: schemaRules,
-    authentication_rules: schemaRules,
+    administration_rules: schemaRules.meta({ invalidFeedback: i18n.t('Administration rule contains one or more errors.') }),
+    authentication_rules: schemaRules.meta({ invalidFeedback: i18n.t('Authentication rule contains one or more errors.') }),
 
   })
 }

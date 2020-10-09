@@ -12,6 +12,7 @@ import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEna
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
+import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputRange from './BaseInputRange'
@@ -42,6 +43,7 @@ export {
 
   // form inputs
   BaseInput,
+  BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
   BaseInputSelectOne,

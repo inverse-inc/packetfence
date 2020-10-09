@@ -887,8 +887,8 @@ const actions = {
         return Promise.resolve(state.baseGuestsAdminRegistration)
       }
     } else {
-      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', [])
-      return state.baseGuestsAdminRegistration
+      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', {})
+      return Promise.resolve(state.baseGuestsAdminRegistration)
     }
   },
   getBaseInline: ({ state, getters, commit }) => {
@@ -1429,7 +1429,7 @@ const actions = {
       }
     } else {
       commit('ROLES_UPDATED', [])
-      return state.roles
+      return Promise.resolve(state.roles)
     }
   },
   getRoutedNetworks: ({ state, getters, commit }) => {

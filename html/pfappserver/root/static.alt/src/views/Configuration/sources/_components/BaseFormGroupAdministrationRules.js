@@ -1,19 +1,21 @@
-import BaseFormGroupRules, { props as BaseFormGroupRulesProps } from './BaseFormGroupRules'
+import { computed, inject, provide } from '@vue/composition-api'
+import { useNamespaceMetaAllowed } from '@/composables/useMeta'
+import BaseFormGroupRules from './BaseFormGroupRules'
+import { administrationRuleActionsFromSourceType } from '../config'
 
-export const props = {
-  ...BaseFormGroupRulesProps,
+const setup = () => {
+  const sourceType = inject('sourceType', null)
 
-  // overload :options default
-  options: {
-    type: Array,
-    default: () => ([
-      'administration'
-    ])
-  }
+  const actions = computed(() => administrationRuleActionsFromSourceType(sourceType.value).map(type => {
+    const { value: namespace } = type
+    const options = useNamespaceMetaAllowed(`${namespace}_action`).value
+    return { ...type, options }
+  }))
+  provide('actions', actions)
 }
 
 export default {
   name: 'base-form-group-administration-rules',
   extends: BaseFormGroupRules,
-  props
+  setup
 }

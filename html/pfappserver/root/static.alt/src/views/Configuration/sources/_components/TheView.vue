@@ -35,7 +35,7 @@
   </base-view>
 </template>
 <script>
-import BaseView from '@/components/new/BaseView'
+import { BaseView } from '@/components/new'
 import { useView, useViewProps } from '../_composables/useView'
 import {
   FormButtonBar,

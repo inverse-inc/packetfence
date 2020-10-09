@@ -1,4 +1,4 @@
-import { computed, inject, ref, toRefs, unref, watch, watchEffect } from '@vue/composition-api'
+import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import { object, reach } from 'yup'
 import i18n, { formatter } from '@/utils/locale'
@@ -87,8 +87,10 @@ export const useInputValidator = (props, value) => {
       () => {
         const schema = unref(localValidator)
         const thisPromise = ++lastPromise
+
         if (!validateDebouncer)
           validateDebouncer = createDebouncer()
+
         validateDebouncer({
           handler: () => {
             // yup | https://github.com/jquense/yup
@@ -98,21 +100,22 @@ export const useInputValidator = (props, value) => {
               else
                 setState(thisPromise, null, null, null)
             }).catch(({ message }) => { // invalid
-              const { type = 'string', meta } = schema.describe()
-              if (meta) { // interpolate meta to message
-                switch (type) {
+              const { type = 'string', meta, meta: { invalidFeedback: metaInvalidFeedback } = {} } = schema.describe()
+              if (metaInvalidFeedback) // meta feedback masks child error messages
+                setState(thisPromise, false, null, metaInvalidFeedback)
+              else {
+                switch (type) { // interpolate message w/ meta[fieldName]
                   case 'array':
                   case 'object':
                     message = formatter.interpolate(message, { fieldName: i18n.t('Item'), ...meta })[0]
                     break
                   case 'mixed':
                   case 'string':
-                  default:
                     message = formatter.interpolate(message, { fieldName: i18n.t('Value'), ...meta })[0]
                     break
                 }
+                setState(thisPromise, false, null, message)
               }
-              setState(thisPromise, false, null, message)
             })
           },
           time: 300

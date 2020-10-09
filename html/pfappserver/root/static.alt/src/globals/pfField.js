@@ -266,8 +266,7 @@ export const pfFieldTypeValues = {
     ]
   },
   [pfFieldType.DURATION]: () => {
-    store.dispatch('config/getBaseGuestsAdminRegistration')
-    return store.getters['config/accessDurationsList']
+    return store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList'])
   },
   [pfFieldType.DURATION_BY_ACL_USER]: () => {
     store.dispatch('session/getAllowedUserAccessDurations')
@@ -290,12 +289,19 @@ export const pfFieldTypeValues = {
     return store.dispatch('config/getRealms', store.getters['session/tenantIdMask']).then(() => store.getters['config/realmsList'])
   },
   [pfFieldType.ROLE]: () => {
-    store.dispatch('config/getRoles')
-    return store.getters['config/rolesList']
+    return store.dispatch('config/getRoles').then(items => [
+      { value: null, text: i18n.t('empty - None') },
+      ...items.map((item) => {
+        return { value: item.category_id, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
+      })
+    ])
   },
   [pfFieldType.ROLE_BY_NAME]: () => {
-    store.dispatch('config/getRoles')
-    return pfFieldTypeValues[pfFieldType.ROLE]().map(role => { return { value: role.name, text: role.name } })
+    return store.dispatch('config/getRoles').then(items => {
+      return (items || []).map((item) => {
+        return { value: item.name, text: item.name }
+      })
+    })
   },
   [pfFieldType.ROLE_BY_ACL_NODE]: () => {
     store.dispatch('session/getAllowedNodeRoles')

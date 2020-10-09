@@ -1,5 +1,4 @@
 import { computed, inject, reactive, ref, toRefs, unref, set, watch } from '@vue/composition-api'
-import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
 export const getMetaNamespace = (ns, o) => ns.reduce((xs, x) => {
@@ -55,13 +54,7 @@ export const useInputMeta = (props) => {
           _namespaceMeta = item
         const {
           allowed: metaAllowed,
-          min_length: metaMinLength = undefined,
-          max_length: metaMaxLength = undefined,
-          min_value: metaMinValue = undefined,
-          max_value: metaMaxValue = undefined,
-          pattern: metaPattern,
           placeholder: metaPlaceholder,
-          required: metaRequired,
           type: metaType
         } = _namespaceMeta
 
@@ -88,6 +81,20 @@ export const useInputMeta = (props) => {
   }
 
   return localProps
+}
+
+export const useNamespaceMetaAllowed = (namespace) => {
+
+    const meta = inject('meta', ref({}))
+    const namespaceArr = computed(() => unref(namespace).split('.'))
+    const namespaceMeta = computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
+
+    const options = computed(() => {
+      const { allowed = [] } = namespaceMeta.value || {}
+      return allowed
+    })
+
+    return options
 }
 
 export const useFormMetaSchema = (meta, schema) => {

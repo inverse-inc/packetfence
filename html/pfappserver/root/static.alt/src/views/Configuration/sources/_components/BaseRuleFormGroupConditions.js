@@ -1,5 +1,5 @@
 import { BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps } from '@/components/new'
-import BaseRule from './BaseRule'
+import BaseRuleCondition from './BaseRuleCondition'
 
 export const props = {
   ...BaseFormGroupArrayDraggableProps,
@@ -7,18 +7,13 @@ export const props = {
   // overload :draggableComponent
   draggableComponent: {
     type: Object,
-    default: () => BaseRule
+    default: () => BaseRuleCondition
   },
   // overload :defaultItem
   defaultItem: {
     type: Object,
     default: () => ({
-      actions: [],
-      conditions: [],
-      description: null,
-      id: null,
-      match: 'all',
-      status: 'enabled'
+//...
     })
   },
   // overload draggable handlers
@@ -42,7 +37,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-rules',
+  name: 'base-rule-form-group-conditions',
   extends: BaseFormGroupArrayDraggable,
   props
 }

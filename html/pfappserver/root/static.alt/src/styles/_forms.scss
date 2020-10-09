@@ -31,3 +31,7 @@
     padding: 0 !important;
     border: 0 !important;
 }
+
+[tabindex="-1"] {
+  outline: 0;
+}

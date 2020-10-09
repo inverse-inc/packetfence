@@ -59,8 +59,8 @@ zzzmax=""
       :show-pointer="showPointer"
       @select="onInput"
     >
-      <template v-slot:singleLabel="{ option }">
-        {{ option }}
+      <template v-slot:singleLabel>
+        {{ singleLabel }}
       </template>
       <template v-slot:beforeList>
         <li class="multiselect__element">
@@ -96,7 +96,7 @@ zzzmax=""
   </div>
 </template>
 <script>
-import { toRefs, unref } from '@vue/composition-api'
+import { computed, toRefs, unref } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInput, useInputProps } from '@/composables/useInput'
@@ -127,8 +127,9 @@ export const setup = (props, context) => {
 
   const metaProps = useInputMeta(props, context)
   const {
-    options,
-    trackBy
+    label,
+    trackBy,
+    options
   } = toRefs(metaProps)
 
   const {
@@ -140,7 +141,8 @@ export const setup = (props, context) => {
     isFocus,
     isLocked,
     onFocus,
-    onBlur
+    onBlur,
+    doFocus
   } = useInput(metaProps, context)
 
   const {
@@ -158,6 +160,18 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
+  const singleLabel = computed(() => {
+    const _options = unref(options)
+    const optionsIndex = _options.findIndex(option => {
+      const { [unref(trackBy)]: trackedValue } = option
+      return trackedValue === unref(value)
+    })
+    if (optionsIndex > -1)
+      return _options[optionsIndex][unref(label)]
+    else
+      return unref(value)
+  })
+
   return {
     // useInputMeta
     inputOptions: options,
@@ -172,6 +186,7 @@ export const setup = (props, context) => {
     isLocked,
     onFocus,
     onBlur,
+    doFocus,
 
     // useInputValue
     inputValue: value,
@@ -182,7 +197,9 @@ export const setup = (props, context) => {
     // useInputValidator
     inputState: state,
     inputInvalidFeedback: invalidFeedback,
-    inputValidFeedback: validFeedback
+    inputValidFeedback: validFeedback,
+
+    singleLabel
   }
 }
 

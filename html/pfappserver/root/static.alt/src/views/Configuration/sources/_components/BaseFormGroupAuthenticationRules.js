@@ -1,20 +1,21 @@
-import BaseFormGroupRules, { props as BaseFormGroupRulesProps } from './BaseFormGroupRules'
-import i18n from '@/utils/locale'
+import { computed, inject, provide } from '@vue/composition-api'
+import { useNamespaceMetaAllowed } from '@/composables/useMeta'
+import BaseFormGroupRules from './BaseFormGroupRules'
+import { authenticationRuleActionsFromSourceType } from '../config'
 
-export const props = {
-  ...BaseFormGroupRulesProps,
+const setup = () => {
+  const sourceType = inject('sourceType', null)
 
-  // overload :options default
-  options: {
-    type: Array,
-    default: () => ([
-      'authentication'
-    ])
-  }
+  const actions = computed(() => authenticationRuleActionsFromSourceType(sourceType.value).map(type => {
+    const { value: namespace } = type
+    const options = useNamespaceMetaAllowed(`${namespace}_action`).value
+    return { ...type, options }
+  }))
+  provide('actions', actions)
 }
 
 export default {
   name: 'base-form-group-authentication-rules',
   extends: BaseFormGroupRules,
-  props
+  setup
 }

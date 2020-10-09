@@ -34,9 +34,6 @@
       <form-group-administration-rules namespace="administration_rules"
         :column-label="$i18n.t('Administration Rules')"
       />
-
-<pre>{{ {form} }}</pre>
-
     </template>
 
     <b-container class="my-5" v-else>
@@ -60,10 +57,9 @@
   </base-form>
 </template>
 <script>
-import { computed, ref, toRefs, unref } from '@vue/composition-api'
 import { BaseForm } from '@/components/new/'
-import { useFormMetaSchema } from '@/composables/useMeta'
-import schemaFn from '../schema'
+import { useForm, useFormProps } from '../_composables/useForm'
+
 import {
   FormGroupIdentifier,
   FormGroupDescription,
@@ -84,48 +80,9 @@ const components = {
   FormGroupAdministrationRules,
 }
 
-export const props = {
-  form: {
-    type: Object
-  },
-  meta: {
-    type: Object
-  },
-  isNew: {
-    type: Boolean,
-    default: false
-  },
-  isClone: {
-    type: Boolean,
-    default: false
-  },
-  isLoading: {
-    type: Boolean,
-    default: false
-  },
+export const props = useFormProps
 
-  id: {
-    type: String
-  },
-  sourceType: {
-    type: String
-  }
-}
-
-export const setup = (props) => {
-
-  const {
-    meta
-  } = toRefs(props)
-
-  const schema = computed(() => schemaFn(props))
-
-  const metaSchema = computed(() => useFormMetaSchema(meta, schema))
-
-  return {
-    schema: metaSchema
-  }
-}
+export const setup = (props, context) => useForm(props, context)
 
 // @vue/component
 export default {
