@@ -69,8 +69,7 @@ if [ ! type curl 2> /dev/null ] ; then
     echo "Install curl before running this script"
     exit 0 
 else
-    #VENOM_LATEST_VERSION=$(curl -s ${VENOM_REPO_URL} | grep 'tag_name.*' | cut -d '"' -f 4 | grep -oP '\d.*')
-    VENOM_LATEST_VERSION="0.28.0"
+    VENOM_LATEST_VERSION=$(curl -s ${VENOM_REPO_URL} | grep 'tag_name.*' | cut -d '"' -f 4 | grep -oP '\d.*')
 fi
 
 if [ -f ${VENOM_BIN_PATH}/${VENOM_BINARY} ]; then
