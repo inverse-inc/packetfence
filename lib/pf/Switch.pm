@@ -36,6 +36,7 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
     $NO_VOIP
+    %ConfigRoles
 );
 use Errno qw(EINTR);
 use pf::file_paths qw(
@@ -633,12 +634,11 @@ sub getVlanByName {
 sub getAccessListByName {
     my ($self, $access_list_name) = @_;
     my $logger = $self->logger;
-
-    # skip if not defined or empty
-    return if (!defined($self->{'_access_lists'}) || !%{$self->{'_access_lists'}});
-
-    # return if found
-    return $self->{'_access_lists'}->{$access_list_name} if (defined($self->{'_access_lists'}->{$access_list_name}));
+    return if !exists $ConfigRoles{$access_list_name};
+    my $role = $ConfigRoles{$access_list_name};
+    return if !exists $role->{acls};
+    my $acls = $role->{acls};
+    return join("\n", @$acls) if defined $acls && @$acls;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
