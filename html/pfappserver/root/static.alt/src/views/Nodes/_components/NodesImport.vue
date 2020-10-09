@@ -77,6 +77,7 @@ export default {
     closeFile (index) {
       const file = this.files[index]
       file.close()
+      this.files.splice(index, 1)
     },
     importPromise (payload) {
       return this.$store.dispatch('$_nodes/bulkImport', payload)

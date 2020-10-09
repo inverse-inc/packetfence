@@ -213,6 +213,7 @@ export default {
     closeFile (index) {
       const file = this.files[index]
       file.close()
+      this.files.splice(index, 1)
     },
     importPromise (payload, dryRun, done) {
       return new Promise((resolve, reject) => {
