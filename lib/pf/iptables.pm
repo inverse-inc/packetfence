@@ -482,7 +482,7 @@ sub generate_passthrough_rules {
                     $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address."\n";
                 }
             } else {
-                $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to ".$if->address."\n";
+                $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address."\n";
             }
         }
     }
