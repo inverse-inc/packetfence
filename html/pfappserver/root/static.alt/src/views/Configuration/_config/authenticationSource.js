@@ -995,6 +995,29 @@ export const viewFields = {
       ]
     }
   },
+  local_account_expiration: (form, meta = {}) => {
+    return {
+      label: i18n.t('Local account expiration'),
+      text: i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.'),
+      cols: [
+        {
+          namespace: 'local_account_expiration.interval',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'local_account_expiration.interval')
+        },
+        {
+          namespace: 'local_account_expiration.unit',
+          component: pfFormChosen,
+          attrs: {
+            ...attributesFromMeta(meta, 'local_account_expiration.unit'),
+            ...{
+              allowEmpty: false
+            }
+          }
+        }
+      ]
+    }
+  },
   local_realm: (form, meta = {}) => {
     return {
       label: i18n.t('Local Realms'),
@@ -2062,6 +2085,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2085,6 +2109,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2109,6 +2134,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2134,6 +2160,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2159,6 +2186,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2183,6 +2211,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2220,6 +2249,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2256,6 +2286,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta),
             viewFields.person_mappings(form, meta),
             viewFields.username_attribute(form, meta)
@@ -2283,6 +2314,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2302,6 +2334,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2327,6 +2360,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2347,6 +2381,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2391,6 +2426,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
             viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta),
             viewFields.authentication_rules(form, meta)
           ]
         }
@@ -2456,7 +2492,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.create_local_account(form, meta),
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
-            viewFields.local_account_logins(form, meta)
+            viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta)
           ]
         }
       ]
@@ -2493,7 +2530,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.create_local_account(form, meta),
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
-            viewFields.local_account_logins(form, meta)
+            viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta)
           ]
         }
       ]
@@ -2518,7 +2556,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.create_local_account(form, meta),
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
-            viewFields.local_account_logins(form, meta)
+            viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta)
           ]
         }
       ]
@@ -2539,7 +2578,8 @@ export const view = (form = {}, meta = {}) => {
             viewFields.create_local_account(form, meta),
             viewFields.hash_passwords(form, meta),
             viewFields.password_length(form, meta),
-            viewFields.local_account_logins(form, meta)
+            viewFields.local_account_logins(form, meta),
+            viewFields.local_account_expiration(form, meta)
           ]
         }
       ]
@@ -2807,6 +2847,9 @@ export const validatorFields = {
   },
   local_account_logins: (form, meta = {}) => {
     return { local_account_logins: validatorsFromMeta(meta, 'local_account_logins', i18n.t('Logins')) }
+  },
+  local_account_expiration: (form, meta = {}) => {
+    return { local_account_expiration: validatorsFromMeta(meta, 'local_account_expiration', i18n.t('Expiration')) }
   },
   local_realm: (form, meta = {}) => {
     return { local_realm: validatorsFromMeta(meta, 'local_realm', i18n.t('Realms')) }
@@ -3160,6 +3203,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Email':
@@ -3173,6 +3217,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Facebook':
@@ -3191,6 +3236,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Github':
@@ -3210,6 +3256,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Google':
@@ -3229,6 +3276,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Instagram':
@@ -3247,6 +3295,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Kickbox':
@@ -3273,6 +3322,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Null':
@@ -3297,6 +3347,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta),
         ...validatorFields.person_mappings(form, meta),
         ...validatorFields.username_attribute(form, meta)
@@ -3318,6 +3369,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'SMS':
@@ -3331,6 +3383,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'SponsorEmail':
@@ -3348,6 +3401,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Twilio':
@@ -3362,6 +3416,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'Twitter':
@@ -3395,6 +3450,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
         ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta),
         ...validatorFields.authentication_rules(form, meta)
       }
     case 'AdminProxy':
@@ -3436,7 +3492,8 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.currency(form, meta),
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
-        ...validatorFields.local_account_logins(form, meta)
+        ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta)
       }
     case 'Mirapay':
       return {
@@ -3453,7 +3510,8 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.currency(form, meta),
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
-        ...validatorFields.local_account_logins(form, meta)
+        ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta)
       }
     case 'Paypal':
       return {
@@ -3470,7 +3528,8 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.domains(form, meta),
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
-        ...validatorFields.local_account_logins(form, meta)
+        ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta)
       }
     case 'Stripe':
       return {
@@ -3483,7 +3542,8 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.domains(form, meta),
         ...validatorFields.hash_passwords(form, meta),
         ...validatorFields.password_length(form, meta),
-        ...validatorFields.local_account_logins(form, meta)
+        ...validatorFields.local_account_logins(form, meta),
+        ...validatorFields.local_account_expiration(form, meta)
       }
     default:
       return {}
