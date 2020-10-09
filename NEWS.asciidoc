@@ -20,7 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* Expiration of the local accounts created on the portal can now be set on the source level
 
 Bug Fixes
 +++++++++
