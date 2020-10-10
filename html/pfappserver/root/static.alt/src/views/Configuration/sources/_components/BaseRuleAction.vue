@@ -2,9 +2,10 @@
   <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
     <b-col sm="6" align-self="start">
 
-      <base-input-select-one
+      <base-input-select-one ref="typeComponentRef"
         :namespace="`${namespace}.type`"
         :options="typeOptions"
+
       />
 
     </b-col>
@@ -58,21 +59,27 @@ const setup = (props, context) => {
     onChange
   } = useInputValue(metaProps, context)
 
+  const typeComponentRef = ref(null)
   const valueComponentRef = ref(null)
 
-  watch(() => unref(inputValue).type, () => { // when `type` is mutated
-    onChange({ ...unref(inputValue), value: undefined }) // clear `value`
-
-    nextTick(() => {
-      const { doFocus = () => {} } = valueComponentRef.value
-      doFocus() // focus `value` component
-    })
-  })
+  watch(
+    () => unref(inputValue) && unref(inputValue).type,
+    () => { // when `type` is mutated
+      const { isFocus = false } = typeComponentRef.value
+      if (isFocus) { // and `type` isFocus
+        onChange({ ...unref(inputValue), value: undefined }) // clear `value`
+        nextTick(() => {
+          const { doFocus = () => {} } = valueComponentRef.value
+          doFocus() // focus `value` component
+        })
+      }
+    }
+  )
 
   const actions = inject('actions', [])
 
   const action = computed(() => {
-    const type = unref(inputValue).type
+    const { type } = unref(inputValue) || {}
     const actionIndex = unref(actions).findIndex(action => action.value && action.value === type)
     if (actionIndex >= 0)
       return unref(actions)[actionIndex]
@@ -147,6 +154,7 @@ const setup = (props, context) => {
   )
 
   return {
+    typeComponentRef,
     typeOptions,
     valueComponent,
     valueComponentRef,

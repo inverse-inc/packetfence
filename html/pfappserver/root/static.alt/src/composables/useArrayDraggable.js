@@ -72,10 +72,11 @@ export const useArrayDraggable = (props, context, value, onChange) => {
   )
 
   const add = (index, newValue) => {
+    const _newValue = JSON.parse(JSON.stringify(newValue))
     isLoading = true
     return new Promise(resolve => {
       const _value = unref(value)
-      onChange([..._value.slice(0, index), newValue, ..._value.slice(index)])
+      onChange([..._value.slice(0, index), _newValue, ..._value.slice(index)])
 
       const _keys = unref(draggableKeys)
       const newKey = uuidv4()

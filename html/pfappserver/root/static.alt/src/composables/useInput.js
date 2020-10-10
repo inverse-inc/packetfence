@@ -1,4 +1,4 @@
-import { inject, ref, toRefs, unref, computed } from '@vue/composition-api'
+import { inject, nextTick, ref, toRefs, unref, computed } from '@vue/composition-api'
 
 export const useInputProps = {
   disabled: {
@@ -55,12 +55,16 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
 
   // events
   const onFocus = event => {
-    isFocus.value = true
-    emit('focus', event)
+    nextTick(() => {
+      isFocus.value = true
+      emit('focus', event)
+    })
   }
   const onBlur = event => {
-    isFocus.value = false
-    emit('blur', event)
+    nextTick(() => {
+      isFocus.value = false
+      emit('blur', event)
+    })
   }
 
   return {

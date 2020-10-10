@@ -142,7 +142,7 @@ const setup = (props, context) => {
     state,
     invalidFeedback,
     validFeedback
-  } = useInputValidator(metaProps, value)
+  } = useInputValidator(metaProps, value, true) // recursive
 
   const actionKey = useEventActionKey(/* document */)
 

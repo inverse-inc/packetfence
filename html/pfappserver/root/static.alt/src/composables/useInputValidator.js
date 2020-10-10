@@ -24,7 +24,7 @@ export const useInputValidatorProps = {
   }
 }
 
-export const useInputValidator = (props, value) => {
+export const useInputValidator = (props, value, recursive = false) => {
 
   const {
     namespace,
@@ -38,6 +38,8 @@ export const useInputValidator = (props, value) => {
   let localState = ref(unref(state))
   let localInvalidFeedback = ref(unref(invalidFeedback))
   let localValidFeedback = ref(unref(validFeedback))
+
+  // yup | https://github.com/jquense/yup
   let localValidator = ref(unref(validator))
 
   if (unref(namespace)) { // is :namespace
@@ -93,8 +95,7 @@ export const useInputValidator = (props, value) => {
 
         validateDebouncer({
           handler: () => {
-            // yup | https://github.com/jquense/yup
-            schema.validate(unref(value)).then(() => { // valid
+            schema.validate(unref(value), { recursive }).then(() => { // valid
               if (unref(validFeedback) !== undefined)
                 setState(thisPromise, true, unref(validFeedback), null)
               else
