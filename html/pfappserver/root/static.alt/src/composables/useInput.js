@@ -49,9 +49,9 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
   const isLocked = computed(() => unref(isLoading) || unref(disabled) || unref(readonly))
 
   // methods
-  const doFocus = () => refs[inputRef].$el.focus()
-  const doBlur = () => refs[inputRef].$el.blur()
-  const doSelect = () => refs[inputRef].$el.select()
+  const doFocus = () => nextTick(() => refs[inputRef].$el.focus())
+  const doBlur = () => nextTick(() => refs[inputRef].$el.blur())
+  const doSelect = () => nextTick(() => refs[inputRef].$el.select())
 
   // events
   const onFocus = event => {

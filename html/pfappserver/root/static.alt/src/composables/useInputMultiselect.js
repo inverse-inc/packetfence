@@ -95,11 +95,11 @@ export const useInputMultiselectProps = {
   },
   selectLabel: {
     type: String,
-    default: i18n.t('Press enter to select')
+    default: i18n.t('') // Press enter to select
   },
   selectGroupLabel: {
     type: String,
-    default: i18n.t('Press enter to select group')
+    default: i18n.t('') // Press enter to select group
   },
   selectedLabel: {
     type: String,
@@ -107,11 +107,11 @@ export const useInputMultiselectProps = {
   },
   deselectLabel: {
     type: String,
-    default: i18n.t('Press enter to remove')
+    default: i18n.t('') // Press enter to remove
   },
   deselectGroupLabel: {
     type: String,
-    default: i18n.t('Press enter to deselect group')
+    default: i18n.t('') // Press enter to deselect group
   },
   showLabels: {
     type: Boolean,

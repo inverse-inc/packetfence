@@ -1,7 +1,7 @@
 <template>
   <div style="flex-grow: 100;">
-    <multiselect ref="input"
-      class="base-input-select-one"
+    <multiselect ref="inputRef"
+      class="base-input-select"
       :class="{
         'is-empty': !inputValue,
         'is-blur': !isFocus,
@@ -15,7 +15,7 @@
 
       :value="inputValue"
       :placeholder="inputPlaceholder"
-:zzzloading="false"
+      :loading="false"
       :disabled="isLocked"
       :show-no-results="true"
       :tab-index="inputTabIndex"
@@ -38,7 +38,6 @@
       :taggable="taggable"
       :tag-placeholder="tagPlaceholder"
       :tag-position="tagPosition"
-zzzmax=""
       :options-limit="optionsLimit"
       :group-values="groupValues"
       :group-label="groupLabel"
@@ -58,9 +57,18 @@ zzzmax=""
       :open-direction="openDirection"
       :show-pointer="showPointer"
       @select="onInput"
+      @remove="onRemove"
+
+      v-bind="bind"
     >
       <template v-slot:singleLabel>
         {{ singleLabel }}
+      </template>
+      <template v-slot:tag="{ option }">
+        <span class="multiselect__tag bg-secondary">
+          <span>{{ option[label] }}</span>
+          <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="onRemove(option)"></i>
+        </span>
       </template>
       <template v-slot:beforeList>
         <li class="multiselect__element">
@@ -96,18 +104,19 @@ zzzmax=""
   </div>
 </template>
 <script>
-import { computed, toRefs, unref } from '@vue/composition-api'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
+
+const components = {
+  Multiselect
+}
+
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useInputMultiselectProps } from '@/composables/useInputMultiselect'
-
-const components = {
-  Multiselect
-}
 
 export const props = {
   size: {
@@ -125,11 +134,33 @@ export const props = {
 
 export const setup = (props, context) => {
 
+  // template refs
+  const inputRef = ref(null)
+
+  // stopPropagation w/ Escape keydown
+  const inputKeyDownHandler = e => {
+    const { keyCode } = e
+    switch (keyCode) {
+      case 27: // Escape
+        e.stopPropagation()
+        break
+    }
+  }
+  onMounted(() => {
+    for (let input of inputRef.value.$el.querySelectorAll('input')) {
+      const removeKeyDownEvent = () => input && input.removeEventListener('keydown', inputKeyDownHandler)
+      input.addEventListener('keydown', inputKeyDownHandler)
+      onBeforeUnmount(removeKeyDownEvent)
+    }
+  })
+
   const metaProps = useInputMeta(props, context)
   const {
     label,
     trackBy,
-    options
+    options,
+    max,
+    multiple
   } = toRefs(metaProps)
 
   const {
@@ -141,8 +172,7 @@ export const setup = (props, context) => {
     isFocus,
     isLocked,
     onFocus,
-    onBlur,
-    doFocus
+    onBlur
   } = useInput(metaProps, context)
 
   const {
@@ -172,7 +202,20 @@ export const setup = (props, context) => {
       return unref(value)
   })
 
+  // supress warning:
+  //  [Vue-Multiselect warn]: Max prop should not be used when prop Multiple equals false.
+  const bind = computed(() => {
+    return (unref(multiple))
+      ? { max: max.value }
+      : {}
+  })
+
+  const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
+  const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
+
   return {
+    inputRef,
+
     // useInputMeta
     inputOptions: options,
 
@@ -186,7 +229,6 @@ export const setup = (props, context) => {
     isLocked,
     onFocus,
     onBlur,
-    doFocus,
 
     // useInputValue
     inputValue: value,
@@ -199,13 +241,17 @@ export const setup = (props, context) => {
     inputInvalidFeedback: invalidFeedback,
     inputValidFeedback: validFeedback,
 
-    singleLabel
+    onRemove: () => {},
+    singleLabel,
+    bind,
+    doFocus,
+    doBlur
   }
 }
 
 // @vue/component
 export default {
-  name: 'base-input-select-one',
+  name: 'base-input-select',
   inheritAttrs: false,
   components,
   props,
@@ -216,7 +262,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
- .base-input-select-one {
+ .base-input-select {
 
   /* show placeholder even when empty */
   &.is-empty {
@@ -472,8 +518,8 @@ export default {
   }
 }
 
-.input-group.is-focus > .base-input-select-one,
-.base-input-select-one.is-focus {
+.input-group.is-focus > .base-input-select,
+.base-input-select.is-focus {
   .multiselect__tags {
     border-color: $input-focus-border-color;
   }
@@ -482,8 +528,8 @@ export default {
     border-color: $input-focus-border-color transparent transparent;
   }
 }
-.input-group.is-invalid > .base-input-select-one,
-.base-input-select-one.is-invalid {
+.input-group.is-invalid > .base-input-select,
+.base-input-select.is-invalid {
   .multiselect__tags {
     border-color: $form-feedback-invalid-color;
   }
@@ -492,8 +538,8 @@ export default {
     border-color: $form-feedback-invalid-color transparent transparent;
   }
 }
-.input-group.is-valid > .base-input-select-one,
-.base-input-select-one.is-valid {
+.input-group.is-valid > .base-input-select,
+.base-input-select.is-valid {
   .multiselect__tags {
     border-color: $form-feedback-valid-color;
   }

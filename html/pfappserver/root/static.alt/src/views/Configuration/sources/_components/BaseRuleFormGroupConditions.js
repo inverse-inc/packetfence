@@ -13,7 +13,9 @@ export const props = {
   defaultItem: {
     type: Object,
     default: () => ({
-//...
+      attribute: null,
+      operator: null,
+      value: null
     })
   },
   // overload draggable handlers

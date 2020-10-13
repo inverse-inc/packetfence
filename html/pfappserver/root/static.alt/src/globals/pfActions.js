@@ -171,7 +171,8 @@ export const pfActions = {
     value: 'mark_as_sponsor',
     text: i18n.t('Mark as sponsor'),
     types: [fieldType.HIDDEN],
-    staticValue: '1'
+    staticValue: '1',
+    default: '1'
   },
   no_action: {
     value: 'no_action',

@@ -1,11 +1,11 @@
-import { computed, toRefs, unref } from '@vue/composition-api'
+import { computed, nextTick, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
-import BaseFormGroupSelect, { props as BaseFormGroupSelectProps } from './BaseFormGroupSelect'
+import BaseInputSelect, { props as BaseInputSelectProps } from './BaseInputSelect'
 
 export const props = {
-  ...BaseFormGroupSelectProps,
+  ...BaseInputSelectProps,
 
   multiple: {
     type: Boolean,
@@ -35,7 +35,8 @@ export const setup = (props, context) => {
   } = useInputValue(metaProps, context)
 
   const inputValueWrapper = computed(() => {
-    return (unref(value) || []).map(item => ({ [unref(label)]: item, [unref(trackBy)]: item }))
+    const _value = (value.value && value.value.constructor === Array) ? value.value : [] // cast Array
+    return _value.map(item => ({ [unref(label)]: item, [unref(trackBy)]: item })) // map label/trackBy
   })
 
   const onInputWrapper = useEventFnWrapper(onInput, _value => {
@@ -61,8 +62,8 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-select-multiple',
-  extends: BaseFormGroupSelect,
+  name: 'base-input-select-multiple',
+  extends: BaseInputSelect,
   props,
   setup
 }

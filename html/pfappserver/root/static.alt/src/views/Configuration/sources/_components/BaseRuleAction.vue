@@ -31,6 +31,7 @@ import {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
+  BaseInputSelectMultiple,
   BaseInputSelectOne
 } from '@/components/new'
 
@@ -39,6 +40,7 @@ const components = {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
+  BaseInputSelectMultiple,
   BaseInputSelectOne
 }
 
@@ -67,11 +69,17 @@ const setup = (props, context) => {
     () => { // when `type` is mutated
       const { isFocus = false } = typeComponentRef.value
       if (isFocus) { // and `type` isFocus
-        onChange({ ...unref(inputValue), value: undefined }) // clear `value`
-        nextTick(() => {
-          const { doFocus = () => {} } = valueComponentRef.value
-          doFocus() // focus `value` component
-        })
+        const { ['default']: _default } = unref(action)
+        if (_default)
+          onChange({ ...unref(inputValue), value: _default }) // default `value` (eg: mark_as_sponsor = 1)
+        else {
+          onChange({ ...unref(inputValue), value: undefined }) // clear `value`
+
+          nextTick(() => {
+            const { doFocus = () => {} } = valueComponentRef.value || {}
+            doFocus() // focus `value` component
+          })
+        }
       }
     }
   )
@@ -99,8 +107,11 @@ const setup = (props, context) => {
         let component = fieldTypeComponent[type]
 
         switch (component) {
-          case componentType.SELECTONE:
           case componentType.SELECTMANY:
+            return BaseInputSelectMultiple
+            // break
+
+          case componentType.SELECTONE:
             return BaseInputSelectOne
             // break
 
@@ -118,6 +129,11 @@ const setup = (props, context) => {
 
           case componentType.INTEGER:
             return BaseInputNumber
+            // break
+
+          case componentType.HIDDEN:
+          case componentType.NONE:
+            return undefined
             // break
 
           default:
@@ -144,7 +160,11 @@ const setup = (props, context) => {
           let type = types[t]
           if (type in fieldTypeValues) {
             Promise.resolve(fieldTypeValues[type]()).then(options => {
-              valueOptions.value.push(...options)
+              const values = valueOptions.value.map(option => option.value)
+              for (let option of options) {
+                if (!values.includes(option.value))
+                  valueOptions.value.push(option)
+              }
             })
           }
         }

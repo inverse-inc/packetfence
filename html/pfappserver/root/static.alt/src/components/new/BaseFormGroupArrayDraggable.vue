@@ -27,7 +27,7 @@
         v-on="draggableListeners"
       >
         <b-row v-for="(item, index) in inputValue" :key="draggableKeys[index]">
-          <b-col class="col-form-label text-center py-2" :class="{
+          <b-col class="text-center py-2" :class="{
             'draggable-on': isSortable,
             'draggable-off': !isSortable
           }">
@@ -35,7 +35,7 @@
               class="draggable-handle" name="th" scale="1.5"
               v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"
             />
-            <span class="draggable-index">{{ index + 1 }}</span>
+            <span class="draggable-index col-form-label ">{{ index + 1 }}</span>
           </b-col>
           <b-col cols="10" class="py-2">
 
@@ -45,7 +45,7 @@
             />
 
           </b-col>
-          <b-col class="py-2 text-nowrap">
+          <b-col class="py-2">
             <b-link @click="itemDelete(index)"
               :class="{
                 'text-primary': actionKey,

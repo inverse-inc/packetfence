@@ -17,7 +17,7 @@
       }"
     >
       <multiselect ref="inputRef"
-        class="base-input-select-one"
+        class="base-input-select"
         :class="{
           'is-empty': !inputValue,
           'size-sm': size === 'sm',

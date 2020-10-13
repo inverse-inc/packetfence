@@ -143,12 +143,10 @@ export const pfFieldTypeOperators = {
 
 export const pfFieldTypeValues = {
   [pfFieldType.ADMINROLE]: () => {
-    store.dispatch('config/getAdminRoles')
-    return store.getters['config/adminRolesList']
+    return store.dispatch('config/getAdminRoles').then(() => store.getters['config/adminRolesList'])
   },
   [pfFieldType.ADMINROLE_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserAccessLevels')
-    return store.getters['session/allowedUserAccessLevelsList']
+    return store.dispatch('session/getAllowedUserAccessLevels').then(() => store.getters['session/allowedUserAccessLevelsList'])
   },
   [pfFieldType.CONNECTION]: () => {
     return [
@@ -269,12 +267,10 @@ export const pfFieldTypeValues = {
     return store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList'])
   },
   [pfFieldType.DURATION_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserAccessDurations')
-    return store.getters['session/allowedUserAccessDurationsList']
+    return store.dispatch('session/getAllowedUserAccessDurations').then(() => store.getters['session/allowedUserAccessDurationsList'])
   },
   [pfFieldType.DURATIONS]: () => {
-    store.dispatch('config/getBaseGuestsAdminRegistration')
-    return store.getters['config/accessDurationsList']
+    return store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList'])
   },
   [pfFieldType.OPTIONS]: ({ field }) => {
     if (field === undefined) {
@@ -304,36 +300,28 @@ export const pfFieldTypeValues = {
     })
   },
   [pfFieldType.ROLE_BY_ACL_NODE]: () => {
-    store.dispatch('session/getAllowedNodeRoles')
-    return store.getters['session/allowedNodeRolesList']
+    return store.dispatch('session/getAllowedNodeRoles').then(() => store.getters['session/allowedNodeRolesList'])
   },
   [pfFieldType.ROLE_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserRoles')
-    return store.getters['session/allowedUserRolesList']
+    return store.dispatch('session/getAllowedUserRoles').then(() => store.getters['session/allowedUserRolesList'])
   },
   [pfFieldType.ROOT_PORTAL_MODULE]: () => {
-    store.dispatch('config/getPortalModules')
-    return store.getters['config/rootPortalModulesList']
+    return store.dispatch('config/getPortalModules').then(() => store.getters['config/rootPortalModulesList'])
   },
   [pfFieldType.SOURCE]: () => {
-    store.dispatch('config/getSources')
-    return store.getters['config/sourcesList']
+    return store.dispatch('config/getSources').then(() => store.getters['config/sourcesList'])
   },
   [pfFieldType.SSID]: () => {
-    store.dispatch('config/getSsids')
-    return store.getters['config/ssidsList']
+    return store.dispatch('config/getSsids').then(() => store.getters['config/ssidsList'])
   },
   [pfFieldType.SWITCHE]: () => {
-    store.dispatch('config/getSwitches')
-    return store.getters['config/switchesList']
+    return store.dispatch('config/getSwitches').then(() => store.getters['config/switchesList'])
   },
   [pfFieldType.SWITCH_GROUP]: () => {
-    store.dispatch('config/getSwitchGroups')
-    return store.getters['config/switchGroupsList']
+    return store.dispatch('config/getSwitchGroups').then(() => store.getters['config/switchGroupsList'])
   },
   [pfFieldType.TENANT]: () => {
-    store.dispatch('config/getTenants')
-    return store.getters['config/tenantsList']
+    return store.dispatch('config/getTenants').then(() => store.getters['config/tenantsList'])
   },
   [pfFieldType.TIME_BALANCE]: () => {
     return [
