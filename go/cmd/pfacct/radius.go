@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
-	"github.com/davecgh/go-spew/spew"
 	cache "github.com/fdurand/go-cache"
 
 	"github.com/inverse-inc/go-radius"
@@ -233,8 +232,6 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 
 	var servicesConf pfconfigdriver.PfConfServices
 	pfconfigdriver.FetchDecodeSocket(ctx, &servicesConf)
-
-	spew.Dump(servicesConf)
 
 	var ipRADIUS []string
 	if sharedutils.IsEnabled(servicesConf.RadiusdAcct) {

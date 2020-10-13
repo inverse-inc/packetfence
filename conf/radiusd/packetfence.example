@@ -276,13 +276,13 @@ server packetfence {
 	accounting {
 		packetfence-nas-ip-address
 
-    [% IF proxy_pfacct %]
-    update control {
-      Proxy-To-Realm := "pfacct"
-    }
-    [% ELSE %]
-    # proxying to pfacct is not necessary
-    [% END %]
+		[% IF proxy_pfacct %]
+		update control {
+			Proxy-To-Realm := "pfacct"
+		}
+		[% ELSE %]
+		# proxying to pfacct is not necessary
+		[% END %]
 
 		# Add in PacketFence specific configuration
 		update {
