@@ -12,6 +12,7 @@ This is to create an action for a portal module
 
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
+
 use namespace::autoclean;
 
 use pf::config;
@@ -83,13 +84,27 @@ sub options_type {
         { value => '', label => $form->_localize('Select an option') },
         (
             map {
-                {
+                my $v = {
                     value => ( $_ ne 'set_unregdate' ? $_ : 'set_unreg_date' ),
                     label => $form->_localize($_),
+                };
+                if ($_ eq 'set_role') {
+                    $v->{siblings} = {
+                        type => {
+                            allowed_values => options_roles($self),
+                        }
+                    }
                 }
+                $v
             } @{ $form->for_module->available_actions }
         )
     );
+}
+
+sub options_roles {
+    my $self = shift;
+    my @roles = map { { text => $_->{name}, value => $_->{name} } } @{$self->form->roles || []};
+    return \@roles;
 }
 
 =head1 COPYRIGHT
