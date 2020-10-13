@@ -168,6 +168,9 @@ sub nodecategory_upsert {
             max_nodes_per_pid => $data{max_nodes_per_pid},
             notes => $data{notes},
             parent_id => defined $parent ? \['(SELECT category_id FROM (SELECT category_id FROM node_category WHERE name = ?) x )', $parent] : undef,
+            include_parent_acls => $data{include_parent_acls} // "disabled",
+            fingerbank_dynamic_access_list => $data{fingerbank_dynamic_access_list} // "disabled",
+            acls => join("\n", @{$data{acls}}),
         });
         my ($status) = $obj->upsert;
         if (is_error($status)) {
