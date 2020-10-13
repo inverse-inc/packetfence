@@ -76,7 +76,7 @@ sub _isManaged {
             return $TRUE;
         }
     } elsif ($name eq "acct") {
-        if (isenabled($Config{services}{radiusd_acct}) && isdisabled($Config{services}{pfacct})) {
+        if (isenabled($Config{services}{radiusd_acct})) {
             return $TRUE;
         }
     } elsif ($name eq "load_balancer") {

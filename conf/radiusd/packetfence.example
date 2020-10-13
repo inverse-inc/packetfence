@@ -276,6 +276,14 @@ server packetfence {
 	accounting {
 		packetfence-nas-ip-address
 
+		[% IF proxy_pfacct %]
+		update control {
+			Proxy-To-Realm := "pfacct"
+		}
+		[% ELSE %]
+		# proxying to pfacct is not necessary
+		[% END %]
+
 		# Add in PacketFence specific configuration
 		update {
 			&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
@@ -308,9 +316,13 @@ server packetfence {
 
 		#  Filter attributes from the accounting response.
 		attr_filter.accounting_response
+		[% IF proxy_pfacct %]
+		# rest module isn't necessary because the call was proxied to pfacct
+		[% ELSE %]
 		if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-ShortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
 			rest
 		}
+		[% END %]
 	}
 
 

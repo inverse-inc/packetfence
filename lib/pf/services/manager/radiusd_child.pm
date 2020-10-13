@@ -229,6 +229,8 @@ EOT
 EOT
     }
 
+    $tags{proxy_pfacct} = isenabled($Config{services}{pfacct});
+
     $tt->process("$conf_dir/radiusd/packetfence", \%tags, "$install_dir/raddb/sites-enabled/packetfence") or die $tt->error();
 
     %tags = ();
@@ -1011,6 +1013,34 @@ home_server eduroam_server2 {
 EOT
     } else {
         $tags{'eduroam'} = "# Eduroam integration is not configured";
+    }
+
+    if(isenabled($Config{services}{pfacct})) {
+        my $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        $tags{'pfacct'} = <<"EOT";
+# pfacct configuration
+
+realm pfacct {
+    acct_pool = pfacct_pool
+    nostrip
+}
+
+home_server_pool pfacct_pool {
+    home_server = pfacct_local
+}
+
+home_server pfacct_local {
+    type = acct
+    ipaddr = 127.0.0.1
+    port = 1813
+    secret = '$local_secret'
+    src_ipaddr = $management_ip
+}
+
+EOT
+    }
+    else {
+        $tags{'pfacct'} = "# pfacct is not enabled";
     }
 
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
