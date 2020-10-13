@@ -50,6 +50,11 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Altering node_category"
+ALTER TABLE node_category
+    ADD COLUMN IF NOT EXISTS `include_parent_acls` varchar(255) default NULL,
+    ADD COLUMN IF NOT EXISTS `fingerbank_dynamic_access_list` varchar(255) default NULL,
+    ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
