@@ -918,7 +918,7 @@ sub switch_access {
     }
     my ( $return, $message, $source_id, $extra );
     $source_id = \@sources;
-    if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION) {
+    if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) && defined($radius_request->{"EAP-Type"}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION) {
         ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
                 'username' =>  $radius_request->{'User-Name'},
                 'password' =>  $radius_request->{'User-Password'},
