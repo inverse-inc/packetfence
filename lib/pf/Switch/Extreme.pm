@@ -78,6 +78,7 @@ use pf::util;
 # CAPABILITIES
 # access technology supported
 use pf::SwitchSupports qw(
+    RoleBasedEnforcement
     WiredMacAuth
     WiredDot1x
 );
@@ -1555,6 +1556,29 @@ sub returnAuthorizeWrite {
     my $rule = $filter->test('returnAuthorizeWrite', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
+}
+
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
+=item returnRoleAttributes
+
+Overriding L<pf::Switch>'s implementation to return the decorated role attribute of the switch.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => "Enterasys:version=1:policy=".$role);
 }
 
 =back
