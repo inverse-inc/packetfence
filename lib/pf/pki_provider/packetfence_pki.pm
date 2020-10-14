@@ -114,7 +114,7 @@ sub revoke {
         }
     }
 
-    my ($status, $count) = pf::dal::ikey_value_storage->remove_items(%options);
+    my ($status, $count) = pf::dal::key_value_storage->remove_items(%options);
 
     if (is_error($status)) {
         $logger->error("Unable to delete the key value '$cn'");
