@@ -65,6 +65,7 @@ type configStruct struct {
 		Parking       PfConfParking
 		Alerting      PfConfAlerting
 		ActiveActive  PfConfActiveActive
+		Services      PfConfServices
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -149,6 +150,54 @@ type PfConfCaptivePortal struct {
 	SecureRedirect               string   `json:"secure_redirect"`
 	StatusOnlyOnProduction       string   `json:"status_only_on_production"`
 	WisprRedirection             string   `json:"wispr_redirection"`
+}
+
+type PfConfServices struct {
+	StructConfig
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Pf"`
+	PfconfigHashNS       string `val:"services"`
+	ApiFrontend          string `json:"api-frontend"`
+	GaleraAutofix        string `json:"galera-autofix"`
+	FingerbankCollector  string `json:"fingerbank-collector"`
+	HaproxyAdmin         string `json:"haproxy-admin"`
+	HaproxyDB            string `json:"haproxy-db"`
+	HaproxyPortal        string `json:"haproxy-portal"`
+	HttpdAAA             string `json:"httpd_aaa"`
+	HttpdAdmin           string `json:"httpd_admin"`
+	HttpdCollector       string `json:"httpd_collector"`
+	HttpdAdminDispatcher string `json:"httpd_admin_dispatcher"`
+	HttpdDispatcher      string `json:"httpd_dispatcher"`
+	HttpdPortal          string `json:"httpd_portal"`
+	HttpdProxy           string `json:"httpd_proxy"`
+	HttpdWebservices     string `json:"httpd_webservices"`
+	Iptables             string `json:"iptables"`
+	Keepalived           string `json:"keepalived"`
+	Netdata              string `json:"netdata"`
+	Pfacct               string `json:"pfacct"`
+	PfcertManager        string `json:"pfcertmanager"`
+	Pfdhcp               string `json:"pfdhcp"`
+	Pfdhcplistener       string `json:"pfdhcplistener"`
+	Pfdns                string `json:"pfdns"`
+	Pffilter             string `json:"pffilter"`
+	Pfipset              string `json:"pfipset"`
+	Pfcron               string `json:"pfcron"`
+	PfperlAPI            string `json:"pfperl-api"`
+	PfPKI                string `json:"pfpki"`
+	Pfqueue              string `json:"pfqueue"`
+	PfSSO                string `json:"pfsso"`
+	Pfstats              string `json:"pfstats"`
+	Radiusd              string `json:"radiusd"`
+	RadiusdAcct          string `json:"radiusd_acct"`
+	RadiusdAuth          string `json:"radiusd_auth"`
+	Radsniff             string `json:"radsniff"`
+	RedisCache           string `json:"redis_cache"`
+	RedisNtlmCache       string `json:"redis_ntlm_cache"`
+	RedisQueue           string `json:"redis_queue"`
+	Snmptrapd            string `json:"snmptrapd"`
+	TC                   string `json:"tc"`
+	TrackingConfig       string `json:"tracking-config"`
+	Winbindd             string `json:"winbindd"`
 }
 
 type PfConfWebservices struct {
