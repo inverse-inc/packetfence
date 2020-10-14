@@ -24,6 +24,7 @@ Enhancements
 * pfacct and radiusd-acct can now both be enabled together (radiusd-acct proxies to pfacct)
 * Added CoA support to Aerohive module
 * Added role based enforcement (Filter-Id) support to Extreme module
+* Use Called-Station-SSID attribute as the SSID when possible.
 
 Bug Fixes
 +++++++++
