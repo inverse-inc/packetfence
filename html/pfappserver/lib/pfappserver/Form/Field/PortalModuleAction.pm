@@ -43,6 +43,13 @@ has_field 'value' =>
    element_class => ['input-medium'],
   );
 
+our %INFLATE_TYPE = (
+    set_unregdate => 'set_unreg_date',
+    set_role => 'set_role_by_name',
+);
+
+our %DEFLATE_TYPE = map { $INFLATE_TYPE{$_} => $_  } keys %INFLATE_TYPE;
+
 =head2 action_inflate
 
 Inflate an action of the format :
@@ -56,10 +63,15 @@ sub action_inflate {
     if (defined $value) {
         @{$hash}{'type', 'value'} = pfconfig::namespaces::config::PortalModules::inflate_action($value);
         my $type = $hash->{type};
-        $hash->{type} = 'set_unreg_date' if $type eq 'set_unregdate';
+        $hash->{type} = inflate_type($type);
         $hash->{value} = join(',',@{$hash->{value}});
     }
     return $hash;
+}
+
+sub inflate_type {
+    my ($type) = @_;
+    return exists $INFLATE_TYPE{$type} ? $INFLATE_TYPE{$type} : $type;
 }
 
 =head2 action_inflate
@@ -71,10 +83,14 @@ Deflate an action to the format :
 
 sub action_deflate {
     my ($self, $value) = @_;
-    my $type = $value->{type};
-    $type = 'set_unregdate' if $type eq 'set_unreg_date';
+    my $type = deflate_type($value->{type});
     my $joined_arguments = $value->{value};
     return "${type}(${joined_arguments})";
+}
+
+sub deflate_type {
+    my ($type) = @_;
+    return exists $DEFLATE_TYPE{$type} ? $DEFLATE_TYPE{$type} : $type;
 }
 
 sub options_type {
@@ -84,18 +100,10 @@ sub options_type {
         { value => '', label => $form->_localize('Select an option') },
         (
             map {
-                my $v = {
-                    value => ( $_ ne 'set_unregdate' ? $_ : 'set_unreg_date' ),
+                {
+                    value => inflate_type($_),
                     label => $form->_localize($_),
-                };
-                if ($_ eq 'set_role') {
-                    $v->{siblings} = {
-                        type => {
-                            allowed_values => options_roles($self),
-                        }
-                    }
                 }
-                $v
             } @{ $form->for_module->available_actions }
         )
     );
