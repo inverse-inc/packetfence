@@ -22,6 +22,8 @@ Enhancements
 ++++++++++++
 * Expiration of the local accounts created on the portal can now be set on the source level
 * pfacct and radiusd-acct can now both be enabled together (radiusd-acct proxies to pfacct)
+* Added CoA support to Aerohive module
+* Added role based enforcement (Filter-Id) support to Extreme module
 
 Bug Fixes
 +++++++++
