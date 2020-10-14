@@ -15,6 +15,7 @@ import BaseInput from './BaseInput'
 import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputGroup from './BaseInputGroup'
+import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputRange from './BaseInputRange'
 import BaseInputSelectMultiple from './BaseInputSelectMultiple'
 import BaseInputSelectOne from './BaseInputSelectOne'
@@ -52,6 +53,7 @@ export {
 
   // bootstrap wrappers
   BaseInputGroup,
+  BaseInputGroupMultiplier,
 
   // array wrapper
   BaseArray,

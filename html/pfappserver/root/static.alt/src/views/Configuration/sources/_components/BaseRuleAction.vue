@@ -28,6 +28,7 @@ import {
 } from '@/globals/pfField'
 import {
   BaseInput,
+  BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
@@ -37,6 +38,7 @@ import {
 
 const components = {
   BaseInput,
+  BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
@@ -120,7 +122,7 @@ const setup = (props, context) => {
             // break
 
           case componentType.PREFIXMULTIPLIER:
-            return BaseInput
+            return BaseInputGroupMultiplier
             // break
 
           case componentType.SUBSTRING:

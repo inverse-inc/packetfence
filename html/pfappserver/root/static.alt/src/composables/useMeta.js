@@ -73,7 +73,8 @@ export const useInputMeta = (props) => {
             set(localProps, 'type', 'number')
             break
           default:
-            set(localProps, 'type', 'text')
+            // ignore meta `type` to use prop
+            //set(localProps, 'type', 'text')
         }
       },
       { immediate: true }
