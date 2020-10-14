@@ -2430,8 +2430,26 @@ We support also:
 
 sub extractSsid {
     my ($self, $radius_request) = @_;
-    my $logger = $self->logger;
+    my $ssid = $self->extractSSIDFromCalledStationId($radius_request);
+    if (defined $ssid) {
+        return $ssid;
+    }
 
+    $ssid = $self->extractSSIDAltAttribute($radius_request);
+    if (defined $ssid) {
+        return $ssid;
+    }
+
+    my $logger = $self->logger;
+    $logger->warn(
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
+        . "Please let us know so we can add support for it."
+    );
+    return;
+}
+
+sub extractSSIDFromCalledStationId {
+    my ($self, $radius_request) = @_;
     # it's put in Called-Station-Id
     # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
     if (defined($radius_request->{'Called-Station-Id'})) {
@@ -2443,15 +2461,27 @@ sub extractSsid {
         $/ix) {
             return $1;
         } else {
+            my $logger = $self->logger;
             $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
         }
     }
 
-    $logger->warn(
-        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
-        . "Please let us know so we can add support for it."
-    );
-    return;
+    return undef;
+}
+
+sub extractSSIDAltAttribute {
+    my ($self, $radius_request) = @_;
+    my $attr = $self->ssidAltAttribute;
+    if (!exists $radius_request->{$attr}) {
+        return undef;
+    }
+
+    my $ssid = $radius_request->{$attr};
+    return $ssid;
+}
+
+sub ssidAltAttribute {
+    'Called-Station-SSID'
 }
 
 =item getVoipVSA
