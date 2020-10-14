@@ -132,3 +132,8 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.base-form-group-input {
+  border-radius: $border-radius !important;
+}
+</style>

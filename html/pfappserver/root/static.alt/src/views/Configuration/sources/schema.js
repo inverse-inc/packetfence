@@ -48,8 +48,8 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .sourceIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
 
-    administration_rules: schemaRules.meta({ invalidFeedbackRecursive: i18n.t('Administration rule contains one or more errors.') }),
-    authentication_rules: schemaRules.meta({ invalidFeedbackRecursive: i18n.t('Authentication rule contains one or more errors.') }),
+    administration_rules: schemaRules.meta({ invalidFeedback: i18n.t('Administration rule contains one or more errors.') }),
+    authentication_rules: schemaRules.meta({ invalidFeedback: i18n.t('Authentication rule contains one or more errors.') }),
 
   })
 }

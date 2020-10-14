@@ -18,7 +18,7 @@
       <b-button v-if="!inputLength" @click="itemAdd()"
         :variant="(inputState === false) ? 'outline-danger' : 'outline-secondary'"
         :disabled="isLocked"
-      >{{ $t('Add Rule') }}</b-button>
+      >{{ buttonLabel || $t('Add') }}</b-button>
 
       <draggable v-else ref="draggableRef"
         class="w-100 mx-3"
@@ -52,7 +52,7 @@
                 'text-secondary': !actionKey
               }"
               :disabled="isLocked"
-              v-b-tooltip.hover.left :title="actionKey ? $t('Delete All') : $t('Delete Row')"
+              v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Delete All') : $t('Delete Row')"
             >
               <icon name="minus-circle" class="cursor-pointer mx-1"/>
             </b-link>
@@ -62,7 +62,7 @@
                 'text-secondary': !actionKey
               }"
               :disabled="isLocked"
-              v-b-tooltip.hover.left :title="actionKey ? $t('Clone Row') : $t('Add Row')"
+              v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
             >
               <icon name="plus-circle" class="cursor-pointer mx-1"/>
             </b-link>
@@ -103,7 +103,11 @@ export const props = {
   ...useInputMetaProps,
   ...useInputValidatorProps,
   ...useInputValueProps,
-  ...useArrayDraggableProps
+  ...useArrayDraggableProps,
+
+  buttonLabel: {
+    type: String
+  }
 }
 
 const setup = (props, context) => {
@@ -249,6 +253,9 @@ export default {
       }
       &:nth-child(odd) {
         background-color: $white;
+      }
+      & > .col > a {
+        outline: 0; /* disable highlighting on tabIndex */
       }
     }
     &.has-invalid:not([data-num="0"]) {

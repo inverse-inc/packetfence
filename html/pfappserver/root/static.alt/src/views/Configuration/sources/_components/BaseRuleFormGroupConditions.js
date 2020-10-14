@@ -1,10 +1,15 @@
 import { BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps } from '@/components/new'
 import BaseRuleCondition from './BaseRuleCondition'
+import i18n from '@/utils/locale'
 
 export const props = {
   ...BaseFormGroupArrayDraggableProps,
 
-  // overload :draggableComponent
+  buttonLabel: {
+    type: String,
+    default: i18n.t('Add Condition')
+  },
+// overload :draggableComponent
   draggableComponent: {
     type: Object,
     default: () => BaseRuleCondition

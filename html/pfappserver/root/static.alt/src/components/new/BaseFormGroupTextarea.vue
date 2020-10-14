@@ -135,7 +135,7 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-input',
+  name: 'base-form-group-textarea',
   inheritAttrs: false,
   props,
   setup

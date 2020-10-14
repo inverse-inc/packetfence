@@ -1,9 +1,14 @@
 import { BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps } from '@/components/new'
 import BaseRuleAction from './BaseRuleAction'
+import i18n from '@/utils/locale'
 
 export const props = {
   ...BaseFormGroupArrayDraggableProps,
 
+  buttonLabel: {
+    type: String,
+    default: i18n.t('Add Action')
+  },
   // overload :draggableComponent
   draggableComponent: {
     type: Object,

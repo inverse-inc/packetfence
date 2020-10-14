@@ -66,9 +66,9 @@ const setup = (props, context) => {
   const typeComponentRef = ref(null)
   const valueComponentRef = ref(null)
 
-  watch(
+  watch( // when `type` is mutated
     () => unref(inputValue) && unref(inputValue).type,
-    () => { // when `type` is mutated
+    () => {
       const { isFocus = false } = typeComponentRef.value
       if (isFocus) { // and `type` isFocus
         const { ['default']: _default } = unref(action)
@@ -107,7 +107,6 @@ const setup = (props, context) => {
       for (let t = 0; t < types.length; t++) {
         let type = types[t]
         let component = fieldTypeComponent[type]
-
         switch (component) {
           case componentType.SELECTMANY:
             return BaseInputSelectMultiple

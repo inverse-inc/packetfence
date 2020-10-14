@@ -103,7 +103,7 @@ export const useInputMultiselectProps = {
   },
   selectedLabel: {
     type: String,
-    default: i18n.t('Selected')
+    default: i18n.t('') // Selected
   },
   deselectLabel: {
     type: String,

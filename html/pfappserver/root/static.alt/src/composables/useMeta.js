@@ -24,7 +24,8 @@ export const useInputMetaProps = {
 export const useInputMeta = (props) => {
 
   const {
-    namespace
+    namespace,
+    options
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
@@ -60,7 +61,9 @@ export const useInputMeta = (props) => {
 
         // allowed
         if (metaAllowed) {
-          set(localProps, 'options', metaAllowed)
+          // use props first, meta second
+          const fifoOptions = (options.value && options.value.length) ? options.value : metaAllowed
+          set(localProps, 'options', fifoOptions)
         }
 
         // placeholder

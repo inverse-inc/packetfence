@@ -262,7 +262,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
- .base-input-select {
+.base-input-select {
 
   /* show placeholder even when empty */
   &.is-empty {
@@ -438,17 +438,21 @@ export default {
     }
     .multiselect__tags {
       @include border-radius($border-radius-sm);
+      padding: $input-padding-y-sm $input-padding-x-sm 0 $input-padding-x-sm;
+    }
+    &.multiselect--active .multiselect__tags {
+      padding: $input-padding-y-sm $input-padding-x-sm;
     }
     .multiselect__tags,
     .multiselect__option,
     .multiselect__option:after {
       min-height: $input-height-sm;
-      padding: $input-padding-y-sm $input-padding-x-sm;
       font-size: $font-size-sm;
     }
     .multiselect__option,
     .multiselect__option:after {
       line-height: $input-line-height-sm;
+      padding: $input-padding-y-sm $input-padding-x-sm;
     }
     .multiselect__select {
       right: $input-padding-x-sm
@@ -467,17 +471,21 @@ export default {
     }
     .multiselect__tags {
       @include border-radius($border-radius);
+      padding: $input-padding-y $input-padding-x 0 $input-padding-x;
+    }
+    &.multiselect--active .multiselect__tags {
+      padding: $input-padding-y $input-padding-x;
     }
     .multiselect__tags,
     .multiselect__option,
     .multiselect__option:after {
       min-height: $input-height;
-      padding: $input-padding-y $input-padding-x;
       font-size: $font-size-base;
     }
     .multiselect__option,
     .multiselect__option:after {
       line-height: $input-line-height;
+      padding: $input-padding-y $input-padding-x;
     }
     .multiselect__select {
       right: $input-padding-x
@@ -496,17 +504,21 @@ export default {
     }
     .multiselect__tags {
       @include border-radius($border-radius-lg);
+      padding: $input-padding-y-lg $input-padding-x-lg 0 $input-padding-x-lg;
+    }
+    &.multiselect--active .multiselect__tags {
+      padding: $input-padding-y-lg $input-padding-x-lg;
     }
     .multiselect__tags,
     .multiselect__option,
     .multiselect__option:after {
       min-height: $input-height-lg;
-      padding: $input-padding-y-lg $input-padding-x-lg;
       font-size: $font-size-lg;
     }
     .multiselect__option,
     .multiselect__option:after {
       line-height: $input-line-height-lg;
+      padding: $input-padding-y-lg $input-padding-x-lg;
     }
     .multiselect__select {
       right: $input-padding-x-lg

@@ -58,15 +58,28 @@ export const props = {
   prefixes: {
     type: Array,
     default: () => ([
-      { label: '',  name: '',      multiplier: Math.pow(1024, 0) },
-      { label: 'k', name: 'kilo',  multiplier: Math.pow(1024, 1) },
-      { label: 'M', name: 'mega',  multiplier: Math.pow(1024, 2) },
-      { label: 'G', name: 'giga',  multiplier: Math.pow(1024, 3) },
-      { label: 'T', name: 'tera',  multiplier: Math.pow(1024, 4) },
-      { label: 'P', name: 'peta',  multiplier: Math.pow(1024, 5) },
-      { label: 'X', name: 'exa',   multiplier: Math.pow(1024, 6) },
-      { label: 'Z', name: 'zetta', multiplier: Math.pow(1024, 7) },
-      { label: 'Y', name: 'yotta', multiplier: Math.pow(1024, 8) }
+      { label: '',   name: '',      multiplier: Math.pow(1024, 0) },
+      { label: 'k',  name: 'kilo',  multiplier: Math.pow(1024, 1) },
+      { label: 'M',  name: 'mega',  multiplier: Math.pow(1024, 2) },
+      { label: 'G',  name: 'giga',  multiplier: Math.pow(1024, 3) },
+      { label: 'T',  name: 'tera',  multiplier: Math.pow(1024, 4) },
+      { label: 'P',  name: 'peta',  multiplier: Math.pow(1024, 5) },
+      { label: 'X',  name: 'exa',   multiplier: Math.pow(1024, 6) },
+      { label: 'Z',  name: 'zetta', multiplier: Math.pow(1024, 7) },
+      { label: 'Y',  name: 'yotta', multiplier: Math.pow(1024, 8) },
+      { label: 'X',  name: 'xona',  multiplier: Math.pow(1024, 9) },
+      { label: 'W',  name: 'weka',  multiplier: Math.pow(1024, 10) },
+      { label: 'V',  name: 'vunda', multiplier: Math.pow(1024, 11) },
+      { label: 'U',  name: 'uda',   multiplier: Math.pow(1024, 12) },
+      { label: 'TD', name: 'treda', multiplier: Math.pow(1024, 13) },
+      { label: 'S',  name: 'sorta', multiplier: Math.pow(1024, 14) },
+      { label: 'R',  name: 'rinta', multiplier: Math.pow(1024, 15) },
+      { label: 'Q',  name: 'quexa', multiplier: Math.pow(1024, 16) },
+      { label: 'PP', name: 'pepta', multiplier: Math.pow(1024, 17) },
+      { label: 'O',  name: 'ocha',  multiplier: Math.pow(1024, 18) },
+      { label: 'N',  name: 'nena',  multiplier: Math.pow(1024, 19) },
+      { label: 'MI', name: 'minga', multiplier: Math.pow(1024, 20) },
+      { label: 'L',  name: 'luma',  multiplier: Math.pow(1024, 21) }
     ])
   },
   type: {
@@ -114,7 +127,6 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
-
   const prefixesInRange = computed(() => unref(prefixes).filter(prefix => prefix.multiplier <= unref(max)))
 
   const prefix = ref(unref(prefixes)[0])
@@ -128,8 +140,8 @@ export const setup = (props, context) => {
         .sort((a, b) => a.multiplier === b.multiplier ? 0 : a.multiplier < b.multiplier ? 1 : -1)
       // find LCD for `value`
       for (let i = 0; i < _prefixes.length; i++) {
-        let quotient = +value / +_prefixes[i].multiplier
-        if (Math.abs(quotient) >= 1 && Math.abs(quotient) < 1024 && quotient === Math.round(quotient)) {
+        let quotient = +value / _prefixes[i].multiplier
+        if (Math.abs(quotient) >= 1 && quotient === Math.round(quotient)) {
           prefix.value = _prefixes[i]
           scaledValue.value = (isNaN(quotient)) ? undefined : quotient
           return
