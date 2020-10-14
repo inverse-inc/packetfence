@@ -1038,7 +1038,7 @@ Those switches are supported using 802.1X for networks with or without VoIP. Tes
 
 * Finally for voice LLDP-MED do the following in the global config:
 
-  lldp med network-policy application voice tagged vlan 200 priority 5 dscp 46 ports e1/1/1 to 1/1/48
+  lldp med network-policy application voice tagged vlan 100 priority 5 dscp 46 ports e1/1/1 to 1/1/48
 
 * For devices in routing mode (Layer 3) the following applies when VLAN 1 is your management VLAN:
 
