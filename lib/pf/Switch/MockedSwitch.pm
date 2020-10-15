@@ -3226,6 +3226,42 @@ sub generateACL {
     return $self->generateACLFromTemplate($self->aclTemplate, $args);
 }
 
+sub extractSSIDFromCalledStationId {
+    my ($self, $radius_request) = @_;
+    # it's put in Called-Station-Id
+    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
+    if (defined($radius_request->{'Called-Station-Id'})) {
+        if ($radius_request->{'Called-Station-Id'} =~ /^
+            # below is MAC Address with supported separators: :, - or nothing
+            [a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}
+            :                                                                                           # : delimiter
+            (.*)                                                                                        # SSID
+        $/ix) {
+            return $1;
+        } else {
+            my $logger = $self->logger;
+            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
+        }
+    }
+
+    return undef;
+}
+
+sub extractSSIDAltAttribute {
+    my ($self, $radius_request) = @_;
+    my $attr = $self->ssidAltAttribute;
+    if (!exists $radius_request->{$attr}) {
+        return undef;
+    }
+
+    my $ssid = $radius_request->{$attr};
+    return $ssid;
+}
+
+sub ssidAltAttribute {
+    'Called-Station-SSID'
+}
+
 =back
 
 =head1 AUTHOR
