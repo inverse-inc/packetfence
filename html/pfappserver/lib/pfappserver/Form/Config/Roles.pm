@@ -74,6 +74,11 @@ has_field 'acls' => (
     label => 'ACLs',
 );
 
+has_field 'vlan' => (
+    type => 'Text',
+    label => 'Vlan',
+);
+
 =head2 validate
 
 Make sure none of the reserved names is used.
