@@ -27,7 +27,7 @@ BEGIN {
 }
 
 use pf::ConfigStore::Roles;
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::Mojo;
 use Utils;
 
