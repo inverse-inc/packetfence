@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 8;
 use pf::Switch;
 
 #This test will running last
@@ -57,6 +57,18 @@ is(
     $switch->extractSsid({'Called-Station-SSID' => 'Bob', 'Called-Station-Id' => "aabbccddeef:oBbby"}),
     "Bob",
     "Extract SSID from Called-Station-SSID is Called-Station-Id is invalid"
+);
+
+is(
+    $switch->getAccessListByName('r3'),
+    "allow tcp 80\n",
+    "getAccessListByName",
+);
+
+is(
+    $switch->getAccessListByName('r1'),
+    undef,
+    "getAccessListByName undef",
 );
 
 =head1 AUTHOR
