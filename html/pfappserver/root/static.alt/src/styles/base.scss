@@ -1,0 +1,58 @@
+.no-borders {
+  border-width: 0;
+}
+
+.no-border-radius {
+   border-radius: 0;
+}
+
+.is-borders {
+  &.input-group {
+    &.is-focus {
+      & > div,
+      & > input {
+        border-color: $input-focus-border-color;
+      }
+    }
+    &.is-invalid {
+      & > div,
+      & > input {
+        border-color: $form-feedback-invalid-color;
+      }
+    }
+    &.is-valid {
+      & > div,
+      & > input {
+        border-color: $form-feedback-valid-color;
+      }
+    }
+    & > div,
+    & > input {
+      border-color: transparent;
+      border-style: solid;
+      border-top-width: 1px;
+      border-right-width: 0;
+      border-bottom-width: 1px;
+      border-left-width: 0;
+
+      /* clip border-radius */
+      background-clip: border-box;
+      overflow: hidden;
+
+      &:first-child {
+          border-top-left-radius: $border-radius;
+          border-bottom-left-radius: $border-radius;
+          border-left-width: 1px;
+      }
+      &:last-child {
+          border-top-right-radius: $border-radius;
+          border-bottom-right-radius: $border-radius;
+          border-right-width: 1px;
+      }
+    }
+    .input-group-prepend,
+    .input-group-append {
+      height: $input-height;
+    }
+  }
+}
