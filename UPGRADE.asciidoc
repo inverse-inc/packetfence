@@ -1333,6 +1333,33 @@ If switch type was not defined, this script will set it to `Generic`:
 /usr/local/pf/addons/upgrade/to-10.2-default-switch-packetfence-standard.pl
 ----
 
+=== Convert the pfmon configuration file to pfcron
+
+Convert the pfmon configuration file to pfcron
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.2-pfmon-maintenance.pl
+----
+
+=== Rename PFMON* actions to PFCRON*
+
+Rename PFMON actions to the PFCRON actions
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.2-adminroles-conf.pl
+----
+
+=== Switch type needs to be defined
+
+Add the tenant_id to pfdetect
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-10.2-pfdetect-conf.pl
+----
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
