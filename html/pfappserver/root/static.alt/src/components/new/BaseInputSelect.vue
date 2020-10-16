@@ -58,6 +58,7 @@
       :show-pointer="showPointer"
       @select="onInput"
       @remove="onRemove"
+      @tag="onTag"
 
       v-bind="bind"
     >
@@ -242,6 +243,7 @@ export const setup = (props, context) => {
     inputValidFeedback: validFeedback,
 
     onRemove: () => {},
+    onTag: () => {},
     singleLabel,
     bind,
     doFocus,

@@ -4,6 +4,8 @@ import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
 import BaseFormGroupArrayDraggable, { props as BaseFormGroupArrayDraggableProps } from './BaseFormGroupArrayDraggable'
 import BaseFormGroupInput from './BaseFormGroupInput'
+import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
+import BaseFormGroupInputPasswordTest from './BaseFormGroupInputPasswordTest'
 import BaseFormGroupSelectMultiple from './BaseFormGroupSelectMultiple'
 import BaseFormGroupSelectOne from './BaseFormGroupSelectOne'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
@@ -12,6 +14,7 @@ import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEna
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
+import BaseInputGroup from './BaseInputGroup'
 import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
@@ -35,6 +38,8 @@ export {
   BaseFormGroup,
   BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps,
   BaseFormGroupInput,
+  BaseFormGroupInputNumber,
+  BaseFormGroupInputPasswordTest,
   BaseFormGroupSelectMultiple,
   BaseFormGroupSelectOne,
   BaseFormGroupTextarea,
@@ -44,6 +49,7 @@ export {
 
   // form inputs
   BaseInput,
+  BaseInputGroup,
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,

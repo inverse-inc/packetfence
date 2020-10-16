@@ -6,7 +6,7 @@ export const useInputProps = {
     default: false
   },
   placeholder: {
-    type: [String, Array]
+    type: [String, Number, Array]
   },
   readonly: {
     type: Boolean,
@@ -39,8 +39,10 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
   // props
   const localPlaceholder = computed(() =>
     (unref(placeholder) && unref(placeholder).constructor === Array)
-      ? unref(placeholder).join(', ') // join Array
-      : unref(placeholder)
+      ? unref(placeholder).join(', ') // join Array to String
+      : (unref(placeholder))
+        ? `${unref(placeholder)}` // cast String
+        : '' // empty String
   )
 
   // state

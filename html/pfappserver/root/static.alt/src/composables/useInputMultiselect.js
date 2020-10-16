@@ -53,7 +53,7 @@ export const useInputMultiselectProps = {
   },
   tagPlaceholder: {
     type: String,
-    default: i18n.t('Press enter to create a tag')
+    default: i18n.t('Press enter to select this value')
   },
   tagPosition: {
     type: String,

@@ -2,34 +2,37 @@
   <b-form-group ref="form-group"
     class="base-form-group"
     :class="{
-      'mb-0': !columnLabel
+      'mb-0': !columnLabel,
     }"
-    :state="inputState"
+    :state="state"
     :labelCols="labelCols"
     :label="columnLabel"
   >
     <template v-slot:invalid-feedback>
-      {{ inputInvalidFeedback }}
+      {{ invalidFeedback }}
     </template>
     <template v-slot:valid-feedback>
-      {{ inputValidFeedback }}
+      {{ validFeedback }}
     </template>
     <b-input-group
+      class="is-borders"
       :class="{
-        'is-valid': inputState === true,
-        'is-invalid': inputState === false
+        'is-valid': state === true,
+        'is-invalid': state === false,
+        'is-blur': !isFocus,
+        'is-focus': isFocus
       }"
     >
       <!-- Proxy slots -->
       <template v-slot:default>
         <slot/>
       </template>
-      <template v-slot:prepend>
+      <template v-slot:prepend v-if="$slots.prepend">
         <slot name="prepend"></slot>
       </template>
-      <template v-slot:append>
+      <template v-slot:append v-if="$slots.append || disabled">
         <slot name="append"></slot>
-        <b-button v-if="isLocked"
+        <b-button v-if="disabled"
           class="input-group-text"
           :disabled="true"
           tabIndex="-1"
@@ -40,61 +43,38 @@
         </b-button>
       </template>
     </b-input-group>
-    <b-form-text v-if="inputText" v-html="inputText"></b-form-text>
+    <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 <script>
 import { useFormGroupProps } from '@/composables/useFormGroup'
-import { useInput, useInputProps } from '@/composables/useInput'
-import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
-import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
-import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
   ...useFormGroupProps,
-  ...useInputProps,
-  ...useInputMetaProps,
-  ...useInputValidatorProps,
-  ...useInputValueProps
-}
 
-export const setup = (props, context) => {
-
-  const metaProps = useInputMeta(props, context)
-
-  const {
-    placeholder,
-    readonly,
-    tabIndex,
-    text,
-    isLocked
-  } = useInput(metaProps, context)
-
-  const {
-    value
-  } = useInputValue(metaProps, context)
-
-  const {
-    state,
-    invalidFeedback,
-    validFeedback
-  } = useInputValidator(metaProps, value)
-
-  return {
-    // useInput
-    inputPlaceholder: placeholder,
-    inputReadonly: readonly,
-    inputTabIndex: tabIndex,
-    inputText: text,
-    isLocked,
-
-    // useInputValue
-    inputValue: value,
-
-    // useInputValidator
-    inputState: state,
-    inputInvalidFeedback: invalidFeedback,
-    inputValidFeedback: validFeedback
+  isFocus: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  state: {
+    type: Boolean,
+    default: null
+  },
+  invalidFeedback: {
+    type: String,
+    default: undefined
+  },
+  validFeedback: {
+    type: String,
+    default: undefined
+  },
+  text: {
+    type: String,
+    default: undefined
   }
 }
 
@@ -102,7 +82,6 @@ export const setup = (props, context) => {
 export default {
   name: 'base-form-group',
   inheritAttrs: false,
-  props,
-  setup
+  props
 }
 </script>

@@ -1,4 +1,4 @@
-import { computed, nextTick, toRefs, unref } from '@vue/composition-api'
+import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
@@ -51,12 +51,18 @@ export const setup = (props, context) => {
     onInput(filteredValues)
   }
 
+  const onTag = (option) => {
+    const filteredValues = (unref(value) || []).filter(item => item.toLowerCase() !== option.toLowerCase())
+    onInput([ ...filteredValues, option ])
+  }
+
   return {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
 
-    onRemove
+    onRemove,
+    onTag
   }
 }
 
