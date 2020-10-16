@@ -2,14 +2,14 @@
   <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
     <b-col sm="4" align-self="start">
 
-      <base-input-select-one ref="attributeComponentRef"
+      <base-input-chosen-one ref="attributeComponentRef"
         :namespace="`${namespace}.attribute`"
       />
 
     </b-col>
     <b-col sm="3" align-self="start" class="pl-1">
 
-      <base-input-select-one ref="operatorComponentRef" v-if="attributeValue"
+      <base-input-chosen-one ref="operatorComponentRef" v-if="attributeValue"
         :namespace="`${namespace}.operator`"
         :options="operatorOptions"
       />
@@ -39,8 +39,8 @@ import {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
-  BaseInputSelectMultiple,
-  BaseInputSelectOne
+  BaseInputChosenMultiple,
+  BaseInputChosenOne
 } from '@/components/new'
 
 const components = {
@@ -49,8 +49,8 @@ const components = {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
-  BaseInputSelectMultiple,
-  BaseInputSelectOne
+  BaseInputChosenMultiple,
+  BaseInputChosenOne
 }
 
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -134,11 +134,11 @@ const setup = (props, context) => {
       const component = fieldTypeComponent[type]
       switch (component) {
         case componentType.SELECTMANY:
-          return BaseInputSelectMultiple
+          return BaseInputChosenMultiple
           // break
 
         case componentType.SELECTONE:
-          return BaseInputSelectOne
+          return BaseInputChosenOne
           // break
 
         case componentType.TIME:

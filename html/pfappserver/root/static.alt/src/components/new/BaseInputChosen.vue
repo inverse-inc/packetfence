@@ -1,7 +1,7 @@
 <template>
   <div style="flex-grow: 100;">
     <multiselect ref="inputRef"
-      class="base-input-select"
+      class="base-input-chosen"
       :class="{
         'is-empty': !inputValue,
         'is-blur': !isFocus,
@@ -253,7 +253,7 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-input-select',
+  name: 'base-input-chosen',
   inheritAttrs: false,
   components,
   props,
@@ -264,7 +264,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.base-input-select {
+.base-input-chosen {
 
   /* show placeholder even when empty */
   &.is-empty {

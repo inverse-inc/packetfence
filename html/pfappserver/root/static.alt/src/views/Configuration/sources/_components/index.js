@@ -1,10 +1,10 @@
 import {
   BaseFormButtonBar,
+  BaseFormGroupChosenMultiple,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPasswordTest,
-  BaseFormGroupSelectMultiple,
-  BaseFormGroupSelectOne,
 } from '@/components/new/'
 import BaseFormGroupAdministrationRules from './BaseFormGroupAdministrationRules'
 import BaseFormGroupAuthenticationRules from './BaseFormGroupAuthenticationRules'
@@ -28,11 +28,11 @@ export {
   BaseFormGroupInputPasswordTest    as FormGroupPassword,
   BaseFormGroupInput                as FormGroupPath,
   BaseFormGroupInputNumber          as FormGroupReadTimeout,
-  BaseFormGroupSelectMultiple       as FormGroupRealms,
-  BaseFormGroupSelectOne            as FormGroupScope,
-  BaseFormGroupSelectMultiple       as FormGroupSearchAttributes,
+  BaseFormGroupChosenMultiple       as FormGroupRealms,
+  BaseFormGroupChosenOne            as FormGroupScope,
+  BaseFormGroupChosenMultiple       as FormGroupSearchAttributes,
   BaseFormGroupInput                as FormGroupSearchAttributesAppend,
-  BaseFormGroupSelectOne            as FormGroupUsernameAttribute,
+  BaseFormGroupChosenOne            as FormGroupUsernameAttribute,
   BaseFormGroupInputNumber          as FormGroupWriteTimeout,
 
   TheForm,

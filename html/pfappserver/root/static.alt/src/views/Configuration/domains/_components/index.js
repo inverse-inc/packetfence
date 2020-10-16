@@ -1,7 +1,7 @@
 import {
   BaseFormButtonBar,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupSelectOne,
   BaseFormGroupTextarea,
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled
@@ -24,7 +24,7 @@ export {
   BaseFormGroupToggle                 as FormGroupRegistration,
 
   BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCache,
-  BaseFormGroupSelectOne              as FormGroupNtlmCacheSource,
+  BaseFormGroupChosenOne              as FormGroupNtlmCacheSource,
   BaseFormGroupTextarea               as FormGroupNtlmCacheFilter,
   BaseFormGroupInput                  as FormGroupNtlmCacheExpiry,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCacheBatch,

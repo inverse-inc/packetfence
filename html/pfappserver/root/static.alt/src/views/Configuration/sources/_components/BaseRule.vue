@@ -46,7 +46,7 @@
 import { computed, unref } from '@vue/composition-api'
 import {
   BaseFormGroupInput,
-  BaseFormGroupSelectOne,
+  BaseFormGroupChosenOne,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import BaseRuleFormGroupActions from './BaseRuleFormGroupActions'
@@ -57,7 +57,7 @@ const components = {
   FormGroupConditions:  BaseRuleFormGroupConditions,
   FormGroupDescription: BaseFormGroupInput,
   FormGroupIdentifier:  BaseFormGroupInput,
-  FormGroupMatch:       BaseFormGroupSelectOne,
+  FormGroupMatch:       BaseFormGroupChosenOne,
   FormGroupStatus:      BaseFormGroupToggleDisabledEnabled,
 }
 

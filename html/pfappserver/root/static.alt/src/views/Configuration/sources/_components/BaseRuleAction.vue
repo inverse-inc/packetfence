@@ -2,7 +2,7 @@
   <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
     <b-col sm="6" align-self="start">
 
-      <base-input-select-one ref="typeComponentRef"
+      <base-input-chosen-one ref="typeComponentRef"
         :namespace="`${namespace}.type`"
         :options="typeOptions"
 
@@ -32,8 +32,8 @@ import {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
-  BaseInputSelectMultiple,
-  BaseInputSelectOne
+  BaseInputChosenMultiple,
+  BaseInputChosenOne
 } from '@/components/new'
 
 const components = {
@@ -42,8 +42,8 @@ const components = {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
-  BaseInputSelectMultiple,
-  BaseInputSelectOne
+  BaseInputChosenMultiple,
+  BaseInputChosenOne
 }
 
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -109,11 +109,11 @@ const setup = (props, context) => {
         let component = fieldTypeComponent[type]
         switch (component) {
           case componentType.SELECTMANY:
-            return BaseInputSelectMultiple
+            return BaseInputChosenMultiple
             // break
 
           case componentType.SELECTONE:
-            return BaseInputSelectOne
+            return BaseInputChosenOne
             // break
 
           case componentType.DATETIME:

@@ -2,10 +2,10 @@ import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
-import BaseFormGroupSelect, { props as BaseFormGroupSelectProps } from './BaseFormGroupSelect'
+import BaseInputChosen, { props as BaseInputChosenProps } from './BaseInputChosen'
 
 export const props = {
-  ...BaseFormGroupSelectProps,
+  ...BaseInputChosenProps,
 
   internalSearch: {
     type: Boolean,
@@ -30,7 +30,7 @@ export const setup = (props, context) => {
   const inputValueWrapper = computed(() => {
     const _value = unref(value)
     const _options = unref(options)
-    const optionsIndex = _options.findIndex(option => option[trackBy] === _value)
+    const optionsIndex = _options.findIndex(option => option[unref(trackBy)] === _value)
     if (optionsIndex > -1) {
       return _options[optionsIndex]
     }
@@ -47,14 +47,14 @@ export const setup = (props, context) => {
   return {
     // wrappers
     inputValue: inputValueWrapper,
-    onInput: onInputWrapper,
+    onInput: onInputWrapper
   }
 }
 
 // @vue/component
 export default {
-  name: 'base-form-group-select-one',
-  extends: BaseFormGroupSelect,
+  name: 'base-input-chosen-one',
+  extends: BaseInputChosen,
   props,
   setup
 }

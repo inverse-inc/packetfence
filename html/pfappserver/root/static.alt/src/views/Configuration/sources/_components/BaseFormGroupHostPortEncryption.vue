@@ -12,7 +12,7 @@
       <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
         <b-col sm="6" align-self="start">
 
-          <base-input-select-multiple ref="hostRef"
+          <base-input-chosen-multiple ref="hostRef"
             :namespace="namespaces[0]"
             :taggable="true"
           />
@@ -27,7 +27,7 @@
         </b-col>
         <b-col sm="3" align-self="start" class="pl-1">
 
-          <base-input-select-one ref="encryptionRef"
+          <base-input-chosen-one ref="encryptionRef"
             :namespace="namespaces[2]"
           />
 
@@ -48,14 +48,14 @@
 <script>
 import {
   BaseInputNumber,
-  BaseInputSelectOne,
-  BaseInputSelectMultiple
+  BaseInputChosenOne,
+  BaseInputChosenMultiple
 } from '@/components/new'
 
 const components = {
   BaseInputNumber,
-  BaseInputSelectOne,
-  BaseInputSelectMultiple
+  BaseInputChosenOne,
+  BaseInputChosenMultiple
 }
 
 import { computed, inject, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'

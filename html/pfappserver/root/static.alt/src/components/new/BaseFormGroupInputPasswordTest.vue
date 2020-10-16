@@ -27,16 +27,8 @@
       @blur="onBlur"
     />
     <template v-slot:append>
-
-    <!--
-        <b-button-group rel="testResultGroup">
-          <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
-            <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
-          </b-button>
-        </b-button-group>
-    -->
         <b-button-group>
-          <b-button :disabled="!canTest" tabindex="-1" variant=""
+          <b-button :disabled="!canTest" tabindex="-1" variant="light"
             @click="doTest"
           >
             {{ testLabel || $t('Test') }}
@@ -49,11 +41,10 @@
             @mousemove="doShow"
             @mouseout="doHide"
           >
-            <b-button class="input-group-text no-border-radius" :disabled="!canTest" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : ''">
+            <b-button class="input-group-text no-border-radius" :disabled="!canTest" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
               <icon name="eye"></icon>
             </b-button>
           </b-button-group>
-
         </b-button-group>
     </template>
   </base-form-group>

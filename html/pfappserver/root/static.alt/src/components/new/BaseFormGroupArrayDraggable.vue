@@ -45,7 +45,7 @@
             />
 
           </b-col>
-          <b-col class="py-2">
+          <b-col class="py-2 text-nowrap">
             <b-link @click="itemDelete(index)"
               :class="{
                 'text-primary': actionKey,

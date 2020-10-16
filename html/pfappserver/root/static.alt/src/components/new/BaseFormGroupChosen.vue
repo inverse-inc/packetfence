@@ -17,7 +17,7 @@
       }"
     >
       <multiselect ref="inputRef"
-        class="base-input-select"
+        class="base-input-chosen"
         :class="{
           'is-empty': !inputValue,
           'size-sm': size === 'sm',
@@ -267,7 +267,7 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-select',
+  name: 'base-form-group-chosen',
   inheritAttrs: false,
   components,
   props,

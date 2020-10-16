@@ -2,10 +2,10 @@ import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
-import BaseFormGroupSelect, { props as BaseFormGroupSelectProps } from './BaseFormGroupSelect'
+import BaseFormGroupChosen, { props as BaseFormGroupChosenProps } from './BaseFormGroupChosen'
 
 export const props = {
-  ...BaseFormGroupSelectProps,
+  ...BaseFormGroupChosenProps,
 
   multiple: {
     type: Boolean,
@@ -61,8 +61,8 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-select-multiple',
-  extends: BaseFormGroupSelect,
+  name: 'base-form-group-chosen-multiple',
+  extends: BaseFormGroupChosen,
   props,
   setup
 }

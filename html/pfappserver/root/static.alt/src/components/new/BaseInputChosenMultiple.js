@@ -2,16 +2,16 @@ import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
-import BaseInputSelect, { props as BaseInputSelectProps } from './BaseInputSelect'
+import BaseInputChosen, { props as BaseInputChosenProps } from './BaseInputChosen'
 
 export const props = {
-  ...BaseInputSelectProps,
+  ...BaseInputChosenProps,
 
   multiple: {
     type: Boolean,
     default: true
   },
-  closeOnSelect: {
+  closeOnChosen: {
     type: Boolean,
     default: false
   },
@@ -68,8 +68,8 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-input-select-multiple',
-  extends: BaseInputSelect,
+  name: 'base-input-chosen-multiple',
+  extends: BaseInputChosen,
   props,
   setup
 }

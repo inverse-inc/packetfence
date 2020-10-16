@@ -3,24 +3,24 @@ import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
 import BaseFormGroupArrayDraggable, { props as BaseFormGroupArrayDraggableProps } from './BaseFormGroupArrayDraggable'
+import BaseFormGroupChosenMultiple from './BaseFormGroupChosenMultiple'
+import BaseFormGroupChosenOne from './BaseFormGroupChosenOne'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
 import BaseFormGroupInputPasswordTest from './BaseFormGroupInputPasswordTest'
-import BaseFormGroupSelectMultiple from './BaseFormGroupSelectMultiple'
-import BaseFormGroupSelectOne from './BaseFormGroupSelectOne'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
 import BaseFormGroupToggle from './BaseFormGroupToggle'
 import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEnabled'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
+import BaseInputChosenMultiple from './BaseInputChosenMultiple'
+import BaseInputChosenOne from './BaseInputChosenOne'
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputRange from './BaseInputRange'
-import BaseInputSelectMultiple from './BaseInputSelectMultiple'
-import BaseInputSelectOne from './BaseInputSelectOne'
 import BaseView from './BaseView'
 
 import { mergeProps } from './utils'
@@ -37,11 +37,11 @@ export {
   // form group
   BaseFormGroup,
   BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps,
+  BaseFormGroupChosenMultiple,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPasswordTest,
-  BaseFormGroupSelectMultiple,
-  BaseFormGroupSelectOne,
   BaseFormGroupTextarea,
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled,
@@ -49,12 +49,12 @@ export {
 
   // form inputs
   BaseInput,
+  BaseInputChosenMultiple,
+  BaseInputChosenOne,
   BaseInputGroup,
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
-  BaseInputSelectMultiple,
-  BaseInputSelectOne,
 
   // bootstrap wrappers
   BaseInputGroupMultiplier,
