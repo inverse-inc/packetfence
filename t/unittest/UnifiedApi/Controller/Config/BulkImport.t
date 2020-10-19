@@ -81,7 +81,7 @@ my $collection_base_url = '/api/v1/config/bulk_imports';
 my $resource_base_url = '/api/v1/config/bulk_import';
 
 $t->post_ok("$collection_base_url/bulk_import" => json => { async => $true })
-  ->json_has("/token")
+  ->json_has("/task_id")
   ->status_is(202);
 
 $t->post_ok("$collection_base_url/bulk_import" => json => {  })
