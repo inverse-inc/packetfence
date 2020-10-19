@@ -229,6 +229,14 @@ sub subscribe_customer {
         description => $tier->{description},
         'metadata[mac_address]' => $session->{billed_mac},
     };
+
+    if($session->{request_fields}->{firstname} && $session->{request_fields}->{lastname}) {
+        $object->{name} = $session->{request_fields}->{firstname} . " " . $session->{request_fields}->{lastname};
+    }
+    if($session->{request_fields}->{address}) {
+        $object->{'address[line1]'} = $session->{request_fields}->{address};
+    }
+
     if(my $cus = $self->get_customer_by_email($session->{email})) {
         my ($code, $data) = $self->_send_form($self->curl, "v1/customers/".$cus->{id}, $object);
     }
