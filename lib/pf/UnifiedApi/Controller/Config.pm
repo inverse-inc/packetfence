@@ -1289,8 +1289,23 @@ sub bulk_import {
         return $self->render(json => $data, status => $status);
     }
 
-    my $results = $self->do_bulk_import($data);
-    return $self->render(json => { items => $results });
+    if (!$data->{async}) {
+        my $results = $self->do_bulk_import($data);
+        return $self->render(json => { items => $results });
+    }
+
+    my $token = "";
+    my $subprocess = Mojo::IOLoop->subprocess;
+    $subprocess->run(
+        sub {
+            my ($subprocess) = @_;
+            my $results = $self->do_bulk_import($data);
+            return;
+        },
+        sub { }
+    );
+
+    $self->render( json => {status => 202, token => $token }, status => 202);
 }
 
 sub do_bulk_import {

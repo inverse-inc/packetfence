@@ -21,7 +21,7 @@ BEGIN {
 }
 
 use File::Temp;
-my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+my ($fh, $filename) = File::Temp::tempfile( UNLINK => 0 );
 $fh->truncate(0);
 $fh->flush();
 {
@@ -58,7 +58,7 @@ $fh->flush();
     has 'primary_key' => 'bulk_import_id';
 }
 
-use Test::More tests => 31;
+use Test::More tests => 34;
 use Test::Mojo;
 use Utils;
 
@@ -80,7 +80,11 @@ my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 my $collection_base_url = '/api/v1/config/bulk_imports';
 my $resource_base_url = '/api/v1/config/bulk_import';
 
-$t->post_ok("$collection_base_url/bulk_import" => json => {})
+$t->post_ok("$collection_base_url/bulk_import" => json => { async => $true })
+  ->json_has("/token")
+  ->status_is(202);
+
+$t->post_ok("$collection_base_url/bulk_import" => json => {  })
   ->status_is(200);
 
 $t->post_ok( "$collection_base_url/bulk_import" => json =>
