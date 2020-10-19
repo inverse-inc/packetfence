@@ -81,6 +81,7 @@ A PacketFence upgrade consists of following steps:
 . stop all PacketFence services (see <<_stop_all_packetfence_services,Stop all PacketFence services>> section)
 . preliminary step(s) to run before packages upgrades (see sections for your upgrade path)
 . packages upgrades (see <<_packages_upgrades,Package upgrades>> section)
+- maintenance patches (see <<_maintenance_patches,Maintenance patches>> section)
 . configuration migration(s) (see sections for your upgrade path)
 . database schema upgrade(s) (see sections for your upgrade path)
 . restart all PacketFence services (see <<_restart_all_packetfence_services,Restart all PacketFence services>> section)
@@ -233,6 +234,17 @@ find out which configuration files have changed by running following command:
 [source,bash]
 ----
 find /usr/local/pf -name "*.dpkg-dist"
+----
+
+
+=== Maintenance patches
+
+After you completed all <<_packages_upgrades,package upgrades instructions>>
+(including <<_new_versions_of_configuration_files,merge of new configuration files>>), you can apply maintenance patches by running:
+
+[source,bash]
+----
+/usr/local/pf/addons/pf-maint.pl
 ----
 
 === Restart all PacketFence services
