@@ -1,0 +1,38 @@
+
+<div class="u-padding">
+  [% IF status == "canceled" %]
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Your subscription has been canceled successfully") %]</p>
+  </div>
+  [% ELSIF error %]
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n(error) %]</p>
+  </div>
+  [% ELSE %]
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice') %]</div>
+    <p class="o-media__body">
+      <p>
+      [% i18n("Please click the button below to confirm the cancelation of your subscription.") %]
+      <br>
+      [% i18n("This action cannot be undone.") %]
+      </p>
+    </p>
+  </div>
+  [% END %]
+
+
+  <form name="cancel" method="post" action="">
+    <div class="o-layout o-layout--center">
+      <div class="o-layout__item o-layout--left u-1/1 u-2/3@tablet u-3/5@desktop">
+        <div class="input-container">
+        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top" [% IF status == "canceled" %]disabled[% END %]>
+          [% i18n("Cancel") %]
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+

@@ -78,6 +78,7 @@ Readonly::Scalar our $URL_STATUS_RESET_PASSWORD => '/status/reset_password';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
 Readonly::Scalar our $URL_STATUS_BILLING        => '/status/billing';
+Readonly::Scalar our $URL_STATUS_BILLING_CANCEL => '/status/billing/cancel_subscription/(.+)';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT         => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';
