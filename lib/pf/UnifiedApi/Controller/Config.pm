@@ -1289,10 +1289,16 @@ sub bulk_import {
         return $self->render(json => $data, status => $status);
     }
 
+    my $results = $self->do_bulk_import($data);
+    return $self->render(json => { items => $results });
+}
+
+sub do_bulk_import {
+    my ($self, $data) = @_;
     my $items = $data->{items} // [];
     my $count = @$items;
     if ($count == 0) {
-        return $self->render(json => { items => [] });
+        return [];
     }
     my $cs = $self->config_store;
 
@@ -1304,7 +1310,7 @@ sub bulk_import {
     for ($i=0;$i<$count;$i++) {
         my $result = $self->import_item($data, $items->[$i], $cs);
         $results[$i] = $result;
-        $status = $result->{status} // 200;
+        my $status = $result->{status} // 200;
         if ($stopOnError && $status == 422) {
             $i++;
             last;
@@ -1326,7 +1332,7 @@ sub bulk_import {
         $cs->commit;
     }
 
-    return $self->render(json => { items => \@results });
+    return \@results;
 }
 
 sub import_item {
