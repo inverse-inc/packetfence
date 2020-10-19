@@ -102,10 +102,10 @@
           </b-media>
         </template>
       </multiselect>
-      <template v-slot:prepend>
+      <template v-slot:prepend v-if="$slots.prepend">
         <slot name="prepend"></slot>
       </template>
-      <template v-slot:append>
+      <template v-slot:append v-if="$slots.append || isLocked">
         <slot name="append"></slot>
         <b-button v-if="isLocked"
           class="input-group-text"
@@ -130,18 +130,19 @@
   </b-form-group>
 </template>
 <script>
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
+
+const components = {
+  Multiselect
+}
+
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useInputMultiselectProps } from '@/composables/useInputMultiselect'
-
-const components = {
-  Multiselect
-}
 
 export const props = {
   ...useFormGroupProps,

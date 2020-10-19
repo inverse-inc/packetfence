@@ -51,6 +51,8 @@ export const schema = (props) => {
     administration_rules: schemaRules.meta({ invalidFeedback: i18n.t('Administration rule contains one or more errors.') }),
     authentication_rules: schemaRules.meta({ invalidFeedback: i18n.t('Authentication rule contains one or more errors.') }),
 
+    port: yup.string().isPort()
+
   })
 }
 

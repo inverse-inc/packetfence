@@ -1,6 +1,6 @@
 <template>
   <base-form-group
-    class="base-form-group-input-password-test"
+    class="base-form-group-input-password"
     :label-cols="labelCols"
     :column-label="columnLabel"
     :text="text"
@@ -27,22 +27,13 @@
       @blur="onBlur"
     />
     <template v-slot:append>
-        <b-button-group>
-          <b-button :disabled="!canTest" tabindex="-1" variant="light" class="py-0"
-            @click="doTest"
-          >
-            <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
-            <icon v-show="isTesting" name="circle-notch" spin></icon>
-          </b-button>
-        </b-button-group>
-
         <b-button-group
           @click="doPin"
           @mouseover="doShow"
           @mousemove="doShow"
           @mouseout="doHide"
         >
-          <b-button class="input-group-text no-border-radius" :disabled="!canTest" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
+          <b-button class="input-group-text no-border-radius" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
             <icon name="eye"></icon>
           </b-button>
         </b-button-group>
@@ -56,13 +47,12 @@ const components = {
   BaseFormGroup
 }
 
-import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, ref,  unref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-import i18n from '@/utils/locale'
 
 export const props = {
   ...useFormGroupProps,
@@ -70,25 +60,9 @@ export const props = {
   ...useInputMetaProps,
   ...useInputValidatorProps,
   ...useInputValueProps,
-
-  buttonLabel: {
-    type: String
-  },
-  test: {
-    type: Function,
-    default: () => new Promise((resolve, reject) => reject(new Error('Missing test function.')))
-  },
-  testLabel: {
-    type: String
-  },
 }
 
 export const setup = (props, context) => {
-
-  const {
-    test,
-    testLabel
-  } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
 
@@ -113,43 +87,6 @@ export const setup = (props, context) => {
     invalidFeedback,
     validFeedback
   } = useInputValidator(metaProps, value)
-
-
-  const isTesting = ref(false)
-  const canTest = computed(() => !unref(isLocked) && !unref(isTesting) && unref(value) && unref(state) !== false)
-  let testState = ref(null)
-  let testInvalidFeedback = ref(undefined)
-  let testValidFeedback = ref(undefined)
-
-  const form = inject('form', ref({}))
-  const doTest = () => {
-    isTesting.value = true
-    testState.value = false
-    testInvalidFeedback.value = testLabel.value || i18n.t('Testing...')
-    testValidFeedback.value = undefined
-
-    Promise.resolve(unref(test)(form.value)).then(message => {
-      testState.value = true
-      testInvalidFeedback.value = undefined
-      testValidFeedback.value = message || i18n.t('Test succeeded.')
-    }).catch(message => {
-      testState.value = false
-      testInvalidFeedback.value = message || i18n.t('Test failed with unknown error.')
-      testValidFeedback.value = undefined
-    }).finally(() => {
-      isTesting.value = false
-    })
-  }
-  const wrappedState = computed(() => (testState.value !== null) ? unref(testState) : unref(state))
-  const wrappedInvalidFeedback = computed(() => (testState.value !== null) ? unref(testInvalidFeedback) : unref(invalidFeedback))
-  const wrappedValidFeedback = computed(() => (testState.value !== null) ? unref(testValidFeedback) : unref(validFeedback))
-  const wrappedIsLocked = computed(() => unref(isLocked) || unref(isTesting))
-
-  watch(value, () => { // when `value` is mutated
-    testState.value = null // clear `state`
-    expirePin()
-  })
-
 
   const reveal = ref(false)
   const pinned = ref(false)
@@ -185,7 +122,7 @@ export const setup = (props, context) => {
     inputTabIndex: tabIndex,
     inputText: text,
     isFocus,
-    isLocked: wrappedIsLocked,
+    isLocked,
     onFocus,
     onBlur,
 
@@ -195,13 +132,9 @@ export const setup = (props, context) => {
     onInput,
 
     // useInputValidator
-    inputState: wrappedState,
-    inputInvalidFeedback: wrappedInvalidFeedback,
-    inputValidFeedback: wrappedValidFeedback,
-
-    canTest,
-    doTest,
-    isTesting,
+    inputState: state,
+    inputInvalidFeedback: invalidFeedback,
+    inputValidFeedback: validFeedback,
 
     inputType: type,
     reveal,
@@ -214,7 +147,7 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-input-password-test',
+  name: 'base-form-group-input-password',
   inheritAttrs: false,
   components,
   props,

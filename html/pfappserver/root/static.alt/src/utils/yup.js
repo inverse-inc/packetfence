@@ -28,6 +28,14 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
   })
 })
 
+yup.addMethod(yup.string, 'isPort', function (ref, message) {
+  return this.test({
+    name: 'isPort',
+    message: message || i18n.t('Invalid port.'),
+    test: value => ['', null, undefined].includes(value) || (~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535)
+  })
+})
+
 yup.addMethod(yup.array, 'required', function (message) {
   return this.test({
     name: 'required',

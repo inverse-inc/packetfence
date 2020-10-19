@@ -532,8 +532,8 @@ export default {
   }
 }
 
-.input-group.is-focus > .base-input-select,
-.base-input-select.is-focus {
+.input-group.is-focus > .base-input-chosen,
+.base-input-chosen.is-focus {
   .multiselect__tags {
     border-color: $input-focus-border-color;
   }
@@ -542,8 +542,8 @@ export default {
     border-color: $input-focus-border-color transparent transparent;
   }
 }
-.input-group.is-invalid > .base-input-select,
-.base-input-select.is-invalid {
+.input-group.is-invalid > .base-input-chosen,
+.base-input-chosen.is-invalid {
   .multiselect__tags {
     border-color: $form-feedback-invalid-color;
   }
@@ -552,8 +552,8 @@ export default {
     border-color: $form-feedback-invalid-color transparent transparent;
   }
 }
-.input-group.is-valid > .base-input-select,
-.base-input-select.is-valid {
+.input-group.is-valid > .base-input-chosen,
+.base-input-chosen.is-valid {
   .multiselect__tags {
     border-color: $form-feedback-valid-color;
   }

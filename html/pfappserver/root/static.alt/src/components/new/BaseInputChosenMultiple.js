@@ -11,7 +11,7 @@ export const props = {
     type: Boolean,
     default: true
   },
-  closeOnChosen: {
+  closeOnSelect: {
     type: Boolean,
     default: false
   },

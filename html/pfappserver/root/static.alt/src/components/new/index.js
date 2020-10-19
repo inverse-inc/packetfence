@@ -7,10 +7,12 @@ import BaseFormGroupChosenMultiple from './BaseFormGroupChosenMultiple'
 import BaseFormGroupChosenOne from './BaseFormGroupChosenOne'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
-import BaseFormGroupInputPasswordTest from './BaseFormGroupInputPasswordTest'
+import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
+import BaseFormGroupInputPasswordTest, { props as BaseFormGroupInputPasswordTestProps } from './BaseFormGroupInputPasswordTest'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
 import BaseFormGroupToggle from './BaseFormGroupToggle'
 import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEnabled'
+import BaseFormGroupToggleNoYes from './BaseFormGroupToggleNoYes'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
@@ -41,10 +43,12 @@ export {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupInputPasswordTest,
+  BaseFormGroupInputPassword,
+  BaseFormGroupInputPasswordTest, BaseFormGroupInputPasswordTestProps,
   BaseFormGroupTextarea,
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled,
+  BaseFormGroupToggleNoYes,
   BaseFormGroupToggleOffOn,
 
   // form inputs

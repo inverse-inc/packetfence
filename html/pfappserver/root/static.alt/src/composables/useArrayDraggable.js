@@ -75,7 +75,7 @@ export const useArrayDraggable = (props, context, value, onChange) => {
     const _newValue = JSON.parse(JSON.stringify(newValue))
     isLoading = true
     return new Promise(resolve => {
-      const _value = unref(value)
+      const _value = unref(value) || []
       onChange([..._value.slice(0, index), _newValue, ..._value.slice(index)])
 
       const _keys = unref(draggableKeys)
@@ -94,7 +94,7 @@ export const useArrayDraggable = (props, context, value, onChange) => {
   const copy = (fromIndex, toIndex) => {
     isLoading = true
     return new Promise(resolve => {
-      const _value = unref(value)
+      const _value = unref(value) || []
       const newValue = JSON.parse(JSON.stringify(_value[fromIndex])) // dereferenced copy
       onChange([..._value.slice(0, toIndex), newValue, ..._value.slice(toIndex)])
 
@@ -115,7 +115,7 @@ export const useArrayDraggable = (props, context, value, onChange) => {
   const move = (fromIndex, toIndex) => {
     isLoading = true
     return new Promise(resolve => {
-      const _value = unref(value)
+      const _value = unref(value) || []
       const newValue = JSON.parse(JSON.stringify(_value)) // dereferenced copy
       if (toIndex >= newValue.length) {
         var k = toIndex - newValue.length + 1
@@ -143,7 +143,7 @@ export const useArrayDraggable = (props, context, value, onChange) => {
   const remove = (index) => {
     isLoading = true
     return new Promise(resolve => {
-      const _value = unref(value)
+      const _value = unref(value) || []
       onChange([..._value.slice(0, index), ..._value.slice(index + 1, _value.length)])
 
       const _keys = unref(draggableKeys)
