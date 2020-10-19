@@ -81,4 +81,3 @@ include::includes/license.asciidoc[]
 == Appendix
 
 include::cluster/appendix.asciidoc[]
-
