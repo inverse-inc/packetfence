@@ -24,7 +24,7 @@ use pf::constants;
 use pf::person qw(person_security_events person_unassign_nodes person_delete person_modify);
 use pf::node;
 use pf::constants qw($default_pid);
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 
 has dal => 'pf::dal::person';
 has url_param_name => 'user_id';
@@ -513,9 +513,16 @@ sub bulk_delete {
     my $items = $data->{items} // [];
     my ($indexes, $results) = bulk_init_results($items);
     for my $pid ( @$items ) {
-         person_unassign_nodes($pid);
-         person_delete($pid);
-         $results->[$indexes->{$pid}]->{status} = 200;
+        my ($status, $msg) = _can_remove($pid);
+        if(is_success($status)) {
+            person_unassign_nodes($pid);
+            person_delete($pid);
+            $results->[$indexes->{$pid}]->{status} = 200;
+        }
+        else {
+            $results->[$indexes->{$pid}]->{status} = $status;
+            $results->[$indexes->{$pid}]->{msg} = $msg;
+        }
     }
 
     return $self->render(json => { items => $results });
@@ -631,6 +638,21 @@ sub import_item_check_for_errors {
     }
 
     return @errors;
+}
+
+sub can_remove {
+    my ($self) = @_;
+    return _can_remove($self->id);
+}
+
+sub _can_remove {
+    my ($id) = @_;
+    if(exists $pf::constants::BUILTIN_USERS{$id}) {
+        return (422, "Cannot delete a built-in user");
+    }
+    else {
+        return (200, '');
+    }
 }
 
 =head1 AUTHOR
