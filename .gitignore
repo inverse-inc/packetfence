@@ -35,6 +35,7 @@ conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
 conf/radiusd/tls.conf
 conf/pfcron.conf
+conf/certmanager
 bin/pfcmd
 bin/ntlm_auth_wrapper
 sbin/pfcertmanager
