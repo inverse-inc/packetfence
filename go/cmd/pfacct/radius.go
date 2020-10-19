@@ -16,6 +16,7 @@ import (
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
+	"github.com/inverse-inc/go-radius/inversedict"
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
@@ -320,7 +321,20 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		return nil, nil, err
 	}
 
-	return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	packet, err := radius.Parse(raw, []byte(switchInfo.Secret))
+	if err != nil {
+		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
+	}
+
+	// If the request overrides the tenant ID, we create a copy of the switchInfo and return it with an updated tenant ID
+	if val := inversedict.PacketFenceTenantID_Get(packet); val != 0 {
+		switchInfo2 := *switchInfo
+		switchInfo2.TenantId = int(val)
+		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, &switchInfo2)), nil
+	} else {
+		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	}
+
 }
 
 type Error string

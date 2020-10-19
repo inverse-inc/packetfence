@@ -530,6 +530,8 @@ github.com/inverse-inc/go-radius v0.0.0-20200310002528-94fa1441e81d h1:8E/1Oeb7T
 github.com/inverse-inc/go-radius v0.0.0-20200310002528-94fa1441e81d/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
 github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5 h1:A4sgdqWVg7Lb8vMw7YWMoBcMb1aE7kKDQIc4PZW248c=
 github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
+github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47 h1:m/Vxa+Nm87lghsU4JZjp8igZpnoT2liY0T1aCtMayiM=
+github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
 github.com/inverse-inc/packetfence v0.0.0-20191015112529-47dcd5f95b62 h1:NnT9ApnVE34pJbucW6nxY+7a9NGW3a0irFYiiOJEo7A=
 github.com/inverse-inc/packetfence v0.0.0-20191021142437-789414441c4c h1:HDJDKSHaZfMhcbaWWHpEJ67pUUGlc+mqv1kSAhEUuB4=
 github.com/inverse-inc/packetfence/go v0.0.0-20191015112529-47dcd5f95b62 h1:6Wv3UDrVX5Z5KrvHwr/nHmKxW3b6F45SL71MhxvDxO4=
