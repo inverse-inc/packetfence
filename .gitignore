@@ -71,6 +71,10 @@ raddb/mods-enabled/mschap
 raddb/proxy.conf.loadbalancer
 raddb/radiusd_loadbalancer.conf
 raddb/mods-enabled/ldap_packetfence
+raddb/mods-config/perl/multi_domain_constants.pm
+raddb/mods-enabled/eap
+raddb/mods-enabled/rest
+raddb/mods-enabled/sql
 raddb/mods-config/attr_filter/packetfence-pre-proxy
 conf/adminroles.conf
 conf/device_registration.conf
