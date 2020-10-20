@@ -2100,9 +2100,9 @@ In the event that you are managing a large registration network with devices tha
 
 Using the parking feature, you can make these devices have a longer lease and hit an extremely lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link.
 
-The *parked* vs *unparked* state is controlled through security event `1300003` which gets triggered according to the `parking.threshold` setting (_Configuration -> Network Configuration -> Networks -> Device Parking').
+The *parked* vs *unparked* state is controlled through security event `1300003` which gets triggered according to the `parking.threshold` setting (_Configuration -> Network Configuration -> Networks -> Device Parking_).
 
-So, in order to activate the parking, go in _Configuration -> Network Configuration -> Networks -> Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger security event `1300003` and place that device into the *parked* state.
+So, in order to activate the parking, go in _Configuration -> Network Configuration -> Networks -> Device Parking_ and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger security event `1300003` and place that device into the *parked* state.
 
 In that same section, you can define the lease length of the user when he is in the *parked* state.
 
@@ -2119,7 +2119,7 @@ Here are the main settings:
 * The amount of time a user can *unpark* their device is controlled through the 'Remediation -> Max enable' setting.
 * The amount of grace time between two parking security events is controlled by the 'Remediation -> Grace' setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
 * The destination role (thus VLAN) of the user is controlled by 'Advanced -> Role'. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
-* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in _Configuration -> Network Configuration -> Networks -> Device Parking'
+* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in _Configuration -> Network Configuration -> Networks -> Device Parking_
 
 == Advanced Access Configuration
 
@@ -2167,7 +2167,7 @@ Example with the most common ones:
 
 CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
-* Advanced filter under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter'
+* Advanced filter under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter_
 
 In this section you are able to define an advanced filter in order to match specific attributes.
 
@@ -3982,7 +3982,7 @@ In our example, that gave the following output:
 IPTables
 ~~~~~~~~
 
-IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can modify `/usr/local/pf/conf/iptables.conf` to your own needs. However, the default template should work for most users.
+IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can modify [filename]`/usr/local/pf/conf/iptables.conf` to your own needs. However, the default template should work for most users.
 
 Log Rotations
 ~~~~~~~~~~~~~
