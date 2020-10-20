@@ -298,7 +298,7 @@ Now, you will need to integrate your *two other nodes* in your cluster.
 Webservices configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-On the *first server*, configure your webservices username and password by adding the following in `/usr/local/pf/conf/pf.conf`:
+On the *first server*, configure your webservices username and password by adding the following in [filename]`/usr/local/pf/conf/pf.conf`:
 
   [webservices]
   user=packet
@@ -1738,4 +1738,3 @@ You can have an overview of all the current connections using the following Mari
 And if you would like to see only the connections with an active query:
 
   MariaDB> select * from information_schema.processlist where Command!='Sleep';
-
