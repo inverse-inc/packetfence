@@ -56,6 +56,11 @@ export default {
     pfButtonSave,
     pfButtonDelete
   },
+  data () {
+    return {
+      collectionMeta: {}
+    }
+  },
   props: {
     formStoreName: { // from router
       type: String,
@@ -87,7 +92,7 @@ export default {
       return this.$store.getters[`${this.formStoreName}/$form`]
     },
     view () {
-      return view(this.form, this.meta) // ../_config/filterEngine
+      return view(this.form, this.collectionMeta) // ../_config/filterEngine
     },
     invalidForm () {
       return this.$store.getters[`${this.formStoreName}/$formInvalid`]
@@ -119,6 +124,12 @@ export default {
     init () {
       this.$store.dispatch(`${this.formStoreName}/setInputDebounceTimeMs`, 1000)
       const { collection, id } = this
+      // use collection meta to determine viewFields
+      this.$store.dispatch('$_filter_engines/options', { collection }).then(options => {
+        const { meta: collectionMeta = {} } = options
+        this.collectionMeta = collectionMeta
+      })
+      // use item meta to determine the view
       this.$store.dispatch('$_filter_engines/options', { collection, id }).then(options => {
         const { meta = {} } = options
         const { isNew, isClone } = this
