@@ -567,7 +567,7 @@ sub make_order_by {
         if (defined $order_by) {
             push @order_by_specs, $order_by;
         } else {
-            push @errors, {messagmessage => "$sort_spec is invalid"};
+            push @errors, {message => "$sort_spec is invalid"};
         }
     }
 
