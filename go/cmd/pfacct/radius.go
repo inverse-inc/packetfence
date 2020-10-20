@@ -269,13 +269,13 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 
 	for _, pc := range intRADIUS {
 		w.Add(1)
-		go func() {
+		go func(pc *net.UDPConn) {
 			if err := server.Serve(pc); err != radius.ErrServerShutdown {
 				panic(err)
 			}
 
 			w.Done()
-		}()
+		}(pc)
 	}
 
 	return server
