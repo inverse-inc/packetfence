@@ -978,8 +978,7 @@ If you want to use the server PacketFence to authenticate users on the Brocade s
 
 NOTE: Make sure to have a local account in case the switch can not reach the PacketFence server
 
-ICX 6600 Series
-^^^^^^^^^^^^^^^
+==== ICX 6600 Series
 
 Those switches are supported using 802.1X for networks with or without VoIP. Tested on Firmware Version 08.0.60.
 
@@ -1004,8 +1003,7 @@ Those switches are supported using 802.1X for networks with or without VoIP. Tes
   vlan 100 name Voice by port
    tag ethe 1/1/1 to 1/1/48
 
-802.1X/MAC Authentication
-+++++++++++++++++++++++++
+===== 802.1X/MAC Authentication
 
 * General 802.1X/MAC Authentication configuration
 
