@@ -3,7 +3,7 @@ set -o nounset -o pipefail
 
 REPO_URL=https://gitlab.com/inverse-inc/packetfence/-/jobs/artifacts/devel/download?job=pages
 ZIP_FILE="/tmp/public.zip"
-DIR=$(pwd | grep -oP '.*?(?=ci/lib)')
+DIR=$(pwd | grep -oP '.*?(?=ci/lib/test)')
 
 if [ ! type curl 2> /dev/null ] ; then
   echo "Install curl before running this script"
@@ -11,7 +11,7 @@ if [ ! type curl 2> /dev/null ] ; then
 fi
 
 # Download the archive zipfile, extract and remove
-curl -L ${REPO_URL} --output ${ZIP_FILE}
+curl -Ls ${REPO_URL} --output ${ZIP_FILE}
 if [ -f ${ZIP_FILE} ]; then
   echo "Public zipfile is there"
   unzip -oq ${ZIP_FILE} -d ${DIR}
