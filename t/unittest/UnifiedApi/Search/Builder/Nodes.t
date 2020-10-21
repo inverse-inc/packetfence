@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 30;
+use Test::More tests => 32;
 
 #This test will running last
 use Test::NoWarnings;
@@ -535,6 +535,52 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         'Return the joined tables'
     );
 
+}
+
+{
+    my @f = qw(mac online);
+
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [ 200, [ 'node.mac', "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online" ]],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [
+            $sb->make_from(\%search_info)
+        ],
+        [
+            200,
+            [
+                -join => 'node',
+                {
+                    operator  => '=>',
+                    condition => {
+                        'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                        'online.tenant_id' => 1 ,
+                    },
+                },
+                'bandwidth_accounting|online',
+                {
+                    operator  => '=>',
+                    condition => [
+                        -and => [
+                        'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
+                        \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
+                        ],
+                    ],
+                },
+                'bandwidth_accounting|b2',
+          ]
+        ],
+        'Return the joined tables'
+    );
 }
 
 =head1 AUTHOR

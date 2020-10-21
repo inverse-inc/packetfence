@@ -71,6 +71,30 @@ our @ONLINE_JOIN = (
     'bandwidth_accounting|b2',
 );
 
+sub online_join {
+    my ($self, $s) = @_;
+    return (
+        {
+            operator  => '=>',
+            condition => {
+                'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                'online.tenant_id' => $s->{dal}->get_tenant() ,
+            },
+        },
+        'bandwidth_accounting|online',
+        {
+            operator  => '=>',
+            condition => [
+                -and => [
+                'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
+                \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
+                ],
+            ],
+        },
+        'bandwidth_accounting|b2',
+    );
+}
+
 our %ONLINE_WHERE = (
     'b2.node_id' => undef,
 );
@@ -119,7 +143,7 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace     => 'ip6log',
     },
     'online' => {
-        join_spec     => \@ONLINE_JOIN,
+        join_spec     => \&online_join,
         where_spec    => \%ONLINE_WHERE,
         namespace     => 'online',
         rewrite_query => \&rewrite_online_query,
