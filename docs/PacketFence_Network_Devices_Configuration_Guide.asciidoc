@@ -978,6 +978,79 @@ If you want to use the server PacketFence to authenticate users on the Brocade s
 
 NOTE: Make sure to have a local account in case the switch can not reach the PacketFence server
 
+==== ICX 6600 Series
+
+Those switches are supported using 802.1X for networks with or without VoIP. Tested on Firmware Version 08.0.60.
+
+* Global config settings:
+
+  aaa authentication dot1x default radius
+  aaa authorization coa enable
+  aaa accounting dot1x default start-stop radius
+  radius-server host 192.168.1.5
+  radius-server key useStrongerSecret
+  radius-server timeout 15
+  radius coa host 192.168.1.5 key useStrongerSecret
+
+* VLAN configuration (create all the VLANs necessary but only tag ports for VOIP VLAN, also note you must tag at least one port in each VLAN, the assumption is that the uplink interface is port 1/1/48, adjust as necessary):
+
+  vlan 1 name Access by port
+   tag ethe 1/1/48
+  vlan 2 name Registration by port
+   tag ethe 1/1/48
+  vlan 3 name Isolation by port
+   tag ethe 1/1/48
+  vlan 100 name Voice by port
+   tag ethe 1/1/1 to 1/1/48
+
+===== 802.1X/MAC Authentication
+
+* General 802.1X/MAC Authentication configuration
+
+  authentication
+  auth-default-vlan 2
+  pass-through lldp
+  pass-through cdp
+  pass-through fdp
+  dot1x enable
+  dot1x timeout tx-period 15
+  dot1x timeout quiet-period 15
+  dot1x timeout supplicant 30
+  dot1x enable ethe 1/1/1 to 1/1/47
+  mac-authentication enable
+  mac-auth enable ethe 1/1/1 to 1/1/47
+  reauth-period 259200
+  re-authentication
+
+* Run all discovery protocols:
+
+  lldp run
+  fdp run
+  cdp run
+
+* Interfaces configuration:
+
+  int e1/1/1 to 1/1/47
+   dot1x port-control auto
+   voice-vlan 100
+
+* Finally for voice LLDP-MED do the following in the global config:
+
+  lldp med network-policy application voice tagged vlan 100 priority 5 dscp 46 ports e1/1/1 to 1/1/48
+
+* For devices in routing mode (Layer 3) the following applies when VLAN 1 is your management VLAN:
+
+    ip radius source-interface ve 1
+
+* In the event you're using DHCP helpers at the switch:
+
+    ip bootp-use-intf-ip
+
+[NOTE]
+
+  Never tag any VLAN onto any PacketFence (802.1X/MAC Authentication) enabled
+  ports excepting the voice VLAN.
+
 Cisco
 ~~~~~
 
