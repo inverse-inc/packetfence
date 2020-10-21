@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 30;
+use Test::More tests => 28;
 
 #This test will running last
 use Test::NoWarnings;
@@ -478,39 +478,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         ],
         "with count",
     )
-}
-
-{
-    my @f = qw(mac online);
-    my %search_info = (
-        dal => $dal,
-        fields => \@f,
-    );
-
-    is_deeply(
-        [ $sb->make_columns( \%search_info ) ],
-        [
-            200,
-            [
-                'node.mac',
-                "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online",
-            ],
-        ],
-        'Return the columns'
-    );
-
-    is_deeply(
-        [ $sb->make_where(\%search_info) ],
-        [
-            200,
-            {
-                'b2.node_id' => undef,
-                'online.tenant_id' => 1,
-            }
-        ],
-        'Return dynamic where'
-    );
-
 }
 
 =head1 AUTHOR
