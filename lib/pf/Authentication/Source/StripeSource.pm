@@ -307,7 +307,7 @@ sub send_mail_for_event {
 sub get_customer_by_email {
     my ($self, $email) = @_;
     my $curl = $self->curl;
-    my $path = "/v1/customers?email=".uri_escape($email)."&expand[]=subscriptions";
+    my $path = "/v1/customers?email=".uri_escape($email)."&expand[]=data.subscriptions";
     $self->_set_url($curl, $path);
     my $res = $self->_do_request($curl);
     return $res->{data}->[0];
