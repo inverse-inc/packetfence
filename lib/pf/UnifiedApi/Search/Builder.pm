@@ -544,9 +544,18 @@ sub additional_where_clause {
         my $namespace = $jf->{namespace};
         next if !exists $jf->{where_spec};
         $found{$namespace} = 1;
-        push @clauses, $jf->{where_spec};
+        push @clauses, $self->format_where_spec($jf->{where_spec}, $s);
     }
     return @clauses;
+}
+
+sub format_where_spec {
+    my ($self, $where, $s) = @_;
+    if (ref($where) eq 'CODE') {
+        return $where->($self, $s);
+    }
+
+    return $where;
 }
 
 =head2 $self->make_order_by($search_info)
