@@ -6,13 +6,9 @@
 <script>
 import { useFormProvide, useFormProvideProps } from '@/composables/useFormProvide'
 
-export const props = {
-  ...useFormProvideProps,
-}
+export const props = useFormProvideProps
 
-export const setup = (props, context) => {
-  return useFormProvide(props, context)
-}
+export const setup = (props, context) => useFormProvide(props, context)
 
 // @vue/component
 export default {

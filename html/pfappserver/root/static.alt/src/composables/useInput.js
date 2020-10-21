@@ -57,16 +57,17 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
 
   // events
   const onFocus = event => {
-    nextTick(() => {
-      isFocus.value = true
-      emit('focus', event)
-    })
+    isFocus.value = true
+    emit('focus', event)
   }
+  let onBlurTimeout
   const onBlur = event => {
-    nextTick(() => {
+    if (onBlurTimeout)
+      clearTimeout(onBlurTimeout)
+    onBlurTimeout = setTimeout(() => {
       isFocus.value = false
       emit('blur', event)
-    })
+    }, 300)
   }
 
   return {

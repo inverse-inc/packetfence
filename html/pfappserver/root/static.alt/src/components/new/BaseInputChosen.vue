@@ -331,9 +331,9 @@ export default {
     background-color: $secondary;
   }
   .multiselect__tag-icon {
-    line-height: 1;
     background-color: inherit;
     color: inherit;
+    outline: 0;
     &:hover {
       color: lighten($secondary, 15%);
     }

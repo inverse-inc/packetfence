@@ -76,9 +76,9 @@
         <template v-slot:singleLabel>
           {{ singleLabel }}
         </template>
-        <template v-slot:tag="{ option }">
+        <template v-slot:tag="{ option, option: { value } = {} }">
           <span class="multiselect__tag bg-secondary">
-            <span>{{ option[label] }}</span>
+            <span>{{ multipleLabels[value] }}</span>
             <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="onRemove(option)"></i>
           </span>
         </template>
@@ -225,6 +225,11 @@ export const setup = (props, context) => {
       return unref(value)
   })
 
+  const multipleLabels = computed(() => unref(options).reduce((labels, option) => {
+    const { text, value } = option
+    return { ...labels, [value]: text }
+  }, {}))
+
   // supress warning:
   //  [Vue-Multiselect warn]: Max prop should not be used when prop Multiple equals false.
   const bind = computed(() => {
@@ -262,6 +267,7 @@ export const setup = (props, context) => {
 
     onRemove: () => {},
     singleLabel,
+    multipleLabels,
     bind
   }
 }

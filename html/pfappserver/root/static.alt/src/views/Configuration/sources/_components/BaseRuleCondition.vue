@@ -26,13 +26,6 @@
   </b-row>
 </template>
 <script>
-import { computed, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
-import {
-  pfComponentType as componentType,
-  pfFieldTypeComponent as fieldTypeComponent,
-  pfFieldTypeOperators as fieldTypeOperators,
-  pfFieldTypeValues as fieldTypeValues
-} from '@/globals/pfField'
 import {
   BaseInput,
   BaseInputGroupMultiplier,
@@ -53,6 +46,13 @@ const components = {
   BaseInputChosenOne
 }
 
+import { computed, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
+import {
+  pfComponentType as componentType,
+  pfFieldTypeComponent as fieldTypeComponent,
+  pfFieldTypeOperators as fieldTypeOperators,
+  pfFieldTypeValues as fieldTypeValues
+} from '@/globals/pfField'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useNamespaceMetaAllowed } from '@/composables/useMeta'

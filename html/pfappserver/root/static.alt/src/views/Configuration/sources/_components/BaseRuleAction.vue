@@ -5,7 +5,6 @@
       <base-input-chosen-one ref="typeComponentRef"
         :namespace="`${namespace}.type`"
         :options="typeOptions"
-
       />
 
     </b-col>
@@ -20,12 +19,6 @@
   </b-row>
 </template>
 <script>
-import { computed, inject, nextTick, ref, unref, watch } from '@vue/composition-api'
-import {
-  pfComponentType as componentType,
-  pfFieldTypeComponent as fieldTypeComponent,
-  pfFieldTypeValues as fieldTypeValues
-} from '@/globals/pfField'
 import {
   BaseInput,
   BaseInputGroupMultiplier,
@@ -46,6 +39,12 @@ const components = {
   BaseInputChosenOne
 }
 
+import { computed, inject, nextTick, ref, unref, watch } from '@vue/composition-api'
+import {
+  pfComponentType as componentType,
+  pfFieldTypeComponent as fieldTypeComponent,
+  pfFieldTypeValues as fieldTypeValues
+} from '@/globals/pfField'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
