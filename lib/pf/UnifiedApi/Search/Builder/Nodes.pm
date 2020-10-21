@@ -75,13 +75,6 @@ our %ONLINE_WHERE = (
     'b2.node_id' => undef,
 );
 
-sub online_where {
-    my ($self, $s) = @_;
-    return {
-        %ONLINE_WHERE,
-        'online.tenant_id' => $s->{dal}->get_tenant,
-    };
-}
 our @NODE_CATEGORY_JOIN = (
     '=>{node.category_id=node_category.category_id}', 'node_category',
 );
@@ -127,7 +120,7 @@ our %ALLOWED_JOIN_FIELDS = (
     },
     'online' => {
         join_spec     => \@ONLINE_JOIN,
-        where_spec    => \&online_where,
+        where_spec    => \%ONLINE_WHERE,
         namespace     => 'online',
         rewrite_query => \&rewrite_online_query,
         column_spec   => "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online",
