@@ -210,10 +210,19 @@ sub make_join_specs {
             my $namespace = $jf->{namespace};
             next if exists $found{$namespace};
             $found{$namespace} = 1;
-            push @join_specs, @{$jf->{join_spec} // []};
+            push @join_specs, $self->format_join_spec($jf->{join_spec}, $s);
         }
     }
     return @join_specs;
+}
+
+sub format_join_spec {
+    my ($self, $join_spec, $s) = @_;
+    if (ref($join_spec) eq 'CODE') {
+        return $join_spec->($self, $s);
+    }
+
+    return @{$join_spec // []};
 }
 
 =head2 $self->make_columns($search_info)
