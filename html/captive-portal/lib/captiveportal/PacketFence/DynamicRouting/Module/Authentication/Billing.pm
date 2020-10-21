@@ -253,7 +253,7 @@ sub process_transaction {
             email => $request_fields->{email},
         );
         my $info = $billing->confirmationInfo(\%parameters, $tier, $session);
-        pf::web::guest::send_template_email( 'billing_confirmation', $info->{'subject'}, $info );
+        pf::web::guest::send_template_email( 'billing_confirmation', $info->{'subject'}, $info, { INCLUDE_PATH => [ map { $_ . "/emails/" } @{$self->app->profile->{_template_paths}} ] });
     }
 
     if (isenabled($billing->create_local_account)) {
