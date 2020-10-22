@@ -1,6 +1,6 @@
 module github.com/inverse-inc/packetfence/go
 
-go 1.13
+go 1.15
 
 require (
 	github.com/OneOfOne/xxhash v1.2.7
@@ -19,7 +19,6 @@ require (
 	github.com/dgryski/go-csnappy v0.0.0-20150721071530-9d18391da197 // indirect
 	github.com/diegoguarnieri/go-conntrack v0.0.0-20161208180411-9abb0707ff31
 	github.com/dnstap/golang-dnstap v0.0.0-20170829151710-2cf77a2b5e11
-	github.com/domodwyer/mailyak v3.1.1+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/farsightsec/golang-framestream v0.0.0-20180124174429-c06a5734334d
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
@@ -35,7 +34,6 @@ require (
 	github.com/go-test/deep v1.0.5
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
-	github.com/golang-collections/go-datastructures v0.0.0-20150211160725-59788d5eb259 // indirect
 	github.com/golang/groupcache v0.0.0-20191002201903-404acd9df4cc // indirect
 	github.com/golang/protobuf v1.3.3
 	github.com/google/btree v1.0.0 // indirect
@@ -110,7 +108,6 @@ require (
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.8
-	layeh.com/radius v0.0.0-20180123164351-38e2cda15058 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.0.0-20190322163127-6e380ad96778
 )
