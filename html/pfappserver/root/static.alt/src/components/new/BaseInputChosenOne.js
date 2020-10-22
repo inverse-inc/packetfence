@@ -19,7 +19,8 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
-    options
+    options,
+    placeholder
   } = toRefs(metaProps)
 
   const {
@@ -39,6 +40,20 @@ export const setup = (props, context) => {
     }
   })
 
+  // backend may use trackBy (value) as a placeholder w/ meta,
+  //  use options to remap it to label (text).
+  const placeholderWrapper = computed(() => {
+    const _options = unref(options)
+    const optionsIndex = _options.findIndex(option => {
+      const { [trackBy.value]: trackedValue } = option
+      return `${trackedValue}` === `${placeholder.value}`
+    })
+    if (optionsIndex > -1)
+      return _options[optionsIndex][label.value]
+    else
+      return placeholder.value
+  })
+
   const onInputWrapper = useEventFnWrapper(onInput, value => {
     const { [unref(trackBy)]: trackedValue } = value
     return trackedValue
@@ -47,7 +62,8 @@ export const setup = (props, context) => {
   return {
     // wrappers
     inputValue: inputValueWrapper,
-    onInput: onInputWrapper
+    onInput: onInputWrapper,
+    inputPlaceholder: placeholderWrapper
   }
 }
 
