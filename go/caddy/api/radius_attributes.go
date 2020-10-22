@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/inverse-inc/go-radius/dictionary"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -36,6 +37,8 @@ type RadiusAttribute struct {
 	AllowedValues []RadiusAttributeValue `json:"allowed_values"`
 	PlaceHolder   string                 `json:"placeholder,omitempty"`
 	Vendor        string                 `json:"vendor,omitempty"`
+	searchName    string
+	searchVendor  string
 }
 
 type RadiusAttributesResults struct {
@@ -123,6 +126,6 @@ func appendRadiusAttributes(items *[]RadiusAttribute, attributes []*dictionary.A
 			allowedValues = append(allowedValues, RadiusAttributeValue{Name: v.Name, Value: v.Number})
 		}
 
-		*items = append(*items, RadiusAttribute{Name: a.Name, AllowedValues: allowedValues, PlaceHolder: placeHolders[a.Name], Vendor: vendor})
+		*items = append(*items, RadiusAttribute{Name: a.Name, AllowedValues: allowedValues, PlaceHolder: placeHolders[a.Name], Vendor: vendor, searchName: strings.ToLower(a.Name), searchVendor: strings.ToLower(vendor)})
 	}
 }
