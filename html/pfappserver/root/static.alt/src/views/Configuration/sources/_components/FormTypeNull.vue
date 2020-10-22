@@ -21,7 +21,7 @@
     <form-group-authentication-rules namespace="authentication_rules"
       :column-label="$i18n.t('Authentication Rules')"
     />
-  <base-form>
+  </base-form>
 </template>
 <script>
 import { BaseForm } from '@/components/new/'
