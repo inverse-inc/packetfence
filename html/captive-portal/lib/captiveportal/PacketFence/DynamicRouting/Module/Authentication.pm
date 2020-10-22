@@ -312,7 +312,7 @@ sub create_local_account {
         password => $password,
     };
     pf::web::guest::send_template_email(
-            $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+            $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info, { INCLUDE_PATH => [ map { $_ . "/emails/" } @{$self->app->profile->{_template_paths}} ] }
     );
 
     get_logger->info("Local account for external source " . $self->source->id . " created with PID " . $self->app->session->{username});
