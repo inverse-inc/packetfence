@@ -9,10 +9,10 @@ a similar environment to develop.
 
 Install following softwares:
 
-* link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3) provided by Hashicorp
-* Virtualbox if you wan to use Virtualbox as a provider for Vagrant (only `pf*` and `ad` machines)
+* link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 2.2.10) provided by Hashicorp
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
 * pywinrm > 0.3.0 if you want to use `ad` virtual machine
+* Ansible >= 2.10
 
 ==== Virtual environment: initial setup
 
@@ -29,8 +29,7 @@ git clone https://github.com/inverse-inc/packetfence.git
 [source,bash]
 ----
 cd packetfence/addons/vagrant
-ansible-galaxy collection install -r requirements.yml
-ansible-galaxy role install -r requirements.yml
+ansible-galaxy install -r requirements.yml
 ----
 
 .Start a virtual machine
