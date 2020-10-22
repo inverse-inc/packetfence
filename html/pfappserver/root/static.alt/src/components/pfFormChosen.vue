@@ -173,7 +173,7 @@ export default {
     },
     preserveSearch: {
       type: Boolean,
-      default: false
+      default: true
     },
     searchable: {
       type: Boolean,
