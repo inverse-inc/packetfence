@@ -56,3 +56,13 @@
     }
   }
 }
+
+.nav-tabs > *:not(.nav-item) {
+  flex: 1 1 auto !important;
+  &.text-right {
+    justify-content: flex-end;
+    & > * {
+      justify-content: inherit;
+    }
+  }
+}
