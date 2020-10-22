@@ -1,0 +1,420 @@
+//== Advanced Portal Configuration
+
+=== Portal Modules
+
+The PacketFence captive portal flow is highly customizable. This section will cover the `Portal Modules` which are used to define the behavior of the captive portal.
+
+NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and offers the same behavior as previous versions of PacketFence. Meaning, all the available Connection Profile sources are used for authentication, then the available provisioners will be used.
+
+First, a brief description of the available Portal Modules:
+
+* Root: This is where it all starts, this module is a simple container that defines all the modules that need to be applied in a chained way to the user. Once the user has completed all modules contained in the Root, he is released on the network.
+* Choice: This allows to give a choice between multiple modules to the user. The 'default_registration_policy' is a good example of a choice that is offered to the user.
+* Chained: This allows you to define a list of modules that a user needs to go through in the order that they are defined - ex: you want your users to register via Google+ and pay for their access using PayPal.
+* Message: This allows you to display a message to the user. An example is available below in _Displaying a message to the user after the registration_
+* URL: This allows you to redirect the user to a local or external URL which can then come back to the portal to continue. An example is available below in _Calling an external website_.
+* Authentication: The authentication modules can be of a lot of types. You would want to define one of these modules, in order to override the required fields, the source to use, the template or any other module attribute.
+** Billing: Allows to define a module based on one or more billing sources
+** Choice: Allows to define a module based on multiple sources and modules with advanced filtering options. See the section _Authentication Choice module_ below for a detailed explanation.
+** Login: Allows you to define a username/password based module with multiple internal sources (Active Directory, LDAP, ...)
+** SelectRole: Allows to define a module to override the role given when registering a device. For instance: an admin user is trying to register a device using the normal registration process, with this module the admin can choose which role to apply to the device while registering it. It will bypass authentication rules.
+** Other modules: The other modules are all based on the source type they are assigned to, they allow to select the source, the AUP acceptance, and mandatory fields if applicable.
+
+==== Examples
+
+This section will contain the following examples:
+
+* Prompting for fields without authentication.
+* Prompting additional fields during the authentication.
+* Chained authentication.
+* Mixing login and Secure SSID on-boarding on the portal.
+* Displaying a message to the user after the registration.
+
+===== Creating a custom root module
+
+First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in _Configuration ->  Advanced Access Configuration -> Portal Modules_, then click `Add Portal Module` and select the type `Root`. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
+
+Next, head to _Configuration -> Policies and Access Control -> Connection Profiles_, select the connection profile you use (most probably `default`) and then under `Root Portal Module`, assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
+
+You could add some of the pre-configured modules to the new Root module you created and that would make the error disappear.
+
+===== Prompting for fields without authentication
+
+In order to prompt fields without authentication, you can use the Null source with the Null Portal Module.
+
+PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in _Configuration -> Policies and Access Control -> Sources_ and create a new Null source with a catchall rule that assigns a role and access duration.
+
+Then go in _Configuration -> Advanced Access Configuration -> Portal Modules_ and click `Add Portal Module` and select `Authentication -> Authentication::Null`. Set the `Identifier` to `prompt_fields` and configure the module with the `Mandatory fields` you want and uncheck `Require AUP` so that the user doesn't have to accept the AUP before submitting these fields.
+
+image::portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
+
+Next, add the `prompt_fields` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these information will assign you the role and access duration that you defined in the `null` source.
+
+===== Prompting additional fields during the authentication
+
+If you want to prompt additional fields during the authentication process for a module, you can define a Module based on that source that will specify the additional mandatory fields for this source.
+
+You can also add additional mandatory fields to the default policies that are already configured.
+
+This example will make the `default_guest_policy` require the user to enter a first name, last name and address so that guests have to enter these three information before registering.
+
+Go in _Configuration -> Advanced Access Configuration -> Portal Modules_ and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the *Mandatory fields* and `Save`.
+
+Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, any of the guest sources configured in your connection profile will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
+
+NOTE: Not all sources support additional mandatory fields (ex: OAuth sources like Google, Facebook, ...).
+
+===== Chained authentication
+
+The portal modules allow you to chain two or more modules together in order to make the user accomplish all of the actions in the module in the desired sequence.
+
+This example will allow you to configure a `Chained` module that will require the user to login via any configured OAuth source (Github, Google+, ...)  and then validate his phone number using SMS registration.
+
+For the OAuth login we will use the `default_oauth_policy`, so just make sure you have an OAuth source configured correctly and available in your Connection Profile.
+
+Then, we will create a module that will contain the definition of our SMS registration.
+
+Go in _Configuration -> Advanced Access Configuration -> Portal Modules_ then click `Add Portal Module` and select `Authentication -> Authentication::SMS`.
+
+Configure the portal module so that it uses the `sms` source and uncheck the `Require AUP` option since the user will have already accepted the AUP when registering using OAuth.
+
+image::portal-modules/sms.png[scaledwidth="100%",alt="SMS module"]
+
+Then, add another Portal Module of type 'Chained'. Name it `chained_oauth_sms`, assign a relevant description and then add `default_oauth_policy` and `sms` to the *Modules* fields
+
+image::portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
+
+Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
+
+Note that if you add want to keep some fields the user previously filled you can add 'Saved fields' in the portal module. Per example the first module ask for the telephone number and the second too, then you can add 'telephone' as a 'Saved fields' and the second module will not ask for it.
+
+===== Mixing login and Secure SSID on-boarding on the portal
+
+This example will guide you through configuring a portal flow that will allow for devices to access an open SSID using an LDAP username/password but also give the choice to configure the Secure SSID directly from the portal.
+
+First, we need to configure the provisioners for the Secure SSID onboarding. Refer to section _Apple and Android Wireless Provisioning_ of this guide to configure your provisioners and add them to the connection profile.
+
+Create a provisioner of the type `Deny` and add it with your other provisioners (putting any other provisioner before it). This will make sure that if there is no match on the other provisioners, it will not allow the device through.
+
+Also in the connection profile add your LDAP source to the available sources so its the only one available.
+
+Next, create a 'Provisioning' portal module by going in _Configuration -> Advanced Access Configuration -> Portal Modules_. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skippable' so the user is forced to board the SSID should it choose this option.
+
+Then, still in the Portal Modules, create a 'Choice' module. Set the 'Identifier' to `login_or_boarding` and description to 'Login or Boarding'. Add `secure_boarding` and `default_login_policy` to the 'Modules' field and save.
+
+image::portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boarding Secure SSID"]
+
+Next, add the `login_or_boarding` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you will have the choice between login to the LDAP source and gain access to the network or directly use provisioning in order to configure your device for a Secure SSID.
+
+===== Displaying a message to the user after the registration
+
+Using the 'Message' module you can display a custom message to the user. You can also customize the template to display in order to display a fully custom page.
+
+Go in _Configuration -> Advanced Access Configuration -> Portal Modules_, then click 'Add Portal Module' and select 'Message'. Set the 'Identifier' to `hello_world` and the description to `Hello World`.
+
+Then put the following in the 'Message' field
+
+  Hello World !
+  <a href="www.packetfence.org">Click here to access the PacketFence website!</a>
+
+image::portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
+
+Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and you will then see the hello world message.
+
+image::portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
+
+===== Calling an external website
+
+Using the 'URL' module, you can redirect the user to a local or external URL
+(as long as it is in the passthroughs). Then you can make it so the portal
+accepts a callback in order for the flow to continue. Having a callback on
+local or external URL is a requirement to use this portal module. Otherwise, users
+will be *always* redirected to URL without any possibility to continue the
+registration process.
+
+In this example, the portal will redirect to an externally hosted PHP script that will give a random token to the user and then callback the portal to complete the registration process.
+
+The example script is located in `addons/example_external_auth/token.php` and a README is available in that directory to set it up.
+
+Once you have the script installed and working on URL: `http://YOUR_PORTAL_HOSTNAME:10000/token.php`, you can configure what you need on the PacketFence side.
+
+Go in _Configuration -> Advanced Access Configuration -> Portal Modules_, then click `Add Portal Module` and select `URL`. Set the 'Identifier' to `token_system`, the 'Description' to `Token system` and the 'URL' to `http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
+
+image::portal-modules/token_system.png[scaledwidth="100%",alt="Token system"]
+
+Next, add `default_registration_policy` and `token_system` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and then you will be redirected to example token system. Clicking the continue link on that system will bring you back to the portal and complete the registration process.
+
+==== Authentication Choice module (advanced)
+
+The Authentication Choice module allows to define a choice between multiple sources using advanced filtering rules, manual selection of the sources and selection of Portal Modules.
+
+All the sources that are defined in the 'Sources' field will be available for usage by the user. Same goes for the modules defined in 'Modules'.
+
+You can also define which mandatory fields you want to prompt for these authentication choices. Although you can still configure them on any 'Authentication Choice' module, they will only be shown if they are applicable to the source.
+
+In addition to the manual selection above you can dynamically select sources part of the Connection Profile based on their object attribute (Object Class, Authentication type, Authentication Class).
+
+NOTE: You can find all the authentication objects in `lib/pf/Authentication/Source`
+
+* Sources by class: Allows you to specify the perl class name of the sources you want available
+** ex: `pf::Authentication::Source::SMSSource` will select all the SMS sources. `pf::Authentication::Source::BillingSource` will select all the billing sources (Paypal, Stripe, ...)
+* Sources by type: Allows you to filter out sources using the `type` attribute of the Authentication object
+* Sources by Auth Class: Allows you to filter our sources using the `class` attribute of the Authentication object.
+
+You can see the 'default_guest_policy' and 'default_oauth_policy' for examples of this module.
+
+==== SelectRole
+
+The SelectRole module allows to define specific roles manually when registering a device. This is useful if for instance you ask your technical crew to register new devices.
+
+The configuration is simple, you have a role which is the 'Admin role' the one allowed to select the role while registering a new device and the 'Role List' which is the list of roles that can be chosen from while registering a device.
+
+For instance; techs are in the AD group tech support and get the role 'tech support' while registering, let's put 'tech support' as the 'Admin role'. They are allowed to register new devices with the roles 'default', 'voice' and 'guest'. Every time someone with the role 'tech support' will try to register a device on a connection profile where this portal module is active, then the crew memeber will be asked to choose which role to assign to this device.
+
+==== Onfailure Onsuccess
+
+The on_failure and on_success actions allow you to create a more complex workflow and will permit to change the root portal module based on the result of the authentication.
+Let's say you have a root portal module linked to a Authentication::Login module associated to a connection profile and you want to present a Guest authentication if the login failed.
+Then you need to configure another root portal module "Guest" linked with a Authentication::SMS module and in the previous Authentication::Login add and action on_failure => Guest.
+
+=== Portal Surveys
+
+PacketFence has the ability to perform surveys via the captive portal and store the results in dedicated tables in the database.
+
+==== Setup
+
+In order for the survey tables to be created automatically based on the definition of your surveys, you must grant create and alter rights to the database user defined in pf.conf. By default this user is 'pf'. On your database, connect to the MariaDB CLI as root and execute the following:
+
+  MariaDB> GRANT CREATE,ALTER ON pf.* TO 'pf'@'%';
+  MariaDB> GRANT CREATE,ALTER ON pf.* TO 'pf'@'localhost';
+
+==== Configuring your survey
+
+Next, you will have to configure your survey in `/usr/local/pf/conf/survey.conf`. Here is an example of a survey:
+
+[source,ini,numbered]
+----
+[survey1]
+description=Mustard Turkey Sandwich Brothers
+
+[survey1 field gender]
+label=What is your gender?
+type=Select
+choices=<<EOT
+M|Male
+F|Female
+EOT
+required=yes
+
+[survey1 field firstname]
+label=What is your firstname?
+type=Text
+required=yes
+
+[survey1 field lastname]
+label=What is your lastname?
+type=Text
+required=yes
+
+[survey1 field sandwich_quality]
+label=On a scale of 1 to 5, how good was your sandwich today?
+type=Scale
+minimum=1
+maximum=5
+required=yes
+
+[survey1 field prefered_sandwich]
+label=What is your prefered sandwich?
+type=Select
+choices= <<EOT
+Classic|Classic
+Extra Turkey|Sandwich with extra turkey
+Extra Mustard|Sandwich with extra mustard
+EOT
+required=yes
+
+[survey1 field comments]
+label=Enter any additionnal comments here
+type=TextArea
+required=no
+
+[survey1 data ssid]
+query=node.last_ssid
+
+[survey1 data ip]
+query=ip
+----
+
+NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
+
+In the example above, some of the data is being collected via fields on the captive portal directly (ex: `survey1 field firstname`) and some are collected via contextual data (ex: `survey1 data ssid`).
+
+Fields are defined the following way:
+
+ * *label*: The label/question that goes with the field which will be displayed on the portal
+ * *table*: The table in which the survey data should be stored. If its not defined, it will use the ID of the survey. Tables are always prefixed with `survey_` even when this attribute is set.
+ * *type*: The type of input that should be displayed to the user. The following types are available:
+ ** *Select*: makes the user select a choice in a pre-defined list
+ ** *Text*: a simple small text input
+ ** *TextArea*: a bigger text input
+ ** *Scale*: a numeric scale. The `minimum` and `maximum` attributes control the range of numbers the user can select
+ ** *Checkbox*: a simple checkbox
+ ** *Email*: a text field with email validation (only validates the format)
+ * *required*: Whether or not the field is mandatory in the survey
+
+Data fields are defined using a query and has access to node and person informations. Here are a few examples:
+
+ * `node.last_ssid`: The SSID the device is connected to, if applicable
+ * `node.device_class`: The Fingerbank device class
+ * `node.last_switch`: The switch/controller/access point the device is connected to
+ * You can get all the available node fields by executing the following command: `perl -I/usr/local/pf/lib -Mpf::node -MData::Dumper -e 'print Dumper(node_view("00:11:22:33:44:55"))'`
+ * `person.source`: If there was authentication done in the portal, this will provide the source that was used
+ * `person.email`: If there was authentication done in the portal, this will provide the email that was used
+ * You can get all the available person fields by executing the following command: `perl -I/usr/local/pf/lib -Mpf::person -MData::Dumper -e 'print Dumper(person_view("admin"))'`
+ * `ip`: The IP address of the client
+
+==== Putting the survey on the portal
+
+In order for your survey to be available on the portal, you will have to configure a portal module for it. In order to do so, go in _Configuration -> Advanced Access Configuration -> Portal Modules_ and create a new Survey portal module with the following settings:
+
+image::survey-portal-module.png[scaledwidth="100%",alt="Survey portal module configuration"]
+
+Then either add your survey to another portal module (Choice, Chained or Root) or create a Root portal module dedicated to the survey:
+
+image::survey-root-portal-module.png[scaledwidth="100%",alt="Survey root portal module configuration"]
+
+Once that is configured, make sure you have the right Root portal module on the applicable connection profile in _Policies and Access Control -> Connection Profiles -> Name of the profile -> Root Portal Module_.
+
+==== Exploring the collected data
+
+All the data that is collected in the example survey will be stored in a table
+named `survey_survey1`. You can create 'Dynamic Reports' on your survey tables
+via `/usr/local/pf/conf/report.conf`. Here is an example for the survey
+created above:
+
+[source,ini,numbered]
+----
+[survey1]
+description=My first survey report
+base_table=survey_survey1
+columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as "Prefered Sandwich", gender as "Gender"
+----
+
+NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
+
+Refer to the <<_dynamic_reports>> section of this document for advanced configuration.
+
+==== Cleaning up
+
+When you are happy with the structure of your surveys, it is recommended to remove the `CREATE` and `ALTER` rights to the `pf` database user from a security perspective. In order to do so, execute the following commands. This step is optional and should only be done once the structure of your survey is set in stone.
+
+  MariaDB> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'%';
+  MariaDB> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'localhost';
+
+
+=== Devices Registration
+
+Users have the possibility to *register* their devices right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against the Fingerbank database to match authorized devices list. The device will be registered with the user's id and can be assigned into a specific category for easier management.
+
+In order to configure this, you can configure a self service portal policy in _Configuration -> Advanced Access Configuration -> Self Service Portal_. Either by modifying the default policy or creating a new one, you'll be able to define the behavior of the device registration page.
+The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
+This URL is accessible from within the network, in any VLAN that can reach the PacketFence server on a 'portal' interface (see note below). 
+
+First, you can decide which role to assign to the devices registered through this self service portal. If left empty, the role of the user who is registering the device will be used.
+
+You can also select which operating systems can be registered through this portal. This is useful for example, if you wish to only allow gaming devices to be registered through this portal.
+
+Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+After this, the page will be accessible at https://YOUR_PORTAL_HOSTNAME/device-registration.
+
+WARNING: You may also have to add the 'portal' listening daemon on your management interface in order for this self service portal to be accessible to your users.
+
+=== Status page
+
+Users can have access to a self service portal that allows them to *manage* their devices. Using this portal, they can unregister devices they own and report them as stolen (triggering the *Lost or Stolen* violation).
+
+Users of the local PacketFence database can also change their password through this portal.
+
+By default all users can manage their devices through this self service portal. You can specify which roles can manage their devices on this page by configuring a self service portal policy in _Configuration -> Advanced Access Configuration -> Self Service Portal_. Then, make sure you assign this policy to the appropriate connection profile in _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+You can also prevent this page from being served in the PacketFence managed networks (registration, isolation, inline) by enabling the parameter *Status URI only on production network* in _Configuration -> Advanced Access Configuration -> Captive Portal_.
+
+After this, the page will be accessible at https://YOUR_PORTAL_HOSTNAME/status.
+
+Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+WARNING: You may also have to add the 'portal' listening daemon on your management interface in order for this self service portal to be accessible to your users.
+
+=== Passthroughs
+
+Passthroughs are used to allow access to certain resources that are outside of the registration confinement process for the users that are in it.
+A good example would be when you want to allow access to a password reset server even for clients that are currently on the captive portal.
+
+There are two solutions for passthroughs - one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
+Note that non-HTTP (including HTTPS) protocols cannot use the mod_proxy approach.
+You can use one of them or both but for if a domain is configured in both, DNS passthroughs have a higher priority.
+
+In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in _Configuration -> Network Configuration -> Networks -> Fencing_, enable *Passthrough* and then `Save`.
+
+==== DNS passthroughs
+
+NOTE: In active-active cluster, `pfdns` needs to listen on VIP only. _Configuration -> System Configuration -> Cluster -> pfdns on VIP only_
+
+If you just enabled the passthroughs, you should restart the iptables services after configuring the parameter (`/usr/local/pf/bin/pfcmd service iptables restart`).
+
+Then add passthroughs in _Configuration -> Network Configuration -> Networks -> Fencing -> Passthroughs_. They can be of the following format:
+
+ * *example.com*: opens ports 80 and 443 in TCP for example.com
+ * *example.com:1812*: opens the port 1812 in TCP and UDP for example.com
+ * *example.com:tcp:1812*: opens the port 1812 in TCP for example.com
+ * *example.com:udp:1812*: opens the port 1812 in UDP for example.com
+
+In addition to the options above, you can prefix the domain with `*.` (*.example.com) to white list all the subdomains of example.com (ex: `www.example.com`, `my.example.com`).
+
+Should you combine multiple times the same domain with different ports (`example.com,example.com:udp:1812,example.com:udp:1813`) in the passthroughs, it will open all ports specified in all entries. In the previous example that would open ports 80, 443 in TCP as well as 1812 and 1813 in UDP.
+
+Now when pfdns receives a request for one of these domains, it will reply with the real DNS records for the FQDN instead of a response that points to the captive portal.
+At the same time, it will add the entry to a special ipset which will allow access to the real IP address attached the FQDN via iptables based routing.
+
+==== Apache mod_proxy passthroughs
+
+The proxy passthroughs can be configured in _Configuration -> Network Configuration -> Networks -> Fencing -> Proxy Passthroughs_.
+Add a new FQDN (can also be a wildcard domain like *.google.com). Port specific passthroughs cannot be used as these only apply to port 80 in TCP.
+Then for this FQDN, pfdns will still answer with the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configured in PacketFence and will forward the traffic to mod_proxy.
+
+=== Proxy Interception
+
+PacketFence enables you to intercept proxy requests and forward them to the captive portal. It only works one layer-2 networks  because PacketFence must be the default gateway.
+In order to use the Proxy Interception feature, you need to enable it from the GUI in
+_Configuration -> Network Configuration -> Networks -> Fencing_ and check _Proxy Interception_.
+
+Add the port you want to intercept (like 8080 or 3128) and add a new entry in the `/etc/hosts` file to resolve the fully qualified domain name (fqdn) of the captive portal to the IP address of the registration interface. This modification is mandatory in order for Apache to receives the proxy requests.
+
+
+=== Parked Devices
+
+In the event that you are managing a large registration network with devices that stay there (ex: Students that can't register in your environment), these devices consume precious resources and generate useless load on the captive portal and registration DHCP server.
+
+Using the parking feature, you can make these devices have a longer lease and hit an extremely lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link.
+
+The *parked* vs *unparked* state is controlled through security event `1300003` which gets triggered according to the `parking.threshold` setting (_Configuration -> Network Configuration -> Networks -> Device Parking_).
+
+So, in order to activate the parking, go in _Configuration -> Network Configuration -> Networks -> Device Parking_ and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger security event `1300003` and place that device into the *parked* state.
+
+In that same section, you can define the lease length of the user when he is in the *parked* state.
+
+NOTE: Parking is detected when a device asks for DHCP, if PacketFence is not your DHCP server for the registration network, this feature will not work. Also, if the device goes into the parked state with a lease time of 1 hour and the user immediately releases himself from the parking state, it will take 1 hour before the next detection takes place even if you set `parking.threshold` to a lower value.
+
+==== Security Event 1300003
+
+This security event controls what happens when a user is detected doing parking.
+
+Here are the main settings:
+
+* You can add actions to the predefined ones (like 'Email admin' or 'External action') in _Definition -> Actions_
+* The amount of time a user can *unpark* their device is controlled through the _Remediation -> Max enable_ setting.
+* The amount of grace time between two parking security events is controlled by the _Remediation -> Grace_ setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
+* The destination role (thus VLAN) of the user is controlled by _Advanced -> Role_. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
+* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable *Show parking portal* in _Configuration -> Network Configuration -> Networks -> Device Parking_
+

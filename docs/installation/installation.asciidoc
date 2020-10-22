@@ -1,0 +1,150 @@
+//== Installation
+
+This section will guide you through the installation of PacketFence from the Zero Effort NAC (ZEN) appliance and from the standard repository of packages we provide - which can be used to install PacketFence on top of a vanilla GNU/Linux installation.
+
+=== Installing PacketFence from the ZEN
+
+The ZEN (Zero Effort NAC) edition of PacketFence allows you to rapidly get PacketFence running in your network environment. It consists of a fully installed and preconfigured version of PacketFence distributed as a virtual appliance. It can be deployed on VMware ESX/ESXi, Microsoft Hyper-V and other products. This section covers the deployment of the virtual appliance on VMware-based products. We are not supporting any Xen-based hypervisors yet.
+
+==== Virtual Machine
+
+This setup has been tested using VMware ESXi, Fusion and Workstation products with 12 GB of RAM dedicated to the virtual machine. It might work using other VMware products.  To properly run the PacketFence virtual appliance, you need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
+
+The virtual appliance passwords are:
+
+.Management (SSH/Console) and MariaDB
+* Login: root
+* Password: p@ck3tf3nc3
+
+.Captive Portal / 802.1X Registration User
+* Login: demouser
+* Password: demouser
+
+
+==== Import to ESX
+
+Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). That virtual network card will be used as the PacketFence management interface.
+
+==== Import to VMware Player/Workstation for Linux
+
+Newer version of VMware Player handles the VLAN trunking a lot better.  Having that said, we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
+
+
+=== Installing PacketFence on existing Linux
+
+PacketFence provides packages repository for RHEL / CentOS as well as packages repository fo Debian.
+
+These repositories contain all required dependencies to install PacketFence. This provides numerous advantages. Among them, there are:
+
+[options="compact"]
+* easy installation
+* everything is packaged as RPM and Debian packages
+* easy upgrade
+
+First install your supported distribution with minimal installation and no additional packages. Then:
+
+On Red Hat-based systems
+[options="compact"]
+* Disable firewall
+* Disable SELinux
+
+On Debian
+[options="compact"]
+* Disable AppArmor
+* Disable resolvconf
+
+Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
+
+[source,bash]
+----
+yum update
+----
+
+On a Debian system, do:
+
+[source,bash]
+----
+apt-get update
+apt-get upgrade
+----
+
+Regarding SELinux or AppArmor, even if they may be wanted by some
+organizations, PacketFence will not work properly if SELinux or AppArmor are
+enabled. You will need to explicitly disable SELinux from the
+`/etc/selinux/config` file and reboot the machine. For AppArmor, you need to
+follow instructions on
+link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
+
+Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
+
+==== RHEL / CentOS based systems
+
+NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is supported.
+
+Install kernel development package:
+
+[source,bash]
+----
+yum install kernel-devel-$(uname -r)
+----
+
+===== RHEL 7.x
+
+NOTE: These are extra steps are required for RHEL 7 systems only, excluding derivatives such as CentOS or Scientific Linux.
+
+Red Hat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from Red Hat you need to enable the optional and extras channels by running the following as root:
+
+[source,bash]
+----
+subscription-manager repos --enable rhel-7-server-optional-rpms
+subscription-manager repos --enable rhel-7-server-extras-rpms
+----
+
+==== Debian based systems
+
+Install kernel development package:
+
+[source,bash]
+----
+apt install linux-headers-$(uname -r)
+----
+
+==== Software Installation
+
+===== RHEL / CentOS based systems
+
+In order to use the PacketFence repository:
+
+[source,bash]
+----
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.stable.noarch.rpm
+----
+
+Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:
+
+[source,bash]
+----
+yum install --enablerepo=packetfence packetfence
+----
+
+===== Debian based systems
+
+In order to use the repository, create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
+
+[source,bash]
+----
+echo 'deb http://inverse.ca/downloads/PacketFence/debian stretch stretch' > \
+/etc/apt/sources.list.d/packetfence.list
+----
+
+Once the repository is defined, you can install PacketFence with all its
+dependencies, and the required external services (Database
+server, DHCP server, RADIUS server) using:
+
+[source,bash]
+----
+wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install packetfence
+----
+

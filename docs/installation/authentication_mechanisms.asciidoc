@@ -1,0 +1,644 @@
+//== Authentication Mechanisms
+
+This section details most of the authentication mechasnisms supported by PacketFence. It walks you through the required steps to properly use an authentication mechanism on your captive portal, for example. For Public Key Infrastructure (PKI) integration, please refer to the PKI Integration section from this document.
+
+=== Microsoft Active Directory (AD)
+
+Go in the Administration interface under _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_.
+
+NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
+
+Click *New Domain* and fill in the information about your domain.
+
+image::domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
+
+Where :
+
+* *Identifier* is a unique identifier for your domain. It's purpose is only visual.
+* *Workgroup* is the workgroup of your domain in the old syntax (like NT4).
+* *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
+* *This server's name* is the name that the server's account will have in your Active Directory.
+* *Sticky DC* is the preferred domain controller to connect to.
+* *Active Directory server* is the IP or DNS name of one of the DC of the domain.
+* *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
+* *OU* is the OU in the Active Directory where you want to create your computer account.
+* *ntlmv2 only* forces the NTLNM authentication (802.1X on AD) to use the NTLM version 2.
+* *Allow on registration* would allow devices in the registration network to communicate with the DC.
+
+NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
+
+==== Troubleshooting
+
+* In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
+
+* You can validate the domain bind using the following command : `chroot /chroots/<mydomain> wbinfo -u`
+
+* You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
+
+NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting. Also try reloading the page in the GUI since in some case the browser side of the ajax call may time out while the join actually succeeds.
+
+==== Default Domain Configuration
+
+You should now define the domain you want to use as the default one by creating the following realm in _Configuration -> Policies and Access Control -> Domains -> REALMS_.
+
+image::domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
+
+Next, restart PacketFence in _Status -> Services_
+
+==== Multiple Domains Authentication
+
+First configure your domains in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_.
+
+Once they are configured, go in _Configuration -> Policies and Access Control -> Domains -> REALMS_.
+
+Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET tied to mydomain.
+
+image::domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
+
+Where :
+
+* *Realm* is either the DNS name (FQDN) of your domain or the workgroup
+* *Domain* is the Active Directory domain where PacketFence sends the NTLM request
+* *Realm options* are any realm options that you want to add to the FreeRADIUS configuration
+* *Domain* is the domain which is associated to this realm
+* *RADIUS Auth* is the RADIUS authentication server to proxy the request to
+* *Type* is the home server pool type
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
+* *RADIUS Acct* is the RADIUS accounting server to proxy the request to
+* *Type* is the home server pool type
+* *Eduroam Realm Options* You can add Eduroam FreeRADIUS options in the realm definition
+* *Eduroam RADIUS Auth* is the RADIUS Eduroam authentication server to proxy the request to
+* *Type* is the home server pool type
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
+* *Eduroam RADIUS Acct* is the RADIUS Eduroam accounting server to proxy the request to
+* *Type* is the home server pool type
+* *Strip on the portal* Should the usernames matching this realm be stripped when used on the captive portal
+* *Strip on the admin* Should the usernames matching this realm be stripped when used on the administration interface
+* *Strip in RADIUS authorization* Should the usernames matching this realm be stripped when used in the authorization phase of 802.1X
+* *Custom attributes* Allow to use custom attributes to authenticate 802.1X users (attributes are defined in the source)
+* *LDAP source* The LDAP Server to query the custom attributes
+
+*Now associate DEFAULT and NULL realms to your domain.*
+
+You should now have the following realm configuration
+
+image::domain-realms-index.png[scaledwidth="100%",alt="Realms"]
+
+
+=== OAuth2 Authentication
+
+NOTE: OAuth2 authentication does not work with Webauth enforcement
+
+NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"
+
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest, OpenID Connect or Github account.
+
+For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
+This list is available in each OAuth2 authentication source.
+
+You must enable the passthrough option in your PacketFence configuration (fencing.passthrough in pf.conf).
+
+==== Google
+
+In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.
+In the Google APIs Console, go into 'Credentials -> Create Credentials -> OAuth client ID -> Web Application', then enter a name and make sure you use this URI for the "Authorized redirect URIs" field : https://YOUR_PORTAL_HOSTNAME/oauth2/callback.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+Save to get the Client ID and Client secret.
+
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
+
+Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
+
+Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Google as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== Facebook
+
+To use Facebook as an authentication source, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you specify the following as the Website URL:
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+To find the secret, go in your newly created app, and click on 'Settings -> Basic'.
+
+While in 'Settings -> Basic', add YOUR_PORTAL_HOSTNAME in the *App Domains* field. Next, you will need to add the product *Facebook Login*. Click on *Set up*, and choose *Web* platform. Go through the 5 steps, then on the left side of the screen, go in _Settings_ under Facebook Login. For *Valid OAuth Redirect URIs*, enter https://YOUR_PORTAL_HOSTNAME/oauth2/callback and then save changes.
+
+Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net, *.akamaiedge.net, *.edgekey.net, *.akamai.net (May change)
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+You can keep the default configuration, modify the App ID & App Secret (Given by Facebook on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
+
+Moreover, don't forget to add Facebook as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
+
+==== Github
+
+To use Github, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications/new.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add GitHub as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== Instagram
+
+To use Instagram, you also need an API code and a secret key.  To get one, go here: https://www.instagram.com/developer/clients/manage/.  When you create your App, make sure you specify the following as the Website URL:
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Instagram as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== Kickbox
+
+To use Kickbox, you need a API key. To get one, first create an account on <https://kickbox.io>, then navigate to <https://app.kickbox.com/settings/keys>. Click on 'API Keys -> Create Key'. Pick a name and choose 'Production' mode and 'Single' verification.
+
+Once you have your API key, you need to configure the OAuth2 provider. This can be done by adding a Kickbox authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Kickbox as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== LinkedIn
+
+To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add LinkedIn as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+NOTE: When testing LinkedIn OAuth2, use a different LinkedIn account to setup the application and to test the Source in the captive portal.
+
+==== OpenID Connect
+
+Using OpenID Connect is a bit different than other OAuth2 sources. The reason behind that is because you will setup your own OpenID Connect source or depend on a provider for it. Configuration like token path, authorize path or API URL are specific to your setup. For more information on how to create your own or get a host please visit: http://openid.net/connect/.
+
+When you create your App, make sure you specify the following as the Callback URL, https://YOUR_PORTAL_HOSTNAME/oauth2/callback.
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+OpenID connect have different ways to be configured, make sure to create a client ID and a client secret to work with PacketFence.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding an OpenID OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add OpenID as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== Pinterest
+
+To use Pinterest, you also need an API code and a secret key.  To get one, go here: https://developers.pinterest.com/apps.  When you create your App, make sure you specify the following as the Redirect URL:
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Pinterest as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== Twilio
+
+To use Twilio, first create an account on <https://www.twilio.com>. From the console (dashboard) <https://www.twilio.com/console> create a *3rd Party Integration*. Note the *Account SID* and *Auth Token* for later use. From the Phone Manager <https://www.twilio.com/console/phone-numbers/incoming> click the "+" button to *Buy a number* with _SMS_ capability - no payment is needed to start using this phone number right away.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twilio OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_. Enter your 'Account SID', 'Auth Token' and 'Phone Number (From)' from above.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Twilio as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== Twitter
+
+To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Twitter as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+==== Windows Live
+
+To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback replacing the hostname with the values from `general.hostname` and `general.domain`, and check 'Live SDK support'.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add WindowsLive as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+
+=== Eduroam
+
+[quote,Eduroam, https://www.eduroam.org/]
+_____________________
+
+Eduroam (education roaming) is the secure, world-wide roaming access service developed for the international research and education community.
+
+Eduroam allows students, researchers and staff from participating institutions to obtain Internet connectivity across campus and when visiting other participating institutions by simply opening their laptop.
+_____________________
+
+
+PacketFence supports Eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
+
+Understanding of the Eduroam authentication workflow.
+
+==== Local authentication
+
+image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal Eduroam authentication"]
+
+. The device connects on the Eduroam SSID.
+. The access point forwards the authentication request to the wireless controller.
+. The controller sends the RADIUS authentication to PacketFence on port 11812.
+. PacketFence checks if it's a local REALM.
+. If it's local REALM, PacketFence does a NTLM request to the Active Directory (AD) domain controller to verify the identity.
+[loweralpha]
+.. The AD validated the credentials.
+.. The AD did not validate the credentials. PacketFence sends a RADIUS Reject.
+.. After a successful NTLM authentication, PacketFence returns a Radius Access Accept to the wireless controller to apply the production VLAN for that MAC address.
+. If it's a not local REALM, PacketFence proxies the radius request to the Eduroam servers.
+. The Eduroam servers validate the identity.
+. PacketFence returns a Radius Access Accept to the wireless controller to apply the production VLAN for that MAC address.
+
+==== Configure the Eduroam source
+
+Open the PacketFence administration web interface and go to _Configuration -> Policies and Access Control -> Authentication Sources_.
+
+Local *Exclusive Sources* and click on `New exclusive source` then `Eduroam`.
+
+The information to configure that source could be found on the Eduroam platform.
+
+==== Create the connection profile for local authentication
+
+Go to _Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile_.
+
+Create a connection profile named `Local and external Eduroam authentication` Check `Automatically register devices` then create a SSID filter `Eduroam`. Make sure to add the Active Directory source to match on the local users.
+
+
+==== Inbound authentication (TLRS to PF)
+
+image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound Eduroam authentication"]
+
+. Eduroam sends the RADIUS authentication to a public IP address (NAT/PAT) bound to PacketFence on the management IP address (Management VIP for a cluster) on port 1812.
+. PacketFence forwards the NTLM request to the Active Directory.
+. NTLM response
+[loweralpha]
+.. Successful user identify authentication on the AD
+.. NTLM request fails because of a bad identity
+. PacketFence replies to the Eduroam servers either a RADIUS Access Accept for a sucessful authentication or a RADIUS access reject for an unsuccessful authentication. PacketFence sets the REALM to Eduroam for all successful authentications.
+
+First, you need to refer to the previous step `Configure the Eduroam source`.
+
+Once the source is configured, you will need to create a new connection profile.
+
+==== Create the connection profile for outbound authentication
+
+Go to _Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile_.
+
+Create the Connection Profile named `External Eduroam authentication` Check `Automatically register devices` then create a REALM filter `Eduroam`. Next, make sure to add the Eduroam source previouly created.
+
+=== SAML Authentication
+
+PacketFence supports SAML authentication in the captive portal in combination with another internal source to define the level of authorization of the user.
+
+First, transfer the Identity Provider metadata on the PacketFence server. In this example, it will be under the path [filename]`/usr/local/pf/conf/idp-metadata.xml`.
+
+Then, transfer the certificate and CA certificate of the Identity provider on the server. In this example, they will be under the paths [filename]`/usr/local/pf/conf/ssl/idp.crt` and [filename]`/usr/local/pf/conf/ssl/idp-ca.crt`. If it is a self-signed certificate, then you will be able to use it as the CA in the PacketFence configuration. Make sure `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE----` headers are present in these certificate files.
+
+Then, to configure SAML in PacketFence, go in _Configuration -> Policies and Access Control -> Sources_ and then create a new Internal source of the type SAML and configure it.
+
+image::saml-packetfence-config.png[scaledwidth="100%",alt="SAML PacketFence configuration"]
+
+Where :
+
+[options="compact"]
+* *Service Provider entity ID* is the identifier of the Service Provider (PacketFence). Make sure this matches your Identity Provider configuration.
+* *Path to Service Provider key* is the path to the key that will be used by PacketFence to sign its messages to the Identity Provider. A default one is provided under the path : `/usr/local/pf/conf/ssl/server.key`
+* *Path to Service Provider cert* is the path to the certificate associated to the key above. A self-signed one is provided under the path : `/usr/local/pf/conf/ssl/server.key`
+* *Path to Identity Provider metadata* is the path to the metadata file you transferred above (should be in `/usr/local/pf/conf/idp-metadata.xml`)
+* *Path to Identity Provider cert* is the path to the certificate of the identity provider you transferred on the server above (should be in `/usr/local/pf/conf/ssl/idp.crt`).
+* *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transferred on the server above (should be in `/usr/local/pf/conf/ssl/ca-idp.crt`). If the certificate above is self-signed, put the same path as above in this field.
+* *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The default should fit at least SimpleSAMLphp.
+* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user. The 'Authentication' section of this document contains explanations on how to configure an LDAP source which can then be used here.
+
+Once this is done, save the source and you will be able to download the Service Provider metadata for PacketFence using the link 'Download Service Provider metadata' on the page.
+
+Configure your identity provider according to the generated metadata to complete the Trust between PacketFence and your Identity Provider.
+
+In the case of SimpleSAMLPHP, the following configuration was used in `metadata/saml20-sp-remote.php` :
+
+
+  $metadata['PF_ENTITY_ID'] = array(
+    'AssertionConsumerService' => 'http://PORTAL_HOSTNAME/saml/assertion',
+    'SingleLogoutService' => 'http://PORTAL_HOSTNAME/saml/logoff',
+  );
+
+NOTE: PacketFence does not support logoff on the SAML Identity Provider. You can still define the URL in the metadata but it will not be used.
+
+==== Passthroughs
+
+In order for your users to be able to access the Identity Provider login page, you will need to activate passthroughs and add the Identity Provider domain to the allowed passthroughs.
+
+To do so, go in _Configuration -> Network Configuration -> Networks -> Fencing_, then check `Passthrough` and add the Identity Provider domain name to the `Passthroughs` list.
+
+Next, restart `iptables` and `pfdns` services to apply your new passthroughs.
+
+=== Billing Engine
+
+PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personal information as well as it's credit card information.
+
+PacketFence currently supports four payment gateways: Authorize.net, Mirapay, Paypal and Stripe.
+
+In order to activate the billing, you will need to configure the following components :
+
+* Billing source(s)
+* Billing tier(s)
+
+==== Configuring a billing source
+
+First select a billing provider and follow the instructions below.
+
+===== Paypal
+
+NOTE: This provider requires that your PacketFence server is accessible on the public domain. For this your PacketFence portal should be available on a public IP using the DNS server name configured in PacketFence.
+
+If you have a business account and do not want to configure a test environment, you can skip the next section.
+
+*Sandbox account*
+
+To configure a sandbox paypal account for use in PacketFence, head to https://developer.paypal.com/ and either sign up or login into your existing account.
+
+Then in the Sandbox menu, click `Accounts`
+
+Create an account that has the type `Personal` and one that has the type `Business`.
+
+Afterwards, go back into accounts, and expand the business account, then click `Profile`
+
+image::billing/paypal-access-sandbox-profile.png[scaledwidth="100%",alt="Paypal access sandbox accounts"]
+
+Now click the 'Change password' link and change the password and note it.
+
+image::billing/paypal-change-password.png[scaledwidth="100%",alt="Paypal change sandbox password"]
+
+Do the same thing with the personal account you created
+
+*Configuring the merchant account*
+
+Login into the Paypal business account that you created at https://www.sandbox.paypal.com/ if you are using a sandbox account or on https://www.paypal.com/ if you are using a real account.
+
+Next go in _My Account -> Profile_ in order to go into your profile configuration.
+
+Next in the `Selling Preferences` you will need to select `Website Payment Preferences`
+
+Configure the settings so they match the screenshot below.
+
+You should turn on `Auto Return`, set the return URL to https://YOUR_PORTAL_HOSTNAME/billing/paypal/verify.
+
+You should also take note of the `Identity Token` as it will be required in the PacketFence configuration.
+
+image::billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
+
+Next go back in your profile configuration _My account -> Profile_ and select `Encrypted Payment Settings`
+
+Now on this page you will need to submit the certificate used by PacketFence to Paypal ([filename]`/usr/local/pf/conf/ssl/server.crt` by default).
+
+Once you have submitted it, note it's associated `Cert ID` as you will need to configure it in PacketFence.
+
+Still on that page, click the `Download` link to download the Paypal public certificate and put it on the PacketFence server under path : [filename]`/usr/local/pf/conf/ssl/paypal.pem`
+
+image::billing/paypal-encrypted-payment.png[scaledwidth="100%",alt="Paypal encrypted payment settings"]
+
+CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in _Configuration -> Policies and Access Control -> Sources_ and create a new source of type 'Billing -> Paypal'.
+
+image::billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
+
+Where :
+[options="compact"]
+* *Identity token* is the one you noted when on the 'Website Payment Preferences' page.
+* *Cert ID* is the one you noted when on the 'Encrypted Payment Settings'.
+* *Payment type* is whether the access is donation based (not mandatory to pay for it).
+* *Email address* is the email address of the merchant paypal account.
+* *Cert file* is the path to the PacketFence certificate ([filename]`/usr/local/pf/conf/ssl/server.crt` by default).
+* *Key file* is the path to the PacketFence certificate ([filename]`/usr/local/pf/conf/ssl/server.key` by default).
+* *Paypal cert file* is the path to the Paypal certificate ([filename]`/usr/local/pf/conf/ssl/paypal.pem` in this example).
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
+
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details
+
+===== Stripe
+
+*Stripe account*
+
+First go on https://dashboard.stripe.com, create an account and login.
+
+Next on the top right click `Your account` then `Account settings`.
+
+Navigate to the `API keys` tab and note your key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
+
+image::billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in _Configuration -> Policies and Access Control -> Sources_ and create a new source of type _Billing -> Stripe_
+
+image::billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where :
+[options="compact"]
+* *Secret key* is the secret key you got from your Stripe account.
+* *Publishable key* is the publishable key you got from your Stripe account.
+* *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section `Subscription based registration` below for details on how to configure it.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using the test key and secret account.
+
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details.
+
+===== Authorize.net
+
+*Creating an account*
+
+First go on https://account.authorize.net to signup for a merchant account or http://developer.authorize.net/ for a sandbox account.
+
+After you created your account, you will be shown your `API login ID` and `Transaction key`. Note both of these information for usage in the PacketFence configuration.
+
+Then login into your new account.
+
+Then under _Account_ click `Settings`.
+
+On the settings page in the section _Security settings_, click `MD5-Hash`
+
+Now enter a secret that will be shared between authorize.net and PacketFence.
+
+image::billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+*PacketFence configuration*
+
+Next in the PacketFence administration interface, go in _Configuration -> Policies and Access Control -> Sources_ and create a new source of type `Billing -> AuthorizeNet`.
+
+image::billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where :
+[options="compact"]
+* *API login ID* is the one you got earlier while creating your account.
+* *Transaction key* is the one you got earlier while creating your account.
+* *MD5 hash* the one you configured in your Authorize.net account.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
+
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details.
+
+===== Mirapay
+
+  To be contributed...
+
+==== Adding billing tiers
+
+Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
+
+In the PacketFence administration interface, go in _Configuration -> Advanced Access Configuration -> Billing tiers_
+
+Then click `Add billing tier` and configure it.
+
+image::billing/billing-tier.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where :
+[options="compact"]
+* *Billing tier* is the unique identifier of the billing tier.
+* *Name* is the friendly name of the billing tier.
+* *Description* is an extended description of the billing tier.
+* *Price* is the amount that will be charged to the user.
+* *Access duration* is the amount of time the user will be granted access to your network.
+* *Role* is the target role the user should be in.
+* *Use time balance* defines if the access duration should be computed on real-time access duration meaning if the user buys 24 hours of access he can use the network for 24 hours in different time blocks. This requires a valid RADIUS accounting configuration.
+
+NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the `Connection profile`.
+
+==== Subscription based registration
+
+PacketFence supports subscription based billing using Stripe as a billing provider.
+
+===== Billing tier
+
+When using subscription based billing, it is advised to configure the billing tier so it has an almost infinite access duration (e.g. 20 years) as the billing provider will be contacting the PacketFence server when the subscription is canceled.
+
+You should configure a billing tier for each subscription plan you want to have. This example will use the plan `simple` and `advanced` configured using the following parameters.
+
+  [simple]
+  name=Simple network access
+  description=Click here if you are poor
+  price=3.99
+  role=guest
+  access_duration=10Y
+  use_time_balance=disabled
+
+  [advanced]
+  name=Simple network access
+  description=Click here if you are poor
+  price=9.99
+  role=advanced_guest
+  access_duration=10Y
+  use_time_balance=disabled
+
+===== Stripe configuration
+
+Then in your Stripe dashboard, you should go in _Subscriptions -> Plans_.
+
+Then create a new plan.
+
+image::billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
+
+Where :
+[options="compact"]
+* *ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
+* *Amount* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
+* *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
+* *Interval* is the interval at which the customer should be billed. In the case of this example, it is monthly.
+
+Now, following the same procedure, create the advanced plan.
+
+===== Receiving updates from Stripe
+
+As the subscription can be cancelled by a user, you need to setup your PacketFence installation to receive updates from Stripe.
+
+Updates are sent using HTTP requests on a public IP.
+
+You need to make sure that your PacketFence server is available through a public IP on port 80 and that your PacketFence server hostname resolves on the public domain.
+
+Then, in Stripe, configure a `Webhook` so Stripe informs PacketFence of any event that happens in this Stripe merchant account.
+
+In order to do so go in _Your Account -> Account Settings -> Webhooks_ and click `Add endpoint`.
+
+image::billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
+
+Where :
+[options="compact"]
+* *URL* is the URL to the PacketFence server. This should be http://YOUR_PORTAL_HOSTNAME/hook/billing/stripe
+* *Mode* is whether this webhook is for testing mode or live mode
+
+Now every time a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
+
+==== Extending access before it ends
+
+PacketFence allows users to extend their access before it has ended. In order to do so, you need to enable `Allow access to registration portal when registered` accessible via the `Captive Portal` tab of the `Connection Profiles`. Once this is activated, the users can reach https://YOUR_PORTAL_IP/status and select `Extend your access` in order to be able to access the billing section after they have registered.
+
+=== External API Authentication
+
+PacketFence also supports calling an external HTTP API as an authentication source. The external API needs to implement an authentication action and an authorization action.
+
+==== Authentication
+
+This should provide the information about whether or not the username/password combination is valid
+
+These information are available through the POST fields of the request
+
+The server should reply with two attributes in a JSON response
+
+[options="compact"]
+* *result* : should be 1 for success, 0 for failure
+* *message* : should be the reason it succeeded or failed
+
+Example JSON response :
+
+  {"result":1,"message":"Valid username and password"}
+
+==== Authorization
+
+This should provide the actions to apply on a user based on it's attributes
+
+The following attributes are available for the reply : *access_duration*, *access_level*, *sponsor*, *unregdate*, *category*.
+
+Sample JSON response, note that not all attributes are necessary, only send back what you need.
+
+  {"access_duration":"1D","access_level":"ALL","sponsor":1
+    ,"unregdate":"2030-01-01","category":"default"}
+
+NOTE: See [filename]`/usr/local/pf/addons/example_external_auth` for an example implementation compatible with PacketFence.
+
+==== PacketFence Configuration
+
+In PacketFence, you need to configure an HTTP source in order to use an external API.
+
+Here is a brief description of the fields :
+
+[options="compact"]
+* *Host* : First, the protocol, then the IP address or hostname of the API and lastly the port to connect to the API.
+* *API username and password* : If your API implements HTTP basic authentication (RFC 2617) you can add them in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
+* *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
+* *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
+

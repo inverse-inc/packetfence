@@ -1,0 +1,83 @@
+== Understanding the Galera cluster synchronization
+
+The Galera cluster stack used by PacketFence resembles a lot to how a normal MariaDB Galera cluster behaves but it contains hooks to auto-correct some issues that can occur.
+
+NOTE: A lot of useful information is logged in the MariaDB log which can be found in `/usr/local/pf/logs/mariadb_error.log`
+
+=== Quorum behavior
+
+A loss of quorum is when a server is not able to be part of a group that represents more than 50% of the configured servers in the cluster. This can occur if a node is isolated from a network perspective or if more than 50% of its peers aren't alive (like in the case of a power outage).
+
+The Galera cluster stack will continuously check that it has a quorum. Should one of the server be part of a group that doesn't have the quorum in the cluster, it will put itself in read-only mode and stop the synchronization. During that time, your PacketFence installation will continue working but with some features disabled.
+
+ * RADIUS MAC Authentication: Will continue working and will return RADIUS attributes associated with the role that is registered in the database. If VLAN or RADIUS filters can apply to this device, they will but any role change will not be persisted.
+ * RADIUS 802.1X: Will continue working and if 'Dot1x recompute role from portal' is enabled, it will compute the role using the available authentication sources but will not save it in the database at the end of the request. If this parameter is disabled, it will behave like MAC Authentication. VLAN and RADIUS filters will still apply for the connections. If any of your sources are external (LDAP, AD, RADIUS, ...), they must be available for the request to complete successfully.
+ * Captive portal: The captive portal will be disabled and display a message stating the system is currently experiencing an issue.
+ * DHCP listeners: The DHCP listeners will be disabled and packets will not be saved in the database. This also means Firewall SSO will not work during that time.
+ * Web administration interface: It will still be available in read-only mode for all sections and in read-write mode for the configuration section.
+
+Once the server that is in read-only mode joins a quorum, it will go back in read-write mode and the system will go back to its normal behavior automatically.
+
+=== Graceful shutdown behavior
+
+When you are gracefully shutting down servers for a planned maintenance, you should always aim to leave a quorum alive so that once the server joins its peers again, it will always re-join the cluster gracefully. You can also leave only one of the nodes alive but keep in mind it will fall in read-only mode until all the nodes that were part of the last healthy quorum rejoin the cluster.
+
+Should all your nodes shutdown gracefully, the last node to be shutdown will be the one that will be able to self-elect as master when you bring the machines back online. Bringing this node back online first is a best practice but not mandatory. In order to know which server would be able to self-elect as master, look for the node that has `safe_to_bootstrap: 1` when executing the following command `cat /var/lib/mysql/grastate.dat | grep 'safe_to_bootstrap:'`.
+
+
+=== Ungraceful shutdown behavior
+
+NOTE: You can know a node was hard-shutdown if `/var/lib/mysql/gvwstate.dat` exists on the node.
+
+If at least one node is still alive, other nodes will be able to connect to it and re-integrate the cluster.
+
+If all nodes are ungracefuly shutdown at the same time, they will recover when all nodes boot back up. When all nodes are ungracefuly shutdown, but not at the same time, the galera-autofix service will elect one of the nodes as the new master and the cluster will recover. See the chapter on galera-autofix for details on this.
+
+=== The galera-autofix service
+
+PacketFence contains a service to automatically recover problematic MariaDB Galera nodes. In some cases (like with a full cluster hard shutdown or machines that are frozen), Galera cannot recover gracefully. This service will attempt to take the best decision on what to do to recover a healthy state in the cluster. It is important to note that when recovering a complete cluster failure, data loss may occur even though the service will attempt to determine the most advanced node of the cluster prior to the failure. If data loss is not an option for you, disable the galera-autofix service in the admin so that it doesn't attempt any automated recovery of the cluster. 
+
+This service will only be able to join a failing node when one of the conditions below is met:
+
+ * The database is available on at least one of the members of the cluster.
+ * All of the nodes of the cluster are online on the network with their galera-autofix service started.
+
+This service will not perform anything when one of the conditions below is met:
+
+ * One of the cluster nodes is disabled via /usr/local/pf/bin/cluster/node
+ * The packetfence-mariadb service is inactive in systemd
+ * The database is available on the local UNIX socket (/var/lib/mysql/mysql.sock)
+ * There is only one node in the cluster
+
+
+This next section will describe how the service will behave and attempt the cluster recovery when necessary
+
+==== Boot steps
+
+. Cooldown for 10 minutes after starting up so that MariaDB has a chance to join the cluster automatically.
+. Start a thread to report asynchronously the sequence number of this node to its peers.
+
+==== Decision steps
+
+. Verify if the database is available on one of the peers (can connect to it and the `wsrep_cluster_status` is `Primary`).
+.. If this succeeds, then we proceed to the 'Reset data and boot steps'
+.. If this fails, we proceed in the next decision steps
+. Verify all nodes are pingable
+.. If this succeeds, then we proceed to the next decision step
+.. If this fails, then we cooldown for 1 minute and restart the decision steps from 'Decision step 2'
+. We wait for all the nodes to report their last recorded sequence number
+.. If this succeeds, then we proceed to the next decision step
+.. If this fails, then we cooldown for 1 minute and restart the decision steps from 'Decision step 2'
+. Selection of the node with the highest sequence number to boot as the new master
+.. If this node has the highest sequence number then it elects itself as the new database master
+.. If more than 1 node have the same sequence number, then the node that appears first in cluster.conf elects itself as the new database master
+.. When the node doesn't meet any of the conditions above, then it isn't the one selected to be the new master, it proceeds to the 'Reset data and boot steps'
+
+==== Reset data and boot steps
+
+. Force stop packetfence-mariadb to prevent any disruption caused by this node in a new cluster that could be forming
+. Wait at most 1 minute for the database to be available on at least one of the cluster nodes
+.. If this succeeds, then we proceed to the next step
+.. If this fails, we stop this process, start back packetfence-mariadb and start back at the beginning of the 'Decision steps'
+. We delete the content of the /var/lib/mysql/ directory
+. We start packetfence-mariadb normally

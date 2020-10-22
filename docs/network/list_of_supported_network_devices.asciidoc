@@ -1,0 +1,6 @@
+//== List of supported Network Devices
+
+PacketFence supports a whole lot of different wireless and wired network equipment from various vendors running different versions. Since we want to provide the most accurate information and avoid duplication of that same information, please refer to our website https://packetfence.org/about.html#/material
+
+You'll find on this page the enforcement modes supported by each and every single piece of equipment we tested and worked with. 
+

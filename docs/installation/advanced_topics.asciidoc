@@ -1,0 +1,135 @@
+//== Advanced Topics
+
+This section covers advanced topics in PacketFence. Note that it is also possible to configure PacketFence manually using its configuration files instead of its Web administrative interface. It is still recommended to use the Web interface.
+
+In any case, the [filename]`/usr/local/pf/conf/pf.conf` file contains the PacketFence general configuration. For example, this is the place where we inform PacketFence it will work in VLAN isolation mode.
+
+All the default parameters and their descriptions are stored in [filename]`/usr/local/pf/conf/pf.conf.defaults`.
+
+In order to override a default parameter, define it and set it in [filename]`/usr/local/pf/conf/pf.conf`.
+
+[filename]`/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
+
+All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
+
+=== Dynamic Reports
+
+Using the `report.conf` configuration file, you can define reports that create
+SQL queries to view tables in the PacketFence database. These reports will
+appear under the _Reports -> Dynamic Reports_ menu of the administration
+interface.
+
+In order to configure a report, you need to edit [filename]`/usr/local/pf/conf/report.conf` and add a section that will define your report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
+
+The following attributes are available to define your report (the ones that have an asterisk are mandatory):
+[options="compact"]
+* * `type`: Determines what type of report this is. Setting `type=built-in` will make this report appear in _Other reports_, omitting it will display it in _Dynamic reports_ when viewing it in the administration interface. When in doubt, simply omit this parameter.
+* * `description` : The user friendly description that will display for this report
+* * `base_table` : The base SQL table that will be used to create the view
+* * `columns` : The columns to select from the table(s) (ex: `node.mac`).
+* * `date_field` : The field to use for date filtering. Will also be used as default sorting field unless `order_fields` is set in the report.
+* `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join_specifications[the following documentation].
+* `group_field` : The field to group the entries by. No grouping is done if this field is omitted or empty.
+* `order_fields` : Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
+* `base_conditions` : Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
+* `base_conditions_operator` : Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
+* `person_fields` : The fields in your report that represent a user in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the user in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
+* `node_fields` : The fields in your report that represent a node in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the node in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
+* `searches` : Comma delimited searches that should be available on the report. Should match the following format `type:Display Name:field` (ex: `string:Username:auth_log.pid`).
+[options="compact"]
+** `type` defines the type of the search, the only one currently supported is `string`.
+** `Display Name` is the user friendly name of the field for display.
+** `field` is the SQL name of the field to search
+
+WARNING: Replace operators `IS` and `<>` by `=` and `!=`, respectively.
+
+NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
+
+==== Examples
+
+View of the auth_log table:
+
+  [auth_log]
+  description=Authentication report
+  # The table to search from
+  base_table=auth_log
+  # The columns to select
+  columns=auth_log.*
+  # The date field that should be used for date ranges
+  date_field=attempted_at
+  # The mac field is a node in the database
+  node_fields=mac
+  # Allow searching on the PID displayed as Username
+  searches=string:Username:auth_log.pid
+
+In this simple example, you will be able to select the whole content of the `auth_log` table and use the date range on the `attempted_at` field as well as search on the `pid` field when viewing the report.
+
+View of the opened security events:
+
+  [open_security_events]
+  description=Open security events 
+  # The table to search from
+  base_table=security_event
+  # The columns to select
+  columns=security_event.vid as "Security event ID", security_event.mac as "MAC Address", class.description as "Security event description", node.computername as "Hostname", node.pid as "Username", node.notes as "Notes", locationlog.switch_ip as "Last switch IP", security_event.start_date as "Opened on"
+  # Left join node, locationlog on the MAC address and class on the security event ID
+  joins=<<EOT
+  =>{security_event.mac=node.mac} node|node
+  =>{security_event.mac=locationlog.mac} locationlog|locationlog
+  =>{security_event.vid=class.vid} class|class
+  EOT
+  date_field=start_date
+  # filter on open locationlog entries or null locationlog entries via the end_date field
+  base_conditions_operator=any
+  base_conditions=locationlog.end_time:=:0000-00-00,locationlog.end_time:IS:
+  # The MAC Address field represents a node
+  node_fields=MAC Address
+  # The Username field represents a user
+  person_fields=Username
+
+In the example above, you can see that the security_event table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the security events are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
+
+=== Admin Access
+
+You can manage which access you give to PacketFence administrators. To do that go through _Configuration -> System Configuration -> Admin Access_. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
+
+==== Built-in roles
+
+ * ALL: Provides the user with all the admin roles without any exception.
+ * ALL_PF_ONLY: Provides the user with all the admin roles related to the PacketFence deployment (excludes switch login rights).
+ * Node Manager: Provides the user the ability to manage the nodes.
+ * User Manager: Provides the user the ability to manage other users.
+ * Security Event Manager: Provides the user the ability to manage the security events (trigger, open, close) for the nodes.
+
+=== Guest pre-registration
+
+Pre-registration is disabled by default. Once enabled, PacketFence's firewall and Apache ACLs allow access to the `/signup` page on the portal even from a remote location. All that should be required from the administrators is to open up their perimeter firewall to allow access to PacketFence's management interface IP on port 443 and make sure a domain name to reach said IP is configured (and that the SSL cert matches it). Then you can promote the pre-registration link from your extranet web site: https://<hostname>/signup.
+
+To minimally configure guest pre-registration, you must make sure that the following statement is set under `[guests_self_registration]` in [filename]`/usr/local/pf/conf/pf.conf`:
+
+  [guests_self_registration]
+  preregistration=enabled
+
+This parameter should be configured from the _Configuration -> Policies and Access Control -> Connection Profiles -> Profile Name_ section.
+
+CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
+
+CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
+
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+
+
+=== Content-Security-Policy (CSP)
+
+The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for both the captive portal and the admin interfaces and enforces that everything the browser executes comes from within PacketFence, with the exception of the configured network detection host that is by default the Inverse IP address.
+
+If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers_.
+
+=== `pfacct`: track bandwidth usage
+Starting from v10, `pfacct` daemon is used to track bandwidth usage of nodes using <<_radius_accounting>> or NetFlow traffic (inline networks only). It is enabled by default and replaced `packetfence-radiusd-acct` service. `pfacct` will store data into `bandwidth_accounting` table. Using a security event with a bandwidth limit trigger, you can limit data usage of your nodes. GUI also use `bandwidth_accounting` table informations to display online/offline status of nodes.
+Bandwidth usage reports are available in _Reports_ menu under _Accounting_ section.
+
+==== NetFlow traffic on inline networks
+
+NetFlow traffic can be handle by `pfacct` on inline L2/L3 networks. You need to enable _Netflow Accounting Enabled_ setting when defining an inline network. If you enable _NetFlow on all networks_ in _Configuration -> System configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage for all networks (not only inline networks) instead of the ones defined in networks.conf.
+In order to not conflict with the `fingerbank-collector` (which listens NetFlow traffic on all interfaces), `pfacct` listens NetFlow traffic on localhost, using `udp/2056` port. It received data using NetFlow kernel module.

@@ -1,0 +1,262 @@
+//== Advanced RADIUS Configuration
+
+This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all require a RADIUS server to authenticate the users and the devices, and then to push the proper roles or VLAN attributes to the network equipment.
+
+=== Local Authentication
+
+Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with the following format:
+
+  username Cleartext-Password := "password"
+
+=== Authentication against Active Directory (AD)
+
+To perform EAP-PEAP authentication using Microsoft Active Directory, please refer to the Active Directory documentation from the Authentication Mechanism section.
+
+=== EAP Authentication against OpenLDAP
+
+To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in [filename]`/usr/local/pf/raddb/modules/ldap` and
+be sure that the user password is define as a NTHASH or as clear text.
+
+[source,radius,numbered]
+----
+pfcron
+  ldap openldap {
+    server = "ldap.acme.com"
+    identity = "uid=admin,dc=acme,dc=com"
+    password = "password"
+    basedn = "dc=district,dc=acme,dc=com"
+    filter = "(uid=%{mschap:User-Name})"
+    ldap_connections_number = 5
+    timeout = 4
+    timelimit = 3
+    net_timeout = 1
+    tls {
+    }
+    dictionary_mapping = ${confdir}/ldap.attrmap
+    edir_account_policy_check = no
+
+    keepalive {
+      # LDAP_OPT_X_KEEPALIVE_IDLE
+      idle = 60
+
+      # LDAP_OPT_X_KEEPALIVE_PROBES
+      probes = 3
+
+      # LDAP_OPT_X_KEEPALIVE_INTERVAL
+      interval = 3
+    }
+  }
+----
+
+Next in [filename]`/usr/local/pf/raddb/sites-available/packetfence-tunnel` add in the authorize section:
+
+[source,radius,numbered]
+----
+authorize {
+        suffix
+        ntdomain
+        eap {
+                ok = return
+        }
+        files
+        openldap
+    }
+----
+
+
+
+=== EAP Guest Authentication on Email, Sponsor and SMS Registration
+
+This section will allow local credentials created during guest registration to be used in 802.1X EAP-PEAP connections.
+
+Caution: Be sure to select `plaintext` or `ntlm` as the "Database passwords hashing method" to make it work.
+
+First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS, ...) and activate 'Create local account' on that source.
+
+At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor and SMS.
+
+NOTE: This option doesn't currently work with the *Reuse dot1x credentials* option of the captive portal.
+
+In [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel` uncomment the line `# packetfence-local-auth` and restart radiusd service.
+
+This will activate the feature for any local account on the PacketFence server. You can restrict which accounts can be used by commenting the appropriate line in [filename]`/usr/local/pf/raddb/policy.d/packetfence`.
+For example, if you would want to deactivate this feature for accounts created via SMS, you would have the following :
+
+[source,radius,numbered]
+----
+packetfence-local-auth {
+    # Disable ntlm_auth
+    update control {
+        &MS-CHAP-Use-NTLM-Auth := No
+    }
+    # Check password table for local user
+    pflocal
+    if (fail || notfound) {
+        # Check password table with email and password for a sponsor registration
+        pfguest
+        if (fail || notfound) {
+            # Check password table with email and password for a guest registration
+            pfsponsor
+            if (fail || notfound) {
+                # *Don't* check activation table with phone number and PIN code
+                # pfsms <--- This line was commented out
+                if (fail || notfound) {
+                    update control {
+                       &MS-CHAP-Use-NTLM-Auth := Yes
+                    }
+                }
+            }
+        }
+    }
+}
+----
+
+NOTE: For this feature to work, the users' passwords must be stored in clear text in the database. This is configurable via `advanced.hash_passwords`.
+
+=== EAP Local User Authentication
+
+The goal here is to use the local user to authenticate 802.1X device.
+
+Edit [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
+
+[source,radius,numbered]
+----
+# Uncomment the following line to enable local PEAP authentication
+packetfence-local-auth
+----
+
+Restart the radiusd service in order to apply the change.
+
+  /usr/local/pf/bin/pfcmd service radiusd restart
+
+CAUTION: Take care of the "Database passwords hashing method" that has been configured in _Configuration -> System Configuration -> Main Configuration -> Advanced_ or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or `ntlm` to be able to work.
+
+=== Limit Brute Force EAP Authentication
+
+This section will allow you to limit a brute force attack and prevent the locking of Active Directory accounts.
+
+Edit [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
+
+[source,radius,numbered]
+----
+# Uncomment the following lines to enable this feature
+packetfence-control-ntlm-failure
+packetfence-cache-ntlm-hit
+----
+
+By default it will reject for 5 minutes a device that has been rejected twice in the last 5 minutes.
+Fell free to change the default values in `raddb/policy.d/packetfence` and in `raddb/mods-enabled/cache_ntlm`
+
+=== Testing
+
+Test your setup with `radtest` using the following command and make sure you get an `Access-Accept` answer:
+
+[source,radius,numbered]
+----
+# radtest dd9999 Abcd1234 localhost:18120 12 testing123
+Sending Access-Request of id 74 to 127.0.0.1 port 18120
+  User-Name = "dd9999"
+  User-Password = "Abcd1234"
+  NAS-IP-Address = 255.255.255.255
+  NAS-Port = 12
+rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
+----
+
+=== RADIUS Accounting
+
+RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
+
+PacketFence uses RADIUS Accounting to display Online/Offline status in webadmin in _Nodes_ menu.
+
+
+==== IP log updates
+
+If you send the IP address of nodes in accounting data and want to update iplog entries of your nodes, you can enable 'Update the iplog using the accounting' setting from _Configuration -> System configuration -> Main configuration -> Advanced_.
+
+==== Security Events
+
+Using PacketFence, it is possible to add security events to limit bandwidth abuse.  The format of the trigger is very simple:
+
+  Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
+
+Let's explain each chunk properly:
+
+[options="compact"]
+* `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
+* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
+* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
+
+===== Example triggers
+
+* Look for Incoming (Download) traffic with a 50GB/month
+
+  Accounting::IN50GB1M
+
+* Look for Outgoing (Upload) traffic with a 500MB/day
+
+  Accounting::OUT500MB1D
+
+* Look for Total (Download + Upload) traffic with a 200GB limit in the last week
+
+  Accounting::TOT200GB1W
+
+===== Grace Period
+
+When using such security event feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
+
+
+=== RADIUS Proxy
+
+RADIUS Proxy is a way to proxy authentication and accounting requests to other radius server(s) based on the realm.
+Let's say you want to authenticate users on an Active Directory where there is a NPS server running and you don't want to join the PacketFence's server to this domain or in the case you want to integrate
+PacketFence in a Passpoint setup then this section is for you.
+
+To do that in PacketFence you need first to define the target RADIUS server(s) in _Configuration -> Policies and Access Control -> Authentication Sources_, and create the RADIUS source(s) (ACME1 ACME2).
+In the Source configuration, fill the mandatory fields and add the options to define the home_server in FreeRADIUS. (https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
+
+Per example for the RADIUS Source ACME1:
+
+image::ACME1.png[scaledwidth="100%",alt="ACME RADIUS Source"]
+
+$src_ip is a way to dynamically use the correct source ip address of the system in case of multiples network interfaces.
+
+Next go in _Configuration -> Policies and Access Control -> REALMS_, and add a new realm.
+
+image::acme.com.png[scaledwidth="100%",alt="ACME Realm Configuration"]
+
+(type definition can be found here https://wiki.freeradius.org/features/Proxy)
+
+Authorize from PacketFence will send the request to PacketFence to compute the role and access duration of the device.
+
+In this case the easiest way to achieve that is to create a Authorization source (with rules), assign this source to a connection profile where you enabled "Automatically register devices" and where 
+you defined a filter like Realm = acme.com .
+
+Click on `Save` and restart radiusd service.
+
+  /usr/local/pf/bin/pfcmd service radiusd restart
+
+
+Now when a device connect with the username bob@acme.com then the authentication and accounting requests will be forwarded to one of the ACME RADIUS servers.
+
+=== RADIUS EAP Profiles
+
+RADIUS EAP Profiles allow you to select a specific EAP profile in PacketFence based on the realm of the user.
+
+In this EAP profile you can define:
+ Certificates configuration.
+ OCSP configuration
+ EAP-Fast configuration
+ TLS Configuration
+
+And link all these configuration together.
+
+For example the realm ACME.COM needs to use the CA certificate from ACME CA and the other realms need to use the default one.
+
+To do that go in _Configuration -> System Configuration -> RADIUS -> SSL Certificates_ and create a new profile.
+Next go in _Configuration -> System Configuration -> RADIUS -> TLS Profiles_ and create a new TLS profile and select the Certificate profile created just before.
+Then create the EAP profile in _Configuration -> System Configuration -> RADIUS -> EAP Profiles_ and create a new EAP profile and select the TLS profile created before (PEAP Profile for exemple)
+
+The last thing to do is to link the EAP profile with your realm configuration, to achieve that go in _Configuration -> Policies and Access Control -> Domains -> REALMS_ and edit the ACME.COM realm (create it if it's not already the case) then choose the EAP profile you created before in the EAP configuration parameter.
+
+Restart packetfence-radiusd-auth.service to generate the new RADIUS configuration. (systemctl restart packetfence-radiusd-auth.service)
+

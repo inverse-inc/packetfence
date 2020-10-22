@@ -1,0 +1,4 @@
+//== Note on RADIUS accounting
+
+Enabling RADIUS accounting on your network devices will increase significantly your database size and can cause performance issues. You should be aware of this and use accounting only if you really need it.
+

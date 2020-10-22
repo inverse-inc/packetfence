@@ -1,0 +1,112 @@
+//== Authentication Sources
+
+PacketFence can authenticate users that register devices via the captive portal using various methods. Among the supported methods, there are:
+
+[options="compact"]
+* Active Directory
+* Apache htpasswd file
+* BlackHole
+* Email
+* External HTTP API
+* Clickatell
+* Facebook (OAuth 2)
+* Github (OAuth 2)
+* Google (OAuth 2)
+* Instagram (OAuth 2)
+* Kerberos
+* Kickbox
+* LDAP
+* LinkedIn (OAuth 2)
+* Null
+* OpenID Connect (OAuth 2)
+* Pinterest (OAuth 2)
+* RADIUS
+* SMS
+* Sponsored Email
+* Twilio
+* Twitter (OAuth 2)
+* Windows Live (OAuth 2)
+* Password of the day
+
+and many others. Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the _Configuration -> Policies and Access Control -> Authentication Sources_ section. Authentication sources, rules, conditions and actions are stored in the [filename]`/usr/local/pf/conf/authentication.conf` configuration file.
+
+Each authentication sources you define will have a set of rules, conditions and actions.
+
+Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging them around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criteria. If the criteria match (one or more), actions are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
+
+When no condition is defined, the rule will be considered as a catch-all. When a catch-all is defined, all actions will be applied for any users that match in the authentication source. Once a source is defined, it can be used from _Configuration -> Policies and Access Control -> Connection Profiles_. Each connection profile has a list of authentication sources to use.
+
+In the previous section, you configured two authentication sources: Microsoft Active Directory and the Null sources. They were both catch-all sources.
+
+=== Email Authentication for Guests
+
+This section will show you how to allow guests to register endpoints using their email address. PacketFence sends a PIN code to the guest's email address. That code will then be required to complete the registration process.
+
+==== Adding Email Authentication Source
+
+From _Configuration -> Policies and Access Control -> Authentication Sources_, click `New external source -> Email`. As 'Name' and 'Description', specify 'email-source'.
+
+Additional options available
+
+ * *email_activation_timeout* - This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.
+ * *allow_localdomain* - Accept self-registration from email address within the local domain
+ * *activation_domain* - Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.
+ * *allowed_domains* - A comma-separated list of domains that are allowed for email registration. Allowed domains are checked after banned domains.
+ * *banned_domains* - A comma-separated list of domains that are banned for email registration. Banned domains are checked before allowed domains.
+
+Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following two 'Actions':
+
+[options="compact"]
+ * Role - guest
+ * Access duration - 12 hours
+
+Click on `Create` to save the new authentication source.
+
+==== Configuring the Connection Profile
+
+Now let's add our new Email-based authentication source to our guests captive portal. From _Configuration -> Policies and Access Control -> Connection Profiles_, click on the `guest` profile that we previously created. In the 'Sources', click on the `(+)` button and add the newly created Email source, 'email-source'. Save the changes by clicking on the `Save` button.
+
+NOTE: You can preview at any time the portal associated with connection profile by clicking on the `Preview` button near the Connexion's title.
+
+==== Testing
+
+Unplug and unregister your endpoint. Reconnect the endpoint - you should see the captive portal with the new Email-based registration option.
+
+=== Adding SMS Authentication for Guests
+
+This section will show you how to enable SMS authentication on the captive portal so that guests use their cellular phone number to register their endpoints. PacketFence will send an SMS PIN code to the guest phone number. That code will be required to complete the registration process. The SMS code will be sent by PacketFence over email - using popular SMTP-to-SMS gateways.
+
+Some of the key concepts presented in this section are:
+
+[options="compact"]
+ * Authentication sources
+
+==== Adding SMS Authentication Source
+
+Now that you understand what authentication sources and alerting are, we will add an SMS authentication source on our guest portal. We previously used the 'Null' source but we will add an other source. Portal profiles can provide multiple authentication sources.
+
+From _Configuration -> Policies and Access Control -> Authentication Sources_, click `New external source -> SMS`. As 'Name' and 'Description', specify 'sms-source'. Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following two 'Actions':
+
+[options="compact"]
+ * Role - guest
+ * Access duration - 12 hours
+
+You will also need to select the proper carriers to do your test. Make sure you include the one your are using for your cellular phone.
+
+Click on `Create` to save the new authentication source.
+
+[float]
+===== Clickatell Source
+
+To use Clickatell as an SMS source, first register at https://www.clickatell.com to get an API Key for the SMS integration. Then add it as an authentication source the same way as above, except choosing 'Clickatell' instead of 'SMS' in 'Add source -> External'. Enter a name, description and your Clickatell API key in the source configuration, then add the authentication rule. 
+
+==== Configuring the Connection Profile
+
+Now let's add our new SMS-based authentication source to our guests captive portal. From _Configuration -> Policies and Access Control -> Connection Profiles_, click on the 'guest' profile that we previously created. In the *Sources*, click on the `(+)` button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the `Save` button.
+
+NOTE: You can preview at any time the portal associated with connection profile by clicking on the `Preview` button near the Connexion's title.
+
+==== Testing
+
+First unplug and unregister again the Microsoft Windows 7 endpoint. Then, connect the endpoint in switch port no. 10 - you should see the captive portal with the new SMS-based registration option. Note that the Null option will also be offered.
+

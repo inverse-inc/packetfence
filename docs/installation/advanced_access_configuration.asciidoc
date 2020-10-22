@@ -1,0 +1,477 @@
+//== Advanced Access Configuration
+
+=== Connection Profiles
+
+PacketFence comes with a default connection profile. The follow parameters are important to configure no matter if you use the default connection profile or create a new one:
+
+* Redirect URL under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name_
+
+For some browsers, it is preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
+
+* IP under _Configuration -> Advanced Access Configuration -> Captive portal_.
+
+This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
+
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of connection profiles which gives you this possibility.
+
+When configured, connection profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" connection profile).
+
+Here are the different configuration parameters that can be set for each connection profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the connection profile. The parameters must be set in conf/profiles.conf:
+
+.conf/profiles.conf
+[source,ini,numbered]
+----
+[profilename1]
+description = the description of your connection profile
+filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
+sources = comma-separated list of authentications sources (IDs) to use
+----
+
+Connection profiles should be managed from PacketFence's Web administrative GUI - from the _Configuration -> Policies and Access Control -> Connection Profiles_ section. Adding a connection profile from that interface will correctly copy templates over - which can then be modified as you wish.
+
+* Filters under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Filters_
+
+PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
+
+Example with the most common ones:
+
+* *SSID:* Guest-SSID
+* *VLAN:* 100
+* *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See http://search.cpan.org/~pryan/Period-1.20/Period.pm
+* *Switch Port:* <SwitchId>-<Port>
+* *Network:* Network in CIDR format or an IP address
+
+CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
+
+* Advanced filter under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter_
+
+In this section you are able to define an advanced filter in order to match specific attributes.
+
+You have access to the following attributes:
+
+.From the database (mean that it comes from a previous connection):
+     autoreg
+     status
+     bypass_vlan
+     bandwidth_balance
+     regdate
+     bypass_role
+     device_class
+     device_type
+     device_version
+     device_score
+     pid
+     machine_account
+     category
+     mac
+     last_arp
+     lastskip
+     last_dhcp
+     user_agent
+     computername
+     dhcp_fingerprint
+     detect_date
+     voip
+     notes
+     time_balance
+     sessionid
+     dhcp_vendor
+     unregdate
+     fingerbank_info.device_name
+     fingerbank_info.device_fq
+     fingerbank_info.device_hierarchy_names
+     fingerbank_info.device_hierarchy_ids
+     fingerbank_info.score
+     fingerbank_info.version
+     fingerbank_info.mobile
+     radius_request.User-Name
+     radius_request.NAS-IP-Address
+     radius_request.NAS-Port-Id
+
+.From the current connection:
+     connection_sub_type
+     connection_type
+     switch
+     port
+     vlan
+     ssid
+     dot1x_username
+     realm
+     machine_account
+
+.Operator:
+     && and
+     || or
+     != is not equal
+     == equal
+     ()
+
+.Special value
+    __NULL__ the value is NULL in the database
+
+
+Examples (Match machine authentication on secure wireless ssid)
+
+* machine_account != "" && connection_type == Wireless-802.11-EAP
+
+Examples (Match a device that did machine authentication in a previous connection and connect on ssid Secure)
+
+* machine_account != "" && ssid == Secure
+
+Examples (Match a device that does user authentication and did machine authentication on a secure ssid)
+
+* last_connection_type == "Wireless-802.11-EAP" && machine_account != "" && last_dot1x_username !~ "^host/"
+
+Examples (Match a device that does user authentication and never did machine authentication on a secure ssid)
+
+* last_connection_type == "Wireless-802.11-EAP" && ( machine_account == "" || machine_account == \\__NULL__ ) && last_dot1x_username !~ "^host/"
+
+Examples (Match a device that never did a machine authentication (BYOD))
+
+* machine_account == \\__NULL__
+
+Here and example of attributes that can be tested:
+
+[source,perl,numbered]
+----
+          'radius_request' => {
+                                'NAS-Port-Type' => 15,
+                                'Service-Type' => 2,
+                                'State' => '0x7cfd15627dba0f5a45baee16526652a6',
+                                'Called-Station-Id' => '00:8e:73:5d:f6:9e',
+                                'FreeRADIUS-Proxied-To' => '127.0.0.1',
+                                'Realm' => 'null',
+                                'EAP-Type' => 26,
+                                'NAS-IP-Address' => '172.30.255.13',
+                                'NAS-Port-Id' => 'GigabitEthernet1/0/30',
+                                'SQL-User-Name' => 'gwten',
+                                'Calling-Station-Id' => '00:11:22:33:44:55',
+                                'PacketFence-Domain' => 'ZAYM',
+                                'Cisco-AVPair' => 'service-type=Framed',
+                                'User-Name' => 'zaym',
+                                'Event-Timestamp' => 'Aug 15 2019 17:10:03 BST',
+                                'EAP-Message' => '0x024700061a03',
+                                'Framed-IP-Address' => '172.30.250.149',
+                                'NAS-Port' => 50130,
+                                'Stripped-User-Name' => 'gwten',
+                                'Framed-MTU' => 1500
+                              },
+          'autoreg' => 'yes',
+          'last_port' => '37',
+          'device_class' => 'Windows OS',
+          'bandwidth_balance' => undef,
+          'bypass_role' => undef,
+          'device_type' => 'Windows OS',
+          'pid' => 'gwten',
+          'dhcp6_enterprise' => '',
+          'last_seen' => \[
+                             'NOW()'
+                           ],
+          'dhcp6_fingerprint' => '',
+          'category' => 'Wire',
+          'mac' => '00:11:22:33:44:55',
+          'portal' => 'Wire',
+          'lastskip' => '0000-00-00 00:00:00',
+          'eap_type' => 26,
+          'last_dhcp' => '0000-00-00 00:00:00',
+          'user_agent' => 'ccmhttp',
+          'computername' => 'zamtop',
+          'dhcp_fingerprint' => '1,15,3,6,44,46,47,31,33,121,249,43',
+          'detect_date' => '2019-08-15 15:33:30',
+          'last_vlan' => '0',
+          'last_connection_sub_type' => 26,
+          'fingerbank_info' => {
+                                 'device_fq' => 'Operating System/Windows OS',
+                                 'device_name' => 'Windows OS',
+                                 'version' => '',
+                                 'score' => '73',
+                                 'mobile' => 0,
+                                 'device_hierarchy_names' => [
+                                                             'Windows OS',
+                                                             'Operating System'
+                                                             ],
+                                 'device_hierarchy_ids' => [
+                                                             1,
+                                                             16879
+                                                           ]
+                               },
+          'bypass_role_id' => undef,
+          'last_role' => 'Wire',
+          'dhcp_vendor' => 'MSFT 5.0',
+          'unregdate' => '2019-08-15 20:10:04',
+          'last_switch' => '172.20.20.1',
+          'auto_registered' => 1,
+          '__from_table' => 1,
+          'source' => 'Wire',
+          'last_ifDesc' => 'GigabitEthernet1/0/30',
+          'device_version' => '',
+          'status' => 'reg',
+          'bypass_vlan' => undef,
+          'regdate' => '2019-08-15 17:10:04',
+          'last_dot1x_username' => 'zayme',
+          'tenant_id' => '1',
+          'category_id' => '166',
+          'machine_account' => '',
+          'last_connection_type' => 'Ethernet-EAP',
+          'last_ssid' => '',
+          'realm' => 'null',
+          'last_ip' => '172.20.20.2',
+          'device_score' => '73',
+          'last_arp' => '0000-00-00 00:00:00',
+          'last_start_timestamp' => '1565885356',
+          'stripped_user_name' => 'zayme',
+          '__old_data' => {
+                            'autoreg' => 'yes',
+                            'device_class' => 'Windows OS',
+                            'bandwidth_balance' => undef,
+                            'bypass_role' => undef,
+                            'device_type' => 'Windows OS',
+                            'pid' => 'gwten',
+                            'dhcp6_enterprise' => '',
+                            'last_seen' => '2019-08-15 16:09:16',
+                            'dhcp6_fingerprint' => '',
+                            'category' => 'Wire',
+                            'mac' => '00:11:22:33:44:55',
+                            'lastskip' => '0000-00-00 00:00:00',
+                            'last_dhcp' => '0000-00-00 00:00:00',
+                            'user_agent' => 'ccmhttp',
+                            'dhcp_fingerprint' => '1,15,3,6,44,46,47,31,33,121,249,43',
+                            'computername' => 'zamtop',
+                            'detect_date' => '2019-08-15 15:33:30',
+                            'bypass_role_id' => undef,
+                            'dhcp_vendor' => 'MSFT 5.0',
+                            'unregdate' => '2019-08-15 20:09:16',
+                            'device_version' => '',
+                            'status' => 'reg',
+                            'bypass_vlan' => undef,
+                            'regdate' => '2019-08-15 17:09:16',
+                            'category_id' => '166',
+                            'tenant_id' => '1',
+                            'machine_account' => undef,
+                            'last_arp' => '0000-00-00 00:00:00',
+                            'device_score' => '73',
+                            'voip' => 'no',
+                            'device_manufacturer' => 'Toshiba',
+                            'notes' => 'AUTO-REGISTERED',
+                            'time_balance' => undef,
+                            'sessionid' => undef
+                          },
+          'voip' => 'no',
+          'device_manufacturer' => 'Toshiba',
+          'notes' => 'AUTO-REGISTERED',
+          'time_balance' => undef,
+          'last_switch_mac' => '00:8e:73:5d:f6:9e',
+          'sessionid' => undef,
+          'last_start_time' => '2019-08-15 16:09:16'
+----
+
+PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in `/usr/local/pf/conf/httpd.conf.d/`.
+
+In this directory you have three important files: `httpd.admin`, `httpd.portal`, `httpd.webservices`, `httpd.aaa`.
+
+* `httpd.admin` is used to manage PacketFence admin interface
+* `httpd.portal` is used to manage PacketFence captive portal interface
+* `httpd.webservices` is used to manage PacketFence webservices interface
+* `httpd.aaa` is use to manage incoming RADIUS request
+
+These files have been written using the Perl language and are completely dynamic - so they activate services only on the network interfaces provided for this purpose.
+
+The other files in this directory are managed by PacketFence using templates, so it is easy to modify these files based on your configuration. SSL is enabled by default to secure access.
+
+Upon PacketFence installation, self-signed certificates will be created in [filename]`/usr/local/pf/conf/ssl/` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wild card certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
+
+==== Reuse 802.1X credentials
+
+Under certain circumstances, for example to show an AUP after a successful 802.1X connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1X EAP process. The 'Reuse 802.1X credentials' connection profile option will address this purpose. The same username as the one used during the 802.1X connection will be used against the different connection profile authentication sources to recompute the role from the portal.
+
+As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
+
+=== VLAN Filter Definition
+
+We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN or do a call to the API when we receive a RADIUS request. These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
+
+These rules are available in different scopes:
+
+  IsolationRole
+  RegistrationRole
+  RegisteredRole
+  InlineRole
+  AutoRegister
+  NodeInfoForAutoReg
+
+And can be defined using different criteria like:
+
+  node_info.attribute (like node_info.status)
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+  owner.attribute (like owner.pid)
+  radius_request.attribute (like radius_request.Calling-Station-Id)
+
+There are some default VLAN filters defined in the configuration you can use to achieve the following goal:
+
+EXAMPLE_Reject_between_11am_2pm::
+  will revent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and is a registered device
+
+EXAMPLE_Trigger_event_if_user::
+  will create a security event if the SSID is OPEN and the owner is igmout (the security event needs to have a custom trigger with the value 12345)
+
+EXAMPLE_Autoregister_if_user::
+  will autoregister the device and assign the role staff to each device where the username is igmout.
+
+EXAMPLE_Autoregister_windows_devices::
+  will autoregister all Windows devices and assign them the default role.
+
+EXAMPLE_Reject_specific_MAC::
+  will filter a MAC address and reject it by assigning the REJECT role.
+
+EXAMPLE_Detect_VOIP::
+  will automatically set Avaya and Polycom as phones by matching vendor MAC and set to default role
+
+EXAMPLE_Reject_User_Unless_Machine::
+  will refuse user authentication without prior machine authentication
+
+EXAMPLE_Autoregister_Printer_Scanner::
+  will autoregister printers and scanners and add a note.
+
+You can have a look in the file [filename]`/usr/local/pf/conf/vlan_filters.conf`, there are some examples on how to use and define filters.
+
+=== RADIUS Filter Definition
+
+We added the ability to specify filters directly in the portion of code that return RADIUS attributes or do a call to the API.
+These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
+
+These rules are available in thoses scopes:
+
+  returnRadiusAccessAccept is when you return the answer for a device access
+  returnAuthorizeRead is when you return the answer for the switch read login access
+  returnAuthorizeWrite is when you return the answer for the switch write login access
+  returnAuthorizeVoip is when you return the answer for a VoIP device
+  preProcess is when you want to manipulate the RADIUS context (like adding custom attributes to the request)
+
+  packetfence.authorize call the RADIUS filter in the packetfence authorize section
+  packetfence.authenticate call the RADIUS filter in the packetfence authenticate section
+  packetfence.pre-proxy call the RADIUS filter in the packetfence pre-proxy section
+  packetfence.post-proxy call the RADIUS filter in the packetfence post-proxy section
+  packetfence-tunnel.authorize call the RADIUS filter in the packetfence-tunnel authorize section
+  packetfence.preacct call the RADIUS filter in the packetfence preacct section
+  packetfence.accounting call the RADIUS filter in the packetfence accounting section
+  eduroam.authorize call the RADIUS filter in the eduroam accounting section
+  eduroam.pre-proxy  call the RADIUS filter in the pre-proxy accounting section
+  eduroam.post-proxy call the RADIUS filter in the post-proxy accounting section
+  eduroam.preacct call the RADIUS filter in the eduroam preacct section
+
+All the packetfence.* eduroam.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
+
+And can be defined using different criteria like:
+
+  node_info.attribute (like node_info.$attribute)
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+  owner.attribute (like owner.$attribute)
+  radius_request.attribute (like radius_request.$attribute)
+  security_event
+  user_role
+  vlan
+
+
+There are some default RADIUS filters defined in the configuration you can use to achieve the following goal:
+
+EXAMPLE_Ethernet-EAP-Accept::
+  will return Access-Accept (with Cisco-AVPair attribute) when the connection is Ethernet-EAP and when there is no security event.
+
+EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action::
+  will filter on the switch IP addresses and add the Session-Timeout (with a value between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS attributes.
+
+EXAMPLE_ipad_by_name::
+  will use Fingerbank to target a specific devices (Apple iPad) and will add a Cisco ACLs to them.
+
+EXAMPLE_eap-tls-preProcess::
+  will create internal RADIUS attributes that will be used internally (like in the authentication rules).
+  This rule will add the TLS-Stripped-UserName RADIUS attribute in the request
+  and you will be able to use it in the authentication/administrations rules.
+
+You can have a look in the file [filename]`radius_filters.conf`, there are some examples on how to use and define filters.
+
+=== Advanced LDAP Authentication
+
+
+==== ldapfilter action
+
+ldapfilter action overrides the internal LDAP filter that PacketFence creates internally (uid=$username) so you can create a custom filter that matches your needs.
+
+For example something like this (search for the user and check to see if it's permitted based on some criteria):
+
+  (&(|(cn=${radius_request.Stripped-User-Name})(cn=${radius_request.User-Name}))(|(permitWifi=*)(grade=staff)(memberOf=CN=WifiGroup,OU=Security Groups,DC=ad,DC=acme,DC=com)))
+
+==== Set_role_on_not_found action
+
+set_role_on_not_found is a way to define a role if the rule doesn't match, let's take the ldapfilter example above.
+
+If we add the action set_role_on_not_found = REJECT so it mean that the device will be rejected if the LDAP filter doesn't return anything. (if it matches then set_role action will be applied)
+
+==== role_from_source action
+
+role_from_source will check to see if the LDAP attribute exists and will add it in the ldap_attribute context (available in the radius filters)
+
+So for example if you want to take the value of the LDAP attribute customRadius and add it in the RADIUS answer you need to do the following.
+
+In the authentication rule, set an action "Role from source" to customRadius.
+Next create a RADIUS filter that will add the custom RADIUS attributes:
+
+  [IF_SET_ROLE_FROM_SOURCE]
+  status=enabled
+  answer.0=reply:Packetfence-Raw = $ldap_attribute.customRadius
+  top_op=and
+  description=If the role has been computed from the action set_role_from_source then return the value of the role as a RADIUS attribute
+  scopes=returnRadiusAccessAccept
+  radius_status=RLM_MODULE_OK
+  merge_answer=no
+  condition=action == "set_role_from_source"
+
+Note, this supports multiples LDAP attributes, like customRadius:Airespace-Interface-Name=internet , customRadius:Aruba-User-Vlan=666
+
+==== Append search attributes LDAP filter
+
+This option will add as a & condition to the LDAP filter generated by PacketFence,
+So for example the ldapfilter generated by PacketFence will be the following:
+
+  (&(|(sAMAccountName=%{User-Name})(sAMAccountName=%{Stripped-User-Name})(cn=%{User-Name})(cn=%{Stripped-User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}})))
+
+and if you define a appended LDAP filter like:
+
+  (|(memberOf=CN=Staff,OU=Security Groups,DC=ad,DC=acme,DC=com)(wifi=enabled))
+
+Then the filter will be generated like that:
+
+  (&(|(sAMAccountName=%{User-Name})(sAMAccountName=%{Stripped-User-Name})(cn=%{User-Name})(cn=%{Stripped-User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))(|(memberOf=CN=Staff,OU=Security Groups,DC=ad,DC=acme,DC=com)(wifi=enabled)))
+
+By doing that, event if you wont don't need the "Search Attributes" feature, you will be able to store the user's DN in the PacketFence-UserDN attribute.
+
+
+==== basedn condition
+
+This condition allow to override the default basedn in the LDAP source and it will permit to test if a object is in a specific ou.
+
+=== Advanced Realm Configuration
+
+
+In PacketFence you can define multiple realms to select on which domain you want to authenticate the users.
+
+You can define a Realm with a regex in order to match multiple formats.
+
+For example in the ACME realm we define the regex like this:
+
+  .*\.acme\.com$
+
+It means that if you have a user coming with this username mickey@la.acme.com , PacketFence will define the realm as la.acme.com (it will be included in the RADIUS request) and PacketFence will map the user to the ACME realm.
+

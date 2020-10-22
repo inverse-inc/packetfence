@@ -1,0 +1,42 @@
+//== Firewall SSO Integration
+
+PacketFence is able to update some firewall based on device information, like the IP address, the username connected on it. Look below for integration guides to see how you can configure your firewall with PacketFence.
+By default PacketFence uses the DHCP traffic to trigger an update on the firewall but it's also possible to do it with the RADIUS accounting traffic.
+
+In order to manage the way you want to update the firewall, go in _Configuration -> System Configuration -> Main Configuration -> Advanced_,  then there are two choices:
+
+* Trigger Single-Sign-On on accounting.
+* Trigger Single-Sign-On on DHCP
+
+You can use both methods at the same time but this will result in duplicate SSO requests if you receive the DHCP and accounting of the same device which can cause unexpected load on your firewall.
+
+=== Barracuda
+
+include::firewall/barracuda.asciidoc[]
+
+=== Checkpoint
+
+include::firewall/checkpoint.asciidoc[]
+
+=== Cisco ISE-PIC
+
+include::firewall/ciscoisepic.asciidoc[]
+
+=== FortiGate
+
+include::firewall/fortigate.asciidoc[]
+
+=== iBoss
+
+=== JSON-RPC
+
+include::firewall/jsonrpc.asciidoc[]
+
+=== Palo Alto
+
+include::firewall/paloalto.asciidoc[]
+
+=== Juniper SRX
+
+include::firewall/junipersrx.asciidoc[]
+

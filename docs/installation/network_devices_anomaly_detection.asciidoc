@@ -1,0 +1,22 @@
+//== Network Devices Anomaly Detection
+
+Starting with version 10, PacketFence integrates network devices anomaly detection capabilities. This means that PacketFence can detect abnormal network activies from devices - that is, if they are talking to a compromised host, if they are deviating from their pristine network profile and more. These capabilities come from the integration of the Fingerbank technology. That is, the Fingerbank Cloud API is responsible for producing pristine network device profiles while the Fingerbank Collector, included in PacketFence, does consume the pristine profiles and does anomaly detection based on its templating engine.
+
+=== Creating Network Behavior Policies
+
+A network behavior policy is a template, used by the Fingerbank Collector, to determine if the devices matching the criterias defined in the template ultimately deviate from a normal network usage pattern. You can create new templates from _Configuration -> Compliance -> Network Anomaly Detection_.
+
+Network behavior policies can be consumed from PacketFence's Security Events module.
+
+=== Integration with Security Events
+
+After creating a network behavior policy, you can use it from the Security Events module of PacketFence. From _Configuration -> Compliance -> Security Events_, click on `New Security Event`.
+
+You can use your policy by first adding a new trigger. The network behavior policy can be selected after defining an internal event on the following attributes:
+
+* *fingerbank_blacklisted_ips_threshold_too_high* - Fingerbank Collector detected traffic to blacklisted IPs
+* *fingerbank_blacklisted_ports* - Fingerbank Collector detected traffic to blacklisted ports
+* *fingerbank_diff_score_too_low* - Fingerbank Collector detected a network behavior that doesn't match the known profile
+
+Once done, the appropriate policy can be selected. If you want your entire network policy to be checked in the Security Events module, you must create three triggers - one with each of the attribute listed above together with your appropriate policy selected. You can look at the default security events Fingerbank profile anomaly (1300007) and Fingerbank detected blacklisted communication (1300008) for some examples on how to create customized security events to fulfill your requirements.
+

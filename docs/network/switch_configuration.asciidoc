@@ -1,0 +1,4094 @@
+//== Switch configuration
+
+=== Assumptions
+
+Throughout this configuration example we use the following assumptions for our network infrastructure: 
+
+[options="compact"]
+* PacketFence is fully configured with FreeRADIUS running (if you want 802.1X or MAC Auth) 
+* PacketFence IP address: 192.168.1.5 
+* Normal VLAN: 1 
+* Registration VLAN: 2 
+* Isolation VLAN: 3 
+* MAC Detection VLAN: 4 
+* Guest VLAN: 5
+* VoIP, Voice VLAN: 100 
+* use SNMP v2c
+* SNMP Read community: public
+* SNMP Write community: private
+* SNMP Trap community: public 
+* RADIUS Secret: useStrongerSecret 
+
+
+=== 3COM
+
+==== SuperStack 3 Switch 4200 and 4500
+
+PacketFence supports these 3Com switches _without VoIP_ using one trap type:
+
+* linkUp===linkDown
+* Port Security (with static MACs)
+
+Don't forget to update the startup config!
+
+===== linkUp === linkDown only
+
+
+Global config settings:
+
+  snmp-agent
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent trap enable standard linkup linkdown
+
+On each interface:
+
+  port access vlan 4
+
+===== In Port Security
+
+Global config settings:
+
+  snmp-agent
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent trap enable
+  port-security enable
+  port-security trap addresslearned
+  port-security trap intrusion
+
+On each interface:
+
+  port access vlan 4
+  port-security max-mac-count 1
+  port-security port-mode secure
+  port-security intrusion-mode blockmac
+  undo enable snmp trap updown
+
+===== In MAC Auth 
+
+ Voice vlan : 6
+ Normal vlan : 1
+ Registration vlan : 2
+ Isolation vlan : 3
+
+Global config settings:
+
+ lldp enable
+ lldp timer tx-interval 5
+ lldp compliance cdp
+ lldp compliance cdp
+
+ port-security enable
+ MAC-authentication domain packetfence
+
+ radius scheme system
+ radius scheme packetfence
+  server-type extended
+  primary authentication 192.168.1.5
+  primary accounting 192.168.1.5
+  key authentication P@cketfence
+  key accounting cipher P@cketfence
+  user-name-format without-domain
+
+ domain packetfence
+  authentication radius-scheme packetfence
+  accounting radius-scheme packetfence
+  vlan-assignment-mode string
+  accounting optional
+ domain system
+
+ voice vlan mac-address f4ea-6700-0000 mask ffff-ff00-0000 description Cisco IP Phone
+ undo voice vlan security enable
+ voice vlan 6 enable
+
+On each interface with VoIP:
+
+ interface Ethernet1/0/1
+  stp edged-port enable
+  lldp compliance admin-status cdp txrx
+  port link-type hybrid
+  port hybrid vlan 6 tagged
+  port hybrid vlan 1 2 3 untagged
+  undo voice vlan mode auto
+  voice vlan enable
+  port-security max-mac-count 3
+  port-security port-mode mac-authentication
+  port-security intrusion-mode blockmac
+  undo enable snmp trap updown
+
+==== E4800G
+
+PacketFence supports these 3Com switches with the following techniques:
+
+* 802.1X with MAC Authentication fallback
+* linkUp/linkDown (not recommended)
+
+Voice over IP support was not explicitly tested during implementation however 
+it does not mean that it won't work. 
+
+Don't forget to update the startup config!
+
+===== linkUp / linkDown only
+
+Global config settings:
+
+  snmp-agent
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent trap enable standard linkup linkdown
+
+On each interface:
+
+  port access vlan 4
+
+===== 802.1X with MAC Authentication fallback
+
+Global config settings:
+
+  system-view 
+     radius scheme PacketFence 
+       primary authentication 192.168.1.5 1812 
+       primary accounting 192.168.1.5 1812 
+       key authentication useStrongerSecret 
+       user-name-format without-domain 
+       quit 
+     domain packetfence.local 
+       authentication default radius-scheme PacketFence 
+       authorization default radius-scheme PacketFence 
+       quit 
+     domain default enable packetfence.local 
+     dot1x authentication-method eap 
+     port-security enable 
+  quit 
+
+If your management authentication on your switch is default, applying the 
+configuration above will have your authentication switch to a RADIUS based one
+with PacketFence as the authentication server. *It is almost certain that you 
+do not want that!*
+
+Below, we will just create a local password for `vty` accesses (telnet) and 
+nothing on the console. *In order to avoid locking yourself out, make sure 
+to verify your configuration!*
+
+  system-view 
+     user-interface aux 0 
+       authentication-mode none 
+    user-interface vty 0 4 
+      user privilege level 3 
+      set authentication password simple useStrongerPassword 
+    quit 
+  quit 
+
+On each interface:
+
+  system-view 
+    interface gigabitEthernet 1/0/xx 
+      port-security port-mode mac-else-userlogin-secure-ext 
+      # userlogin-secure-or-mac-ext could be used below instead 
+      # see the Switch_4200G's documentation for a discussion about it 
+      undo enable snmp trap updown 
+      quit 
+  quit 
+
+where `xx` stands for the interface index.
+
+==== E5500G and Switch 4200G 
+
+PacketFence supports these 3Com switches with the following techniques: 
+
+* 802.1X with MAC Authentication fallback 
+* linkUp/linkDown (not recommended) 
+
+Voice over IP support was not explicitly tested during implementation however 
+it does not mean that it won't work.
+
+Don't forget to update the startup config ! 
+
+===== linkUp / linkDown only
+
+Global config settings:
+
+  snmp-agent 
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params 
+  securityname public 
+  snmp-agent trap enable standard linkup linkdown 
+
+On each interface: 
+
+  port access vlan 4 
+
+===== 802.1X with MAC Authentication fallback 
+
+Global config settings:
+
+  system-view 
+     radius scheme PacketFence 
+       server-type standard 
+       primary authentication 192.168.1.5 1812 
+       primary accounting 192.168.1.5 1812 
+       accounting optional 
+       key authentication useStrongerSecret 
+       user-name-format without-domain 
+       quit 
+     domain packetfence.local 
+       radius-scheme PacketFence 
+       vlan-assignment-mode string 
+       quit 
+     domain default enable packetfence.local 
+     dot1x authentication-method eap 
+     port-security enable 
+  quit 
+
+If your management authentication on your switch is default, applying the configuration above 
+will have your authentication switch to a RADIUS based one with PacketFence as the 
+authentication server. *It is almost certain that you do not want that!*
+
+Below, we will just create a local password for `vty` accesses (telnet) and nothing on the 
+console. *In order to avoid locking yourself out, make sure to verify your configuration!*
+
+  system-view 
+     user-interface aux 0 
+       authentication-mode none 
+    user-interface vty 0 4 
+      user privilege level 3 
+      set authentication password simple useStrongerPassword 
+    quit 
+  quit 
+
+On each interface: 
+
+  system-view 
+    interface gigabitEthernet 1/0/xx 
+      port-security port-mode mac-else-userlogin-secure-ext 
+      # userlogin-secure-or-mac-ext could be used below instead 
+      # see the Switch_4200G's documentation for a discussion about it 
+      undo enable snmp trap updown 
+      quit 
+  quit 
+
+where `xx` stands for the interface index 
+
+==== NJ220 
+
+This switch does not support port-security. 
+
+To configure: use web interface to send the linkUp/linkDown traps to the PacketFence server. 
+
+=== Alcatel
+
+==== OS6250, OS6450 
+
+PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
+
+===== Global configuration
+
+First define any VLAN that you want to use on the switch.
+
+    vlan 2
+    vlan 5
+    vlan 20
+    vlan 100
+
+Next, configure the RADIUS server to be PacketFence
+
+    aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
+    aaa authentication mac packetfence
+    aaa authentication 802.1X packetfence
+
+You now need to configure a user profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
+
+    aaa user-network-profile name unreg vlan 2
+    aaa user-network-profile name guest vlan 5
+    aaa user-network-profile name employee vlan 20
+
+Next, configure the switch in PacketFence. In the case of this example, the uplink is port 1/1.
+ 
+    [192.168.1.10]
+    mode=production
+    description=alcatel
+    type=Alcatel
+    radiusSecret=useStrongerSecret
+    uplink_dynamic=0
+    uplink=1001
+    RoleMap=Y
+    VlanMap=N
+    registrationRole=unreg
+    isolationRole=unreg
+    defaultRole=employee
+    guestRole=guest
+
+===== 802.1X
+
+First, make sure you followed the steps above in 'Global configuration'
+
+You will need to configure the ports you want to do authentication on.
+
+    vlan port mobile 1/2
+    vlan port 1/2 802.1X enable
+    802.1X 1/2 supplicant policy authentication pass group-mobility block fail block
+    802.1X 1/2 non-supplicant policy authentication pass group-mobility block fail block
+
+===== MAC Authentication
+
+First, make sure you followed the steps above in 'Global configuration' and '802.1X'
+
+Next configure the interface to bypass 802.1X authentication
+
+    802.1X 1/2 supplicant bypass enable
+
+===== VoIP
+
+PacketFence supports VoIP on Alcatel by having multiple devices using multiple untagged VLANs on the same port.
+
+First configure the user profile for voice. In this example it is only isolating it on another VLAN but any user profile attributes can be added to the profile.
+
+    aaa user-network-profile name voice vlan 3
+
+Next, make sure you enable VoIP in the switch configuration in PacketFence and configure the voiceRole.
+
+    [192.168.1.10]
+    VoIPEnabled=Y
+    voiceRole=voice
+
+
+==== OS6860
+
+PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
+
+NOTE: This documentation is made for Alcatel OS 8.1+. Lower versions do not support this configuration.
+
+===== Global configuration
+
+First define any VLAN that you want to use on the switch.
+
+    vlan 2 admin-state enable
+    vlan 5 admin-state enable
+    vlan 20 admin-state enable
+    vlan 100 admin-state enable
+
+Next, configure the RADIUS server to be PacketFence
+
+    aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
+    aaa device-authentication mac packetfence
+    aaa device-authentication 802.1X packetfence
+
+You now need to configure an edge profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
+
+    unp edge-profile unreg
+    unp edge-profile unreg redirect enable
+    unp edge-profile unreg authentication-flag enable
+    unp vlan-mapping edge-profile unreg vlan 2
+
+    unp edge-profile guest
+    unp edge-profile guest redirect enable
+    unp edge-profile guest authentication-flag enable
+    unp vlan-mapping edge-profile guest vlan 5
+
+    unp edge-profile employee
+    unp edge-profile employee redirect enable
+    unp edge-profile employee authentication-flag enable
+    unp vlan-mapping edge-profile employee vlan 20
+
+CAUTION: Make sure you enable the redirect on *all* your roles as the access reevaluation will not work without it.
+
+Next, configure the switch in PacketFence. In the case of this example, the uplink is port 1/1/1.
+ 
+    [192.168.1.10]
+    mode=production
+    description=alcatel
+    type=Alcatel
+    radiusSecret=useStrongerSecret
+    uplink_dynamic=0
+    uplink=1001
+    RoleMap=Y
+    VlanMap=N
+    registrationRole=unreg
+    isolationRole=unreg
+    defaultRole=employee
+    guestRole=guest
+
+===== MAC Authentication
+
+First, make sure you followed the steps above in 'Global configuration'
+
+You will need to create an edge template and apply it on the ports you want to do authentication on.
+
+    unp edge-template pf_mab
+    unp edge-template pf_mab mac-authentication enable
+    unp edge-template pf_mab classification enable
+    unp port 1/1/2 port-type edge
+    unp port 1/1/2 edge-template pf_mab
+
+===== 802.1X
+
+First, make sure you followed the steps above in 'Global configuration'
+
+You will need to create an edge template and apply it on the ports you want to do authentication on.
+
+    unp edge-template pf_dot1x
+    unp edge-template pf_dot1x 802.1X-authentication enable
+    unp edge-template pf_dot1x mac-authentication enable
+    unp edge-template pf_dot1x 802.1X-authentication failure-policy mac-authentication
+    unp port 1/1/2 port-type edge
+    unp port 1/1/2 edge-template pf_dot1x
+
+===== VoIP
+
+PacketFence supports VoIP on Alcatel by having multiple devices using multiple untagged VLANs on the same port.
+
+First configure the edge profile for voice. In this example it is only isolating it on another VLAN but any edge profile attributes can be added to the profile.
+
+    unp edge-profile voice
+    unp edge-profile voice redirect enable
+    unp edge-profile voice authentication-flag enable
+    unp vlan-mapping edge-profile voice vlan 100
+
+Next, make sure you enable VoIP in the switch configuration in PacketFence and configure the voiceRole.
+
+    [192.168.1.10]
+    VoIPEnabled=Y
+    voiceRole=voice
+
+
+=== AlliedTelesis
+
+==== AT8000GS
+
+PacketFence supports the AT8000GS switch using :
+
+* MAC Authentication
+* 802.1X
+* 802.1X + VOIP
+
+===== Assumptions
+
+  PacketFence management IP: 192.168.1.5
+  Switch management IP: 10.0.0.14
+  Guest VLAN (Internet): VLAN 1
+
+===== MAC Authentication
+
+First, enable 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server and AAA settings:
+
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius 
+   aaa accounting dot1x radius
+
+In order to get mac authentication, you need to enable the guest VLAN globally: 
+
+   interface vlan 1
+   name "Guest Vlan"
+   dot1x guest-vlan
+   exit
+
+Finally, enable the necessary 802.1X settings for mac-only authentication:
+
+   interface ethernet g1
+   dot1x mac-authentication mac-only
+   dot1x radius-attributes vlan                
+   dot1x port-control auto
+   dot1x guest-vlan enable
+
+
+===== 802.1X
+
+The settings are almost the same as the MAC Authentication with some small differences.
+
+First, enable 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server and AAA settings:
+
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius 
+   aaa accounting dot1x radius
+
+Finally, enable the necessary 802.1X settings:
+
+   interface ethernet g1    
+   dot1x radius-attributes vlan
+   dot1x port-control auto
+
+===== 802.1X + VOIP
+
+First, enable 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server configuration and AAA settings:
+
+
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius 
+   aaa accounting dot1x radius
+
+Then, LLDP configuration:
+
+   hostname switch-name
+   ip domain-name domain.local
+   lldp med network-policy 1 voice vlan 100 vlan-type tagged dscp 34
+   lldp med network-policy 2 voice-signaling vlan 100 vlan-type tagged dscp 34
+
+Finally, enable the necessary 802.1X and VOIP settings on each interface:
+
+   interface ethernet g1
+    dot1x port-control force-authorized
+    no dot1x guest-vlan enable
+    no dot1x mac-authentication
+    no dot1x radius-attributes vlan
+    no dot1x re-authentication
+    switchport mode trunk
+    switchport trunk native vlan 5
+    switchport trunk allowed vlan add 100
+    lldp med enable network-policy
+    lldp med network-policy add 1
+    lldp med network-policy add 2
+
+==== GS950
+
+PacketFence supports the GS950 switch using :
+
+* MAC Authentication
+* 802.1X (without fallback to MAC authentication)
+
+===== Global configuration
+
+First, ensure that the VLANs you want to assign are part of the VLAN database via the following page:
+
+image::allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN configuration"]
+
+Note that they only need to be tagged on the trunk and don't need any specific configuration for the dynamic VLAN assignment here.
+
+Next, configure the RADIUS server (_Security -> RADIUS_):
+
+image::allied-telesis-gs950/radius-server.png[scaledwidth="100%",alt="RADIUS configuration"]
+
+Next, configure an SNMP community (_SNMP -> Community Table_)
+
+image::allied-telesis-gs950/snmp-config.png[scaledwidth="100%",alt="SNMP configuration"]
+
+===== MAC authentication
+
+Go in _Security -> Port Access Control_, select the port you want to enable MAB on, and ensure you set:
+
+[options="compact"]
+* Authentication Mode: MAC Based
+* Port Control: Auto
+* Supplicant Mode: Single
+* VLAN Assignment: Enabled
+
+image::allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",alt="MAB config"]
+
+===== 802.1x
+
+Go in _Security -> Port Access Control_, select the port you want to enable MAB on, and ensure you set:
+
+[options="compact"]
+* Authentication Mode: 802.1X
+* Port Control: Auto
+* Supplicant Mode: Multiple
+* VLAN Assignment: Enabled
+
+image::allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x configuration"]
+
+===== PacketFence configuration
+
+Ensure you configure at least:
+
+[options="compact"]
+* Type: Allied Telesis GS950
+* RADIUS secret: useStrongerSecret
+* SNMP Version: v2c
+* SNMP Community Read: private
+* SNMP Community Write: private
+
+If you are using MAC authentication on this switch, you must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This configuration will also set missing attributes in the RADIUS requests since this switch doesn't follow the standard attributes that are usually sent during RADIUS authentication.
+
+To adjust it, go in `/usr/local/pf/conf/radiusd/packetfence` and add the following below the line that contains `packetfence-eap-mac-policy`:
+
+  packetfence-allied-gs950-mab
+
+And then restart FreeRADIUS:
+
+  # /usr/local/pf/bin/pfcmd service radiusd restart
+
+=== Amer 
+
+PacketFence supports Amer switches _without VoIP_ using one trap type: 
+
+* linkUp/linkDown 
+
+Don't forget to update the startup config! 
+
+==== L2 Switch SS2R24i 
+
+Global config settings:
+
+  create snmp host 192.168.1.5 v2c public 
+  create snmp user public ReadGroup 
+  enable snmp traps 
+
+On each interface: 
+
+  config vlan default delete xx 
+  config vlan mac-detection add untagged xx 
+
+where `xx` stands for the interface index 
+
+=== Avaya 
+
+Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
+Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
+
+==== 802.1X with MAC Authentication Bypass and VoIP
+
+NOTE: The configuration below requires an ntp server. We use the PacketFence server as the NTP server but any other one will do. If you want to use the PacketFence server for NTP, make sure you install the appropriate service and open port 123 in `/usr/local/pf/conf/iptables.conf`
+
+Global config settings:
+
+  sntp server primary address 192.168.1.5
+  sntp enable
+  radius server host 192.168.1.5 acct-enable 
+  radius server host key useStrongerSecret
+  radius server host key useStrongerSecret used-by eapol
+  radius server host key useStrongerSecret used-by non-eapol
+  radius dynamic-server client 192.168.1.5
+  radius dynamic-server client 192.168.1.5 secret useStrongerSecret
+  radius dynamic-server client 192.168.1.5 enable
+  radius dynamic-server client 192.168.1.5 process-change-of-auth-requests
+  radius dynamic-server client 192.168.1.5 process-disconnect-requests
+
+  vlan create 2,3,4,5 type port
+  vlan create 100 type port voice-vlan
+  vlan name 2 "Reg"
+  vlan name 3 "Isol"
+  vlan name 4 "Detect"
+  vlan name 5 "Guest"
+  vlan name 100 "Voice"
+
+  #Uplink configuration
+  vlan ports 24 tagging tagAll 
+  vlan configcontrol autopvid
+
+  eapol multihost allow-non-eap-enable
+  eapol multihost radius-non-eap-enable
+  eapol multihost non-eap-phone-enable
+  eapol multihost use-radius-assigned-vlan
+  eapol multihost non-eap-use-radius-assigned-vlan
+  eapol multihost eap-packet-mode unicast
+  eapol multihost non-eap-reauthentication-enable
+  eapol multihost adac-non-eap-enable
+  no eapol multihost non-eap-pwd-fmt ip-addr
+  no eapol multihost non-eap-pwd-fmt port-number
+  eapol multihost voip-vlan 1 enable vid 100
+
+  adac voice-vlan 100
+  adac uplink-port 24
+  adac op-mode tagged-frames
+  adac enable
+
+  qos if-group name TrustedLinks class trusted
+  qos if-assign port ALL name TrustedLinks
+
+Port 1 configuration:
+
+  interface FastEthernet ALL
+  vlan ports 1 tagging tagAll
+  vlan members 2,3,4,5 1
+  vlan ports 1 pvid 2
+  eapol multihost port 1 enable eap-mac-max 8 allow-non-eap-enable non-eap-mac-max 8 radius-non-eap-enable use-radius-assigned-vlan non-eap-use-radius-assigned-vlan eap-packet-mode unicast adac-non-eap-enable
+  eapol port 1 status auto traffic-control in re-authentication enable
+  eapol port 1 radius-dynamic-server enable
+  lldp port 1 vendor-specific avaya dot1q-framing tagged
+  no adac detection port 1 mac
+  adac port 1 tagged-frames-tagging tag-all
+  adac port 1 enable
+  spanning-tree port 1 learning fast
+
+
+=== Brocade
+
+NOTE: By default, all deconnections will be done using SNMP.
+
+==== ICX 6400 Series
+
+Those switches are supported using 802.1X for networks with or without VoIP.
+
+* Global config settings:
+
+  aaa authentication dot1x default radius
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default
+  radius-server key useStrongerSecret
+
+  vlan 1 name DEFAULT-VLAN by port
+  !
+  vlan 100 by port
+   tagged ethe 1/1/xx ethe 1/1/yy
+
+Where `xx` and `yy` represent the range of ports where you want PacketFence
+enforcement.
+
+===== MAC-Authentication without VoIP
+
+* Enable MAC-Authentication globally
+
+  mac-authentication enable
+  mac-authentication mac-vlan-dyn-activation
+
+* Enable MAC-Authentication on each interface you want PacketFence active
+
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+
+===== MAC-Authentication with VoIP
+
+* Enable cdp globally
+
+  cdp run
+
+* Apply the following configuration on each interface you want PacketFence active
+
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
+   cdp enable
+
+===== 802.1X/MAC-Auth
+
+* Enable 802.1X globally
+
+  dot1x-enable
+   re-authentication
+   enable ethe 1/1/xx
+
+Where `xx` is the switch port number
+
+* Apply the following configuration on each interface you want PacketFence active
+
+   dot1x port-control auto
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
+
+==== Firmware 08.0.80 and above
+
+===== 802.1x/MAC-Auth
+
+Those switches are supported using 802.1X for networks with or without VoIP.
+
+* RADIUS server configuration
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default key useStrongerSecret dot1x mac-auth no-login
+
+* Authentication configuration
+
+  aaa authentication dot1x default radius
+  authentication
+    auth-default-vlan 2
+    re-authentication
+    auth-fail-action restricted-vlan
+    dot1x enable
+    dot1x enable ethe 1/1/1
+    dot1x port-control auto ethe 1/1/1
+    dot1x macauth-override
+    dot1x timeout tx-period 3
+    dot1x timeout quiet-period 2
+    mac-authentication enable
+    mac-authentication enable ethe 1/1/1
+
+The configuration above enables authentication on port 1/1/1 - make sure you change this to the ports where you want to perform enforcement.
+
+* SNMP configuration
+
+  snmpserver community public ro
+  snmpserver community private rw
+
+* PacketFence configuration
+
+While configuring the switch in PacketFence, ensure you set at least the following values:
+ * Definition, Type: Brocade Switches
+ * RADIUS, Secret Passphrase: useStrongerSecret
+ * SNMP, Version: v2c
+ * SNMP, Community Read: public
+ * SNMP, Community Write: private
+
+===== VoIP
+
+In order to enable VoIP, you first need to enable LLDP then define the network policy for tagging VoIP traffic on the ports where PacketFence is enabled.
+
+  lldp run
+  lldp med network-policy application voice tagged vlan 5 priority 5 dscp 46 ports ethe 1/1/1 
+
+NOTE: Make sure you change VLAN 5 to the VLAN you use for VoIP
+
+* PacketFence configuration
+
+While configuring the switch in PacketFence, ensure you set at least the following values:
+ * Roles, voice VLAN: 5
+ * Definition, VoIP: enabled
+
+==== Radius CLI Login
+
+If you want to use the server PacketFence to authenticate users on the Brocade switch.
+
+ * Configure the radius server to send user authentication request to PacketFence
+   
+   aaa authentication login default radius local
+
+NOTE: Make sure to have a local account in case the switch can not reach the PacketFence server
+
+=== Cisco
+
+PacketFence supports Cisco switches with VoIP using three different trap types: 
+
+* linkUp/linkDown 
+* MAC Notification 
+* Port Security (with static MACs) 
+
+You also need to make sure that lldp or cdp notification is configured on all ports that will handle VoIP.
+
+On some recent models, we can also use more secure and robust features like: 
+
+* MAC Authentication (Cisco's MAC Authentication Bypass or MAB) 
+* 802.1X (Multi-Host or Multi-Domain) 
+
+Depending of the switch model, we recommend the use of the most secure and reliable feature 
+first. In other words, you should consider the following order:
+
+. 802.1X/MAB
+. Port-Security
+. linkUp/linkDown
+
+==== 2900XL / 3500XL Series
+
+===== SNMP | linkUP/linkDown
+
+Global config settings: 
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps snmp linkdown linkup 
+  snmp-server enable traps mac-notification 
+  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
+  mac-address-table notification interval 0 
+  mac-address-table notification 
+  mac-address-table aging-time 3600 
+
+On each interface _without VoIP_: 
+
+  switchport mode access 
+  switchport access vlan 4 
+  snmp trap mac-notification added 
+
+On each interface _with VoIP_:
+
+  switchport trunk encapsulation dot1q 
+  switchport trunk native vlan 4 
+  switchport mode trunk 
+  switchport voice vlan 100 
+  snmp trap mac-notification added 
+  snmp trap mac-notification removed 
+
+==== 2950
+
+Those switches are now supported using 802.1X for networks with or without VoIP. 
+You can also use port-security with static MAC address but we can not secure 
+a MAC on the data VLAN specifically so enable it if there is no VoIP, use 
+linkUp/linkDown and MAC notification otherwise.So on setup that needs to 
+handle VoIP with this switch, go with a 802.1X configuration. 
+
+===== 802.1X
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
+Global config settings:
+
+  dot1x system-auth-control 
+
+AAA configuration:
+
+  aaa new-model 
+  aaa group server radius packetfence 
+   server 192.168.1.5 auth-port 1812 acct-port 1813 
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence
+
+AAA configuration (accounting):
+
+----
+aaa accounting dot1x default start-stop group packetfence
+----
+
+RADIUS server configuration:
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 
+  key useStrongerSecret 
+  radius-server vsa send authentication 
+
+On each interface _without VoIP_:
+
+  switchport access vlan 4 
+  switchport mode access 
+  dot1x port-control auto 
+  dot1x host-mode multi-host 
+  dot1x reauthentication 
+
+On each interface _with VoIP_:
+
+  switchport access vlan 4 
+  switchport mode access 
+  switchport voice vlan 100 
+  dot1x port-control auto 
+  dot1x host-mode multi-host 
+  dot1x reauthentication 
+
+===== Port-Security 
+
+CAUTION: With port-security, if no MAC is connected on ports when activating port-security, we need 
+to secure bogus MAC addresses on ports in order for the switch to send a trap when a new 
+MAC appears on a port. On the other hand, if a MAC is actually connected when you enable 
+port security, you must secure this MAC rather than the bogus one. Otherwise this MAC will 
+lose its connectivity instantly. 
+
+Global config settings _without VoIP_:
+
+  snmp-server enable traps port-security 
+  snmp-server enable traps port-security trap-rate 1 
+  snmp-server host 192.168.1.5 version 2c public port-security 
+
+On each interface _without VoIP_:
+
+  switchport mode access 
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.0000.00xx 
+
+where `xx` stands for the interface `ifIndex`.
+
+[NOTE]
+.ifIndex mapping
+===========================================================================
+Use the following templates for interface `IfIndex` in bogus MAC addresses 
+(0200.0000.00xx):
+
+* Fa0/1, ..., Fa0/48 => 1, ..., 48 
+* Gi0/1, Gi0/2 => 49, 50 
+===========================================================================
+
+Global config settings _with VoIP_:
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps snmp linkdown linkup 
+  snmp-server enable traps mac-notification 
+  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
+  mac-address-table notification interval 0 
+  mac-address-table notification 
+  mac-address-table aging-time 3600 
+
+On each interface _with VoIP_:
+
+  switchport voice vlan 100 
+  switchport access vlan 4 
+  switchport mode access 
+  snmp trap mac-notification added 
+  snmp trap mac-notification removed 
+
+==== 3550 (802.1X with MAB)
+
+CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and port security. 
+
+CAUTION: The Catalyst 3550 does *not* support CoA. https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is 12.2(46)SE. Set "Deauthentication Method" to "SNMP" in PacketFence Administration GUI under _Configuration -> Policies and Access Control -> Network Devices ->  Switches_ for the switch IP configured below.
+
+===== Global settings:
+
+  dot1x system-auth-control 
+  aaa new-model 
+  aaa group server radius packetfence 
+   server 192.168.1.5 auth-port 1812 acct-port 1813
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+RADIUS server configuration:
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
+  radius-server vsa send authentication 
+
+Enable SNMP on the switch:
+
+  snmp-server community public RO
+  snmp-server community private RW
+
+On each interface:
+
+  switchport mode access
+  dot1x mac-auth-bypass
+  dot1x pae authenticator
+  dot1x port-control auto
+  dot1x violation-mode protect
+  dot1x timeout quiet-period 2
+  dot1x timeout reauth-period 7200
+  dot1x timeout tx-period 3
+  dot1x reauthentication
+
+==== 2960
+
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS,this section below>>.
+
+===== Port­Security for IOS earlier than 12.2(46)SE  
+
+Global config settings:
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps port-security 
+  snmp-server enable traps port-security trap-rate 1 
+  snmp-server host 192.168.1.5 version 2c public port-security 
+
+On each interface _without VoIP_: 
+
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+On each interface with VoIP:
+
+  switchport voice vlan 100 
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 2 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+[NOTE]
+.ifIndex mapping
+===========================================================================
+Use the following templates for interface `IfIndex` in bogus MAC addresses 
+(0200.000x.xxxx):
+
+* Fa0/1...Fa0/48 -> 10001...10048 
+* Gi0/1...Gi0/48 -> 10101...10148 
+===========================================================================
+
+===== Port­Security for IOS 12.2(46)SE or greater
+
+Since version PacketFence 2.2.1, the way to handle VoIP when using 
+port-security dramatically changed. Ensure that you follow the instructions 
+below. To make the story short, instead on relying on the dynamic 
+MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger a new security 
+violation, and then authorize the phone MAC address on the network. 
+
+Global config settings:
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps port-security 
+  snmp-server enable traps port-security trap-rate 1 
+  snmp-server host 192.168.1.5 version 2c public port-security 
+
+On each interface _without VoIP_:
+
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex`
+
+On each interface _with VoIP_: 
+
+  switchport voice vlan 100 
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 2 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security maximum 1 vlan voice 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.010x.xxxx vlan voice 
+  switchport port-security mac-address 0200.000x.xxxx vlan access 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+[NOTE]
+.ifIndex mapping
+===========================================================================
+Use the following templates for interface `IfIndex` in bogus MAC addresses
+(0200.000x.xxxx):
+
+* Fa0/1...Fa0/48 -> 10001...10048 
+* Gi0/1...Gi0/48 -> 10101...10148 
+===========================================================================
+
+[[Catalyst_RADIUS]]
+==== 2960, 2970, 3560, 3750
+
+NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
+[WARNING]
+====
+When doing 802.1X and network interface teaming on the same switch or stack, you might consider using the mac-move feature of the Cisco switches. When you authenticate the primary link of the team, the virtual MAC address will be published and authorized on the switchport. When something breaks on that link (ie. cable disconnected), the teaming driver will publish the MAC address on the secondary link, and the switch will try to authorize it. However, since the switch already has the MAC address in a session on another switchport, the switch will put the secondary link into err-disabled mode.
+
+To prevent this behavior, you need to tell the switch to allow MAC address movements between ports. The global command is the following:
+
+  authentication mac-move permit
+====
+
+===== Global settings:
+
+  dot1x system-auth-control 
+  aaa new-model 
+  aaa group server radius packetfence 
+   server name pfnac
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+RADIUS server configuration:
+
+  radius server pfnac
+    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+    automate-tester username dummy ignore-acct-port idle-time 3
+    key 0 useStrongerSecret
+  
+  radius-server vsa send authentication 
+
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+   port 3799
+
+Activate SNMP v1 on the switch:
+
+  snmp-server community public RO
+
+===== 802.1X with MAC Authentication bypass (Multi­Domain) 
+
+On each interface:
+
+  switchport mode access 
+  switchport voice vlan 100
+  authentication host-mode multi-domain 
+  authentication order dot1x mab 
+  authentication priority dot1x mab 
+  authentication port-control auto 
+  authentication periodic 
+  authentication timer restart 10800 
+  authentication timer reauthenticate 10800 
+  authentication violation replace
+  mab 
+  no snmp trap link-status 
+  dot1x pae authenticator 
+  dot1x timeout quiet-period 2 
+  dot1x timeout tx-period 3 
+
+===== 802.1X with MAC Authentication bypass (Multi­Host)
+
+On each interface:
+
+  switchport mode access 
+  authentication order dot1x mab 
+  authentication priority dot1x mab 
+  authentication port-control auto 
+  authentication periodic 
+  authentication timer restart 10800 
+  authentication timer reauthenticate 7200 
+  authentication violation replace
+  mab 
+  no snmp trap link-status 
+  dot1x pae authenticator 
+  dot1x timeout quiet-period 2 
+  dot1x timeout tx-period 3 
+
+===== MAC Authentication bypass only 
+
+On each interface:
+
+  switchport mode access 
+  switchport voice vlan 100 
+  dot1x mac-auth-bypass 
+  dot1x pae authenticator 
+  dot1x port-control auto 
+  dot1x timeout tx-period 5 
+  dot1x reauthentication 
+  authentication periodic 
+  authentication timer restart 10800 
+  authentication timer reauthenticate 7200 
+  authentication violation replace
+  mab 
+  no snmp trap link-status 
+
+[NOTE]
+.802.1X on various models of 2960
+============================================================================
+There's a lot of different versions of the Catalyst 2960. Some of them
+may not accept the command stated in this guide for 802.1X.
+
+We have found a couple of commands that are working great or MAB:
+
+On each interface
+
+  switchport mode access
+  authentication order mab
+  authentication port-control auto
+  mab
+  dot1x pae authenticator
+
+But, as it is difficult for us to maintain the whole list of commands to 
+configure each and every different model of 2960 with different IOS, 
+please refer to Cisco documentation for very specific cases.
+============================================================================
+
+===== Port-­Security 
+
+Global config settings 
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps port-security 
+  snmp-server enable traps port-security trap-rate 1 
+  snmp-server host 192.168.1.5 version 2c public port-security 
+
+On each interface _without VoIP_: 
+
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+On each interface _with VoIP_: 
+
+  switchport voice vlan 100 
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 2 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+[NOTE]
+.ifIndex mapping
+===========================================================================
+Use the following templates for interface `IfIndex` in bogus MAC addresses
+(0200.000x.xxxx):
+
+* Fa0/1...Fa0/48 -> 10001...10048 
+* Gi0/1...Gi0/48 -> 10101...10148 
+===========================================================================
+
+===== Web auth
+
+The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
+
+In this example, the ACL that triggers the redirection to the portal for registration is 'registration'.
+
+Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
+
+Then add this additional configuration on the global level
+
+  ip device tracking
+  ip http server
+  ip http secure-server
+  snmp-server community public RO
+  snmp-server community private RW
+
+Add the required access lists
+
+  ip access-list extended registration
+   deny ip any host <your captive portal ip> 
+   permit tcp any any eq www
+   permit tcp any any eq 443
+
+Then on each controlled interface
+
+   switchport access vlan <vlan> 
+   switchport mode access
+   authentication priority mab
+   authentication port-control auto
+   authentication periodic
+   authentication violation replace
+   mab
+   spanning-tree portfast
+
+PacketFence switch configuration 
+
+* Select the type to 'Cisco Catalyst 2960'
+* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Catalyst_2960'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* Screenshots of this configuration are available in the Cisco WLC section of this guide.
+
+===== Downloadable ACLs
+
+The Catalyst 2960 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
+
+These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+
+Add the following configuration setting on the global level 
+
+   ip device tracking
+
+For IOS 12.2, you need to create this acl and assign it to the switch port interface:
+
+ ip access-list extended Auth-Default-ACL
+  permit udp any range bootps 65347 any range bootpc 65348
+  permit udp any any range bootps 65347
+  permit udp any any eq domain
+  deny   ip any any
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
+
+Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
+
+Now in the PacketFence interface go in the switch configuration and in the Roles tab.
+
+Check 'Role by access list' and you should now be able to configure the access lists as below.
+
+For example if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+
+image::cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
+
+Now if for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+
+If for example the 'default' category uses the network 192.168.5.0/24 and your guest network uses the network 192.168.10.0/24.
+
+You can prevent communications between both networks using these access lists
+
+image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
+
+You could also only prevent your guest users from using shared directories
+
+image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
+
+Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+
+image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
+
+===== Web auth and Downloadable ACLs
+
+It's possible to mix web authentication and downloadable ACLs starting from version 12.2 of the IOS, each roles can be configured to forward the device to the captive portal for an http or an https and only allow specific traffic with the ACL.
+To do that, you need to configure PacketFence with Role by Web Auth URL and with Role by access list (For each role you need).
+On the switch you need to change the Auth-Default-ACL to add the portal IP address:
+
+For IOS 12.2:
+
+  ip access-list extended Auth-Default-ACL
+   permit udp any range bootps 65347 any range bootpc 65348
+   permit udp any any range bootps 65347
+   permit ip any host ip_of_the_captive_portal
+   permit udp any any eq domain
+   deny   ip any any
+
+And assign this ACL on the switch port yo want to do ACL per port.
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
+
+For IOS 15.0:
+
+  Extended IP access list Auth-Default-ACL
+    10 permit udp any range bootps 65347 any range bootpc 65348
+    20 permit udp any any range bootps 65347
+    30 deny ip any any
+
+  conf t
+  ip access-list extend  Auth-Default-ACL
+  21 permit ip any host ip_of_the_captive_portal
+
+For IOS 15.2:
+
+  Extended IP access list Auth-Default-ACL
+      10 permit udp any any eq domain
+      20 permit tcp any any eq domain
+      30 permit udp any eq bootps any
+      40 permit udp any any eq bootpc
+      50 permit udp any eq bootpc any
+      60 deny ip any any
+
+  conf t
+  ip access-list extend  Auth-Default-ACL
+  51 permit ip any host ip_of_the_captive_portal
+
+
+==== Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
+
+The 4500 Series and all the stacked switches work exactly the same way as if they were not stacked so the configuration is the same: they support port-security with static MAC address and allow us to secure a MAC on the data VLAN so we enable it whether there is VoIP or not. 
+
+We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port. 
+
+Global config settings 
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps port-security 
+  snmp-server enable traps port-security trap-rate 1 
+  snmp-server host 192.168.1.5 version 2c public port-security 
+
+On each interface _without VoIP_: 
+
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+On each interface _with VoIP_: 
+
+  switchport voice vlan 100 
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 2 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+[NOTE]
+.ifIndex mapping
+===========================================================================
+Use the following templates for interface `IfIndex` in bogus MAC addresses
+(0200.000x.xxxx):
+
+* Fa1/0/1...Fa1/0/48 -> 10001...10048 
+* Gi1/0/1...Gi1/0/48 -> 10101...10148 
+* Fa2/0/1...Fa2/0/48 -> 10501...10548 
+* Gi2/0/1...Gi2/0/48 -> 10601...10648 
+* Fa3/0/1...Fa3/0/48 -> 11001...11048 
+* Gi3/0/1...Gi3/0/48 -> 11101...11148 
+* Fa4/0/1...Fa4/0/48 -> 11501...11548 
+* Gi4/0/1...Gi4/0/48 -> 11601...11648 
+* ... 
+===========================================================================
+
+==== IOS XE Switches
+
+PacketFence supports the IOS XE switches in MAC Authentication Bypass, 802.1X and web authentication.
+
+===== MAC Authentication Bypass
+
+Global config settings:
+
+  dot1x system-auth-control 
+
+On each interface:
+
+  authentication host-mode multi-domain
+  authentication order mab
+  authentication priority mab
+  authentication port-control auto
+  authentication periodic
+  authentication timer restart 10800
+  authentication timer reauthenticate 10800
+  authentication violation replace
+  mab
+  no snmp trap link-status
+  dot1x pae authenticator
+  dot1x timeout quiet-period 2
+  dot1x timeout tx-period 3
+
+AAA groups and configuration:
+
+  aaa new-model 
+  aaa group server radius packetfence 
+   server 192.168.1.5 auth-port 1812 acct-port 1813 
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+RADIUS server configuration:
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
+  radius-server vsa send authentication 
+
+CoA configuration:
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+  
+Activate SNMP on the switch:
+
+  snmp-server community public RO
+
+
+===== 802.1X only
+
+Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following: 
+
+  authentication priority dot1x
+
+===== 802.1X with MAC Authentication fallback
+
+Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following:
+
+  authentication priority dot1x mab
+
+===== Web auth
+
+Web auth requires at least MAC Authentication Bypass to be activated on the switchport but can also work with 802.1X. Configure your switchports as you would usually do, then add the following access lists.
+
+  ip access-list extended redirect
+   deny   ip any host 192.168.1.5
+   deny   udp any any eq domain
+   deny   tcp any any eq domain
+   deny   udp any any eq bootpc
+   deny   udp any any eq bootps
+   permit tcp any any eq www
+   permit tcp any any eq 443
+  ip access-list extended registered
+   permit ip any any
+
+Global config settings:
+
+ ip device tracking
+
+PacketFence switch configuration:
+
+* Select the type to 'Cisco Catalyst 2960'
+* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Catalyst_2960'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* Screenshots of this configuration are available in the Cisco WLC section of this guide.
+
+NOTE: AAA authentication is slow to come up after a reload of the IOS XE switches. This makes the recovery from a reboot longer to complete. This is due to a bug in IOS XE. A workaround is to execute the following command `no aaa accounting system default start-stop group tacacs+`.
+
+===== Identity Networking Policy
+
+Starting from version 15.2(1)E (IOS) and 3.4.0E (IOSXE) , Cisco introduced the Identity Based Networking Services.
+It means that you can create an authentication workflow on the switch and create interfaces templates.
+
+To enable it:
+
+ authentication display new-style
+
+Global config settings:
+
+  dot1x system-auth-control 
+
+AAA groups and configuration:
+
+  aaa new-model 
+  aaa group server radius packetfence 
+   server name packetfence
+  !
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+  radius-server vsa send authentication
+
+RADIUS server configuration:
+
+  radius-server dead-criteria time 5 tries 4
+  radius-server deadtime 1
+  radius server packetfence
+   address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+   key useStrongerSecret
+   automate-tester username cisco ignore-acct-port idle-time 1
+
+CoA configuration:
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+
+Enable SNMP on the switch:
+
+  snmp-server community public RO
+
+Enable HTTP and HTTPS server:
+
+  ip http server
+  ip http secure-server
+
+Enable IP device tracking:
+
+  ip device tracking
+
+Fallback ACL:
+
+ ip access-list extended ACL-CRITICAL-V4
+  permit ip any any
+
+Service Template:
+
+ service-template DEFAULT_LINKSEC_POLICY_MUST_SECURE
+ service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+ service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+  voice vlan
+ service-template CRITICAL_AUTH_VLAN
+ service-template CRITICAL-ACCESS
+  description *Fallback Policy on AAA Fail*
+  access-group ACL-CRITICAL-V4
+ !
+
+Class map:
+
+ class-map type control subscriber match-any IN_CRITICAL_AUTH
+ match activated-service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+ match activated-service-template CRITICAL_AUTH_VLAN
+ match activated-service-template CRITICAL-ACCESS
+ !
+ class-map type control subscriber match-none NOT_IN_CRITICAL_AUTH
+ match activated-service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+ match activated-service-template CRITICAL_AUTH_VLAN
+ match activated-service-template CRITICAL-ACCESS
+ !
+ class-map type control subscriber match-all AAA_SVR_DOWN_UNAUTHD_HOST
+ match result-type aaa-timeout
+ match authorization-status unauthorized
+ !
+ class-map type control subscriber match-all AAA_SVR_DOWN_AUTHD_HOST
+ match result-type aaa-timeout
+ match authorization-status authorized
+ !
+ class-map type control subscriber match-all DOT1X_NO_RESP
+ match method dot1x
+ match result-type method dot1x agent-not-found
+ !
+ class-map type control subscriber match-all MAB_FAILED
+ match method mab
+ match result-type method mab authoritative
+ !
+ class-map type control subscriber match-all DOT1X_FAILED
+ match method dot1x
+ match result-type method dot1x authoritative
+
+Policy map:
+
+On the 3 following configurations if the RADIUS server is down then we will apply
+ CRITICAL_AUTH_VLAN, DEFAULT_CRITICAL_VOICE_TEMPLATE and CRITICAL-ACCESS service template.
+If the RADIUS server goes up then it reinitializes the authentication if the port is in
+IN_CRITICAL_VLAN.
+
+for 802.1X with MAC Authentication fallback:
+
+ policy-map type control subscriber DOT1X_MAB
+  event session-started match-all
+   10 class always do-until-failure
+    10 authenticate using dot1x priority 10
+  event authentication-failure match-first
+   5 class DOT1X_FAILED do-until-failure
+    10 terminate dot1x
+    20 authenticate using mab priority 20
+   10 class AAA_SVR_DOWN_UNAUTHD_HOST do-until-failure
+    10 activate service-template CRITICAL_AUTH_VLAN
+    20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+    30 activate service-template CRITICAL-ACCESS
+    40 authorize
+    50 pause reauthentication
+   20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
+    10 activate service-template CRITICAL_AUTH_VLAN
+    20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+    30 activate service-template CRITICAL-ACCESS
+    40 pause reauthentication
+    50 authorize
+   30 class DOT1X_NO_RESP do-until-failure
+    10 terminate dot1x
+    20 authenticate using mab priority 20
+   40 class MAB_FAILED do-until-failure
+    10 terminate mab
+    20 authentication-restart 10800
+   60 class always do-until-failure
+    10 terminate dot1x
+    20 terminate mab
+    30 authentication-restart 10800
+  event agent-found match-all
+   10 class always do-until-failure
+    10 terminate mab
+    20 authenticate using dot1x priority 10
+  event aaa-available match-all
+   10 class IN_CRITICAL_AUTH do-until-failure
+    10 clear-session
+   20 class NOT_IN_CRITICAL_AUTH do-until-failure
+    10 resume reauthentication
+  event inactivity-timeout match-all
+   10 class always do-until-failure
+    10 clear-session
+  event authentication-success match-all
+   10 class always do-until-failure
+    10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+  event violation match-all
+   10 class always do-all
+    10 replace
+
+for MAC Authentication only:
+
+  policy-map type control subscriber MACAUTH
+   event session-started match-all
+    10 class always do-until-failure
+     10 authenticate using mab priority 10
+   event authentication-failure match-first
+    10 class AAA_SVR_DOWN_UNAUTHD_HOST do-until-failure
+     10 activate service-template CRITICAL_AUTH_VLAN
+     20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+     30 activate service-template CRITICAL-ACCESS
+     40 authorize
+     50 pause reauthentication
+    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
+     10 activate service-template CRITICAL_AUTH_VLAN
+     20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+     30 activate service-template CRITICAL-ACCESS
+     40 pause reauthentication
+     50 authorize
+    30 class always do-until-failure
+     10 terminate mab
+     20 authentication-restart 30
+   event aaa-available match-all
+    10 class IN_CRITICAL_AUTH do-until-failure
+     10 clear-session
+    20 class NOT_IN_CRITICAL_AUTH do-until-failure
+     10 resume reauthentication
+   event inactivity-timeout match-all
+    10 class always do-until-failure
+     10 clear-session
+   event authentication-success match-all
+    10 class always do-until-failure
+     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+
+for 802.1X only:
+
+  policy-map type control subscriber DOT1X
+   event session-started match-all
+    10 class always do-until-failure
+     10 authenticate using dot1x priority 10
+   event authentication-failure match-first
+    10 class AAA_SVR_DOWN_UNAUTHD_HOST do-until-failure
+     10 activate service-template CRITICAL_AUTH_VLAN
+     20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+     30 activate service-template CRITICAL-ACCESS
+     40 authorize
+     50 pause reauthentication
+    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
+     10 activate service-template CRITICAL_AUTH_VLAN
+     20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+     30 activate service-template CRITICAL-ACCESS
+     40 pause reauthentication
+     50 authorize
+    30 class DOT1X_FAILED do-until-failure
+     10 terminate dot1x
+    40 class DOT1X_NO_RESP do-until-failure
+     10 terminate dot1x
+    60 class always do-until-failure
+     10 terminate dot1x
+     20 authentication-restart 10800
+   event agent-found match-all
+    10 class always do-until-failure
+     10 authenticate using dot1x priority 10
+   event aaa-available match-all
+    10 class IN_CRITICAL_AUTH do-until-failure
+     10 clear-session
+    20 class NOT_IN_CRITICAL_AUTH do-until-failure
+     10 resume reauthentication
+   event inactivity-timeout match-all
+    10 class always do-until-failure
+     10 clear-session
+   event authentication-success match-all
+    10 class always do-until-failure
+     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+
+Interface Template (802.1X MAC Authentication):
+
+  template identity-template-mab
+   dot1x pae authenticator
+   spanning-tree portfast edge
+   switchport access vlan 1
+   switchport mode access
+   switchport voice vlan 100
+   mab
+   access-session host-mode multi-domain
+   access-session control-direction in
+   access-session closed
+   access-session port-control auto
+   authentication periodic
+   authentication timer reauthenticate server
+   service-policy type control subscriber DOT1X_MAB
+
+Interface Template (MAC Authentication):
+
+  template identity-template-macauth
+   dot1x pae authenticator
+   spanning-tree portfast edge
+   switchport access vlan 1
+   switchport mode access
+   switchport voice vlan 100
+   mab
+   access-session host-mode single-host
+   access-session control-direction in
+   access-session closed
+   access-session port-control auto
+   authentication periodic
+   authentication timer reauthenticate server
+   service-policy type control subscriber MACAUTH
+
+Interface Template (802.1X):
+
+  template identity-template-dot1x
+   dot1x pae authenticator
+   spanning-tree portfast edge
+   switchport access vlan 1
+   switchport mode access
+   switchport voice vlan 100
+   mab
+   access-session host-mode single-host
+   access-session control-direction in
+   access-session closed
+   access-session port-control auto
+   authentication periodic
+   authentication timer reauthenticate server
+   service-policy type control subscriber DOT1X
+
+On each interface for 802.1X with MAC Authentication:
+
+  source template identity-template-mab
+  dot1x timeout tx-period 5
+
+On each interface for MAC Authentication:
+
+  source template identity-template-macauth
+
+On each interface for 802.1X:
+
+  source template identity-template-dot1x
+  dot1x timeout tx-period 5
+
+To see what is the status of a port let's run:
+
+ sh access-session interface fastEthernet 0/2 details
+            Interface:  FastEthernet0/2
+          MAC Address:  101f.74b2.f6a5
+         IPv6 Address:  Unknown
+         IPv4 Address:  172.20.20.49
+            User-Name:  ACME\bob
+               Status:  Authorized
+               Domain:  DATA
+       Oper host mode:  multi-domain
+     Oper control dir:  in
+      Session timeout:  12380s (server), Remaining: 12206s
+       Timeout action:  Terminate
+    Common Session ID:  AC1487290000000C000F8B7A
+      Acct Session ID:  Unknown
+               Handle:  0x9C000001
+       Current Policy:  DOT1X_MAB
+
+ Local Policies:
+     Service Template: DEFAULT_LINKSEC_POLICY_SHOULD_SECURE (priority 150)
+
+ Server Policies:
+           Vlan Group:  Vlan: 20
+         Idle timeout:  30 sec
+
+
+ Method status list:
+        Method           State
+
+        dot1x            Authc Success
+
+Debug command:
+
+In order to be able to debug the Identity Networking Policy you can launch the following command in the switch cli:
+
+ term mon
+ debug pre all
+
+===== DHCP Option 82
+
+In order to enable the DHCP Option 82, you need to add the following parameters.
+Let's say you want to enable it for the vlan 1 to 1024:
+
+ ip dhcp snooping
+ ip dhcp snooping vlan 1-1024
+
+On uplink interfaces:
+
+ ip dhcp snooping trust
+ 
+
+===== Router ISR 1800 Series 
+
+PacketFence supports the 1800 series Router with linkUp / linkDown traps. It cannot do 
+anything about the router interfaces (ie: fa0 and fa1 on a 1811). VLAN interfaces `ifIndex` should 
+also be marked as uplinks in the PacketFence switch configuration as they generate traps but 
+are of no interest to PacketFence (layer 3). 
+
+Global config settings: 
+
+  snmp-server enable traps snmp linkdown linkup 
+  snmp-server host 192.168.1.5 trap version 2c public 
+
+On each interface: 
+
+  switchport mode access 
+  switchport access vlan 4 
+
+==== EAP-FAST authentication Support
+
+PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and EAP-MSCHAPv2 authentication methods. Upon successful authentication against PacketFence, the authenticator switch will give trunk access to the supplicant switch. 
+
+Here is an official Cisco guide, from which the following configuration derives: https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
+
+The following configuration example contains required changes to be applied on both authenticator and supplicant switches to provide EAP-FAST authentication against PacketFence.
+
+===== Authenticator
+
+Global settings:
+
+ aaa group server radius packetfence
+  server 192.168.1.5 auth-port 1812 acct-port 1813
+ aaa authentication dot1x default group packetfence
+ aaa authorization network default group packetfence 
+
+ cisp enable
+
+Uplink configuration:
+
+ interface FastEthernet0/20
+  switchport mode access
+  authentication port-control auto
+  dot1x pae authenticator
+
+===== Supplicant
+
+Global settings (replace username and password): 
+  
+ cisp enable
+
+ eap profile EAP_PRO
+  method fast
+
+ dot1x credentials EAP_PRO
+  username switches
+  password 7 03174C02120C29495D
+ ! Password is switches
+ !
+ dot1x supplicant force-multicast
+
+Uplink settings:
+
+ interface GigabitEthernet1/0/24
+  switchport mode trunk
+  dot1x pae supplicant
+  dot1x credentials EAP_PRO
+  dot1x supplicant eap profile EAP_PRO  
+
+==== Device Sensor for Cisco Equipment
+
+Device sensor is a way to be able to receive some information about endpoints from the RADIUS accounting packet. (like DHCP, CDP, LLDP and HTTP information)
+In order to enable Device Sensor feature, you need to add the following parameters to your switch configuration:
+
+ radius server packetfence
+ address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+  key useStrongerSecret
+
+ aaa group server radius packetfence
+  server name packetfence
+ !
+ aaa accounting update newinfo
+ aaa accounting identity default start-stop group packetfence
+ !
+ !
+ device-sensor filter-list dhcp list dhcp-list
+  option name host-name
+  option name parameter-request-list
+  option name class-identifier
+ !
+ device-sensor filter-list lldp list lldp-list
+  tlv name system-description
+ !
+ device-sensor filter-list cdp list cdp-list
+  tlv name version-type
+  tlv name platform-type
+ !
+ device-sensor filter-list dhcp list lldp-list
+ device-sensor filter-spec dhcp include list dhcp-list
+ device-sensor filter-spec lldp include list lldp-list
+ device-sensor filter-spec cdp include list cdp-list
+ device-sensor notify all-changes
+
+This configuration will make the switch send information about DHCP, LLDP and CDP of the endpoint in the RADIUS accounting packets.
+
+=== Cisco Small Business (SMB)
+
+The Cisco Small Business switches support MAC based authentication (MAB) as well as 802.1X and VoIP. Both technologies can be combined and will work correctly together on the same switchport.
+
+Nothing is required to activate VoIP on the switch, you must simply configure the voice VLAN you want PacketFence to assign in the PacketFence switch configuration as well as enabling VoIP there. Note that your phones must *not* tag their packets on the network and should send their traffic untagged when connected into a PacketFence enabled port. This means you should not have the voice VLAN capabilities enabled on the switch itself as they might conflict with the authorization attributes returned by PacketFence.
+
+==== Global configuration
+
+CAUTION: Before executing these steps, make sure you have a local account configured to login on the switch or are pointing to a RADIUS server for management. Otherwise, you will not be able to login into the switch anymore.
+
+You must first define your RADIUS server and point it to PacketFence:
+
+  dot1x system-auth-control 
+  radius-server key useStrongerSecret
+  radius-server host 192.168.1.5
+
+  aaa accounting dot1x start-stop group radius
+
+  snmp-server community public ro view Default 
+  snmp-server community private rw view Default 
+
+SNMP configuration for the Cisco SG300:
+
+  snmp-server community public ro view DefaultSuper
+  snmp-server community private rw view DefaultSuper
+
+==== MAC Authentication
+
+In order to configure MAC authentication, you must enable it on each interface
+
+  interface x/y/z
+   dot1x host-mode multi-sessions 
+   dot1x reauthentication 
+   dot1x timeout quiet-period 10 
+   dot1x timeout server-timeout 5 
+   dot1x timeout supp-timeout 3 
+   dot1x authentication mac 
+   dot1x radius-attributes vlan 
+   dot1x port-control auto 
+   spanning-tree portfast 
+   switchport mode general 
+   switchport general pvid 2 
+
+==== 802.1X with MAB
+
+In order to configure 802.1X with a fall-back to MAC authentication, you must enable it on each interface
+
+  interface x/y/z
+   dot1x host-mode multi-sessions 
+   dot1x reauthentication 
+   dot1x timeout quiet-period 10 
+   dot1x timeout server-timeout 5 
+   dot1x timeout supp-timeout 3 
+   dot1x authentication dot1x mac 
+   dot1x radius-attributes vlan 
+   dot1x port-control auto 
+   spanning-tree portfast 
+   switchport mode general 
+   switchport general pvid 2 
+
+Once you have configured your switchports, you must configure the switch in PacketFence with the following information:
+
+* *Definition -> Type*: `Cisco SG500`
+* *Definition -> Mode*: `production`
+* *Definition -> Deauthentication Method*: `SNMP`
+* *Definition -> VoIP* enabled if you need VoIP on this switch.
+* *Roles -> voice VLAN* set to the VLAN you want to assign to the VoIP devices connecting to this switch.
+* *RADIUS -> Secret Passphrase*: `useStrongerSecret`
+* *SNMP -> Version*: `v2c`
+* *SNMP -> Community Read*: `public`
+* *SNMP -> Community Write*: `private`
+
+==== 802.1X commands
+
+  show dot1x
+  show dot1x users
+
+=== D-Link
+
+PacketFence supports D-Link switches without VoIP using two different trap types: 
+
+* linkUp/linkDown 
+* MAC Notification 
+
+*We recommend to enable linkUp/linkDown and MAC notification together.*
+
+Don't forget to update the startup config! 
+
+==== DES3526 / 3550 
+
+Global config settings 
+
+  To be contributed... 
+
+On each interface: 
+
+  To be contributed... 
+
+==== DGS3100/3200 
+
+Enable MAC notification:
+
+  enable mac_notification
+  config mac_notification interval 1 historysize 1
+  config mac_notification ports 1:1-1:24 enable
+
+Enable linkup/linkdown notification:
+
+  enable snmp traps 
+  enable snmp linkchange_traps
+
+Add SNMP host:
+
+  create snmp host 192.168.1.5 v2c  public
+
+Enable MAC base access control:
+
+  enable mac_based_access_control
+  config mac_based_access_control authorization attributes radius enable local disable
+  config mac_based_access_control method radius
+  config mac_based_access_control password useStrongerSecret
+  config mac_based_access_control password_type manual_string
+  config mac_based_access_control max_users no_limit
+  config mac_based_access_control trap state enable
+  config mac_based_access_control log state enable
+
+On each interface: 
+
+  config mac_based_access_control ports 1:1 state enable
+  config mac_based_access_control ports 1:1 max_users 128
+  config mac_based_access_control ports 1:1 aging_time 1440
+  config mac_based_access_control ports 1:1 block_time 300
+  config mac_based_access_control ports 1:1 mode host_based
+
+=== Dell 
+
+NOTE: When doing MAC Authentication, there is a known issue with some Dell switches. If you get errors where the device is using EAP type MD5, but PacketFence is expecting PEAP, you will need to edit the line *default_eap_type = peap* under the section *eap* in the file */usr/local/pf/conf/radiusd/eap.conf* to *default_eap_type = md5*.
+
+==== Force 10
+
+PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1X.
+
+Global config settings
+
+  radius-server host 192.168.1.5 key s3cr3t auth-port 1812
+ 
+MAB interface configuration:
+
+  interface GigabitEthernet 0/1
+   no ip address
+   switchport
+   dot1x authentication 
+   dot1x mac-auth-bypass 
+   dot1x auth-type mab-only 
+   no shutdown
+
+802.1X interface configuration:
+
+  interface GigabitEthernet 0/1
+   no ip address
+   switchport
+   dot1x authentication 
+   no shutdown
+
+==== PowerConnect 3424 
+
+PacketFence supports this switch using linkUp/linkDown traps. 
+
+Global config settings to define the RADIUS server
+
+   configure
+   radius-server host auth 10.34.200.30
+   name PacketFence
+   usage 802.1x
+   key s3cr3t
+   exit
+
+Configure CoA
+
+   aaa server radius dynamic-author
+   client 10.34.200.30 server-key s3cr3t
+   auth-type all
+   exit
+
+Enable authentication and globally enable 802.1x client authentication via RADIUS
+   
+   authentication enable
+   aaa authentication dot1x default radius
+   aaa authorization network default radius
+   dot1x system-auth-control
+
+(Optional)
+
+   dot1x dynamic-vlan enable
+
+On the interface, enable MAC based authentication mode, enable MAB, and set the order of authentication to 802.1X followed by MAC authentication. Also enable periodic re-authentication.
+
+   interface te1/0/4
+   dot1x port-control mac-based
+   dot1x mac-auth-bypass
+   authentication order dot1x mab
+   dot1x reauthentication
+   default mab pap
+   exit
+
+   authentication order mab
+   authentication priority mab
+
+==== N1500 Series Switch
+
+PacketFence supports this switch using RADIUS, MAC-Authentication, 802.1x and VoIP
+
+===== 802.1X with MAC Authentication fallback and VoIP
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  switchport mode trunk
+  switchport trunk allowed vlan 1-5,100
+
+
+Global config settings
+
+  configure
+  vlan 2,3,4,5,100
+  vlan 2
+  name "Registration"
+  vlan 3
+  name "Isolation"
+  vlan 4
+  name "Mac detection"
+  vlan 5
+  name "Guest"
+  vlan 100
+  name "VoIP"
+
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  voice vlan
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+  usage 802.1x
+  key "useStrongerSecret"
+  exit
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+
+  snmp-server community "private" rw
+  snmp-server community "public" ro
+
+On each interface (not uplink)
+
+  switchport voice detect auto
+  switchport mode general
+  switchport access vlan 10
+  dot1x port-control mac-based
+  dot1x reauthentication
+  dot1x mac-auth-bypass
+  authentication order mab
+  authentication priority mab
+  lldp transmit-tlv sys-desc sys-cap
+  lldp transmit-mgmt
+  lldp notification
+  lldp med confignotification
+  voice vlan 100
+  exit
+
+==== N1500 Series (FW >= 6.6.0.17)
+
+This configuration has been tested with firmware 6.6.0.17
+
+Global config settings:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  authentication dynamic-vlan enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  aaa accounting dot1x default start-stop radius
+  authentication dynamic-vlan enable
+  radius server auth 192.168.1.5
+  key useStrongerSecret
+  usage authmgr
+  name "PacketFence"
+  exit
+  radius server acct 192.168.1.5
+  name "PacketFenceAccounting"
+  key useStrongerSecret
+  exit
+  snmp-server community "private" rw
+  snmp-server community "public" ro
+
+802.1X/MAB with VoIP interface configuration:
+
+  switchport voice detect auto
+  switchport mode general
+  switchport general pvid 2
+  switchport general allowed vlan add 1-4093
+  authentication host-mode multi-domain
+  authentication periodic
+  dot1x timeout quiet-period 10
+  mab auth-type pap
+  authentication order mab
+  no authentication allow-unauth dhcp
+  lldp tlv-select system-description system-capabilities management-address
+  lldp notification
+  lldp med confignotification
+  switchport voice vlan 100
+
+Uplink port:
+
+  switchport mode trunk
+  switchport trunk allowed vlan 1-4096
+  authentication port-control force-authorized
+
+On other switch ports not managed by PacketFence:
+
+  switchport mode general
+  switchport general pvid x
+  switchport general allowed vlan add x
+  authentication port-control force-authorized
+
+
+Web-Auth:
+
+  ip access-list registration
+  1000 deny ip any 192.168.1.5 0.0.0.0
+  1010 permit tcp any any eq http
+  1020 permit tcp any any eq 443
+
+==== N2000 Series (N2024P)
+
+This configuration was tested with firmware version 6.2.1.6
+
+Global config settings:
+
+Radius configuration:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  radius-server key "useStrongerSecret"
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+
+802.1X interface configuration:
+
+  interface Gi0/0/1
+  switchport mode general
+  switchport general allowed vlan add 1-3,100
+  dot1x port-control mac-based
+  dot1x unauth-vlan 2
+  dot1x mac-auth-bypass
+  authentication order mab dot1x
+  voice vlan 100
+  exit
+
+=== Edge core
+
+PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
+
+PacketFence also supports MAC authentication on the Edge-corE 4510
+
+==== 3526XA and 3528M 
+
+Global config settings 
+
+  SNMP-server host 192.168.1.5 public version 2c udp-port 162 
+
+==== 4510
+
+===== Basic configuration
+
+----
+
+network-access aging
+snmp-server community private rw
+snmp-server community public rw
+
+
+radius-server 1 host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 5 retransmit 2 key useStrongerSecret
+radius-server key useStrongerSecret
+
+----
+
+===== On each controlled interface
+
+----
+
+interface ethernet 1/8
+ switchport allowed vlan add <your list of allowed vlans> untagged
+ network-access max-mac-count 1
+ network-access mode mac-authentication
+!
+
+----
+
+=== Enterasys 
+
+PacketFence supports Enterasys switches _without VoIP_ using two different trap types: 
+
+* linkUp/linkDown 
+* MAC Locking (Port Security with static MACs) 
+
+*We recommend to enable MAC locking only.*
+
+Don't forget to update the startup config! 
+
+==== Matrix N3 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. Also, by default this switch doesn't do an electrical low-level linkDown when setting the 
+port to admin down. So we need to activate a global option called `forcelinkdown` to enable 
+this behavior. Without this option, clients don't understand that they lost their connection and 
+they never do a new DHCP on VLAN change. 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+  set forcelinkdown enable 
+
+On each interface: 
+
+  set port trap ge.1.xx disable 
+  set maclock enable ge.1.xx 
+  set maclock static ge.1.xx 1 
+  set maclock firstarrival ge.1.xx 0 
+  set maclock trap ge.1.xx enable 
+
+where `xx` stands for the interface index.
+
+==== SecureStack C2 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+
+On each interface: 
+
+  set port trap fe.1.xx disable 
+  set maclock enable fe.1.xx 
+  set maclock static fe.1.xx 1 
+  set maclock firstarrival fe.1.xx 0 
+
+where `xx` stands for the interface index 
+
+==== SecureStack C3 
+
+This switch has the particular _feature_ of allowing more than one untagged egress VLAN per 
+port. This means that you must add all the VLAN created for PacketFence as untagged egress 
+VLAN on the relevant interfaces. This is why there is a VLAN command on each interface 
+below. 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+
+On each interface: 
+
+  set vlan egress 1,2,3 ge.1.xx untagged 
+  set port trap ge.1.xx disable 
+  set maclock enable ge.1.xx 
+  set maclock static ge.1.xx 1 
+  set maclock firstarrival ge.1.xx 0 
+  set maclock trap ge.1.xx enable 
+
+where `xx` stands for the interface index 
+
+==== Standalone D2 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. 
+
+CAUTION: This switch Switch accepts multiple untagged VLAN per port when configured 
+through SNMP. This is problematic because on some occasions the untagged VLAN port list 
+can become inconsistent with the switch’s running config. To fix that, clear all untagged VLANs 
+of a port even if the CLI interface doesn’t show them. 
+To do so, use: `clear vlan egress <vlans> <ports>` 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+
+On each interface: 
+
+  set port trap ge.1.xx disable 
+  set maclock enable ge.1.xx 
+  set maclock static ge.1.xx 1 
+  set maclock firstarrival ge.1.xx 0 
+  set maclock trap ge.1.xx enable 
+
+where `xx` stands for the interface index 
+
+=== Extreme Networks
+
+PacketFence supports Extreme Networks switches using:
+
+* linkUp/linkDown
+* MAC Address Lockdown (Port Security)
+* Netlogin - MAC Authentication
+* Netlogin - 802.1X
+* Netlogin - web authentication
+* RADIUS authentication for CLI access
+
+Don't forget to save the configuration!
+
+==== All Extreme XOS based switches
+
+In addition to the SNMP and VLANs settings, this switch needs the Web Services to be enabled and an administrative username and password provided in its PacketFence configuration for Web Services.
+
+===== MAC Address Lockdown (Port-Security)
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC Address Lockdown only.
+
+Global config settings without Voice over IP (VoIP):
+
+  enable snmp access
+  configure snmp add trapreceiver 192.168.1.5 community public
+  enable web http
+  configure vlan "Default" delete ports <portlist>
+  configure vlan registration add ports <portlist> untagged
+  configure ports <portlist> vlan registration lock-learning
+  disable snmp traps port-up-down ports <portlist>
+
+where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+
+Global config settings with Voice over IP (VoIP):
+
+  enable snmp access
+  configure snmp add trapreceiver 192.168.1.5 community public
+  enable web http
+  configure vlan "Default" delete ports <portlist>
+  configure vlan registration add ports <portlist> untagged
+  configure vlan voice add ports <portlist> tagged
+  configure ports <portlist> vlan registration lock-learning
+  configure ports <portlist> vlan voice limit-learning 1
+  disable snmp traps port-up-down ports <portlist>
+
+where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+
+===== MAC Authentication
+
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret useStrongerSecret
+  enable radius netlogin
+
+Netlogin (MAC Authentication)
+
+  configure netlogin vlan temp
+  enable netlogin mac
+  configure netlogin add mac-list default
+  configure netlogin dynamic-vlan enable
+  configure netlogin dynamic-vlan uplink-ports 50
+  configure netlogin mac authentication database-order radius
+  enable netlogin ports 1-48 mac
+  configure netlogin ports 1-48 mode port-based-vlans
+  configure netlogin ports 1-48 no-restart
+
+===== 802.1X
+
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret useStrongerSecret
+  enable radius netlogin
+
+Netlogin (802.1X)
+
+  configure netlogin vlan temp
+  enable netlogin dot1x
+  configure netlogin dynamic-vlan enable
+  configure netlogin dynamic-vlan uplink-ports 50
+  enable netlogin ports 1-48 dot1x 
+  configure netlogin ports 1-48 mode port-based-vlans
+  configure netlogin ports 1-48 no-restart
+
+NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will fallback to the MAC Authentication.
+
+===== Policy based access
+
+You can assign policies defined on the switch via PacketFence.
+
+First define your policy in the switch:
+
+  configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521 untagged-vlans 3521
+  configure policy profile 2 name "guest" pvid-status "enable" pvid 3522 untagged-vlans 3522
+  configure policy maptable response both
+  configure policy vlanauthorization enable
+
+Next, in PacketFence, enable 'Role by Switch Role' in your switch configuration and assign the policies to the roles there. They will be returned inside the Filter-Id attribute.
+
+Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
+
+===== Web authentication
+
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret useStrongerSecret
+  enable radius netlogin
+
+Web-auth profile
+
+  configure dns-client add name-server 8.8.8.8 vr VR-Mgmt
+  configure dns-client add domain-suffix example.com
+  configure policy captive-portal web-redirect 1 server 1 url http://192.168.1.5:80/Extreme::EXOS enable
+  configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0 web-redirect 1
+  configure policy rule 4 ipdestsocket 192.168.1.5 mask 32 forward
+  configure policy rule 4 udpdestportIP 53 mask 16 forward
+  configure policy rule 4 udpdestportIP 67 mask 16 forward
+  configure policy rule 4 ether 0x0806 mask 16 forward
+  configure policy captive-portal listening 80
+  configure policy captive-portal listening 443
+
+Next, in the switch configuration in PacketFence, enable 'External Portal Enforcement' and 'Role by Switch Role'. Under the 'registration' role, put 'Unregistered'
+
+Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
+
+===== RADIUS authentication for CLI access
+
+Configure RADIUS server IP address as primary server and the switch IP address as the client-ip.  Be sure to specify the correct virtual router
+
+  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip <CLIENT_IP> vr <VR>
+
+Configure the RADIUS shared-secret
+
+  configure radius mgmt-access primary shared-secret <SHARED_SECRET>
+
+Enable RADIUS for management access
+
+  enable radius mgmt-access
+
+=== Foundry
+
+==== FastIron 4802
+
+PacketFence support this switch with optional VoIP using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Don't forget to update the startup config!
+
+Those switches support port-security with static MAC address and allow us to secure a MAC on the data VLAN so we enable it whether there is VoIP or not.
+
+We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings
+
+  snmp-server host 192.168.1.5 public
+  no snmp-server enable traps link-down
+  no snmp-server enable traps link-up
+
+On each interface _without VoIP_:
+
+  int eth xx
+    port security
+      enable
+      maximum 1
+      secure 0200.0000.00xx 0
+      violation restrict
+
+where `xx` stands for the interface `ifIndex`.
+
+With VoIP a little more work needs to be performed. Instead of the no-VoIP, put in the following config:
+
+----
+conf t
+vlan <mac-detection-vlan>
+  untagged eth xx
+vlan <voice-vlan>
+  tagged eth xx
+
+int eth xx
+  dual-mode <mac-detection-vlan>
+  port security
+    maximum 2
+    secure 0200.00xx.xxxx <mac-detection-vlan>
+    secure 0200.01xx.xxxx <voice-vlan>
+    violation restrict
+    enable
+----
+
+where `xxxxxx` stands for the interface number (filled with zeros), `<voice-vlan>` with your voice-VLAN number and `<mac-detection-vlan>` with your mac-detection VLAN number.
+
+
+=== H3C
+
+==== S5120 Switch series
+
+PacketFence supports these switches with the following technologies:
+
+* 802.1X (with or without VoIP)
+* 802.1X with MAC Authentication fallback (with or without VoIP)
+* MAC Authentication (with or without VoIP)
+
+===== 802.1X
+
+RADIUS scheme creation:
+
+  radius scheme packetfence
+  primary authentication 192.168.1.5 1812 key useStrongerSecret
+  primary accounting 192.168.1.5 1813 key useStrongerSecret
+  user-name-format without-domain
+
+ISP-Domain creation:
+
+  domain packetfence
+  authentication default radius-scheme packetfence
+  authentication lan-access radius-scheme packetfence
+  authorization lan-access radius-scheme packetfence
+
+SNMP settings:
+
+  snmp-agent
+  snmp-agent community read public
+  snmp-agent community write private
+  snmp-agent sys-info version v2c
+
+Global configuration:
+
+  port-security enable
+  dot1x authentication-method eap
+
+Global configuration (with VoIP):
+
+Add the following to the previous global configuration.
+
+  undo voice vlan security enable
+  lldp compliance cdp
+
+Interfaces configuration:
+
+  port link-type hybrid
+  port hybrid vlan 5 untagged
+  port hybrid pvid vlan 5
+  mac-vlan enable
+  stp edged-port enable
+  port-security max-mac-count 1
+  port-security port-mode userlogin-secure
+  port-security intrusion-mode blockmac
+  dot1x re-authenticate
+  dot1x max-user 1
+  dot1x guest-vlan 5
+  undo dot1x handshake
+  dot1x mandatory-domain packetfence
+  undo dot1x multicast-trigger
+
+Interfaces configuration (with VoIP):
+
+Add the following to the previous interfaces configuration.
+
+  port hybrid vlan 100 tagged
+  undo voice vlan mode auto
+  voice vlan 100 enable
+  lldp compliance admin-status cdp txrx
+  port-security max-mac-count 3
+  dot1x max-user 2
+
+===== 802.1X with MAC Authentication fallback
+
+Since using MAC Authentication as a fallback of 802.1X, use the previous 802.1X configuration and add the followings.
+
+This configuration is the same with or without VoIP.
+
+Global configuration:
+
+  mac-authentication domain packetfence
+
+Interfaces configuration:
+
+  mac-authentication guest-vlan 5
+  port-security port-mode userlogin-secure-or-mac
+
+===== MAC Authentication
+
+RADIUS scheme creation:
+
+  radius scheme packetfence
+  primary authentication 192.168.1.5 1812 key useStrongerSecret
+  primary accounting 192.168.1.5 1813 key useStrongerSecret
+  user-name-format without-domain
+
+ISP-Domain creation:
+
+  domain packetfence
+  authentication default radius-scheme packetfence
+  authentication lan-access radius-scheme packetfence
+  authorization lan-access radius-scheme packetfence
+
+SNMP settings:
+
+  snmp-agent
+  snmp-agent community read public
+  snmp-agent community write private
+  snmp-agent sys-info version v2c
+
+Global configuration:
+
+  port-security enable
+  mac-authentication domain packetfence
+
+Global configuration (with VoIP):
+
+Add the following to the previous global configuration.
+
+  undo voice vlan security enable
+  lldp compliance cdp
+
+Interfaces configuration:
+
+  port link-type hybrid
+  port hybrid vlan 5 untagged
+  port hybrid pvid vlan 5
+  mac-vlan enable
+  stp edged-port enable
+  mac-authentication guest-vlan 5
+  port-security max-mac-count 1
+  port-security port-mode mac-authentication
+  port-security intrusion-mode blockmac
+
+Interfaces configuration (with VoIP):
+
+Add the following to the previous interfaces configuration.
+
+  port hybrid vlan 100 tagged
+  undo voice vlan mode auto
+  voice vlan 100 enable
+  lldp compliance admin-status cdp txrx
+  port-security max-mac-count 3
+
+=== HP
+
+==== HPE 1910 Serie
+
+The HP 1910 Serie is based on the 3Com OS and most of the configuration will be done from the GUI.
+
+VLAN creation:
+* go to *Network*, *VLAN*,
+* click on the _Create_ tab
+* create the VLANs
+
+
+Configure PacketFence as a RADIUS server:
+* go to *Authentication*, *RADIUS*
+* click on the _RADIUS Server_ tab
+* from _Server Type_, select *Authentication Server*
+* from _Primary Server_, give the *PacketFence IP address*
+* click *Apply*
+
+Then:
+* click on the _RADIUS Setup_ tab
+* check the box _Authentication Server Shared Key_
+* give the *shared key*
+* from _Username Format_, select *without-domain*
+* click *Apply*
+
+Create a new authentication domain:
+* go to *Authentication*, *AAA*,
+* click on the _Domain Setup_ tab,
+
+WARNING: We will need to create a specific authentication domain and *not making it as the default domain*.
+
+Configure the 802.1X and authentication method:
+* go to *Authentication*
+* click on the _802.1X_ tab
+* check the _Enable 802.1X_ box
+* from _Authentication Method_, select *EAP*
+
+Configure the authentication domain:
+
+INFO: Even limited, there is a command line access.
+
+* connect to the switch using ss,
+* type the command:
+
+ _cmdline-mode on
+
+* password is: *512900*
+* Type the commands:
+
+ System-view
+ Mac-authentication domain YOUR_DOMAIN_NAME
+ Mac-authentication user-name-format mac-address with-hyphen
+
+* change the _YOUR_DOMAIN_NAME_ with the one from your environment
+* do not close your terminal, we will come back to this later
+
+* from the GUI, go to *Authentication*, *802.1X*
+* from _Port_, select the port your are connected to. *GigabitEthernet X/X/X*
+* from _Port Control_, select *MAC Based*
+* from _Max Number of Users_, give *2*
+* check the box _Enable Re-Authentication_
+* click on *Apply*
+
+
+Enable the MAC Authentication in SSH, as well:
+
+* back on the SSH terminal
+* type the following command:
+
+ Mac-authentication interface gX/X/X
+
+* modify the interface name for your environment
+
+The configuration is done.
+
+
+==== E4800G and E5500G Switch series
+
+These are re-branded 3Com switches, see under the <<_3com,3Com section>> for their documentation.
+
+=== HP ProCurve
+
+PacketFence supports ProCurve switches _without VoIP_ using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Don't forget to update the startup config!
+
+NOTE: HP ProCurve only sends one security trap to PacketFence per security violation so make sure PacketFence runs when you configure port-security. Also, because of the above limitation, it is considered good practice to reset the intrusion flag as a first troubleshooting step.
+
+If you want to learn more about intrusion flag and port-security, please refer to the ProCurve documentation.
+
+CAUTION: If you configure a switch that is already in production be careful that enabling port-security causes active MAC addresses to be automatically added to the intrusion list without a security trap sent to PacketFence. This is undesired because PacketFence will not be notified that it needs to configure the port. As a work-around, unplug clients before activating port-security or remove the intrusion flag after you enabled port-security with: `port-security <port> clear-intrusion-flag`.
+
+==== 2500 Series
+
+linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+
+On 2500's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings:
+
+  snmp-server community "public" Unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+On each interface: 
+
+  port-security xx learn-mode static action send-alarm mac-address 0200000000xx
+
+where `xx` stands for the interface index
+
+===== CLI authentication
+
+You can use PacketFence for RADIUS CLI authentication on the 2500 Series.
+
+Global config settings
+
+  radius-server host 192.168.1.5 key useStrongerSecret
+  aaa authentication ssh login radius local
+  aaa authentication telnet login radius local
+
+Next, make sure you configure the switch in PacketFence accordingly as well as the proper administrative access. Refer to the Administration Guide for more details.
+
+==== 2600 Series and 3400cl Series
+
+===== Port-Security
+
+linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+
+On 2600's, we *don't* need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings
+
+  snmp-server community public manager unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+On each interface: 
+
+  port-security xx learn-mode configured action send-alarm
+
+where `xx` stands for the interface index
+
+===== MAC Authentication (Firmware > 11.72)
+
+In order to enable RADIUS mac authentication on the ports, you first need to join the ports to either the registration or the mac detection vlan (as a security measure).
+
+Next, define the RADIUS server host:
+
+   radius-server host 192.168.1.5 key useStrongerSecret
+
+Next, we create a server-group that points to the PacketFence server,
+
+   aaa server-group radius "packetfence" host 192.168.1.5
+
+Configure the AAA authentication for MAC authentication to use the right server-group:
+
+   aaa authentication mac-based chap-radius server-group "packetfence"
+
+Optionally, you can configure the SSH and telnet authentication to point to PacketFence (make sure you also follow instructions in the Administration Guide to activate the CLI access):
+
+  aaa authentication login privilege-mode
+
+  aaa authentication ssh login radius server-group packetfence local
+  aaa authentication telnet login radius server-group packetfence local
+
+Finally, enable MAC authentication on all necessary ports:
+
+   aaa port-access mac-based 1-24
+
+Don't forget to permit address moves and the reauth period.  x represents the port index:
+
+   aaa port-access mac-based x addr-moves
+   aaa port-access mac-based x reauth-period 14400
+   
+(Thanks to Jean-Francois Laporte for this contribution)
+
+==== 2610
+
+===== 802.1X
+
+Define the RADIUS server host:
+
+   radius-server host 192.168.1.5 key "useStrongerSecret"
+   radius-server host 192.168.1.5 acct-port 1813 key "useStrongerSecret"
+
+Define the SNMP configuration:
+
+   snmp-server host 192.168.1.5 community "public" informs trap-level not-info
+   no snmp-server enable traps link-change C1
+
+Configure the server-group:
+
+   aaa server-group radius "packetfence" host 192.168.1.5
+
+Configure authentication:
+
+   aaa authentication port-access eap-radius server-group "packetfence"
+   aaa authentication mac-based chap-radius server-group "packetfence"
+
+Configure the port-security:
+
+   port-security C1 learn-mode port-access action send-alarm
+
+Configuration of the port:
+
+   aaa port-access authenticator C1
+   aaa port-access authenticator C1 client-limit 1
+   aaa port-access authenticator active
+   aaa port-access mac-based C1
+   aaa port-access mac-based C1 addr-moves
+   aaa port-access mac-based C1 reauth-period 14400
+   aaa port-access C1 controlled-direction in   
+
+(Thanks to Denis Bonnenfant for this contribution)
+
+==== 4100, 5300, 5400 Series
+
+===== Port-Security
+
+linkUp/linkDown traps are enabled by default and we have not found a way yet to disable them so do not forget to declare the trunk ports as uplinks in the switch config file.
+
+On 4100's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port. The ports are indexed differently on 4100's: it's based on the number of modules you have in your 4100, each module is indexed with a letter.
+
+Global config settings
+
+  snmp-server community "public" Unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+You should configure interfaces like this:
+
+  port-security A1 learn-mode static action send-alarm mac-address 020000000001
+  ...
+  port-security A24 learn-mode static action send-alarm mac-address 020000000024
+  port-security B1 learn-mode static action send-alarm mac-address 020000000025
+  ...
+  port-security B24 learn-mode static action send-alarm mac-address 020000000048
+  port-security C1 learn-mode static action send-alarm mac-address 020000000049
+  ...
+
+===== MAC Authentication (with VoIP)
+
+In order to have MAC Authentication working with VoIP, you need to ensure that the Voice VLAN is tagged on all the port first. You also need to activate lldp notification on all ports that will handle VoIP. 
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
+
+RADIUS configuration
+  radius-server host 192.168.1.5 key strongKey
+
+MAC Authentication
+
+  aaa port-access mac-based C5-C7
+  aaa port-access mac-based C5 addr-limit 2
+  aaa port-access mac-based C6 addr-limit 2
+  aaa port-access mac-based C7 addr-limit 2
+  aaa port-access C5 controlled-direction in
+  aaa port-access C6 controlled-direction in
+  aaa port-access C7 controlled-direction in
+
+===== 802.1X (with VoIP)
+
+Same as MAC Authentication, you need to ensure that the Voice VLAN is tagged on all the port first if using 802.1X. You also need to activate lldp notification on all ports that will handle VoIP. 
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
+
+RADIUS configuration
+
+  radius-server host 192.168.1.5 key strongKey
+
+802.1X
+
+  aaa authentication port-access eap-radius
+  aaa port-access authenticator C3-C4
+  aaa port-access authenticator C3 client-limit 3
+  aaa port-access authenticator C4 client-limit 3
+  aaa port-access authenticator active
+
+===== Downloadable ACLs
+
+HP and Aruba switches running the ArubaOS-Switch operating system (previously called ProVision) support dynamic RADIUS-assigned ACLs. It requires RADIUS authentication using the 802.1X, Web authentication or MAC authentication available on the switch. You can define ACLs in PacketFence so that they can be automatically applied on the ports of the switches based on the role assigned. We have tested it successfully on the Aruba 2930M and 3810 series on version 16.05.0004.
+
+To use this feature, first configure RADIUS and the authentication method on your switch. Next, in the PacketFence web admin interface, go to _Configuration -> Policies and Access Control -> Switches_. Click on the switch you want, then on the 'Roles' tab, and check 'Role by access list'. Now you are able to add ACLs for each role.
+
+Configure RADIUS operation on the switch:
+
+  radius-server host <ipv4-address> key <key-string>
+
+Configure RADIUS network accounting on the switch (optional).
+
+  aaa accounting network <start-stop|stop-only> radius
+
+You can also view ACL counter hits using either of the following commands:
+
+  show access-list radius <port-list>
+  show port-access <authenticator|mac-based|web-based> <port-list> clients detailed
+
+Configure an authentication method. Options include 802.1X, web-based authentication, and MAC authentication. You can configure 802.1X, web-based authentication, and/or MAC authentication to operate simultaneously on the same ports.
+
+* 802.1X Option:
+
+  aaa port-access authenticator <port-list>
+  aaa authentication port-access chap-radius
+  aaa port-access authenticator active
+
+* MAC Authentication Option:
+
+  aaa port-access mac-based <port-list>
+
+* Web Authentication Option:
+
+  aaa port-access web-based <port-list>
+
+This command configures web-based authentication on the switch and activates this feature on the specified ports.
+
+For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
+
+image::aruba-registration-acl.png[scaledwidth="100%",alt="Registration ACL"]
+
+Now, your normal users are placed in the 'default' role and your guests in the 'guest' role.
+
+The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network 192.168.10.0/24.
+
+You can prevent communications between both networks using these access lists
+
+image::aruba-acl-default-guest.png[scaledwidth="100%",alt="Cross network deny ACL"]
+
+You could also only prevent your guest users from using shared directories
+
+image::aruba-acl-guest.png[scaledwidth="100%",alt="Deny shares ACL"]
+
+You could also restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+
+image::aruba-acl-default-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
+// Huawei switchs
+include::networkdevice/huawei_switchs.asciidoc[]
+
+=== IBM
+
+==== RackSwitch G8052
+
+PacketFence supports only 802.1X authentication. It has been tested on version 7.9.11.0.
+
+===== RADIUS configuration
+
+----
+RS G8052(config)# radius-server primary-host 192.168.1.5
+RS G8052(config)# radius-server enable
+RS G8052(config)# radius-server primary-host 192.168.1.5 key useStrongerSecret
+----
+
+===== 802.1X (dot1x) configuration
+
+----
+RS G8052(config)# dot1x enable
+----
+
+===== SNMP configuration
+
+----
+RS G8052(config)# snmp-server read-community packetfence
+RS G8052(config)# snmp-server write-community packetfence
+----
+
+===== Port configuration
+
+----
+RS G8052(config)# configure terminal
+RS G8052(config)# interface port 1
+RS G8052(config-if)# dot1x mode auto
+RS G8052(config-if)# dot1x quiet-time 2
+RS G8052(config-if)# dot1x server-timeout 3
+RS G8052(config-if)# dot1x re-authenticate
+RS G8052(config-if)# dot1x re-authentication-interval 10800
+RS G8052(config-if)# dot1x vlan-assign
+RS G8052(config-if)# end
+----
+
+===== PacketFence configuration
+
+In order to configure the IBM RackSwitch G8052 switch module, go in the PacketFence administration interface under *Configuration->Switches->Add switch*
+
+Definition:
+
+ IP: This will be the IP of the IBM StackSwitch G8052 switch on the management network
+ Description: IBM StackSwitch G8052
+ Type: IBM RackSwitch G8052
+ Mode: Production
+ Deauthentication: SNMP
+ Dynamic Uplinks: Checked
+
+Roles:
+
+   Role by VLAN ID: checked
+   registration VLAN: 2
+   isolation VLAN: 3
+   default: 10
+
+Radius:
+
+   Secret Passphrase: useStrongerSecret
+
+Snmp:
+
+    SNMP Version: 2c
+    SNMP Read Community: packetfence
+    SNMP Write Community: packetfence
+   
+Click Save to add the switch
+
+=== Intel
+
+==== Express 460 and Express 530
+
+PacketFence support these switches _without VoIP_ using one trap type:
+
+* linkUp/linkDown
+
+Exact command-line configuration to be contributed...
+
+=== Juniper
+
+PacketFence supports Juniper switches in MAC Authentication (Juniper's MAC RADIUS) mode and 802.1X.
+PacketFence supports VoIP on the EX2200 (JUNOS 12.6) and EX4200 (JUNOS 13.2)
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+interfaces {
+    interface-range access-ports {
+        member-range ge-0/0/1 to ge-0/0/46;
+        unit 0 {
+            family ethernet-switching {
+                port-mode access;
+            }
+        }
+    }
+}
+
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius;
+                }
+            }
+        }
+    }
+}
+
+access {
+    radius-server {
+        192.168.1.5 {
+            port 1812;
+            secret "useStrongerSecret";
+        }
+    }
+
+    profile packetfence {
+        authentication-order radius;
+        radius {
+            authentication-server 192.168.1.5;
+            accounting-server 192.168.1.5;
+        }
+        accounting {
+            order radius;
+            accounting-stop-on-failure;
+            accounting-stop-on-access-deny;
+        }
+    }
+}
+
+ethernet-switching-options {
+    secure-access-port {
+        interface access-ports {
+            mac-limit 1 action drop;
+        }
+    }
+}
+
+snmp {
+    name "EX 4200";
+    description juniper;
+    location EX;
+    contact "email@example.com";
+    client-list list0 {
+        192.168.1.5/32;
+    }
+    community public {
+        authorization read-only;
+        client-list-name list0;
+    }
+    community private {
+        authorization read-write;
+        client-list-name list0;
+    }
+}
+
+Ctrl-D
+# commit comment "packetfenced"
+----
+
+Change the `interface-range` statement to reflect the ports you want to secure with PacketFence.
+
+==== VoIP configuration
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+protocols{
+    lldp {
+        advertisement-interval 5;
+        transmit-delay 1;
+        ptopo-configuration-trap-interval 1;
+        lldp-configuration-notification-interval 1;
+        interface all;
+    }
+    lldp-med {
+        interface all;
+    }
+}
+
+ethernet-switching-options { 
+    secure-access-port {
+        interface access-ports {
+            mac-limit 2 action drop;
+        }
+    }
+    voip {
+        interface access-ports {
+            vlan voice;
+            forwarding-class voice;
+        }
+    }
+   }
+}
+
+vlans {
+    voice {
+        vlan-id 3;
+    }
+}
+
+Ctrl-D
+# commit comment "packetfenced VoIP"
+----
+
+==== 802.1X configuration
+
+----
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius;
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "packetfenced dot1x"
+----
+
+
+==== MAC Authentication configuration
+
+----
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius {
+                        restrict;
+                    }
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "packetfenced mac auth"
+----
+
+
+==== Configuration for MAC authentication floating devices
+
+To support floating devices on a Juniper switch you need to configure the 'flap-on-disconnect' option on each interface individually and remove it from the access-ports group.
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                ge-0/0/1.0 {
+                    mac-radius{
+                        flap-on-disconnect;
+                    }
+                }
+                 ge-0/0/2.0 {
+                    mac-radius{
+                        flap-on-disconnect;
+                    }
+                }
+                .....
+
+                access-ports {
+                    supplicant multiple;
+                    mac-radius {
+                        restrict; 
+                    }
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "configured for floating devices"
+----
+
+NOTE: `flap-on-disconnect` option takes effect only
+when the `restrict` option is also set.
+
+
+==== Radius CLI login
+
+----
+set system authentication-order [ radius password ]
+
+set system radius-server 192.168.1.5 secret useStrongerSecret
+
+set system login user RO class read-only
+
+set system login user SU class super-user
+----
+
+=== LG-Ericsson
+
+PacketFence supports iPECS series switches _without VoIP_ using two different trap types:
+
+* linkUp / linkDown
+* Port Security (with static MACs)
+
+On some recent models, we can also use more secure and robust features, like:
+
+* MAC Authentication
+* 802.1X
+
+==== ES-4500G Series
+
+===== LinkUp / LinkDown
+
+Firmware 1.2.3.2 is required for linkUp / linkDown
+
+Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink port.
+
+Global config settings
+
+  snmp-server community public ro
+  snmp-server community private rw
+  !
+  snmp-server enable traps authentication
+  snmp-server host 192.168.1.5 public version 2c udp-port 162
+  snmp-server notify-filter traphost.192.168.1.5.public remote 192.168.1.5
+
+Firmware is kinda buggy so you'll need to enable linkUp / linkDown using the Web Interface under *Administration -> SNMP*.
+
+Some reports shows that the switch doesn't always send linkDown traps.
+
+On each interface (except uplink)
+
+  switchport allowed vlan add 4 untagged
+  switchport native vlan 4
+  switchport allowed vlan remove 1
+  switchport mode access
+
+===== Port-Security
+
+Firmware 1.2.3.2 is required for port-security.
+
+Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink port.
+
+Global config settings
+
+  snmp-server community public ro
+  snmp-server community private rw
+  !
+  snmp-server enable traps authentication
+  snmp-server host 192.168.1.5 public version 2c udp-port 162
+  snmp-server notify-filter traphost.192.168.1.5.public remote 192.168.1.5
+
+On each interface (except uplink)
+
+  port security max-mac-count 1
+  port security
+  port security action trap
+  switchport allowed vlan add 2 untagged
+  switchport native vlan 2
+  switchport allowed vlan remove 1
+  switchport mode access
+
+The above _port security_ command may not work using the CLI. In this case, use the Web Interface under the _Security -> Port Security_ menu and enable each ports using the checkboxes.
+
+It is also recommended, when using port-security, to disable link-change (UP / DOWN) traps.
+
+Don't forget to update the startup config!
+
+=== Linksys
+
+PacketFence supports Linksys switches _without VoIP_ using one trap type:
+
+* linkUp/linkDown
+
+Don't forget to update the startup config!
+
+==== SRW224G4
+
+Global config settings
+
+  no snmp-server trap authentication
+  snmp-server community CS_2000_le rw view Default 
+  snmp-server community CS_2000_ls ro view Default 
+  snmp-server host 192.168.1.5 public 2
+
+On each interface
+
+  switchport access vlan 4
+
+=== Netgear
+
+The "web-managed smart switch" models GS108Tv2/GS110/GS110TP are supported with Link up/down traps only.
+
+Higher-end "fully managed" switches including FSM726v1 are supported in Port Security mode.
+
+==== FSM726 / FSM726S version 1
+
+PacketFence supports FSM726 / FSM726S version 1 switches _without VoIP_ in Port Security mode (with static MACs) – called Trusted MAC table on Netgear's hardware.
+
+Using the HTTP GUI, follow the steps below to configure such feature. Of course, you must create all your VLANs on the switch as well.
+
+[float]
+===== SNMP Settings
+
+In _Advanced -> SNMP -> Community Table_, create a read-write community string and a trap community string. You can use the same community for all the 3 functions (Get, Set, Trap).
+  
+Next, under _Advanced -> SNMP -> Host Table_, enable the Host Authorization feature and add the PacketFence server into the allowed host list.
+
+Finally, under _Advanced -> SNMP -> Trap Setting_, enable the authentication trap.
+
+[float]
+===== Trusted MAC Security
+
+Under _Advanced -> Advanced Security -> Trusted MAC Address_, create a fake MAC address per port (ie. 02:00:00:00:00:xx where `xx` is the port number). This will have the effect of sending a security trap to PacketFence when a new device plugs on the port.
+  
+Don't forget to save the configuration!
+
+==== GS108Tv2 / GS110T / GS110TP
+
+PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
+
+[float]
+===== Switch Configuration
+
+It can be difficult to find the advanced features in the web GUI. We recommend using the GUI "Maintenance" tab to Upload the configuration to a file, and then edit it there.
+
+Hints on file upload/download:
+
+From the File Type menu, choose Text Configuration.
+
+If you're uploading to the TFTP root directory, leave Path blank.
+
+At the top of the config file, you need:
+
+  vlan database
+  vlan 1,2,3,4,5
+  vlan name 1 "Normal"
+  vlan name 2 "Registration"
+  vlan name 3 "Isolation"
+  vlan name 4 "MAC Detection"
+  vlan name 5 "Guest"
+  exit
+
+In the same section as "users passwd", you need to specify your PacketFence server's management address:
+
+  snmptrap useStrongerSecret ipaddr 192.168.1.5
+
+In the same section as the "voip oui" lines, you need to allow your SNMP server:
+
+  snmp-server community "public"
+  snmp-server community rw useStrongerSecret
+  snmp-server community ipaddr 192.168.1.5 public
+  snmp-server community ipmask 255.255.255.0 public
+  snmp-server community ipaddr 192.168.1.5 useStrongerSecret
+  snmp-server community ipmask 255.255.255.0 useStrongerSecret
+  no voip vlan
+
+You should use port 1 as the uplink. If you connect port 1 of a GS108Tv2 switch into a Power over Ethernet switch, then the GS108Tv2 does not need AC power. If you bought GS110T(P) switches, presumably it's for the SFP uplink option. You'll want to configure both port 1 and the SFP ports 9-10 as trunks:
+
+  interface 0/1
+  no snmp trap link-status
+  ip dhcp filtering trust
+  vlan pvid 1
+  vlan ingressfilter
+  vlan participation include 1,2,3,4,5
+  vlan tagging 2,3,4,5
+  no auto-voip
+  exit
+
+Each user-facing, PacketFence-managed port should be configured like:
+
+  interface 0/2
+  vlan pvid 4
+  vlan ingressfilter
+  vlan participation include 4
+  no auto-voip
+  exit
+
+==== M Series
+
+PacketFence supports the Netgear M series in wired MAC authentication without VoIP.
+
+===== Switch configuration
+
+---
+
+radius server host auth 192.168.1.5
+radius server key auth 192.168.1.5 (then press enter and input your secret)
+radius server primary 192.168.1.5
+radius server host acct 192.168.1.5
+radius server key acct 192.168.1.5 (then press enter and input your secret)
+
+
+aaa session-id unique
+dot1x system-auth-control
+aaa authentication dot1x default radius
+authorization network radius
+radius accounting mode
+
+---
+
+===== On your uplinks
+
+---
+
+dot1x port-control force-authorized
+
+---
+
+===== On your interfaces
+
+---
+
+interface 0/x
+dot1x port-control mac-based
+dot1x timeout guest-vlan-period 1
+dot1x mac-auth-bypass
+exit
+
+---
+
+=== Nortel
+
+PacketFence supports Nortel switches with VoIP using one trap type:
+
+* Mac Security
+
+Don't forget to update the startup config!
+
+NOTE: if you are using a 5500 series with a firmware version of 6 or above, you must use a different module called Nortel::BayStack5500_6x in your `/usr/local/pf/conf/switches.conf`. Indeed, Nortel introduced an incompatible change of behavior in this firmware.
+
+==== BayStack 470, ERS2500 Series, ERS4500 Series, 4550, 5500 Series and ES325
+
+[float]
+===== Global config settings
+
+  snmp-server authentication-trap disable
+  snmp-server host 192.168.1.5 "public"
+  snmp trap link-status port 1-24 disable
+  no mac-security mac-address-table
+  interface FastEthernet ALL
+  mac-security port ALL disable
+  mac-security port 1-24 enable
+  default mac-security auto-learning port ALL max-addrs
+  exit
+  mac-security enable
+  mac-security snmp-lock disable
+  mac-security intrusion-detect disable
+  mac-security filtering enable
+  mac-security snmp-trap enable
+  mac-security auto-learning aging-time 60
+  mac-security learning-ports NONE
+  mac-security learning disable
+
+[float]
+===== VoIP support
+
+You need to ensure that all your ports are tagged with the voice VLAN. The switch should do the rest for you.
+
+  vlan create 6 name "Telephone" type port learning ivl
+  vlan members 6 1-20,23-24
+
+==== BPS2000
+
+You can only configure this switch through menus.
+
+Enable MAC Address Security:
+
+-----
+MAC Address Security: Enabled
+MAC Address Security SNMP-Locked: Disabled
+Partition Port on Intrusion Detected: Disabled
+DA Filtering on Intrusion Detected: Enabled
+Generate SNMP Trap on Intrusion: Enabled
+Current Learning Mode: Disabled
+Learn by Ports: NONE
+
+Port  Trunk  Security
+----  -----  --------
+   1         Enabled
+ ...
+  24         Enabled
+-----
+
+=== Pica8
+
+PacketFence supports Pica8 switches without VoIP using CoA to:
+
+* bounce-host-port
+* reauthenticate-host
+
+Notes
+
+* **SNMP is not supported yet**
+* **Port Security is not supported**
+
+For interfaces with MAC Authentication, perform the following:
+
+  set interface gigabit-ethernet ge-1/1/25 family ethernet-switching port-mode trunk
+  set protocols dot1x interface ge-1/1/25 auth-mode mac-radius
+  set protocols dot1x interface ge-1/1/25 dynamic-vlan-enable true
+  set protocols dot1x traceoptions interface ge-1/1/25 flag all disable false
+
+For interfaces with 802.1X, perform:
+
+  set interface gigabit-ethernet ge-1/1/4 family ethernet-switching port-mode trunk
+  set protocols dot1x interface ge-1/1/4 auth-mode dot1x
+  set protocols dot1x interface ge-1/1/4 dynamic-vlan-enable true
+  set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
+  
+Global configuration:
+
+  set protocols dot1x aaa radius nas-ip 10.10.51.169
+  set protocols dot1x aaa radius authentication server-ip 192.168.1.5 shared-key useStrongerSecret
+  set protocols dot1x aaa radius dynamic-author client 192.168.1.5 shared-key useStrongerSecret
+  set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
+  set protocols dot1x traceoptions flag radius disable false
+  set vlans vlan-id 10
+  set vlans vlan-id 20
+  set vlans vlan-id 30
+  commit
+
+* `10.10.51.169` is the switch IP
+* For interfaces where auth-mode is unknown, use the following command
+    set protocols dot1x interface ge-1/1/12 auth-mode dot1x-mac-radius
+  This allows the switch to first try 802.1X and if there is no response from the client then fallback to MAC Authentication.
+* Create VLAN(s) on the switch as per your requirements
+* Please note that traceoptions are only for debugging
+
+=== SMC
+
+==== TigerStack 6128L2, 8824M and 8848M
+
+PacketFence supports these switches without VoIP using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Global config settings
+
+  SNMP-server host 192.168.1.5 public version 2c udp-port 162
+  no snmp-server enable traps link-up-down
+
+On each interface: 
+
+  port security max-mac-count 1
+  port security
+  port security action trap
+
+==== TigerStack 6224M
+
+Supports linkUp/linkDown mode
+
+Global config settings
+
+  SNMP-server host 192.168.1.5 public version 1
+
+
+=== Ubiquiti
+
+==== EdgeSwitch
+
+PacketFence supports the EdgeSwitch with the following techniques:
+
+* 802.1X with MAC Authentication fallback
+* 802.1X with MAC Authentication fallback with VoIP
+
+===== 802.1X with MAC Authentication fallback
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  vlan participation include 1,2,3,4,5,100
+  vlan tagging 2,3,4,5,100
+
+Global config settings:
+
+  vlan database
+  vlan 1
+  vlan 2
+  vlan 3
+  vlan 4
+  vlan 5
+  vlan 100
+  exit
+
+  configure
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  authorization network radius
+  dot1x dynamic-vlan enable
+  radius accounting mode
+  radius server host auth "192.168.1.5" name "PacketFence"
+  radius server key auth "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  radius server primary "192.168.1.5"
+  no radius server msgauth "192.168.1.5"
+  radius server attribute 4 192.168.1.254
+
+  radius server attribute 32 "EdgeSwitch"
+  radius server host acct "192.168.1.5" name PacketFence-ACCT
+  radius server key acct "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  snmp-server community public ro
+  snmp-server community private rw
+  exit
+
+On each interface (not uplink)
+
+  dot1x port-control mac-based
+  dot1x re-authentication
+  dot1x timeout reauth-period 1800
+  dot1x timeout supp-timeout 10
+  dot1x timeout guest-vlan-period 3
+  dot1x timeout server-timeout 1800
+  dot1x mac-auth-bypass
+  dot1x unauthenticated-vlan 4
+  vlan participation include 1,2,3,4,5,100
+  exit
+
+
+===== 802.1X with MAC Authentication fallback with VoIP
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  vlan participation include 1,2,3,4,5,100
+  vlan tagging 2,3,4,5,100
+
+Global config settings:
+
+  vlan database
+  vlan 1
+  vlan 2
+  vlan 3
+  vlan 4
+  vlan 5
+  vlan 100
+  exit
+
+  configure
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  authorization network radius
+  dot1x dynamic-vlan enable
+  voice vlan 100
+  radius accounting mode
+  radius server host auth "192.168.1.5" name "PacketFence"
+  radius server key auth "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  radius server primary "192.168.1.5"
+  no radius server msgauth "192.168.1.5"
+  radius server attribute 4 192.168.1.254
+
+  radius server attribute 32 "EdgeSwitch"
+  radius server host acct "192.168.1.5" name PacketFence-ACCT
+  radius server key acct "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  snmp-server community public ro
+  snmp-server community private rw
+  exit
+
+On each interface (not uplink)
+
+  dot1x port-control mac-based
+  dot1x re-authentication
+  dot1x timeout reauth-period 1800
+  dot1x timeout supp-timeout 10
+  dot1x timeout guest-vlan-period 3
+  dot1x timeout server-timeout 1800
+  dot1x mac-auth-bypass
+  dot1x unauthenticated-vlan 4
+  vlan participation include 1,2,3,4,5,100
+  voice vlan 100
+  auto-voip protocol-based
+  lldp transmit
+  lldp receive
+  lldp transmit-tlv port-desc
+  lldp transmit-tlv sys-name
+  lldp transmit-tlv sys-desc
+  lldp transmit-tlv sys-cap
+  lldp transmit-mgmt
+  lldp notification
+  lldp med
+  lldp med confignotification
+  exit
+

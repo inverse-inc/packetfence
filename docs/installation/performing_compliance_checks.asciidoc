@@ -1,0 +1,360 @@
+//== Performing Compliance Checks
+
+PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
+Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
+It mean per example that you are now able to active a scan for specific Operating System only on a specific SSID.
+
+=== Installation
+
+==== Nessus
+
+Please visit https://www.tenable.com/downloads/nessus to download Nessus v7 and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
+
+After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
+
+NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRPC module (which is the default behavior in PacketFence). Please refer to the http://packetfence.org/bugs/view.php?id=1841[bug tracking system] for more information.
+
+==== OpenVAS
+
+===== Requirements
+
+
+You will first need to install OpenVAS along with XYZ and ABC in order to manage OpenVAS remotely via the `omp` command line.
+
+In order to validate proper connectivity from PacketFence to OpenVAS for remote management, execute the following command (replacing admin by the user you wish to use for PacketFence to communicate with OpenVAS):
+
+  # omp -u admin -p 9390 -X "<get_version/>" 
+
+The output of the above command should provide you the version of OpenVAS. Otherwise, ensure all the necessary components are in place for management through the `omp` command line client and that PacketFence is able to communicate with OpenVAS on port 9390.
+
+===== Configuring the alert
+
+
+You will need to configure an alert policy in OpenVAS to inform PacketFence of the completion of a task. The httpd.portal daemon takes care of handling this callback so you'll want to make sure that you have "portal" in your additionnal listening daemons on your management interface in PacketFence.
+
+In order to create the alert policy, go in the Greenbone Security Assistant, then in "Configuration -> Alerts" and create a new alert with the following configuration
+
+image::openvas/alert.png[alt="OpenVAS alert"]
+
+Where:
+
+ * Name is of the value of your choosing
+ * Ensure the event is set to "Task run status changed to: Done"
+ * Ensure the condition is set to "Always"
+ * Method is set to "HTTP Get"
+ * HTTP Get URL is set to: http://PF_MANAGEMENT_IP/hook/openvas?task=$n
+ ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of your PacketFence server. Leave the rest of the URL untouched as this exact URL and format is expected by PacketFence.
+
+===== Collecting the identifiers
+
+Once you have connectivity working between PacketFence and OpenVAS, use the Greebone Security Assistant to obtain the following information for configuring PacketFence
+
+*Alert ID*
+
+Navigate to _Configuration -> Alerts_, then click on the alert you've configured above to view it, and note down the ID of the alert.
+
+image::openvas/alert-id.png[alt="OpenVAS alert ID"]
+
+*Scan config ID*
+
+Navigate to _Configuration -> Scan Configs_ and then select the scan configuration you would like to use to scan the hosts. In this scan config view, note down the ID.
+
+image::openvas/scan-config-id.png[alt="OpenVAS scan config ID"]
+
+*Report format ID* 
+
+Navigate to _Configuration -> Report Formats_ and then select the `CSV Results` report format. In this view, note down the ID.
+
+image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
+
+==== WMI
+
+You just have to enable WMI on each Microsoft Windows devices with a GPO from Active Directory.
+
+=== Configuration
+
+In order for the compliance checks to correctly work with PacketFence (communication and generate security events inside PacketFence), you need to configure these sections:
+
+==== Scanner Definition
+
+First go in Configuration and Scanner Definition: _Configuration -> Compliance -> Scan Engines_
+
+Then add a `New Scan Engine`
+
+image::scan_type.png[alt="Scanner add"]
+
+There are common parameters for each scan engines:
+
+  Name: the name of your scan engine
+  Roles: Only devices with these role(s) will be affected (Optional)
+  OS: Only devices with this Operating System will be affected (Optional)
+  Duration: Approximate duration of scan (Progress bar on the captive portal)
+  Scan before registration: Trigger the scan when the device appear on the registration vlan
+  Scan on registration: Trigger the scan just after registration on the captive portal
+  Scan after registration: Trigger the scan on the production network (pfdhcplistener must receive production dhcp traffic)
+
+Specific to Nessus:
+
+  Hostname or IP Address: Hostname or IP Address where Nessus is running
+  Username: Username to connect to Nessus scan
+  Password: Password to connect to Nessus scan
+  Port of the service: port to connect (default 8834)
+  Nessus client policy: the name of the policy to use for the scan (Must be define on the Nessus server)
+
+Specific to OpenVAS:
+
+  Hostname or IP Address: Hostname or IP Address where OpenVAS is running
+  Username: Username to connect to OpenVAS scan
+  Password: Password to connect to OpenVAS scan
+  Port of the service: port to connect (default 9390)
+  Alert ID: the ID of the alert configuration on the OpenVAS server
+  Scan config ID: the ID of the scanning configuration on the OpenVAS server
+  Report format ID: the ID of the report format for the "CSV Results"
+
+Specific to WMI:
+
+  Username: A username from Active Directory that is allowed to connect to wmi
+  Domain: Domain of the Active Directory
+  Password: Password of the account
+  WMI Rules: Ordered list of WMI rules you defined in Configuration -> Compliance -> Scans -> WMI Rules
+
+==== WMI Rules Definition
+
+If you have configured a WMI scan engine then you need to define WMI Rules.
+WMI is a sort of database on each windows devices, to retrieve information on the device you need to know the SQL request.
+In order to help you to find and make a rule you can use a third party tool like WMI Explorer.
+
+Some example rules are defined in [filename]`/usr/local/pf/conf/wmi.conf.example` with their description. You can browse these rules in _Configuration -> Compliance -> WMI Rules_.
+
+===== Rules syntax
+
+The syntax of the rules are simple to understand and use same syntax as <<_vlan_filter_definition,VLAN filters>>.
+
+* _Request_ is the SQL request you will launch on the remote device, you must know what the request will return to write the test.
+
+Inside the _Rules Actions_ field we define 2 sorts of blocs:
+
+* The test bloc (i.e. `[explorer]`)
+* The action bloc (i.e. `[1:explorer]`)
+
+The test bloc is a simple test based on the result of the request:
+
+* attribute is the attribute you want to test
+* operator can be:
+** is
+** is_not
+** match
+** match_not
+** advance
+* value is the value you want to compare
+
+You can define multiple test blocs.
+
+The action bloc is where you will define your logic. All actions available are
+identical to <<_vlan_filter_definition,VLAN filters>>. Take a look at
+[filename]`/usr/local/pf/conf/vlan_filters.conf.example` for all available actions.
+
+==== WMI tab
+
+It is possible to have the result of a WMI scan in the node section. To have
+this, go into the rule configuration and check the box _On Node tab_. Now
+configure your WMI scanner as you would usually do and you will be able to
+have the results in the tab _WMI Rules_ under Node.
+
+==== Security Events Definition
+
+You need to create a new security event section and have to specify:
+
+Using Nessus:
+
+  trigger=Nessus::<security event ID>
+
+Using OpenVAS:
+
+  trigger=OpenVAS::<security event ID>
+
+Where `security event ID` is either the ID of the Nessus plugin or the OID of
+the OpenVAS plugin to check for. Once you have finished the configuration, you
+need to reload the security event related database contents using:
+
+[source,bash]
+----
+pfcmd reload security_events
+----
+
+NOTE: Security events will trigger if the plugin is higher than a low severity vulnerability.
+
+==== Assign Scan definition to connection profiles
+
+The last step is to assign one or more scanner you configured to one or more connection profiles.
+Go in _Configuration -> Policies and Access Control -> Connection Profiles -> Edit a Profile -> Add Scan_
+
+===== Hosting Nessus / OpenVAS remotely
+
+Because of the CPU intensive nature of an automated vulnerability assessment, we recommend that it is hosted on a separate server for large environments. To do so, a couple of things are required:
+
+[options="compact"]
+* PacketFence needs to be able to communicate to the server on the port specified by the vulnerability engine used
+* The scanning server need to be able to access the targets. In other words, registration VLAN access is required if scan on registration is enabled.
+
+If you are using the OpenVAS scanning engine:
+
+[options="compact"]
+* The scanning server need to be able to reach PacketFence's Admin interface (on port 1443 by default) by its DNS entry. Otherwise PacketFence won't be notified of completed scans.
+* You must have a valid SSL certificate on your PacketFence server
+
+If you are using the Nessus scanning engine:
+
+[options="compact"]
+* You just have to change the host value by the Nessus server IP.
+
+=== Rapid7 integration
+
+PacketFence supports integration with Rapid7 to start scans automatically when a device connects to the network and also to receive the Rapid7 alerts via syslog.
+
+==== Rapid7 installation
+
+* Install the InsightVM application 
+** https://insightvm.help.rapid7.com/docs/installing-in-linux-environments#section-installing-in-red-hat
+
+* Run the application 
+** https://insightvm.help.rapid7.com/docs/running-the-application#section-managing-the-application-in-linux
+
+* Logon to the server: _https://'YourRapid7ServerIP:3780_
+
+NOTE: Make sure that you create a site for the devices you want to manage in Rapid7, you will need to reference it in the PacketFence configuration
+
+==== Configuring the scan engine
+
+===== Rapid7 PacketFence user
+
+First, you will need to create credentials for PacketFence so that it can perform API calls on Rapid7. In order to do so, on Rapid7, go in _Administration -> Users_ and click on `Create`. Then configure the appropriate username and password and make sure the account is enabled.
+
+image::rapid7/rapid7-user-create-1.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
+
+Next, in the roles of that user, select the "Custom" role and assign at least the following privileges to the new user:
+
+[options="compact"]
+* Manage Sites
+* Manage Scan Enginespfcron
+* View Site Asset Data
+* Specify Scan Targets
+* View Group Asset Data
+
+image::rapid7/rapid7-user-create-2.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
+
+Next, in "Site access" and "Asset group access", ensure you provide access to this user to all the assets and sites it needs to manage. When in doubt, grant access to all sites and asset groups.
+
+image::rapid7/rapid7-user-create-3.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
+
+image::rapid7/rapid7-user-create-4.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
+
+===== Configure the scan engine in PacketFence
+
+Once you have the user created, you need to create the scan engine by going in _Configuration -> Compliance -> Scan Engines_ and creating a `New Scan Engine` of the type *Rapid7*
+
+Notes on the configuration:
+[options="compact"]
+* 172.20.20.230 is the IP address (hostname can also be configured) of your Rapid7 server
+* Verify Hostname must be disabled unless you have a valid SSL certificate configured for the configured Rapid7 hostname
+* Roles and OS represents the roles and operating systems for which you want to apply this scan engine. Leaving them empty will apply the policy to all devices.
+* Scan before/on/after registration controls when the automated scans are started for the devices PacketFence sees. If you only want to start the scans manually, leave those unchecked.
+* You will not be able to select a scan template, site and scan engine when initially configuring the engine. First configure the access and credentials and edit the engine again to be able to select those from the available values in Rapid7.
+
+image::rapid7/rapid7-pf.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
+
+===== Assign the engine to a connection profile
+
+With the scan engine now created, you need to assign it to the connection profile that your endpoints use. In order to do so, go in _Configuration -> Connection Profiles_, select your connection profile and add your scan engine there.
+
+image::rapid7/rapid7-connection-profile.png[scaledwidth="100%",alt="Rapid7 connection profile"]
+
+===== Viewing data on endpoints
+
+With the scan engine integration completed, PacketFence will now automatically start scans on the endpoints it sees DHCP for and you will be able to view the Rapid7 information of the endpoints by going in the _Nodes_ tab in PacketFence and then viewing a node and browsing its Rapid7 tab.
+
+image::rapid7/rapid7-node-tab.png[scaledwidth="100%",alt="Rapid7 node tab"]
+
+==== Configuring the syslog integration
+
+PacketFence also supports integration with the syslog forwarding of Rapid7 (with or without the scan engine integration) in order to receive vulnerability alerts from Rapid7.
+
+===== Sending syslog information to PacketFence
+
+In Rapid7:
+[options="compact"]
+* First select the site you want to have alerts for and click on __Manage Site__
+* In the site management tabs select *Alerts*, then create a new alert
+
+[options="compact"]
+*Enable*: Must be checked. 
+*Alert Name*: Rsyslog to PacketFence or else.
+*Maximum Alerts to send*: blank (none)
+*Scan events*: Check all.
+*Vulnerability Events*: _Any severity_ ; Check as well _Confirmed_, _Unconfirmed_, _Potential_
+*Notification Method*: Select _Syslog message_
+*Syslog Server*: PacketFence cluster VIP or server IP for a standalone
+
+image::rapid7/rapid7-syslog.png[scaledwidth="100%",alt="Rapid7 syslog"]
+
+===== Creating the alert pipe on PacketFence
+
+WARNING: If you are using a PacketFence cluster, you will need to do these steps on all your PacketFence servers.
+
+First, logon to PacketFence Server with a ssh terminal, then create the fifo pipe file that PacketFence will use to get data from Rapid7.
+
+  mkfifo /usr/local/pf/var/run/nexpose_pipe
+
+Create a new file named /etc/rsyslog.d/nexpose-log.conf with the following content
+
+ # rsyslog conf for Rapid7 Nexpose server logs reception
+ if $programname == 'Nexpose' then /usr/local/pf/var/run/nexpose_pipe
+ & ~
+
+Next, modify /etc/rsyslog.conf to accept syslogs data on 'udp 514' by uncommenting the following two lines:
+
+ $ModLoad imudp
+ $UDPServerRun 514
+
+Restart the 'rsyslog' service
+
+  service rsyslog restart
+
+At this point PacketFence must be able to get the Rapid7 audit results via syslog.
+
+TIP: You can see if the Nexpose server is sending to the right server by monitoring the traffic using `tcpdump -i any dst host YOUR_PACKETFENCE_SERVER_IP` on your Rapid7 Nexpose server and `tcpdump -i any src host YOUR_RAPID7_IP` on the PacketFence server.
+
+===== Creating the syslog parser
+
+In the Packetfence administration interface, go to _Configuration -> Integration -> Syslog parsers_ and add a new Nexpose syslog parser
+
+image::rapid7/rapid7-syslog-parser.png[scaledwidth="100%",alt="Rapid7 syslog parser"]
+
+[options="compact"]
+* As Detector, put the name of your choice for this parser.
+* In Alert pipe, put the 'absolute' path to our nexpose pipe ([filename]`/usr/local/pf/var/run/nexpose_pipe` if you used the same name as above)
+
+Once done, restart the following services
+
+  /usr/local/pf/pfcmd service pfdetect restart
+  /usr/local/pf/pfcmd service pfqueue restart
+
+Now that PacketFence is properly configured to receive information from Nexpose, we can configure it to perform some actions on the alerts it receives. In the PacketFence GUI, go to _Configuration -> Compliance -> Security Events_ and create a new security event.
+
+Make sure you set the following parameters in the 'Definition' tab:
+[options="compact"]
+* Enable: Set it to *ON* 
+* Action: This is where you put what you want PacketFence to do, refer to the security events documentation in this guide for details on these.
+
+Next, in the 'Triggers' tab:
+[options="compact"]
+* Click on the plus *(+)*, on the right side of the page.
+* On the second line, choose the appropriate trigger between "*nexpose_event_contains*" or "*nexpose_event_start_with*"
+* Choose "nexpose_event_contains" if you know, for example, the "*Common Vulnerabilities and Exposures*" you want to take action on.
+* For "*nexpose_event_contains*": You can put there the CVE or the vlnerability name you are looking for.
+* For "*nexpose_event_start_with*": Put there the full vulnerability name you can find in the Nexpose report, on the Nexpose GUI
+* Click on *ADD*, then *SAVE*
+
+image::rapid7/rapid7-violation-trigger.png[scaledwidth="100%",alt="Rapid7 security event trigger"]
+
+For more info on security event actions, go to the _Blocking malicious activities with security events_ section of this guide.

@@ -115,13 +115,13 @@ occur too. It takes like 10 minutes to have a machine up and running.
 .Vagrant admin accounts:
 [source,yaml]
 ----
-include::../../addons/vagrant/inventory/group_vars/winservers/domain_setup.yml[]
+include::../../../addons/vagrant/inventory/group_vars/winservers/domain_setup.yml[]
 ----
 
 .PacketFence domain account:
 [source,yaml]
 ----
-include::../../addons/vagrant/inventory/group_vars/winservers/domain_account.yml[]
+include::../../../addons/vagrant/inventory/group_vars/winservers/domain_account.yml[]
 ----
 
 ===== Switch01
