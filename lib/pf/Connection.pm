@@ -11,6 +11,7 @@ use pf::config qw(
     $WIRED_802_1X
     $VIRTUAL_CLI
     $VIRTUAL_VPN
+    $VIRTUAL_WIREGUARD
 );
 use pf::log;
 
@@ -23,6 +24,7 @@ has 'isMacAuth'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAu
 has 'is8021X'       => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
 has 'isVPN'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoVPN | 1: VPN
 has 'isCLI'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoCLI | 1: CLI
+has 'isWIREGUARD'   => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoWIREGUARD | 1: WIREGUARD
 has '8021XAuth'     => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
 has 'enforcement'   => (is => 'rw', isa => 'Str');                  # PacketFence enforcement technique
 
@@ -58,6 +60,9 @@ sub _attributesToString {
 
     # Handling VPN
     $type .= ( $self->isVPN ) ? "-VPN" : "";
+
+    # Handling WIREGUARD
+    $type .= ( $self->isWIREGUARD) ? "-WIREGUARD" : "";
 
     # Handling CLI
     $type .= ( $self->isCLI ) ? "-CLI" : "";
@@ -96,6 +101,9 @@ sub _stringToAttributes {
 
     # We check if VPN
     ( lc($type) =~ /^vpn/ ) ? $self->isVPN($TRUE) : $self->isVPN($FALSE);
+
+    # We check if WIREGUARD
+    ( lc($type) =~ /^wireguard/ ) ? $self->isWIREGUARD($TRUE) : $self->isWIREGUARD($FALSE);
 
     # We check if CLI
     ( lc($type) =~ /^cli/ ) ? $self->isCLI($TRUE) : $self->isCLI($FALSE);
@@ -148,6 +156,10 @@ sub backwardCompatibleToAttributes {
         $self->isMacAuth($FALSE);
         $self->isCLI($TRUE);
     }
+    if ( lc($type) =~ /wireguard$/ ) {
+        $self->isMacAuth($FALSE);
+        $self->isWIREGUARD($TRUE);
+    }
 }
 
 =head2 attributesToBackwardCompatible
@@ -176,6 +188,9 @@ sub attributesToBackwardCompatible {
 
     # Virtual CLI
     return $VIRTUAL_CLI if ( (lc($self->transport) eq "virtual") && ($self->isCLI) );
+
+    # Virtual WIREGUARD
+    return $VIRTUAL_WIREGUARD if ( (lc($self->transport) eq "virtual") && ($self->isWIREGUARD) );
 
     # Default
     return;
