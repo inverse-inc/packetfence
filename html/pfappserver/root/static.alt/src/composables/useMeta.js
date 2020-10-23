@@ -62,7 +62,7 @@ export const useInputMeta = (props) => {
         // allowed
         if (metaAllowed) {
           // use props first, meta second
-          const fifoOptions = (options.value && options.value.length) ? options.value : metaAllowed
+          const fifoOptions = (options && options.value && options.value.length) ? options.value : metaAllowed
           set(localProps, 'options', fifoOptions)
         }
 
@@ -87,18 +87,18 @@ export const useInputMeta = (props) => {
   return localProps
 }
 
+export const useNamespaceMeta = (namespace) => {
+  const meta = inject('meta', ref({}))
+  const namespaceArr = computed(() => unref(namespace).split('.'))
+  return computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
+}
+
 export const useNamespaceMetaAllowed = (namespace) => {
-
-    const meta = inject('meta', ref({}))
-    const namespaceArr = computed(() => unref(namespace).split('.'))
-    const namespaceMeta = computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
-
-    const options = computed(() => {
-      const { allowed = [] } = namespaceMeta.value || {}
-      return allowed
-    })
-
-    return options
+  const namespaceMeta = useNamespaceMeta(namespace)
+  return computed(() => {
+    const { allowed = [] } = namespaceMeta.value || {}
+    return allowed
+  })
 }
 
 export const useFormMetaSchema = (meta, schema) => {

@@ -72,11 +72,7 @@ const useView = (props, context) => {
 
   const doClose = () => $router.push({ name: 'domains' })
 
-  const doRemove = () => {
-    $store.dispatch('$_domains/deleteDomain', id.value).then(() => {
-      $router.push({ name: 'domains' })
-    })
-  }
+  const doRemove = () => $store.dispatch('$_domains/deleteDomain', id.value).then(() => doClose())
 
   const doReset = doInit
 

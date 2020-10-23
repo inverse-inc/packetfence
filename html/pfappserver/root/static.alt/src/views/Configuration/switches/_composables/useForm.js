@@ -1,4 +1,4 @@
-import { computed, provide, toRefs, unref } from '@vue/composition-api'
+import { computed, ref, toRefs, unref } from '@vue/composition-api'
 import { useFormMetaSchema } from '@/composables/useMeta'
 import schemaFn from '../schema'
 
@@ -29,9 +29,6 @@ const useForm = (props) => {
     form,
     meta
   } = toRefs(props)
-
-  const sourceType = computed(() => unref(form).type)
-  provide('sourceType', sourceType)
 
   const schema = computed(() => schemaFn(props))
 

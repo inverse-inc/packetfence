@@ -10,6 +10,9 @@ export const useInputValueToggleProps = {
       { value: 0 },
       { value: 1 }
     ])
+  },
+  hints: {
+    type: Array
   }
 }
 
@@ -17,7 +20,7 @@ export const useInputValueToggle = (valueProps, props) => {
 
   const {
     value: rxValue,
-    onChange: rxOnChange
+    onInput: rxOnInput
   } = valueProps
 
   const {
@@ -25,10 +28,15 @@ export const useInputValueToggle = (valueProps, props) => {
   } = toRefs(props)
 
   // middleware
-  const txValue = computed(() => unref(options).findIndex(map => `${map.value}` === `${unref(rxValue)}`))
-  const txOnChange = value => {
+  const txValue = computed(() => unref(options).findIndex(map => {
+    if (!map.value && !rxValue.value)
+      return true // compare False(y) w/ [null|undefined]
+    else
+      return `${map.value}` === `${rxValue.value}` // compare String(s)
+  }))
+  const txOnInput = value => {
     const { 0: { value: defaultValue } = {} , [value]: { value: mappedValue } = {} } = unref(options)
-    return rxOnChange(mappedValue || defaultValue)
+    return rxOnInput((mappedValue !== undefined) ? mappedValue : defaultValue)
   }
 
   // state
@@ -39,13 +47,19 @@ export const useInputValueToggle = (valueProps, props) => {
     return mappedLabel || defaultLabel
   })
 
+  const color = computed(() => {
+    const { 0: { color: defaultColor } = {} , [unref(txValue)]: { color: mappedColor } = {} } = unref(options)
+    return mappedColor || defaultColor
+  })
+
   return {
     // middleware
     value: txValue,
-    onChange: txOnChange,
+    onInput: txOnInput,
 
     // state
     max,
-    label
+    label,
+    color
   }
 }

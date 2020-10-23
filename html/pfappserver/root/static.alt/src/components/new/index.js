@@ -10,7 +10,7 @@ import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
 import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
 import BaseFormGroupInputPasswordTest, { props as BaseFormGroupInputPasswordTestProps } from './BaseFormGroupInputPasswordTest'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
-import BaseFormGroupToggle from './BaseFormGroupToggle'
+import BaseFormGroupToggle, { props as BaseFormGroupToggleProps } from './BaseFormGroupToggle'
 import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEnabled'
 import BaseFormGroupToggleNoYes from './BaseFormGroupToggleNoYes'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
@@ -19,10 +19,12 @@ import BaseInput from './BaseInput'
 import BaseInputChosenMultiple from './BaseInputChosenMultiple'
 import BaseInputChosenOne from './BaseInputChosenOne'
 import BaseInputGroup from './BaseInputGroup'
+import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
-import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputRange from './BaseInputRange'
+import BaseInputToggle from './BaseInputToggle'
+import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseView from './BaseView'
 
 import { mergeProps } from './utils'
@@ -46,7 +48,7 @@ export {
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordTest, BaseFormGroupInputPasswordTestProps,
   BaseFormGroupTextarea,
-  BaseFormGroupToggle,
+  BaseFormGroupToggle, BaseFormGroupToggleProps,
   BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupToggleNoYes,
   BaseFormGroupToggleOffOn,
@@ -59,6 +61,8 @@ export {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
+  BaseInputToggle,
+  BaseInputToggleAdvancedMode,
 
   // bootstrap wrappers
   BaseInputGroupMultiplier,

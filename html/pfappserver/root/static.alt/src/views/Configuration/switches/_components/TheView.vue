@@ -12,6 +12,7 @@
         :isNew="isNew"
         :isClone="isClone"
         :isLoading="isLoading"
+        :id="id"
       />
     </b-form>
     <template v-slot:footer>
@@ -32,7 +33,7 @@
   </base-view>
 </template>
 <script>
-import { BaseView } from '@/components/new'
+import BaseView from '@/components/new/BaseView'
 import { useView, useViewProps } from '../_composables/useView'
 import {
   FormButtonBar,

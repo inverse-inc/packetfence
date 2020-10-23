@@ -1,52 +1,60 @@
 <template>
-  <form-group-identifier namespace="id"
-    :column-label="$i18n.t('Name')"
-    :disabled="!isNew && !isClone"
-  />
+  <base-form
+    :form="form"
+    :meta="meta"
+    :schema="schema"
+    :isLoading="isLoading"
+  >
+    <form-group-identifier namespace="id"
+      :column-label="$i18n.t('Name')"
+      :disabled="!isNew && !isClone"
+    />
 
-  <form-group-description namespace="description"
-    :column-label="$i18n.t('Description')"
-  />
+    <form-group-description namespace="description"
+      :column-label="$i18n.t('Description')"
+    />
 
-  <form-group-client-identifier namespace="client_id"
-    :column-label="$i18n.t('App ID')"
-  />
+    <form-group-client-identifier namespace="client_id"
+      :column-label="$i18n.t('App ID')"
+    />
 
-  <form-group-client-secret namespace="client_secret"
-    :column-label="$i18n.t('App Secret')"
-  />
+    <form-group-client-secret namespace="client_secret"
+      :column-label="$i18n.t('App Secret')"
+    />
 
-  <form-group-site namespace="site"
-    :column-label="$i18n.t('API URL')"
-  />
+    <form-group-site namespace="site"
+      :column-label="$i18n.t('API URL')"
+    />
 
-  <form-group-authorize-path namespace="authorize_path"
-    :column-label="$i18n.t('API Authorize Path')"
-  />
+    <form-group-authorize-path namespace="authorize_path"
+      :column-label="$i18n.t('API Authorize Path')"
+    />
 
-  <form-group-access-token-path namespace="access_token_path"
-    :column-label="$i18n.t('API Token Path')"
-  />
+    <form-group-access-token-path namespace="access_token_path"
+      :column-label="$i18n.t('API Token Path')"
+    />
 
-  <form-group-protected-resource-url namespace="protected_resource_url"
-    :column-label="$i18n.t('API URL of logged user')"
-  />
+    <form-group-protected-resource-url namespace="protected_resource_url"
+      :column-label="$i18n.t('API URL of logged user')"
+    />
 
-  <form-group-redirect-url namespace="redirect_url"
-    :column-label="$i18n.t('Portal URL')"
-    :text="$i18n.t('The hostname must be the one of your captive portal.')"
-  />
+    <form-group-redirect-url namespace="redirect_url"
+      :column-label="$i18n.t('Portal URL')"
+      :text="$i18n.t('The hostname must be the one of your captive portal.')"
+    />
 
-  <form-group-domains namespace="domains"
-    :column-label="$i18n.t('Authorized domains')"
-    :text="$i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.')"
-  />
+    <form-group-domains namespace="domains"
+      :column-label="$i18n.t('Authorized domains')"
+      :text="$i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.')"
+    />
 
-  <form-group-authentication-rules namespace="authentication_rules"
-    :column-label="$i18n.t('Authentication Rules')"
-  />
+    <form-group-authentication-rules namespace="authentication_rules"
+      :column-label="$i18n.t('Authentication Rules')"
+    />
+  </base-form>
 </template>
 <script>
+import { BaseForm } from '@/components/new/'
 import {
   FormGroupAccessTokenPath,
   FormGroupAuthenticationRules,
@@ -62,6 +70,8 @@ import {
 } from './'
 
 const components = {
+  BaseForm,
+
   FormGroupAccessTokenPath,
   FormGroupAuthenticationRules,
   FormGroupAuthorizePath,
@@ -75,20 +85,14 @@ const components = {
   FormGroupSite,
 }
 
-const props = {
-  isNew: {
-    type: Boolean
-  },
-  isClone: {
-    type: Boolean
-  }
-}
+import { useForm as setup, useFormProps as props } from '../_composables/useForm'
 
 // @vue/component
 export default {
   name: 'source-form-twitter',
   inheritAttrs: false,
   components,
-  props
+  props,
+  setup
 }
 </script>

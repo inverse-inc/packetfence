@@ -19,7 +19,7 @@
       <multiselect ref="inputRef"
         class="base-input-chosen"
         :class="{
-          'is-empty': !inputValue,
+          'is-empty': isEmpty,
           'size-sm': size === 'sm',
           'size-md': size === 'md',
           'size-lg': size === 'lg'
@@ -39,6 +39,8 @@
         :multiple="multiple"
         :track-by="trackBy"
         :label="label"
+        :group-values="inputGroupValues"
+        :group-label="inputGroupLabel"
 
         :searchable="searchable"
         :clear-on-select="clearOnSelect"
@@ -51,8 +53,6 @@
         :tag-placeholder="tagPlaceholder"
         :tag-position="tagPosition"
         :options-limit="optionsLimit"
-        :group-values="groupValues"
-        :group-label="groupLabel"
         :group-select="groupSelect"
         :internal-search="internalSearch"
         :preserve-search="preserveSearch"
@@ -185,6 +185,8 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
+    groupLabel,
+    groupValues,
     options,
     max,
     multiple
@@ -216,13 +218,13 @@ export const setup = (props, context) => {
   const singleLabel = computed(() => {
     const _options = unref(options)
     const optionsIndex = _options.findIndex(option => {
-      const { [unref(trackBy)]: trackedValue } = option
-      return trackedValue === unref(value)
+      const { [trackBy.value]: trackedValue } = option
+      return `${trackedValue}` === `${value.value}`
     })
     if (optionsIndex > -1)
-      return _options[optionsIndex][unref(label)]
+      return _options[optionsIndex][label.value]
     else
-      return unref(value)
+      return value.value
   })
 
   const multipleLabels = computed(() => unref(options).reduce((labels, option) => {
@@ -230,14 +232,30 @@ export const setup = (props, context) => {
     return { ...labels, [value]: text }
   }, {}))
 
+  // inspect options first item for group(ing)
+  const inputGroupLabel = computed(() => {
+    const { 0: { group } = {} } = options.value
+    if (group)
+      return 'group'
+    return groupLabel.value
+  })
+  const inputGroupValues = computed(() => {
+    const { 0: { group } = {} } = options.value
+    if (group)
+      return 'options'
+    return groupValues.value
+  })
+
   // supress warning:
   //  [Vue-Multiselect warn]: Max prop should not be used when prop Multiple equals false.
   const bind = computed(() => {
-    return (unref(multiple))
+    return (multiple.value)
       ? { max: max.value }
       : {}
   })
 
+  // used by CSS to show vue-multiselect placeholder
+  const isEmpty = computed(() => !value.value)
 
   return {
     inputRef,
@@ -265,10 +283,13 @@ export const setup = (props, context) => {
     inputInvalidFeedback: invalidFeedback,
     inputValidFeedback: validFeedback,
 
-    onRemove: () => {},
+    bind,
+    inputGroupLabel,
+    inputGroupValues,
     singleLabel,
     multipleLabels,
-    bind
+    isEmpty,
+    onRemove: () => {}
   }
 }
 

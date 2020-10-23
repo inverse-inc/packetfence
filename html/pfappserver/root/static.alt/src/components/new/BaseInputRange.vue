@@ -1,5 +1,5 @@
 <template>
-  <div style="flex-grow: 100;">
+  <div>
     <div v-if="labelLeft" class="col-form-label mr-2" v-t="label"/>
     <div
       class="base-input-range"
@@ -32,7 +32,7 @@
         :min="min"
         :step="step"
         :disabled="isLocked"
-        @change="onChange"
+        @change="onInput"
         @focus="onFocus"
         @blur="onBlur"
       />
@@ -100,7 +100,7 @@ export const setup = (props, context) => {
     hintStyles,
     labelStyle,
     valueStyle,
-    onChange
+    onInput
   } = useInputRange(metaProps, context)
 
   return {
@@ -124,7 +124,7 @@ export const setup = (props, context) => {
     hintStyles,
     valueStyle,
     labelStyle,
-    onChange
+    onInput
   }
 }
 
@@ -158,6 +158,7 @@ export default {
   height: var(--range-height);
   margin: 0px;
   box-shadow: 0 0 0 1px transparent; /* pseudo border */
+  margin: 0px 1px; /* avoid pseudo border clip */
   border-radius: calc(var(--range-height) / 2);
   background-color: var(--range-background-color, $input-placeholder-color);
   text-align: left;
@@ -167,17 +168,17 @@ export default {
   &.size-sm {
     --handle-height: 8px;
     --range-height: 12px;
-    width: 20px;
+    width: calc(var(--range-length) * 10px);
   }
   /* &.size-md { */
     --handle-height: 16px;
     --range-height: 22px;
-    width: 40px;
+    width: calc(var(--range-length) * 20px);
   /* } */
   &.size-lg {
     --handle-height: 32px;
     --range-height: 44px;
-    width: 80px;
+    width: calc(var(--range-length) * 40px);
   }
   &.is-focus {
     box-shadow: 0 0 0 1px $input-focus-border-color;

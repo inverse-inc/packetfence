@@ -72,11 +72,7 @@ const useView = (props, context) => {
 
   const doClose = () => $router.push({ name: 'realms' })
 
-  const doRemove = () => {
-    $store.dispatch('$_realms/deleteRealm', id.value).then(() => {
-      $router.push({ name: 'realms' })
-    })
-  }
+  const doRemove = () => $store.dispatch('$_realms/deleteRealm', id.value).then(() => doClose())
 
   const doReset = doInit
 
@@ -87,7 +83,7 @@ const useView = (props, context) => {
       case unref(isNew):
         $store.dispatch('$_realms/createRealm', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'realms' })
+            doClose()
           else
             $router.push({ name: 'realm', params: { id: form.value.id } })
         })
@@ -95,7 +91,7 @@ const useView = (props, context) => {
       default:
         $store.dispatch('$_realms/updateRealm', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'realms' })
+            doClose()
         })
         break
     }

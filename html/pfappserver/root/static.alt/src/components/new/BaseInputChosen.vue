@@ -3,7 +3,7 @@
     <multiselect ref="inputRef"
       class="base-input-chosen"
       :class="{
-        'is-empty': !inputValue,
+        'is-empty': isEmpty,
         'is-blur': !isFocus,
         'is-focus': isFocus,
         'is-invalid': inputState === false,
@@ -27,6 +27,8 @@
       :multiple="multiple"
       :track-by="trackBy"
       :label="label"
+      :group-values="inputGroupValues"
+      :group-label="inputGroupLabel"
 
       :searchable="searchable"
       :clear-on-select="clearOnSelect"
@@ -39,8 +41,6 @@
       :tag-placeholder="tagPlaceholder"
       :tag-position="tagPosition"
       :options-limit="optionsLimit"
-      :group-values="groupValues"
-      :group-label="groupLabel"
       :group-select="groupSelect"
       :internal-search="internalSearch"
       :preserve-search="preserveSearch"
@@ -159,6 +159,8 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
+    groupLabel,
+    groupValues,
     options,
     max,
     multiple
@@ -203,6 +205,20 @@ export const setup = (props, context) => {
       return unref(value)
   })
 
+  // inspect options first item for group(ing)
+  const inputGroupLabel = computed(() => {
+    const { 0: { group } = {} } = options.value
+    if (group)
+      return 'group'
+    return groupLabel.value
+  })
+  const inputGroupValues = computed(() => {
+    const { 0: { group } = {} } = options.value
+    if (group)
+      return 'options'
+    return groupValues.value
+  })
+
   // supress warning:
   //  [Vue-Multiselect warn]: Max prop should not be used when prop Multiple equals false.
   const bind = computed(() => {
@@ -210,6 +226,9 @@ export const setup = (props, context) => {
       ? { max: max.value }
       : {}
   })
+
+  // used by CSS to show vue-multiselect placeholder
+  const isEmpty = computed(() => !value.value)
 
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
@@ -242,10 +261,13 @@ export const setup = (props, context) => {
     inputInvalidFeedback: invalidFeedback,
     inputValidFeedback: validFeedback,
 
+    bind,
+    inputGroupLabel,
+    inputGroupValues,
+    singleLabel,
+    isEmpty,
     onRemove: () => {},
     onTag: () => {},
-    singleLabel,
-    bind,
     doFocus,
     doBlur
   }

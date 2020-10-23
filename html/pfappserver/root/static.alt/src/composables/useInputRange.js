@@ -1,4 +1,4 @@
-import { computed, toRefs, unref } from '@vue/composition-api'
+import { computed, nextTick, toRefs, unref } from '@vue/composition-api'
 
 export const useInputRangeProps = {
     value: {
@@ -49,14 +49,17 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
   // state
   const defaultValue = computed(() => unref(min))
 
-  const rootStyle = computed(() => ((color.value)
-    ? { '--range-background-color': unref(color) }
-    : {}
-  ))
+  const rootStyle = computed(() => ({
+    '--range-length': max.value - min.value + 1,
+    ...((color.value)
+      ? { '--range-background-color': unref(color) }
+      : {}
+    )
+  }))
 
   const hintStyles = computed(() => unref(hints).map(hint => ((hint.constructor === Array)
     ? { // range
-      left: `${getPercent(hint[0])}`,
+      left: `${getPercent(hint[0])}%`,
       width: `calc(${getPercent(hint[1] - hint[0])}% + var(--handle-height))`
     }
     : { // single
@@ -75,12 +78,12 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
   }))
 
   // methods
-  const doFocus = () => refs[inputRef].focus()
-  const doBlur = () => refs[inputRef].blur()
-  const onChange = e => {
+  const doFocus = () => nextTick(() => refs[inputRef].focus())
+  const doBlur = () => nextTick(() => refs[inputRef].blur())
+  const onInput = e => {
     if (disabled.value)
       return
-    emit('change', e.target.value)
+    emit('input', e.target.value)
   }
 
   return {
@@ -94,6 +97,6 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
     // methods
     doFocus,
     doBlur,
-    onChange
+    onInput
   }
 }

@@ -6,10 +6,12 @@
       min="0"
       :max="inputMax"
       :disabled="isLocked"
+      :hints="hints"
       :size="size"
       :state="inputState"
       :tabIndex="inputTabIndex"
       :value="inputValue"
+      :color="inputColor"
       :label="inputLabel"
       :label-left="labelLeft"
       :label-right="labelRight"
@@ -70,10 +72,8 @@ export const setup = (props, context) => {
   const metaProps = useInputMeta(props, context)
 
   const {
-    placeholder,
     tabIndex,
     text,
-    isFocus,
     isLocked,
     onFocus,
     onBlur
@@ -84,7 +84,8 @@ export const setup = (props, context) => {
     value,
     onInput,
     max,
-    label
+    label,
+    color
   } = useInputValueToggle(valueProps, props, context)
 
   const {
@@ -95,10 +96,8 @@ export const setup = (props, context) => {
 
   return {
     // useInput
-    inputPlaceholder: placeholder,
     inputTabIndex: tabIndex,
     inputText: text,
-    isFocus,
     isLocked,
     onFocus,
     onBlur,
@@ -108,6 +107,7 @@ export const setup = (props, context) => {
     onInput,
     inputMax: max,
     inputLabel: label,
+    inputColor: color,
 
     // useInputValidator
     inputState: state,
@@ -131,15 +131,5 @@ export default {
   display: flex;
   align-items: center;
   justify-content: inherit;
-
-  .base-input-range {
-    &[index],
-    &[index="0"] {
-      --range-background-color: #adb5bd; /* default unchecked background-color */
-    }
-    &[index="1"] {
-      --range-background-color: var(--primary); /* default checked background-color */
-    }
-  }
 }
 </style>

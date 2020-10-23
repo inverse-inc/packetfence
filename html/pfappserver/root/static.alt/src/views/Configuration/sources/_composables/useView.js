@@ -93,11 +93,7 @@ const useView = (props, context) => {
 
   const doClose = () => $router.push({ name: 'sources' })
 
-  const doRemove = () => {
-    $store.dispatch('$_sources/deleteRole', id.value).then(() => {
-      $router.push({ name: 'sources' })
-    })
-  }
+  const doRemove = () => $store.dispatch('$_sources/deleteSource', id.value).then(() => doClose())
 
   const doReset = doInit
 
@@ -106,17 +102,17 @@ const useView = (props, context) => {
     switch (true) {
       case unref(isClone):
       case unref(isNew):
-        $store.dispatch('$_sources/createRole', form.value).then(() => {
+        $store.dispatch('$_sources/createSource', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'sources' })
+            doClose()
           else
-            $router.push({ name: 'role', params: { id: form.value.id } })
+            $router.push({ name: 'source', params: { id: form.value.id } })
         })
         break
       default:
-        $store.dispatch('$_sources/updateRole', form.value).then(() => {
+        $store.dispatch('$_sources/updateSource', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'roles' })
+            doClose()
         })
         break
     }
