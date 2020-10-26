@@ -72,6 +72,33 @@ You can take a backup of the pf directory with the following command:
 tar -C /usr/local -czf /root/packetfence.tar.gz --exclude='pf/logs' --exclude='pf/var' --exclude='pf/.git' pf
 ----
 
+=== Disable monit alerts
+
+Before starting the upgrade shut down monitoring to prevent alerts from
+generating false-positives. To see if `monit` is installed and running issue a
+monit summary.
+
+[source,bash]
+----
+monit summary
+----
+
+If `monit` is installed and running, shut it down with
+
+[source,bash]
+----
+systemctl stop monit
+systemctl disable monit
+----
+
+When the upgrade is complete restart `monit` back up with
+
+[source,bash]
+----
+systemctl start monit
+systemctl enable monit
+----
+
 == Upgrade procedure
 
 === Steps
@@ -81,7 +108,7 @@ A PacketFence upgrade consists of following steps:
 . stop all PacketFence services (see <<_stop_all_packetfence_services,Stop all PacketFence services>> section)
 . preliminary step(s) to run before packages upgrades (see sections for your upgrade path)
 . packages upgrades (see <<_packages_upgrades,Package upgrades>> section)
-- maintenance patches (see <<_maintenance_patches,Maintenance patches>> section)
+. maintenance patches (see <<_maintenance_patches,Maintenance patches>> section)
 . configuration migration(s) (see sections for your upgrade path)
 . database schema upgrade(s) (see sections for your upgrade path)
 . restart all PacketFence services (see <<_restart_all_packetfence_services,Restart all PacketFence services>> section)
