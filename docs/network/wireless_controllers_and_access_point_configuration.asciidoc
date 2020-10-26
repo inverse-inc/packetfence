@@ -1,3 +1,21 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
 //== Wireless Controllers and Access Point Configuration
 
 
@@ -44,7 +62,8 @@ You can try modules similar to your equipment if any (read appropriate instructi
 
 If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
 
-// Aerohive Networks
+=== Aerohive Networks
+
 include::networkdevice/aerohive.asciidoc[]
 
 [float]
@@ -65,9 +84,8 @@ return for the devices.
 
 In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
 
+=== Anyfi Networks
 
-
-// Anyfi Networks
 include::networkdevice/anyfi.asciidoc[]
 
 === Avaya
@@ -757,7 +775,7 @@ image::wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
 
 NOTE: Please refer to the wired configuration of Cisco equipment to learn more about device sensor.
 
-// CoovaChilli
+=== CoovaChilli
 
 include::networkdevice/coovachilli.asciidoc[]
 
@@ -833,7 +851,7 @@ You will need to have the CLI access on the Fortigate to do the configuration.
  FGT50E (PF-Secure) # set dynamic-vlan enable
  FGT50E (PF-Secure) # end
 
-// Hostapd
+=== Hostapd
 
 include::networkdevice/hostapd.asciidoc[]
 
