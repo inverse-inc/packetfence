@@ -1,0 +1,178 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Extreme Networks
+
+PacketFence supports Extreme Networks switches using:
+
+* linkUp/linkDown
+* MAC Address Lockdown (Port Security)
+* Netlogin - MAC Authentication
+* Netlogin - 802.1X
+* Netlogin - web authentication
+* RADIUS authentication for CLI access
+
+Don't forget to save the configuration!
+
+==== All Extreme XOS based switches
+
+In addition to the SNMP and VLANs settings, this switch needs the Web Services to be enabled and an administrative username and password provided in its PacketFence configuration for Web Services.
+
+===== MAC Address Lockdown (Port-Security)
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC Address Lockdown only.
+
+Global config settings without Voice over IP (VoIP):
+
+  enable snmp access
+  configure snmp add trapreceiver 192.168.1.5 community public
+  enable web http
+  configure vlan "Default" delete ports <portlist>
+  configure vlan registration add ports <portlist> untagged
+  configure ports <portlist> vlan registration lock-learning
+  disable snmp traps port-up-down ports <portlist>
+
+where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+
+Global config settings with Voice over IP (VoIP):
+
+  enable snmp access
+  configure snmp add trapreceiver 192.168.1.5 community public
+  enable web http
+  configure vlan "Default" delete ports <portlist>
+  configure vlan registration add ports <portlist> untagged
+  configure vlan voice add ports <portlist> tagged
+  configure ports <portlist> vlan registration lock-learning
+  configure ports <portlist> vlan voice limit-learning 1
+  disable snmp traps port-up-down ports <portlist>
+
+where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+
+===== MAC Authentication
+
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret useStrongerSecret
+  enable radius netlogin
+
+Netlogin (MAC Authentication)
+
+  configure netlogin vlan temp
+  enable netlogin mac
+  configure netlogin add mac-list default
+  configure netlogin dynamic-vlan enable
+  configure netlogin dynamic-vlan uplink-ports 50
+  configure netlogin mac authentication database-order radius
+  enable netlogin ports 1-48 mac
+  configure netlogin ports 1-48 mode port-based-vlans
+  configure netlogin ports 1-48 no-restart
+
+===== 802.1X
+
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret useStrongerSecret
+  enable radius netlogin
+
+Netlogin (802.1X)
+
+  configure netlogin vlan temp
+  enable netlogin dot1x
+  configure netlogin dynamic-vlan enable
+  configure netlogin dynamic-vlan uplink-ports 50
+  enable netlogin ports 1-48 dot1x 
+  configure netlogin ports 1-48 mode port-based-vlans
+  configure netlogin ports 1-48 no-restart
+
+NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will fallback to the MAC Authentication.
+
+===== Policy based access
+
+You can assign policies defined on the switch via PacketFence.
+
+First define your policy in the switch:
+
+  configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521 untagged-vlans 3521
+  configure policy profile 2 name "guest" pvid-status "enable" pvid 3522 untagged-vlans 3522
+  configure policy maptable response both
+  configure policy vlanauthorization enable
+
+Next, in PacketFence, enable 'Role by Switch Role' in your switch configuration and assign the policies to the roles there. They will be returned inside the Filter-Id attribute.
+
+Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
+
+===== Web authentication
+
+SNMP configuration
+
+  enable snmp access snmp-v1v2c
+  configure snmp add community readonly public
+  configure snmp add community readwrite private
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret useStrongerSecret
+  enable radius netlogin
+
+Web-auth profile
+
+  configure dns-client add name-server 8.8.8.8 vr VR-Mgmt
+  configure dns-client add domain-suffix example.com
+  configure policy captive-portal web-redirect 1 server 1 url http://192.168.1.5:80/Extreme::EXOS enable
+  configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0 web-redirect 1
+  configure policy rule 4 ipdestsocket 192.168.1.5 mask 32 forward
+  configure policy rule 4 udpdestportIP 53 mask 16 forward
+  configure policy rule 4 udpdestportIP 67 mask 16 forward
+  configure policy rule 4 ether 0x0806 mask 16 forward
+  configure policy captive-portal listening 80
+  configure policy captive-portal listening 443
+
+Next, in the switch configuration in PacketFence, enable 'External Portal Enforcement' and 'Role by Switch Role'. Under the 'registration' role, put 'Unregistered'
+
+Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
+
+===== RADIUS authentication for CLI access
+
+Configure RADIUS server IP address as primary server and the switch IP address as the client-ip.  Be sure to specify the correct virtual router
+
+  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip <CLIENT_IP> vr <VR>
+
+Configure the RADIUS shared-secret
+
+  configure radius mgmt-access primary shared-secret <SHARED_SECRET>
+
+Enable RADIUS for management access
+
+  enable radius mgmt-access
+

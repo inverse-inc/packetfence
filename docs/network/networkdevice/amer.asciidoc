@@ -1,0 +1,42 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Amer 
+
+PacketFence supports Amer switches _without VoIP_ using one trap type: 
+
+* linkUp/linkDown 
+
+Don't forget to update the startup config! 
+
+==== L2 Switch SS2R24i 
+
+Global config settings:
+
+  create snmp host 192.168.1.5 v2c public 
+  create snmp user public ReadGroup 
+  enable snmp traps 
+
+On each interface: 
+
+  config vlan default delete xx 
+  config vlan mac-detection add untagged xx 
+
+where `xx` stands for the interface index 
+

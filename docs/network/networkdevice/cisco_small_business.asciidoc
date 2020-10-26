@@ -1,0 +1,95 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Cisco Small Business (SMB)
+
+The Cisco Small Business switches support MAC based authentication (MAB) as well as 802.1X and VoIP. Both technologies can be combined and will work correctly together on the same switchport.
+
+Nothing is required to activate VoIP on the switch, you must simply configure the voice VLAN you want PacketFence to assign in the PacketFence switch configuration as well as enabling VoIP there. Note that your phones must *not* tag their packets on the network and should send their traffic untagged when connected into a PacketFence enabled port. This means you should not have the voice VLAN capabilities enabled on the switch itself as they might conflict with the authorization attributes returned by PacketFence.
+
+==== Global configuration
+
+CAUTION: Before executing these steps, make sure you have a local account configured to login on the switch or are pointing to a RADIUS server for management. Otherwise, you will not be able to login into the switch anymore.
+
+You must first define your RADIUS server and point it to PacketFence:
+
+  dot1x system-auth-control 
+  radius-server key useStrongerSecret
+  radius-server host 192.168.1.5
+
+  aaa accounting dot1x start-stop group radius
+
+  snmp-server community public ro view Default 
+  snmp-server community private rw view Default 
+
+SNMP configuration for the Cisco SG300:
+
+  snmp-server community public ro view DefaultSuper
+  snmp-server community private rw view DefaultSuper
+
+==== MAC Authentication
+
+In order to configure MAC authentication, you must enable it on each interface
+
+  interface x/y/z
+   dot1x host-mode multi-sessions 
+   dot1x reauthentication 
+   dot1x timeout quiet-period 10 
+   dot1x timeout server-timeout 5 
+   dot1x timeout supp-timeout 3 
+   dot1x authentication mac 
+   dot1x radius-attributes vlan 
+   dot1x port-control auto 
+   spanning-tree portfast 
+   switchport mode general 
+   switchport general pvid 2 
+
+==== 802.1X with MAB
+
+In order to configure 802.1X with a fall-back to MAC authentication, you must enable it on each interface
+
+  interface x/y/z
+   dot1x host-mode multi-sessions 
+   dot1x reauthentication 
+   dot1x timeout quiet-period 10 
+   dot1x timeout server-timeout 5 
+   dot1x timeout supp-timeout 3 
+   dot1x authentication dot1x mac 
+   dot1x radius-attributes vlan 
+   dot1x port-control auto 
+   spanning-tree portfast 
+   switchport mode general 
+   switchport general pvid 2 
+
+Once you have configured your switchports, you must configure the switch in PacketFence with the following information:
+
+* *Definition -> Type*: `Cisco SG500`
+* *Definition -> Mode*: `production`
+* *Definition -> Deauthentication Method*: `SNMP`
+* *Definition -> VoIP* enabled if you need VoIP on this switch.
+* *Roles -> voice VLAN* set to the VLAN you want to assign to the VoIP devices connecting to this switch.
+* *RADIUS -> Secret Passphrase*: `useStrongerSecret`
+* *SNMP -> Version*: `v2c`
+* *SNMP -> Community Read*: `public`
+* *SNMP -> Community Write*: `private`
+
+==== 802.1X commands
+
+  show dot1x
+  show dot1x users
