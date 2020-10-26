@@ -6,7 +6,7 @@
 
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: images
+:imagesdir: https://github.com/inverse-inc/packetfence/tree/devel/docs/images
 endif::[]
 
 ////
