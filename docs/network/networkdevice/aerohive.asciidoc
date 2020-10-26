@@ -17,17 +17,14 @@ endif::[]
 ////
 
 
-Aerohive Networks
-~~~~~~~~~~~~~~~~~
+//=== Aerohive Networks
 
 Aerohive products are a bit different compared to the other vendors. They support either a local HiveManager (similar to a wireless controller) or a cloud-based HiveManager. However, the configuration is the same for the local and the cloud-based controller. Note that all the configurations are made on the HiveManager and then pushed to the APs.
 
 
-MAC Authentication and 802.1X Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== MAC Authentication and 802.1X Configuration
 
-Assumptions
-+++++++++++
+===== Assumptions
 
 [options="compact"]
 * the network architecture is in order to give acces to the Aerohive Access Point, and has access to Internet
@@ -45,8 +42,7 @@ Assumptions
 * Wireless AP: 172.16.1.1
 * RADIUS Secret: useStrongerSecret
 
-Configure the Aerohive APs and SSID
-+++++++++++++++++++++++++++++++++++
+===== Configure the Aerohive APs and SSID
 
 Logon to your HiveManager interface:
 
@@ -139,8 +135,7 @@ Push your configuration to your AP:
 
 NOTE: Aerohive have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*. The other way to support Roaming is to enable SNMP trap in the Aerohive configuration to PacketFence server. PacketFence will recognize the ahConnectionChangeEvent and will change the location of the node in his base.
 
-Configure PacketFence
-+++++++++++++++++++++
+===== Configure PacketFence
 
 We will now need to create a new switch in PacketFence to be able to manage the endpoints behind the Aerohive APs.
 
@@ -176,20 +171,17 @@ From _RADIUS_:
 
 This ends the PacketFence configuration.
 
-Web Auth (External Captive Portal) Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Web Auth (External Captive Portal) Configuration
 
 In this section we will describe the WebAuth configuration using PacketFence as an external captive poral.
 
-Assumptions
-+++++++++++
+===== Assumptions
 
 In this part, it is recommended that the default VLAN must be the native VLAN. This way, the AP and the others network equipments will be able to manage VLANs.
 
 You already have a Network Policy and at least one Access Point configured.
 
-Configure the external captive portal
-+++++++++++++++++++++++++++++++++++++
+===== Configure the external captive portal
 
 Create a new Captive Portal Profile:
 [options="compact"]
@@ -260,8 +252,7 @@ Push the configuration to the Access Point:
 * click on Update
 * wait until the AP is back online
 
-Configure PacketFence
-+++++++++++++++++++++
+===== Configure PacketFence
 
 Configure the _Production_ interface to send the _Portal_:
 [options="compact"]
@@ -272,8 +263,7 @@ Configure the _Production_ interface to send the _Portal_:
 
 image::pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
 
-MAC Authentication/802.1X and Web Auth Configuration 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== MAC Authentication/802.1X and Web Auth Configuration 
 
 In this case we want to be able to enable a MAC Authentication/802.1X and Web Auth SSID on the same wireless equipment. By default it's not possible to provide a MAC Authentication/802.1X SSID and a Web Auth SSID with the same switch configuration, but by using the _Switch Filters_ it will be possible to do it.
 
@@ -287,13 +277,11 @@ We will assume that we have an up and running SSID (_YourSecuredSSID_) already c
 
 Our SSID will be named _YourOpenSSID_, assuming that we want to provide a public Internet hotspot for example.
 
-Add a New SSID
-++++++++++++++
+===== Add a New SSID
 
 You should create a new SSID, has explained before, secured or open, as you need.
 
-Configure Filters in PacketFence
-++++++++++++++++++++++++++++++++
+===== Configure Filters in PacketFence
 
 Logon to your PacketFence server:
 [options="compact"]
@@ -319,11 +307,10 @@ Click on *SAVE*.
 
 NOTE: The default configuration in the _Switch filters_ for _ExternalPortalEnforcement_ is set to *N*
 
-Advanced Topics
+==== Advanced Topics
 ^^^^^^^^^^^^^^^
 
-Roles (User Profiles)
-+++++++++++++++++++++
+===== Roles (User Profiles)
 
 PacketFence supports user profiles on the Aerohive equipment.  To build a User Profile, go to *Configuration -> User Profiles*, and create what you need. When you define the switch
 definition in PacketFence, the role will match the User Profile attribute number. For example:

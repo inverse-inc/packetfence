@@ -16,25 +16,23 @@ endif::[]
 
 ////
 
-hostapd (OpenWrt Chaos Calmer 15.05)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//=== hostapd (OpenWrt Chaos Calmer 15.05)
 
-Introduction
-^^^^^^^^^^^^
+==== Introduction
+
 This section will provide an example for the configuration of an open SSID (not encrypted) and a secure SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You can not have both SSID configured on the same access point at the same time, there is a limitation with the DAE server.
 
-Assumptions
-^^^^^^^^^^^
+==== Assumptions
+
 * You have a configured PacketFence environment with working test equipment
 * The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
 * You have an access point with OpenWrt Chaos Calmer 15.05 installed
 
 
-Quick installation
-^^^^^^^^^^^^^^^^^^
+==== Quick installation
 
-Packages Installation
-+++++++++++++++++++++
+===== Packages Installation
+
 You can install the packages from the web interface of OpenWrt.
 
 Go to *System -> Software*
@@ -51,16 +49,16 @@ Do the same process for the wpad package version 2015-03-25-1.
 
 NOTE: You will need the packages hostapd-common and wpad if they are not installed by default.
 
-Dynamic VLAN Configuration
-++++++++++++++++++++++++++
+===== Dynamic VLAN Configuration
+
 Connect using SSH to the AP and create the file : /etc/config/hostapd.vlan
 
 ----
 *           wlan0.#
 ----
 
-Hostapd Configuration
-+++++++++++++++++++++
+===== Hostapd Configuration
+
 You will need to modify the hostapd script that comes with the package that we previously installed.
 
 Connect using SSH to the AP and run these commands:
@@ -73,8 +71,8 @@ curl --insecure  https://github.com/inverse-inc/packetfence/tree/devel/addons/ho
 wifi
 ----
 
-Configure the SSIDs
-+++++++++++++++++++
+===== Configure the SSIDs
+
 To configure the PF-Open SSID, we will edit the file /etc/config/wireless:
 
 ----
@@ -143,8 +141,8 @@ In order to apply this configuration, when you are connected using SSH on the AP
 
 NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the second SSID.
 
-PacketFence Configuration
-+++++++++++++++++++++++++
+===== PacketFence Configuration
+
 Log in to the PacketFence administration web page and go under *Configuration -> Policies and Access Control -> Switches -> Add switch*.
 
 Definition:
@@ -167,8 +165,7 @@ RADIUS:
 
 Save this configuration by clicking the 'Save' button.
 
-Troubleshoot
-++++++++++++
+===== Troubleshoot
 
 There are few things you can do/check to see if your configuration is working.
 

@@ -17,20 +17,17 @@ endif::[]
 ////
 
 
-CoovaChilli
-~~~~~~~~~~~
+//=== CoovaChilli
 
 This section has been created in order to help setting up a consumer grade access point running CoovaChilli integration with PacketFence to use UAM capabilities along with PacketFence feature set. 
 
-Assumptions
-^^^^^^^^^^^
+==== Assumptions
 
 * You have a CoovaChilli capable access point running LEDE/OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
 * A working PacketFence server, a CoovaChilli capable access point, and Internet is functional;
 * A PacketFence WebAuth enforcement setup will be deployed;
 
-Access Point and CoovaChilli Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Access Point and CoovaChilli Configuration
 
 We go ahead and start by configuring the access point and CoovaChilli running on it.
 
@@ -44,8 +41,8 @@ Also note that changes on the OpenWRT access point are done using SSH shell acce
 
 Please note that any interface name reference might be different from one equipment vendor to an other.
 
-Configure chilli
-++++++++++++++++
+===== Configure chilli
+
 chilli configuration might differ from one equipment vendor to an other one. Just make sure to follow these configuration guidelines and you should be all-set.
 
 * chilli configuration file can be found under
@@ -73,14 +70,14 @@ A startup script might be required depending on the equipment vendor. Again, a q
 
 Once set up, you might want to activate chilli at boot (by using the startup script) and finally, reboot the AP.
 
-PacketFence Configuration for CoovaChilli Integration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== PacketFence Configuration for CoovaChilli Integration
+
 Having a working PacketFence installation and a configured LEDE / OpenWRT access point running CoovaChilli, the last step is PacketFence configuration for CoovaChilli integration.
 
 To do so, login to the PacketFence web administration interface if it is not already done.
 
-Switch configuration
-++++++++++++++++++++
+===== Switch configuration
+
 Click on the 'Configuration' tab and select the 'Switches' menu option under the 'NETWORK' section on the left hand side.
 
 On the bottom of the page, click the 'Add switch to group' button then select the 'default' to bring up the 'New Switch' configuration modal window.
@@ -98,6 +95,6 @@ On the bottom of the page, click the 'Add switch to group' button then select th
 
 Click 'Save'
 
-Portal configuration
-++++++++++++++++++++
+===== Portal configuration
+
 It is required to disable HTTPS redirection by clicking the 'Configuration' tab and then the 'Captive portal' menu option on the left hand side. Make sure 'Secure redirect' is unchecked.
