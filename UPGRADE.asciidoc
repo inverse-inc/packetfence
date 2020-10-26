@@ -261,13 +261,6 @@ systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd service pf restart
 ----
 
-If you want to check your configuration has no errors before starting services, you can run a checkup using:
-
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd checkup
-----
-
 == Upgrading from a version prior to 7.0.0
 
 
