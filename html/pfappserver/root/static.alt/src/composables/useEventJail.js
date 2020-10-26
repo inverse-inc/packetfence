@@ -26,19 +26,19 @@ export default function useEventJail(el = ref(document)) {
     }
     if (isJailed)
       return
+    if (el.value.contains(document.activeElement))
+      return
     const { target } = e
-    if (el.value.contains(target)) {
-       el.value.focus({preventScroll: true})
-    }
+    if (el.value.contains(target))
+      el.value.focus({preventScroll: true})
   }, el)
 
   useEvent('mouseout', e => {
     if (!isJailed)
       return
     const { target } = e
-    if (el.value.isSameNode(target) || !el.value.contains(target)) {
+    if (el.value.isSameNode(target) || !el.value.contains(target))
       isJailed = false
-    }
   }, el)
 
   return isJailed

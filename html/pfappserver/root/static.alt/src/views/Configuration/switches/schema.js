@@ -17,6 +17,18 @@ yup.addMethod(yup.string, 'switchIdNotExistsExcept', function (exceptId = '', me
   })
 })
 
+const inlineTrigger = yup.object({
+  type: yup.string().nullable().required(i18n.t('Type required.')),
+  value: yup.string()
+    .when('type', {
+      is: 'always',
+      then: yup.string().nullable(),
+      otherwise: yup.string().nullable().required(i18n.t('Value required.')),
+    })
+})
+
+const inlineTriggers = yup.array().of(inlineTrigger)
+
 export const schema = (props) => {
   const {
     isNew,
@@ -30,6 +42,7 @@ export const schema = (props) => {
       .required(i18n.t('Identifier required.'))
       .switchIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
+    inlineTrigger: inlineTriggers.meta({ invalidFeedback: i18n.t('Inline conditions contains one or more errors.') })
   })
 }
 
