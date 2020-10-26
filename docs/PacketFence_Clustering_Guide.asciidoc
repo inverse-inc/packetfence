@@ -71,10 +71,12 @@ include::cluster/advanced_configuration.asciidoc[]
 
 
 // INCLUDES
-include::includes/additional-info.asciidoc[]
-include::includes/commercial-support.asciidoc[]
-include::includes/license.asciidoc[]
 
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
 
 == Appendix
 

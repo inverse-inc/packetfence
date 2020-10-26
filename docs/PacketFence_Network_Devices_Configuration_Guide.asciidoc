@@ -71,8 +71,11 @@ include::network/wireless_controllers_and_access_point_configuration.asciidoc[]
 include::network/vpn_configuration.asciidoc[]
 
 // INCLUDES
+
 include::includes/additional-info.asciidoc[]
+
 include::includes/commercial-support.asciidoc[]
+
 include::includes/license.asciidoc[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

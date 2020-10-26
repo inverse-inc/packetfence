@@ -153,8 +153,11 @@ include::installation/additional_integration.asciidoc[]
 include::installation/advanced_topics.asciidoc[]
 
 // INCLUDES
+
 include::includes/additional-info.asciidoc[]
+
 include::includes/commercial-support.asciidoc[]
+
 include::includes/license.asciidoc[]
 
 [appendix]

@@ -96,8 +96,11 @@ include::developer/contributing.asciidoc[]
 // paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand
 
 // INCLUDES
+
 include::includes/additional-info.asciidoc[]
+
 include::includes/commercial-support.asciidoc[]
+
 include::includes/license.asciidoc[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
