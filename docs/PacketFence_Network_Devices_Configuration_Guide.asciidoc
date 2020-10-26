@@ -48,11 +48,13 @@ These files are included in the package and release tarballs.
 
 == Note on Inline enforcement support
 
-include::network/note_on_inline_enforcement_support.asciidoc[]
+There is no need to follow the instructions in this guide if you plan on deploying in inline enforcement, except RADIUS inline. In this case all you need to do is to have a flat layer 2 network up to PacketFence's inline interface with no other gateway available for devices to reach out to the Internet. 
+
+This technique is usually used when your network hardware doesn't support VLAN enforcement.
 
 == Note on RADIUS accounting
 
-include::network/note_on_radius_accounting.asciidoc[]
+Enabling RADIUS accounting on your network devices will increase significantly your database size and can cause performance issues. You should be aware of this and use accounting only if you really need it.
 
 == List of supported Network Devices
 
