@@ -1,5 +1,9 @@
 // to display images directly on GitHub
 ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
 :imagesdir: ../images
 endif::[]
 
