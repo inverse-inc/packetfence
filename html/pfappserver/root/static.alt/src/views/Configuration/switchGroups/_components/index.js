@@ -1,0 +1,82 @@
+import {
+  BaseFormButtonBar,
+  BaseFormGroupChosenOne,
+  BaseFormGroupInput,
+  BaseFormGroupInputNumber,
+  BaseFormGroupInputPassword,
+  BaseFormGroupTextarea,
+} from '@/components/new/'
+import BaseFormGroupInlineTrigger from '../../switches/_components/BaseFormGroupInlineTrigger'
+import BaseFormGroupToggleNYDefault from '../../switches/_components/BaseFormGroupToggleNYDefault'
+import BaseFormGroupToggleStaticDynamicDefault from '../../switches/_components/BaseFormGroupToggleStaticDynamicDefault'
+import BaseFormGroupType from '../../switches/_components/BaseFormGroupType'
+import TheForm from './TheForm'
+import TheView from './TheView'
+
+export {
+  BaseFormButtonBar                       as FormButtonBar,
+
+  BaseFormGroupToggleNYDefault            as FormGroupCliAccess,
+  BaseFormGroupInputPassword              as FormGroupCliEnablePwd,
+  BaseFormGroupInputPassword              as FormGroupCliPwd,
+  BaseFormGroupChosenOne                  as FormGroupCliTransport,
+  BaseFormGroupInput                      as FormGroupCliUser,
+  BaseFormGroupInputNumber                as FormGroupCoaPort,
+  BaseFormGroupInput                      as FormGroupControllerIp,
+  BaseFormGroupChosenOne                  as FormGroupDeauthenticationMethod,
+  BaseFormGroupInput                      as FormGroupDescription,
+  BaseFormGroupInput                      as FormGroupDisconnectPort,
+  BaseFormGroupToggleNYDefault            as FormGroupExternalPortalEnforcement,
+  BaseFormGroupChosenOne                  as FormGroupGroup,
+  BaseFormGroupInput                      as FormGroupIdentifier,
+  BaseFormGroupInlineTrigger              as FormGroupInlineTrigger,
+  BaseFormGroupInput                      as FormGroupMacSearchesMaxNb,
+  BaseFormGroupInput                      as FormGroupMacSearchesSleepInterval,
+  BaseFormGroupChosenOne                  as FormGroupMode,
+  BaseFormGroupInputPassword              as FormGroupRadiusSecret,
+  BaseFormGroupTextarea                   as FormGroupRoleMapAccessList,
+  BaseFormGroupInput                      as FormGroupRoleMapRole,
+  BaseFormGroupInput                      as FormGroupRoleMapUrl,
+  BaseFormGroupInput                      as FormGroupRoleMapVlan,
+  BaseFormGroupInput                      as FormGroupSnmpAuthProtocolTrap,
+  BaseFormGroupInputPassword              as FormGroupSnmpAuthPasswordTrap,
+  BaseFormGroupInput                      as FormGroupSnmpCommunityRead,
+  BaseFormGroupInput                      as FormGroupSnmpCommunityTrap,
+  BaseFormGroupInput                      as FormGroupSnmpCommunityWrite,
+  BaseFormGroupInputPassword              as FormGroupSnmpAuthPasswordRead,
+  BaseFormGroupInput                      as FormGroupSnmpAuthProtocolRead,
+  BaseFormGroupInput                      as FormGroupSnmpAuthProtocolWrite,
+  BaseFormGroupInputPassword              as FormGroupSnmpAuthPasswordWrite,
+  BaseFormGroupInput                      as FormGroupSnmpEngineIdentifier,
+  BaseFormGroupInputPassword              as FormGroupSnmpPrivPasswordRead,
+  BaseFormGroupInputPassword              as FormGroupSnmpPrivPasswordTrap,
+  BaseFormGroupInputPassword              as FormGroupSnmpPrivPasswordWrite,
+  BaseFormGroupInput                      as FormGroupSnmpPrivProtocolRead,
+  BaseFormGroupInput                      as FormGroupSnmpPrivProtocolTrap,
+  BaseFormGroupInput                      as FormGroupSnmpPrivProtocolWrite,
+  BaseFormGroupInput                      as FormGroupSnmpUserNameTrap,
+  BaseFormGroupInput                      as FormGroupSnmpUserNameWrite,
+  BaseFormGroupInput                      as FormGroupSnmpUserNameRead,
+  BaseFormGroupChosenOne                  as FormGroupSnmpVersion,
+  BaseFormGroupChosenOne                  as FormGroupSnmpVersionTrap,
+  BaseFormGroupChosenOne                  as FormGroupTenantIdentifier,
+  BaseFormGroupType                       as FormGroupType,
+  BaseFormGroupInput                      as FormGroupUplink,
+  BaseFormGroupToggleStaticDynamicDefault as FormGroupUplinkDynamic,
+  BaseFormGroupToggleNYDefault            as FormGroupUseCoa,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleUrlMap,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleVlanMap,
+  BaseFormGroupToggleNYDefault            as FormGroupVoipEnabled,
+  BaseFormGroupToggleNYDefault            as FormGroupVoipLldpDetect,
+  BaseFormGroupToggleNYDefault            as FormGroupVoipCdpDetect,
+  BaseFormGroupToggleNYDefault            as FormGroupVoipDhcpDetect,
+  BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
+  BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
+  BaseFormGroupInput                      as FormGroupWebServicesUser,
+
+  TheForm,
+  TheView
+}
+
