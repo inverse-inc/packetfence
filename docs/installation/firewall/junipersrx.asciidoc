@@ -1,10 +1,24 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-Configuration of the Juniper SRX in PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//=== Juniper SRX
+
+==== Configuration of the Juniper SRX in PacketFence
 
 Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> JuniperSRX*.
 
@@ -15,8 +29,7 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> JuniperSR
 * *Port*: 8443
 * *Roles*: add the roles that you want to do SSO
 
-Step 1: webapi configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Step 1: webapi configuration
 
 You need to setup webapi management as follows
 
@@ -36,8 +49,7 @@ Next setup user entry settings
 Then you need to allow traffic from the PacketFence management interface to port you set up on webapi settings (i.e. 8443) on SRX device.
 
 
-Step 2: Verification
-^^^^^^^^^^^^^^^^^^^^
+==== Step 2: Verification
 
 For debuging the webapi set (disable it when you won't need it anymore):
 

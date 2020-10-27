@@ -1,14 +1,29 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-Configure the SEPM
-^^^^^^^^^^^^^^^^^^
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//=== Symantec SEPM
+
+==== Configure the SEPM
+
 Configure the necessary policies in your SEPM before the creation of the install package. This document does not cover the policy and group configuration. Please refer to Symantec's documentation for more information. This document will use the default policies and the default group for the package creation.
 
-Create the install package
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Create the install package
+
 Login in your SEPM console and then go in the 'Clients' tab on the left. Select the group your clients should belong and then click 'Add a client'.
 
 image::sepm-add-client.png[scaledwidth="100%",alt="SEPM - Creating a package"]
@@ -29,14 +44,13 @@ On the next page, confirm the settings and click 'Next'.
 
 Once the package is created go in the directory where you created the package and navigate your way to the 32 bit package. Then using an SCP or any other method, upload this file to `/usr/local/pf/html/captive-portal/content/sep.exe` on your PacketFence server. Do the same thing for the 64 bit package by uploading it to `/usr/local/pf/html/captive-portal/content/sep64.exe`.
 
-API access 
-^^^^^^^^^^
+==== API access 
+
 In order to configure the SEPM in PacketFence you will need to generate an OAuth2 access and refresh token so PacketFence can access the SEPM API.
 
 NOTE: The next steps use `192.168.1.100` as the SEPM address. Adapt the URLs to your own SEPM address.
 
-Create an application
-+++++++++++++++++++++
+===== Create an application
 
 On your computer open a browser and access https://192.168.1.100:8446/sepm.
 
@@ -50,8 +64,8 @@ Take note of the 'Client ID' and 'Client Secret' of your application
 
 image::sepm-app-config.png[scaledwidth="100%",alt="SEPM application configuration"]
 
-Generate the authorization code
-+++++++++++++++++++++++++++++++
+===== Generate the authorization code
+
 First you will access this page using your browser (replace `-clientid-` by your client ID that you got when creating the application)
 
     https://192.168.1.100:8446/sepm/oauth/authorize?response_type=code&client_id=-clientid-&redirect_uri=http://localhost/
@@ -59,8 +73,8 @@ First you will access this page using your browser (replace `-clientid-` by your
 Authorize the application and you will then be redirected to an unavailable page but the URL will contain the code in it's parameters (ex: `http://127.0.0.1/?code=wJ2RTE`).
 
 
-Generate the access and refresh token
-+++++++++++++++++++++++++++++++++++++
+===== Generate the access and refresh token
+
 We will now use the code at the end to generate the access and refresh token using another HTTP request that will be done in your browser. Replace `-clientid-` and `-clientsecret-` by the client id and secret of your application. Then add the code you got above at the end of this URL.
 
     https://192.168.1.100:8446/sepm/oauth/token?grant_type=authorization_code&client_id=-clientid-&client_secret=-clientsecret-&redirect_uri=http://localhost/&code=
@@ -72,10 +86,10 @@ You should now be presented with a JSON response that contains the access and re
  "refresh_token":"e03fd915-e9dd-45a6-a05a-e5a1c53c1ccd","expires_in":43199}
 ----
 
-Configure PacketFence
-^^^^^^^^^^^^^^^^^^^^^
-Create a new provisioner
-++++++++++++++++++++++++
+==== Configure PacketFence
+
+===== Create a new provisioner
+
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
 Click 'Add provisioner' then select sepm.
 
@@ -92,22 +106,21 @@ Now configure this new provisioner with the information you got above.
 * The 'Agent download uri' is the HTTP path where we placed the 32 bit package on step 2. In this example it should be `http://packet.fence/content/sep.exe` where `packet.fence` is the domain name of the registration website of your PacketFence server.
 * The 'Alt agent download URI' is the HTTP path where we placed the 64 bit package on step 2. In this example it should be `http://packet.fence/content/sep64.exe` where `packet.fence` is the domain name of the registration website of your PacketFence server.
 
-Add the provisioner to the profile
-++++++++++++++++++++++++++++++++++
+===== Add the provisioner to the profile
+
 Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default portal.
 Click 'Add Provisioner' and select the new SEPM provisioner that was created earlier.
 
 image::sepm-portal.png[scaledwidth="100%",alt="SEPM portal configuration"]
 
-Restart PacketFence
-+++++++++++++++++++
+===== Restart PacketFence
 
 In order to enable the boarding passthrough for the device enrollment, you will need to restart the iptables service of PacketFence.
 
 You can do this using the command line by doing `/usr/local/pf/bin/pfcmd service iptables restart` or in the administration interface under 'Status / Services'.
 
-Testing
-^^^^^^^
+==== Testing
+
 You can now test that the installation of the Symantec Endpoint Protection client is mandatory after the device registration.
 
 Connect a device to your test network and register like you normally would.
@@ -115,4 +128,3 @@ Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the Symantec Endpoint Protection client on your device.
 
 After you install the client click 'Continue'. If your access is enabled than this means the connectivity between PacketFence and the Symantec Endpoint Protection Manager is working.
-

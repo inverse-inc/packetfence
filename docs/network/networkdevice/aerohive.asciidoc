@@ -308,7 +308,6 @@ Click on *SAVE*.
 NOTE: The default configuration in the _Switch filters_ for _ExternalPortalEnforcement_ is set to *N*
 
 ==== Advanced Topics
-^^^^^^^^^^^^^^^
 
 ===== Roles (User Profiles)
 

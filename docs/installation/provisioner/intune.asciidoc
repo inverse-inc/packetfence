@@ -1,14 +1,29 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-Configure from the Azure portal
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+
+==== Configure from the Azure portal
+
 You will first need to connect to the Azure portal and be sure that you have the Intune licenses.
 
-Creating the application
-++++++++++++++++++++++++ 
+===== Creating the application
+
 Once you are logged in the portal you need to create an application to allow the access to the Graph API.
 
 Click on 'Azure Active Directory' and on 'App registrations' and on 'New registration'
@@ -34,11 +49,10 @@ The last thing, you need to add permissions on the API, to do that click on 'API
 
 And click on 'Grant admin consent for (Name of your app)'
 
-Configure PacketFence
-^^^^^^^^^^^^^^^^^^^^^
+==== Configure PacketFence
 
-Create a new provisioner
-++++++++++++++++++++++++
+===== Create a new provisioner
+
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
 Click 'Add provisioner' then select Microsoft Intune.
 
@@ -57,15 +71,15 @@ Now configure this new provisioner with the information you got above.
 * The 'Agent download URI' should be ok.
 * Authorized domains need to be adapted to allow the device to reach the download URI (per example google play needs multiple domains to be able to install the agent).
 
-Add the provisioner to the profile
-++++++++++++++++++++++++++++++++++
+===== Add the provisioner to the profile
+
 Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default portal.
 Click 'Add Provisioner' and select the new Microsoft Intune provisioner that was created earlier.
 
 image::intune-portal.png[scaledwidth="100%",alt="Intune portal configuration"]
 
-Testing
-^^^^^^^
+==== Testing
+
 You can now test that the installation of the Microsoft Intune client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
 At the end of the registration process, you will be presented a page asking you to install the Intune client on your device.

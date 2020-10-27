@@ -1,13 +1,27 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-Installation using XMLAPI
-^^^^^^^^^^^^^^^^^^^^^^^^^
+////
 
-Create a SSO role
-+++++++++++++++++
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//=== Palo Alto
+
+==== Installation using XMLAPI
+
+===== Create a SSO role
+
 You will first need to create an SSO role on the web interface on the PaloAlto firewall.
 
 Go to *Device -> Admin Roles -> Add*.
@@ -16,8 +30,8 @@ Create the role name 'SSO_Role', under the 'XML API' tab, enable everything and 
 
 image::doc-paloalto-SSO_Role.png[scaledwidth="100%",alt="Create a SSO Role in the PanOS"]
 
-Create the account in PAN-OS
-++++++++++++++++++++++++++++
+===== Create the account in PAN-OS
+
 Now you have created the role, you will associate an user with it.
 
 Go to *Device -> Administrators -> Add*.
@@ -32,8 +46,7 @@ Go to *Device -> Administrators -> Add*.
 
 image::doc-paloalto-create_xml_user.png[scaledwidth="100%",alt="Create a XML user in the PanOS"]
 
-Get the XML Key
-+++++++++++++++
+===== Get the XML Key
 
 Go on this URL: `https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser`.
 
@@ -49,8 +62,8 @@ LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0=
 </response>
 ----
 
-SSO Configuration in PacketFence
-++++++++++++++++++++++++++++++++
+===== SSO Configuration in PacketFence
+
 Now that we have the key, we will configure the PaloAlto firewall in PacketFence.
 
 Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*.
@@ -64,8 +77,7 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*
 
 image::doc-paloalto-cfg_sso_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in PacketFence"]
 
-Verification
-++++++++++++
+===== Verification
 
 Now we will check that PacketFence is sending information when a user registers on the portal. If the process worked, you will see the entry in the PaloAlto database.
 
@@ -79,27 +91,23 @@ IP              Vsys   From    User                             IdleTimeout(s) M
 192.168.100.10  vsys1  XMLAPI  domain\user1                     Never          Never     
 ----
 
-Installation using syslog
-^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Installation using syslog
 
 NOTE: This installation mode is not suggested unless you use the SSO for informational purposes (no enforcement). PacketFence will use easily spoofable UDP packets to communicate with the Palo Alto firewall. If you require encryption and origin validation of the SSO messages, please use the XML API.
 
-Create a filter
-+++++++++++++++
+===== Create a filter
 
 You will first need to create a filter to parse the SSO line that PacketFence will send. This can be done in 'User Identification->User Mapping'
 
 image::doc-paloalto-syslog-parse.png[scaledwidth="100%",alt="Syslog filter for Palo Alto SSO"]
 
-Assign the filter to a 'Monitored Server'
-+++++++++++++++++++++++++++++++++++++++++
+===== Assign the filter to a 'Monitored Server'
 
 Next, configure the filter to be used in a syslog receiver on the Palo Alto. In order to do so, go in 'User Identification->User Mapping' and configure a syslog sender.
 
 image::doc-paloalto-syslog-user-identification.png[scaledwidth="100%",alt="Syslog sender configuration"]
 
-SSO Configuration in PacketFence
-++++++++++++++++++++++++++++++++
+===== SSO Configuration in PacketFence
 
 Next you need to configure the firewall in PacketFence.
 
@@ -112,8 +120,7 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*
 * *Port of the service*: Ignore this parameter
 * *Roles*: add the roles that you want to do SSO with
 
-Verification
-++++++++++++
+===== Verification
 
 Now we will check that PacketFence is sending information when a user registers on the portal. If the process worked, you will see the entry in the PaloAlto database.
 

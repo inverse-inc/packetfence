@@ -1,10 +1,24 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-Download the agents
-^^^^^^^^^^^^^^^^^^^
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//=== SentinelOne
+
+==== Download the agents
 
 You will first need to download the SentinelOne agents in order to host them on the PacketFence server.
 
@@ -14,18 +28,15 @@ image::sentinelone-agent-download.png[scaledwidth="100%",alt="SentinelOne agent 
 
 NOTE: All files in `/usr/local/pf/html/common/` are accessible to users that are on the captive portal. Make sure you put the agents file there or in another user-accessible location.
 
-Create an API user
-^^^^^^^^^^^^^^^^^^
+==== Create an API user
 
 PacketFence will need a user on your SentinelOne instance in order to access the SentinelOne API. To create it, go in 'Settings->Users' and create a new user. Make sure, you note the password you put here for configuration in PacketFence.
 
 image::sentinelone-user.png[scaledwidth="100%",alt="SentinelOne user creation"]
 
-Configure PacketFence
-^^^^^^^^^^^^^^^^^^^^^
+==== Configure PacketFence
 
-Create a new provisioner
-++++++++++++++++++++++++
+===== Create a new provisioner
 
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
 Click 'Add provisioner' then select `SentinelOne`.
@@ -43,8 +54,8 @@ Where:
 * 'Windows agent download URI' is the URI on which the users should download the Windows agent. If you followed the path in this guide, it should be `/common/SentinelOne.exe`.
 * 'Mac OSX agent download URI' is the URI on which the users should download the Mapf::errorc OSX agent. If you followed the path in this guide, it should be `/common/SentinelOne.pkg`.
 
-Add the provisioner to the profile
-++++++++++++++++++++++++++++++++++
+===== Add the provisioner to the profile
+
 Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default connection profile.
 Click 'Add Provisioner' and select the new SentinelOne that was created earlier.
 
@@ -54,8 +65,8 @@ Once you have completed the configuration, you need to restart pfdns in order fo
 
   # /usr/local/pf/bin/pfcmd service pfdns restart
 
-Testing
-^^^^^^^
+==== Testing
+
 You can now test that the installation of the SentinelOne client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the SentinelOne client on your device.
@@ -64,4 +75,3 @@ After you install the client click continue. If your access is enabled then this
 PacketFence polls SentinelOne at a regular interval (30 seconds by default) to find devices that have uninstalled their agent. When it detects them as uninstalled, it automatically brings the device back to the portal so the agent is installed.
 
 Everytime your device connects to PacketFence using RADIUS, it schedules a provisioning check to occur 2 minutes after the connection (controlled via security event 1300002). If the agent is inactive on the device or was uninstalled, PacketFence will bring the device back to the portal so the agent is installed again or brought back to an active state.
-

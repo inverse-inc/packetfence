@@ -1,24 +1,38 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== PacketFence PKI
 
 This section has been created to give a quick start to configure the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
 
-Certificate Authority creation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== Certificate Authority creation
+
 
 You will need to create a new certificate authority. Go to the PacketFence web administration under the section Configuration -> Integration -> PKI -> Certificate Authorities and click on *New Certificate Authority*
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
-Here's a CA example:
-+++++++++++++++++++++
+===== Here's a CA example:
 
 image::packetfence-pki-ca_creation.png[scaledwidth="100%",alt="Certification authority creation"]
 
-Once you have created the CA, you should see the Root CA certificate displayed at the bottom of the page:
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+===== Once you have created the CA, you should see the Root CA certificate displayed at the bottom of the page:
 
 image::packetfence-pki-ca_created.png[scaledwidth="100%",alt="Certification authority config"]
 
@@ -26,18 +40,15 @@ Once done copy the certificate in the clipboard from the Certificate Authorities
 
 This will authorize the EAP TLS authentications using the PKI issued certificates.
 
-Template creation
-^^^^^^^^^^^^^^^^^
+==== Template creation
 
 Now you will need to create a certificate template that will gather all the settings for your certificate like the validity period or the certificate usage.
 
-Select the Certificate Authority previously created:
-++++++++++++++++++++++++++++++++++++++++++++++++++++
+===== Select the Certificate Authority previously created:
 
 image::packetfence-pki-template_menu.png[scaledwidth="100%",alt="Template configuration"]
 
-Here's a template example:
-++++++++++++++++++++++++++
+===== Here's a template example:
 
 image::packetfence-pki-template_creation.png[scaledwidth="100%",alt="Template configuration"]
 
@@ -45,25 +56,21 @@ Key usage clientAuth: To use your certificate for a client authentication.
 
 Key usage serverAuth: If you want to install your certificate on a server.
 
-P12 mail password emailed to the users:
-+++++++++++++++++++++++++++++++++++++++
+===== P12 mail password emailed to the users:
 
 image::packetfence-pki-template_password_email.png[scaledwidth="100%",alt="Template configuration"]
 
-Certificate creation
-^^^^^^^^^^^^^^^^^^^^^^
+==== Certificate creation
 
 image::packetfence-pki-certificate_menu.png[scaledwidth="100%",alt="Certificate creation"]
 
 image::packetfence-pki-certificate_creation.png[scaledwidth="100%",alt="Certificate creation"]
 
-Once it's created, you can send it to the email user or download the p12 format:
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+===== Once it's created, you can send it to the email user or download the p12 format:
 
 image::packetfence-pki-certificate_download.png[scaledwidth="100%",alt="Certificate creation"]
 
-PEM format
-^^^^^^^^^^
+==== PEM format
 
 The PacketFence PKI hand out PKCS12 certificates, if you want to convert your certificate to PEM format, you can use the commands:
 
@@ -72,18 +79,15 @@ openssl pkcs12 -in YourCert.p12 -nocerts -out YourCert.key -nodes
 openssl pkcs12 -in YourCert.p12 -out YourCert.pem -clcerts -nokeys
 ----
 
-Revoke a certificate
-^^^^^^^^^^^^^^^^^^^^
+==== Revoke a certificate
 
 If you revoke a certificate it can't be recovered and you would need to recreate a new one. You will need to specify a reason of the revokation.
 
-Click on the *Revoke* button on the certificate:
-++++++++++++++++++++++++++++++++++++++++++++++++
+===== Click on the *Revoke* button on the certificate:
 
 image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a certificate"]
 
-PKI Provider
-^^^^^^^^^^^^
+==== PKI Provider
 
 You can hand out certificate to non-BYOD device on a captive portal.
 
@@ -91,7 +95,6 @@ First, you would need to create the PKI provider that will query the PacketFence
 
 image::packetfence-pki-pki-provider_menu.png[scaledwidth="100%",alt="PKI Provider"]
 
-Create a certificate per user or per device mac address, this example will cover one certificate per device:
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+===== Create a certificate per user or per device mac address, this example will cover one certificate per device:
 
 image::packetfence-pki-pki-provider_creation.png[scaledwidth="100%",alt="PKI Provider"]

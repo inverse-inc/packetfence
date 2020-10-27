@@ -1,10 +1,24 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-Introduction
-~~~~~~~~~~~~
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Adding Inline Enforcement to Existing Installation
+
+=== Introduction
 
 The inline enforcement is a very convenient method for performing access control on older network equipment that is not capable of doing VLAN enforcement or that is not supported by PacketFence.
 
@@ -15,8 +29,8 @@ It is also now possible to use multiple inline interfaces. A node registered on 
 
 By default the inline traffic is forwarded through the management network interface but it is possible to specify another one by adding in `pf.conf` the option `interfaceSNAT` in inline section of the `pf.conf` configuration file. Alternatively, you can change this from 'Configuration->Network Configuration->Inline' in the 'SNAT Interface' section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option `nat=no` under one or more network sections (take care of the routing table of the PacketFence server).
 
-Preparating the Operating System
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Preparating the Operating System
+
 
 In order to build an inline deployment of PacketFence setup you need :
 
@@ -24,8 +38,7 @@ In order to build an inline deployment of PacketFence setup you need :
 * a switch port in the management network for the PacketFence server
 * a switch port in the inline network for the PacketFence server which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be connected
 
-Adding Inline Interface
-~~~~~~~~~~~~~~~~~~~~~~~
+=== Adding Inline Interface
 
 PacketFence can be configured right from the start using the PacketFence configurator for inline enforcement. In this example, we will continue building on top of our initial deployment by adding a new inline interface to our PacketFence installation.
 
@@ -63,8 +76,7 @@ Please refer to the following table for IP and subnet information :
 Finally, from _Status->Services_, restart the `haproxy-portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
-Network Devices
-~~~~~~~~~~~~~~~
+=== Network Devices
 
 In an inline configuration, the required configurations for network devices (desktops, tablets, printers, etc.) will be to make sure they can all communicate with PacketFence. In other words for a switch you will need to configure every ports on which devices will be connected using the access mode with all of them in the same inline network. Access point will be connected as device to be in the inline subnetwork. 
 
@@ -84,8 +96,7 @@ You should be in mode '#conf-t' if not execute 'configuration terminal' in your 
 
 Now you can connect any devices that you want to be in the inline network in any of the port you have just configured.
 
-Adding Connection Profile for Inline
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Adding Connection Profile for Inline
 
 Next thing we do is to add a new connection profile - for devices coming from the inline network. We want to show users the captive portal with our Null authentication sources.
 
@@ -97,8 +108,7 @@ From 'Configuration->Policies and Access Control->Connection Profiles', click on
 
 Then click on 'Save'.
 
-Testing the Inline Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Testing the Inline Configuration
 
 You can now test the registration process. In order to do so:
 
@@ -119,11 +129,9 @@ Once a computer has been registered:
 * from the web administrative interface, go under Nodes and make sure you see the computer as 'Registered'.
 * the computer has access to the network and the Internet.
 
-Advanced Inline Topics
-~~~~~~~~~~~~~~~~~~~~~~
+=== Advanced Inline Topics
 
-Traffic Shaping
-^^^^^^^^^^^^^^^
+==== Traffic Shaping
 
 It's possible to enable traffic shaping based on the role of the device. In order to enable it you need to go in 'Configuration -> Network Configuration -> Inline Traffic Shaping' and select the role you want to define a limit. Set a upload and download speed limit and save.
 

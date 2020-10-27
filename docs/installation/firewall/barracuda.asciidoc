@@ -1,10 +1,24 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-Configuration of the Barracuda in PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//=== Barracuda
+
+==== Configuration of the Barracuda in PacketFence
 
 Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> Barracuda*.
 
@@ -17,8 +31,8 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> Barracuda
 
 image::doc-barracuda-cfg_sso_pf.png[scaledwidth="100%",alt="Create the SSO agent in Barracuda"]
 
-Step 2: Verification
-^^^^^^^^^^^^^^^^^^^^
+==== Step 2: Verification
+
 For our example, when the user registers on the portal it will be registered and the role staff will be assigned. The PacketFence server will send a request to the Barracuda database.
 
 If you want to see if it's working, open an SSH access to your Barracuda and run this command following commands:
