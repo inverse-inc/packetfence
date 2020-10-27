@@ -5,7 +5,7 @@ import yup from '@/utils/yup'
 yup.addMethod(yup.string, 'switchIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
     name: 'switchIdNotExistsExcept',
-    message: message || i18n.t('Source exists.'),
+    message: message || i18n.t('Switch exists.'),
     test: (value) => {
       if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
       return store.dispatch('config/getSwitches').then(response => {
@@ -17,7 +17,7 @@ yup.addMethod(yup.string, 'switchIdNotExistsExcept', function (exceptId = '', me
   })
 })
 
-const inlineTrigger = yup.object({
+const schemaInlineTrigger = yup.object({
   type: yup.string().nullable().required(i18n.t('Type required.')),
   value: yup.string()
     .when('type', {
@@ -27,7 +27,7 @@ const inlineTrigger = yup.object({
     })
 })
 
-const inlineTriggers = yup.array().of(inlineTrigger)
+export const schemaInlineTriggers = yup.array().of(schemaInlineTrigger)
 
 export const schema = (props) => {
   const {
@@ -42,7 +42,7 @@ export const schema = (props) => {
       .required(i18n.t('Identifier required.'))
       .switchIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
-    inlineTrigger: inlineTriggers.meta({ invalidFeedback: i18n.t('Inline conditions contains one or more errors.') })
+    inlineTrigger: schemaInlineTriggers.meta({ invalidFeedback: i18n.t('Inline conditions contains one or more errors.') })
   })
 }
 

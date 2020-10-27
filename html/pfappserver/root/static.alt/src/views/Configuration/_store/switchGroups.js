@@ -58,7 +58,7 @@ const actions = {
   },
   getSwitchGroup: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.switchGroup(id).then(item => {
@@ -66,7 +66,7 @@ const actions = {
       api.switchGroupMembers(id).then(members => { // Fetch members
         commit('ITEM_UPDATED', { id, prop: 'members', data: members })
       })
-      return state.cache[id]
+      return JSON.parse(JSON.stringify(state.cache[id]))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err

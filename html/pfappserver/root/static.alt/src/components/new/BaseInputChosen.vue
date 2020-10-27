@@ -41,7 +41,6 @@
       :tag-placeholder="tagPlaceholder"
       :tag-position="tagPosition"
       :options-limit="optionsLimit"
-      :group-select="groupSelect"
       :internal-search="internalSearch"
       :preserve-search="preserveSearch"
       :preselect-first="preselectFirst"
@@ -161,6 +160,7 @@ export const setup = (props, context) => {
     trackBy,
     groupLabel,
     groupValues,
+    groupSelect,
     options,
     max,
     multiple
@@ -219,13 +219,17 @@ export const setup = (props, context) => {
     return groupValues.value
   })
 
-  // supress warning:
-  //  [Vue-Multiselect warn]: Max prop should not be used when prop Multiple equals false.
-  const bind = computed(() => {
-    return (unref(multiple))
+  // vue-multiselect hacks by omitting props
+  const bind = computed(() => ({
+    ...((multiple.value)
       ? { max: max.value }
-      : {}
-  })
+      : {} // `max` prop should not be used when prop `multiple=false`
+    ),
+    ...((groupLabel.value || groupValues.value)
+      ? { 'group-select': groupSelect.value }
+      : {} // `group-label` prop should not be used unless grouping is needed
+    )
+  }))
 
   // used by CSS to show vue-multiselect placeholder
   const isEmpty = computed(() => !value.value)
@@ -399,6 +403,35 @@ export default {
     .col-form-label {
       font-size: 80%!important;
     }
+    & > .multiselect__content {
+      & > .multiselect__element {
+        & > .multiselect__option--highlight {
+          background-color: var(--primary);
+          color: $dropdown-link-active-color;
+          &:after,
+          &:hover {
+            background-color: var(--primary);
+            color: var(--white) !important;
+          }
+        }
+        & > .multiselect__option--disabled {
+          background-color: var(--white) !important;
+          color: $input-placeholder-color !important;
+          pointer-events: auto;
+          cursor: not-allowed;
+        }
+        & > .multiselect__option--group {
+          background-color: var(--light) !important;
+          color: var(--primary) !important;
+          font-weight: 800;
+          /*
+          font-size: .7875rem;
+          line-height: 1.71429;
+          */
+          border-top: 1px solid $dropdown-border-color !important;
+        }
+      }
+    }
   }
   .multiselect--active:not(.multiselect--above) {
     .multiselect__content-wrapper {
@@ -415,22 +448,6 @@ export default {
       border-bottom-width: 0px;
       border-bottom-left-radius: 0 !important;
       border-bottom-right-radius: 0 !important;
-    }
-  }
-  .multiselect__option--group {
-    background-color: var(--secondary) !important;
-    color: var(--white) !important;
-    font-size: .7875rem;
-    font-weight: 800;
-    line-height: 1.71429;
-  }
-  .multiselect__option--highlight {
-    background-color: var(--primary);
-    color: $dropdown-link-active-color;
-    &:after,
-    &:hover {
-      background-color: var(--primary);
-      color: var(--white) !important;
     }
   }
 

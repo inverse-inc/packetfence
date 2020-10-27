@@ -62,7 +62,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.switche(id).then(item => {
       commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(item))
+      return JSON.parse(JSON.stringify(state.cache[id]))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err

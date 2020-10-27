@@ -27,7 +27,7 @@
 </template>
 <script>
 import { computed, toRefs, unref } from '@vue/composition-api'
-import { useFormProps } from '../_composables/useForm'
+import { useFormProps as props } from '../_composables/useForm'
 import FormTypeActiveDirectory from './FormTypeActiveDirectory'
 import FormTypeAdminProxy from './FormTypeAdminProxy'
 import FormTypeAuthorization from './FormTypeAuthorization'
@@ -95,8 +95,6 @@ const components = {
   FormTypeTwitter,
   FormTypeWindowsLive,
 }
-
-export const props = useFormProps
 
 export const setup = (props) => {
 

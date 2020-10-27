@@ -122,55 +122,75 @@
 
         <template v-else>
           <b-card v-show="supports(['RadiusDynamicVlanAssignment'])"
-            class="mb-3 pb-0" :title="$i18n.t('Role mapping by VLAN ID')"
+            class="mb-3 pb-0" no-body
           >
-            <form-group-toggle-vlan-map namespace="VlanMap"
-              :column-label="$i18n.t('Role by VLAN ID')"
-            />
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by VLAN ID'"></h4>
+            </b-card-header>
+            <div class="card-body pb-0">
+              <form-group-toggle-vlan-map namespace="VlanMap"
+                :column-label="$i18n.t('Role by VLAN ID')"
+              />
 
-            <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`" :namespace="`${role}Vlan`"
-              v-show="isVlanMap"
-              :column-label="role"
-            />
+              <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`" :namespace="`${role}Vlan`"
+                v-show="isVlanMap"
+                :column-label="role"
+              />
+            </div>
           </b-card>
 
           <b-card v-show="supports(['RoleBasedEnforcement'])"
-            class="mb-3 pb-0" :title="$i18n.t('Role mapping by Switch Role')"
+            class="mb-3 pb-0" no-body
           >
-            <form-group-toggle-role-map namespace="RoleMap"
-              :column-label="$i18n.t('Role by Switch Role')"
-            />
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by Switch Role'"></h4>
+            </b-card-header>
+            <div class="card-body pb-0">
+              <form-group-toggle-role-map namespace="RoleMap"
+                :column-label="$i18n.t('Role by Switch Role')"
+              />
 
-            <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" :namespace="`${role}Role`"
-              v-show="isRoleMap"
-              :column-label="role"
-            />
+              <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" :namespace="`${role}Role`"
+                v-show="isRoleMap"
+                :column-label="role"
+              />
+            </div>
           </b-card>
 
           <b-card v-show="supports(['AccessListBasedEnforcement'])"
-            class="mb-3 pb-0" :title="$i18n.t('Role mapping by Access List')"
+            class="mb-3 pb-0" no-body
           >
-            <form-group-toggle-access-list-map namespace="AccessListMap"
-              :column-label="$i18n.t('Role by Access List')"
-            />
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
+            </b-card-header>
+            <div class="card-body pb-0">
+              <form-group-toggle-access-list-map namespace="AccessListMap"
+                :column-label="$i18n.t('Role by Access List')"
+              />
 
-            <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
-              v-show="isAccessListMap"
-              :column-label="role"
-            />
+              <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
+                v-show="isAccessListMap"
+                :column-label="role"
+              />
+            </div>
           </b-card>
 
           <b-card v-show="supports(['ExternalPortal'])"
-            class="mb-3 pb-0" :title="$i18n.t('Role mapping by Web Auth URL')"
+            class="mb-3 pb-0" no-body
           >
-            <form-group-toggle-url-map namespace="UrlMap"
-              :column-label="$i18n.t('Role by Web Auth URL')"
-            />
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by Web Auth URL'"></h4>
+            </b-card-header>
+            <div class="card-body pb-0">
+              <form-group-toggle-url-map namespace="UrlMap"
+                :column-label="$i18n.t('Role by Web Auth URL')"
+              />
 
-            <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
-              v-show="isUrlMap"
-              :column-label="role"
-            />
+              <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
+                v-show="isUrlMap"
+                :column-label="role"
+              />
+            </div>
           </b-card>
 
         </template>
@@ -320,14 +340,12 @@
   </base-form>
 </template>
 <script>
-import { computed, ref, toRefs, unref } from '@vue/composition-api'
 import {
   BaseForm,
   BaseFormTab,
 
   BaseInputToggleAdvancedMode
 } from '@/components/new/'
-import schemaFn from '../schema'
 import {
   FormGroupCliAccess,
   FormGroupCliEnablePwd,
@@ -456,152 +474,9 @@ const components = {
   FormGroupWebServicesUser,
 }
 
-export const props = {
-  id: {
-    type: String
-  },
-  form: {
-    type: Object
-  },
-  meta: {
-    type: Object
-  },
-  isNew: {
-    type: Boolean,
-    default: false
-  },
-  isClone: {
-    type: Boolean,
-    default: false
-  },
-  isLoading: {
-    type: Boolean,
-    default: false
-  }
-}
+import { useForm, useFormProps as props } from '../_composables/useForm'
 
-export const setup = (props, context) => {
-
-  const {
-    form,
-    meta
-  } = toRefs(props)
-
-  const advancedMode = ref(false)
-  const schema = computed(() => schemaFn(props))
-
-  const switchGroup = computed(() => {
-    const { group } = unref(form)
-    return group
-  })
-
-  const supported = computed(() => {
-    const { type } = form.value
-    const { type: { allowed = [] } = {} } = meta.value
-    return allowed.reduce((_supports, group) => {
-      const { options = [] } = group
-      for (let i = 0; i < options.length; i++) {
-        const { [i]: { value, supports = [] } = {} } = options
-        if (value === type)
-          _supports = supports
-      }
-      return _supports
-    }, [])
-  })
-
-  const supports = (allowed) => {
-    if (advancedMode.value)
-      return true
-    for (let i = 0; i < allowed.length; i++) {
-      if (supported.value.includes(allowed[i]))
-        return true
-    }
-    return false
-  }
-
-  const isUplinkDynamic = computed(() => {
-    // inspect form value for `uplink_dynamic`
-    const { uplink_dynamic } = form.value
-    if (uplink_dynamic !== null)
-      return uplink_dynamic === 'dynamic'
-
-    // inspect meta placeholder for `uplink_dynamic`
-    const { uplink_dynamic: { placeholder } = {} } =  meta.value
-    return placeholder === 'dynamic'
-  })
-
-  const isAccessListMap = computed(() => {
-    // inspect form value for `AccessListMap`
-    const { AccessListMap } = form.value
-    if (AccessListMap !== null)
-      return AccessListMap === 'Y'
-
-    // inspect meta placeholder for `AccessListMap`
-    const { AccessListMap: { placeholder } = {} } =  meta.value
-    return placeholder === 'Y'
-  })
-
-  const isRoleMap = computed(() => {
-    // inspect form value for `RoleMap`
-    const { RoleMap } = form.value
-    if (RoleMap !== null)
-      return RoleMap === 'Y'
-
-    // inspect meta placeholder for `RoleMap`
-    const { RoleMap: { placeholder } = {} } =  meta.value
-    return placeholder === 'Y'
-  })
-
-  const isUrlMap = computed(() => {
-    // inspect form value for `UrlMap`
-    const { UrlMap } = form.value
-    if (UrlMap !== null)
-      return UrlMap === 'Y'
-
-    // inspect meta placeholder for `UrlMap`
-    const { UrlMap: { placeholder } = {} } =  meta.value
-    return placeholder === 'Y'
-  })
-
-  const isVlanMap = computed(() => {
-    // inspect form value for `VlanMap`
-    const { VlanMap } = form.value
-    if (VlanMap !== null)
-      return VlanMap === 'Y'
-
-    // inspect meta placeholder for `VlanMap`
-    const { VlanMap: { placeholder } = {} } =  meta.value
-    return placeholder === 'Y'
-  })
-
-  const roles = ref([
-    'registration',
-    'isolation',
-    'macDetection',
-    'inline'
-  ])
-  const { root: { $store } = {} } = context
-  $store.dispatch('$_roles/all').then(allRoles => {
-      roles.value = [
-        ...roles.value,
-        ...allRoles.map(role => role.id)
-      ]
-  })
-
-  return {
-    advancedMode,
-    schema,
-    switchGroup,
-
-    supports,
-    isUplinkDynamic,
-    isAccessListMap,
-    isRoleMap,
-    isUrlMap,
-    isVlanMap,
-    roles
-  }
-}
+export const setup = (props, context) => useForm(props, context)
 
 // @vue/component
 export default {
@@ -612,4 +487,3 @@ export default {
   setup
 }
 </script>
-

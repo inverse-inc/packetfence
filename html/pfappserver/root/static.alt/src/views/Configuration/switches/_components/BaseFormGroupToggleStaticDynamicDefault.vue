@@ -8,7 +8,7 @@ const components = {
   BaseFormGroupToggle
 }
 
-import { computed, toRefs } from '@vue/composition-api'
+import { computed } from '@vue/composition-api'
 import { useInput } from '@/composables/useInput'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'

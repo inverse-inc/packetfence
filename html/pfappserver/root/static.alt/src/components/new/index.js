@@ -1,4 +1,5 @@
 import BaseArray from './BaseArray'
+import BaseButtonDelete from './BaseButtonDelete'
 import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
@@ -69,6 +70,9 @@ export {
 
   // array wrapper
   BaseArray,
+
+  // buttons
+  BaseButtonDelete,
 
   // utils
   mergeProps
