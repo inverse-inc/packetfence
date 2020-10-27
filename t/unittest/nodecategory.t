@@ -37,6 +37,9 @@ is_deeply(
             v3 => { parent => "v2", max_nodes_per_pid => 1},
             v4 => { parent => "v3", acls => [qw(c d)], include_parent_acls => "enabled"},
             v5 => { parent => "v4"},
+            v6 => { parent => "v7"},
+            v7 => { parent => "v6"},
+            v8 => { parent => "v6"},
         }
     )]
     ,
