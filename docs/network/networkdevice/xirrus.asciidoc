@@ -1,0 +1,61 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Xirrus
+
+==== Xirrus WiFi Arrays
+
+Xirrus Access Points can be configured to work with PacketFence quickly since Xirrus supports RADIUS assigned VLANs out of the box.
+
+First, RADIUS server configuration. Set the RADIUS server to be PacketFence's IP: 
+
+  radius-server  ! (global settings)
+    !
+    external
+      primary     server 192.168.1.5
+      primary     secret useStrongerSecret
+      !
+      accounting
+        primary   server 192.168.1.5
+        primary   secret useStrongerSecret
+      exit
+    exit
+  exit
+
+Enable SNMP Agent on the access point:
+
+  snmp
+    !
+    v2
+      community read-write public
+      community read-only public
+    exit
+    !
+  exit
+
+Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
+
+===== External portal SSID
+
+* Set *Encryption / Authentication* to None / Open
+* Then check the WPR checkbox
+* Then in in the section Web Page Redirect Configuration set *Server* to External Login
+* Set the *Redirect URL* to http://192.168.1.5/Xirrus
+* Set the *Redirect Secret* to any passphrase of your choice
+* In the *RADIUS Configuration* section set the RADIUS server to point to your PacketFence server

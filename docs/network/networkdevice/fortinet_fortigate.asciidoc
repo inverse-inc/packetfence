@@ -1,0 +1,59 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Fortinet FortiGate
+
+This section shows how to configure a 802.1X SSID on a Fortigate 50E running on FortiOS 5.4.
+
+You will need to have the CLI access on the Fortigate to do the configuration.
+
+==== RADIUS
+
+ FGT50E # config user radius 
+ FGT50E (radius) # edit packetfence
+ new entry 'packetfence' added
+ FGT50E (packetfence) # set server 192.168.1.5
+ FGT50E (packetfence) # set secret useStrongerSecret
+ FGT50E (packetfence) # set nas-ip 192.168.1.1
+ FGT50E (packetfence) # set radius-coa enable 
+ FGT50E (packetfence) # config accounting-server 
+ FGT50E (accounting-server) # edit 1
+ new entry '1' added
+ FGT50E (1) # set status enable
+ FGT50E (1) # set server 192.168.1.5
+ FGT50E (1) # set secret useStrongerSecret
+ FGT50E (1) # end
+ FGT50E (packetfence) # end
+
+==== 802.1X SSID
+
+ FGT50E #config wireless-controller vap
+ FGT50E (vap) # edit PF-Secure
+ new entry 'PF-Secure' added
+ FGT50E (PF-Secure) # edit "PF-Secure"
+ FGT50E (PF-Secure) # set vdom "root"
+ FGT50E (PF-Secure) # set ssid "PF-Secure"
+ FGT50E (PF-Secure) # set security wpa2-only-enterprise
+ FGT50E (PF-Secure) # set auth radius
+ FGT50E (PF-Secure) # set radius-server "packetfence"
+ FGT50E (PF-Secure) # set schedule "always"
+ FGT50E (PF-Secure) # set local-bridging enable
+ FGT50E (PF-Secure) # set dynamic-vlan enable
+ FGT50E (PF-Secure) # end
+
