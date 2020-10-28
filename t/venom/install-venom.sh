@@ -11,7 +11,7 @@ VENOM_LATEST_VERSION=""
 VENOM_INSTALLED_VERSION=""
 VENOM_DIFF_VERSION=""
 INSTALL_BOO=0
-
+# Usage: VENOM_VERSION=0.28.0 ./install-venom.sh
 # Check requirements
 ## Who is running this script? If not root escape the installation
 username=$(id -nu)
