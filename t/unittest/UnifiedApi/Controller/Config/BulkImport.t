@@ -58,7 +58,7 @@ $fh->flush();
     has 'primary_key' => 'bulk_import_id';
 }
 
-use Test::More tests => 34;
+use Test::More tests => 38;
 use Test::Mojo;
 use Utils;
 
@@ -80,9 +80,19 @@ my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 my $collection_base_url = '/api/v1/config/bulk_imports';
 my $resource_base_url = '/api/v1/config/bulk_import';
 
-$t->post_ok("$collection_base_url/bulk_import" => json => { async => $true })
+$t->post_ok("$collection_base_url/bulk_import" => json => { async => $true, items => [ { id => "id_0", description => "Description 0", value_1 => "0" } ] })
   ->json_has("/task_id")
   ->status_is(202);
+
+my $json = $t->tx->res->json;
+my $task_id = $json->{task_id};
+ok($task_id, "Got the task ID");
+my $client = pf::api::unifiedapiclient->new();
+my $results = $client->call("GET", "/api/v1/pfqueue/task/$task_id/status/poll");
+
+is($results->{status}, 200);
+$t->delete_ok("$resource_base_url/id_0")
+  ->status_is(200);
 
 $t->post_ok("$collection_base_url/bulk_import" => json => {  })
   ->status_is(200);
