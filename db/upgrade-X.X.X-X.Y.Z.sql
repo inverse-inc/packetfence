@@ -73,7 +73,8 @@ ALTER TABLE activation
 
 \! echo "Altering admin_api_audit_log"
 ALTER TABLE admin_api_audit_log
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 \! echo "Altering auth_log"
 ALTER TABLE auth_log
@@ -81,7 +82,8 @@ ALTER TABLE auth_log
 
 \! echo "Altering dhcp_option82_history"
 ALTER TABLE dhcp_option82_history
-    MODIFY `dhcp_option82_history_id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `dhcp_option82_history_id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL;
 
 \! echo "Altering dhcppool"
 ALTER TABLE dhcppool
@@ -89,7 +91,8 @@ ALTER TABLE dhcppool
 
 \! echo "Altering dns_audit_log"
 ALTER TABLE dns_audit_log
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 \! echo "Altering ip4log_archive"
 ALTER TABLE ip4log_archive
@@ -113,19 +116,36 @@ ALTER TABLE locationlog_history
 
 \! echo "Altering pki_cas"
 ALTER TABLE pki_cas
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL;
 
 \! echo "Altering pki_certs"
 ALTER TABLE pki_certs
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `valid_until` `valid_until` datetime DEFAULT NULL,
+    CHANGE COLUMN `date` `date` datetime DEFAULT CURRENT_TIMESTAMP;
 
 \! echo "Altering pki_profiles"
 ALTER TABLE pki_profiles
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL;
 
 \! echo "Altering pki_revoked_certs"
 ALTER TABLE pki_revoked_certs
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `valid_until` `valid_until` datetime DEFAULT NULL,
+    CHANGE COLUMN `date` `date` datetime DEFAULT CURRENT_TIMESTAMP,
+    CHANGE COLUMN `revoked` `revoked` datetime DEFAULT NULL;
 
 \! echo "Altering radacct_log"
 ALTER TABLE radacct_log
@@ -133,7 +153,8 @@ ALTER TABLE radacct_log
 
 \! echo "Altering radius_audit_log"
 ALTER TABLE radius_audit_log
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 \! echo "Altering savedsearch"
 ALTER TABLE savedsearch
@@ -145,7 +166,8 @@ ALTER TABLE security_event
 
 \! echo "Altering sms_carrier"
 ALTER TABLE sms_carrier
-    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'primary key for SMS carrier';
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'primary key for SMS carrier',
+   CHANGE COLUMN `modified` `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'date this record was modified';
 
 \! echo "Creating remote_clients table"
 CREATE TABLE IF NOT EXISTS `remote_clients` (
@@ -153,11 +175,23 @@ CREATE TABLE IF NOT EXISTS `remote_clients` (
   tenant_id int NOT NULL DEFAULT 1,
   public_key varchar(255) NOT NULL,
   mac varchar(17) NOT NULL,
-  created_at datetime NOT NULL,
-  updated_at datetime NOT NULL,
+  created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY remote_clients_private_key (`public_key`)
 ) ENGINE=InnoDB;
+
+\! echo "Altering table billing"
+ALTER TABLE billing
+    CHANGE COLUMN `update_date` `update_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP;
+
+\! echo "Altering table dhcp_option82"
+ALTER TABLE dhcp_option82
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+\! echo "Altering table scan"
+ALTER TABLE scan
+   CHANGE COLUMN `update_date` `update_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
