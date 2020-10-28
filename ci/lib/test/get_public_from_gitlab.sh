@@ -2,7 +2,9 @@
 set -o nounset -o pipefail
 
 REPO_URL=https://gitlab.com/inverse-inc/packetfence/-/jobs/artifacts/devel/download?job=pages
-ZIP_FILE="/tmp/public.zip"
+ZIP_FILE=$(mktemp --suff=".zip")
+
+# get root of git directory
 DIR=$(pwd | grep -oP '.*?(?=ci/lib/test)')
 
 if ! type curl 2> /dev/null ; then
